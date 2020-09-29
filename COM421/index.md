@@ -4,4 +4,4 @@ These are the full notes for the *Data Structures, Algorithms and Mathematics* m
 
 ## Contents
 
--[Basic Data Structures](week1.md)
+1.    [Basic Data Structures](week1.md)

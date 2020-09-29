@@ -1,4 +1,4 @@
-# Week 1 - Basic Data Stuctures
+# Week 1 - Basic Data Structures
 
 This week we will be looking at some basic *data structures*, the array, the linked list and the stack, and looking at their relevance. We will also start some basic Python programming using inbuilt data structures.
 
@@ -282,7 +282,7 @@ a previous state. Examples could include:
 
 - Directory/folder structure. When navigating the folder system of your computer, you typically start at a 'root' folder (for example `C:\` on Windows, or your home directory on Linux) and then navigate to subfolders, for example `C:\Pictures`. You then might navigate to a sub-sub-folder, such as `C:\Pictures\Holiday` and then `C:\Pictures\Holiday\2018` and so on. In a subfolder you can navigate upwards to the previous folder, so that if you are in `C:\Pictures\Holiday` and you navigate upwards, you arrive at `C:\Pictures` and then `C:\` if you navigate upwards once more. So the process of navigating upwards *removes the current folder from the stack* and returns to the previous folder.
 
-- "Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then reoved from the stack.
+- "Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then removed from the stack.
 
 (In actual fact, each of these is now implemented in a slightly more complex way, in the sense that you can, in modern browsers, move both back and forwards along your history, but we are assuming a more simplified implementation in which you can only move back for the purposes of illustrating a stack).
 
