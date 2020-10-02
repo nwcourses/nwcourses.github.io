@@ -168,7 +168,7 @@ draw the second array again, with the three existing members "Linux", "Windows" 
 - Write a heading "Adding new members to new array". Under this heading, 
 draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.
 
-#### Disadvantage: insertion difficult
+#### Further disadvantage: insertion difficult (Further reading, not covered in class)
 
 What if we wanted to add a new member at a *specific position* in the array?
 For example, imagine we had an array of contacts that we wished to keep in 
@@ -252,7 +252,9 @@ memory locations of the previous and the following node.**
 
     Now try and add new elements "Android" and "iOS" to the end. What do you have to do?
 
-3.  Finally, think about adding a member into the middle of the list. Remember the ordered list of names:
+#### Further exercise, not covered in class
+
+Finally, think about adding a member into the middle of the list. Remember the ordered list of names:
 
         - Alex Acland
         - Bonnie Black
