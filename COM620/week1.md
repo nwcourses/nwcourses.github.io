@@ -109,7 +109,7 @@ main file of the application, and then the `module1.js` file will automatically
 load.
 
 We link a module in the same way as a regular JavaScript file, except we
-use `<script type='**module**'>`. Note that the main JavaScript file,
+use `<script type='module'>`. Note that the main JavaScript file,
 `index.js`, is itself a module. It's the 'main module' of the application and
 it's using another module, `module1.js`. For example:
 ```html
@@ -340,7 +340,7 @@ it is accessible to all applications on your system and all users. The
 `-g` option does this. (Normally, NPM packages are only installed locally into
 the project that needs them, within the project's `node_modules` folder).
 ```
-npm install -g webpack webpack-cli</pre>
+npm install -g webpack webpack-cli
 ```
 Here is the most simple usage:
 ```
