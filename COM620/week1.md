@@ -5,6 +5,11 @@ In this topic we will introduce *JavaScript modules* and also look at how
 a look at the `npm` package management tool and how it can make installing
 third-party dependencies easier.
 
+## Why?
+
+This topic is necessary to understand contemporary JavaScript development
+practice.
+
 ## Introduction - Why are modules needed?
 
 You have already done some JavaScript, in Developing for the Internet (where
@@ -418,7 +423,7 @@ the bundle in your web page.
 Here is how you would use `querystring`, assuming it's been imported as `qs`:
 
 ```javascript
- Split the current URL at the '?'. This will create an array, the first
+// Split the current URL at the '?'. This will create an array, the first
 // member being the URL before the '?' and the second member, the URL after
 // the '?'. So the second member of the array will be the actual query string.
 

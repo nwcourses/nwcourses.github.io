@@ -1,4 +1,14 @@
-## JavaScript and the Document Object Model (DOM)
+# JavaScript and the Document Object Model (DOM)
+
+## Why?
+
+The Document Object Model forms the basis of dynamic JavaScript, in which we
+can use JavaScript to update and manipulate a web page. The skills gained
+here will help you when it comes to VR/AR development with A-Frame, because,
+as you will see, A-Frame uses HTML tags and the same DOM techniques can be
+used to manipulate an A-Frame based VR/AR scene.
+
+## Basic DOM
 
 The *Document Object Model (DOM)* is an addressing system for web pages 
 (or XML documents, for those of you who have done XML).
