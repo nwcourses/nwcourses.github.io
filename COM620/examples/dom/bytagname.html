@@ -1,0 +1,36 @@
+<html>
+<head>
+<script type="text/javascript">
+function bytagname()
+{
+    /* Make a new paragraph (as before) */
+    var newElem = document.createElement('P');
+    var newText = document.createTextNode("This is the new paragraph!");
+    newElem.appendChild(newText);    
+    
+    /* Get an array of all the paragraphs */
+    var paras = document.body.getElementsByTagName("P");
+    
+    /* Replace the 5th paragraph. Remember arrays are indexed from
+       0. */
+    document.body.replaceChild (newElem,paras[4]);
+    
+}
+</script>
+<link rel="stylesheet" type="text/css" HREF="../../../css/dfti0910.css">
+</head>
+
+<body>
+<p>This example obtains an array of all the paragraphs in the page
+using <em>document.getElementsByTagName()</em>, then replacs the
+5th paragraph. <strong>Right click to view source</strong></p>
+<p>This is paragraph 2</p>
+<p>This is paragraph 3</p>
+<p>This is paragraph 4</p>
+<p>This is paragraph 5</p>
+<p>This is paragraph 6</p>
+<p>This is paragraph 7</p>
+<p>This is paragraph 8</p>
+<input type="button" value="Replace 5th paragraph!" onclick="bytagname()">
+</body>
+</html>
