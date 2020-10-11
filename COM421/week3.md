@@ -43,7 +43,7 @@ add another item - 99 - which is added to the back of the queue, in other
 words added to the internal array at index 1. Similarly, the next item - 7 - 
 is added to the internal array at index 2.
 
-As a consequence of this, we will **need a variable to represent the index in the internal array of the back of the queue**, so we know where to add elements. This variable will be 0 when the queue is empty, 1 after we have added 3, and 2 after we have added 99.
+As a consequence of this, we will **need a variable to represent the index in the internal array of the back of the queue**, so we know where to add elements. This variable will be 0 when the queue is empty, 1 after we have added 3, and 2 after we have added 99. In other words it is the index **one position beyond the back of the queue**. Can you see **why** it's better to point to the position beyond the back of the queue, rather than the back of the queue itself?
 
 What happens, though, when we *remove* an item? This happens next - we
 remove the front item on the queue (3). This results in *position 0
@@ -126,7 +126,7 @@ remove (), remove (), remove (), add (i), remove (), size().
 
 Try creating a `Queue` class to represent a queue. Like your `Stack` class
 this should contain an internal array. As we discussed above, *we also need
-two attributes to represent the indices of the front and the back of the
+two attributes to represent the front and the back of the
 queue*, because the queue shifts position within the internal array.
 
 You will also need a third attribute to represent the queue's capacity
@@ -140,3 +140,6 @@ Also give your class a `__str__()` method, so that you can easily print your
 queue to see what its internal state is. This should return the result of
 the `__str__()` method of the internal array (so you can see what is stored 
 in the array) and *also* the values of the front and back attributes.
+
+How can you efficiently implement the circular aspect, so that the front and
+back variables "wrap round" after reaching the end of the array?

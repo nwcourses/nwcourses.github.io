@@ -21,7 +21,7 @@ would move forward when the current "job" has finished printing.</p></li>
 <h2 id="implementingaqueue">Implementing a queue</h2>
 <p>How might we implement a queue? Let's start by going back to how we implemented a stack, using an underlying array. Can we do the same with a queue? The
 diagram below demonstrates this.</p>
-<p><img src="images/queues.png" alt="Queue with capacity of 5" /></p>
+<p><img src="images/queues.png" alt="Queue with capacity of 5" width="100%"/></p>
 <p>Note how the queue is implemented in this example using an internal array with
 a capacity of 5. When we add an item, the item is added to the first avaiable
 position in the internal array. So if the queue is empty, the item is added
@@ -32,7 +32,7 @@ better reflects a real-world queue, with new items added to the back</strong>).<
 add another item - 99 - which is added to the back of the queue, in other
 words added to the internal array at index 1. Similarly, the next item - 7 - 
 is added to the internal array at index 2.</p>
-<p>As a consequence of this, we will <strong>need a variable to represent the index in the internal array of the back of the queue</strong>, so we know where to add elements. This variable will be 0 when the queue is empty, 1 after we have added 3, and 2 after we have added 99.</p>
+<p>As a consequence of this, we will <strong>need a variable to represent the index in the internal array of the back of the queue</strong>, so we know where to add elements. This variable will be 0 when the queue is empty, 1 after we have added 3, and 2 after we have added 99. In other words it is the index <strong>one position beyond the back of the queue</strong>. Can you see <strong>why</strong> it's better to point to the position beyond the back of the queue, rather than the back of the queue itself?</p>
 <p>What happens, though, when we <em>remove</em> an item? This happens next - we
 remove the front item on the queue (3). This results in <em>position 0
 of the internal array becoming empty</em> so that the remaining queue - 99 and 7 -
@@ -62,7 +62,7 @@ of 5. However we have a problem because <em>we've reached the end of the interna
 array</em>. So we need to do something else.</p>
 <p>The diagram below shows a common approach, which is to implement a <strong>circular array</strong>. When we reach the back of the array, we start adding items to the <em>front</em> again. So if our queue occupies indices 2, 3 and 4, and we wish to add a fourth item, this will be added at <em>index 0</em> of the array. So the queue will now occupy indices 2,3,4 and 0 - in that order. If you try to visualise the array as having a circular rather than linear structure, this is probably easier to 
 understand. This is also shown on the diagram.</p>
-<p><img src="images/queues2.png" alt="Circular Queue" /></p>
+<p><img src="images/queues2.png" alt="Circular Queue" width="100%"/></p>
 <p>This shows how we add the fourth item (10) to index 0 as explained above, so
 that the queue occupies the array indices 2, 3, 4 and 0 in that order. Then
 we remove the front item of the queue, which is now 7, at index 2. <em>Make
@@ -97,7 +97,7 @@ remove (), remove (), remove (), add (i), remove (), size().
 <h2 id="exercise2coding">Exercise 2 - Coding</h2>
 <p>Try creating a <code>Queue</code> class to represent a queue. Like your <code>Stack</code> class
 this should contain an internal array. As we discussed above, <em>we also need
-two attributes to represent the indices of the front and the back of the
+two attributes to represent the front and the back of the
 queue</em>, because the queue shifts position within the internal array.</p>
 <p>You will also need a third attribute to represent the queue's capacity
 (the number of items it can hold).</p>
@@ -107,4 +107,6 @@ from the queue.</p>
 <p>Also give your class a <code>__str__()</code> method, so that you can easily print your
 queue to see what its internal state is. This should return the result of
 the <code>__str__()</code> method of the internal array (so you can see what is stored 
-in the array) and <em>also</em> the values of the front and back attributes.</p></body></html>
+in the array) and <em>also</em> the values of the front and back attributes.</p>
+<p>How can you efficiently implement the circular aspect, so that the front and
+back variables "wrap round" after reaching the end of the array?</p></body></html>
