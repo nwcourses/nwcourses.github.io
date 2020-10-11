@@ -1,0 +1,380 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1topic1javascriptmodules">Week 1 Topic 1 - JavaScript Modules</h1>
+<p>In this topic we will introduce <em>JavaScript modules</em> and also look at how
+<em>bundlers</em> such as <em>Webpack</em> can make our life easier. We will also take
+a look at the <code>npm</code> package management tool and how it can make installing
+third-party dependencies easier.</p>
+<h2 id="why">Why?</h2>
+<p>This topic is necessary to understand contemporary JavaScript development
+practice.</p>
+<h2 id="introductionwhyaremodulesneeded">Introduction - Why are modules needed?</h2>
+<p>You have already done some JavaScript, in Developing for the Internet (where
+we did some AJAX) and also in Internet Technology. However, so far, we have
+not created any large, complex JavaScript applications. So far, the approach
+has been to save your JavaScript in an external <code>.js</code> file, and include it
+into your HTML, e.g.</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
+</code></pre>
+<p>However, when writing larger and more complex JavaScript applications (such as those we will write in this module), you will find that this approach will quickly become difficult to manage, as you will write multiple JavaScript files and have to include <em>each one</em> in your HTML, for example:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script2.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script3.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script4.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script5.js'&gt;&lt;/script&gt;
+</code></pre>
+<p>As can be seen, this quickly becomes quite unmanageable and makes your
+HTML code very messy. Furthermore, many websites rely on <em>third party</em>
+JavaScript libraries - such as A-Frame, the VR and AR library we will be using
+in this module. These have to be included too, for example here we are including A-Frame as well as 5 of our own JavaScript files:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script2.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script3.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script4.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script5.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
+</code></pre>
+<p>Hopefully you can see that for a complex web application with many JavaScript files, you'll end up with half your HTML code being links to external script files!</p>
+<h3 id="abetterwaymodules">A better way: modules</h3>
+<p>Clearly another way is needed and luckily there is one: the JavaScript <em>module</em>. A module is a reusable piece of JavaScript which can be <em>imported</em> into other JavaScript files. There have been various approaches to modules;</p>
+<ul>
+<li><p><em>CommonJS modules</em>. This was the first widespread approach to using modules, and is still widespread today because it is the main approach taken by the server-side JavaScript environment <em>Node.js</em>. It can also be used in the browser through the use of a <em>bundling tool</em>, see below, and indeed is stil widely used in a browser environment.</p></li>
+<li><p><em>ECMAScript 6 modules</em> ("ECMA6 modules"). This approach is part of the recent ECMAScript 6 standard, a major revision to the ECMAScript specification which forms the basis of JavaScript. Unlike CommonJS modules, ECMAScript 6 modules are supported <em>natively by the browser</em> and do not require third-party tools to process. However, support has only recently been added to browsers, and similarly, support has only recently been added to Node.js, so uptake of ECMA6 modules has been slow. Additionally, much code has been already written with CommonJS modules, necessitating conversion of CommonJS to ECMA6.</p></li>
+</ul>
+<p>However, because they are now becoming mainstream and are supported by up-to-date browsers (and you should be using an up-to-date browser, otherwise it's a security risk) we will use them here.</p>
+<h2 id="anexampleecmascript6module">An example ECMAScript 6 module</h2>
+<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module.</p>
+<pre><code class="javascript language-javascript">function sayHello(name) {
+    console.log(`Hello ${name}!`);
+}
+
+function square(n) {
+    return n * n;
+}
+
+export { sayHello, square };
+</code></pre>
+<p>Note how this module contains two functions, <code>sayHello()</code> and <code>square()</code>, which display a greeting and calculate the square of a number, respectively. However the interesting thing is the statement at the end:</p>
+<pre><code class="javascript language-javascript">export { sayHello, square };
+</code></pre>
+<p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>module1.js</code>.</p>
+<p>A couple of other syntax points here, which you may not have encountered before:</p>
+<ul>
+<li><code>console.log()</code> writes a message to the developer console, which you can
+view by going to the developer tools of your browser.</li>
+<li>Note the backtick syntax in the <code>console.log()</code> statement when we write
+out the hello message. This is another ECMAScript 6 feature, and allows us to <em>embed variables directly inside a string</em> as long as the variable is surrounded by curly brackets <code>{}</code> and the curly brackets are preceded by a dollar sign <code>$</code>. (In fact, full expressions can be placed within the curly brackets).</li>
+</ul>
+<h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
+<p>We've created a simple module, but how might we use it from another file?
+We need to <code>import</code> the functions that have been exported. Here's an example. You can imagine this is the "main" JavaScript function of your application, in other words the file which runs when the page is first loaded. This is often named <code>index.js</code> by convention.</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import the two functions from the module. 
+// Note the './' before 'module1.js'. This means 'the current folder'
+import { sayHello, square } from './module1.js';
+
+// Call the sayHello() function from the module
+sayHello("Fred");
+
+// 'const' is a constant - like a variable, but can never change.
+const a = square(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<p>Note how we have to <em>import</em> the functions from the module before we can use
+them. This makes for easier-to-read code as we can tell exactly where the
+two functions <code>sayHello()</code> and <code>square()</code> have come from.</p>
+<h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
+<p>To actually make this code run, we need to link it to an HTML web page which
+can be executed from the browser. We link the <code>index.js</code> file as that is the
+main file of the application, and then the <code>module1.js</code> file will automatically
+load.</p>
+<p>We link a module in the same way as a regular JavaScript file, except we
+use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file,
+<code>index.js</code>, is itself a module. It's the 'main module' of the application and
+it's using another module, <code>module1.js</code>. For example:</p>
+<pre><code class="html language-html">&lt;html&gt;
+&lt;head&gt;
+&lt;script type='module' src='index.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+...
+</code></pre>
+<p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension
+(JavaScript module) rather than <code>.js</code>. However <code>.mjs</code> is not widely supported
+by browsers yet, so I'd advise you to use <code>.js</code>.</p>
+<h3 id="example2onlyimportingsomefunctions">Example 2: Only importing some functions</h3>
+<p>It's possible to only import <em>some</em> functions from a module. For instance
+this version of our <code>index.js</code> code:</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import sayHello() (only) from the module. 
+import { sayHello } from './module1.js';
+
+// Call the sayHello() function from the module
+sayHello("Fred");
+
+// This will not work now, as square() was not imported from the module
+const a = square(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
+<p>The code above works, but it can be a little messy to import each function
+separately. It would be nicer if we could <em>collect together all module
+exports as a single object</em>  so that the code is a bit more, well, 
+modular. The next <code>index.js</code> example shows this:</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import the two functions from the module into a module object.
+import * as MyModule from './module1.js';
+
+// Call the sayHello() function from the module
+MyModule.sayHello("Fred");
+
+const a = MyModule.square(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<p>Note how this differs from the first two examples. First, consider the
+<code>import</code> statement:</p>
+<pre><code class="javascript language-javascript">import * as MyModule from './module1.js';
+</code></pre>
+<p>Rather than importing each function separately, they are all being imported
+as a single <em>module object</em>, MyModule. You can reference each exported 
+function by referencing the module object name, then a dot, then the function
+name, for example <code>MyModule.sayHello(...)</code>. </p>
+<p>(To relate this to object-oriented programming, which we did in DFTI last year and you may have done elsewhere, <code>MyModule</code> is an <em>object</em> and <code>sayHello()</code> is a <em>method</em> of that object).</p>
+<h3 id="example4defaultexport">Example 4: Default export</h3>
+<p>If your module only needs to export one function or object, you can declare
+this as the <em>default export</em>. This is another way of achieving the effect of
+the previous example, with all exports from a module packaged into a single
+object. So here is an example of the module using a default export:</p>
+<pre><code class="javascript language-javascript">function _sayHello(name) {
+    console.log(`Hello ${name}! This is from a default export`);
+}
+
+function _square(n) {
+    return n*n;
+}
+
+export default {
+    sayHello: _sayHello,
+    square1: _square
+};
+</code></pre>
+<p>This exports a default object with two fields: The <em>sayHello</em> field is set
+equal to the function <em><em>sayHello()</em> (note that an underscore is a convention
+in JavaScript for a 'private' or 'internal function), and the <em>square</em> field
+is set equal to the function <em></em>square()</em>.</p>
+<p>We can then use the default export in our main module using:</p>
+<pre><code class="javascript language-javascript">import MyDefaultObject from './module1.js';
+</code></pre>
+<p>This will import the <em>default</em> export from the module as <code>MyDefaultObject</code>, so
+we can then call the methods with:</p>
+<pre><code class="javascript language-javascript">MyDefaultObject.sayHello('Fred');
+console.log(MyDefaultObject.square(9));
+</code></pre>
+<p>Contrast the import with Example 3, above, in which we manually grouped
+each separate import from the module into a module object in <code>index.js</code>. In that
+example, the grouping of imports into an object was done in <code>index.js</code>.
+ In this example, by contrast, we are grouping them in <code>module1.js</code> by creating
+a default export.</p>
+<h3 id="example5renamingexportedfunctions">Example 5: renaming exported functions</h3>
+<p>Finally, we can alias exported functions. We will return to the first
+example to illustrate this:</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import the two functions from the module. 
+// Note the './' before 'module1.js'. This means 'the current folder'
+import { sayHello as sh, square as sq } from './module1.js';
+
+// Call the sayHello() function from the module
+sh("Fred");
+
+// 'const' is a constant - like a variable, but can never change.
+const a = sq(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<p>Here we have renamed the exported <code>sayHello()</code> function as <code>sh()</code>, and the
+exported <code>square()</code> function as <code>sq()</code>.</p>
+<h3 id="exercise1">Exercise 1</h3>
+<p>Create a JavaScript module containing two functions, one to calculate your
+age from your year of birth, and another to calculate your year of birth from
+your age. Assume everyone was born on January 1st (yes, strange assumption - but it's to keep the exercise simple!)</p>
+<p>To get the current year, you create a <code>Date</code> object and then call 
+<code>getFullYear()</code> on the <code>Date</code> object, for example:</p>
+<pre><code class="javascript language-javascript">// Create a date object
+const d = new Date();
+
+// Display, in the console, the full year
+console.log(d.getFullYear());
+</code></pre>
+<p>Create a "main" module which imports the functions from this module,
+and contains some test code to call the two functions. You should calculate
+an age from a year of birth, and vice-versa. </p>
+<p>In your HTML page, create an <code>&lt;h1&gt;</code> heading reading "Test modules page" and
+two <code>&lt;span&gt;</code> elements to hold the two results
+(year of birth from age, and age from year of birth). Give each <code>&lt;span&gt;</code>
+an ID. Remember that you can set the content of an HTML element with 
+<code>innerHTML</code>, using code such as:</p>
+<pre><code class="html language-html">document.getElementById(id_of_element).innerHTML = 'Contents of element';
+</code></pre>
+<p>For privacy reasons, do <em>not</em> test it with your real year of birth or age.</p>
+<p>Note that you need to run your code through a web server in order to test 
+code which uses ECMA6 modules. Luckily, a simple web server can be installed
+through NPM, part of the Node.js distribution (see below for more details
+on NPM). Install it from your command line (e.g. DOS prompt) with:</p>
+<pre><code>npm install -g local-web-server
+</code></pre>
+<p>and then run it from the folder containing your web page with </p>
+<pre><code>npx ws
+</code></pre>
+<p>It will run a web server on port 8000, with the web root being the folder
+it was launched from. So, if you go to the browser and access</p>
+<pre><code>http://localhost:8000/
+</code></pre>
+<p>you should see your current folder.</p>
+<h2 id="bundlers">Bundlers</h2>
+<p>Using modules, as we have been doing, is a good way to organise your code
+and make it highly readable and understandable. However, when using 
+<em>third-party</em> code, another step is frequently required.</p>
+<p>The standard for installing third-party libraries, both in Node.js and for
+the browser, is <a href="https://npmjs.com">npm</a>. <code>npm</code> or Node Package Manager is a
+standard way to install third-party JavaScript software as <em>packages</em>. It's 
+equivalent to <code>composer</code> in PHP or <code>pip</code> in Python.</p>
+<p>An example of using <code>npm</code> would be as follows (you would run this in your
+shell prompt, e.g. the DOS prompt in Windows or a shell in Linux or Mac OS X).</p>
+<pre><code>npm install querystring
+</code></pre>
+<p>This installs the package <code>querystring</code>. (This is a useful package, as it 
+allows you to easily parse query strings from JavaScript). When a package
+has been installed, it is placed in a folder called <code>node_modules</code>. This 
+contains all NPM packages installed into your current project. (Evem though
+the name is <code>node_modules</code>, the approach is still used for client-side
+JavaScript).</p>
+<p>How do we import a third-party module? In this discussion, it is important
+to bear in mind that NPM and Node.js were originally built to use 
+CommonJS modules. These would be imported in this way:</p>
+<pre><code class="javascript language-javascript">const qs = require('querystring');
+</code></pre>
+<p>This is assigning the variable <code>qs</code> to the default object exported from the
+module <code>querystring</code>. The equivalent using ECMA6 modules would be:</p>
+<pre><code class="javascript language-javascript">import qs from 'querystring';
+</code></pre>
+<p>However, this does <em>not work as it stands.</em> The JavaScript interpreter
+is not able to magically examine the <code>node_modules</code> folder, find the
+<code>querystring</code> module from there, and import it. We need another tool, a
+<em>bundler</em>, for this. Bundlers create a single JavaScript file, or <em>bundle</em>,
+from multiple source files - and are intelligent enough to extract the
+correct <code>npm</code> package from your <code>node_modules</code> folder.</p>
+<p>Bundlers do other things too, for example they can include CSS assets too
+and perform a step known as <code>minification</code>, which is to convert your 
+JavaScript into a compressed form, which is unreadable but which leads to
+a considerably smaller file size - vital when downloading JavaScript on
+a mobile device when the signal may be poor.</p>
+<p>There are a number of tools - "bundlers" - 
+which can be used to easily include third-party dependencies.
+One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>. can
+transform code consisting of modules into a single "bundle" file which can
+be used directly in the browser. Webpack can be installed with npm. 
+As Webpack is a <em>development</em> tool, you want to install it <em>globally</em>, so that
+it is accessible to all applications on your system and all users. The
+<code>-g</code> option does this. (Normally, NPM packages are only installed locally into
+the project that needs them, within the project's <code>node_modules</code> folder).</p>
+<pre><code>npm install -g webpack webpack-cli
+</code></pre>
+<p>Here is the most simple usage:</p>
+<pre><code>npx webpack index.js
+</code></pre>
+<p>This will take the file index.js, and any modules it uses (along with any
+modules used by those modules) and prepare a single output file - a <em>bundle</em> - 
+which will, by default, be placed in the <code>dist</code> subfolder with the name
+<code>main.js</code>.  This can then be used directly in the browser e.g:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/main.js'&gt;&lt;/script&gt;
+</code></pre>
+<p>One key advantage of using a bundler like Webpack is that
+<em>the bundler automatically includes third-party NPM packages</em> in the
+bundle, if they are imported in your code with simple import statements such as:</p>
+<pre><code class="javascript language-javascript">import qs from `querystring';
+</code></pre>
+<p>which will import the default export from the <code>querystring</code> package as the
+variable <code>qs</code>.</p>
+<h3 id="webpackconfiguration">Webpack configuration</h3>
+<p>By default, Webpack will place its output in the file <code>main.js</code> within the <code>dist</code> folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.</p>
+<p>However it is possible to configure Webpack to change this behaviour, and
+this is done via the <code>webpack.config.js</code> configuration file. This is a 
+file, itself written in JavaScript, which allows you to modify Webpack's
+default behaviour. Here is an example:</p>
+<pre><code class="javascript language-javascript">const path = require('path');
+
+module.exports = {
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    }
+};
+</code></pre>
+<p>What is this doing?</p>
+<ul>
+<li>We specify the application's entry point (the JavaScript file where your
+application starts running) as <code>./index.js</code> (<code>index.js</code> in the current folder).
+This means you can run Webpack with</li>
+</ul>
+<pre><code class="javascript language-javascript">npx webpack
+</code></pre>
+<p>rather than</p>
+<pre><code class="javascript language-javascript">npx webpack ./index.js
+</code></pre>
+<p>because the configuration file has told Webpack that the entry point of the
+application will be <code>./index.js</code>. </p>
+<ul>
+<li>We then specify some output options. Firstly, the <code>path</code> is the folder where the output bundle will be placed. Here, we are specifying the output is the <code>dist</code> subfolder of the current folder, and the filename is <code>bundle.js</code>. So, the resulting bundle will be named <code>bundle.js</code> and not <code>main.js</code>.</li>
+<li>The <code>optimization</code> options allow us to specify various ways in which the
+output will be optimised. Here, we are turning minification off by setting
+the <code>minimize</code> option to <code>false</code>. This can be useful for debugging, as you
+will not get helpful error messages with a minified bundle file.</li>
+</ul>
+<p>There are many other things you can do with Webpack, for example you can
+include CSS inside your bundle for easy distribution. See the
+<a href="https://webpack.js.org">website</a> for more detail.</p>
+<h3 id="exercise2">Exercise 2</h3>
+<ul>
+<li>Write an HTML and JavaScript application (one HTML page, one JavaScript
+file) which makes use of the <code>querystring</code> module,
+which you have seen here. It should read the query string specified in the
+URL and display <code>title</code> and <code>artist</code> parameters within the query string.
+It should display the title and artist specified in the query string by
+displaying a message in a <code>&lt;div&gt;</code>, such as:</li>
+</ul>
+<pre><code>You entered the song: Life on Mars and the artist: David Bowie
+</code></pre>
+<p>Use <code>npm</code> and Webpack to install <code>querystring</code> build a bundle, and include
+the bundle in your web page.
+Here is how you would use <code>querystring</code>, assuming it's been imported as <code>qs</code>:</p>
+<pre><code class="javascript language-javascript">// Split the current URL at the '?'. This will create an array, the first
+// member being the URL before the '?' and the second member, the URL after
+// the '?'. So the second member of the array will be the actual query string.
+
+const urlParts = window.location.href.split('?');
+
+// Parse the query string into an object called 'get'
+const get = qs.parse(urlParts[1]);
+
+// We can now access the parameters with get.paramName, e.g. for the query string:
+// http://website/index.html?param1=value1&amp;param2=value2
+// we would access the parameters with get.param1 and get.param2.
+</code></pre>
+<ul>
+<li>The <code>validator</code> package allows you to perform common validations on
+input. Details <a href="https://www.npmjs.com/package/validator">here</a>.
+Using the examples on the package's NPM page to help you, use it to validate a simple signup form, with fields for name, email and chosen username. Write an HTML page containing this form, together with a JavaScript file which imports <code>validator</code> using ECMA6 
+module syntax and use it to validate the email and username fields (the 
+username can contain letters and numbers). It should display appropriate
+<code>alert</code> messages if any of the fields contain invalid data (the name can
+contain anything). You'll need to install
+<code>validator</code> using NPM and use webpack to create a bundle which can be included
+in your HTML web page.</li>
+</ul>
+<p>After doing that, import your year-of-birth-to-age module from Exercise 1
+into your main <code>index.js</code> file for this question, add a 'year of birth' field to the form, and use your Exercise 1 code to check whether the user is at least 18 (in addition to the validation you've already done with <code>validator</code>).</p></body></html>

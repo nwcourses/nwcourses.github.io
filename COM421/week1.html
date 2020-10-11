@@ -1,0 +1,235 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 - Basic Data Structures</h1>
+<p>This week we will be looking at some basic <em>data structures</em>, the array, the linked list and the stack, and looking at their relevance. We will also start some basic Python programming using inbuilt data structures.</p>
+<h2 id="theimportanceofdatastructures">The importance of data structures</h2>
+<p>First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
+<p>To store multiple items in a computer program, we need to choose an appropriate <em>data structure</em>. A data structure is a programming construct which allows us to store multiple items. When dealing with data structures, an important thing to consider is <em>which is the most appropriate data structure for the problem we are trying to solve</em>? Certain data structures are more suited to specific types of problem, and we will be looking at this through the module.</p>
+<h2 id="abasicdatastructurethearray">A basic data structure - the array</h2>
+<p>Let's start with the most basic data structure of all, the <em>array</em>. An array is a data structure which can hold more than one item of data, and can be thought of as a series of "boxes" which can hold data. With an array, the key thing is that <em>each box is adjacent to its neighbours in memory</em> which has some consequences in terms of efficiency which we will consider as we go on</p>
+<p>The diagram below shows an example of an array which holds the names of five items of fruit. </p>
+<p><img src="images/arrays.png" alt="An array" /></p>
+<p>The things to note here are:</p>
+<ul>
+<li><p>Arrays have <em>indices</em>. An <em>index</em> is a number which represents the <em>position</em> of an item in an array. In most programming languages, including Python, indices begin with <em>zero</em>. So the first item in the array has the index zero.</p></li>
+<li><p>The items in an array are stored <em>continuously in the computer's memory</em> and <em>each item in the array uses the same amount of memory</em>. Here we assume that each item uses 64 bytes, so that the first item is stored at memory address 512, the second at memory address 576 and so on. This has some important consequences for performance of arrays versus other data structures, to be considered later.</p></li>
+</ul>
+<p>This is a good point to introduce <em>algorithm complexity</em> with the "Big O" notation. We will look at algorithm complexity and "Big O" notation in more depth later in the module, but a quick introduction here. It is essentially a measure of the efficiency of code in terms of time taken, typically CPU time. Because arrays are stored continuously in memory, the process of indexing an array <em>does not depend on the number of items in the array</em> or, indeed, <em>what index (index 0, index 1, index 2, etc) we specify</em>. So we say that indexing an array is a <em>constant time</em> operation or <em>O(1)</em>.</p>
+<p>Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. We will explore this in the (paper) exercise below.</p>
+<h3 id="paperbasedexercise">Paper-based Exercise</h3>
+<p>You are writing a program to store employees for a company. It's a small company, with only 10 employees. Try drawing, on paper, an array containing these 10 
+employees. Draw each name in each position in the array, similar to the 
+diagram above containing an array of fruit.</p>
+<pre><code>John Stevenson
+Jane Smith
+Tim Wilson
+Kate Stevenson
+Kate Palmer
+Tom Eastman
+Laura Green
+Mike Watson
+Sally Black
+Mark Ramsey
+</code></pre>
+<p>Answer these questions:</p>
+<ul>
+<li><p>What would be the index of <code>Kate Stevenson</code> in this array? What about <code>Mike Watson</code>?</p></li>
+<li><p>If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing <code>Kate Stevenson</code>?</p></li>
+</ul>
+<h4 id="exploringtheproblemswitharrays">Exploring the problems with arrays</h4>
+<p>Let's say, though, the company takes on an 11th employee, <code>Chris Dean</code>. Do we have space in the array to fit this 11th employee? </p>
+<p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
+<ul>
+<li>We could <em>make the array bigger when we create it</em>. Try drawing an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. Looking at what you have drawn, <em>can you see the problem</em>? </li>
+</ul>
+<h2 id="workingwitharraysinpython">Working with arrays in Python</h2>
+<p>You will have been introduced to Python programming this week on another module, COM411. In this exercise, however, you will explore how to create and index a simple <em>array</em> in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the <em>list</em>, which is a flexible language component able to be used not just as an array but as various other data structures.</p>
+<p>For this reason we are not going to use the list, but use a code component that is a more accurate representation of an array, including the array's fixed-size limitation. This is part of the third-party Python package <a href="https://numpy.org">NumPy</a> which is the standard for mathematical computing in Python.</p>
+<p>When we code our own more complex data structures later, we will also use the NumPy array.</p>
+<h3 id="usingrepl">Using Repl</h3>
+<p>If you have had your COM411 class this week already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
+<p>You can login to Repl using your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
+<p>Once you have created a GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
+<p><img src="images/repl1.png" alt="Repl interface" /></p>
+<p>If you select the menu icon on the top left, you can select "New Repl". A Repl is a project - essentially, a single program. The idea is that you create a new Repl for each program you are going to write. You can then go back and view your previous Repls to load the code.</p>
+<p><img src="images/repl2.png" alt="New Repl" /></p>
+<p>Once you have done this, just enter the following Python code:</p>
+<pre><code class="python language-python">print("Hello World!")
+</code></pre>
+<p>Run the code and you should see the output appear in the console to the right:</p>
+<pre><code>Hello World!
+</code></pre>
+<p><img src="images/repl3.png" alt="Repl Console Output" /></p>
+<h3 id="creatingasimpleprogrammakinguseofanumpyarray">Creating a simple program making use of a NumPy array</h3>
+<p>Now create a new Repl, to allow you to write a program which makes use of a NumPy array. Enter this code.</p>
+<pre><code class="python language-python">import numpy
+operating_systems = numpy.array(["Linux", "Windows", "Mac OS X"])
+print(operating_systems[0])
+</code></pre>
+<p>Note a couple of things:</p>
+<ul>
+<li>We create the array using <code>numpy.array</code> and pass in a <em>sequence</em> of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.</li>
+<li>Note the code: <code>operating_systems[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
+<p>Once you have done so, extend your code so that "Mac OS X" is displayed (<em>by indexing the array</em>).</p>
+<p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
+<pre><code class="python language-python">operating_systems[3] = "Android"
+operating_systems[4] = "iOS"
+</code></pre>
+<p>Now run it. Do you get the result that you expected?</p>
+<h3 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h3>
+<h4 id="advantagefastlookup">Advantage: Fast lookup</h4>
+<p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.</p>
+<p>When indexing an array, the computer is able to work out where in memory the
+data is stored, <strong>because each member of a NumPy array uses up the same number of bytes</strong>. The equation is simply:</p>
+<pre><code>Address = Start Address + Index * Size Of One Member
+</code></pre>
+<p>So imagine, for example, that each member of an array uses up 32 bytes, and the start of the array is at memory location 24576. It's an easy
+calculation to work out where the member with the index of 3 is located. If
+we substitute the values into the equation we get:</p>
+<pre><code>Address = 24576 + 3 * 32
+</code></pre>
+<p>which is <code>24576 + 96</code>, which is <code>24672</code>.</p>
+<p>We ourselves do <em>not</em> need to do this calculation. The <em>computer</em> does it. But
+we can see, because it's simple arithmetic, the computer is able to do it
+very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
+numerical index</strong>.</p>
+<h4 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h4>
+<p>We have seen already from our paper exercise with arrays, that they are not
+so flexible if we need to add more data later. When we create an array, we have
+to either list all the data we want to store in the array, or alternatively
+specify its size. We cannot then add additional members onto the end of the
+array.</p>
+<p>If we wanted to add additional members onto an array, we would have to:</p>
+<ul>
+<li>Create an array of the new, larger, size;</li>
+<li>Copy all the existing members into the new array;</li>
+<li>Add the new members onto the end of the array.</li>
+</ul>
+<h5 id="exercise">Exercise</h5>
+<p>Do this exercise on paper. </p>
+<ul>
+<li>Draw a 3-member array containing the values "Linux", "Windows" and "Mac OS X".</li>
+<li>Draw a new, empty 5-member array with space for the two new values "Android" and "iOS". However, do not add these yet.</li>
+<li>Write a heading "Copying old array to new array". Under this heading.
+draw the second array again, with the three existing members "Linux", "Windows" and "Mac OS X" inserted in the first three places.</li>
+<li>Write a heading "Adding new members to new array". Under this heading, 
+draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.</li>
+</ul>
+<h4 id="furtherdisadvantageinsertiondifficultfurtherreadingnotcoveredinclass">Further disadvantage: insertion difficult (Further reading, not covered in class)</h4>
+<p>What if we wanted to add a new member at a <em>specific position</em> in the array?
+For example, imagine we had an array of contacts that we wished to keep in 
+alphabetical order, e.g:</p>
+<pre><code>Alex Acland
+Bonnie Black
+Charley Chase
+Earl Edwards
+Frances Freeman
+</code></pre>
+<h4 id="exercise-1">Exercise</h4>
+<p>Imagine we had a new name, <code>Danielle Dawson</code> which we wanted to insert between <code>Charley Chase</code> and <code>Earl Edwards</code> in the array above. Using a similar technique as the exercise above, try doing it on paper. Can you see the problem here?</p>
+<p>(<strong>Bonus point if anyone can figure out where the first names of these imaginary people come from; you need to be exact!</strong>)</p>
+<h2 id="moreflexibledatastructures">More flexible data structures</h2>
+<p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
+<p>In fact Python uses one such data structure, the <em>list</em>. A list is essentially an extensible array, which does not have a fixed initial size; you can add additional items of data to the end of the list, and keep doing so until the computer
+runs out of memory.</p>
+<h2 id="thelinkedlist">The linked list</h2>
+<p>We will start with a look at <em>linked lists</em>. Linked lists are unlike arrays
+in that they are <em>not</em> stored continuously in memory Instead, data is stored
+as a series of linked <em>nodes</em>. Each node contains one item of data, and links
+to the memory locations of the previous and the next item of data in the 
+linked list.</p>
+<p><img src="images/linkedlist.png" alt="Linked list diagram" /></p>
+<p>Each node has a link to the previous and the following node. When we add
+a new item of data, we make the previous node link to the new node, and
+we link the new node back to the previous node to form a two-way link.</p>
+<p>The first node in the list links to nothing in the reverse direction (indicated in Python by the special value <code>None</code>) and similarly, the final node in the list links to nothing in the forward direction.</p>
+<p>What are the consequences of this? We will examine this by considering the
+three scenarios we looked at for arrays:</p>
+<ul>
+<li>Remember how we could use simple arithmetic, using the array index, to 
+calculate the location in memory of a given element in an array. Can
+we do this here? <strong>We cannot. This is because, in a linked list, items are not 
+stored continuously in memory. Instead, each node contains references to the 
+memory locations of the previous and the following node.</strong></li>
+</ul>
+<h3 id="exercise-2">Exercise</h3>
+<ol>
+<li><p>Think about what you would have to do to search for a particular
+item in a linked list using its index, starting at the beginning. </p>
+<p>Draw out a linked list containing the 5 items of data: </p>
+<pre><code>- Linux
+- Windows
+- Mac OS X
+- Android
+- iOS
+</code></pre>
+<p>Imagine we wish to retrieve the item with index 3 (Android). How could we 
+do this? Draw out how you think it could be done on paper, and ask yourself:
+<strong>how efficient is this</strong>, particularly compared to doing the same thing with
+an array. </p>
+<p>Revisiting algorithm complexity and the "Big O" notation, what property does the efficiency of the operation depend upon?</p></li>
+<li><p>Remember with an array, that we had problems if we wanted to add new data
+to the array. We had to create a brand new array with more space, and copy the 
+old data into the new array before adding the new data. Think about doing the
+same thing with a linked list. Draw a linked list containing the elements </p>
+<pre><code>- Linux
+- Windows
+- Mac OS X
+</code></pre>
+<p>Now try and add new elements "Android" and "iOS" to the end. What do you have to do?</p></li>
+</ol>
+<h4 id="furtherexercisenotcoveredinclass">Further exercise, not covered in class</h4>
+<p>Finally, think about adding a member into the middle of the list. Remember the ordered list of names:</p>
+<pre><code>    - Alex Acland
+    - Bonnie Black
+    - Charley Chase
+    - Earl Edwards
+    - Frances Freeman
+
+Draw these as a linked list. Now try to add `Danielle Dawson` at the appropriate
+place between `Charley Chase` and `Earl Edwards`. What operations need to be
+done now? Would this be more or less efficient than using an array? Is this easy to tell? 
+</code></pre>
+<h2 id="thestack">The stack</h2>
+<p>A stack data structure involves adding items from bottom to top, rather like a
+stack of plates. When we remove items from the stack, we remove from the top,
+again just like a stack of plates.
+The stack is known as a "last in first out" or "LIFO" data structure.
+It is called this, because the last things we add to the stack, are the
+first things we remove. Here is an example of a simple stack of numbers.</p>
+<p><img src="images/stack.png" alt="Simple stack" /></p>
+<p>A stack can be used for any operation in which we need to navigate back to
+a previous state. Examples could include:</p>
+<ul>
+<li><p>Browser navigation. When we visit a website, we often need to navigate back to a previous site. When we click the 'Back' button, we want to return to the site <em>immediately preceding</em> the one we are currently viewing. So when you click 'Back', the current site might be <em>removed from the stack</em> so that you return to the previous site.</p></li>
+<li><p>Directory/folder structure. When navigating the folder system of your computer, you typically start at a 'root' folder (for example <code>C:\</code> on Windows, or your home directory on Linux) and then navigate to subfolders, for example <code>C:\Pictures</code>. You then might navigate to a sub-sub-folder, such as <code>C:\Pictures\Holiday</code> and then <code>C:\Pictures\Holiday\2018</code> and so on. In a subfolder you can navigate upwards to the previous folder, so that if you are in <code>C:\Pictures\Holiday</code> and you navigate upwards, you arrive at <code>C:\Pictures</code> and then <code>C:\</code> if you navigate upwards once more. So the process of navigating upwards <em>removes the current folder from the stack</em> and returns to the previous folder.</p></li>
+<li><p>"Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then removed from the stack.</p></li>
+</ul>
+<p>(In actual fact, each of these is now implemented in a slightly more complex way, in the sense that you can, in modern browsers, move both back and forwards along your history, but we are assuming a more simplified implementation in which you can only move back for the purposes of illustrating a stack).</p>
+<p>Another use of stacks, which you will appreciate more when you have done more programming, is:</p>
+<ul>
+<li>Storing function calls in a program.</li>
+</ul>
+<p>The two key operations of a stack, adding and removing items, have special
+terms.</p>
+<ul>
+<li><p><strong>Push</strong>. To <em>push</em> an item onto a stack means to add it to the top.
+It is possible the stack may only have a certain capacity, i.e. it can only hold
+a certain number of items (perhaps due to memory constraints) in which case an error occurs if the stack is full.</p></li>
+<li><p><strong>Pop</strong>. To <em>pop</em> an item off the stack means to remove it from the top.
+The item is removed, and we also obtain it as a result of the pop operation.
+If the stack is empty, an error is generated.</p></li>
+</ul>
+<p>An additional operation is:</p>
+<ul>
+<li><strong>Peek</strong>, To <em>peek</em> a stack is to obtain the value of the top-most item of the stack <em>without</em> removing it.</li>
+</ul>
+<h3 id="stacksexercise">Stacks Exercise</h3>
+<p>We are now going to perform another paper-based exercise with stacks, to help
+you understand them and their operations.</p>
+<p>Imagine you have an empty stack. Draw the stack after each operation
+below, and explain what, if anything is returned from each operation and
+any errors that might occur.</p>
+<p><code>push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().</code></p>
+<h2 id="readingfornextweek">Reading for next week</h2>
+<p>The notes for next week will appear by Monday morning. We will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on <em>Classes and Objects in Python</em>.</p></body></html>

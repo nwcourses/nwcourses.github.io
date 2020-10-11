@@ -1,0 +1,189 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week2implementationofbasicdatastructures">Week 2: Implementation of Basic Data Structures</h1>
+<h2 id="introduction">Introduction</h2>
+<p>Last week was a purely theoretical session in which we took a first look at some basic data structures, the <em>array</em>, the <em>linked list</em> and the <em>stack</em>. Today we will actually start implementing these in Python, beginning with the stack and continuing with the linked list.</p>
+<h2 id="introductiontopythonclassesandobjectsinthecontextofdatastructures">Introduction to Python classes and objects in the context of data structures</h2>
+<p>To effectively implement a data structure, such as a stack, requires the use of <em>classes and objects</em>. We are not going to cover this topic in any depth right now, as you will be introduced to it more fully in COM411. We are just going to look at as much as we need to, in order to understand how to create our own data structures.</p>
+<p>(Note that Python comes with an extensive range of built-in data structures, for example you can treat the standard <code>list</code> type as a stack and perform <code>push</code> and <code>pop</code> operations, but we are going to build them from scratch, in order to gain a deeper understanding of how the various data structures work.)</p>
+<p>See <a href="https://docs.python.org/3/tutorial/classes.html">the Python documentation</a> for classes and objects.</p>
+<h3 id="whatisaclass">What is a class?</h3>
+<p>(<strong>This is a simplified explanation. More depth will be provided in COM411.</strong>)</p>
+<p>A <code>class</code> can be thought of as a complex data type. Classes provide a way to define our own custom data structures. For example, we could create a <code>Stack</code> class to represent a stack, or a <code>LinkedList</code> class to represent a linked list. Classes contain two key components: </p>
+<ul>
+<li><p><code>Methods</code>. A method represents an action that you can perform with a class. For example, with a stack class, we could define <code>push</code> and <code>pop</code> methods. For a linked list, we could define an <code>addNode</code> method, to add a node onto the end of the linked list (and update the reference to the last node).</p></li>
+<li><p><code>Attributes</code>. An attribute represents an item of data associated with the class. Last week, we saw that a stack uses an array to store its data. So an attribute of a <code>Stack</code> class could be the underlying array. Likewise, a linked list contains references to the first and last nodes in the list. So these could be attributes of the <code>LinkedList</code> class. </p></li>
+</ul>
+<h3 id="whatisanobject">What is an object?</h3>
+<p>An object is a specific <strong>instance</strong> of a class, for example, a <em>specific</em> stack or linked list. A class can be thought of as a blueprint, or specification, for how a particular data structure should work. However an object is a <em>specific example</em> of that data structure.</p>
+<p>So, for example, we could define a Stack <em>class</em>, and then create two Stack <em>objects</em>. One Stack object could be used in a web browser and contain your browsing history, whereas another could be used in a paint program and represent each drawing operation you do, allowing you to undo them.</p>
+<p>Or, you could define a <code>LinkedList</code> class, and then have one <code>LinkedList</code> object to store students at a university, another to store courses, and yet another to store staff.</p>
+<h2 id="implementingastackusingaclass">Implementing a Stack using a class</h2>
+<p>Here is the start of a <code>Stack</code> class. Note that it does not actually act as
+a stack at the moment, but it provides the framework for how a stack operates;
+notice how it contains an array and <code>push()</code> and <code>pop()</code> methods.</p>
+<pre><code class="python language-python">class Stack:
+    def __init__(self):
+        self.internalArray = []
+
+    def push(self, item):
+        # Code to add an item to the stack will go here
+
+    def pop(self):
+        # Code to remove an item from the top of the stack will go here 
+
+    def __str__(self):
+        return self.internalArray.__str__()
+</code></pre>
+<p>How is this working?</p>
+<ul>
+<li><p>We define the class with the keyword <code>class</code> followed by the name of the class (<code>Stack</code> here). Note the colon and the indentation. The colon defines what is called a <em>code block</em>  - here, the definition of the class. Note how everything within that block is indented (This can be with a tab, or a given number of spaces - typically 4). The block ends as soon as the indentation ends. You have learnt about this in COM411 this week.</p></li>
+<li><p>Note how we list each <em>method</em>. We use the keyword <code>def</code> to define a method. (You will do functions in COM411 next week; a method is essentially a function within a class).</p></li>
+<li><p>Note how each method is itself a code block, so we use a colon and indent the code within the method.</p></li>
+<li><p>Note how we define three methods. We have <code>push()</code> and <code>pop()</code> to define the most fundamental operations of a stack. However we also have a third method, <code>__init()__</code>. What is this? It is a special <strong>initialisation method</strong>. It runs whenever an object of the class is first created, and can be used to initialise the object. Here, we are using it to create the underlying array associated with the stack (see below for more detail).</p></li>
+<li><p>Note how each method contains, as a parameter, the keyword <code>self</code>. What is this? It is a <em>reference to the current object that we're working with</em>. Remember from the discussion on objects, above, that we might have <em>multiple objects of a given class</em>, for example, multiple stacks all storing different data. <code>self</code> refers to <em>whichever object we are dealing with right now</em>.</p></li>
+<li><p>So, going back to <code>__init()__</code>, note how we are attaching an attribute <code>array</code> to the current object, with this code:</p></li>
+</ul>
+<pre><code class="python language-python">self.internalArray = []
+</code></pre>
+<p>Note the <code>[]</code> syntax. This creates an empty array. (Well actually, it doesn't; it creates an empty Python <em>list</em>. We could use a NumPy array here, but some of the syntax is more complex and I want to try and keep things as simple as possible at this early stage. But what we will do is treat the list as if it was a pure array. Feel free to read more on NumPy arrays and how to work with them in your own time!)</p>
+<ul>
+<li><p>Note how the <code>push()</code> method contains not just <code>self</code> but also another parameter, <code>item</code>. This is the item we want to add to the internal array.</p></li>
+<li><p>Note the fourth method, <code>__str()__</code>. This is another special method, rather like <code>__init()__</code>. This is a method which defines <em>how objects of a class are printed</em>. We might want to print our stack with:</p></li>
+</ul>
+<pre><code class="python language-python">print(stack)
+</code></pre>
+<p>What happens though when we try to print an object? By default we just get its memory address. Adding a <code>__str__()</code> method to a class allows us to return a string representation which can be understood. Here, we return the string representation of the internal array, so when we print the stack, we see the contents of the internal array.</p>
+<h3 id="exercise1">Exercise 1</h3>
+<ol>
+<li>You are going to complete the <code>Stack</code> class above and turn it into an actual stack, but first, here is a simple exercise to work with a Python list, just so you are happy with how it works.</li>
+</ol>
+<pre><code class="python language-python">a = []
+a.append(111)
+a.append(222)
+a.append(333)
+print(a)
+</code></pre>
+<p>Note how we create an empty list. A list is essentially an extensible array,
+and <code>append()</code> adds new items onto the end of it. So here, we create a list, add items to it, and print it.</p>
+<p>Create the program above and run it.</p>
+<p><strong>Note again that the Python list is quite powerful. Here, we are just treating it as a simple extensible array for the purposes of learning how to create a stack.</strong></p>
+<ol start="2">
+<li><p>Now create a separate program for your Stack. Write the <code>Stack</code> class as shown above, and try and complete the <code>push()</code> method of your <code>Stack</code> so that it takes the value passed to it, appends it to the internal array, and increases the <code>size</code> variable by 1.</p></li>
+<li><p>Test your <code>Stack</code> as follows by adding this code <em>below</em> the Stack class:</p></li>
+</ol>
+<pre><code class="python language-python">stack1 = Stack()
+stack1.push(1)
+stack1.push(4)
+stack1.push(9)
+print(stack1)
+</code></pre>
+<ol start="4">
+<li>Now write a <code>pop()</code> method. This should <code>return the last member of the internal array</code> and <code>remove it</code>. How do you do this? It's easier in Python than some other languages as Python features <em>negative indexing</em> in which index -1 always represents the <em>last</em> member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your <code>pop()</code> (remember to indent it appropriately!)</li>
+</ol>
+<pre><code class="python language-python">del self.internalArray[-1] # try to delete the last member of the array
+return self.internalArray[-1] # and return it so the outside world can access it
+</code></pre>
+<p>Does this work as you would expect a pop operation to? Test it by adding these lines to your test code (the code where you created the stack and pushed items
+onto it), which pops the stack twice and prints the value returned from each <code>pop()</code> operation:</p>
+<pre><code class="python language-python">popped1 = stack1.pop()
+print(popped1)
+popped2 = stack1.pop()
+print(popped2)
+</code></pre>
+<p>You will find it
+does not. Why? <strong>Try and fix the code yourself to get it to work!</strong></p>
+<ol start="5">
+<li>Create a <em>second</em> Stack object in your test code, and this time, push these
+items onto it:</li>
+</ol>
+<pre><code>Linux
+Windows
+Mac OS X
+</code></pre>
+<p>Again, print the stack and pop items off the stack. Does it work with strings as well as integers?</p>
+<ol start="6">
+<li><p>You need to display an error if you pop an empty stack.
+Using an <code>if</code> statement (you did these in COM411 this week), display an error
+message in <code>pop()</code> if the stack is empty.</p>
+<p>How can you tell whether the stack is empty? You can use the <code>len()</code> function.  <code>len()</code> gives you the length of an array or list, or string. For example, if
+<code>a</code> is an array or list, this <code>if</code> statement will test whether it is empty (has a length of 0).</p></li>
+</ol>
+<pre><code class="python language-python">if len(a) == 0:
+       print("a is empty")
+</code></pre>
+<ol start="7">
+<li>Create a <code>peek()</code> method for your Stack. Remember a <code>peek</code> operation should
+return the top item of the stack <em>without</em> removing it.</li>
+</ol>
+<p><strong>Advanced optional exercise</strong>: If you are coping with this module and COM411 well so far, and keen to do more programming, and want something to do in your own time, read about <em>exceptions</em> and handle the error instead by <em>raising an exception</em>. This would be how errors are handled in real-world implementations of stacks. Feel free to implement your stack using exceptions and send it to me for checking.</p>
+<h2 id="implementingalinkedlistusingclasses">Implementing a linked list using classes</h2>
+<p><em>I would expect you to be here at the start of the second class, 1500-1700.</em></p>
+<p>We've now implemented a simple stack. We'll now move on to implementing the
+other data structure we looked at last week - the linked list - in code. As
+you may remember, linked lists are a bit more complex than stacks so require
+a bit more effort to implement. In particular, we will now need <em>two</em> classes,
+not one:</p>
+<ul>
+<li><p>a <code>Node</code> class to represent an individual node. Remember that a node contains the actual data, plus links to the previous and next node.</p></li>
+<li><p>a <code>LinkedList</code> class to represent the linked list as a whole. Remember that
+this needs to contain references to the first and last nodes in the linked 
+list.</p></li>
+</ul>
+<h3 id="exercise2createanodeclass">Exercise 2: Create a Node class</h3>
+<ol>
+<li>Create a <em>new</em> Repl project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init()__</code> method which looks like this:</li>
+</ol>
+<pre><code class="python language-python">def __init__(self, data):
+       self.data = data
+       self.prev = None
+       self.next = None
+</code></pre>
+<p>What does this do? Remember we use <code>__init()__</code> to initialise an object of the class. A node needs to contain data. So this <code>__init__()</code> method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using <code>self.data = data</code>.</p>
+<p>Note how we initialise the <code>prev</code> and <code>next</code> attributes to <code>None</code>. These attributes represent the previous and next node. <code>None</code> is a special data type indicating that nothing exists yet; it will be appropriate here as we haven't linked this node to any others yet.</p>
+<ol start="2">
+<li>Add a <code>link()</code> method to your Node. This should link another node to the current node. Using the code examples you have seen so far, try to figure out how to pass the second node into the method. Then, link the second node with the current node using this code:</li>
+</ol>
+<pre><code class="python language-python">self.next = otherNode 
+otherNode.prev = self
+</code></pre>
+<ol start="3">
+<li><p>Add a <code>__str()__</code> method to Node which returns the value associated with the node.</p></li>
+<li><p>Create some test code which creates two nodes, <code>n1</code> and <code>n2</code>, for example;</p></li>
+</ol>
+<pre><code class="python language-python">n1 = Node("Fred")
+n2 = Node("Tom")
+</code></pre>
+<p>Note how we pass the data associated with each node ("Fred" and "Tom" here) when we create it. This will call our <code>Node</code> class's <code>__init__()</code> method, and set the variable <code>data</code> equal to whatever was passed in (Fred or Tom).</p>
+<ol start="5">
+<li><p>Now try printing <code>n1</code> and <code>n2</code> to prove that the nodes have been created separately.</p></li>
+<li><p>Now link <code>n2</code> to <code>n1</code>. To prove that the link has worked, try printing out all of these:</p></li>
+</ol>
+<pre><code>n1.prev
+n1.next
+n2.prev
+n2.next
+</code></pre>
+<h3 id="exercise3creatingthelinkedlistitself">Exercise 3: Creating the linked list itself</h3>
+<p>We have now created our <code>Node</code> class. We are now going to use it in a complete <code>LinkedList</code> class which will allow you to add nodes to a linked list, and access the linked list's first and last members.</p>
+<p><em>You can do this exercise in the same file as Exercise 2.</em> </p>
+<ol>
+<li><p>Create a LinkedList class. Its <code>__init__()</code> method should initialise two attributes, <code>self.first</code> and <code>self.last</code> to <code>None</code>. (These are the references to the first and last node in the list).</p></li>
+<li><p>Add an <code>add()</code> method to your linked list. This should add a <code>Node</code> to your linked list. To accomplish this, ask yourself:</p>
+<ul>
+<li>what does the new Node need to be linked to?</li>
+<li>what attribute of the LinkedList class needs to be updated?</li>
+<li>do you need to do anything special if the linked list is empty when we add a <code>Node</code> to it? If so, how can we tell if the <code>LinkedList</code> is empty?</li></ul></li>
+<li><p>Add a <code>get()</code> method to your linked list. This should take an index as a parameter, i.e. write it as:</p></li>
+</ol>
+<pre><code class="python language-python">def get(self, index):
+</code></pre>
+<p>and should search the linked list for the node at that index. Having found it, it should return it.</p>
+<p>If you are not sure how to do this, try and work it out with <em>pseudocode</em> first. Also you will need a <em>while loop</em> to solve this. While loops are being considered in COM411 this week. Here is a reminder of a simple while loop to count from 1 to 10:</p>
+<pre><code class="python language-python">count = 1
+while count &lt;= 10:
+       print(count)
+       count = count + 1
+</code></pre>
+<ol start="4">
+<li><p>Test out your linked list by creating three <code>Node</code> objects and adding them to your <code>LinkedList</code>. Once you've added them, try searching for them within the linked list using their index. </p></li>
+<li><p>Try searching for an index which does not exist in the linked list, such as index 10 for example. What happens? Change your code to handle this error.</p></li>
+</ol></body></html>
