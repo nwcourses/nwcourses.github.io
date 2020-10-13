@@ -263,7 +263,7 @@ function getAge(yearOfBirth) {
     const d = new Date();
 
     // Get the current year
-    const y = d.getFullYear());
+    const y = d.getFullYear();
 
     // Up to you to do... calculate the age
 
