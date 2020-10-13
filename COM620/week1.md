@@ -393,6 +393,7 @@ default behaviour. Here is an example:
 const path = require('path');
 
 module.exports = {
+    mode: 'development',
     entry: './index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -404,6 +405,9 @@ module.exports = {
 };
 ```
 What is this doing?
+- `mode` can be either `development` or `production`. This impacts upon the
+amount of minifying that takes place (less in development, more in production;
+debugging is easier with an unminified bundle)
 - We specify the application's entry point (the JavaScript file where your
 application starts running) as `./index.js` (`index.js` in the current folder).
 This means you can run Webpack with

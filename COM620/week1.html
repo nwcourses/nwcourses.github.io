@@ -222,7 +222,7 @@ your age. Assume everyone was born on January 1st (yes, strange assumption - but
     const d = new Date();
 
     // Get the current year
-    const y = d.getFullYear());
+    const y = d.getFullYear();
 
     // Up to you to do... calculate the age
 
@@ -328,6 +328,7 @@ default behaviour. Here is an example:</p>
 <pre><code class="javascript language-javascript">const path = require('path');
 
 module.exports = {
+    mode: 'development',
     entry: './index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -340,6 +341,9 @@ module.exports = {
 </code></pre>
 <p>What is this doing?</p>
 <ul>
+<li><code>mode</code> can be either <code>development</code> or <code>production</code>. This impacts upon the
+amount of minifying that takes place (less in development, more in production;
+debugging is easier with an unminified bundle)</li>
 <li>We specify the application's entry point (the JavaScript file where your
 application starts running) as <code>./index.js</code> (<code>index.js</code> in the current folder).
 This means you can run Webpack with</li>
