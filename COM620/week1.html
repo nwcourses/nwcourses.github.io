@@ -195,24 +195,47 @@ console.log(`The square of 3 is : ${a}`);
 <p>Here we have renamed the exported <code>sayHello()</code> function as <code>sh()</code>, and the
 exported <code>square()</code> function as <code>sq()</code>.</p>
 <h3 id="exercise1">Exercise 1</h3>
-<p>Create a JavaScript module containing two functions, one to calculate your
-age from your year of birth, and another to calculate your year of birth from
-your age. Assume everyone was born on January 1st (yes, strange assumption - but it's to keep the exercise simple!)</p>
-<p>To get the current year, you create a <code>Date</code> object and then call 
-<code>getFullYear()</code> on the <code>Date</code> object, for example:</p>
-<pre><code class="javascript language-javascript">// Create a date object
-const d = new Date();
-
-// Display, in the console, the full year
-console.log(d.getFullYear());
+<ol>
+<li>Create this web page.</li>
+</ol>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Modules&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Age from year of birth: &lt;span id='age'&gt;&lt;/span&gt;&lt;br /&gt;
+Year of birth from age: &lt;span id='yob'&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p>Create a "main" module which imports the functions from this module,
+<ol start="2">
+<li>Create a JavaScript module containing two functions, one to calculate your
+age from your year of birth, and another to calculate your year of birth from
+your age. Assume everyone was born on January 1st (yes, strange assumption - but it's to keep the exercise simple!)</li>
+</ol>
+<p>To get the current year, you create a <code>Date</code> object and then call 
+<code>getFullYear()</code> on the <code>Date</code> object. To illustrate this, I have started 
+(but not finished) the first function which needs to go in the module:</p>
+<pre><code class="javascript language-javascript">function getAge(yearOfBirth) {
+    // Create a date object
+    const d = new Date();
+
+    // Get the current year
+    const y = d.getFullYear());
+
+    // Up to you to do... calculate the age
+
+    // Up to you to do... return the age
+}
+</code></pre>
+<ol start="3">
+<li>Create a "main" module which imports the functions from this module,
 and contains some test code to call the two functions. You should calculate
-an age from a year of birth, and vice-versa. </p>
-<p>In your HTML page, create an <code>&lt;h1&gt;</code> heading reading "Test modules page" and
-two <code>&lt;span&gt;</code> elements to hold the two results
-(year of birth from age, and age from year of birth). Give each <code>&lt;span&gt;</code>
-an ID. Remember that you can set the content of an HTML element with 
+an age from a year of birth, and vice-versa. </li>
+</ol>
+<p>Display the results in the two <code>&lt;span&gt;</code> elements in the HTML.
+Remember that you can set the content of an HTML element with 
 <code>innerHTML</code>, using code such as:</p>
 <pre><code class="html language-html">document.getElementById(id_of_element).innerHTML = 'Contents of element';
 </code></pre>

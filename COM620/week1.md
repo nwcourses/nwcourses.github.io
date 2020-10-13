@@ -236,28 +236,47 @@ exported `square()` function as `sq()`.
 
 ### Exercise 1
 
-Create a JavaScript module containing two functions, one to calculate your
+1. Create this web page.
+```
+<!DOCTYPE html>
+<html>
+<head>
+<title>Modules</title>
+</head>
+<body>
+Age from year of birth: <span id='age'></span><br />
+Year of birth from age: <span id='yob'></span><br />
+</body>
+</html>
+```
+
+2. Create a JavaScript module containing two functions, one to calculate your
 age from your year of birth, and another to calculate your year of birth from
 your age. Assume everyone was born on January 1st (yes, strange assumption - but it's to keep the exercise simple!)
 
 To get the current year, you create a `Date` object and then call 
-`getFullYear()` on the `Date` object, for example:
+`getFullYear()` on the `Date` object. To illustrate this, I have started 
+(but not finished) the first function which needs to go in the module:
 ```javascript
-// Create a date object
-const d = new Date();
+function getAge(yearOfBirth) {
+    // Create a date object
+    const d = new Date();
 
-// Display, in the console, the full year
-console.log(d.getFullYear());
+    // Get the current year
+    const y = d.getFullYear());
+
+    // Up to you to do... calculate the age
+
+    // Up to you to do... return the age
+}
 ```
 
-Create a "main" module which imports the functions from this module,
+3. Create a "main" module which imports the functions from this module,
 and contains some test code to call the two functions. You should calculate
 an age from a year of birth, and vice-versa. 
 
-In your HTML page, create an `<h1>` heading reading "Test modules page" and
-two `<span>` elements to hold the two results
-(year of birth from age, and age from year of birth). Give each `<span>`
-an ID. Remember that you can set the content of an HTML element with 
+Display the results in the two `<span>` elements in the HTML.
+Remember that you can set the content of an HTML element with 
 `innerHTML`, using code such as:
 ```html
 document.getElementById(id_of_element).innerHTML = 'Contents of element';
