@@ -370,8 +370,12 @@ modules used by those modules) and prepare a single output file - a *bundle* -
 which will, by default, be placed in the `dist` subfolder with the name
 `main.js`.  This can then be used directly in the browser e.g:
 ```html
-<script type='text/javascript' src='dist/main.js'></script>
+<script type='text/javascript' src='dist/main.js' defer></script>
 ```
+(**Note the `defer` prevents the bundle loading until the page has been loaded.
+If you do not do this, the bundle will be loaded before the page, which means
+if you try to access HTML elements from your JavaScript, you will get errors.**)
+
 One key advantage of using a bundler like Webpack is that
 *the bundler automatically includes third-party NPM packages* in the
 bundle, if they are imported in your code with simple import statements such as:

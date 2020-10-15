@@ -310,8 +310,11 @@ the project that needs them, within the project's <code>node_modules</code> fold
 modules used by those modules) and prepare a single output file - a <em>bundle</em> - 
 which will, by default, be placed in the <code>dist</code> subfolder with the name
 <code>main.js</code>.  This can then be used directly in the browser e.g:</p>
-<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/main.js'&gt;&lt;/script&gt;
+<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/main.js' defer&gt;&lt;/script&gt;
 </code></pre>
+<p>(<strong>Note the <code>defer</code> prevents the bundle loading until the page has been loaded.
+If you do not do this, the bundle will be loaded before the page, which means
+if you try to access HTML elements from your JavaScript, you will get errors.</strong>)</p>
 <p>One key advantage of using a bundler like Webpack is that
 <em>the bundler automatically includes third-party NPM packages</em> in the
 bundle, if they are imported in your code with simple import statements such as:</p>
