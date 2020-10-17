@@ -1,0 +1,355 @@
+<p><!DOCTYPE html>
+<html>
+<head>
+<title>Week 2 - Introduction to A-Frame</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></p>
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+<p></head>
+<body></p>
+<h1 id="week2introductiontoaframe">Week 2: Introduction to A-Frame</h1>
+<h2 id="summary">Summary</h2>
+<p>This week we will start looking at <a href="https://aframe.io">A-Frame</a>, a leading framework for VR and AR on the web.</p>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://aframe.io">A-Frame</a> is a framework for developing web-based VR and AR
+applications, using only standard web technologies, in other words HTML and 
+JavaScript. No third-party plugins are required. A-Frame makes it very easy to
+create simple 3D scenes: indeed, for the most basic scenes, no JavaScript is
+needed - you can simply use HTML tags representing 3D shapes and define
+animations.</p>
+<p>A-Frame is actually a wrapper round lower-level 3D libraries: 
+<a href="https://www.khronos.org/webgl">WebGL</a> and <a href="https://threejs.org">Three.js</a>. 
+How do these fit in?</p>
+<h3 id="webglandthreejs">WebGL and Three.js</h3>
+<p>WebGL is a web implementation of the standard cross-platform API for 3D
+graphics, <a href="https://opengl.org">OpenGL</a>. OpenGL was originally written in C and 
+has been around since 1992, and was originally used on high-performance Unix
+workstations provided by companies such as Silicon Graphics. Later it was
+ported to other desktop environments such as Windows, Linux and the Mac.
+In 2009, with increasing interest in full-featured, "desktop-like" web
+applications, WebGL arrived and allowed development of 3D graphical applications
+in the web browser using JavaScript. It has been supported in Firefox, for 
+instance, since version 4.</p>
+<p>WebGL, however, is a very low-level programming API, and producing even
+code to show one single 2D triangle on the screen (never mind a 3D shape)
+is rather complex. For this reason, <a href="https://threejs.org">Three.js</a> arrived
+on the scene soon after WebGL. Three.js hides a lot of the low level details
+needed to create a 3D scene, allowing you to create and manipulate 3D shapes
+with higher-level code. However you still need to manage certain aspects of
+your application yourself, such as responding to key presses and updating the
+user's position within the 3D world, known as the <strong>camera</strong>. </p>
+<h3 id="whatdowemeanbythecamera">What do we mean by the camera?</h3>
+<p>It's important to not get confused by the terminology here. <strong>Camera</strong> in this
+context represents the user's current position, and direction of view, within
+the 3D world - not the actual hardware camera used to take pictures on the
+device. A VR application, using purely computer-generated content,
+would still have a <strong>camera</strong> in this context, representing the user or player's
+position. Throughout the rest of this week, and indeed until we start talking
+about AR, we will mean this camera when we use the word "camera".</p>
+<h2 id="aframe">A-Frame</h2>
+<p>A-Frame is one level higher still. A-Frame is a framework which implements 
+many of the standard actions of a 3D application automatically, for example:</p>
+<ul>
+<li>Moving the camera round the 3D world</li>
+<li>Rotating the camera</li>
+<li>Handling effects such as lighting </li>
+<li>Easily creating and manipulating simple 3D shapes with very little code</li>
+<li>Handling events easily (such as click events on a 3D shape)</li>
+</ul>
+<p>Furthermore, with A-Frame, we can define our 3D objects (known as 
+<em>primitives</em>) using HTML tags. For instance, we use <code>&lt;a-box&gt;</code> to create a 3D 
+box (or cube), <code>&lt;a-sphere&gt;</code> to create a 3D sphere, <code>&lt;a-cylinder&gt;</code> to create a 
+3D cylinder, <code>&lt;a-text&gt;</code> to create text, and so on.</p>
+<p>A-Frame objects live inside a <strong>scene</strong> (defined with the <code>&lt;a-scene&gt;</code> tag).
+The scene represents your 3D world. You just place this within your HTML
+page. Here is a simple example of an A-Frame scene, containing one sphere:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
+&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a-scene&gt;
+&lt;a-sphere position="0 0 -5" color="red"&gt;&lt;/a-sphere&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Try saving and running this. For this example you will <em>not</em> need to start
+a web server, you can just load the file in your browser and it will work.
+You should see a red sphere just in front of you. 
+Try moving around the world with the WASD keys and try rotating with the
+mouse. You should find that this works <em>automatically</em>, without needing to
+write any code to detect keys or mouse.</p>
+<p>Hopefully you can see how similar this code is to ordinary HTML. We are
+defining our 3D shapes using HTML tags, just like we would define ordinary
+HTML elements. Note how the <code>&lt;a-sphere&gt;</code> has two attributes, a <code>color</code>
+(which is self-explanatory) and a <code>position</code>, representing its position
+within the 3D world.</p>
+<p>What does the position (<code>0 0 -5</code>) actually represent though?</p>
+<h3 id="openglcoordinatesystem">OpenGL coordinate system</h3>
+<p>A-Frame is based on OpenGL, and since OpenGL is a 3D API, it uses three coordinates: x, y and z. It's important to realise that
+<em>x increases to the right, and y increases upwards</em> This is 
+different to the situation in 2D computer graphics, where y increases 
+downwards - but is the same as in standard maths.</p>
+<p>Because this is 3D graphics, we have a third axis, the z axis. You can
+think of this as pointing out at you from the screen, so that positive z
+coordinates are "out of the screen" and negative z coordinates are
+"into the screen". This is shown in the diagram below. </p>
+<p><img src="images/defaultview.png" alt="OpenGL default view" /></p>
+<p>So in this example, we place the sphere 5 units "into the screen", but
+level with the origin in the x and y directions.</p>
+<p>These coordinates represent the absolute position of the object within the 3D world - so called <em>world coordinates</em>. The <em>origin</em> of the world is where x=0,
+y=0 and z=0, and is the starting point of our camera within an A-Frame
+application unless we change something. </p>
+<h4 id="exercise1">Exercise 1</h4>
+<p>Try adding two more spheres: </p>
+<ul>
+<li>a green sphere two units to the left of the origin and two units "into the screen" relative to the origin, </li>
+<li>a blue sphere two units to the right of the origin and two units "into the
+screen" relative to the origin.</li>
+</ul>
+<p>Once you've done that try adding a third sphere:</p>
+<ul>
+<li>a yellow sphere level with the origin in the x and y direction but two units
+"out of the screen".</li>
+</ul>
+<h3 id="otherproperties">Other properties</h3>
+<p>So far we've looked at the <code>position</code> and <code>color</code> properties of our sphere.
+There are other properties too, for example <code>radius</code> will set the radius
+of a sphere.</p>
+<h4 id="exercise2">Exercise 2</h4>
+<ul>
+<li>Give the blue and green spheres a <code>radius</code> of 2. You should find they
+touch. This is what you should expect, as the blue sphere is 2 units to the
+left of the origin and the green sphere 2 units to the right, so the edge of
+each sphere, with a radius of 2, should reach the origin.</li>
+</ul>
+<p>There is also the <code>scale</code> property, which allows you to scale objects in the
+x, y, and z directions. For example:</p>
+<pre><code>&lt;a-sphere .... scale='2 2 2'&gt;
+</code></pre>
+<p>will have the same effect on a sphere as setting the <code>radius</code> to 2, as we
+are scaling equally in the x, y and z directions. However it is possible to
+scale differently in different axes, to produce a "stretch" effect - an oval
+shape in the case of a sphere, for example:</p>
+<pre><code>&lt;a-sphere .... scale='2 4 2'&gt;
+</code></pre>
+<p>will scale by two units in the x and z directions, but four units in the y
+direction - so the sphere will appear to be stretched vertically.</p>
+<h4 id="exercise3">Exercise 3</h4>
+<p>Try moving your red sphere to have a <code>z</code> coordinate of -10 and your yellow
+sphere to have a <code>z</code> coordinate of 10. Then, apply a 
+<code>scale</code> of <code>2 4 2</code> to your red sphere and <code>3 1 1</code> to your
+yellow sphere. Is the effect what you would expect?</p>
+<h3 id="boxes">Boxes</h3>
+<p>We'll now move on and create a different type of shape, the box. This can
+be created using the <code>&lt;a-box&gt;</code> tag but is otherwise fairly similar. For
+example: </p>
+<pre><code>&lt;a-box position='0 0 -2' color='orange'&gt;&lt;/a-box&gt;
+</code></pre>
+<p>The <code>&lt;a-box&gt;</code> can also have its <code>scale</code> adjusted.</p>
+<h4 id="exercise4">Exercise 4</h4>
+<ul>
+<li><p>Add an orange <code>&lt;a-box&gt;</code> to your scene at coordinates x=5, y=0, z=-10.
+Find it in your scene (you may need to move from the origin as the other
+shapes may be hiding it initially!)</p></li>
+<li><p>Scale it so that its height is three times its width (x direction) or
+depth (z direction).</p></li>
+</ul>
+<h3 id="rotation">Rotation</h3>
+<p>We can apply <em>rotations</em> to shapes, about the x, y, or z axes. These
+rotations are specified in degrees and are anticlockwise. To imagine 
+what is happening here, picture the 3D world and its three axes (x, y and z)
+and try and imagine rotating the shape around <em>that</em> axis.</p>
+<p>The rotations about the three axes are shown below.</p>
+<p><img src="images/axisrotation.png" alt="Axis rotations" /></p>
+<p>The animations below show the rotations about each axis.</p>
+<h4 id="xaxis">X-axis</h4>
+<p><a-scene embedded background='color: black' style='width: 320px; height: 240px'>
+<a-box scale="1 3 0.2" position="0 1 -5" animation="property: rotation; from: 0 0 0; to: 360 0 0; loop: true; dur: 5000" color="red"></a-box>
+</a-scene></p>
+<h4 id="yaxis">Y-axis</h4>
+<p><a-scene embedded background='color: black' style='width: 320px; height: 240px'>
+<a-box scale="1 3 0.2" position="0 1.5 -2.5" animation="property: rotation; from: 0 0 0; to: 0 360 0; loop: true; dur: 5000" color="green"></a-box>
+</a-scene></p>
+<h4 id="zaxis">Z-axis</h4>
+<p><a-scene embedded background='color: black' style='width: 320px; height: 240px'>
+<a-box scale="1 3 0.2" position="0 1 -2.5" animation="property: rotation; from: 0 0 0; to: 0 0 360; loop: true; dur: 5000" color="blue"></a-box>
+</a-scene></p>
+<h4 id="exercise5">Exercise 5</h4>
+<p>Create a <em>new</em> page with a <em>new</em> <code>&lt;a-scene&gt;</code>, as the first one will by now
+be rather cluttered with shapes. Create an <code>&lt;a-box&gt;</code> within this
+scene. It should have coordinates of x=0, y=0,
+z=-10 and its scale should be 5 in the x direction, 10 in the y direction
+and 1 in the z direction. Try each of these rotations in turn:</p>
+<ul>
+<li>45 degrees anticlockwise about the y axis;</li>
+<li>45 degrees clockwise about the y axis;</li>
+<li>45 degrees anticlockwise about the x axis;</li>
+<li>45 degrees clockwise about the x axis;</li>
+<li>45 degrees anticlockwise about the z axis;</li>
+<li>45 degrees clockwise about the z axis.</li>
+</ul>
+<p>Do you get the rotations you expect?</p>
+<h3 id="addingaplane">Adding a plane</h3>
+<p>The scenes so far might look a bit abstract as the shapes are just appearing
+in white space; there is no concept of <em>ground</em>. Luckily, A-Frame comes with
+another primitive which allows you to easily add a ground effect: the
+<em>plane</em>. A plane only has width and height in two dimensions, so can be used
+to show a flat surface. Also it is one-sided: its colour will only appear
+on its front face, not its back face.
+ This is represented using the <code>&lt;a-plane&gt;</code> tag:</p>
+<pre><code>&lt;a-plane position='0 0 -1' width='100' height='100' color='#7bcba4'&gt;&lt;/a-plane&gt;
+</code></pre>
+<p>Note the hex code for the colour. We can use hex codes in A-Frame just like we
+can in normal HTML elements. Just to give credit: this particular shade of
+green was taken from the basic A-Frame example on the A-Frame website.</p>
+<h4 id="exercise6">Exercise 6</h4>
+<p>Try adding the plane above to your scene. Do you get what you expect?
+Try moving forward with the 'w' key. What happens now? Try looking round
+by moving your mouse. Can you see the plane anywhere?</p>
+<h4 id="rotatingtheplane">Rotating the plane</h4>
+<p>The problem is that the plane, by default, is in what we call the <em>XY</em> plane,
+in other words the plane is that formed by the X and Y axes, and
+at a constant <em>z</em> position (z=-1). This means
+it will be upright rather than flat on the floor as we want.</p>
+<p>Also, when you moved forward with the 'w' key, you were moving towards negative 
+'z'. The plane by default is facing positive 'z', so when you're in front of
+it, it can be seen, but when you're behind it, it disappears completely - even
+if you look back.</p>
+<h4 id="exercise7">Exercise 7</h4>
+<p>Try to use an appropriate <code>rotation</code> property on the <code>&lt;a-plane&gt;</code> to make it
+appear on the ground - in other words, on the 'XZ' plane (the plane formed
+by the X and Z axes) - and facing upwards.</p>
+<h3 id="compoundentities">Compound entities</h3>
+<p>So far we have looked at simple, or primitive, shapes. However it is 
+possible to create more complex, or <em>compound</em> entities. You can use
+the <code>&lt;a-entity&gt;</code> tag to define an arbitrary entity and again, give this
+properties such as <code>scale</code>, <code>position</code> or <code>rotation</code>. Within the <code>&lt;a-entity&gt;</code>
+you can then create simple shapes. For instance:</p>
+<pre><code>&lt;a-entity position='2 0 -5'&gt;
+    &lt;a-box position='0 0.5 0' color='red' scale='1 2 1'&gt;&lt;/a-box&gt;
+    &lt;a-sphere position='0 2 0' color='blue'&gt;&lt;/a-sphere&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>This is defining a compound entity at position x=2, y=0, z=-5 within our 
+world. The entity contains, as <em>child elements</em>, an <code>&lt;a-box&gt;</code> and an
+<code>&lt;a-sphere&gt;</code>. Note the <code>position</code> properties of these child elements. These
+are <strong>relative to the compound entity's position</strong>, not the world. So the
+box will not appear just above the world origin, but at world coordinates x=2+0, y=0+0.5, z=-5+0 (z=2, y=0.5, z=-5). Likewise, the sphere will not appear at the world origin, but at world coordinates x=2+0, y=2+2, z=-5+0 (x=2, y=4, z=-5).</p>
+<p>To give another example of a compound entity, here is a shape made up of
+a blue sphere surrounded by four red boxes, making a cross-like shape.</p>
+<pre><code>&lt;a-entity position='2 0 -5'&gt;
+    &lt;a-sphere position='0 2 0' color='blue'&gt;&lt;/a-sphere&gt;
+    &lt;a-box position='0 0.5 0' color='red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='-1.5 2 0' color='red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='1.5 2 0' color='red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='0 3.5 0' color='red'&gt;&lt;/a-box&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>Again the world position of this entity is at x=2, y=0, z=-5, and the 
+coordinates of the four boxes and the sphere are relative to the world
+position of the entity.</p>
+<h4 id="exercise8">Exercise 8</h4>
+<p>Add the compound entity above to your scene, to get a feel for what it
+looks like.</p>
+<p>Then, write down the <strong>world</strong> x, y, and z coordinates of the sphere and four
+boxes.</p>
+<h4 id="rotatingandscalingacompoundentity">Rotating and scaling a compound entity</h4>
+<p>Furthermore, any rotations and scaling done to the compound entity will
+rotate or scale the <strong>compound entity as a whole</strong>. So if you were to
+add a rotation as shown below:</p>
+<pre><code>&lt;a-entity position='2 0 -5' rotation='0 0 45'&gt;
+    &lt;a-sphere position='0 2 0' color='blue'&gt;&lt;/a-sphere&gt;
+    &lt;a-box position='0 0.5 0' color='red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='-1.5 2 0' color='red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='1.5 2 0' color='red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='0 3.5 0' color='red'&gt;&lt;/a-box&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>the entire 'cross' shape would rotate anticlockwise by 45 degrees.</p>
+<h3 id="entitiesandcomponents">Entities and components</h3>
+<p>A-Frame consists of <em>entities</em> and <em>components</em> (along with <em>systems</em>, but we
+will come on to those later). An <strong>entity</strong> is any object within our scene - 
+including shapes, and other things within our scene such as the camera. 
+Entities include not just compound entities, but also simple shapes such as 
+boxes. 
+A <strong>component</strong> is an aspect, or property, of an entity, such as its geometry, 
+its surface material, or its animation. The primitives we have 
+seen so far, such as <code>&lt;a-box&gt;</code> and <code>&lt;a-sphere&gt;</code>, are actually wrappers round 
+entities and components. Components are written in code as attributes of
+entiies. </p>
+<p>For example, an <code>&lt;a-sphere&gt;</code> could be written instead as an 
+<code>&lt;a-entity&gt;</code> with a <code>sphere</code> geometry:</p>
+<pre><code>&lt;a-entity geometry='primitive: sphere' material='color: red' position='0 0 -5'&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>What does this code represent?</p>
+<ul>
+<li>it's a generic <code>&lt;a-entity&gt;</code>;</li>
+<li>it has a <code>geometry</code> component which is
+a <code>sphere</code> primitive (in other words it's a sphere);</li>
+<li>it has a <code>material</code> component with a red colour. An entity's <code>material</code> defines the properties of its surface. This includes not just colour but also properties such as shininess (how does it reflect background light? for example does it have a metal-like surface which reflects light eaily or a carpet-like surface which does not)</li>
+<li>it has a <code>position</code> component defining its position. We have seen this already.</li>
+</ul>
+<p>So the <code>&lt;a-entity&gt;</code> is the <strong>entity</strong>, and <code>geometry</code>, <code>material</code> and <code>position</code> are its <strong>components</strong>. With A-Frame, everything in a scene is an entity of some kind,
+and each entity has different components attached to it. A-Frame development is all about creating your own components and then attaching them to entities. The idea is to design components to be reusable so that they can be attached to different entities in different applications. You can see this with the <code>geometry</code> and <code>material</code> components in the example above; these components can be attached to any entity to define its geometry and surface material.</p>
+<h4 id="exercise9">Exercise 9</h4>
+<p>Change the four boxes and sphere within your compound entity (from the previous
+exercise) to be <code>&lt;a-entity&gt;</code>s with the geometry and colour defined using
+appropriate components.</p>
+<h3 id="animations">Animations</h3>
+<p>An interesting feature of A-Frame is the ability to create <em>animations</em>
+only using HTML code - no JavaScript is required. This is done by adding an
+<code>animation</code> component to an entity (either a primitive shape or a generic 
+<code>&lt;a-entity&gt;</code>). The animation component has various attributes including
+<code>property</code>, <code>from</code>, <code>to</code> <code>loop</code>, <code>dir</code>, and <code>dur</code>, amongst others,
+and can be used to animate various aspects of the entity including
+its position, scale, rotation and even colour (this is done by transitioning
+from one colour to another).
+The meaning of these are:</p>
+<ul>
+<li><code>property</code>: which property to animate (e.g. position, rotation, color)</li>
+<li><code>from</code>: the initial value of the property.</li>
+<li><code>to</code>: the final value of the property.</li>
+<li><code>loop</code>: whether to continuously loop the animation.</li>
+<li><code>dir</code>: the direction of animation. Can be set to <code>reverse</code> to do the animation in reverse, or <code>alternate</code> (if <code>loop</code> is true) to do the animation forwards,
+then reverse, then forwards, then reverse, and so on.</li>
+<li><code>dur</code>: the duration of the animation (in milliseconds)</li>
+</ul>
+<p>The full list is available <a href="https://aframe.io/docs/1.0.0/components/animation.html">on the A-Frame site</a>.</p>
+<p>Some examples include:</p>
+<pre><code>&lt;a-box animation='property: position; from: 0 0 0; to: 0 0 -10'&gt;
+</code></pre>
+<p>The box will move from the origin to position x=0, y=0, z=-10.</p>
+<pre><code>&lt;a-box animation='property: rotation; from: 0 0 -90; to: 0 0 90'&gt;
+</code></pre>
+<p>The box will rotate, starting from -90 about the z axis to +90 about the
+z-axis.</p>
+<pre><code>&lt;a-box animation='property: color; from: #ff0000; to: #0000ff; dur: 5000'&gt;
+</code></pre>
+<p>The box will undergo a colour transition from red to blue, through
+the intermediate colour (magenta). The colour transition will take 5 seconds
+to complete.</p>
+<h4 id="exercise10">Exercise 10</h4>
+<p>Create a further web page with another A-Frame scene and add an <code>&lt;a-box&gt;</code>
+at position x=0, y=0, z=-2.</p>
+<ol>
+<li><p>Via an animation, make the box rotate to 360 degrees about the z-axis 
+over a time scale of 5 seconds. (This is how you make something rotate
+a full circle; start at 0 and finish at 360).</p></li>
+<li><p>Change the animation so it continuously rotates in a loop. </p></li>
+<li><p>Change the animation so that it rotates from 0 to 180, then 180 back to
+0, then 0 to 180, then 180 to 0, and so on - continuously in a loop.</p></li>
+<li><p>Add a second animation which changes the colour from <code>#ff0000</code> to
+<code>#00ff00</code> but over a period of 10 seconds.</p></li>
+<li><p>Add your 'cross' compound entity from the previous scene into this
+scene. Make it animate from y=0 to y=5, back to y=0, back to y=5, back to
+y=0 and so on (so it continuously 'takes off' and 'lands') over a time
+period of 5 seconds.</p></li>
+</ol>
+<h2 id="ifyoufinish">If you finish</h2>
+<p>Look at the <a href="week1a.html">DOM</a> notes and try the exercises.</p>
+<p></body>
+</html></p>
