@@ -118,7 +118,7 @@ think of this as pointing out at you from the screen, so that positive z
 coordinates are "out of the screen" and negative z coordinates are
 "into the screen". This is shown in the diagram below. 
 
-![OpenGL default view](images/defaultview.png)
+![OpenGL default view](images/default_coord_system.png)
 
 So in this example, we place the sphere 5 units "into the screen", but
 level with the origin in the x and y directions.
