@@ -203,6 +203,13 @@ and try and imagine rotating the shape around *that* axis.
 
 The rotations about the three axes are shown below.
 
+To rotate, you give your shape a `rotation` and specify the rotations
+about the x, y and z axes in that order. For example:
+```
+<a-box rotation='0 60 0' color='red' position='0 0 -5'></a-box>
+```
+will create a box rotated 60 degrees about the y axis.
+
 ![Axis rotations](images/axisrotation.png)
 
 The animations below show the rotations about each axis.
@@ -417,6 +424,19 @@ z-axis.
 The box will undergo a colour transition from red to blue, through
 the intermediate colour (magenta). The colour transition will take 5 seconds
 to complete.
+
+#### Multiple animations on one entity
+
+You can add more than one independent animation to an entity by 
+creating components with the name `animation__` (two underscores) plus
+any text. Commonly you might use `animation__2`, `animation__3`, and
+so on. So for example:
+```
+<a-box animation='property: rotation; from: 0 0 -90; to: 0 0 90'
+animation_2='property: position; from: 0 0 0; to: 0 0 -10'>
+```
+would rotate the box from -90 to 90 about the z axis *and* move it from
+the origin to x=0, y=0, z=-10 *at the same time*.
 
 #### Exercise 10 
 
