@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Basic A-Frame Scene</title>
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+</head>
+<body>
+<a-scene>
+
+<a-box position='0 1 -2' color='red'
+animation='property: rotation; from: 0 0 0; to: 0 0 180; dir: alternate; dur: 5000;loop: true'
+animation__2='property: color; from: #ff0000; to: #00ff00; dur: 10000;
+loop: true'>
+</a-box>
+
+<!--
+    Via an animation, make the box rotate to 360 degrees about the z-axis over a time scale of 5 seconds. (This is how you make something rotate a full circle; start at 0 and finish at 360).
+
+    Change the animation so it continuously rotates in a loop.
+
+    Change the animation so that it rotates from 0 to 180, then 180 back to 0, then 0 to 180, then 180 to 0, and so on - continuously in a loop.
+
+    Add a second animation which changes the colour from #ff0000 to #00ff00 but over a period of 10 seconds.
+
+    Add your 'cross' compound entity from the previous scene into this scene. Make it animate from y=0 to y=5, back to y=0, back to y=5, back to y=0 and so on (so it continuously 'takes off' and 'lands') over a time period of 5 seconds.
+-->
+
+<a-entity 
+animation='property: position; from: 0 0 -5; to: 0 5 -5; dur: 5000; dir: alternate; loop: true'>
+    <a-entity geometry='primitive: sphere' position='0 2 0' material='color: blue'></a-entity> 
+    <a-entity geometry='primitive: box' position='0 0.5 0' material='color: red'></a-entity>
+    <a-entity geometry='primitive: box' position='-1.5 2 0' material='color: red'></a-entity>
+    <a-entity geometry='primitive: box' position='1.5 2 0' material='color: red'></a-entity>
+    <a-entity geometry='primitive: box' position='0 3.5 0' material='color: red'></a-entity>
+</a-entity>
+</a-scene>
+</body>
+</html>
