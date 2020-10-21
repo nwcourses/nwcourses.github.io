@@ -84,25 +84,6 @@ inefficient in terms of time. However, separate chaining also has a time
 efficiency issue, as we have to search through a list if there are clashes.
 (Opinions differ on which is actually the most efficient)
 
-#### Secondary hash function
-
-
-To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.
-
-For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:
-
-![Secondary hash function](images/secondary_hash.png)
-
-Secondary hash functions typically involve a modulo calculation for example:
-```
-secondaryHash = sumOfAsciiCodes % N
-```
-where N is some prime number (the reason for favouring prime numbers in hash
-tables is discussed below). **The secondary hash function must be different
-to the primary hash, in other words two keys with the same primary hash value
-must have different secondary hash values. If they do not, the clustering 
-problem will still occur.**
-
 ### Better hash functions
 
 The extremely simple hash function above, which simply adds the ASCII codes
@@ -225,6 +206,24 @@ to the hash code, find the 'bucket' with the index corresponding to the hash
 code, and then search through the list within this bucket to find the entry
 corresponding to the key).
 
+### Advanced: Secondary hash function
+
+
+To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.
+
+For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:
+
+![Secondary hash function](images/secondary_hash.png)
+
+Secondary hash functions typically involve a modulo calculation for example:
+```
+secondaryHash = sumOfAsciiCodes % N
+```
+where N is some prime number (the reason for favouring prime numbers in hash
+tables is discussed below). **The secondary hash function must be different
+to the primary hash, in other words two keys with the same primary hash value
+must have different secondary hash values. If they do not, the clustering 
+problem will still occur.**
 ## Exercise 1 - Paper
 
 

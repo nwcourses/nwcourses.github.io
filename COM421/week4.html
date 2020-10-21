@@ -63,18 +63,6 @@ with "cat", "act" and "dog" respectively. So we have to move "sea" on
 inefficient in terms of time. However, separate chaining also has a time
 efficiency issue, as we have to search through a list if there are clashes.
 (Opinions differ on which is actually the most efficient)</p>
-<h4 id="secondaryhashfunction">Secondary hash function</h4>
-<p>To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.</p>
-<p>For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:</p>
-<p><img src="images/secondary_hash.png" alt="Secondary hash function" /></p>
-<p>Secondary hash functions typically involve a modulo calculation for example:</p>
-<pre><code>secondaryHash = sumOfAsciiCodes % N
-</code></pre>
-<p>where N is some prime number (the reason for favouring prime numbers in hash
-tables is discussed below). <strong>The secondary hash function must be different
-to the primary hash, in other words two keys with the same primary hash value
-must have different secondary hash values. If they do not, the clustering 
-problem will still occur.</strong></p>
 <h3 id="betterhashfunctions">Better hash functions</h3>
 <p>The extremely simple hash function above, which simply adds the ASCII codes
 of the characters making up the string, leads to a high probability of
@@ -179,6 +167,18 @@ just the value?</strong></p>
 to the hash code, find the 'bucket' with the index corresponding to the hash
 code, and then search through the list within this bucket to find the entry
 corresponding to the key).</p>
+<h3 id="advancedsecondaryhashfunction">Advanced: Secondary hash function</h3>
+<p>To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.</p>
+<p>For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:</p>
+<p><img src="images/secondary_hash.png" alt="Secondary hash function" /></p>
+<p>Secondary hash functions typically involve a modulo calculation for example:</p>
+<pre><code>secondaryHash = sumOfAsciiCodes % N
+</code></pre>
+<p>where N is some prime number (the reason for favouring prime numbers in hash
+tables is discussed below). <strong>The secondary hash function must be different
+to the primary hash, in other words two keys with the same primary hash value
+must have different secondary hash values. If they do not, the clustering 
+problem will still occur.</strong></p>
 <h2 id="exercise1paper">Exercise 1 - Paper</h2>
 <ol>
 <li>Draw the 17-item hash table (array of 17 'buckets')
