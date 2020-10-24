@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 10: Introduction to Canvas and Event Handling</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>Topic 10: Introduction to Canvas and Event Handling</h1>
+<p>This topic is only intended for students who are up-to-date. You must 
+complete Topics 1-4, and 6-8,before you attempt this.</p>
+<h2>Introduction to Canvas</h2>
+
+<p>The <em>canvas</em> tag allows you to draw 2D graphics in the browser.
+It has only been available for the past 10 years or
+so of web development. It was not available in the first 10 to 15 years of
+the web; at that time people had to rely on proprietary third-party plugins
+such as Flash which were awkward to install and keep up to date.</p>
+<p>It allows you to draw shapes such as lines,
+rectangles, circles, polygons and curves - as well as text - within the
+browser. This opens up a number of possibilities including in-browser
+drawing applications or even games.</p>
+<h2>Using the canvas tag</h2>
+<p><strong>Note that to allow you time to do practical work</strong>, I will
+not go through <em>all</em> of these notes in detail. However they are there
+for you to read.</p>
+<h3>How do you create a canvas?</h3>
+
+<p> Simply add a &lt;canvas&gt; tag to your HTML and give it an ID, a 
+width and a height (specify the width and height here, and <em>not</em>
+in the CSS, otherwise the drawing functions will not work correctly)
+e.g.:
+<pre>&lt;canvas id='canvas1' width='500' height='500'&gt;&lt;/canvas&gt;</pre>
+</p>
+<h3>How do you draw things on a canvas?</h3>
+<p>You use JavaScript to actually draw on the canvas. Here is a short
+example which draws a red rectangle. This example only will show the full
+HTML as well as the JavaScript, but subsequent examples will show the
+JavaScript only as the HTML remains the same:
+<pre>
+
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='canvas.js&gt;
+
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload='init()'&gt;
+&lt;canvas id='canvas1' width='400' height='400'&gt;&lt;/canvas&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</pre>
+JavaScript:
+<pre>
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ff0000'; // red 
+    ctx.fillRect(10,10,100,100);
+}
+</pre>
+What we do in this script is as follows:
+<pre>
+var canvas = document.getElementById('canvas1');
+</pre>
+This gets hold of the canvas element using the DOM.
+<pre>
+var ctx = canvas.getContext('2d');
+</pre> 
+This line obtains a <em>drawing context</em> from the canvas. The drawing 
+context is an object we use to draw on the canvas.
+<pre>
+ctx.fillStyle = '#ff0000'; // red 
+ctx.fillRect(10,10,100,100);
+</pre>
+These lines set the fill colour to red and draw a red rectangle at x=10, y=10
+of width 100 and height 100 pixels. Here is another example which shows
+an outline-only, non-filled-in rectangle:
+<pre>
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#0000ff'; // blue
+    ctx.strokeRect(10,10,100,100);
+}
+</pre>
+Note how this example sets the stroke (i.e. line drawing) colour instead of
+the fill colour, and draws an outlined rectangle with
+<em>strokeRect()</em>.
+</p>
+<h4>Paths (lines and polygons)</h4>
+<p>We can draw polygons and multi-point lines by creating a <em>path</em>.
+Here is an example:
+<pre>
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#0000ff'; // blue
+    ctx.beginPath();
+    ctx.moveTo(100,100);
+    ctx.lineTo(150,100);
+    ctx.lineTo(150,150);
+    ctx.stroke();
+}
+</pre>
+Here is an explanation of the new functions:
+    <ul>
+    <li>ctx.beginPath() - this begins a new path (by path, we mean a sequence
+    of points making up a line or polygon);</li>
+    <li>ctx.moveTo() - this moves the drawing position to the specified
+    coordinates (but does not actually draw anything);</li> 
+    <li>ctx.lineTo() - this creates a line from the previous drawing position,
+    specified by <em>moveTo()</em> or <em>lineTo()</em>, to the specified
+    coordinates. Note it doesn't actually draw the line - it just
+    creates it in memory. We need <em>ctx.stroke()</em> to actually draw
+    the line.</li>
+    <li>ctx.stroke() - actually renders the line.</li>
+    </ul>
+</p>
+<p>We could turn it into a polygon, rather than a line, with the addition of
+the following line immediately before the <em>ctx.stroke()</em>:
+<pre>ctx.closePath();</pre>
+This line effectively "closes the loop".</p>
+<p>We could also draw a <em>filled polygon</em> by substituting
+<em>ctx.stroke()</em> with <em>ctx.fill()</em>.</p>
+
+<h4>Text</h4>
+<p>Here is an example which draws text.
+<pre>
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    ctx.font = '12pt Helvetica';
+    ctx.fillText('Hello', 300, 300);
+}
+</pre>
+This should hopefully be obvious: the font is set to 12pt Helvetica and then
+the text 'Hello' is drawn at x=300, y=300.</p>
+<h4>Images</h4>
+<p>This example draws images. (see 
+<a href='https://developer.mozilla.org/samples/canvas-tutorial/3_1_canvas_drawimage.html'>
+here</a>).
+<pre>
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    var image = new Image();
+    image.src = "http://server.com/images/hero.png";
+    image.addEventListener("load", () =&gt; {
+        ctx.drawImage(image, 100, 100);
+    });
+}
+</pre>
+Note how we create a new Image object, set its <em>src</em> property to the location of
+the image on the server, and then draw the image at a given x and y 
+position. Note the <em>image.addEventListener("load", ...)</em> 
+which links to an arrow function which actually draws the image. Why are we 
+doing this? Loading an image from
+the web might take time, so writing our code this way ensures that the image
+will only be drawn once it's been loaded.</p>
+<h4>Circles</h4>
+<p>We can also draw circles, here is an example:
+<pre>
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#0000ff'; // blue
+    ctx.beginPath();
+    ctx.arc(100, 100, 50, 0, Math.PI*2, false);
+    ctx.stroke();
+}
+</pre>
+The 6 parameters to <em>arc()</em> need to be explained as many are not
+obvious. The reason why there are so many is because
+the function can be used to draw arcs as well as circles. Here is the
+explanation:
+    <ul>
+    <li>The first three parameters (100, 100 and 50 here) are the x and y
+    position and the radius.</li>
+    <li>The fourth and fifth are the starting and ending values to draw an
+    arc. If you imagine a circle, imagine the top of the circle is 0 
+    radians (0 degrees),
+    the right-hand side PI/2 radians (90 degrees), 
+    the bottom PI radians (180 degrees) and the left-hand
+    side 1.5*PI radians (270 degrees). The start and end values describe how
+    much of the circle we draw. Here, we have
+     the start and end point 0 and PI*2 radians (360 degrees), so the whole
+    circle is drawn.</li>
+    <li>The final parameter represents whether the arc is drawn clockwise 
+    (false) or anticlockwise (true).</li>    
+    </ul>
+Once again we can use <em>fill()</em> to draw a filled circle, or arc, rather
+than <em>stroke()</em>.
+</p>
+<h2>Event handling</h2>
+
+<p>As we have already seen, <em>event handling</em> is a common technique in client-side web development. 
+An <em>event</em> 
+typically occurs when the user interacts with a page in some way, such as clicking a button or moving the
+mouse over a <em>div</em>. We have already seen some examples of events with
+map click events and button click events; indeed events can be classed in 
+the general sense as things that happen outside the main flow of the program,
+in other words they require asynchronous code.
+Receiving an AJAX response, or obtaining a GPS signal, are other examples of
+events. We write <em>callback functions</em>
+to handle the various types of event; these callback functions are 
+known as <em>event handlers</em>.</p>
+<p>The modern way of linking an event to its handler is via the <em>addEventListener()</em> method, which
+you have already seen. This
+takes two arguments, the event type and the event handler function. For example:
+<pre>element.addEventListener("eventtype", eventHandler);</pre>
+For example, to handle a click event we would say:
+<pre>element.addEventListener("click", eventHandler);</pre>
+where <em>eventHandler</em> is a function which runs when the user clicks on the given element. 
+</p>
+<h3>The event object</h3>
+<p>In the event handler we need to find out 
+<em>information about the event</em>. Useful information about the event might include:
+    <ul>
+    <li>What page element was clicked on?</li>
+    <li>What mouse button was clicked or what key was pressed?</li>
+    <li>What is the current position of the mouse on the page, or on the element
+    that was clicked</li>
+    </ul>
+We can find out all this information via the <em>event object</em>. The event object is a special object
+automatically sent to an event-handler function by JavaScript as the first argument. Here is an example of how
+you can use the event object with mouse events:
+<pre>
+
+// init() runs when the page first loads
+function init()
+{
+    // Obtain an element
+    var canvas1 = document.getElementById("canvas1");
+
+    // Handle mouse down, mouse move and mouse up events
+
+    // The mouseDownHandler function will handle mouse presses
+    canvas1.addEventListener ("mousedown", mouseDownHandler);
+
+    // The mouseMoveHandler function will handle mouse movement
+    canvas1.addEventListener ("mousemove", mouseMoveHandler);
+
+    // The mouseUpHandler function will handle mouse release
+    canvas1.addEventListener ("mouseup", mouseUpHandler);
+}
+
+function mouseDownHandler(e)
+{
+    console.log(`mouse pressed down at local coordinates: ${e.offsetX}, ${e.offsetY}`);
+}
+
+function mouseMoveHandler(e)
+{
+    console.log(`mouse moved at local coordinates: ${e.offsetX}, ${e.offsetY}`);
+}
+
+function mouseUpHandler(e)
+{
+    console.log(`mouse released at local coordinates: ${e.offsetX}, ${e.offsetY}`);
+}
+
+</pre>
+Note how the three event handlers, <em>mouseDown()</em>, <em>mouseMove()</em> and <em>mouseUp()</em> all have
+one parameter, <em>e</em>, which is the event object. This example uses two properties of the event object,
+<em>offsetX</em> and <em>offsetY</em>, which represent the current x and y position of the mouse
+<em>with respect to the element it is currently over</em> (e.g. a canvas).</p>
+<p>Other properties of the event object include:
+    <ul>
+    <li><em>e.keyCode</em>: the key pressed - not necessarily equivalent to the ASCII
+    codes;</li>
+    <li><em>e.button</em>: the mouse button pressed;</li>
+    <li><em>e.target</em>: the page element which was clicked on (i.e. the "target" of the event). This can be used, for example, to attach the same event 
+listener to several page elements and then only perform an action on the element that was clicked.</li>
+    </ul>
+</p>
+
+<h2>Exercises</h2>
+<h3>Canvas exercises</h3>
+<ol>
+<li>Create a page with a canvas of width 700, height 500 pixels.</li>
+<li>Draw a green filled rectangle with coordinates: top 100, left 100,
+width 500, height 300.</li>
+<li>Write code to draw an image on the canvas at
+the position that the user clicked the mouse. To do this, write a function to
+react to the <em>mouseup</em> event.
+Use this image
+<a href="https://edward2.solent.ac.uk/course/images/hero.png">here</a>.
+</li> 
+<li>If you finish, read ahead to <a href='furtherevents.html?v=3'>this optional further topic</a>
+covering key events and timers, and attempt the exercises there.</li>
+</ol>
+</body>
+</html>

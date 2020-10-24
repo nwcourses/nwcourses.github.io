@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Using Modules To Develop Browser Code</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Topic 16a: Using Modules To Develop Browser Code</h1>
+</div>
+
+<p>In the last few sessions we have looked at node.js and seen that we can
+use <em>modules</em> to develop reusable code, for example a database 
+connection, or a set of routes. You have also imported third-party modules,
+such as Express or Mongoose. These modules are referred to as
+<strong>CommonJS modules</strong>.</p>
+
+<p>However it is also possible, with the help of a few tools, to use
+modules when developing client-side, browser-based JavaScript. For example,
+you might have developed a few JavaScript classes which could be reused in
+different web applications. You could create a module from each class by 
+writing the class in its own .js file and exporting it. For example, we could
+create this file, <em>cat.js</em>:
+<pre>
+class Cat {
+    constructor(n, a, w) {
+        this.name = n;
+        this.age = a;
+        this.weight = w;
+    }
+
+    eat() {
+        this.weight++;
+    }
+
+    walk() {
+        this.weight--;
+    }
+
+    toString() {
+        return `${this.name} ${this.age} ${this.weight}`;
+    }
+}
+
+<em>module.exports = Cat;</em>
+</pre>
+Note how we are exporting the Cat class from the module, just like we did
+in our Node modules. We could then use this module in other JavaScript 
+code, e.g, we could create this "main" JavaScript file, <em>index.js</em>:
+<pre>
+const Cat = require('./cat'); // the Cat class is exported from the module
+const cat = new Cat("Tiddles", 10, 10);
+cat.walk();
+cat.walk();
+cat.eat();
+console.log(cat);
+</pre>
+Note how we <em>require</em> the module just as in node.js. Also note the
+single dot (.); this means the module is in the current folder. Also note
+that we can leave out the <em>.js</em> extension when importing a module.
+</p>
+<p>How would we run our "main" JavaScript (index.js)? Note there is
+no <em>init()</em> function or equivalent. We can run arbitrary 
+JavaScript code (without a startup function) by adding a <em>defer</em>
+option to our &lt;script&gt; tag. This will prevent the script running
+until the page has been fully loaded. For example:
+<pre>&lt;script type='text/javascript' src='index.js' <em>defer</em> /&gt;</pre>
+This will cause the code in index.js to (in theory) run when the page has
+been loaded.</p>
+<p>However, this code, as it stands, will not actually run successfully in
+the browser. The browser will not be able to make sense of the
+<em>require()</em> call. There is a new module mechanism, <em>ECMAScript 6
+modules</em>, which will allow browsers to run modules directly, but at the 
+moment, these are not fully supported in browsers or in node.js, and part of
+the rationale for using modules in code intended for the browser is to allow 
+it to be reused with Node applications.</p>
+
+<h2>Browserify</h2>
+
+<p>There are a number of tools - "bundlers" - 
+which can be used to prepare CommonJS modules
+for the browser. One of these tools is <strong>Browserify</strong>
+(see <a href='http://browserify.org'>browserify.org</a>). Browserify can
+transform code consisting of modules into a single "bundle" file which can
+be used directly in the browser. Browserify can be installed with npm,
+e.g. globally:
+<pre>sudo npm install -g browserify</pre>
+Here is the most simple usage:
+<pre>browserify index.js &gt; bundle.js</pre>
+This will take the file index.js, and any modules it uses (along with any
+modules used by those modules) and prepare a single bundle file, bundle.js.
+This can then be used directly in the browser with the <em>defer</em>
+attribute to ensure it's only loaded when the page is loaded, e.g:
+<pre>&lt;script type='text/javascript' src='bundle.js' <em>defer</em> /&gt;</pre>
+One key advantage of using a bundler like Browserify is it allows you to
+use various modules provided by <em>npm</em> in browser code. These would
+typically be <em>require</em>d, so by bundling code which uses npm modules,
+you can make it run in the browser - as long as the npm modules you use are
+not Node-specific.</p>
+
+<h2>Babel and uglify-js</h2>
+
+<p>This is also a good point to mention two other common tools, 
+<em>Babel</em> and <em>uglify-js</em>. What do these do? First, <em>Babel</em>
+(see <a href='https://babeljs.io/'>here</a>). Babel is known as a <em>transpiler</em>. It converts between different
+versions of JavaScript. It is commonly used to transform ECMAScript 6 code
+(classes, arrow functions, etc) into "classic" JavaScript so that the code
+can run on older browsers. Babel requires <em>presets</em> to run, to
+tell it what transformations to make. The <em>env</em> preset is a common
+one, this tells Babel to transform ECMAScript6+ code into ECMAScript 5.
+For example:
+<pre>babel --presets @babel/preset-env cat.js &gt; cat-ecma5.js</pre>
+</p>
+<p>Babel can be installed with:
+<pre>sudo npm install -g @babel/core @babel/cli</pre>
+(babel-cli is the babel command-line tool)</p>
+
+<h2>Browserify transforms</h2>
+
+<p>However, what if we wanted to use Browserify and Babel in one go, to 
+create an ECMAScript 5 bundle compatible with old browsers? We
+can do that by using a Browserify <em>transform</em> - a plugin which adds
+third-party functionality to Browserify. Such a transform exists for
+Babel: <em>babelify</em> (see <a href='https://github.com/babel/babelify'>here</a>). 
+This can be installed with npm in the normal way,
+as long as Babel is already installed:
+<pre>sudo npm install -g babelify</pre>
+You can then use Browserify with the <em>-t</em> (transform) option, e.g.:
+<pre>browserify index.js -t [ babelify --presets [ @babel/preset-env ] ] &gt; bundle-ecma5.js</pre>
+
+<h3>uglify-js</h3>
+
+<p>Another useful tool is <em>uglify-js</em> (see
+<a href='https://github.com/mishoo/UglifyJS'>here</a>) This is an example of a
+<em>minifier</em> - a tool which removes the whitespace from a bundle 
+to reduce its filesize and speed up loading time. Its usage is quite easy:
+<pre>uglifyjs bundle.js &gt; bundle-uglified.js</pre>
+It can be installed with:
+<pre>npm install -g uglify-js</pre>
+However, if using with browserify, we can again perform both operations
+(bundle creation and minification) in one go, using another transform.
+The transform for uglify-js is called <em>uglifyify</em>(!) and is actually
+based not on uglify-js itself, but a fork, <a href='https://github.com/terser/terser'>Terser</a>, 
+which has been adapted to
+handle ECMAScript 6 syntax (plain uglify-js itself cannot do this). This can
+be used with the -t option of browserify as before:
+<pre>browserify index.js -t uglifyify &gt; bundle-minified.js</pre>
+and can be installed with:
+<pre>sudo npm install -g uglifyify</pre>
+</p>
+
+</body>
+</html>

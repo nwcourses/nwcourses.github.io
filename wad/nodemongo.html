@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 15: node.js and MongoDB</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+
+<h1>Topic 15: node.js and MongoDB</h1>
+
+<h2>Introduction</h2>
+
+<p>
+node.js works very well with MongoDB. As you saw last time, MongoDB uses a JavaScript-like syntax
+to query the database. This means that there is quite a close resemblance between MongoDB
+query syntax and querying a MongoDB database from Node.
+</p>
+
+<h2>Using MongoDB from node.js</h2>
+<p>There are a couple of options for using MongoDB from Node:
+    <ul>
+    <li>Use the standard <em>mongodb</em> module;</li>
+    <li>Use <em>Mongoose</em>. Mongoose is a higher-level API which makes
+    the process of querying a MongoDB database simpler and friendlier. It
+    also allows you to define <em>schemas</em> for your MongoDB collections;
+    when an item is added, any fields not in the schema will be
+    ignored.</li>
+    </ul>
+</p>
+<p>Mongoose has a website <a href='http://mongoosejs.com'>here</a>. The
+website contains extensive tutorials and documentation.</p>
+
+<h3>Connecting to the database</h3>
+<p>Here is how you connect to the database using Mongoose:
+<pre>
+const mongoose = require('mongoose');
+
+// Connect to a database named 'test' on the local machine (localhost)
+mongoose.connect('mongodb://localhost/test');
+
+// Run a callback as soon as the connection is open
+mongoose.connection.once('open', ()=&gt; {
+    // do your queries in this callback...
+});
+</pre>
+Note how we open a connection to the 'test' database on the local machine
+(localhost) and specify a callback to run as soon as the connection has been
+opened. This is a similar approach to the MySQL API which we looked at last
+week.</p>
+<h3>Defining a model and a schema</h3>
+<p>Mongoose uses the concepts of <em>models</em> and <em>schemas</em>.
+A <em>model</em> is a JavaScript object acting as an interface to your
+collection; it's the same concept as the model in MVC. Here is an example
+of creating a model representing documents in a <em>students</em>
+collection:
+<pre>
+const Student = mongoose.model('student', new mongoose.Schema(
+        { firstname: String,
+            lastname: String,
+            course: String,
+               grade: Number} )); 
+</pre>
+Our model object is <em>Student</em>. We create it using the
+<em>mongoose.model()</em> method which takes two arguments:
+    <ul>
+    <li>The MongoDB collection that it maps to, in the singular (i.e. if
+    the collection name is <em>students</em>, we use <em>student</em>).</li>
+    <li>A <em>mongoose.Schema</em> object representing the schema. This is
+    a schema in the normal database sense, i.e. a description of properties
+    (fields) and data types. Here, we have four fields:  name,
+    course and grade.  These are all Strings; we can also have Numbers.
+    Note that by default the <em>_id</em> will be automatically allocated
+    a unique <em>ObjectId</em>. 
+    See <a href='https://mongoosejs.com/docs/guide.html'>the documentation</a>
+    for the full list of data types for a schema.</li>
+    </ul>
+Once we've created the model, we perform operations on the database using
+it.</p>    
+
+<h3>Retrieving data from the database</h3>
+<p>Here is an example to find all students in the <em>students</em>
+collection using the <em>Student</em> model.
+<pre>
+Student.find(
+            (err,result)=&gt; {
+                if(err) {
+                    console.log(`Error: ${err}`);
+                } else {
+                    console.log(result);
+                }
+            });
+</pre>
+How is this working? We call the <em>find()</em> method on the model
+(note how this is similar to calling <em>find()</em> from the MongoDB
+console). Note how the <em>find()</em> method takes 
+a <em>callback</em> to run once the results have been returned.
+</p>
+<p>Note how this callback takes two parameters: <em>err</em>, an object
+representing an error (if there was one) and <em>result</em>, an array of
+all the MongoDB documents returned from <em>find()</em>. This callback
+pattern, an error object as the first parameter and the results as the
+second, is a common pattern in Node modules.</p>
+<p>Here, we simply display the results in the console.</p> 
+<h4>Retrieving certain records only</h4>
+<p>By supplying a search query to <em>find()</em> as the first argument
+(<em>before</em> the callback), in a similar way to
+queries in the Mongo console, we can retrieve certain records only. For
+example, to find all students on Software Engineering:
+<pre>
+Student.find({<em>course:'Software Engineering'</em>},
+            (err,result)=&gt; {
+                if(err) {
+                    console.log(`Error: ${err}`);
+                } else {
+                    console.log(result);
+                }
+            });
+</pre>
+and to find all students with a last name of Jones on Software Engineering:
+<pre>
+Student.find({<em>course:'Software Engineering', lastname:'Jones'</em>},
+            (err,result)=&gt; {
+                if(err) {
+                    console.log(`Error: ${err}`);
+                } else {
+                    console.log(result);
+                }
+            });
+</pre>
+</p>
+<p>We can also use special Mongo operations such as <em>$lt</em>, 
+<em>$gt</em>, <em>$in</em>,
+<em>$or</em> etc. in our <em>find()</em> queries. For example, to find all
+students who have passed:
+<pre>
+Student.find({grade: {$gte: 40}},
+            (err,result)=&gt;{
+                res.send(result);
+            });
+    });
+</pre>
+or, to find all students on Software Engineering or Computing:
+<pre>
+Student.find({course: { $in: ['Software Engineering', 'Computing']}},
+            (err,result)=&gt;{
+                res.send(result);
+            });
+});
+</pre>
+Mongoose also gives us some shortcuts for searching. For example, if we want
+to find a particular document by <em>ID</em> (a common scenario), we can
+just use the <em>findById()</em> method (the ID is the number associated with
+an ObjectId):
+<pre>
+Student.findById("5c0cf71d4d49560f7c678f08",
+            (err,result)=&gt;{
+                res.send(result);
+            });
+    });
+</pre>
+</p>
+<h3>Adding a new document</h3>
+<p>To add a new document to a collection, we create an object of the model
+type  and <em>save()</em> it. <em>save()</em>ing it saves it to the actual
+MongoDB collection. For example, to create a new student and save it to the
+collection:
+<pre>const student = new Student ({ firstname:'Tom', 
+                                lastname: 'Smith', 
+                                course: 'Software Engineering',     
+                                grade: 80});
+student.save();</pre>
+Note that <em>if the collection associated with the model ('students' here)
+does not exist, saving the object to the database will create it.</em>
+</p>
+<p>Note that this will allocate a unique ObjectId for the document.
+We can obtain it using <em>student._id</em>.</p>
+<h3>Updating a document</h3>
+<p>Updating a document can be carried out by the <em>update()</em> group of
+methods of your model. There are different variants of update(), such as
+<em>updateOne()</em> which will only update the first matching document 
+and <em>updateMany()</em> which will update <em>all</em> matching documents.</p>
+<p>These take three arguments, the search criteria, the update operation and
+the callback. For example, this will update the grade of the first matching
+student with a first name of <em>Tim</em> and last name of <em>Smith</em> to
+70.
+<pre>
+Student.updateOne({firstname:'Tim', lastname:'Smith'}, {grade: 70},
+           (err,result) =&gt;
+            {
+                if(!err)
+                {
+                    if(result.nModified==1)
+                    {
+                        console.log("updated");
+                    }
+                    else
+                    {
+                        console.log("not updated - does student exist?");
+                    }
+                }
+                else
+                {
+                    console.log(err);
+                }
+            }
+);
+</pre>
+Note how, for an update, the <em>result</em> object has an <em>nModified</em>
+field, storing the number of records that were modified. We can use this
+to test whether we successfully managed to update a document or not; if not,
+it likely means that there is no student called <em>Tim Smith</em> in the
+database.</p>
+<p>Note that we do not need to use <em>$set</em> with Mongoose. If we only
+want to update certain fields of the document, we can pass in those
+fields only. So the above example will update the grade to 70 for Tim
+Smith, but will not remove all the other fields of the document.</p>
+
+</p>
+<h3>Deleting records</h3>
+<p>Deleting records is similar to updating them; we can use the
+<em>deleteOne()</em> and <em>deleteMany()</em> methods of our model.
+These methods take two arguments; the criteria for deletion, and the 
+callback. For example, this will delete all students with a grade less than 30:
+<pre>
+Student.deleteMany({grade: {$lt: 30}},
+    (err,result)=&gt;{
+        if(err) {
+            console.log(`Error deleting: ${err}`);
+        } else if (result.n==0) {
+            console.log('No matching students found!');
+        } else {
+            console.log(`Successfully deleted ${result.n} documents.`);
+        }
+});
+</pre>
+Note how, once again, we can test how many documents were successfully
+deleted using the result object. With delete, we use the <em>n</em>
+field rather than <em>nModified</em>.</p>
+
+<h3>Structure of an Express server using Mongoose</h3>
+<p>Connect to the database first, e.g:
+<pre>
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/test');
+
+mongoose.connection.once('open', ()=&gt; {
+    // Create models ...
+
+    // Handle routes ...
+});
+</pre>
+</p>
+
+<h3>Exercises</h3>
+<p>Develop a Node/Express REST HT-Tracks server which uses a MongoDB back end
+(i.e. the <em>hits</em> collection you worked with last time). It should
+support the following operations:
+<ul>
+<li><em>/search/:artist</em> - should search the database for all songs by
+a given artist and return the results as JSON.</li>
+<li><em>/search/:song/:artist</em> - should search the database for a 
+specific song by a specific artist and return the results as JSON.</li>
+<li><em>/newSong</em> - should read the details of a new song as POST 
+data and add a new document to the database. To test this you will need
+to create an HTML form.</li>
+<li><em>/before/:year</em> - should search for all songs before a given
+year and return them as JSON.</li>
+<li><em>/song/:id</em> - should do the following depending on HTTP method:
+    <ul>
+    <li>GET - return JSON of the song with that ID;</li>
+    <li>PUT - read in JSON containing selected properites of the song and their
+    values, e.g:
+    <pre>{"downloads": 123}</pre>
+    and update the song with that ID to those quantities;</li>
+    <li>DELETE - delete the song with that ID.</li>
+    </ul>
+</li>
+</ul>
+To test these APIs: you can test those which take GET and POST in the 
+browser directly, or via a form, respectively.
+ For those which use PUT and DELETE, use
+<a href='https://getpostman.com'>Postman</a> (which appears to be installable
+locally). I will demonstrate this.</p>
+<p>Finally, connect your AJAX front end from week 7 to your 'search'
+functionality.</p>
+</body>
+</html>
+
+

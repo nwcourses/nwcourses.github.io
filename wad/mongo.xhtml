@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 14: MongoDB</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+
+<h1>Topic 14: Introduction to MongoDB</h1>
+
+<h2>Background</h2>
+
+<p>Increasingly, databases which do not use SQL are becoming popular. These are
+collectively known as "NoSQL" databases (see 
+<a href="https://www.mongodb.com/nosql-explained">here</a> for an explanation and 
+discussion of the advantages). NoSQL databases typically store structured data
+(using JSON for instance) or whole objects. One of the commonly-used NoSQL databases is
+<a href="http://www.mongodb.com">MongoDB</a>.</p>
+
+<p>MongoDB stores data in a JSON-based format which makes it very easy to use with
+JavaScript - and it works well with node.js.
+Furthermore, a JavaScript-like syntax is used to perform queries. 
+Like MySQL, MongoDB operates as a <em>database server</em> running continuously in the
+background, waiting for requests to come in from clients. It operates on port 27017
+by default. Also like MySQL, you need to use a <em>client</em> to send queries to the
+MongoDB server. A NodeJS script would be one example of such a client; another is the
+default client called <em>mongo</em>, which is used from the command-line.</p>
+<h2>Using MongoDB</h2>
+<h3>Mongo introductory exercise</h3>
+<p>Logon to Neptune with PuTTY and enter the following at the command-line to run
+the database client:
+<pre>mongo</pre>
+<br />
+Enter the following at the Mongo prompt:
+<pre>db.getCollectionNames()</pre>
+You should see the following appear:
+<pre>[ "hits", "system.indexes" ]</pre>
+A <em>collection</em> is equivalent to a table in a relational database.
+It is a collection of individual <em>documents</em> (records); 
+you can see that in the
+MongoDB on Neptune, there is a collection called "hits". 
+Now type in:
+<pre>db.hits.find()</pre>
+You should now see all the individual documents in the "hits" collection, in
+JavaScript object syntax. Note how each object has a series of fields
+(properties),
+"title", "artist" and so on, similar to the column names in a relational database.</p>
+<p>Hopefully you can see how MongoDB syntax is very closely related to that of 
+JavaScript. <em>db</em> can be thought of as similar to a JavaScript object 
+representing the database as a whole, and <em>getCollectionNames()</em> is a method
+which returns an array of all the collections in the database.</p>
+<p>Likewise, <em>find()</em> can be considered a method of a collection which returns
+all the documents in that collection. So <em>db.hits.find()</em> will return all the
+documents in the <em>hits</em> collection.</p>
+
+<h2>Retrieving specific documents</h2>
+<p>We probably want to retrieve only those documents which match particular criteria.
+For example, we might want to search for all songs by a particular artist. Here is how
+to do this. Enter the following at the mongo prompt:
+<pre>db.hits.find({artist : "Oasis"})</pre>
+This will return all songs by Oasis. Note how we use syntax similar to a
+JavaScript object as a parameter to <em>find()</em> to describe the search.</p>
+<p>Next enter the following:
+<pre>db.hits.find({artist:"Oasis", title:"Some Might Say"})</pre>
+This will return Some Might Say by Oasis. Note how we search on artist AND
+song by combining the two criteria in a single JavaScript-like "object".</p>
+<p>You can also do "less than" and "greater than" queries.
+Here is an example:
+<pre>db.hits.find({year: { $lt:1962}});</pre>
+This will find all songs released before 1962. Note how the
+query is now a further object (<em>{$lt:1962}</em>) rather than a 
+single value such as "Oasis". "$lt" is an operator which means "less than".
+Note how MongoDB makes use of the syntax of JavaScript objects to perform more
+complex queries. Another example:
+<pre>db.hits.find({year: { $lt: 1990, $gt: 1985}})</pre>
+will find songs released from 1986-1989 inclusive. The similar
+<pre>db.hits.find({year: { $lte: 1990, $gte: 1985}})</pre>
+will find songs released from 1985-1990 inclusive ($lte meaning "less than
+or equal to" and $gte meaning "greater than or equal to").
+Again, note the similar approach to the simple searches above: we combine
+conditions by putting them in a single JavaScript-like "object".
+</p>
+<h3>"or" queries</h3>
+<p>"or" queries are a bit more complex than "and". The simplest way to do them,
+when you are searching for one of a range of discrete values for a particular
+field, is to use the $in operator, e.g:
+<pre>db.hits.find({artist: {$in: ["Oasis", "Madonna"]}});</pre>
+will find all hits by either Oasis or Madonna. For more complex queries
+you have to use the "$or" operator, e.g:
+<pre>db.hits.find({ $or: [ {artist: "Madonna"}, {title:"Some Might Say"} ] } )</pre>
+This will find documents where EITHER the artist is Madonna OR the title is Some Might Say.
+Note how both $in and $or take an array: for $in this is an array of
+possible values whereas for $or it is an array of conditions, at least one of which
+must be matched.</p>
+<h3>Pattern matching - the equivalent of SQL "LIKE"</h3>
+<p>Pattern matching can also be done. This also follows JavaScript syntax:
+in JavaScript pattern matching (using regular expressions) can be done using the slash /.
+So for example:
+<pre>db.hits.find({title: /The/})</pre>
+will find all songs with "The" in the name, while
+<pre>db.hits.find({title: /^The/})</pre>
+will find all songs beginning with "The" (remember from the REST topic that ^ indicates the start
+of a string in regular expressions).</p>
+<h2>Updating the database</h2>
+<h3>Setting up your own individual MongoDB database</h3>
+<p>We will now look at how to update a MongoDB database, for example add new documents
+or modify existing ones. To do this, you should first set up your own database, so
+that any changes made by you don't interfere with other students. Quit mongo by
+entering
+<pre>exit</pre>
+to return you to the Linux shell prompt. 
+You now need to import the database. Enter:
+<pre>mongoimport --db yourusername --collection hits --drop --file ~vmadmin/mongosongs</pre>
+replacing "yourusername" by your actual username. This imports the hits collection into
+your own database.</p>
+<p>Now re-enter the mongo client:
+<pre>mongo</pre>
+and enter:
+<pre>use yourusername</pre>
+(again replace "yourusername" by your actual username). This will switch to your own
+database from the default one, "test".</p>
+<p>To test it worked, enter:
+<pre>db.hits.find()</pre>
+and all the hits should appear.</p>
+<h3>Adding documents</h3>
+<p>Inserting new documents is quite intuitive in MongoDB. You use the <em>insert()</em>
+method, which takes a JavaScript-like "object" representing the new song. For
+example:
+<pre>db.hits.insert({artist:"Oasis", title: "Wonderwall", year:1995, downloads:100, _id:2001});</pre>
+Hopefully this should be obvious. The only thing that needs commenting on is the "_id" field. This
+is equivalent to the primary key in a relational database and <em>must have a unique value</em>. By
+default, it is given an <em>ObjectId</em> (an object containing a
+large unique number)
+by MongoDB if you do not specify an explicit value for it.
+See <a href="http://docs.mongodb.org/manual/reference/glossary/#term-id">the documentation</a>.
+</p>
+<p>Also note that unlike a relational database, the fields can be completely freeform. For
+example, you could do
+<pre>db.hits.insert({author:"Owen Jones"});</pre>
+and even though the document has nothing to do with music, it would be accepted.</p>
+
+<h4>Numeric values</h4>
+<p>It is important that any numeric values are inserted WITHOUT quotes. If quotes are used, they
+will be stored as a string which means that you will be unable to perform arithmetic operations on
+them, such as increase them by one or use less-than and greater-than operators. 
+So for example it should be:
+<pre>db.hits.insert({title:"Wonderwall", downloads:100})</pre>
+and not
+<pre>db.hits.insert({title:"Wonderwall", downloads:"100"})</pre>
+</p>
+<h4>Exercise</h4>
+<p>Add a song of your own choice to the database, then search for it to prove that it has been
+added.</p>
+<h3>Updating documents</h3>
+<p>You can also update documents with <em>update()</em>. Try this first (the
+find commands are to illustrate how the update happens):
+<pre>db.hits.find({_id:1})
+db.hits.update({_id: 1}, {downloads: 200})
+db.hits.find({_id:1})</pre>
+What do you see? Is this what you want? </p>
+<p>Now try this:
+<pre>db.hits.find({_id:2})
+db.hits.update({_id: 2}, {$set:{downloads: 200}})
+db.hits.find({_id:2})</pre>
+This will update the song with the _id of 2 so that its downloads is now 200.
+Note:
+    <ul>
+    <li><em>update()</em> takes two parameters. The first is the set of search criteria to find
+    a given document (here, we are searching for the document with the _id of 2) and the second is the
+    update instructions.</li>
+    <li>The update instructions (once again) have JavaScript object-like syntax. They consist of
+    the instruction <em>$set</em> (i.e. we're setting given attributes to given values) followed by
+    a list of new values to set.</li>
+    </ul>
+Another example:
+<pre>db.hits.update({_id: 2}, {$set:{downloads: 200, price:0.79}})</pre>
+This will reset the downloads <em>and</em> the price of the song with the _id of 2.
+<pre>db.hits.update({title: "Wonderwall", artist:"Oasis"}, {$set:{downloads: 200}})</pre>
+This will set the downloads of Wonderwall by Oasis to 200.
+</p>
+<h4>Be careful to use $set!</h4>
+<p>A possible mistake, illustrated above,
+ is to leave out the <em>$set</em> instruction when updating documents. For
+example, this is valid syntax but it will have an unexpected effect:
+<pre>db.hits.update({_id: 1}, {downloads: 200})</pre>
+Without the <em>$set</em> instruction, it will reset the details of the song with the _id of 1 so
+that it has a downloads of 200 and <em>no other fields!</em> In other words, update() without $set
+will <em>clear out all the existing fields of a document!</em></p>
+<h4>Multiple matches</h4>
+<p>By default update() will only update the first document. To tell it to match
+more than one, you have to pass 'true' as the fourth parameter e.g this one
+updates the downloads of all Beatles songs:
+<pre>db.hits.update({artist: "The Beatles"}, {$set:{downloads : 1000}}, false, <em>true</em>)</pre>
+(The third parameter, false here,
+is 'upsert', which if true will insert the document if it
+does not exist, i.e. an 'upsert' operation)</p>
+<h4>Another useful instruction: $inc</h4>
+<p>Another useful instruction in update queries is <em>$inc</em>. This increases numerical fields
+by the specified amount. For example:
+<pre>db.hits.update({_id:2}, {$inc:{downloads:1}})</pre>
+will increase the downloads by 1, while
+<pre>db.hits.update({_id:2}, {$inc:{"downloads":-1}})</pre>
+will decrease it by 1. (Note that there is no <em>$dec</em> instruction!)</p>
+<h3>Deleting documents</h3>
+<p>You can also <em>delete</em> documents. This is done with <em>remove</em>, e.g:
+<pre>db.hits.remove({_id:2});</pre>
+will remove the song with the _id of 2, or
+<pre>db.hits.remove({artist:"Woop", title:"Woop"});</pre>
+will remove Woop by Woop from the hits collection.</p>
+
+<h3>Exercise</h3>
+<p>Here is some data about students:
+<table>
+<tr>
+<th>name</th>
+<th>course</th>
+<th>mark</th>
+</tr>
+<tr>
+<td>Tom</td>
+<td>Software Engineering</td>
+<td>90</td>
+</tr>
+<tr>
+<td>James</td>
+<td>Medicine</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Laura</td>
+<td>Computing</td>
+<td>60</td>
+</tr>
+<tr>
+<td>Nigel</td>
+<td>Computing</td>
+<td>30</td>
+</tr>
+<tr>
+<td>Sarah</td>
+<td>Web Development</td>
+<td>80</td>
+</tr>
+</table>
+<ul>
+<li>Add the documents above to a collection called <em>students</em>.
+Let it allocate an <em>ObjectId</em> for the <em>_id</em>.</li>
+<li>Find all students studying Computing.</li>
+<li>Find all students studying Computing with a mark of 60.</li>
+<li>Find all students studying Computing OR Software Engineering.</li>
+<li>Find all students who passed (got a mark of 40 or more).</li>
+<li>Update Tom's mark to 95.</li>
+<li>The Computing course is changing its name to Computer Studies. Update all Computing students
+so that they are now on Computer Studies.</li>
+<li>Remove all students with a mark of 10 or less.</li>
+</ul>
+</p>
+<p>Note that you do NOT have to create a collection (using the equivalent of CREATE TABLE): you can
+just start adding the documents to the collection straight away, and if the collection does not exist,
+it will be created.</p>
+</body>
+</html>

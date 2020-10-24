@@ -1,0 +1,630 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Topic 2: REST Web Services with Slim</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+
+<h1>The Slim Framework and REST</h1>
+
+<p>In this unit we are going to focus on the <em>Slim Framework</em> to develop REST
+applications. Last year, in DFTI, you were introduced to Slim but it might be new to you
+if you come from another university.</p>
+
+<h2>Representational State Transfer - REST</h2>
+
+<p> Representational State Transfer, REST, is not a technology, but
+<em>an architecture for web services</em>. The idea centres around using clear, highly-descriptive
+URLs to represent each <em>real-world entity</em> that our web application needs to deal with 
+(e.g. a song, a list of all songs by a given artist, a flight, a 
+biography of an actor, etc). For example we could have these URLs:
+<pre>
+http://www.hittastic.com/artist/Oasis
+http://www.hittastic.com/biography/Madonna
+http://www.solentairways.com/flight/SA101
+http://www.solentairways.com/flights/June/1/Southampton/New_York
+</pre>
+</p>
+<p>In REST, these URLs are called <em>resources</em>.
+REST has the following key principles:
+	<ul>
+	<li>Use of clear, unchanging and descriptive
+	URLs to represent real-world items or entities(as in the example above);</li>
+      <li>The URL should produce the data expected of it, e.g 
+	<em>http://www.solentairways.com/flight/SA101</em> should return data representing
+	Solent Airways flight SA101</li>
+	<li>The ability to send different instructions to the URL to make it behave in different
+	ways, i.e. we can send a URL one type of instruction to retrieve data and another type
+	to modify data associated with that URL.</li>
+	<li>Statelessness</li> 
+	</ul>
+</p>
+<h3>Clean and unchanging URLs</h3>
+<p>A key principle of REST, illustrated by the examples above,
+is that of <em>clean, unchanging URLs</em>. Why is this useful?
+URLs which show the real location on the server, or the server-side
+technology used (e.g. the fact that it's a PHP 
+script) are prone to continuous change, for example, if the script is moved
+to a different directory or we switch server-side scripting technology.
+This causes problems in bookmarking and linking to such pages, and also,
+if the URLs represent web services, means that developers of client 
+applications have to update their client code to point to the new URL.</p>
+<p>With REST, we hide the implementation details with a simple, clean and
+easily-remembered URL, and define how this URL is <em>mapped</em> to the
+real, underlying location of the script on the server. 
+For example, rather than
+<pre>http://www.hittastic.com/track.php?title=Wonderwall&amp;artist=Oasis</pre>
+we could use:
+<pre>http://www.hittastic.com/Oasis/Wonderwall</pre>
+The web server software would convert this REST-style URL to the real, underlying script.</p>
+<p>If we changed the underlying URL, i.e. the location of the actual server
+side script on the server, all we'd need to do is change the mapping
+of our clean, easily remembered, publicly-visible, "REST-style" URL to the real underlying URL, 
+and clients of the web service could continue to use our web service unchanged with the same 
+publicly-visible URL as before; they wouldn't have to alter their
+code to reflect the new underlying URL. We could even change the 
+server-side implementation technology (e.g. PHP to ASP) without having
+to change the publicly-visible URL: once again we would only have to change
+the mapping from the publicly-visible URL to the underlying URL.</p>
+<p>Furthermore, this allows us to easily 
+ <em>swap between dynamically and statically generated data</em>. Imagine the 
+ URL
+below points at a static (i.e. not dynamically generated) JSON file on the server representing all Oasis hits.
+<pre>
+http://www.hittastic.com/artist/Oasis
+</pre>
+By changing the server configuration, we could easily change this URL to point to a server side script which
+dynamically generates the data from a database. So in summary, <em>REST style URLs provide a clean and
+unchanging interface to data supplied by our server</em> and there is <em>no need to change the URL depending
+on how the data associated with that URL is generated</em>.
+</p>
+<p>The practical details of how to actually set up REST-style URLs to point to given
+scripts will be discussed towards the end of this week's notes.</p>
+<h3>REST and HTTP</h3>
+<p>With REST, we send <em>different types of messages</em> to <em>the same URL</em> to make it
+do different things, e.g. retrieve data or change the state of the item represented by the URL. 
+For example if we had the URL:
+<pre>
+http://www.solentairways.com/flight/SA101
+</pre>
+we could send one type of message (let's call it a "get" message)
+to to the URL to retrieve the details about flight SA101, and another type
+of message (let's call it a "put" message)
+to update the details (e.g. departure time) of flight SA101, 
+and a third type (let's call it a "delete" message) to delete flight SA101.</p>
+<p>But what form do these messages take? We could use query string
+parameters to inform the script of the message type. However, like custom
+error codes, this could be seen as reinventing the wheel.
+Last week we looked at <em>HTTP methods</em> and encountered the recommendation
+to send GET requests when retrieving data or POST requests when adding or modifying
+data. REST combines this concept in conjunction with the "one URL per real world entity"
+concept already introduced. So you could send a GET request to the <em>SA101</em> URL above
+to retrieve data about flight SA101, or a POST request to modify data about SA101.</p>
+<p>However, in addition to GET and POST,
+REST uses a couple of <em>additional</em> and less-commonly-encountered
+HTTP methods: <em>PUT</em> and <em>DELETE</em>. In REST,
+<em>PUT</em> differs from <em>POST</em> in that PUT is used to <em>modify</em> data while
+POST is used to <em>add</em> new data. DELETE requests, unsurprisingly, are used to delete
+data.</p>
+<p>REST takes the view that HTTP methods and status codes are under-used
+and can be exploited in web services, as described below.</p>
+<h4>REST and HTTP methods</h4>
+<p>
+As mentioned above, the idea is that one single web resource (URL) can be used for retrieving, 
+adding, and deleting data associated with a particular item, e.g. a 
+particular song in the HitTastic! database. What we can do is to do different
+things with the song depending on the type of HTTP method we use to 
+communicate with the URL. In general we:
+	<ul>
+	<li>Use the GET method to retrieve data associated with a URL;</li>
+	<li>Use the PUT method to modify data associated with a URL;</li>
+	<li>Use the DELETE method to delete data associated with a URL;</li>
+	<li>Use the POST method to create a brand new server resource e.g. a new song.</li>
+	</ul>
+</p>
+<h4>REST and HTTP status codes</h4>
+<p>As well as using HTTP methods, REST applications use <em>HTTP status codes</em> to indicate
+errors to clients.
+Recall that the first line of any HTTP 
+response is a <em>status code</em> which indicates whether the request was successful or not.
+There are a large number of HTTP status codes including:
+    <ul>
+    <li><em>200 OK</em> - the page was retrieved successfully</li>
+    <li><em>400 Bad Request</em> - the request is in an invalid format</li>
+    <li><em>401 Unauthorized</em> - we try to access a page which we don't
+    have rights to view</li> 
+    <li><em>404 Not Found</em> - the page could not be found</li>
+
+    <li><em>500 Internal Server Error</em> - there was some sort of
+    internal error on the server</li>
+    </ul>
+REST Web services make use of these to communicate the success or otherwise of the operation. For example,
+a <em>200 OK</em> might be returned if the operation was successful, or a <em>404 Not Found</em>
+might be returned if we asked for a resource that did not exist.</p>
+<h4>Difference in usage of HTTP codes in REST versus normal usage</h4>
+<p>Imagine we had a REST web service to look up a given song: 
+<pre>http://hittastic.com/song/id/1009</pre>
+This script could return "404 Not Found" 
+to the client if the song with that ID was not on the HitTastic! database,
+or, if an invalid ID (0 or less) was supplied, the script could return
+"400 Bad Request", another standard HTTP error code.
+Note that this use of error codes <em>differs from the normal usage</em>:
+    <ul>
+    <li>Normally, "404 Not Found" is used to indicate that a given file on the server 
+    does not exist. This error is generated by the web server software (e.g. Apache).</li>
+    <li>Here, the web service <em>does</em> exist. It runs, looking up the song
+    with the ID 1009. If no song with that ID exists, a "404 Not Found" 
+    is generated <em>by the script</em> to inform the client of the error.</li>
+    <li>So, the error codes are being re-used by the web service to indicate an error
+    generated by the <em>script</em> rather than the <em>web server software</em>.</li>
+    </ul>
+</p>
+
+<h2>The Slim Framework</h2>
+
+<p>We looked at the Slim framework last year briefly in DFTI, but here we will look at it
+in the context of REST web services. However as not everyone was here last year, I will
+introduce Slim from scratch. Slim is a relatively easy approach to create REST web services
+in PHP.</p>
+
+<h3>Architecture of a Slim application</h3>
+<ul>
+<li>A Slim application typically contains a single <em>index.php</em> containing handlers for
+<em>routes</em></li>
+<li>A route is a combination of a URL pattern matching a REST-style URL, and a function
+to handle that URL pattern. For example, considering the REST-style URLs above:
+<pre>
+http://www.hittastic.com/allSongs
+http://www.hittastic.com/allArtists
+</pre>
+the corresponding URL patterns in a Slim application, running on <em>hittastic.com</em>, would be:
+<pre>
+/allSongs
+/allArtists
+</pre>
+and the <em>routes</em> for these URL patterns would be a combination of the pattern and
+the code to handle the pattern - you will see this below.
+</li>
+<li><em>Both routes</em> here would be handled by <em>a single index.php</em>
+with Slim; you would <em>not</em> have a separate PHP script for each.</li>
+</ul>
+<h3>Introducing .htaccess</h3>
+<ul>
+<li><em>.htaccess</em> is an Apache configuration file which allows URLs
+to be <em>rewritten</em></li>
+<li>It is used by the Apache module (extension) <em>mod_rewrite</em></li>
+<li>It is often used to allow REST-style "clean", easy-to-remember
+URLs to be used, rather than URLs including query string details</li>
+<li>For example a .htaccess file could be used to rewrite the "clean" URL
+<pre>hittastic.com/song/123</pre>
+to the "real" underlying URL:
+<pre>hittastic.com/song.php?id=123</pre>
+</li>
+<li>Slim uses .htaccess to allow routes (such as those above) to be rewritten
+so that they are all rewritten to index.php, and index.php then handles each
+route</li>
+</ul>
+<h3>.htaccess with Slim</h3>
+<p>Here is an example of a .htaccess file to be used with Slim:
+<pre>
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+</pre>
+What does this mean?
+<ul>
+<li>The first line turns the URL rewriting engine on</li>
+<li>The second and third check that the requested URL is not an existing
+file (-f) or directory (-d)</li>
+<li>The fourth and final line rewrites all other URLs to <em>index.php</em>.
+The [QSA] instruction "query string append" specifies that any existing query string
+parameters in the REST-style URL 
+will be added to the rewritten URL. The [L] specifies that no further rewrite
+instructions (e.g. those in the Apache configuration file) will be processed after this one.</li>
+</ul>
+</p>
+<h3>Installing Slim - Introduction to Composer</h3>
+<p>Slim is a third-party library; it is not part of the core PHP 
+distribution. However it is quite easy to install thanks to 
+<em>Composer</em>. Composer (see <a href="https://getcomposer.org">here</a>) 
+is a dependency 
+management system for PHP projects, allowing you to import specified third-party libraries (<em>dependencies</em> - so called because your project depends on
+them). You create a <em>composer.json</em> file specifying which
+libraries are needed, and then run an install command, and all necessary
+dependencies will be installed. Composer itself can be downloaded as
+an application from the Composer site: the Composer application is
+a file named <em>composer.phar</em> which is typically saved to your home
+directory (~ on Linux systems) and run with PHP, e.g:
+<pre>php ~/composer.phar (Composer command)</pre>
+</p>
+<p>However on Neptune, Composer is installed globally so you can just use <em>composer</em> to run it.</p>
+<p>Here is an example of a composer.json file for Slim:
+<pre>
+{
+    "require": {
+        "slim/slim" : "^3.0"
+    }
+}
+</pre>
+This means, as you might expect, the Slim package is a dependency of
+your project, and it needs to be at least version 3.0. (Version 4 was released over
+the summer, but is more complex for beginners to use, so we will stick with version 3. However,
+feel free to research and implement v.4 for your assignment!) You can add
+multiple libraries to the "require" block. Once you have setup a 
+composer.json, you can then install the dependencies with:
+<pre>composer install</pre>
+See
+<a href="https://getcomposer.org/doc/">here</a> for full documentation on
+Composer.</p>
+<p>However you do not have to write the composer.json file yourself. You 
+can <em>require</em> a package by running Composer's require command,
+e.g. by running this in your project directory:
+<pre>composer require slim/slim</pre>
+This will generate a composer.json automatically, and will also load all
+the dependencies.</p>
+<p>The dependencies will be downloaded to a <em>vendor</em> directory within
+your project directory. Also, an <em>autoload.php</em> will be generated in
+this project directory, allowing you to automatically include all the
+necessary PHP files for all dependencies. 
+So in your PHP code, you can simply add:
+<pre>
+&lt;?php
+require("vendor/autoload.php");
+...
+</pre>
+</p>
+<h3>Slim Resources</h3>
+<ul>
+<li>See the <a href="https://www.slimframework.com">Slim website</a>
+</li>
+<li><strong>In particular, see the
+<a href="https://www.slimframework.com/docs/v3/tutorial/first-app.html">
+First Application Walkthrough</a> tutorial.</strong> This explains the concepts
+covered here, but in more detail.</li>
+</ul>
+<h3>Hello World with Slim</h3>
+<p>The example below is the Hello World of Slim. Note that it's 
+annotated with comments.</p>
+<pre>
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' directory which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object. (v3 method)
+$app = new \Slim\App;
+
+// Setup a route (see below)
+$app-&gt;get('/hello', function ($req, $res, array $args) {
+    $res-&gt;getBody()-&gt;write('Hello World from Slim!');
+    return $res;
+});
+
+// Run the application
+$app-&gt;run();
+</pre>
+<p>Note how we we handle a <em>routes</em>. A route is, as we saw above, a combination
+of a URL pattern and a function to handle requests matching that URL pattern.
+Slim allows us to set up routes very easily, for both 'GET' and 'POST' methods.
+Here we are creating a route called <em>/hello</em>.
+For example for HitTastic!,
+it might be:
+<pre>http://hittastic.com/hello</pre>
+</p>
+<p>The handler for the route is a function which takes three parameters,
+<em>$req</em> representing the HTTP request, <em>$res</em> representing the
+HTTP response, and <em>$args</em> for any arguments sent to the application
+(see below). In this example we call the <em>send()</em> method of the
+response object to send back <em>Hello World from Slim!</em> to the 
+client.</p>
+<h2>Example with multiple routes</h2>
+<pre>
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' directory which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object. (v3 method)
+$app = new \Slim\App;
+
+
+
+$app-&gt;get('/hello', function($req, $res, array $args) {
+    $res-&gt;getBody()-&gt;write('Hello World!');
+    return $res;
+});
+
+
+$app-&gt;get('/time', function($req, $res, array $args) {
+    $res-&gt;getBody()-&gt;write("There have been ". time() ." milliseconds since 1/1/70.");
+    return $res;
+});
+$app-&gt;run();
+</pre>
+<p>This example sets up two routes matching URL patterns '/hello' and '/time'. The first will
+send back 'Hello World!' and the second will send back the number of 
+milliseconds since January 1st 1970. You could set up <em>POST</em>
+routes
+with <em>$app-&gt;post()</em>; we will see an example of this later.</p>
+<h3>URL placeholders</h3>
+<p>Slim allows us to easily specify placeholders for variable URLs,  e.g we could
+define a route such as:
+<pre>
+/artist/{artistname}
+</pre>
+Here, <em>artistname</em> is a placeholder which can be replaced by any artist, so that
+the following would match on the <em>hittastic.com</em> server:
+<pre>
+http://hittastic.com/artist/Oasis
+http://hittastic.com/artist/Madonna
+</pre>
+Both of these would be handled by the <em>artist</em> route, with the {artistname}
+placeholder representing the specified artist. We can then use the <em>$args</em> array
+passed into the handler to retrieve the actual value of the placeholder.</p>
+<p>Here is a full example which displays a student ID passed into the URL:
+<pre>;
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' directory which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object. (v3 method)
+$app = new \Slim\App;
+
+
+
+$app-&gt;get('/student/<em>{id}</em>', function($req, $res, array $args) {
+    $res-&gt;getBody()-&gt;write("You selected the student with ID ". $args["id"]. "&lt;br /&gt;");
+    return $res;
+});
+
+
+$app-&gt;run();
+</pre>
+Note how this will setup the route matching the URL <em>/student</em> followed
+by a placeholder <em>{id}</em> representing the student ID. So URLs such as
+<pre>
+http://server/student/1144332
+http://server/student/1239723
+http://server/student/goat
+</pre>
+will be matched. (There is no check that ntimes is numeric, so the final
+URL will be matched. However you can use regular expressions in Slim
+routes to ensure that only numbers are passed in the placeholder; see
+<a href="https://www.slimframework.com/docs/v3/objects/router.html">here</a>).
+</p>
+<p>
+To access the named placeholder from the PHP code, we use the <em>$args</em> parameter
+to our handler function, so, in this example, we would use <em>$args['id']</em> to 
+access the specified ID.</p>
+<p>Note we can specify more than one parameter with multiple placeholders in the
+URL.</p>
+
+<h3>Setting up database connections - using a dependency injection container</h3>
+
+<p>The examples so far have simply displayed data, to illustrate route handling. However a
+real app would obviously need to actually <em>perform database queries</em>. How do we do
+this? For maximum flexibility, Slim does not have its own database connection functionality -
+instead, you as the developer can use whichever database connection library (such as PDO)
+you like.</p>
+
+<p>Slim introduces the concept of a <em>dependency injection container</em>. Dependency
+injection is a software development pattern which is designed to avoid dependencies of
+one library on another by placing ("injecting") these dependencies in a 
+<em>container object</em>
+which is independent of the objects making up our chosen framework (such as Slim).</p>
+
+<p>In this way, Slim is not dependent on a particular database library, for example, but
+can work with whichever database library has been placed in this container object.
+So, if we are using PDO, we can place our PDO connection inside the container and refer to
+it in our route handlers. The example below shows this:
+<pre>
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' directory which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object. (v3 method)
+$app = new \Slim\App;
+
+$container = $app-&gt;getContainer();
+
+$container['db'] = function() {
+
+    $conn = new PDO("mysql:host=localhost;dbname=dftitutorials", "dftitutorials", "dftitutorials");
+    return $conn;
+};
+
+
+$app-&gt;get('/student/{id}', function ($req, $res, array $args) {
+    $stmt = $this-&gt;db-&gt;prepare("SELECT * FROM students WHERE studentid=?");
+    $stmt-&gt;bindParam (1, $args['id']);
+    $stmt-&gt;execute();
+    $row = $stmt-&gt;fetch(PDO::FETCH_ASSOC);
+    $res-&gt;getBody()-&gt;write("Student name ". $row['name']. " Course: " . $row['course']);
+    return $res;
+});
+
+$app-&gt;run();
+</pre>
+Note in the example how we obtain the Slim app's container with:
+<pre>$container = $app-&gt;getContainer();</pre>
+and then add a <em>db</em> field to the container, which is set equal to a function which
+<em>returns</em> the PDO database connection.</p>
+<p>Note also how we refer to the database connection in the <em>/student/{id}</em> route
+handler.We're using <em>$this-&gt;db</em> to refer to the PDO database connection; note how
+this corresponds to the <em>db</em> field of the container object.</p>
+
+
+
+<h3>Generating JSON using Slim</h3>
+<p>
+The examples so far have covered very basic use of Slim to generate HTML. However, we are interested
+in <strong>web service development</strong>, so we are more interested in outputting <em>JSON</em> from our
+Slim app. The good news is that it's very easy to generate JSON
+from a Slim web service once you know the basics of Slim above: you simply call the
+<strong>withJson()</strong> method on your Response object and return its result from your
+route handler. This will generate the response as JSON. For example:
+<pre>
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' directory which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object. (v3 method)
+$app = new \Slim\App;
+
+// Setup the dependency injection container - as in the last example
+$container = $app-&gt;getContainer();
+
+$container['db'] = function() {
+
+    $conn = new PDO("mysql:host=localhost;dbname=dftitutorials", "dftitutorials", "dftitutorials")
+    return $conn;
+};
+
+$app-&gt;get('/primeMinisters/{country}', function($req, $res, array $args) {
+	$stmt = $this-&gt;db-&gt;prepare("SELECT * FROM primeMinisters WHERE country=?")
+	$stmt-&gt;bindParam (1, $args["country"]);
+	$stmt-&gt;execute();
+	$results = $stmt-&gt;fetchAll(PDO::FETCH_ASSOC); // or fetch() to fetch one row
+	return $res-&gt;withJson($results);
+});
+</pre>
+</p>
+
+<h3>HTTP status codes</h3>
+
+<p>As we saw above, in the REST discussion, HTTP status codes are used to communicate errors to clients
+when writing web services. How can we generate HTTP error codes? Again this is easy, the
+<em>withStatus()</em> method is used. For example, this would generate a 400 Bad Request:
+<pre>return $res-&gt;withStatus(400);</pre>
+</p>
+ 
+<h2>The "correct" way to write Slim code</h2>
+<p>The examples above were deliberately simplified to make things easier for beginners. Here is a version of
+the "Hello World" example done the "correct" way. It introduces the PHP features of <em>namespaces</em> and 
+<em>type declarations</em>. Note the comments which explain each feature.
+<pre>
+
+// Import classes from the Psr library (standardised HTTP requests and responses)
+// This illustrates the PHP feature of <em>NAMESPACES</em>. When developing PHP code there is the possibility that
+// two libraries contain classes of the same name, e.g. two Request classes. To prevent clashes, we 
+// declare a namespace for each library and put the class inside the namespace. To use the class from 
+// outside the library, we need to import it with the "use" statement.
+// Here, we are importing the classes "ServerRequestInterface" and "ResponseInterface" from
+// the namespace <em>Psr\Http\Message</em>, and then <em>aliasing</em> them as <em>Request</em> and
+// <em>Response</em> respectively.
+
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' directory which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object. (v3 method)
+$app = new \Slim\App;
+
+// Setup a route.
+// Note the <em>type declarations</em> here. The parameters $req and $res are
+// declared as data type <em>Request</em> and <em>Response</em> respectively,
+// which will enforce that these parameters are of these types, similar to 
+// other more strongly-typed languages such as Java.
+
+$app-&gt;get('/hello', function (Request $req, Response $res, array $args) {
+    $res-&gt;getBody()-&gt;write('Hello World from Slim!');
+    return $res;
+});
+
+// Run the application
+$app-&gt;run();
+</pre>
+</p>
+
+<h2>Exercise</h2>
+<h3>Standard exercises</h3>
+<p>You are going to develop a REST web service using Slim called <em>HT-Tracks</em>, which will
+query the HitTastic! database and return JSON of songs to clients.</p>
+<ol>
+<li>Login to Neptune via PuTTY, change directory to <em>public_html</em>, make a 
+separate <em>wad</em> directory for your work and change directory to it:
+<pre>cd public_html
+mkdir wad
+cd wad</pre>
+Use Composer to install Slim and its dependencies:
+<pre>php ~vmadmin/composer.phar require slim/slim:^3.0</pre>
+The <em>^3.0</em> ensures that Slim v3 is installed.</li>
+<li>Write (using Notepad++ in the normal way)
+a HitTastic! web service (index.php) using Slim. It should have the following routes:
+	<ul>
+	<li>an <em>allSongs</em> route to show ALL songs in the database;</li>
+	<li>an <em>artist</em> route, containing an artist parameter, to find all songs by a given
+	artist;</li>
+	<li>a <em>/song/{song}/artist/{artist}</em> route, to find a given song by a given artist.
+	</ul>
+In all cases, return the result as JSON. <strong>Note that the table on Neptune is wadsongs.</strong>
+Note that the database login should be:
+<pre>
+database wad
+username wad
+password wad
+</pre>
+</li>
+<li>Also write your <em>.htaccess</em> file, as shown above.</li>
+<li>Transfer both files to your <em>wad</em> directory using FileZilla in the normal way and test.</li>
+</ol>
+<h3>More advanced exercises</h3>
+<ol>
+<li>Add error handling to your <em>artist</em> and <em>/song/{song}/artist/{artist}</em> routes,
+so that if there are no results, a 404 is returned. To test this, you can use the Network tab of
+the developer tools in your browser. To check for no results, you can use
+PHP's <em>count()</em> function to count the number of entries in the array,
+e.g:
+<pre>$rows = $stmt-&gt;fetchAll();
+if(count($rows)==0) {
+    ...
+}</pre></li>
+</ol>
+<h3>Transfer to Edward2</h3>
+<ol>
+<li>Once it's working, transfer your work to Edward2. Slim has been setup
+already here. To change, make the following changes:
+<ul>
+<li>Make a <em>wad</em> directory on Edward2 and transfer the index.php and .htaccess to this
+directory.</li>
+<li>Change the database name, username and password to <em>dftitutorials</em>;</li>
+<li>Slim has already been installed globally on Edward2, so you won't need to use Composer.
+(As Edward2 is the assignment server, console access is not available, unlike Neptune). Include Slim and
+its dependencies with:
+<pre>require '/var/www/html/share/vendor/autoload.php';</pre>
+</li>
+</ul>
+</ol>
+</p>
+
+<h2>Preparation for next session - Fansite</h2>
+
+<p>If you followed my instructions, you have hopefully done this already. </p>
+<p>However, if not... do the
+following. Create a one-page "fan" website for your favourite artist. The site must
+have some CSS (enough to make it distinctive; it must, as a minimum, the CSS must set the
+background and text colour and font) and should include a short biography
+of the artist (get this from Wikipedia if necessary; if short of time, just state their date and town of birth).
+<strong>Next session, you will connect this site to your
+web service, retrieving all songs by that artist from the web service and
+displaying them on the site.</strong></p>
+<p>You need to make sure you use an artist in the database.
+See <a href="https://edward2.solent.ac.uk/wad/hits.php">here</a> for a list of all the
+songs and artists present.</p>
+</body></html>

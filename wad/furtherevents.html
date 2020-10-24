@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 10a: Further Event-Handling Topics</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>Optional Extra Topic 10a: Further Event-Handling Topics: Key events and Timed Functions</h1>
+<h2>Key events</h2>
+<p>Key events occur when the user presses a key. With the growth of in-browser applications resembling traditional
+desktop applications, handling key events is becoming more useful. Key events include <em>keydown</em>
+(when the user presses a key down), <em>keypress</em> (when the user presses a key down and up immediately
+as you normally would when typing) and <em>keyup</em> (when the user releases a key).  Here is an example
+of using key events:
+<pre>
+
+// .js file
+
+function init()
+{
+    var canvas = document.getElementById('canvas1');
+    canvas.addEventListener ("keyup", handleKeyEvent);
+}
+
+function handleKeyEvent(e)
+{
+    console.log(`keyCode=${e.keyCode} shift?=${e.shiftKey}`);
+}
+</pre>
+In the HTML, the canvas must have a <em>tabindex</em> attribute set to 0 (details below):
+<pre>
+&lt;canvas id='canvas1' width='400' height='400' <em>tabindex='0'</em>&gt;
+&lt;/canvas&gt;
+</pre>
+</p>
+<p>Note how we make use of two properties of the event object relating to key events, namely 
+<em>keyCode</em> and <em>shiftKey</em>. <em>keyCode</em> gives us a numerical code (not necessarily the ASCII code)
+for each key while <em>shiftKey</em> gives us a boolean (true/false) value representing whether the Shift key was
+pressed or not. <em>keyCode</em> relates to the actual key, so pressing A or Shift/A will return the same value
+(even though lower case 'a' and capital 'A' have different ASCII codes); we use <em>shiftKey</em> to determine
+whether Shift was pressed at the same time. You can also use <em>ctrlKey</em> and <em>altKey</em> in the same
+way, but use of CTRL and Alt during in browser applications is generally not used, as these keys have default
+actions in the browser window itself.</p>
+<p>Note also the use of <em>tabindex</em> in the canvas tag. 
+(Ref: <a href="http://snook.ca/archives/accessibility_and_usability/elements_focusable_with_tabindex">
+Jonathan Snook</a>). Normally, you cannot focus a canvas by clicking the
+mouse or tabbing to it, because (unlike text fields, for example) they were not intended for text input.
+Adding the attribute <em>tabindex</em> with a value of <em>0</em> (i.e. tabindex=0) to the canvas allows it to
+be focused by clicking the mouse on it or tabbing to it. It also allows you to force focus in code using the
+<em>focus()</em> method, for example:
+<pre>canvas.focus();</pre>
+</p>
+<h2>Timed functions</h2>
+<p>
+In the kind of event-driven programming that we use with JavaScript, we might want to schedule a particular
+action to occur at a fixed time interval. Imagine, for example, an in-browser game. The hero might move in response
+to the arrow keys, but we need to make the monsters move independently and continuously without some sort of trigger
+by the user (if the hero stands still the monsters will still need to chase). This can be done with the
+<em>setInterval()</em> function. <em>setInterval()</em> is very easy to use: it takes two arguments, the function
+we would like to run, and the interval to run it in milliseconds. For example (JavaScript only shown, not HTML:
+we assume that there is a canvas with an ID of <em>canvas1</em>):
+<pre>
+
+
+var canvas, index;
+var styles = ['black','blue','red','magenta','green','cyan','yellow','white'];
+
+
+function init()
+{
+    canvas = document.getElementById('canvas1');
+    setInterval( doUpdate, 2000);
+    index = 0;
+}
+
+
+function doUpdate()
+{
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = styles[index];
+    ctx.fillRect(0,0,400,400);
+    
+    index++;
+    if (index==styles.length)
+    {
+        index = 0;
+    }
+}
+
+</pre>
+Here we define a <em>doUpdate()</em> function. It fills the canvas with the current colour from the array
+<em>styles</em> and then increases the index variable "count" by one, so that it moves on to the next colour
+and once it's reached the end, it resets "count" to 0 again. We schedule this function to be called in the
+<em>doUpdate()</em> function every 2000 milliseconds using <em>setInterval()</em>:
+<pre>setInterval( doUpdate, 2000);</pre>
+</p>
+<h3>Starting and stopping a scheduled function</h3>
+<p>At some point we will probably want to stop our scheduled function. We might also want to stop the user trying
+to set a scheduled function going twice. To do these tasks we need to make use of the <em>return value</em> of
+<em>setInterval()</em>, which is a "handle" on the function. We can then use <em>clearInterval()</em>, passing
+the handle in as an argument, to stop the function being scheduled. Also, we can test whether the "handle"
+already exists, to prevent the function being scheduled twice. The next example demonstrates this:
+<pre>
+
+
+var canvas, index;
+var styles = ['black','blue','red','magenta','green','cyan','yellow','white'];
+var handle;
+
+function init()
+{
+    canvas = document.getElementById('canvas1');
+    document.getElementById("startbtn").addEventListener ("click", start);
+    document.getElementById("endbtn").addEventListener ("click", end);
+}
+
+function start()
+{
+    if(handle)
+    {
+        alert("Function already scheduled!");
+    }
+    else
+    {
+        handle=setInterval(doUpdate, 2000);
+        index = 0;
+    }
+}
+
+function end()
+{
+    // Clear the function and set "handle" to null so that the test
+    // in "start" will work and we'll be able to schedule the function
+    // again.
+    if(handle) 
+    {
+        clearInterval(handle);
+        handle=null; 
+    }
+}
+
+function doUpdate(n)
+{
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = styles[index];
+    ctx.fillRect(0,0,400,400);
+    
+    index++;
+    if (index==styles.length)
+    {
+        index = 0;
+    }
+}
+
+</pre>
+Note how we have two buttons, one to schedule the function and another to cancel it.
+Note also how we test for the existence of the handle before starting the function,
+to prevent the function being scheduled more than once which, if done enough times,
+might crash the browser!
+</p>
+<h3>setTimeout()</h3>
+<p>Very similar to <em>setInterval()</em> is <em>setTimeout()</em>. The only difference is that it
+schedules a function to run just once, not multiple times.</p>
+<h3>requestAnimationFrame()</h3>
+<p>The <em>requestAnimationFrame()</em> function is similar in usage to
+setInterval() but is designed to sync with the browser frame refresh and
+can thus lead to smoother updates and animations. You pass it a function 
+to call next time the display refreshes itself, resulting in smoother 
+animations and less flicker. This function will typically perform a screen
+update of some kind, such as an animation.</p>
+<p>This function gets passed a parameter representing the current time since the page loaded in milliseconds. The function is only called once, so you need
+to call requestAnimationFrame() again from within the function in order to
+call it repeatedly. So you can use code such as:
+<pre>
+
+function init() {
+    requestAnimationFrame(updateFunction);
+}
+
+function updateFunction(timeSincePageLoad) {
+    // perform your animation...
+    requestAnimationFrame(updateFunction);
+}
+</pre>
+If you are doing an animation and you want to control the speed of movement
+of a character across the screen so that it moves slower than 1 pixel per
+requestAnimationFrame() call, you can increase its coordinates by a fractional
+amount less than one. In fact, 
+using the time parameter passed to the update function,
+you can set the movement of a character to a specific number of pixels per
+second, again leading to smoother and more consistent movement.
+You can find information on requestAnimationFrame()
+<a href='https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame'>here</a>.</p>
+<h3>Further exercise</h3>
+<p>Write code to move an image round the canvas. The user should use the arrow keys to move
+it.
+(key codes for the cursor
+keys: 37=left, 38=up, 39=right, 40=down). If you do not have an image use this one:
+<a href="https://edward2.solent.ac.uk/course/images/hero.png">hero.png</a>
+</p>
+<h2>Data URLs</h2>
+<p>Most current browsers are able to understand <em>data URLs</em>. These are URLs representing data of some
+sort, typically images although some browsers also understand data URLs of PDF documents. A data URL takes a form
+such as:
+<pre>
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAAACAvzb ... etc ...
+</pre>
+The image data is encoded in base64 (a text encoding of binary data such as image data). If you entered this
+data URL in the address box of your browser, the corresponding image would be loaded.</p>
+<h3>Uses of data URLs</h3>
+<p>Data URLs are very useful when working with &lt;canvas&gt;. We might want to save the current state of the
+canvas and restore it later. One example would be an in-browser Microsoft Paint-like application in which users can
+draw on a canvas and save their drawing to an image element
+(you cannot right-click on a canvas and save it directly as an image in all browsers). 
+We can use the <em>toDataURL()</em> method of the canvas object to
+do this. <em>toDataURL()</em> returns a data URL (by default in PNG format) of the contents of a canvas, for
+example:
+<pre>
+function dataURLTest()
+{
+    var canvas = document.getElementById("canvas1");
+    var dataURL = canvas.toDataURL();
+    document.getElementById("img1").src = dataURL;
+}
+</pre>
+What this code is doing is obtaining a canvas with an ID of <em>canvas1</em>, encoding its contents as a data
+URL, and then setting the <em>src</em> property of the image with the ID of <em>img1</em> to the data URL.
+The result will be that the contents of the canvas are copied into the image with the ID of <em>img1</em>, which the
+user will be able to right-click to save.</p>
+<h3>Loading a data URL back into a canvas</h3>
+<p>You can also load a data URL back into a canvas. This is easy to do: simply create a new Image object, set its
+<em>src</em> to the data URL, and draw it on the canvas. For example:
+<pre>
+var img = new Image();
+img.src = dataURL; // where "dataURL" is the saved data URL
+ctx.drawImage(img, 0, 0);
+</pre>
+</p>
+<h3>Data URLs and AJAX</h3>
+<p>Data URLs are even more powerful when combined with AJAX. We can obtain the contents of a canvas as a data
+URL and then send that data URL to a server-side script using AJAX. The server-side script can then decode the
+data and save it server-side as a PNG image, making it possible to reload the image later.</p>
+<p>Here is an example of what the client-side code might look like:
+<pre>
+var canvas;
+
+function init()
+{
+    canvas = document.getElementById("canvas1");
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0,0,400,400);
+    ctx.fillStyle = 'green';
+    ctx.fillRect(100,100,200,200);
+    
+    document.getElementById("btn1").addEventListener("click", ajaxsave);
+}
+
+function ajaxsave()
+{
+    var data = canvas.toDataURL().replace("data:image/png;base64,", "");
+    var formData = new FormData();
+    formData.append("imgdata", data);
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", e=&gt; { console.log('uploaded'); });
+    xhr.open("POST", "saveimg.php");
+    xhr.send(formData);
+}
+</pre>
+</p>
+<p>The client-side is fairly simple and includes little new: we get the data using <em>toDataURL()</em> and 
+send it to the server-side script <em>saveimg.php</em> using AJAX. Note that:
+<ul>
+<li>we only want to send the actual base64 encoded data, not the URL part as the server does not need that.
+    So we replace the URL part of the data URL (data:image/png;base64,) with a blank string before
+    sending.</li>
+<li>We use a POST request, not GET:
+GET typically has a limitation on the amount of data which can be sent (and this is less than an encoded image)
+and also conceptually GET implies that we are getting data while POST implies we are sending data.</li> 
+</ul>
+</p>
+<h3>Saving canvas data: server-side</h3>
+<p>Here is what the server-side code to save this data might look like (note: no error-checking!):
+<pre>
+&lt;?php
+$now = time();
+$imgdata_encoded = str_replace(" ","+",$_POST["imgdata"]);
+file_put_contents("/var/www/uploads/$now.png", base64_decode($imgdata_encoded));
+?&gt;
+</pre>
+This code is a little more complex than you might expect, because there is a "gotcha" with 
+POSTing data to a server. When POST requests are made, any + signs in the data are automatically
+    converted to a space. This is because in URLs, plus signs are used to encode spaces.
+    So we have to reverse the conversion by replacing any spaces with plus signs
+    (base64 data never has any genuine spaces):
+<pre>$imgdata_encoded = str_replace(" ","+",$_POST["imgdata"]);</pre>
+</p>
+<p>We then use <em>file_put_contents()</em> to put the file in a publicly-visible folder on the server.
+Note also that we get the current time (in seconds since January 1st 1970) with <em>time()</em>, to ensure that
+the saved file has a unique name.</p>
+<br />
+<h3>Advanced exercises</h3>
+<h4>Either:</h4>
+<ul>
+<li>Develop your application above 
+(in which you moved an image around the screen using the cursor keys)
+into a simple game, 
+in which the player has to avoid the chasing enemy
+for as long as possible. To do this, you will need to write a function
+to update the enemy's position to move it closer to the player, and
+schedule it.<br />
+To give you further practice with object-oriented programming in JavaScript,
+you should create an object to represent a game character (player or enemy).
+The object should have properties including x and y position, and, if you are using
+an image, an appropriate Image object.
+</li>
+</ul>
+<h4>Or:</h4>
+<ul>
+<li>Develop an in-browser application which resembles Microsoft Paint.
+Users should be able to scribble on a canvas and change colour
+(via a series of coloured &lt;div&gt;s to allow the user to pick a colour).
+If you have time, try
+allowing users to pick a drawing tool (freehand, lines, rectangles, text, etc). </li>
+<li>Using data URLs, try saving the image to the server.</li>
+</ul>
+</body>
+</html>

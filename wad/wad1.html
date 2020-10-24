@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Topic 1: JSON Web Services</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+
+<h1>Topic 1: JSON Web Services</h1>
+<h2>Introduction</h2>
+
+<p>In today's session you will be introduced to the concept of
+<strong>web services</strong> (also known as <strong>web APIs</strong>).
+You will get an initial idea of why they are useful, and will write a simple
+web service.</p>
+
+<h2>Is HTML always the best output format?</h2>
+<p>Think about the work you did last year in DFTI (or in the equivalent introductory
+server-side development unit at BIB or another university), in which you
+wrote PHP scripts to search a database table and display the results. Your PHP script will
+have generated <em>HTML</em> as the output format, so that the results look good in a browser.</p>
+<p><strong>Is this always the best format?</strong> In class, we will talk through a couple of scenarios
+where it is not.</p>
+
+<p>Once we have answered these questions we will quickly revise 
+<em>web services</em>, which we (very) briefly covered in DFTI last year, and look at <em>JSON</em>.</p>
+<h2>Web services - Introduction</h2>
+<p>
+Ordinary websites, written in HTML, are very much geared towards the end user. The end user 
+uses the HTML interface to perform particular tasks. However the end user is not the only 
+possible consumer of information on the web. What about other applications? A 
+<em>web service</em> is an application running on a web server which provides raw 
+information to other applications. These other applications are clients to the web service because they make a connection to it and 
+process the information sent back. Here are a few
+examples of web services and their clients:
+</p>
+
+<p>
+<ul>
+<li>
+<em>Flights:</em>
+An airline provides flight times and a booking service available on its own website. However, other organisations might wish to make use of this. Third-party sites such as Expedia.com or travel agents may wish to provide this service themselves. In these cases, scripts on the Expedia.com web server, or a standalone booking application at a travel agent (which might be written in Java, for example) might connect to the 
+airline's web service, and receive flight information back. The clients (Expedia and the travel agent application) could also contact the web service to perform bookings.
+</li>
+
+<li>
+<em>Weather:</em>
+a weather web service might make available current conditions in various cities around the world. Then, a website (e.g. a tourism website for London or Paris) could connect to the weather web service and display the current conditions in that city, retrieved from the web service but at the same time integrated seamlessly into the layout of its own site. Furthermore, a smartphone "app" could
+connect to the web service and show the weather for the user's current location
+within the app's interface.
+</li>
+
+<li>
+<em>Mapping:</em>
+electronic maps are typically stored in a database, which contains information about the roads and the latitude/longitude coordinates making up each point on the road (position on the earth, e.g. we are at approximately latitude 50.9 degrees North, longitude 1.4 degrees West, the Equator being latitude 0, the North Pole, 90 degrees North, and the Greenwich Meridian, longitude 0). 
+
+A mapping web service could make available this mapping information, so that client websites could use the raw data sent back from the web service to draw a map in their own style and colour scheme. OpenStreetMap (http://www.openstreetmap.org) is an example of such a mapping web service.
+</li>
+</ul>
+
+</p>
+
+
+<h2>How is information sent back from web services?</h2>
+
+<p>
+Web services obviously send back information to their clients, but what format is typically used? HTML is one possibility but is not considered a good idea because HTML contains not only data, but also page structure information (headings, paragraphs, tables etc). A client to the web service might wish to arrange the information in a different way. 
+Also some web service clients are not websites at all, for example the Java application used by the travel agent in the above example, or the weather "app". We could still use HTML, however it would be tricky to write a <em>parser</em>
+- a program which interprets the data and extracts the relevant information from it - as HTML 
+contains all manner of formatting and style information in addition to the data itself.</p>
+<p>
+So what we want is a format which represents the data, and the data alone. There are a number of formats we can use 
+including <em>XML</em> (eXtensible Markup Language) and <em>JSON</em> (JavaScript Object Notation). 
+In this unit we will focus on JSON, because many web services use JSON these days, and it is easy to parse
+(interpret).</p>
+<h2>JSON - JavaScript Object Notation</h2>
+<p>JSON uses JavaScript syntax (hence the name) to represent data as it gets sent across the web.
+With JSON we represent a single entity (such as a person, a song or a film)
+using curly brackets {} and we represent a collection of entities (an array) using square brackets [].
+The former is called a JSON <em>object</em> while the latter is called a JSON <em>array</em>. As you will
+see later in the unit, this syntax is the same as the syntax for representing objects and arrays in 
+JavaScript code.</p>
+<p>Here is an example of a JSON object representing a single student.
+<pre>
+{ 
+    "name": "Tim Smith",
+    "username": "2smitt82",
+    "course": "Computer Studies"
+}
+</pre>
+Note how the JSON object representing the student is defined by curly brackets { and }, and inside the curly
+bracket, we specify each property of the student (name, username and course) and the
+corresponding value ("Tim Smith", "2smitt82", and "Computer Studies", respectively). A colon (:) 
+separates the property and the value, and a comma separates each property/value pair.</p>
+<p>The next example shows a <em>collection (array) of students</em>. Note how we use the JSON array syntax [ and ] to
+define the collection, how each individual student object is represented by curly brackets { and }, and
+how each student object within the array is separated by a comma.
+<pre>
+[
+    { 
+      "name": "Tim Smith",
+      "username": "2smitt82",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Jamie Bailey",
+      "username": "1bailj39",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Deep Patel",
+      "username": "0pated61",
+      "course": "Networks and Web Design"
+    }
+]
+</pre>
+</p>
+<h3>Generating JSON server-side</h3>
+<p>JSON can be generated server-side in PHP, 
+from a set of database results.  PHP (v5.2.0 onwards) provides a function, <em>json_encode()</em>,
+to automatically generate JSON from PHP arrays or associative arrays (see 
+<a href="https://edward2.solent.ac.uk/course/resources.php?file=furtherphp.xml&unit=dfti">the DFTI notes</a> 
+for more on associative arrays).
+</p>
+<p><em>json_encode()</em> will convert:
+	<ul>
+	<li>a PHP array to a JSON array;</li>
+	<li>a PHP associative array to a JSON object;</li>
+	<li>and a PHP array of associative arrays to a JSON array of objects.</li>
+	</ul>
+</p>
+<p>
+Here is an example to generate JSON from a PHP array. Remember that in PHP we use the square brackets [ and ]
+to define both arrays and associative arrays - this is different from JSON and JavaScript.
+<pre>
+$monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+echo json_encode($monthLengths);
+</pre>
+This will produce the JSON:
+<pre>
+[ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
+</pre>
+</p>
+<p>Here is an example showing an associative array:
+<pre>
+$obama = ["name" =&gt; "Barack Obama",
+                "age" =&gt; 56,
+                "nationality" =&gt; "US",
+            "job" =&gt; "US President 2008-16" ];
+
+echo json_encode($obama);
+</pre>
+This would give the JSON:
+<pre>
+{"name" : "Barack Obama", "age" : 56, "nationality" : "US", "job": "US President 2008-16"}
+</pre>
+and finally here is an example showing an array of associative arrays:
+<pre>
+$politicians = [
+
+       ["name" =&gt; "Barack Obama",
+                "age" =&gt; 56,
+                "nationality" =&gt; "US",
+            "job" =&gt; "US President 2008-16" ],
+
+       ["name" =&gt; "Bernie Sanders",
+                "age" =&gt; 76,
+                "nationality" =&gt; "US",
+            "job" =&gt; "US Presidential candidate 2016" ]
+			
+                     ];
+echo json_encode($politicians);
+</pre>
+This will produce this JSON:
+<pre>
+[
+    {"name" : "Barack Obama", "age" : 56, "nationality" : "US", "job": "US President 2008-16"},
+    {"name" : "Bernie Sanders", "age" : 76, "nationality" : "US",  
+     "job": "US Presidential candidate 2016" }
+]
+</pre>
+The rule is that
+PHP arrays will map to JSON/JavaScript arrays, and PHP associative arrays will
+map to JSON/JavaScript objects.</p>
+<h3>Setting the correct content type</h3>
+<p>You should let clients know that JSON is coming back from the server, so that the client
+knows that they need to process the response as JSON, rather than something else.
+For example, web browsers will format the JSON nicely to make it easier to test and debug
+a web service. To do this, call <em>header()</em> with JSON's content type:
+<pre>header("Content-type: application/json");</pre>
+</p>
+<h2>Exercises</h2>
+<p><strong>NOTE:</strong> To test, you may need to install the JSONView plugin, from
+<a href="https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc?hl=en">
+the Chrome web store</a>. This will format the JSON nicely so it's easy to see the output.</p>
+
+<h3>Exercise - Exploring JSON and Creating the HT-Tracks web service</h2>
+<p>You are now going to write the HT-Tracks web service.
+HT-Tracks, the new offering by HitTastic! Corporation,  is a new online service similar to iTunes. It allows client 
+applications to look up details
+of music by a particular artist, and also download tracks.</p>
+
+<p>Create a PHP script called <em>htwebservice.php</em>. It should do the following, all of which you did in DFTI
+last year:
+	<ul>
+	<li>First, you should let clients know that JSON is coming back from the server, so that the client
+		knows that they need to process the response as JSON, rather than something else.
+	For example, web browsers will format the JSON nicely to make it easier to test and debug
+	a web service. To do this, call <em>header()</em> with JSON's content type as your first line of your PHP
+	script.:
+	<pre>header("Content-type: application/json");</pre>
+	<li>read in the artist as a query string;</li>
+	<li>connect to the "dftitutorials" database. The username, password and database name should all be "dftitutorials".
+	</li>
+	<li>send an SQL SELECT statement to the 'httracks' table to find all songs containing the given artist.
+	To deal with joint-artist tracks, e.g. 'Under Pressure' by Queen and David Bowie, use LIKE, e.g.:
+	<pre>SELECT * FROM students WHERE lastname LIKE '%$a%'</pre>
+	</li>
+	<li>Use <em>fetch()</em> to fetch a row from the set of the results and store the row returned in a variable.
+	<li>Use <em>json_encode()</em> to convert the row to JSON.</li>
+	</ul>
+Upload to Edward2 and test by supplying the artist as a query string. Choose an artist with 
+more than one song in the database (e.g. the Beatles, David Bowie, Madonna, Oasis or anyone else very
+famous). What do you see when you run the web service? <strong>We will discuss this in class.</strong></p>
+<p>Replace the <em>fetch()</em> with <em>fetchAll()</em>. What effect does this have? Again, we will
+discuss this in class.</p>
+
+
+
+
+<p>(Credits for the HT-Tracks database:
+the songs in the database are the UK number ones from 1960-2015, plus
+a few songs from this year. This information was taken from Wikipedia who took it in turn from the Official Charts 
+Company).</p>
+
+</body>
+</html>

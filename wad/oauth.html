@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Introduction to OAuth</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>The Wednesday Web Session 2</h1>
+<h1>Introduction to OAuth</h1>
+</div>
+
+
+
+<h2>A question of trust</h2>
+
+<p>Imagine a situation in which operations of a web service which change the database
+(such as leaving a review for HT-Tracks, or booking an item of accommodation for 
+PlacesToStay) required the user to login. Now imagine that client websites, such as
+your fan site or VisitHampshire, wanted to allow <em>their</em> users to perform
+these operations. How could it be done?
+    <ul>
+    <li>The client websites could have their own special login, such as
+    <em>visithampshire</em>. All changes made through the client website are
+    done under that login. This would mean, however, that it would be impossible
+    to determine which user did what.</li>
+    <li>The user could provide their web service login credentials to the
+    <em>client</em> site, and these could be sent over the web (e.g. cURL request)
+    to the web service. If HTTPS is used, this would be reasonably secure,
+    <em>but</em> the client site developer is asking the users to <em>trust</em> them
+    with their web service login credentials. 
+    <strong>This is not a good idea.</strong> In a world seemingly full of
+    cyber-criminals and ethically-questionable people 
+    quite willing to exploit your personal data for their own gain or for the gain of shady third-parties, 
+    you want to minimise the number of parties you share your credentials with.
+    In the assignment scenario, for example, VisitHampshire might not have such strong
+    security as PlacesToStay and thus the credentials may be stolen. Or the client website
+    may misuse the user's credentials.</li>
+    </ul>
+Consequently, <strong>another approach to cross-site authentication is needed</strong> and this
+is where OAuth comes in. OAuth allows
+client sites to authenticate with services via <em>tokens</em>. With OAuth,
+we have a <em>provider</em> which provides an OAuth service (this would
+be the web service) and a <em>consumer</em> which uses the service
+(the web service client). The user logs in on the <em>provider</em>
+site and then receives an <em>access token</em> to access any web service URLs
+(API endpoints) which need authorisation. The current version of the OAuth standard is
+<strong>OAuth 2</strong>, which allows a number of different <em>grant types</em>
+(mechanisms for granting access to a consumer to act on behalf of a user).
+We will consider the <em>authorisation code</em> grant type, as it more secure than some of the
+other options (e.g plain username/password)</p>
+<h2>General requirements for developing an OAuth2 client</strong>
+<h3>Client needs to register with the server</h3>
+<p><strong>Firstly the client site (consumer) needs to identify
+itself to the service (provider).</strong> This is done as follows:
+    <ul>
+    <li>Each consumer (client, e.g. the fan site or VisitHampshire) 
+    <em>registers</em> with  the provider (web service). The web service gives the consumer a 
+    unique key and secret, both unique codes which can be used to identify the 
+    consumer to the provider. The secret is required for security and must, as the name
+    suggests, be kept secret. For example if we are developing a PHP application, the
+    secret could be placed in an include file which would not be included in the 
+    application's Git repository.</li>
+    
+    <li>When registering, the consumer typically needs to be logged in to the
+    provider's site (so that the provider knows who they are, and appropriate action can be
+    taken against malicious clients) and a <em>callback</em> - a 
+    page on the consumer site which the user will be redirected to once they
+    have logged in on the provider site.</li>
+    </ul>
+</p>
+<h3>User authentication with OAuth2</h3>
+<p>
+Here is a description of the entire OAuth2 authentication process which takes place
+when the user interacts with a client (consumer) site.
+    <ol>
+    <li>User clicks an "authenticate" link on the consumer.</li>
+    <li>Request containing the client key and secret sent to the OAuth
+    provider - specifically a URL designated as the <strong>authorize</strong> endpoint.</li>
+    <li>OAuth provider checks key and secret, and if valid, asks the user to 
+    <strong>grant permission to the consumer to carry out operations on their
+    behalf</strong>. In other words, the user is <strong>explicitly stating that they
+    trust the consumer to perform operations on the provider</strong>.
+    If the user grants permission, the provider sends back an
+    <em>authorisation code</em>. This is a temporary code used during the
+    authorisation process only. The provider redirects the user to the
+    registered <em>callback URL</em> on the consumer site.</li>
+    <li>Back on the consumer side, if an authorisation code has been received, the consumer
+    then sends another request to the <strong>access_token</strong> endpoint to obtain an access 
+    token from the authorisation code. Unlike the authorisation code, the access token is long-lived
+    and can be used to perform operations on behalf of the user.</li>
+    <li>The user can then perform an operation which requires an access token, such as leave
+    a review or book a hotel. The access token is sent within the HTTP header of the
+    request as a 
+    <em>bearer token</em> under the Authorization header, e.g:
+    <pre>Authorization: Bearer 0dc176676acfb98987edcb787....</pre>
+    </li>
+    <li>Access tokens remain active until they time out or the user <em>revokes</em> them.
+    Typically, a user can log onto the provider's site and view all their
+    active tokens. Each token can then be revoked by the user. Until a token
+    is revoked, that token will remain active: an approach taken by some
+    developers (e.g 
+    <a href='http://hdyc.neis-one.org'>OSM How Did You Contribute?</a>), is
+    to store the user's access token as a cookie so that they don't get a
+    new token each time they use a consumer; instead they are automatically
+    authenticated using the access token stored in the cookie.
+    An OAuth provider might also wish to provide an API call to
+    revoke a token.</li>    
+    </ol>
+</p>
+<p>This is shown here:<br />
+<img src="../images/oauth2_process.png" alt="OAuth2 overall process"/>
+</p>
+<h2>Very useful resource for more details</h2>
+<p>Aaron Parecki has written an in-depth introduction to OAuth2: this can be found
+<a href='https://aaronparecki.com/oauth-2-simplified'>here</a></p>.
+<h2>Implementation details</h2>
+<p>PHP has an official OAuth extension which makes it relatively easy to develop
+OAuth clients and servers, but unfortunately this only supports OAuth1, not OAuth2.
+(OpenStreetMap still uses OAuth1, so if you need to write a consumer to OSM, you'll have to
+develop an OAuth1 client). However, luckily a third party library exists for developing an OAuth2 client, namely
+the PHP League's <em>oauth-client</em>. This can be obtained 
+<a href='https://github.com/thephpleague/oauth2-client'>here</a>.
+</p>
+<h3>Writing an OAuth client (consumer)</h3>
+<p>The logic of an OAuth2 client is set out below. We are assuming here that a 
+single page, <em>index.php</em>, both sends the original authorisation request 
+<em>and</em> acts as the registered callback.
+<img src="../images/oauth2_logic.png" alt="OAuth2 client logic"/>
+</p>
+<p>
+Our script starts by checking whether an authorisation code was passed in via GET. If it was,
+we've redirected from the /authorize endpoint on the provider. If it wasn't, we're starting from
+the beginning and so need to request an authorisation code:
+<pre>
+&lt;?php
+// Load our Composer-installed dependencies
+require_once 'vendor/autoload.php'; 
+
+// Create an object representing the provider.
+// Note how we have to provide our client ID and secret, and also
+// the /authorize and /access_token endpoints.
+// We also supply the redirect URL in case we didn't specify it when we
+// registered our app.
+
+$provider = new \League\OAuth2\Client\Provider\GenericProvider([
+    'clientId' => 'YOUR CLIENT ID',
+    'clientSecret' => 'YOUR CLIENT SECRET',
+    'redirectUri' => 'YOUR CLIENT REDIRECT URL',
+    'urlAuthorize' => '/authorize ENDPOINT ON PROVIDER',
+    'scope' => 'all',
+    'urlAccessToken' => '/access_token ENDPOINT ON PROVIDER',
+    'urlResourceOwnerDetails' => 'BASE URL OF PROVIDER API'
+]);
+
+session_start();
+
+// If an authorisation code was NOT supplied as a query string..
+if(!isset($_GET["code"])) {
+
+    // Get the full URL for the /authorize endpoint
+    $authUrl = $provider->getAuthorizationUrl();
+    
+    // Get the state (see below)
+    $_SESSION['state'] = $provider->getState();
+    
+    // Redirect to our /authorize endpoint
+    header("Location: $authUrl");
+}
+</pre>
+</p>
+<p>Most of this has been explained in the code comments. The only aspect which has not
+is the <em>state</em>. Note that when we begin, we store the provider object's state
+in a session variable. This is a random string which we store in a session variable
+and check later, when we get the 
+code back from the provider; we check that the provider sends back the same state we
+started with. This guards against interception attacks during the authorisation
+process.</p>
+
+<p>Next, we write the code to handle the authorisation code having been returned from the
+provider:
+<pre>
+// Check that the state sent back from the server is the same as the original (see above)
+elseif(empty($_GET['state']) || (isset($_SESSION['state']) && $_GET['state']!=$_SESSION['state'])) {
+    unset($_SESSION['state']);
+    echo "Possible security violation detected - quitting";
+} else {
+    if(!isset($_SESSION["accessToken"])) {
+        echo "No saved access token, getting one &lt;br /&gt;";
+        $accessToken = $provider->getAccessToken('authorization_code',
+            ["code"=>$_GET["code"]]);
+        $_SESSION["accessToken"] = $accessToken;
+    } else {
+        echo "We already have an access token, using that";
+        $accessToken = $_SESSION["accessToken"];
+    }
+    echo "Has access token expired? ".($accessToken->hasExpired() ? 'yes': 'no')."&lt;br /&gt;";
+    ....
+</pre>
+Hopefully this code should be clear. We first check the state (see above) and then 
+see if we have an <em>access</em> token stored in a session variable already. If we have,
+we can use it. If we haven't, we need to exchange the authorisation code for an access token
+by calling the access token endpoint of the provider. This code example also displays whether
+the access token has expired or not. If it has expired, it will no longer be possible to use
+it to call our provider API.</p>
+<p>Next, now that we have an access token, we can use it to make an API call.
+This is making an imaginary call to a <em>photo/upload</em> route in the provider's
+web service API:
+<pre>
+    // Form an object representing the HTTP request
+    $request = $provider->getAuthenticatedRequest(
+        'POST',
+        'http://localhost/oauth/oauth_server/api/photo/upload',
+        $accessToken
+    );
+    echo "&lt;h2&gt;Making a request to the Open Panos API&lt;/h2&gt;";
+
+        
+    // GuzzleHttp is an object-oriented PHP HTTP client - fulfils same role as cURL
+    $client = new GuzzleHttp\Client();
+    
+    // Send the request and get the response
+    $response = $client->send($request)->getBody();
+    
+    // Decode the JSON
+    $responseData = (string)json_decode($response);
+    
+    // Display the response. Imagine the JSON returned has a 'msg' field.
+    echo "Response from API: &lt;strong&gt;{$response->msg}&lt;/strong&gt;";
+</pre>
+As we can see, this code sends a request to an API URL, passing in the access token, which is
+sent in the HTTP header in the form:
+<pre>Authorization: Bearer ab767c678de988f78...</pre>
+</p>
+<p>So that's it! The only thing we need to add is some error handling. You should wrap all the
+code in the "else" block (i.e. if we have an authorisation code and valid state) inside a "try/catch"
+block to handle errors thrown by the provider. e.g.
+<pre>
+try {
+    // get access token if needed, and make your API calls
+} catch(\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) { // thrown with invalid tokens
+    echo "Exception: {$e->getMessage()}";
+} catch(GuzzleHttp\Exception\ClientException $e) { // thrown if API returns an HTTP error code
+    $status = $e->getResponse()->getStatusCode();
+    echo $status==401 ? "This access token does not grant upload permission" :"HTTP error $status";
+}
+</pre>
+
+
+<h2>Writing an OAuth server</h2>
+<p>Often as a web developer you will only be interested in consuming other people's OAuth services.
+However you may well be interested in how to develop an OAuth2 server yourself. We may return to this
+in a future Wednesday Web session, but for now, here are a couple of pointers:
+    <ul>
+    <li><a href='https://github.com/thephpleague/oauth2-client'>PHP OAuth2 Server</a> - well-maintained,
+        updates in the past week.</li>
+    <li><a href='https://github.com/oauthjs/node-oauth2-server'>Node OAuth2 Server</a> - interesting
+    but has not seen any updates in more than a year.</li>
+    </ul>
+</p>
+
+<h2>Exercise</h2>
+<p>You are going to write an OAuth2 client to OpenTrailView (www.opentrailview.org) to allow
+users to add tags to panoramas. To do this:
+    <ul>
+    <li>Login to Neptune with PuTTY. (The nature of this week's work means that we should not run out of
+    disc space)</li>
+    <li>Navigate to public_html (cd public_html)</li>
+    <li>Install the oauth2-client with Composer:
+    <pre>php ~vmadmin/composer.phar require league/oauth2-client</pre>
+    </li>
+    <li>Visit <em>opentrailview.org</em> and signup for an account. 
+    Do not use a password that you use for Google, Facebook etc! I use password encryption and standard
+    web security (HTTPS, data sanitisation/validation, SQL injection/XSS prevention, etc) but I don't 
+    implement the extreme levels of security of a multi-million-dollar site so please use 
+    a separate password.
+    </li>
+    <li>Login and register your app:
+    <pre>https://www.opentrailview.org/addApp</pre>
+    Make sure the callback URL points to a location on your space on Neptune and includes "index.php"!
+    <strong>Note down your key and secret!</strong>
+    </li>
+    <li>Write the client as shown above. The API call you are going to make will be to tag a photo on
+    OpenTrailView. <strong>Specifically, the code you should write is:</strong>
+    <pre>  $request = $provider->getAuthenticatedRequest(
+        'POST',
+        'https://opentrailview.org/oauth/api/tag/add',
+        $accessToken,
+        ["headers"=>["Content-Type" => "application/json"],
+        "body"=>json_encode(["tag"=>"some tag", "panoid"=>n])]
+    );
+
+    </pre>
+    (<strong>where n is a number from 1-20, representing a panorama ID.</strong>)
+    </li>
+    <li>To check it worked, visit this URL:
+    <pre>https://www.opentrailview.org/panorama/n</pre>
+    where <strong>n</strong> is your chosen panorama ID.
+    </li>
+    <li>Adapt your client to read in the panorama ID and tag from a query string.</li>
+    <li><strong>Advanced:</strong> try implementing an HTML form with method of POST on your client
+    to allow the user to enter the panorama ID and tag.</li>
+    </ul>
+</p>
+</body>
+</html>

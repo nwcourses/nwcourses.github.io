@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<title>CSS Media Queries</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>CSS Media Queries</h1>
+
+<h2>Introduction</h2>
+<p><em>Reference: <a href='https://developer.mozilla.org/en-US/docs/CSS/Media_queries'>Mozilla developer page</a></em></p>
+<p><em>CSS Media Queries</em> allow us to define different stylesheets, or stylesheet rules, depending on the
+properties of the device. In this way, we can develop sites which have a usable layout on both a desktop browser
+and a mobile browser. Media queries test different properties of the current device (such as the width or aspect
+ratio), and depending on whether the
+properties are true or false, can apply different CSS rules. Thus we can design different layouts for desktop and
+mobile devices.</p>
+<p>Here is an example of using media queries to load a different stylesheet based on the width of the device:
+<pre>
+&lt;link rel="stylesheet" media="only screen and (max-width: 599px)" type="text/css" href="mobile.css" /&gt;
+&lt;link rel="stylesheet" media="only screen and (min-width: 600px)" type="text/css" href="desktop.css" /&gt;
+</pre>
+Note the media query, specified in the <em>media</em> property of the <em>link</em> tag. This code
+is telling the browser to include the stylesheet <em>mobile.css</em> if it is a screen-based device (as opposed to a printer,
+for instance) and the width of the screen is 599 pixels or less, or to include the stylesheet <em>desktop.css</em> if
+it is a screen-based device and the width of the screen is 600 pixels or more. So for a typical smartphone the first 
+stylesheet will be linked in, and for a typical desktop browser the second stylesheet will be included.</p>
+<p>When we say <em>width</em>, we mean the width of the <em>browser viewport</em>, i.e. the currently visible area of the browser window in which the page content is displayed. We do not mean the width of the device itself. This has the advantage
+that the "mobile" layout will apply if we resize the window of a regular desktop browser below 600 pixels - which is probably
+what we want.</p>
+<h3>Different media types</h3>
+<p>As well as <em>screen</em>, there are other media types such as <em>aural</em>, <em>braille</em> or <em>print</em>,
+for different types of devices. These three are for screen readers (which speak the contents
+of a web page), braille-based browsers, and printers, respectively.</p>
+<h3>Other CSS Media Query directives</h3>
+<p>Besides <em>max-width</em> and <em>min-width</em>, a range of other useful CSS media query rules exist. They 
+include:
+    <ul>
+    <li><em>max-device-width</em> and <em>min-device-width</em>. These specify the maximum and minimum width of
+    <em>the entire device</em>, rather than the viewport, as described in <em>max-width</em> and
+    <em>min-width</em> above.  So, if you were to
+    use <em>max-device-width</em> and <em>min-device-width</em> you could use one stylesheet for mobile devices and another
+    for desktop browsers, the desktop stylesheet being applied even if you resized the browser window on a desktop
+    machine to a narrow width.</li>
+    <li><em>Aspect ratio</em> rules. These relate to the aspect ratio of the viewport or the device, in other words the
+    width divided by the height. This allows certain layouts to be applied to landscape screens (those where the width
+    is greater than the height) and
+    others to portrait screens (where the height is greater than the width). The aspect ratio rules include:
+        <ul>
+        <li><em>aspect-ratio and device-aspect-ratio</em>: the aspect ratio of the viewport and the device itself
+        (use above for the difference between the viewport and the device). Use these if you want a stylesheet for
+        a <em>specific</em> aspect ratio. These are expressed as fractions, e.g.:
+        <pre>&lt;link rel="stylesheet" type="text/css" media="only screen and (aspect-ratio: 3/2)" href="style.css" /&gt;
+        </pre></li>
+        <li><em>max-aspect-ratio</em>, <em>min-aspect-ratio</em>, <em>max-device-aspect-ratio</em> and
+        <em>min-device-aspect-ratio</em>. These allow you to specify the maximum or minimum aspect ratio for a particular
+        style. What do "maximum" and "minimum" mean? Since aspect ratio is width divided by height, it follows that the
+        greater the width is relative to the height, the higher the aspect ratio. So a <em>max-aspect-ratio</em> of 
+        <em>3/2</em>. e.g:
+        <pre>&lt;link rel="stylesheet" type="text/css" media="only screen and (max-aspect-ratio: 3/2)" href="style.css"/&gt;
+        </pre>, would apply the stylesheet if the width is 1.5 times the height or less.</li>
+        </ul>
+    </li>
+    <li><em>orientation</em>: a shortcut for the aspect ratio rules above. This can have the values "portrait" or
+    "landscape" and will link a particular stylesheet if the device is in landscape or portrait orientation respectively.
+    For example:
+    <pre>&lt;link rel="stylesheet" type="text/css" media="only screen and (orientation: portrait)" href="portrait.css"/&gt;
+    </pre>
+    </li>
+    <li><em>color</em>, <em>min-color</em> and <em>max-color</em> - used to specify different stylesheets for different 
+    colour depths. <em>color</em> on its own will apply the stylesheet if it is a colour device while <em>min-color</em>
+    and <em>max-color</em> will apply the stylesheet if the colour depth is at least, or at most, a given number of bits
+    of colour. So for example:
+    <pre>&lt;link rel="stylesheet" type="text/css" media="only screen and (min-color:24)" href="highcolour.css"/&gt;</pre>
+    would only apply the stylesheet <em>highcolour.css</em> if the device had at least 24-bit colour.</li>
+    </ul>
+</p>
+<h3>Combining conditions</h3>
+<p>You can combine conditions with the use of <em>and</em> and <em>not</em> operators, for example, this will only
+link in the stylesheet if the width of the viewport is at least 800 pixels <em>and</em>
+there are at least 24 bits of colour:
+<pre>
+&lt;link rel="stylesheet" type="text/css" media="only screen and (min-width: 800px) and (min-color: 24)"
+ href="desktop.css" /&gt;
+ </pre>
+ or this will link in the stylesheet if the viewport is <em>not</em>
+at least 800 pixels (i.e. less than 800 pixels)
+ but the colour depth is at least 24:
+ <pre>
+&lt;link rel="stylesheet" type="text/css" media="only screen and (not min-width: 800px) and (min-color: 24)"
+ href="mobile.css" /&gt;
+ </pre>
+ </p>
+ <p>There is not an "or" operator but you can separate criteria with a comma and the stylesheet will be applied if any
+ of the media are met, e.g:
+ <pre>
+&lt;link rel="stylesheet" type="text/css" media="only screen and (min-width: 800px), 
+only screen and (min-color:24)" href="style.css" /&gt;
+ </pre>
+ would apply the stylesheet if <em>either</em> the width is at least 800 pixels 
+ <em>or</em> the colour is at least 24-bit.
+ </p>
+ <h3>Media Queries and individual CSS rules</h3>
+ <p>The examples so far have shown how to link in whole stylesheets depending on the properties of the device. However in
+ certain cases we might just want to incorporate <em>certain rules (selectors)</em> within the CSS
+ depending on the device properties, for example the dimensions of a specific <em>div</em>. Here is how to do this in a CSS stylesheet:
+ <pre>
+ @media only screen and (min-width: 800px)
+ {
+    #div1 
+    {
+        width: 800px;
+        height: 600px;
+    }
+    
+    #div2 
+    {
+        width: 800px;
+        height: 400px;
+    }
+}
+
+@media only screen and (max-width: 480px) 
+{
+    #div1
+    {
+        width: 320px;
+        height: 200px;
+    }
+    
+    #div2 
+    {
+        width: 320px;
+        height:200px;
+    }
+}
+ </pre>
+ The first pair of rules will be applied if the width is at least 800 pixels, and the second, if the width is no more
+ than 480 pixels. Note how we specify the media rule and then use curly brackets { and } to define the block of CSS
+ which applies to this media rule. Within this outer block we list one or more CSS selectors (rules)
+ which will be applied if the media rule holds true.</p>
+ 
+ 
+ <h2>The problem with high resolution mobile devices</h2>
+
+<p><em>Please note, the following two references provide much additional information about this topic:
+
+<ul>
+<li><a href='https://developer.mozilla.org/en-US/docs/Mozilla/Mobile/Viewport_meta_tag'>Mozilla dev article</a></li>
+<li><a href='https://www.quirksmode.org/mobile/viewports2.html'>Peter-Paul Koch, quirksmode.org, "A Tale Of Two Viewports", Part 2</a></li>
+</ul>
+
+</em>
+</p>
+
+
+<p>CSS media queries as above are fine for "classic" mobile devices with low
+resolution, but we come across a problem when trying to develop for modern,
+high resolution devices. This problem relates to the concept of the <em>viewport</em>. You might think
+"viewport" means the same as "screen" but in fact, this is not the case.
+</p>
+<p>As Koch discusses in his article, there are actually <em>two</em> viewports. The first
+is the screen (also known as the 'device viewport' 
+(<a href='https://www.quirksmode.org/mobile/viewports2.html'>Koch</a>)) and the sceond is the
+'layout viewport' (<a href='https://www.quirksmode.org/mobile/viewports2.html'>Koch</a>). The layout viewport is the actual area on whch the page is
+rendered, and does not necessarily equal the screen size.
+ For a mobile device the width of the layout viewport depends on the browser: "How wide is the layout viewport? That 
+differs per browser.  Safari iPhone uses 980px, Opera 850px, Android WebKit 800px, and IE 974px."
+(<a href='https://www.quirksmode.org/mobile/viewports2.html'>Koch</a>).
+This may well exceed the width of the actual
+device viewport (screen), which means that parts of the page would, if nothing else was done, 
+go off-screen, severely impacting usability.
+</p>
+
+<p>Mobile browsers typically deal with this <em>automatically</em> deal with this by shrinking (zooming out) the page so 
+that the layout viewport matches the device viewport. While at least we can see the page on-screen without parts of it disappearing off
+the right-hand side, this results in another problem - the page is too small on a mobile 
+device, and thus is unreadable and has very poor usability. Furthermore, media queries use the layout viewport, not the device viewport,
+so, for example, on an Android device with a screen width of <em>less than</em> 800px, media queries designed for less-than-800px widths will
+<em>not</em> apply as the <em>layout</em> viewport is still 800.</p>
+ 
+<p>So how can we deal with this? What we can do is <em>set the layout viewport to have the same width as the device 
+viewport</em> and then  <em>use media queries to design an appropriate mobile layout</em>.</p>
+
+<p>To do the first, we can add this <em>meta</em> tag to our page (in the &lt;head&gt; section):
+<pre>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</pre>
+This line is setting the size of the <em>layout viewport</em> and it's fixing its width to be
+<em>device-width</em>, which is the actual width of the device (screen) in <em>CSS pixels</em> (see below).</p>
+
+<h3>CSS pixels</h3>
+
+<p>An understanding of <em>CSS pixels</em> helps understanding of what is going on here.
+What are CSS pixels? These are 'virtual pixels' which are used by CSS rules.
+But what is one CSS pixel equivalent to? Normally 1 CSS pixel is equivalent to 1 "actual" pixel but this changes on 
+performing zoom operations. So when you zoom in a page (for example, using Ctrl/+ on a desktop), CSS pixels grow larger to occupy more 
+space than one real pixel. However if you zoom out (Ctrl.-), CSS pixels become smaller and one CSS pixel
+will occupy less space than one real pixel.</p>
+
+<p>To give some actual examples, a page element scaled to 800 CSS pixels will occupy 800 'real' pixels at default zoom.
+However, if we zoom IN by a factor of 1.5, the element will occupy more screen space - 1200 'real' pixels.
+Its width in *CSS* pixels, though, will remain 800 so nothing will change in terms of which media query rules are
+matched. So in this example one CSS pixel will occupy 1.5 real pixels.
+</p>
+<p>However, if we zoom OUT by a factor of 2, the page will occupy LESS screen space. So its width in 'real' pixels will now
+be 400 but it will still be 800 <strong>CSS</strong> pixels so nothing changes in terms of which media query rules are
+matched. So in this example one CSS pixel will occupy 0.5 real pixels.</p>
+
+<p>The <strong>width: device-width, initial-scale : 1</strong> in the directive above:
+<pre>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</pre>
+forces the width of the page (in CSS pixels) to be the same
+as the width of the device in CSS pixels with no zoom applied (i.e. the width 
+of the device in 'real' 
+pixels). So here, the page will use, not 800 CSS pixels of width, but 640, by default (as that is the
+width of the page) - and media queries designed
+for devices with a width of less than 800 CSS pixels will kick in.
+</p>
+
+
+<h2>Exercises</h2>
+<ol>
+<li>Develop your web mapping example to use a sidebar/main content area layout. The sidebar should
+contain links to OpenStreetMap (www.openstreetmap.org), OpenCycleMap (www.opencyclemap.org) and Freemap
+(www.free-map.org.uk). Use: sidebar width 20%, main content width 80%,e.g:
+<pre>
+#sidebar
+{
+    position:absolute;
+    top:0%;
+    left:0%;
+    width:20%;
+    height:100%
+}
+
+#main
+{
+    position:absolute;
+    top:0%;
+    left:20%;
+    width:80%;
+    height:100%
+}
+</pre>
+</li>
+<li>Use CSS media queries so that a different layout is produced when the screen width is 480 pixels or less. This
+alternative layout should have a map of width 480 pixels, height 200 pixels and should show the copyright message and
+the three links immediately
+above the map, so that everything is in one column, not two. The width of the
+sidebar (now top bar) should be 100%.
+ This "narrower" layout is more mobile-friendly. 
+<strong>Do not use position: absolute or set the top or left properties.</strong> Just let the elements flow in natural order.</li>
+<li>Change your answer so that the first layout appears if the aspect ratio is greater than 2/3, and the second layout if
+the aspect ratio is less than 2/3.</li>
+<li>Ensure the viewport is set so that the site looks friendly on a high-resolution mobile device.</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>Topic 4: POST-based web services and clients</h1>
+
+<p>In this session, you will write a web service which
+<em>updates the database</em> by adding new data, namely a review for a given song. 
+</p>
+
+
+<h2>POST data using Slim</h2>
+<p>So far we have only looked at GET requests, however to create new data we need to use POST.
+How do we handle POST data in Slim? Firstly, we set up a 'post' rather than
+a 'get' route, and then we use the request's <em>getParsedBody()</em> method
+to extract the POST data. For example, this sets up a POST route <em>/student/create</em>:
+<pre>
+
+// Include all the Slim dependencies. Composer creates an 'autoload.php' inside
+// the 'vendor' folder which will, in turn, include all required dependencies.
+require 'vendor/autoload.php';
+
+
+// Create a new Slim App object.
+$app = new \Slim\App;
+
+$app-&gt;post('/student/create', function ($req, $res, array $args) {
+    $post = $req-&gt;getParsedBody();
+    $res-&gt;getBody()-&gt;write("Student details : Name: ". $post['name']. " Username: ". $post['username']. " Course: " . $post['course']);
+    return $res;
+});
+
+
+$app-&gt;run();
+</pre>
+</p>
+<p>In this example, we could set up a form with an action of "/student/create" and fields with names
+of <em>name</em>, <em>username</em> and <em>course</em>, and the Slim application would read, and display,
+this data.</p>
+
+<h3>Exercise 1</h3>
+<p>This exercise will involve creating a review for a song, so we will use
+POST, as per the principles of <a href='wad2.html'>REST</a>.</p>
+
+<ul>
+<li>Extend your Slim web service to include a "/review/create" route to create a review
+for a particular song (defined by ID - so
+include the ID as a placeholder in your route). It should read in a review, as a
+POST request, connect to the database, and 
+add a review for that song - there is now a "reviews" table in the "dftitutorials" database so just perform an
+INSERT statement.</li>
+</ul>
+
+
+
+<h2>Sending a POST request using cURL</h2>
+
+<p>So far we have seen how to connect to a web service using cURL to send
+a GET request, however what about a POST request? </p>
+<p>
+Rather than adding the data to the end of the URL using a query string, you
+set the <em>CURLOPT_POSTFIELDS</em> option with the data you want to POST.
+See the example below, in which <em>$dataToPost</em> is an associative array describing a new flight.
+It is 
+sent to the REST URL <em>http://www.solentairways.com/flight/create</em>:
+<pre>
+$connection = curl_init();
+curl_setopt($connection, CURLOPT_URL, "http://www.solentairways.com/flight/create");
+<em>$dataToPost = 
+    ["origin" =&gt; "London" ,
+     "dep" =&gt; "0900",
+     "arr" =&gt; "1600",
+     "destination" =&gt; "New York",
+     "aircraft" =&gt; "Boeing 777",
+     "flightnumber" =&gt; "SA123"];</em>
+curl_setopt($connection,CURLOPT_RETURNTRANSFER,1);
+<em>curl_setopt($connection,CURLOPT_POSTFIELDS,$dataToPost);</em>
+$response = curl_exec($connection);
+curl_close($connection);
+</pre>
+would send the specified data describing
+a new flight to the <em>/flight/create</em> route. <em>/flight/create</em> could
+then read the various fields with with <em>$req->getParsedBody()</em>. For example:
+<pre>
+$app-&gt;post("/flight/create", function($req, $res, array $args) {
+    $postData = $req-&gt;getParsedBody();
+    // $postData["origin"] is the origin, $postData["dep"] is the departure time, etc.
+});
+</pre>
+</p>
+<h3>Exercise 2</h3>
+<p>Return to your "fan" website from last time. On the "fan" website,
+allow the user the ability to review each song <em>from HT-Tracks</em>.
+This should be done by writing a new page on your fan site which connects to
+the HT-Tracks download web service, which you wrote above.</p>
+<br />
+<img src="../images/fansite_review.png" alt="Web service clients with POST" />
+<br />
+</p>
+<p>Do this as follows: </p> 
+<ul>
+<li>On your fan page, add a "review" form next to each song. This should link to a new,
+as yet unwritten, script, <em>clientreview.php</em>, and have two fields:
+<ul>
+<li>a regular field for the review;</li>
+<li>and a hidden field for the ID.</li>
+</ul>
+<strong>Hint</strong>: 
+to create your form in your JSON-parsing loop, with a hidden field,
+use this PHP:
+<pre>
+echo "&lt;form method='post' action='clientreview.php'&gt;";
+echo "&lt;input name='review' /&gt;";
+echo "&lt;input name='id' type='hidden' value='(the ID from your JSON - fill this in!)' /&gt;";
+echo "&lt;input type='submit' value='review' /&gt;";
+echo "&lt;/form&gt;";
+</pre>
+<strong>Or, alternatively,</strong> for each song on your fan page,
+write a link to a separate page which should contain
+a review form containing a review field, a hidden field for the ID, and an
+action of <em>clientreview.php</em>.
+</li>
+<li>Write the new script,<em>clientreview.php</em>. 
+<strong>This is part of the "fan" site, and should therefore have the same
+CSS and look and feel as the main page of the "fan" site.</strong>
+Write some PHP code in this script to read in the ID and the review from the form, and
+send a cURL POST request to your review web service, passing the chosen review across.</li>
+<li>Finally, add some <strong>error handling</strong> to your web service. If the review is blank (""), choose an
+appropriate HTTP code to send back. Look at the <a href='wad2.html'>REST and Slim</a> topic for information on
+how to send back a particular HTTP status code from a Slim application.</li>
+</ul>
+
+
+<h3>How to test the HTTP status code from a client</h3>
+<p>In the last question of the exercise, you were asked to send back an HTTP status code to the client if the
+review was blank. However, we have <strong>not yet looked at how you can test for an HTTP code sent back from a
+remote script</strong>.
+Luckily, if you are using cURL it's fairly straightforward. Once you have done your 
+cURL request
+you query the <em>CURLINFO_HTTP_CODE</em> property to obtain the HTTP code returned by the web service, for 
+example:
+<pre>
+$connection = curl_init();
+curl_setopt($connection, CURLOPT_URL, "http://remoteserver/script.php");
+curl_setopt($connection,CURLOPT_RETURNTRANSFER,1);
+curl_setopt($connection,CURLOPT_HEADER,0);
+$response = curl_exec($connection);
+<em>
+$httpCode = curl_getinfo($connection,CURLINFO_HTTP_CODE);
+echo "The script returned the HTTP status code: $httpCode &lt;br /&gt;";
+</em>
+curl_close($connection);
+</pre>
+</p>
+<p>Note how the line:
+<pre>curl_setopt($connection,CURLOPT_HEADER, 0);</pre>
+is still present. We can get the status code without having to include
+the full HTTP header in the output.</p>
+<h3>Exercise 3</h3>
+<ol>
+<li>Modify your clientreview.php to test which HTTP code is returned from
+the web service and display an appropriate message accordingly.</p>
+<li>Add a new route to your web service, <strong>getReviews</strong>, which returns all reviews for the song with
+a particular ID as JSON. Modify your fan site to have an additional <em>reviews</em> page, which shows all reviews for 
+a particular song by connecting to your web service and parsing the JSON returned. Link this reviews page to your main
+fan page, so that each song has a "Review" link. Ensure the fan site's reviews page has the same look and feel as
+your main fan site page.
+</ol>
+</body>
+</html>

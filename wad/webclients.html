@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Topic 3: Writing Web Service Clients</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>Topic 3: Writing Web Service Clients</h1>
+
+
+
+<h2>Introduction</h2>
+
+<p>So far, we have looked at JSON web services.
+In this topic we will be looking at how we can connect to a remote web service
+(provided by someone else) from our own website. A real-world example of this 
+might be, as we have seen a tourist information site contacting a weather web service,
+parsing the JSON returned and integrating the data in its own website.</p>
+<p>The scenario we will be using will involve developing "fan" website for
+a particular artist. Rather than storing information about that artist's songs itself,
+it would like to use our HT-Tracks JSON web service (from last
+week) to list all the songs by that artist.
+<strong>Hopefully you have created this fan site yourself, in your own time!</strong></p>
+<p>There are two questions we need to ask here:</p>
+<ol>
+<li>How do we connect to a remote, third-party web service from a PHP script on our 
+own website?</li>
+<li>How do we parse (interpret) the JSON returned by the web service?</li>
+</ol>
+<h2>Network Programming with cURL</h2>
+<p>
+Programming languages typically feature a library which allows you to connect to a remote server over the network from a client 
+application. Such a client application might be an Android app making connections to a remote server, or alternatively a 
+server-side script running on a given server which wishes to connect to another server.
+</p>
+<p>
+cURL is one such library used to connect to remote servers, and is the standard way of communicating with a server from PHP. 
+Here is a commented example. Note that <em>the URL to connect to does not need to be a web service</em>; it can be a
+standard, HTML-generating PHP script or even a static HTML page (as used in 'screen-scraping' techniques).
+<pre>
+<span class='comment'>// Initialise the cURL connection</span>
+$connection = curl_init();
+
+<span class='comment'>// Specify the URL to connect to - this can be PHP, HTML or anything else!</span>
+curl_setopt($connection, CURLOPT_URL, "http://remoteserver/script.php");
+
+<span class='comment'>
+// This option ensures that the HTTP response is *returned* from curl_exec(),
+// (see below) rather than being output to screen.  </span>
+curl_setopt($connection,CURLOPT_RETURNTRANSFER,1);
+
+<span class='comment'>// Do not include the HTTP header in the response.</span>
+curl_setopt($connection,CURLOPT_HEADER, 0);
+
+<span class='comment'>// Actually connect to the remote URL. The response is 
+// returned from curl_exec() and placed in $response.</span>
+$response = curl_exec($connection);
+
+<span class='comment'>// Close the connection.</span>
+curl_close($connection);
+
+<span class='comment'>// Echo the response back from the server (for illustration purposes)</span>
+echo $response;
+</pre>
+This code makes a connection to a given remote server (here, http://remoteserver/script.php) and the response sent back is stored in $response. If the remote script sends back JSON, $response will contain JSON. If the remote script sends back an HTML page, $response will contain HTML. This is standard code that can be copied and pasted every time you want to make a remote connection 
+ just change the URL.
+</p>
+<h3>Exercise 1</h3>
+<p>You are going to connect your fan site (which you should have done in your own time, before the class;
+<strong>if you haven't, you need to create the fansite now!</strong>) to your Slim web service from last time.
+The fan site will ask the web service for all songs by that artist. The web service will return this data to the
+fan site as JSON. This is shown below:
+</p>
+<p>
+<img src="../images/webclients.png" alt="Web service client" />
+</p>
+<p>
+<strong>To do this,</strong> add some cURL code to your fan site 
+to connect to your Slim web service from last time, passing the artist in the URL.
+<em>https://edward2.solent.ac.uk</em>, in your cURL connection. Also
+note that <em>any spaces in the artist name need to be encoded as 
+plus signs (e.g. The+Beatles)</em> as otherwise the space will be
+treated as marking the end of the artist name.</p>
+<p>
+Upload your fansite to Edward2 and try it out (<strong>note: in the real world, the fansite and 
+web service would be on
+SEPARATE servers, but we only have one server available so both will be on Edward2</strong>) What happens?</p>
+
+
+<h2>JSON parsing</h2>
+
+<p>...you probably don't like what you get, as you just see the raw JSON from the 
+web service. This isn't going to be very friendly for your end-users!
+So what we need to do next is to
+<em>parse (interpret) the JSON.</em> and display the data in a user-friendly way for our end-users.</p>
+
+<p>JSON parsing from PHP is straightforward. You use <em>json_decode()</em>, which performs the opposite function
+to <em>json_encode()</em>. It loads JSON into memory as PHP arrays, or PHP associative arrays. </p>
+
+<p>Here is an example of using json_decode, where <em>$json</em> is the JSON we wish to parse:
+	<pre>$data = json_decode($json, true);</pre>
+	The second parameter, "true", loads the JSON into a PHP associative
+	array; otherwise it will load it into a PHP object, as shown below. </p>
+	<p>
+	Here is a full working example of using json_decode() to
+parse some JSON:
+<pre>
+$json = '[
+    {"name" : "Barack Obama", "age" : 55, "nationality" : "US", "job": "Former President"},
+    {"name" : "Hillary Clinton", "age" : 68, "nationality" : "US",  
+     "job": "Presidential candidate 2016" }
+]';
+$data = json_decode($json, true);
+for($i=0; $i&lt;count($data); $i++)
+{
+    echo "Name " . $data[$i]["name"] . " " .
+         "Age " . $data[$i]["age"] . " " .
+         "Nationality " . $data[$i]["nationality"] . " " .
+         "Job " . $data[$i]["job"] . "&lt;br/&gt;";
+}
+</pre>
+This example stores some JSON (an array of JSON objects representing
+US presidents/presidential candidates) 
+in a variable <em>$json</em> and then converts it to a PHP array of associative arrays, one associative array per person.
+</p>
+<h3>Alternative - PHP objects</h3>
+<p><em>If you are familiar with object-oriented PHP:</em>
+note the <em>true</em> as the second parameter to json_decode. This indicates we are converting the JSON to associative
+arrays. If we missed out the <em>true</em> the JSON would be converted into an array of PHP objects
+instead, so we would need code like this to read the data:
+<pre>
+$json = '[
+    {"name" : "Barack Obama", "age" : 55, "nationality" : "US", "job": "Former President"},
+    {"name" : "Hillary Clinton", "age" : 68, "nationality" : "US",  
+     "job": "Presidential candidate 2016" }
+]';
+$data = json_decode($json);
+for($i=0; $i&lt;count($data); $i++)
+{
+    echo "Name " . $data[$i]-&gt;name . " " .
+         "Age " . $data[$i]-&gt;age . " " .
+         "Nationality " . $data[$i]-&gt;nationality . " " .
+         "Job " . $data[$i]-&gt;job . "&lt;br/&gt;";
+}
+</pre>
+</p>
+
+<h2>Exercise 2</h2>
+<p>Change your fansite code so that the JSON is parsed, and the songs by your chosen artist displayed
+on your fansite in a user-friendly way.</p>
+
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<head>
+<title>Topic 20: React</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+
+<h1>Topic 20: React</h1>
+</div>
+<p><strong>Note:</strong> 
+You should only look at this topic when you have completed <strong>all</strong>
+previous exercises from the majority of previous topics (Topics 1-5, 6-8 and 11-12). Additionally, you should at least 
+read <a href='classes.html'>Topic 9</a> and <a href='bind.html'>Topic 15</a>, as these discuss classes and bind(), which you need to understand to develop with React.</p>
+
+<h2>What is React?</h2>
+
+<p>React (see <a href='https://reactjs.org'>reactjs.org</a>)
+is a JavaScript framework, originally developed by Facebook, which allows complex
+JavaScript applications to be written in modular, high-level, easy-to-read code.
+React revolves around the concept of a <em>component</em>. A component is a subsection of a web
+page, consisting of multiple related HTML elements (e.g. &lt;div&gt;s, form fields and buttons), 
+which all work together to perform a particular task.</p>
+<p>For example, we could have a component representing a clock, which consists of a &lt;div&gt;
+containing the current time. Or we could have a component for an AJAX search, consisting of the
+text field to enter the search term, the search button and the &lt;div&gt; to display the search results.</p>
+
+<h2>JSX</h2>
+
+<p>With React, we use an extension of JavaScript called <em>JSX</em> (see 
+<a href='https://reactjs.org/docs/introducing-jsx.html'>the React documentation</a>). JSX allows us to embed HTML elements within
+JavaScript code which can simplify coding a component if it contains large amounts of static HTML and only a small
+amount of variable data. You will see examples of JSX below. Because JSX is not native JavaScript, it needs to
+be converted to standard JavaScript using Babel  
+(we saw this <a href='modules.html'>earlier</a>; 
+see <a href='https://babeljs.io'>here</a>), 
+which must be linked to by your web page.</p>
+
+<h2>A simple example</h2>
+
+<p>Here is an initial example, this would be saved in a <em>separate JavaScript file</em>:
+
+<pre>ReactDOM.render(
+&lt;h1&gt;Hello World&lt;/h1&gt;,
+document.getElementById("div1")
+)</pre>
+
+What's this doing? Note how the <em>render()</em> method of ReactDOM takes as its first argument something which looks like
+a string of HTML, but does not have the quotes. This is <em>JSX</em>. The second argument is the DOM node representing the page
+element we want to place that string in, so here the React code will render an H1 heading reading Hello World inside the 
+element with the ID of <em>div1</em>.</p>
+
+<p>Here are the required links for React and Babel, which need to go in your accompanying HTML page:
+<pre>
+&lt;script type='text/javascript' src='https://unpkg.com/react@16/umd/react.development.js' crossorigin&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='https://unpkg.com/react-dom@16/umd/react-dom.development.js' crossorigin&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='https://unpkg.com/babel-standalone@6/babel.min.js'&gt;&lt;/script&gt;
+&lt;script type='text/babel' src='react1.js'&gt;&lt;/script&gt;
+</pre>
+The fourth script here (react1.js) is <em>your</em> JavaScript file, but note that it has a type of <em>text/babel</em> because it uses JSX
+rather than pure JavaScript.</p>
+
+<p><strong>Or, alternatively,</strong> we can adopt JavaScript modules to
+build our React app. Here is an example:
+<pre>
+const React = require('react');
+const ReactDOM = require('react-dom');
+
+ReactDOM.render(
+&lt;h1&gt;Hello World&lt;/h1&gt;,
+document.getElementById("div1")
+)
+</pre>
+This is assuming React is installed with npm, e.g:
+<pre>sudo npm install -g react
+sudo npm install -g react-dom</pre>
+Your code, plus React itself, needs to be converted to a bundle using 
+Browserify and Babel (via babelify), we use the Babel React preset.</p>
+<p>Here is an example of a build command:
+<pre>browserify index.js -t [ /usr/local/lib/node_modules/babelify --presets [ @babel/preset-react ] ] &gt; bundle.js</pre>
+</p>
+<p>You could then <em>uglifyify</em> the output to make the bundle more
+compact:
+<pre>browserify index.js -t [ /usr/local/lib/node_modules/babelify --presets [ @babel/preset-react ] ] -g [ /usr/local/lib/node_modules/uglifyify ] &gt; bundle.js</pre>
+Note the <em>-g</em> indicates a <em>global</em> transform, i.e. it will be
+applied to the React code as well as your own. If you used -t here, the React
+code would never be uglified.</em>
+
+<h3>Using a package.json to automate the build process</h3>
+<p>With JavaScript projects you can automate the build process with npm and the
+<em>package.json</em> file. Here is a brief example:
+<pre>
+{
+    "name": "ReactApp01",
+    "devDependencies": {
+        "react": "latest",
+        "react-dom": "latest"
+    },
+    "scripts": {
+        "build" : "browserify.... as above"
+    }
+}
+</pre>
+The package.json includes the project's name, its dependencies (here, 
+react and react-dom), and a collection of build scripts. Here, there is just
+one script, <em>build</em>, which performs the browserify/babel sequences
+used above.</p>
+<p>To build the project, we'd just use:
+<pre>npm run build</pre>
+</p>
+<h2>Defining components</h2>
+
+<h3>Specifying components with classes</h3>
+<p>We can now start looking at how to create individual <em>components</em>.
+Each component can be represented as a <em>custom tag</em> in JSX. Consider
+this example:
+<pre>
+// If using commonjs
+const React = require('react');
+const ReactDOM = require('react-dom');
+// end if using commonjs
+
+class InputWidget extends React.Component{
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;Input your name&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' /&gt;
+            &lt;input type='button' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+ReactDOM.render(
+    &lt;InputWidget /&gt;,
+    document.getElementById('div1')
+)
+</pre>
+Note how we create a <a href='classes.html'>class</a>
+called <em>InputWidget</em>. This class defines 
+how the component <em>InputWidget</em>, will be rendered. Note how
+the <em>render()</em> method of the class
+returns JSX describing how the component will be rendered, i.e. 
+it will be rendered as a div containing an H1 heading, and a text box and
+button within a fieldset. We can then include the component as a tag in
+<em>ReactDOM.render()</em> to actually render it on the web page.
+Note how we render an &lt;InputWidget&gt;
+to the element with the ID of <em>div1</em>.</p>
+<h3>Using CommonJS - make each widget a module</h3>
+<p>If using CommonJS, it makes sense to place each widget (component) in
+its own module, export it and then require it from other files. For example:
+<pre>
+const React = require('react');
+
+class InputWidget extends React.Component{
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;Input your name&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' /&gt;
+            &lt;input type='button' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+module.exports = InputWidget;
+</pre>
+and index.js:
+<pre>
+const ReactDOM = require('react-dom');
+const InputWidget = require('./InputWidget');
+
+ReactDOM.render(
+    &lt;InputWidget /&gt;,
+    document.getElementById('div1')
+)
+</pre>
+</p>
+
+<h2>Props</h2>
+<p><em>Props</em> (short for properties) are a key feature in React
+(see <a href='https://reactjs.org/docs/components-and-props.html'>the React documentation</a>). Props allow
+you to pass parameters to the component by specifying them as attributes on your
+custom component tag. Here is a modification of the above example to use props:
+<pre>
+class InputWidget extends React.Component{
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;{<em>this.props.title</em>}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' value={<em>this.props.defaultName</em>}/&gt;
+            &lt;input type='button' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+ReactDOM.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;,
+    document.getElementById('div1')
+)
+</pre>
+Note how in this example we pass two properties <em>title</em> and
+<em>defaultName</em> to the component:
+<pre>
+&lt;InputWidget <em>title</em>='Please enter your name:' <em>defaultName</em>='Tim Berners-Lee'/&gt;
+</pre>
+We can then refer to them within the class by referencing the <em>props</em>
+property of our class. Hence we use <em>this.props.title</em> and
+<em>this.props.defaultName</em> to refer to each. Note how <em>we can embed variables
+within JSX using the braces { and }</em>:
+<pre>&lt;input type='text' id='name' value={<em>this.props.defaultName</em>}/&gt;</pre>
+Anything between braces will be treated as
+a JavaScript variable or expression. As well as simple variables, more complex expressions
+can be embedded within the braces. Thus, here, the <em>title</em> prop will 
+be rendered as an H1 heading, and the <em>defaultName</em> prop will be inserted
+into the text field.</p>
+
+<h2>Lifecycle methods</h2>
+<p>The React.Component class has a number of <em>lifecycle methods</em>. These
+are methods which run at various points within the lifecycle of the component,
+from setting up to shutting down. See <a href='https://reactjs.org/docs/state-and-lifecycle.html'>
+the React docs</a>. Two are of particular interest:
+    <ul>
+    <li><em>componentDidMount()</em> - runs as soon as the component is rendered
+    to the page.</li>
+    <li><em>componentWillUnmount()</em> - runs when the page is shut down and 
+    the component is detached from the DOM.</li>
+    </ul>
+Thus, <em>componentDidMount()</em> is a good place to add code to set up such
+things as event handlers. Here is an example which uses it to attach an event
+handler to the button within the component. When the button is clicked,
+an alert box greeting the user will appear.
+<pre>
+class InputWidget extends React.Component{
+
+    <em>componentDidMount()</em> {
+        document.getElementById("btn1").addEventListener('click',
+                e=&gt; {
+                    alert(`Hello ${document.getElementById('name').value}`)
+                });
+    }
+    
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;{this.props.title}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' value={this.props.defaultName}/&gt;
+            &lt;input type='button' id='btn1' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+ReactDOM.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;,
+    document.getElementById('div1')
+)
+</pre>
+</p>
+
+<h2>State</h2>
+
+<p>React components use the concept of <em>state</em>. A React component can
+store data it needs to do its job in a <em>state object</em>, which can be
+retrieved when methods of the component are called. We initialise the state
+in the constructor. See <a href='https://reactjs.org/docs/state-and-lifecycle.html'>the React docs</a>.
+<pre>
+class InputWidget extends React.Component{
+
+    constructor(props) {
+        super(props);
+        <em>this.state = { name: this.props.defaultName };</em>
+    }
+    
+    componentDidMount() {
+        document.getElementById("btn1").addEventListener('click',
+                e=&gt; {
+                    alert(`Hello ${this.state.name}`)
+                });
+    }
+    
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;{this.props.title}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' value={<em>this.state.name</em>}/&gt;
+            &lt;input type='button' id='btn1' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+ReactDOM.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;,
+    document.getElementById('div1')
+)
+</pre>
+Note how this differs from the previous example.
+    <ul>
+    <li>The component now has an <em>overridden constructor</em>.
+    The constructor takes the <em>props</em> as a parameter and passes them up
+    to the <em>React.Component</em> constructor (which needs the props to
+    initialise them correctly) and also initialises the <em>state</em> object.
+    The <em>state</em> object contains one or more properties; here it contains
+    just one, <em>name</em>, representing the name (which is set to whatever
+    was passed in as the <em>defaultName</em> prop).</li>
+    <li>Note how the text field's <em>value</em> is set to 
+    <em>this.state.name</em>. The interesting thing here is that <em>whenever
+    the name property of the state changes, the text field will be automatically
+    updated, as this.state always refers to the current state</em>. 
+    This shows how state can be more useful than just storing the
+    name in a regular variable, in which case this auto-update would not happen.</li>
+    <li>Also note how we're using the state in the click event handler to retrieve the name.</li>
+    </ul>
+</p>
+<p>The general rule is, <em>always store data associated with a component in
+its state.</em></p>
+<h2>Event handling the React way</h2>
+<p>Our example includes code to handle a click event on a button, attaching the
+event listener in <em>componentDidMount()</em>. This works, but is not following
+React conventions for event listening (see <a href='https://reactjs.org/docs/handling-events.html'>the React docs</a>). In React, the 
+convention used for event handling is actually the older-style "set up handlers
+in HTML" approach (onClick, etc); but this is done in a component's JSX, not the
+HTML of the web page, so the actual main HTML page remains free of JavaScript.</p>
+<p>Here is the previous example rewritten this way:
+<pre>
+class InputWidget extends React.Component{
+
+    constructor(props) {
+        super(props);
+        this.state = { name: this.props.defaultName };
+    }
+        
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;{this.props.title}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' value={this.state.name}/&gt;
+            &lt;input type='button' id='btn1' value='Go!' <em>onClick={()=&gt; alert(`Hello ${this.state.name}`) }</em> /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+ReactDOM.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;,
+    document.getElementById('div1')
+)
+</pre>
+Note how we set up an <em>onClick</em> event for the button directly in the JSX
+code. The event handler is an arrow function that uses the state to alert the
+name entered. Note how an arrow function with only one statement does not
+require braces { } surrounding the one statement; the braces following the <em>onClick</em> are
+for embedding JavaScript within our HTML as we have seen before.</p>
+<p>Note also how the event is <em>onClick</em>, not <em>onclick</em>; React
+uses the convention for event handling of capitalising the first letter of the
+event type.</p>
+<h3>Implementing an onChange() event handler</h3>
+<p>If you try this out, you'll notice that it is <em>impossible to change the text
+in the text field</em>. Why is this? The text field is <em>tightly bound to the
+name property of the state, so unless the state changes, the text field will
+not change</em>. More generally, <em>any element within the component which 
+references the state is tightly bound to the state and will not change unless
+the state changes</em>. To implement an editable text field, you need to implement
+an <em>onChange()</em> event handler on the text field to update the
+<em>state</em>. The next example shows this:
+<pre>
+class InputWidget extends React.Component{
+
+    constructor(props) {
+        super(props);
+        this.state = { name: this.props.defaultName };
+    }
+        
+    render() {
+        return (
+            &lt;div&gt;
+            &lt;h1&gt;{this.props.title}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' value={this.state.name} <em>onChange={this.updateState.bind(this)}</em>/&gt;
+            &lt;input type='button' id='btn1' value='Go!' onClick={()=&gt; alert(`Hello ${this.state.name}`) }  /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+    }
+    
+    updateState() {
+        this.setState({name: document.getElementById('name').value})
+    }
+}
+
+ReactDOM.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;,
+    document.getElementById('div1')
+)
+</pre>
+Note how the text field now has an <em>onChange</em> event handler, which is
+the <em>updateState()</em> method of the component.  Note how we use <em>bind()</em> to preserve the context of <em>this</em>; we looked at this concept
+<a href='classes.html'>last time</a>. In <em>updateState()</em> we use the
+<em>setState()</em> method of the component to update the state. 
+<em>setState()</em> takes as an argument an object containing state properties
+to update; other state properties will remain the same.</p>
+<p>Note that <em>you must use setState()</em> to update the state</em>; do not
+modify the <em>state</em> object directly.</p>
+
+
+<h2>Components containing other components, and sharing state</h2>
+
+<p>More complex components will contain <em>sub-components</em>. For example,
+imagine an extended version of the previous example in which the greeting message appears in a &lt;div&gt; <em>as the user enters their name</em>.
+You can imagine that there might be one component for the text box, another
+component for the &lt;div&gt; and an overall "parent" component containing
+them both.</p>
+<p>What you are probably asking is: how can the contents of the first 
+sub-component (the text field) be passed to the second (the &lt;div&gt; ?)
+The recommended approach (see <a href='https://reactjs.org/docs/lifting-state-up.html'>the React documentation</a>) 
+is to store information that needs to be shared between the two components as
+<em>state of the parent</em>. We can then pass that state to the sub-components
+via props. The following example illustrates this:
+<pre>
+
+class AppWidget extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { name : props.name };
+    }
+
+    updateState(name) {
+        this.setState({name: name});
+    }
+
+    render() {
+        return (
+        &lt;div&gt;
+        &lt;InputWidget <em>passBackUserInput={this.updateState.bind(this)} name={this.state.name}</em>/&gt;
+        &lt;ResultsWidget <em>name={this.state.name}</em> /&gt;
+        &lt;/div&gt;
+        )
+    }
+}
+
+class InputWidget extends React.Component {
+
+
+    updateName() {
+        var n =  document.getElementById('name').value;
+        <em>this.props.passBackUserInput(n);</em>
+    }
+
+    render() {
+        return (
+        &lt;div&gt;
+        &lt;h1&gt;Enter your name&lt;/h1&gt;
+        &lt;fieldset&gt;
+        &lt;input type='text' id='name' value={this.props.name} onChange={<em>this.updateName.bind(this)</em>} /&gt;
+        &lt;/fieldset&gt;
+        &lt;/div&gt;
+        )
+    }
+}
+
+class ResultsWidget extends React.Component {
+    render() {
+    return (
+        <em>&lt;div style={{border: '1px solid black'}}&gt;{this.props.name}&lt;/div&gt;</em>
+    )
+    }
+}
+
+ReactDOM.render(
+    &lt;AppWidget name='Fred'  /&gt;,
+    document.getElementById('div1')
+)
+</pre>
+What is happening here?
+<ul>
+<li>Firstly note the parent component, <em>AppWidget</em>. Note that the <em>parent</em>
+component stores the name in its state. Note how the name is passed down to the two sub-components,
+<em>InputWidget</em> and <em>ResultsWidget</em>, as their props. In a similar way to the text
+field value being tightly bound to the state, this will tightly bind the props of the sub-components
+to the state of the parent.</li>
+<li>In the <em>ResultsWidget</em> (the output &lt;div&gt;), we display the <em>name</em> prop, which as we have
+seen, is tightly bound to the state of the parent. <em>Note also how we set the style of this &lt;div&gt;</em>.
+As we are in JSX and not plain HTML, we have to use different syntax to normal inline styles:
+<pre>&lt;div style={{border: '1px solid black'}}&gt;</pre>
+The outer curly brackets indicate that we are embedding JavaScript within HTML within JSX, as before. The inner
+brackets indicate that we are defining a <em>JavaScript object</em> to represent the style, rather than
+ordinary CSS. The same rules as normal for accessing styles within JavaScript apply, i.e. style properties with
+dashes become camel case, for example <em>background-color</em> becomes <em>backgroundColor</em>.</li>
+<li>Note also how in the render() method of the parent component, <em>AppWidget</em>, we render the 
+<em>InputWidget</em> as:
+<pre>&lt;InputWidget passBackUserInput={this.updateState.bind(this)} name={this.state.name}/&gt;</pre>
+What we are doing here is <em>passing a callback method, this.updateState(), into the InputWidget as a prop
+named passBackUserInput</em>.
+You can do this; methods can be passed as props as well as simple data. <em>updateState()</em> updates the
+name property of the parent's state to the name passed in as a parameter.</li>
+<li>Thus, this prop, i.e. <em>this.props.passBackUserInput()</em>, can be called as a method from the <em>InputWidget</em>.
+This is precisely what happens when we encounter an <em>onChange</em> event; we first call <em>updateName()</em> and then
+pass the name in the text field to <em>passBackUserInput()</em>. Since the <em>passBackUserInput()</em> property is set equal
+to the <em>updateState()</em> method in <em>AppWidget</em>, it follows that any change to the name in the text field
+will update the state of the parent component. Then, since the name prop of the <em>ResultsWidget</em> is tightly bound
+to the parent's state, it follows that any updates in the text field will update the <em>ResultsWidget</em>.</li>
+</ul>
+</p>
+<h2>Further Reading on React website</h2>
+<ul>
+<li><a href='https://reactjs.org'>React website</a></li>
+<li><a href='https://reactjs.org/docs/hello-world.html'>React main concepts</a></li>
+<li><a href='https://reactjs.org/tutorial/tutorial.html'>React tutorial</a></li>
+</ul>
+<h2>Arranging multiple widgets</h2>
+<p>Here is an example of how you might arrange multiple widgets in one
+parent widget. You'd place them inside a given <em>&lt;div&gt;</em> or other
+page component:
+<pre>
+class MappingAppWidget extends React.Component {
+    render() {
+        return (
+        &lt;div id='map'&gt;
+        &lt;MapWidget /&gt;
+        &lt;/div&gt;
+        &lt;div id='poiList'&gt;
+        &lt;PointOfInterestListWidget /&gt;
+        &lt;/div&gt;
+        );
+    }
+}
+</pre>
+The <em>MappingAppWidget</em> contains two sub-components:
+<em>MapWidget</em>, and <em>PointOfInterestListWidget</em>, each
+placed in their own separate <em>div</em>s. This could be used in a mapping
+app in which a user can search for points of interest, which appear in a list
+next to the map.
+</p>
+<h2>Exercise</h2>
+<p>Build a version of your HT-Tracks AJAX site using React. To do this:
+<ol>
+<li>Create a web page which links in the appropriate React and Babel
+libraries, and contains a single &lt;div&gt;. Your React components should
+be rendered to this &lt;div&gt;.</li>
+<li>Now start working on your React code. Initially,
+create a single component with a search box for the artist, a button, and
+a results &lt;div&gt;</li>
+<li>Next, connect the button to an event handler function within the component. The event handler
+should initially display an alert box with a message of "You entered the artist " plus the artist name.</li>
+<li>Once you've got this working, perform an AJAX request to your Session 1 web service and update the
+results &lt;div&gt; to contain the results from the server. You should display title, artist, year and quantity.</li>
+<li>Once you've completed this, try using <em>a parent component and two sub-components</em>, one containing the
+text field and button, and another containing the results &lt;div&gt;. By storing the 
+JSON returned from the AJAX in the parent
+component's <em>state</em>, update the search &lt;div&gt; every time the text field changes. 
+Also, use the JSON returned
+from the web service as a <em>prop</em> of the results component.
+<strong>For this to work, you need to ensure that your web service uses LIKE for pattern matching.</strong>
+    <ul>
+    <li><em>Hint</em>: you will need to convert your JSON props to JSX in the
+    <em>render()</em> method of your search results component. You can do 
+    this by using the <em>map()</em> method. This maps an input array to an
+    output array and can be used as follows:
+<pre>
+    var output = this.props.json.map( song=&gt;
+            Title: {song.title}&lt;br /&gt;
+            )
+    return output;
+</pre>
+    What is happening here? If <em>this.props.json</em> is an array containing the
+    JSON results, <em>map</em> returns a new array with each member of the array
+    (each song) <em>mapped</em> to the resulting JSX string, i.e. <em>Title: {song.title}&lt;br /&gt;</em>. Thus, the array <em>output</em> will be an
+    array of JSX for each song. We return this from <em>render()</em> as 
+    normal.</li>
+    </ul>
+</li>
+<li>Alter your code so that each result has an Order button. When the 
+Order button is clicked, simply alert the song
+ID for now.</li>
+<li><strong>Advanced, for strong programmers only</strong>: have a go at performing a live update of the quantity in stock for each search result
+when you click on the Order button. You do not need to actually update the 
+quantity in stock in the database, just the
+Quantity figure in the search results on the front-end.
+To do this, create an array within the search results component's <em>state</em>. This array should contain the quantity in stock 
+for each song and should be indexed using the song ID. Whenever the JSON prop changes in the results div, you should repopulate
+this array. <em>Hint</em>: there is a lifecycle method, <em>componentWillReceiveProps()</em>, which runs every time the props
+of a component update. It takes the updated props as a parameter. Initialise the array in this method, so that each song in the JSON has a corresponding 
+quantity entry in the array, indexed by song ID. When a user clicks on the
+Order button, increase the corresponding entry of the array by one.
+If the array is stored as
+state and this state is referenced when you output the quantity, you will find the quantity in stock automatically updates.</li>
+</ol>
+</body>
+</html>

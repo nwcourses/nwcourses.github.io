@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 19: Introduction to WebSocket</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>Topic 19: Introduction to WebSocket</h1>
+</div>
+<h2>Real-time Updates</h2>
+<p>Really interactive, real-time web applications feature 
+<em>real-time updates</em>.
+For instance, real-time chat applications update with messages contributed by
+any user in the chat, or a real-time train map needs to be updated which each 
+train's current position.
+</p> 
+<p>We can implement these real-time applications using the technologies we already
+know through the use of <em>polling</em>, in which we schedule an AJAX
+request to be sent to the server every so often (every 5 seconds, every
+minute, etc). However this has the disadvantage that if we want frequent
+updates, we have to either 
+send a message to the server very frequently, potentially
+overloading the server (and this would be wasteful if the data is not changing)
+or send it less frequently, meaning updates would not truly be real-time.</p>
+
+<h3>Push Technology</h3>
+
+<p>What we need instead is <em>push technology</em>. Normal HTTP requests
+are <em>pull</em> requests: they <em>pull</em> data from the server.
+<em>Push</em> requests, however, involve the server sending messages to
+the client <em>without receiving a request</em>. <em>WebSocket</em> is
+a protocol which allows servers to send push requests to clients.</p>
+
+<h3>How does WebSocket work?</h3>
+<p>WebSocket has a detailed specification available
+<a href='https://tools.ietf.org/html/rfc6455'>here</a> which explains it
+in detail; <a href='https://developer.mozilla.org/en-US/Web/API/WebSockets_API/Writing_WebSocket_Servers'>this Mozilla article</a> also goes into some detail
+and is easier to understand than the full specification. But to summarise:
+    <ul>
+    <li>A <em>WebSocket server</em> runs as an independent process, on an
+    independent port (typically 8080), to Apache.</li>
+    <li>A <em>WebSocket client</em>, running in the browser and typically
+    written in JavaScript, listens to requests coming in from the WebSocket
+    server and can send messages back. Similarly, the WebSocket server can
+    listen to, and respond to, messages coming from the client.</li>
+    </ul>
+</p>
+<h3>Writing a WebSocket client</h3>
+<p>Writing a WebSocket client is quite easy because JavaScript provides
+native support. Here is an example:
+<pre>
+function init() {
+    var ws = new WebSocket('ws://example.com:8080');
+    
+    ws.onopen = e =&gt; {
+        //Handle the web socket being opened...
+        alert('Websocket was opened!');
+        ws.send('ephp001');
+    }
+
+    ws.onmessage = e =&gt; {
+        console.log('Websocket sent back... ' + e.data);
+    }
+
+    ws.onerror = e =&gt; {
+        alert('Error with websocket communication: is the server running?');
+    }
+}
+</pre>
+Note how we create a <em>WebSocket</em> object and 
+specify the server and port (example.com and 8080 respectively,
+here). We then specify three different event handlers:
+    <ul>
+    <li><em>onopen</em> - this event handler will run when the connection
+    to the web socket is made. In this example we use the <em>send()</em>
+    method of the WebSocket object to send a username back to the server
+    (so that, as soon as we have connected to the server, we let the server
+    know who we are).
+    JSON is typically used as a format to transmit data between client
+    and server.</li>
+    <li><em>onmessage</em> - this event handler will run when the client
+    receives a push message from the server. The <em>data</em> property of
+    the event object will contain the data sent back. Here, we just display
+    it on the console.</li>
+    <li><em>onerror</em> - this will run if an error of some kind occurs.
+    Typical errors include the server not running, or the port being blocked
+    by a firewall.</li>
+    </ul>
+</p> 
+
+<h3>Writing a WebSocket server</h3>
+<p>
+Various server side languages can deal with websockets using third party
+libraries. Here is an example with the <em>ws</em> module in Node.
+</p>
+<pre>
+const wsock = require('ws');
+const server = new wsock.Server({port:8080});
+
+// When the server receives a new connection...
+server.on('connection', clientConn=&gt; {
+    console.log('New connection');
+
+    // Listen for messages from this connection...
+    clientConn.on('message', msg=&gt; {
+        console.log(`Received a message: ${msg}`);
+
+        server.clients.forEach ( curClient=&gt; {
+            curClient.send(msg);
+        });
+    });
+});
+</pre>
+Note how we:
+    <ul>
+    <li>Create a new web socket server and listen on port 8080.</li>
+    <li>Handle the 'connection' event. This occurs when a new client 
+    connects to the web socket server.</li>
+    <li>Inside the 'connection' event handler, set up an event handler for
+    receiving messages from this client (the 'message' event handler)</li>
+    <li>Inside the 'message' event handler, process messages received. The
+    <em>msg</em> parameter will be the message sent from the client. In this
+    example, every time we receive a message, we loop through the collection
+    of currently-connected clients (<em>server.clients</em>) and send the
+    message received to each one (using the client's <em>send()</em> method).
+    </li>
+    </ul>
+
+<h2>Exercise</h2>
+
+<p>Write a simple chat application, similar to the one demonstrated in 
+class. To do this:</p>
+<ol>
+<li>Create a web page with a text field to add a message, and a div to
+show all messages so far. The message should be sent to the web socket 
+server when a button is clicked. 
+Upload this to your public_html folder on Neptune. 
+</li>
+<li>Write a corresponding websocket server and upload this to your personal
+directory. A div should update each
+time <em>anyone</em> sends a new message, as above.</li>
+<li>Run your websocket server from the Neptune console.</li>
+<li>
+Enhance your application so that it works like a real chat system;
+each time a new message is sent back from the server, the user who wrote that
+message should be displayed. To do this you will need a user ID field in
+the front end and send the user ID with the chat message. Send a JSON
+message with two fields, one for the user ID and one for the chat message;
+you can use <em>JSON.stringify()</em> to encode a JavaScript object as 
+JSON.</li>
+<li><strong>ADVANCED:</strong> you can avoid having to send the user ID each
+time as follows. The <em>clientConn</em> object is just a plain JavaScript
+object, so you can add properties to it.
+    <ol>
+    <li>Users should have to login first, by specifying a user ID and clicking
+    a button. The user ID will then be sent to the server. Note that you
+    should send it as a piece of JSON data including a message type field,
+    so that the server can tell that this is a user ID and not a chat 
+    message. When the server receives this message, attach the username to the
+    current <em>clientConn</em> as a property, e.g.
+    <pre>clientConn.user = msgData.user;</pre>
+    </li>
+    <li>When the user sends a chat message, this should be again sent as
+    JSON so that the server can tell that it is a chat message and not a
+    user ID.</li>
+    <li>Work out which user sent the chat message. This can be done using
+    the property of the clientConn object (current client connection) that
+    you set in step 1.</li>
+    </ol>
+</li>
+</ol>
+</body>
+</html>

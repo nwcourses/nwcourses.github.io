@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<head>
+<title>Topic 18: Promises</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 18: Promises</h1>
+</div>
+<p><strong>WARNING!</strong> This is an advanced topic which is aimed at
+those of you finding the unit, and programming in general, relatively
+straightforward. 
+You should only attempt this if you are <strong>confident</strong>
+programming functions, callbacks, and passing arguments to functions, and 
+have completed <strong>all</strong>
+previous exercises from the majority of previous topics (Topics 1-5, 6-8 and 11-12) and are confident with your answers.If you are struggling with the unit you will struggle immensely with this topic, so 
+it is recommended that you catch up with
+previous topics first. You can then return to this topic later, when you
+are thoroughly confident with previous topics and working
+with functions and callbacks.</p>
+<h2>Using Promises</h2>
+<h3>Introduction</h3>
+<p>
+A promise is an object which "promises" to do a particular (typically)
+asynchronous, background task which will complete at some point in the future. 
+An AJAX request is a typical example; promises are used extensively in 
+AJAX development. 
+One of two functions are called depending on whether it fulfilled that
+"promise":
+    <ul>
+    <li>a "resolve" function if it did fulfil the promise;</li>
+    <li>and a "reject" function if it didn't.</li>
+    </ul>
+</p>
+<p>
+Promises allow you to write code with intuitive, clean syntax in
+this form:
+<pre>promise.then(resolveFunction).catch(rejectFunction);</pre>
+where "promise" is the promise object.
+What this code means is: 
+<pre>Perform the task associated with a promise, <em>then</em> run a  function (resolveFunction in this example) which runs if the promise is fulfilled, 
+and <em>catch</em> any  error conditions with an error handling function 
+(rejectFunction in this example).</pre>
+Hopefully you can see that this code is cleaner than the typical callback-based
+AJAX code. In general, <strong>Promises allow us to write code for asynchronous 
+processes (i.e. callback based processes, where a function runs at some 
+future point) in a cleaner and more sequential way.</strong> This is because
+the "resolve" function <em>will only run once the asynchronous
+task (e.g. AJAX call) has completed</em>.
+</p>
+<p>
+Promises produce cleaner code;
+however, learning how to write a promise in the first place is 
+conceptually harder than the "classic" approach to asynchronous tasks 
+such as AJAX. 
+However, <strong>using</strong> pre-written Promises is easy, so once you've
+written your promise, coding does become easier!</p>
+
+<h3>How to implement a promise</h3>
+<p>
+A promise has an associated <em>task</em>, which is a background
+task which may either succeed (fulfilling the promise) or fail
+(rejecting the promise). This task is implemented as 
+a <em>function</em> which 
+<em>must be passed into the Promise constructor as a 
+parameter</em>. This task function <em>must</em> take two parameters, each of
+which is themselves a callback function, and each of which was described
+above:
+    <ul>
+    <li>the <em>resolve</em> function (called if the promise is fulfilled)</li>
+    <li>the <em>reject</em> function (called if the promise cannot be fulfilled)</li>
+    </ul>
+Each of these is specified by the code calling the promise; the
+argument to <em>then()</em> ends up as the <em>resolve</em> function
+and the argument to <em>catch()</em> ends up as the <em>reject</em>
+function.
+</p>
+<p>
+The task function must then call these two functions as appropriate,
+i.e. if the task succeeds, it must call the <em>resolve</em> function
+and if it fails, it must call the <em>reject</em> function.
+</p>
+
+<h3>Simple example</h3>
+<p>We are going to start by writing some promises to perform simple
+mathematical operations, and then move onto a more "real world" example
+in the form of a promise-based AJAX call.</p>
+
+<h4>Division promise</h4>
+
+<p>Here is an example of a promise to perform a division of two numbers.
+The promise is fulfilled with the result of the division, or rejects if the
+denominator is zero (remember that division by zero is not allowed).
+You can write this on Neptune as node.js code, or in the browser.</p>
+<pre>
+function divide(a,b) {
+    return new Promise ( (resolve, reject) =&gt; {
+        if(b == 0) {
+            reject("Cannot divide by zero!");
+        } else {
+            resolve(a/b);
+        }
+    });
+}
+</pre>
+Note what we are doing here is writing a function called <em>divide()</em>
+which divides two numbers and returns a Promise to do the division.
+Note how the Promise constructor 
+takes, as an argument, a task function which attempts to
+carry out the promise. This task function gets passed two parameters, a 
+resolve function and a reject function, as we saw above. The task function then tests
+if the denominator (b)is zero, and if it is, the promise is rejected with
+a message "Cannot divide by zero!". Otherwise, the promise is fulfilled and
+the resolve function is called, with the result of the division.
+</p>
+<p>Calling the promise</p>
+<p>To call the promise, we call the function which returns the promise
+and chain it with a <em>then()</em> call. <em>then()</em> takes a 
+function as an argument; this function will run as soon as the promise is
+fulfilled. This function corresponds to the <em>resolve</em> parameter to
+the Promise constructor. So whatever is passed to <em>then()</em> will
+become the <em>resolve</em> parameter of the Promise.
+<pre>divide(18, 2).then( result =&gt; { console.log(result); } );</pre>
+</p>
+<h4>Handling promise rejections</h4>
+<p>To handle a promise rejection (e.g. division by zero in the example
+above), we chain a <em>catch()</em> to our promise call, e.g:
+<pre>divide(18, 0).then( result =&gt; { console.log(result); } ).<em>catch(err =&gt; { console.log(err); } );</em></pre>
+Note how <em>catch()</em> also takes a function as an argument; this function
+corresponds to the <em>reject</em> parameter of the Promise constructor. So
+whatever is passed to <em>catch()</em> will become the <em>reject</em>
+parameter of the promise.</p>
+
+<h3>Chaining promises</h3>
+<p>Promises are frequently <em>chained</em> together. We perform one operation
+which returns a promise, and then if the promise fulfils, we can call
+another function, using this form of code:
+<pre>function1.then(function2).then(function3).catch(e =&gt; {
+    console.log(`Error: ${e}`);
+}););</pre>
+</p>
+<p>What's this doing? We're calling function 1, which returns a promise.
+If the promise fulfils, then we call function2, which also returns a
+promise. If <em>that</em> promise fulfils, we call function 3. But if
+<em>any</em> of the promises reject, then the <em>catch</em> function will
+run and report the error associated with the rejection.</p>
+<p>A key, important point about promise chaining is that <em>the value
+associated with a promise is passed as an argument to the resolve
+function</em>. For example
+<pre>
+function divide(a,b) {
+    return new Promise ( (resolve, reject) =&gt; {
+        if(b == 0) {
+            reject("Cannot divide by zero!");
+        } else {
+            resolve(a/b);
+        }
+    });
+}
+
+function squareroot(n) {
+    return new Promise( (resolve, reject) =&gt; {
+        if(n &lt; 0) {
+            reject("Cannot square-root a negative number!");
+        } else {
+            resolve(Math.sqrt(n));
+        }
+    });
+}
+
+function countTo(n) {
+    return new Promise( (resolve, reject) =&gt; {
+        if(n &lt;= 0) {
+            reject("Cannot count to a number less than 1!");
+        } else {
+            for(let i=1; i&lt;=n; i++) {
+                console.log(i);
+            }
+        }
+    });
+</pre>
+We can chain these as follows:
+<pre>divide(100,4).then(squareroot).then(countTo).catch(e =&gt; {
+    console.log(e);
+});</pre>
+What happens here, exactly?
+    <ul>
+    <li>We divide 100 by 4. The <em>divide()</em> function returns a 
+    promise, which will be fulfilled with a/b if the denominator is not zero,
+    and with reject with a "Cannot divide by zero!" message if it is.
+    </li>
+    <li>This promise is returned by <em>divide()</em>. If the promise
+    succeeds, we run the argument to its <em>then()</em>, which is its
+    resolve function; here, this will be the <em>squareroot()</em> 
+    function.</li>
+    <li>The <em>squareroot()</em> then itself returns a promise, with a
+    resolve function which receives the square root of the number.
+    This promise will reject if the number is negative (as we cannot 
+    square root negative numbers... unless we are dealing with imaginary 
+    numbers, which is well out of scope for this subject!)</li>
+    <li><em>This</em> promise then takes <em>countTo</em> as its argument
+    to <em>then()</em>, which means that <em>countTo()</em> will be called
+    if the <em>squareroot</em> promise succeeds.</li> 
+    </ul>
+
+    
+<h3>AJAX</h3>
+<p>Here is a further, more complex example of using promises. In this example
+we develop a Promise to perform an AJAX request. If the AJAX request
+succeeds (i.e. it returns an HTTP code not in the 400-599 range) we
+call our resolve function and pass it the response text returned from the
+server. If on the other hand, the HTTP code returned is in the 400-599 (error)
+range, we reject the promise with the error code.
+</p>
+<p>
+Here is an example of such a Promise associated with an AJAX request.
+<pre>
+function ajaxPromise(url) {
+    return new Promise(
+            (resolve,reject)=&gt; // this is the task function
+            { 
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('GET', url);
+                xhr2.addEventListener("load", (e)=&gt; 
+                {              
+                    if(e.target.status&gt;=400 &amp;&amp; e.target.status&lt;=599)
+                    {
+                        // pass the HTTP code to the reject function
+                        reject(e.target.status);  
+                    } 
+                    else 
+                    {
+                        // pass the response text to resolve function
+                        resolve(e.target.responseText);
+                    }
+                } );
+                xhr2.send();
+            }
+        );
+}
+</pre>
+</p>
+<p>
+To use our promise-based AJAX request:
+<pre>
+ajaxPromise('/artist/Oasis').then(ajaxSuccess).catch(handleError);
+</pre>
+where <em>ajaxSuccess</em> is a function which processes a successful
+AJAX request and <em>handleError()</em> is a function which processes
+error conditions.
+The arguments to the resolve and reject functions would then be passed to
+<em>ajaxSuccess()</em> and <em>handleError()</em>, respectively:
+<pre>
+function ajaxSuccess(responseText) 
+{
+    var data = JSON.parse(responseText);
+    // do something with the data..
+}
+
+function handleError(error) 
+{
+    alert('Error: ' + error);
+}
+</pre>
+</p>
+<p>We could also use promise chains in AJAX. For example if the AJAX
+promise is fulfilled, we could then perform another promise to parse the JSON
+returned.
+<pre>ajaxPromise('/artist/Oasis').then(parseJson).then(showJsonResults).catch(handleError)
+</pre>
+How might this work? The idea is that <em>parseJson()</em> itself returns
+a further promise. It might look like this:
+<pre>
+function parseJson(responseText) 
+{
+    return new Promise ( (resolve,reject) =&gt;
+        {
+            var parsedData = JSON.parse(responseText);
+            if(parsedData.length==0) {
+                reject("No matching results!");
+            } else {
+                resolve(parsedData);
+            }
+        }
+    );
+}
+</pre>
+</p>
+<p>
+<em>showJsonResults()</em> would then receive the <em>parsedData</em> in
+the above example, because <em>showJsonResults</em> is the resolve function
+passed to the <em>then()</em> of the promise returned by <em>parseJson()</em>.
+As <em>parsedData()</em> is the result of <em>JSON.parse()</em>, it 
+will be (typically) an array of objects so it can be processed in the usual
+way:
+<pre>
+function showJsonResults(data)
+{
+    var html = "";
+    data.forEach ( flight=&gt;  
+    
+        {
+            html = html + `Depart ${flight.depart} Arrive ${flight.arrive} &lt;br /&gt;`;
+        });
+        
+    document.getElementById("results").innerHTML = html; 
+}    
+</pre>
+</p>
+<h4>Passing functions which do NOT return promises to then()</h4>
+<p>However, we can make it even simpler. We can rewrite our
+<em>parseJson()</em> in this way and the promise chaining will still take
+place:
+<pre>function parseJson(responseText) 
+{
+    return JSON.parse(responseText);
+}</pre>
+Why will this work, when <em>parseJson()</em> doesn't return a Promise?
+The reason is that <em>if a function which does <strong>NOT</strong>
+return a Promise</em> is passed to <em>then()</em>, 
+a <em>new Promise object</em> will automatically be 
+created, wrapping the data returned by the function.</p>
+<p>A reminder of the chain:
+<pre>ajaxPromise('webservice.php').then(parseJson).then(showJsonResults)</pre>
+The first <em>then</em> returns a Promise to run <em>parseJson()</em>.
+If <em>parseJson()</em> runs successfully (it always will here), then a
+promise will be created, it will call 
+<em>showJsonResults()</em> as its resolve function and 
+the return value of parseJson() will be passed as an argument to
+showJsonResults().</p>
+<p>As a result of this, we can completely remove our parseJson() function
+altogether  and simply pass <em>JSON.parse</em> in as the argument to the
+first <em>then()</em>:
+<pre>ajaxPromise('webservice.php').then(JSON.parse).then(showJsonResults)</pre>
+Why? JSON.parse() returns the parsed JSON, and a promise will be created
+automatically (as before), wrapping the parsed JSON, which will be
+fulfilled with 
+the argument to the next <em>then()</em>, namely <em>showJsonResults()</em>.
+Consequently, showJsonResults() will receive the return value of 
+JSON.parse().</p>
+<h3>Exercise 1</h3>
+<p>Make a copy of your AJAX search script from Topic 6 
+(the basic version, <strong>not the version using DOM</strong>) and change it 
+so that the AJAX is performed using promises.</p>
+<h2>New style AJAX requests: the fetch API</h2>
+<p>Above we saw how to do AJAX requests using promises. However, 
+standards-compliant browsers (such as Firefox and Chrome) now have a 
+<em>built in</em> API - the fetch API- which uses promises. You can use the
+fetch API without having to write an AJAX promise yourself. Here is a simple
+example:
+<pre>fetch('http://www.free-map.org.uk').then(response =&gt; response.text()).then(console.log);</pre>
+</pre>
+<em>fetch()</em> returns a promise to return the response from the
+given URL. The resolve function of this promise takes, as a parameter,
+a <em>response object</em>. This is <em>not</em> the same as a traditional
+XMLHttpRequest, but does have a couple of interesting methods:
+    <ul>
+    <li><em>text()</em>, which returns a Promise which passes the response
+    text to its resolve function. <strong>This is being used here. The
+    response text will be passed to its resolve function, which here is simply
+    console.log(), so the response will be displayed on the console.</strong> 
+    <li><em>json()</em>, which returns a Promise which passes parsed JSON to
+    its resolve function. </li>
+    </ul>
+So to use fetch() with a function which looks through JSON results, we could
+do:
+<pre>fetch('https://example.com/api/artist/Oasis').then(response =&gt; response.text()).then(showJsonResults);
+
+function showJsonResults(text)
+{
+    var data = JSON.parse(text);    
+    var html = "";
+    data.forEach ( flight=&gt;  
+    
+        {
+            html = html + `Depart ${flight.depart} Arrive ${flight.arrive} &lt;br /&gt;`;
+        });
+        
+    document.getElementById("results").innerHTML = html; 
+}</pre>
+</p>
+<p>We can make this easier though with the <em>response.json()</em> promise,
+which promises to parse the JSON returned and resolves with the parsed JSON,
+e.g:
+<pre>fetch('https://example.com/api/artist/Oasis').then(response =&gt; response.json()).then(showJsonResults);
+
+function showJsonResults(data)
+{
+    var html = "";
+    data.forEach ( flight=&gt;  
+    
+        {
+            html = html + `Depart ${flight.depart} Arrive ${flight.arrive} &lt;br /&gt;`;
+        });
+        
+    document.getElementById("results").innerHTML = html; 
+}</pre>
+
+<h3>Using the fetch API with POST, PUT and DELETE</h3>
+<p>One advantage of the <em>fetch</em> API is that you can easily send not only GET and POST
+requests but also PUT and DELETE. Here are some examples of each method:</p>
+<h4>POST</h4>
+<pre>var flight = { depart: '0900', arrive: '1200', price: 100.0, flightnumber: 'SA101', destination: 'Rome' };
+fetch('/flight/create', { method: 'POST', body: JSON.stringify(flight),  
+        headers: {'Content-Type': 'application/json' } }).then(...);
+</pre>
+This will send a POST request to the route <em>/flight/create</em>. Note how we send the POST data here.
+Rather than sending post fields via a FormData object as described in <a href='DOM.html'>Topic 7</a>, 
+we populate the <em>body</em> of the HTTP request with
+JSON representing the flight. Note also how we have to set the <em>Content-Type</em> header appropriately.</p>
+<p>We can read the JSON back using Slim in a similar way to regular POST fields. The <em>getParsedBody()</em> method:
+<pre>$req-&gt;getParsedBody();</pre>
+will return an associative array containing the parsed JSON.</p>
+<h4>DELETE</h4>
+<p>DELETE requests are easy:
+<pre>fetch('/flight/9818', { method: 'DELETE'}).then(...);</pre>
+</p>
+<h4>PUT</h4>
+<p>PUT follows a similar pattern to POST. JSON is sent to the server within the
+body of the request. On the server side (Slim), the PUT data is read in the same way as PUT data sent over 
+cURL (see <a href='wad5.html'>topic 5</a>):
+<pre>var flight = { depart: '0930', arrive: '1230'};
+fetch('/flight/9819', { method: 'PUT', body: JSON.stringify(flight),  
+        headers: {'Content-Type': 'application/json' } }).then(...);
+</pre>
+</p>
+<h3>Exercise 2</h3>
+<p>Make a further copy of your AJAX exercise (Topic 6) and change it to use
+the fetch API. Again, it should be the basic version,
+<strong>not the version using DOM</strong></p>
+<h3>fetch API from Node</h3>
+<p>You can use a third-party implementation of the <em>fetch</em> API
+to perform cURL-like requests from a Node app. Install <em>node-fetch</em>:
+<pre>sudo npm install -g node-fetch</pre>
+You can then write code such as:
+<pre>const fetch = require('node-fetch');
+fetch('http://www.free-map.org.uk').then(response =&gt; response.text()).then(console.log);</pre>
+</p>
+<h2>async/await</h2>
+<p>ECMAScript 8 (aka ECMAScript 2017) introduces <em>async/await</em>.
+This allows you to write promise-based,
+asynchronous code in a sequential manner. Here is how we would rewrite our
+own custom Promise-based AJAX code (i.e. not using the <em>fetch</em> API)
+using async/await:
+<pre>
+<em>async</em> function ajaxrequest() 
+{
+    var a = document.getElementById("origin").value;
+    var b = document.getElementById("destination").value;
+    var url = `/artist/Oasis`;
+    var responseText = <em>await</em> ajaxPromise(url);
+    var data = JSON.parse(responseText);
+    showJsonResults(data);
+}
+</pre>
+Note how we're doing a whole AJAX / JSON parsing procedure using sequential
+code, even though AJAX is an asynchronous process. The key things are:
+    <ul>
+    <li>The function <em>ajaxrequest()</em> is declared as <em>async</em>, 
+    which makes it a special kind of function (an <em>AsyncFunction</em>)
+    allowing us to do async/await;</li>
+    <li><em>ajaxPromise()</em> (which if you remember returns a Promise to do an
+    AJAX call) is preceded by <em>await</em>. What <em>await()</em> does is
+    suspend execution of the rest of the <em>async</em> function until the
+    Promise concerned has been fulfilled. 
+    The argument to the resolve function of
+    the Promise is then <em>returned</em> from the <em>await</em> call.
+    </li>
+    <li>Note that the Promise has no specified resolve function as there is
+    no <em>then()</em> here. What is happening is that when the Promise has
+    been fulfilled, rather than calling a particular resolve function, it 
+    returns back to the <em>async</em> function and hands the argument to
+    the resolve function back so that it becomes the return value of the <em>await</em>.</li>
+    </ul>
+Note also that <em>await</em> will only work with a Promise. It's
+<em>awaiting the successful resolution of that Promise</em>. Trying to use
+<em>await</em> without a Promise will not work!</li>
+</p>
+<h3>Exercise 3</h3>
+<ul>
+<li>Write another version of your HT-Tracks AJAX front end to use async/await.
+Use your own custom Promise-based AJAX system, not <em>fetch()</em>.</li>
+<li>Change the code to use async/await with <em>fetch()</em>. I haven't shown 
+you how to do this explicitly, but you should be able to figure it out!</li>
+</ul>
+<h2>References</h2>
+<p>A number of articles were used to draw up these notes, which are also
+useful further reading. These include:
+<ul>
+<li>
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Mozilla article on promises</a></li>
+<li><a href="https://developers.google.com/web/fundamentals/primers/promises">
+Google article on promises</a></li>
+<li><a href="https://davidwalsh.name/promises">David Walsh's article</a></li>
+<li><a href="https://davidwalsh.name/fetch">David Walsh's article on fetch</a>
+</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">Mozilla article on async/await</a></li>
+</ul>
+</p>
+</body>
+</html>

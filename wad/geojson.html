@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<title>GeoJSON</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>GeoJSON</h1>
+</div>
+<p>This is an optional advanced topic on the <em>GeoJSON</em> data format,
+which those of you who are ahead might want to look at.</p>
+<h2>GeoJSON - introduction</h2>
+<p><em><a href='http://www.geojson.org'>GeoJSON</a></em> 
+is a relatively new format for representing geographical
+data. As the name implies, it is based on 
+JSON. It is typically supplied to clients by a 
+web service; for instance, we might have a web service which supplies the 
+location of points of interest close to a given latitude and longitude in
+GeoJSON format. Because GeoJSON is JSON based, it is easily parsed by
+JavaScript-based clients.</p>
+<h2>The GeoJSON format</h2>
+<p>GeoJSON consists of a series of objects. These are:
+    <ul>
+    <li><em>Features</em>: a feature represents a geographical feature, such
+    as a road, a path, a pub or a restaurant. Each feature has a 
+    <em>geometry</em> (see below) and a series of <em>properties</em>.</li>
+    <li><em>Geometries</em>: a geometry is the representation of the 
+    <em>shape</em> of the feature. For a point of interest, this would simply
+    be a point (defined by latitude and longitude); for a more complex feature
+    such as a road, a path or the outline of a building, it would be a series of
+    points making up either a <em>LineString</em> (a linear series of points)
+    or a <em>Polygon</em> (a series of points arranged in a loop). LineStrings
+    would typically represent linear features such as roads or paths, while
+    Polygons would represent features such as lakes, buildings or woods.</li>
+    <li>a <em>FeatureCollection</em> is, as the name implies, a collection of
+    features.</li>
+    </ul>
+</p>
+<p>Here is an example of some GeoJSON.
+<pre>
+{
+    type: "FeatureCollection":
+    features:
+    [
+        {
+            type: "Feature",
+            geometry:
+            {
+                type: "Point",
+                coordinates: [-1, 51]    
+            },
+            properties:
+            {
+                featureClass: "pub",
+                name: "The Red Lion"
+            }    
+        },
+        
+        {
+            type: "Feature",
+            geometry:
+            {
+                type: "Point",
+                coordinates: [-0.9, 51.1]
+            },
+            properties:
+            {
+                featureClass: "restaurant",
+                name: "Sams Burger Joint"
+            }
+        },
+
+        {
+            type: "Feature",
+            geometry:
+            {
+                type: "LineString",
+                coordinates: [
+                    [-1, 51],
+                    [-1.01, 50.99],
+                    [-1.01, 50.98],
+                    [-1.02, 50.97],
+                    [-1.04, 50.96]
+                        ]
+            },
+            properties:
+            {
+                featureClass: "main road",
+                number: "A987",
+                name: "High Street"
+            }
+        }
+    ]
+}
+</pre>
+Note how this GeoJSON consists of a <em>FeatureCollection</em>. The
+FeatureCollection in turn contains an array of <em>Feature</em> objects,
+each of which contains three fields:
+    <ul>
+    <li>The <em>type</em>. This is just 'Feature', so that any client 
+    application reading this GeoJSON is able to recognise that it's a
+    feature;</li>
+    <li>The <em>geometry</em>. This represents the actual points making up
+    the feature. The geometry in turn has two fields, the <em>type</em>
+    (e.g. Point, LineString, Polygon) and the <em>coordinates</em>. For
+    a <em>Point</em>, the coordinates is simply an array with two members,
+     the longitude and latitude respectively. For a <em>LineString</em>, the
+    coordinates consists of an array of points, where each 
+    point is itself a two-member array containing longitude and latitude.
+    In other words, it is an array of arrays.</li>
+    <li>The <em>properties</em>. This is a collection of variable/value
+    pairs representing properties of the feature. In the road example
+    above, there are three properties, the <em>featureClass</em> (main road),  
+    <em>number</em> (A987) and <em>name</em> (High Street). Note that these
+    are not keywords: you are free to choose the property names yourself.</li>
+    </ul>
+</p>
+<h2>Interpreting GeoJSON</h2>
+<p>Interpreting GeoJSON is the same as interpreting any other type of JSON.
+A client would typically send an AJAX request to a web service supplying
+GeoJSON, and then evaluate the GeoJSON returned to load it into a JavaScript
+variable, e.g. with <em>JSON.parse()</em> in standards-compliant browsers. 
+We can then access
+the GeoJSON collection using JavaScript syntax. For example, in an AJAX
+callback:
+<pre>
+function responseReceived(e)
+{
+    var geojsonData=JSON.parse(e.target.responseText);
+    alert(geojsonData.features[0].properties.name); // name of 1st feature
+
+    //type of geometry of 1st feature
+    alert(geojsonData.features[0].geometry.type);
+
+    //longitude of 1st feature, assuming it's a point 
+    alert(geojsonData.features[0].geometry.coordinates[0]); 
+
+    //latitude of 1st feature, assuming it's a point 
+    alert(geojsonData.features[0].geometry.coordinates[1]); 
+
+    // longitude and latitude of 1st point of 3rd feature, assuming it's
+    // a LineString
+    alert(geojsonData.features[2].geometry.coordinates[0][0]); 
+    alert(geojsonData.features[2].geometry.coordinates[0][1]); 
+}
+</pre>
+</p>
+<h2>GeoJSON from Leaflet</h2>
+<p>If we are using Leaflet, however, it's easier than that. Leaflet comes
+with GeoJSON parsing built-in. Within Leaflet, you can create a GeoJSON
+Layer. With a GeoJSON layer, different types of GeoJSON feature will be
+automatically added as a corresponding Leaflet layer type (marker, polyline
+or polygon). So GeoJSON points will be added as Leaflet markers, and
+GeoJSON polylines and polygons as Leaflet polylines and polygons.
+Here is how to do this </p>
+<p>First you add a GeoJSON layer in your init() function (note that
+<em>geojsonLayer</em> would need to be a global variable, declared outside
+of any function, so that the AJAX parsing function can access it):
+<pre>
+var geojsonLayer = L.geoJSON();
+</pre>
+<p> The marker 
+(or polyline or polygon, depending on the
+type of GeoJSON feature) is passed in to this anonymous function via the
+<em>layer</em> parameter. The marker, polyline or polygon has a
+<em>feature</em> property representing the GeoJSON feature. Using the
+feature we can then access its <em>geometry</em> or <em>properties</em>
+from JavaScript, so that, for example, 
+<em>feature.properties.name</em> represents the <em>name</em> property
+of the current feature.</p>
+<p>The above code defines the GeoJSON
+layer and defines how popups will appear, based on the feature's properties.
+However, we also need to <em>actually add the features to the GeoJSON
+layer</em>. This is typically done in an AJAX callback function, from an
+AJAX call to a web service which provides data as GeoJSON.</p>
+<p>
+You loop through your GeoJSON features, and add them to your layer.
+To do this you use the
+<em>geojsonLayer.addData()</em> method, for example:
+<pre>
+function resultsReturned (e)
+{
+    var geojson = JSON.parse(e.target.responseText);
+    for(var i=0; i&lt;geojson.features.length; i++)
+    {
+         geojsonLayer.addData(geojson.features[i]);
+    }
+}
+</pre>
+</p>
+<h2>GeoJSON exercise</h2>
+<p>On Edward2, at <em>https://edward2.solent.ac.uk/wad/restaurants.php</em> is a web service 
+which 
+generates GeoJSON of all restaurants within a given area
+stored in the <em>restaurants</em> table in the
+<em>dftitutorials</em> database. (This data is taken from OpenStreetMap,
+data copyright OSM contributors, licenced under Open Database Licence).</p>
+<p>This takes one query string parameter,
+<em>bbox</em> (a bounding box). This consists of four values separated by
+commas: the western, southern, eastern and northern bounds of the area to
+query respectively. So if bbox is -1,51,0,52 for instance, only restaurants
+between longitude -1 and longitude 0 (1 West and 0) and latitude 51
+North and 52 North will be returned. To call the script and instruct it
+to generate GeoJSON, use:
+<pre>https://edward2.solent.ac.uk/wad/restaurants.php?bbox=west,south,east,north&amp;format=geojson
+</pre>
+</p>
+<ol>
+<li>Connect your Leaflet map from last time to this web service. In your
+<em>init()</em> function, make an AJAX request to the web service; always
+supply the bounding box -1.5, 50.8, -1.3, 50.9 (this is the local area). In
+your AJAX callback, add each feature to the GeoJSON layer as shown above.</li>
+<li>In Leaflet, you can get the current bounds of the visible area with 
+the <em>getBounds()</em> method of L.Map. This gives you an
+L.LatLngBounds object which
+you can then query with the <em>getSouthWest()</em> and
+<em>getNorthEast()</em> methods 
+to obtain the SW and NE corners of the bounds. 
+Each of these is an <em>L.LatLng</em> object from which you can obtain the
+latitude and longitude. The following code retrieves these values into
+four variables: west, south, east and north: 
+<pre>
+var west= map.getBounds().getSouthWest().lng;
+var south= map.getBounds().getSouthWest().lat;
+var east = map.getBounds().getNorthEast().lng;
+var north= map.getBounds().getNorthEast().lat;
+</pre>
+You can also detect when a user stops dragging the map by reacting to the
+<em>dragend</em> event, eg: 
+<pre>
+map.on("dragend", onDragEnd); 
+</pre>
+where onDragEnd would be a function to handle a drag end event.<br />
+Use this to load all restaurants within the currently-displayed area
+of the map when the user finishes dragging it.    </li>
+</ol>
+<h2>Adding popups to GeoJSON-derived features</h2>
+<p>What would be useful is to display some information about the feature
+when the user clicks the marker. </p>
+<p>
+You specify an <em>onEachFeature</em> function
+when you <em>create your L.GeoJSON object</em>. The idea is that when a
+GeoJSON feature is added to the GeoJSON layer, the function specified in the
+<em>onEachFeature</em> property is called. Here is how this could be
+done:
+(the popup will remain hidden until the user clicks the feature)
+<pre>
+var geojsonLayer = new L.GeoJSON(null,
+                {onEachFeature: feature,layer =&gt;
+                    {
+                        layer.bindPopup("Name=" + feature.properties.name);
+                    }
+                }
+            );
+</pre>
+Note that this is an arrow function, which you first encountered in the
+AJAX topic. The function is automatically supplied with two parameters,
+<em>feature</em>, the GeoJSON feature we are adding, and <em>layer</em>,
+the marker we are adding the feature too. So
+<em>feature.properties</em>
+will contain the <em>properties</em> of the feature.
+So, the effect of this code is to 
+attach a popup to the layer (the marker)
+associated with the feature, containing the feature's name.</p>
+<h2>Exercise 2</h2>
+<ol>
+<li>Add popups to your features from the previous exercise, containing the
+feature's name.</li>
+<li><em>Advanced, for students comfortable with programming only:</em>
+One problem with the approach so far is that markers are added every
+time the user drags to a new area, even if the marker has already been added
+when a user previously visited that area. You can get round this by creating
+an array of references to each feature, using the feature's ID as the array
+index (in JavaScript you can use non-consecutive array indices), and only
+adding the marker if there is not already a marker with that index in the
+array. The ID of each feature is contained within the GeoJSON.
+You would use code of this form; here, the variable <em>indexedFeatures</em>
+references each feature by ID.
+<pre>
+for(var i=0; i&lt;geojson.features.length; i++)
+{
+    var id=geojson.features[i].properties.id;
+    if (!indexedFeatures[id])
+    {
+        indexedFeatures[id] = geojson.features[i]; 
+        geojsonLayer.addData(geojson.features[i]);
+    }
+}
+</pre>
+Implement this. The GeoJSON contains a record of each feature's ID.
+You will need to make the array global, so that any function can access it, and
+create memory for the array in your <em>init()</em> function with:
+<pre>indexedFeatures=new Array();</pre>
+</li>
+</ol>
+<h2>Exercise 3: creating your own GeoJSON feed</h2>
+<p>On Edward2, under the <em>dftitutorials</em> database,  there is a table 
+called <em>restaurants</em> representing restaurants. It contains 
+<em>lat</em>, <em>lon</em>, and <em>name</em> columns.
+    <ol>
+    <li>Write a script which generates a GeoJSON feed from this table. It 
+    should take one query string parameter, <em>bbox</em>, containing 
+    the bounds of the area to generate the feed from, as a comma 
+    separated list : west,south, east, north. You can extract the 
+    individual variables from this parameter using the following PHP
+    statement:
+    <pre>list($w,$s,$e,$n) = explode(",", $_GET["bbox"]);</pre>
+    This "explodes" the bbox variable into an array (the comma is the
+    separator character), and <em>list()</em> then extracts the four
+    elements of the array into the variables $w, $s, $e and $n.</li>
+    <li>Connect to this feed from your Leaflet map (this should simply
+    be a case of switching the URL)</li>
+    </ol>
+</p>
+</body>
+</html>

@@ -1,0 +1,64 @@
+
+<html><head>
+<title>AJAX Example</title>
+
+<style>
+body { font-family: helvetica, arial, sans-serif; }
+#divFlightResults { background-color : #ffffc0; width: 640px; height: 480px }
+</style>
+
+
+<script type='text/javascript'>
+
+function ajaxrequest()
+{
+    var xhr2 = new XMLHttpRequest();
+    
+    xhr2.addEventListener ("load", responseReceived);
+    
+    var a = document.getElementById("destination").value;
+    var b = document.getElementById("date").value;
+
+    xhr2.open("GET" , "jsonflights.php?destination=" + a + "&date=" + b);
+    xhr2.send();
+}
+
+// The callback function
+function responseReceived(e) 
+{
+
+    var html = ""; // initialise html to blank text
+    var data = JSON.parse(e.target.responseText);
+	
+    for(var i=0; i<data.length; i++) 
+    {
+        // add the details of the current flight to the "html" variable
+        html = html + 'Flight no. ' + data[i].flightnumber + ' Depart: ' + data[i].depart + ' Arrive: ' + data[i].arrive + '<br />'
+    }
+	document.getElementById('divFlightResults').innerHTML = html;
+}
+</script>
+
+</head>
+
+
+<body>
+
+<h1>Solent Airways!</h1>
+
+<h2>Get the cheapest flights ever!!!!!!!!!!</h2>
+<p>If you're travelling to Rome on April 1st 2018
+you can be sure to find
+the best deals on the web right here!!!!!!!!!!!!!!!!!!!!</p>
+<p>
+Destination: <br />
+<input id="destination" value="Rome"/> <br/>
+Date: <br />
+<input id="date" value="01/04/2018" /> <br/>
+
+<input type="button" value="Go!" onclick="ajaxrequest()" />
+</p>
+
+<div id="divFlightResults"></div>
+
+</body></html>

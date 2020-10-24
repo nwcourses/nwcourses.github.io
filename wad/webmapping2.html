@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<title>Topic 12: More on Web Mapping</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 12: Further Web Mapping</h1>
+</div>
+<h2>Introduction</h2>
+<p>Today we will look at some additional web mapping topics, specifically: 
+    <ul>
+    <li>Geolocation API</li>
+    <li>Displaying markers from a web service</li>
+    </ul>
+</p>
+<h2>The Geolocation API</h2>
+<h3>Introduction</h3>
+<p>The Geolocation API allows you to obtain the current location of the
+device running the browser from within JavaScript. Even on desktop browsers
+this will give a result if you are using a wireless network, but its real
+use is in the mobile web development world. A mobile browser can talk to the
+GPS chip of the phone and obtain the phone's current location on the earth.
+Alternatively, if the GPS chip is not available, a rough estimate can be
+obtained from cell towers or wireless networks.</p>
+<h4>Using the Geolocation API</h4>
+<p>It is fairly straightforward to use the Geolocation API. Here is an 
+example (<strong>please note - all examples in this topic will show the JavaScript only, not the HTML</strong>):
+<pre>
+
+
+function init()
+{
+    if(navigator.geolocation)
+    {
+        navigator.geolocation.getCurrentPosition (
+
+            gpspos=&gt; {
+                console.log(`Lat ${gpspos.coords.latitude} Lon ${gpspos.coords.longitude}`); // show on the console
+            },
+
+            err=&gt; {
+                alert(`An error occurred: ${err.code}`);
+            }
+
+        );
+    }
+    else
+    {
+        alert("Sorry, geolocation not supported in this browser");
+    }
+}
+</pre>
+</p>
+<p>How is this working?
+    <ul>
+    <li>When the page first loads, the <em>init()</em> function runs. This
+    tests whether geolocation is possible in our browser by checking for the
+    existence of the <em>navigator.geolocation</em> variable. If it doesn't
+    exist, we display an error. If it <em>does</em> exist, we tell the
+    geolocation object to obtain the current position with 
+    <em>getCurrentPosition()</em>. This takes two arguments, both functions:
+        <ul>
+        <li>The first argument (an arrow function here)
+        is the function that will run as soon as we get a 
+        location back from the GPS chip (or wireless network, etc)</li>
+        <li>The second (here, another arrow function) will run if there
+        was an error obtaining the location.</li>
+        </ul>
+    </li>
+    <li>
+    Note the <em>asynchronous</em> approach here, just like AJAX. It might
+    take time to obtain a position, so we set up a <em>callback</em>
+    function to run once we have obtained the position, and continue
+    processing in the meantime. So any statements below the 
+    <em>getCurrentPosition()</em> might run before 
+    the callback <em>processPosition()</em> starts running.
+    </li>
+    <li>Considering each of these two functions in turn, let's look at
+    <em>processPosition()</em> first. This is automatically supplied with
+    one parameter, <em>gpspos</em>, which is an object 
+    representing the position returned from the GPS device or other location provider. This object has a property <em>coords</em> representing the
+    coordinates, and <em>coords</em> itself has two properties,
+    <em>latitude</em> and <em>longitude</em>.
+    Therefore, we can obtain the latitude and
+    longitude with <em>gpspos.coords.latitude</em> and 
+    <em>gpspos.coords.longitude</em>. So what this example is doing is
+    displaying the coordinates in the console (you can view the console
+    via More Tools-Developer Tools in Chrome or Web Developer-Web Console
+    in Firefox).</li>
+    <li>Moving onto <em>handleError()</em> which is the function which
+    is run if there is any sort of error in obtaining the position: again, 
+    this is automatically supplied with one parameter, <em>err</em>,
+    an object representing the exact error which occurred. The most meaningful
+    property of <em>err</em> is a numerical code, <em>err.code</em>, which
+    is what we are displaying here. There are several codes
+    (ref <a href='http://www.diveintohtml5.info/geolocation.html'>Dive into 
+    HTML5</a>, Mark Pilgrim):
+        <ul>
+        <li>1 means that the user denied the browser access to the device's
+        location. For security reasons, a user has to agree to the browser
+        accessing the device's GPS chip, and if they deny that access, the
+        error function will run with a code of 1.</li>
+        <li>2 means that the location could not be obtained, e.g the
+        GPS satellites or wireless networks are unavailable;</li>
+        <li>3 means a timeout, i.e. the GPS satellites or network are 
+        available but it has taken too long to contact them.</li>
+        </ul>
+    </li>
+    </ul>
+</p>
+<h3>Watching the position</h3>
+<p>The above code will simply obtain the current position and stop. In a
+typical mobile GPS application, however, the user will want to be informed
+of their location on a regular basis. To do this we use 
+<em>watchPosition()</em> in place of <em>getCurrentPosition()</em>. Here is
+an example:
+<pre>
+
+function init()
+{
+    if(navigator.geolocation)
+    {
+        navigator.geolocation.watchPosition (
+
+            gpspos=&gt; {
+                console.log(`Lat ${gpspos.coords.latitude} Lon ${gpspos.coords.longitude}`); // show on the console
+            },
+
+            err=&gt; {
+                alert(`An error occurred: ${err.code}`);
+            },
+
+            {enableHighAccuracy:true, maximumAge: 5000 }
+
+        );
+    }
+    else
+    {
+        alert("Sorry, geolocation not supported in this browser");
+    }
+}
+
+</pre>
+</p>
+<p>Note that the code is almost the same as the first example, except:
+    <ul>
+    <li>We use <em>watchPosition()</em> rather than 
+    <em>getCurrentPosition()</em>. The result will be that the GPS chip 
+    (or other location provider) will communicate the current location back
+    to the process position arrow 
+    function every time the location changes, rather 
+    than just the once.</li>
+    <li>Note also the additional options passed as a third parameter to
+    <em>watchPosition()</em>. On many mobile devices, if we want to use the
+    GPS chip (rather than cell towers, wireless networks, etc) we have
+    to set the <em>enableHighAccuracy</em> option to <em>true</em>. Also
+    if we want to force the GPS to return a reading every so-many seconds,
+    we have to specify a value for the <em>maximumAge</em> option, in 
+    milliseconds. So the above example will refresh at least every 5 
+    seconds.</li>
+    </ul>
+</p>
+<h3>IMPORTANT - Geolocation API now needs HTTPS server</h3>
+<p>For security reasons (the risk of your location being intercepted by
+packet-sniffers) the Geolocation API now (recently at the
+time of writing) requires the use of an HTTPS server (a web server with
+encrypted communication), on both Chrome and Firefox. 
+Luckily Edward2 has HTTPS, so the examples will work as expected.</p>
+<p>See <a href='https://letsencrypt.org'>Let's Encrypt</a> for information on
+setting up an HTTPS server.</p>
+<h3>Exercise 1 - Geolocation</h3>
+<p><strong>This is a key exercise; if you have completed Topic 11 Exercise 1
+and Topic 11 Exercise 2 questions 1-2, you should attempt it before you
+finish previous work.</strong></p>
+<ul>
+<li>Try out the first geolocation example above, to show that it works
+(it should work, using the university's wifi network).</li>
+<li>Use the Geolocation API to obtain your current position, and
+display a Leaflet map at zoom 14 centred on that position. How you should
+approach this is as follows: 
+    <ul>
+    <li>Add the Leaflet setup code to your init() function for the
+    basic geolocation example above.
+     Set the map's location initially
+     to an arbitrary location e.g. latitude 51, longitude -1. 
+    </li>
+    <li>In your geolocation success callback,
+    adjust the map to the new position received. </li>
+    </ul>
+You might notice, through reading the Leaflet API, that there is a shortcut
+way of doing this.... but for practise, use the above method!
+</li>
+</ul>
+<h2>Displaying markers from a web service</h2>
+<p>A common use of web mapping is to show data from a web service on a 
+map. For example, we might want to show the location of restaurants in a 
+particular city on a web map. This is quite easy - you simply need to make an
+AJAX request to a web service, parse the JSON (or XML) returned and create
+markers using the data. The following exercise will allow you to explore
+this.</p>
+<h3>Exercise 2 - Connecting to a web service and displaying markers</h3>
+<p>In the <em>dftitutorials</em> database on edward2 is a table called
+<em>artists</em> which gives the latitude and longitude of the home towns
+of selected artists (Oasis, Madonna, The Beatles, David Bowie, Prince,
+Michael Jackson, Woop, Ed Sheeran).
+There is also a web service at 
+<em>https://edward2.solent.ac.uk/wad/artists.php</em>
+which takes an artist as a query string parameter called <em>artist</em>
+and returns JSON describing the home town of that artist and
+the latitude and longitude of that home town.</p>
+<p>Modify your HT-Tracks AJAX page (Session 6) so that as well as a 
+"Search" button, there is a "Where is this artist from?" button. This should 
+connect to a <em>new JavaScript function</em>
+which sends an AJAX request to this web 
+service. Also modify your <em>init()</em> function from your AJAX exercise so
+that it initialises a Leaflet map. You'll need to declare the Leaflet map
+globally so that it can be accessed from multiple functions:
+<pre>var map; // make the 'map' variable global
+
+function init() {
+    map = L.map("map1"); // Initialise the map in init()
+    // ... etc ...
+}</pre>
+</p>
+<p>In the AJAX callback, parse the JSON returned so that a 
+marker is shown on the map for that artist, and the map is centred at 
+the artist's hometown. When the marker is clicked,
+the name of the home town of the artist should be shown in a popup.</p>
+<p>If no query string parameters are passed to the web service, the home 
+towns of <em>all</em> the artists are shown. Add a new button to the
+HT-Tracks AJAX page labelled "Show Home Towns Of All Artists".
+By making an AJAX request to the web service, it should show the location of
+the home towns of <em>all</em> the artists on the map, 
+along with a popup giving information about the artist and their home town.</p>
+<h2>Further topic - GeoJSON</h2>
+<p>If you complete all the above, you might want to 
+<a href='geojson.html'>read these further notes</a> on GeoJSON - a common 
+standard format for representing geographical data.</p>
+</body>
+</html>

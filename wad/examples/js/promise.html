@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript' src='/fm/js/lib/PromiseAjax.js'></script>
+<script type='text/javascript'>
+
+function init() {
+	http.get('/course/login.html').then( 
+			function(xhr) {
+				console.log(xhr.responseText);
+			} 
+		).catch( 
+			function(code) {
+				console.log("ERROR: " + code);
+			} 
+		);
+
+	http.get('/course/mad/ws/hits.php?format=json').then(
+				function(xmlHTTP) {
+					return JSON.parse(xmlHTTP.responseText);
+				}
+		).
+		then( function(data) {
+				var all ="";
+				for(var i=0; i<data.length; i++) {
+					all += data[i].song + "<br />";
+				}
+				document.getElementById("results").innerHTML = all;
+			} );
+}
+</script>
+</head>
+<body onload='init()'>
+<h1>Promise Test</h1>
+<div id='results'></div>
+</body>
+</html>

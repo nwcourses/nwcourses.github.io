@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AJAX and JSON</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+
+<h1 class="front">Topic 6 - AJAX and JSON</h1>
+<p>Today we will cover the following topics:</p>
+<ul>
+<li>Unobtrusive JavaScript and Arrow Functions</li>
+<li>AJAX</li>
+<li>Using JSON in AJAX applications</li>
+</ul>
+<h2>JavaScript Revision</h2>
+<p>Remember from the first year that JavaScript is a language to develop interactive, rich client-side
+applications. Many websites these days are similar to traditional standalone desktop applications
+(think of Google Docs, etc) and rely on large amounts of JavaScript to implement this functionality.</p>
+
+<p>JavaScript is typically stored in external <em>.js</em> files, and included into web pages with
+&lt;script&gt; tags. Here is a simple hello world example, which shows a "Hello World" alert box:
+<pre>function init() {
+    alert("Hello World!")
+}</pre>
+You'd save this in an external file, e.g. <em>script.js</em> and then include it in your website:
+<pre>&lt;script type='text/javascript' src='script.js'&gt;&lt;/script&gt;</pre>
+</p>
+<p>Here is a full web page which runs this JavaScript when the page first loads:
+<pre>&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='script.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body <strong>onload='init()'</strong>&gt;
+&lt;h1&gt;Test JavaScript Page&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</p>
+<h3>Unobtrusive JavaScript: Event Handlers with Arrow Functions</h3>
+<p>Previously, it was common to link buttons and other user interface elements
+to JavaScript event handlers (functions which run when the button was clicked) directly within
+the HTML code. However, this leads to a messy and hard-to-read mix of HTML and JavaScript.
+It is better, instead, to write <em>unobtrusive JavaScript</em> in which user interface
+elements are linked to JavaScript event handlers when the page first loads. Here is an example of some
+JavaScript which does just this. Note how in the <em>init()</em> function (which runs when the page
+first loads) we link the button with the ID of <em>btn1</em> to an event handler.
+<pre>
+// JavaScript file, script2.js
+function init() {
+    document.getElementById("btn1").addEventListener("click", clickHandler);
+}
+    
+function clickHandler() {
+    alert("You clicked me!");
+}
+</pre>
+The accompanying HTML might look like this:
+<pre>&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='script2.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body <strong>onload='init()'</strong>&gt;
+&lt;h1&gt;Test JavaScript Event Handling Page&lt;/h1&gt;
+&lt;input type='button' id='btn1' value='Click me!' /&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+Note how in our <em>init()</em> function we add an <em>event listener</em> to our button,
+<em>btn1</em>. An event listener is a function which runs in response to an event (such as the user
+clicking a button).</p>
+<p>Note that <em>addEventListener()</em> takes two parameters:
+    <ul>
+    <li>"click" - this is the type of event we're listening for (a click, in this case)</li>
+    <li>the <em>event handler</em>. This is the function we want to run when the event occurs
+    (here, the <em>clickHandler()</em> function). When we pass functions as parameters to 
+    other functions like this, they are known as <em>callbacks</em>. A callback is a function
+    that will run at some future point in time (in this example, when the button is clicked)
+    rather than when the code is first executed.
+    </li>
+    </ul>
+</p>
+<h3>Arrow functions</h3>
+<p>Arrow functions are a new feature of the recent JavaScript standard,
+ECMAScript 6. They are anonymous, nameless functions which can be used 
+as parameters where a callback function is expected. Rather than writing the callback
+function as a separate function, and specifying the name of the callback as a parameter, we write the function in full 
+where the callback is expected. Here is the JavaScript example above
+rewritten so that the callback is an arrow function. Note also how we do not use the
+word "function" with arrow functions, but separate the parameter list and
+function body with the arrow operator (<em>=&gt;</em>):
+<pre>
+// JavaScript file, script2a.js
+function init() {
+    document.getElementById("btn1").addEventListener("click", <strong>()=&gt; 
+        { 
+            alert("You clicked me!") 
+        } </strong>
+    );
+}</pre>
+Notice how this time, rather than creating a named function called <em>clickHandler()</em>, we pass in an 
+anonymous, arrow function as the second parameter to <em>addEventListener()</em>. Note the syntax of the arrow function:
+<pre>() =&gt; 
+{
+    alert("You clicked me!");
+}</pre>
+The <em>()</em> is the parameter list to the arrow function (here, the function takes no parameters). We follow the
+parameter list with the arrow operator (=&gt;) and then write the body of the function, beginning and ending with braces { }
+in the same way as normal functions.</p>
+<h3>Revisiting AJAX</h3>
+
+<p><img src="../images/ajax2.png" alt="AJAX applications"/></p>
+<p>
+AJAX stands for 
+<em>Asynchronous JavaScript and XML</em>. 
+It is a technique which allows browsers to communicate with a web server <em>without having to reload the page</em>. </p>
+<p>
+A user might enter a search term in a form and click Go, and then the search results would be sent back from the server and 
+<em>one small part of the page only</em>
+ (as opposed to the entire page) updated with the search results. </p>
+
+<p>
+Furthermore, requests to the server are sent, and responses received, 
+<em>in the background without any interruption to the user's interaction with the website...</em>
+ so, unlike in a traditional web application where the user has to wait for a response from the server, the user can 
+<em>continue to interact with the page</em>
+ while waiting for the response to come back.</p>
+
+<p>
+AJAX is not an actual language, but a combination of technologies used to produce the effect above. An AJAX application typically 
+consists of three components:
+<ul>
+<li>
+the client side application, usually JavaScript running in the browser which sends HTTP requests to a server and processes the response;</li>
+<li>
+a server side script which receives the HTTP request sent from the JavaScript, above, and delivers the response;</li>
+<li>
+the data sent back from the server to the client, which can be either 
+plain text or a data description format such as JSON or XML.
+</li>
+</ul>
+</p>
+<p>The AJAX process typically works as follows:
+    <ul>
+    <li>The user interacts with the page in some way, e.g. clicks a search button. A JavaScript function sends a request
+    to the server.</li>
+    <li>The server side script runs.</li>
+    <li>Another JavaScript function, called the <em>callback</em>, receives the data sent back from the server, processes it, and
+    integrates the results within the front-end.</li>
+    </ul>
+</p>
+<h3>Writing AJAX code</h3>
+
+<p>In ECMAScript 6, a new AJAX API is available - the fetch API. This makes it easier to write AJAX applications
+compared to previously. However, it does make use of a feature of ECMAScript 6 called <em>promises</em> which we will 
+return to later, and therefore, at the moment might be a little difficult to understand given we haven't covered
+promises yet.</p>
+<p>
+So for now, we will use the older API ('XMLHttpRequest2') but we will cover the fetch API later.
+<pre>// JavaScript file, ajax1.js
+function init() {
+    
+        
+        // For simplicity, we're specifying that when the button clicks,
+        // a regular callback function 'sendAjax' will run, rather than an arrow function.
+        // This is because we are using an arrow function in our AJAX code as well, and I don't
+        // want to overcomplicate things at this stage by having too many arrow functions inside other arrow functions!
+        
+        document.getElementById("btn1").addEventListener("click", sendAjax);
+            
+}
+    
+function sendAjax() {
+        // Read in the input from the two form fields
+        var a = document.getElementById('destination').value;
+        var b = document.getElementById('date').value;
+        
+        // Set up our AJAX connection variable (this is an object, for those of you who have done OO programming)
+        var ajaxConnection = new XMLHttpRequest();
+    
+        // Set up the callback function. Here, the callback is an arrow function.
+        ajaxConnection.addEventListener ("load",e =&gt; 
+            { 
+                 var output = ""; // initialise output to blank text
+                 var allFlights = JSON.parse(e.target.responseText);
+
+                 // Loop through each 
+                 allFlights.forEach( curFlight =&gt; 
+                        {
+                            // add the details of the current flight to the "output" variable
+                            output = output + `Flight number: ${curFlight.number} Depart: ${curFlight.depart} Arrive: ${curFlight.arrive} &lt;br /&gt; `;
+                        } );
+                // Put the HTML output into the results div (up to you to do!)        
+            });
+    
+   
+        // Open the connection to a given remote URL.
+        ajaxConnection.open("GET" , `https://example.com/flights.php?destination=${a}&amp;date=${b}`);
+    
+        // Send the request.
+        ajaxConnection.send();
+}
+</pre>
+with this HTML:
+<pre>&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='ajax1.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload='init()'&gt;
+&lt;h1&gt;Test AJAX Page&lt;/h1&gt;
+Destination: &lt;input id='destination' /&gt;
+Date: &lt;input id='date' /&gt;
+&lt;input type='button' id='btn1' value='Search for flights!!' /&gt;
+&lt;div id='responseDiv'&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+How does this work?  
+    <ul>
+    <li>In our <em>init()</em> function, we connect the button to the <em>sendAjax()</em> function.</li>
+    <li>The sendAjax() function first retrieves the 
+    destination and date that the user entered and stores them in the variables
+    <em>a</em> and <em>b</em> respectively.</li>
+    <li>We create a variable <em>ajaxConnection</em> to represent the AJAX connection with the server.
+    (For those of you who have done object-oriented programming, this is an object of type <em>XMLHttpRequest</em>).</li>
+    <li>We specify what function to run when the response has been received 
+    (the <em>callback function</em>) by adding a "load" event listener to our AJAX connection variable:
+    <pre>ajaxConnection.addEventListener ("load", callback function);</pre>
+    This means that when the response has been received (the <em>load</em> event has occurred), the 
+    callback function will run. Here, the callback function is an arrow function; we will return to it    
+    later.</li>
+    <li>We then <em>open the connection to the server</em> with this line:
+<pre>xhr2.open("GET", `https://example.com/flights.php?destination=${a}&amp;date=${b}`);</pre>
+    Note how we are dynamically creating the query string using the form data, and specifying a
+    <em>GET</em> request. <strong>Note the use of backticks (`) here</strong>. This is a new
+    syntax introduced in ECMAScript 6. Using backticks
+    for a string allows us to embed variables and expressions within the string by preceding the 
+    variable or expression with a dollar and surrounding it in braces { } (e.g. ${a} here).</li>
+    <li>Finally we actually <em>send</em> the request:
+    <pre>ajaxConnection.send();</pre>
+    </li>
+
+    </ul>
+
+<h2>Using JSON in an AJAX application</h2>
+
+<p>We will now discuss what the callback function
+does, but before we do so we need to discuss how JSON parsing works in
+JavaScript.</p>
+<p>
+JSON is most commonly used in conjunction with AJAX. An AJAX application can make a request to a server side script which generates JSON 
+from the contents of a database, and then interpret the JSON returned. We can then convert the JSON
+into JavaScript <em>arrays</em> and <em>objects</em>. (Remember that an <em>object</em> is a code representation of
+a real-world entity; here, our objects are flights). For example, imagine that
+this JSON code is returned from the server in the above example if the usersearched for flights from Gatwick to Rome.
+<pre>
+[
+    {
+        "origin" : "Gatwick",
+        "destination": "Rome",
+        "number" : "EU901",
+        "depart"  : "0900",
+        "arrive" : "1200"
+    } ,
+
+    { 
+        "origin" : "Gatwick",
+        "destination": "Rome",
+        "number" : "EU903",
+        "depart"  : "1100",
+        "arrive" : "1400"
+    } ,
+
+    { 
+        "origin" : "Gatwick",
+        "destination": "Rome",
+        "number" : "EU905",
+        "depart"  : "1400",
+        "arrive" : "1700"
+    }
+]
+</pre>
+This JSON code, an array of three objects, can be converted into the
+JavaScript equivalent, a <em>JavaScript array of three JavaScript objects</em>,
+using the <em>JSON.parse()</em> function. 
+A <em>JavaScript object</em> is similar to a PHP associative array - 
+we will look at objects in more detail later in the unit.</p>
+<p>We use the <em>JSON.parse()</em> function to convert
+JSON into the corresponding JavaScript arrays and objects. We will now return to our
+callback function (highlighted below):
+<pre>
+ajaxConnection.addEventListener ("load",<strong>e =&gt; 
+{ 
+    var output = ""; // initialise output to blank text
+    var allFlights = JSON.parse(e.target.responseText);
+    allFlights.forEach( curFlight =&gt; 
+        {
+            // add the details of the current flight to the "output" variable
+            output = output + `Flight number: ${curFlight.number} Depart: ${curFlight.depart} Arrive: ${curFlight.arrive} &lt;br /&gt; `;
+    } );
+    
+}</strong>);
+</pre>
+<ul>
+<li>Firstly notice how the callback arrow function has a parameter, <em>e</em>. This represents an
+<em>event object</em> (we will return to these later). <em>e.target</em> represents the
+original <em>ajaxConnection</em> variable that we used to make the connection, in other words it's an object
+of type XMLHttpRequest. From this, we can actually obtain the text of the response from the server
+with <em>e.target.responseText</em>.</li>
+<li>Also notice how <strong>in arrow functions, parameters are not surrounded by
+parentheses.</strong/>.</li>
+<li>We parse the response, <em>e.target.responseText</em>, into an array of JavaScript objects using
+JSON.parse().</li>
+<li>We then perform a <em>forEach()</em> on the array. <em>forEach()</em> is a function which performs a second function on each member of
+an array. Each member of the array in turn is passed into this second function as a parameter. Here, the second function
+is itself an arrow function, which takes the current flight as a parameter:
+<pre>allFlights.forEach( <strong>curFlight =&gt; 
+        {
+            // add the details of the current flight to the "output" variable
+            output = output + `Flight number: ${curFlight.number} Depart: ${curFlight.depart} Arrive: ${curFlight.arrive} &lt;br /&gt; `;
+    }</strong>);</pre>
+As <em>curFlight</em> represents the current flight, we can obtain its properties with <em>curFlight.number</em>,
+<em>curFlight.depart</em> and <em>curFlight.arrive</em>. So for each flight, we add its details to the variable 
+<em>output</em>. Therefore, once we've done each flight, <em>output</em> will contain all flights.
+You'd then place the results inside a page element such as a &lt;div&gt;, but I've left that for you to do.</p>
+</li>
+</ul>
+
+<h2 id='cors'>The same-origin policy</h2>
+
+
+
+<p>AJAX applications are normally subject to the <em>same-origin policy</em>. This means that the back-end
+(the server-side script that the JavaScript talks to) must be delivered from the same exact domain as
+the front-end. The reason for this is security: the ability for an AJAX front end to talk to 
+a third-party server opens up the possibility of cross-site scripting.
+According to the W3C on their <a href='http://www.w3.org/Security/wiki/Same_Origin_Policy'>
+same origin policy document</a>, with the same-origin policy "the overarching intent is to let users visit untrusted web sites 
+without those web sites interfering with the user's session with honest web sites" - in other words,
+it prevents the possibility of a third-party 
+AJAX-based site using AJAX to communicate with a legitimate site which the user might be currently
+logged on to, which could lead to stealing of session-specific information.</p>
+<p>
+The domain must be exact; subdomains of a top-level domain are treated as different.
+For example <em>booking.solentholidays.com</em> and
+<em>hotels.solentholidays.com</em> are treated as different. This is because several users with different
+subdomains might be sharing the same top-level domain of a hosting company, e.g.
+<em>fredsmith.solenthosting.com</em> and <em>timjones.solenthosting.com</em>.</p>
+
+<h3>Circumventing the same-origin policy with CORS</h3>
+<p>There is, however, a way in which server-side developers can circumvent the same origin policy in
+certain cases. This is done by explicitly allowing, on the server side, certain AJAX clients to connect.
+A common case is where one person owns two domains, and would like the two domains to
+communicate with each other over AJAX. For example, Solent Holidays might have two domains,
+<em>hotels.solentholidays.com</em> and <em>booking.solentholidays.com</em>
+ - and wishes to be able to send users' booking details from
+<em>booking.solentholidays.com</em> to a hotels web service on <em>hotels.solentholidays.com</em>. To do this, they would have to 
+add code
+to the server-side scripts on <em>hotels.solentholidays.com</em> to <em>allow booking.solentholidays.com to connect</em>.
+</p>
+<p>This is done by using the technique of 
+<em>Cross-Origin Resource Sharing (CORS)</em>.
+An <em>Access-Control-Allow-Origin</em> line is added to the HTTP response from the PHP script
+using the <em>header()</em> function, e.g. PHP scripts on <em>hotels.solentholidays.com</em> could include the following:
+<pre>&lt;?php
+header("Access-Control-Allow-Origin: booking.solentholidays.com");
+... rest of script ... </pre>
+</p>
+
+<h3>AJAX and JSON Parsing - Exercise</h3>
+
+<p>The main exercise is to write a website for HT-Tracks including an AJAX 
+front end which <em>parses</em>
+(interprets) the JSON that your web service from the first week produced.
+The Standard Questions are the most important to complete. </p>
+<h4>Standard Questions</h4>
+<p>
+<ol>
+<li>Ensure that your HT-Tracks page (which you should have done as homework)
+includes a form field to allow the user to enter an artist,
+and a button, as in the flights example, above.
+	<ul>
+	<li>If you don't have an HT-Tracks page, download this one from
+	<a href='resources/index.html'>here</a>.
+	</li>
+	</ul>
+</li>
+<li>In a separate JavaScript file, write an AJAX request function which connects to
+your web service from session 2. You should <em>parse</em> the JSON returned.
+Place the results within a &lt;div&gt;. Remember that you can use <em>innerHTML</em>
+to fill a page element, e.g:
+<pre>document.getElementById("div1").innerHTML = "New content!";</pre></li>
+</ol>
+</p>
+<h4>More advanced questions</h4>
+<ol>
+<li>Display the results in a table.</li>
+<li>Move on to the <a href='DOM.html'>next topic</a>. If you begin this now,
+you will have more chance of completing all the advanced questions in that
+topic.</li>
+</ol>
+</body>
+</html>

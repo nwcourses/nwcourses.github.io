@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<title></title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>Topic 5 - Implementing REST PUT and DELETE methods</h1>
+
+<h2>Introduction</h2>
+
+<p>We have already seen how to write GET and POST methods in a Slim web service, and also how to send
+GET and POST requests from a PHP client. However, you probably remember that REST uses two other methods
+too: PUT and DELETE. How can we develop code to make use of these methods?</p>
+<h2>Server side</h2>
+<h3>DELETE request</h3>
+<p>Handling DELETE requests with a Slim application is easy. 
+We simply write <em>delete</em> and <em>put</em> routes in exactly the same way as we would
+write <em>get</em> and <em>post</em> routes, by using the <em>delete</em> and <em>put</em> methods of our
+<em>\Slim\App</em> object. For example:
+<pre>
+$app-&gt;delete('/flights/{id}', function ($req, $res, array $args) {
+    $stmt = $this-&gt;db-&gt;prepare("DELETE FROM flights WHERE id=?");
+    $stmt-&gt;bindParam (1, $args["id"]);
+    $stmt-&gt;execute();
+});
+</pre>
+This example sets up a DELETE route for the relative URL <em>/flights/{id}</em>, e.g. <em>/flights/45678</em>. If
+this URL receives a DELETE request, the flight with the corresponding ID will be deleted from the database.</p>
+<h3>PUT request</h3>
+<p>With a PUT request, we need to send new data (typically as JSON) to our web service. Our web service then
+needs to parse that JSON and use it to update the database. Note that calling 
+<strong>getBody()-&gt;getContents();</strong> on the Request object will retrieve the contents of the body 
+of the HTTP request:
+<pre>
+$app-&gt;put('/flights/{id}', function ($req, $res, array $args) {
+    $put = json_decode(<strong>$req-&gt;getBody()-&gt;getContents()</strong>, true);
+    $stmt = $this-&gt;db-&gt;prepare("UPDATE flights SET depart=?, arrive=?, price=? WHERE id=?");
+    $stmt-&gt;execute(<strong>[$put["depart"], $put["arrive"], $put["price"], $args["id"]]</strong>);
+});
+</pre>
+Note a couple of things about this example:
+<ul>
+<li>We use <strong>$req-&gt;getBody()-&gt;getContents()</strong> to obtain the body of the request.
+With a PUT request, this will typically be JSON, so we parse it.</li>
+<li>We prepare an UPDATE statement to update the data in the database.</li>
+<li><strong>Also note how the PDO execute() now takes a 4-member array.</strong>
+Unless you have come across it yourself, you have not seen this form of <em>execute()</em> before.
+This array contains all the bound parameters for the prepared statement, i.e. the departure, arrival and price
+from the JSON and the ID from the URL. This is used instead of four separate <em>bindParam()</em> methods
+and is much more concise.</li>
+</ul>
+</p>
+<h2>Client side</h2>
+<p>Web services would normally be called from a client script or application,
+for example with cURL. You have already seen how to use cURL to setup GET and POST requests. You can also
+use cURL to send a DELETE request by adding the line:
+<pre> curl_setopt($curl,CURLOPT_CUSTOMREQUEST, "DELETE");</pre>
+PUT requests are a bit more difficult as you have to write a temporary file on your server 
+and send that file over to the web service. To easily handle the different types of HTTP request in REST 
+applications, I have written a wrapper function, <em>call_web_service()</em>,
+with which you can easily make a request to a REST web service.
+You can download it <a href='call_web_service.zip'>here (ZIP file)</a>; the source code is also viewable
+online <a href='/~whiteleggn/call_web_service_v2.php.txt'>here</a>.
+To use it in a script, you need to add the line:
+<pre>
+include('call_web_service.php');
+</pre>
+at the top of your script.
+</p>
+<p> With this script, to call any web service all you
+need to do is:
+<pre>$result = call_web_service( URL, method, data);</pre>
+<ul>
+<li><em>URL</em> is the URL of the web service;</li>
+<li><em>method</em> is the method (e.g. PUT, DELETE);</li>
+<li><em>data</em> is the data you're sending to the web service.
+For example if you are using the PUT method to send a request to:
+<pre>http://hittastic.com/song/1009</pre>
+you would send some JSON to update the details of song 1009. 
+This JSON would be parsed in our Slim web service as we saw in the PUT
+example above.
+</ul>
+For example:
+<ul>
+<li>DELETE request:
+<pre>
+$result = call_web_service("https://edward2.solent.ac.uk/~pjones/flight/1009", "DELETE"); 
+</pre>
+This would send a DELETE request to the URL, causing flight 1009 to be deleted.</li>
+<li>PUT request:
+<pre>
+$newData = [ "depart" =&gt; "0900", "arrive" =&gt; "1200", "price" =&gt; 200.0 ];
+$result = call_web_service("https://edward2.solent.ac.uk/~pjones/flight/1009", "PUT", json_encode($newData)); 
+</pre>
+This would send a PUT request to the URL, causing flight 1009 to be modified. The associative array
+<em>$newData</em> is encoded into JSON and sent within the body of the request. We then use the method
+described in "Server side", above, to parse the data sent via the PUT request with Slim.</li>
+</ul>
+</p>
+<h3>What does call_web_service() return?</h3>
+<p>The return value of call_web_service(), <em>$result</em> in the examples above, is an associative array containing 
+the result returned from the web service. It contains two fields: 
+    <ul>
+    <li><em>$result["content"]</em> contains the JSON data returned from the web
+    service;</li>
+    <li><em>$result["code"]</em> contains the HTTP code returned from the
+    web service. You can use this to test whether the web service operation
+    was successful or not, and if not, why it wasn't successful.</li>
+    </ul>
+</p>
+<h2>Exercise</h2>
+<ol>
+<li>Add a <em>delete</em> route to your web service, to delete a review. The route should handle a URL such as:
+<pre>/review/{id}</pre>
+and delete the review with the given ID. </li>
+<li>Add a <em>put</em> route to your web service, to update a review (text, star rating - note that the 
+<em>reviews</em> table now has a <em>star_rating</em> column). JSON containing the new 
+review and star rating should be read by the web service and used to update the review with the ID
+specified in the URL.
+Add error handling, so that if the review is blank, or the star rating is not between 1 and 5,
+an appropriate HTTP code is returned.</li>
+<li>Make sure you've done Exercise 3 from Topic 4. On the reviews page, add a link to delete a review.
+This should link to an additional <em>client_review_delete.php</em> page which sends a DELETE request to the
+web service and deletes the review.</li>
+<li>Add an "Edit Review" </li> facility in your fan site. Users should be able to edit reviews and change
+the star rating. As you should, by this stage, understand how to communicate with web services from your
+fan site, I am not giving you full detail on how this should be implemented... but the user must be able to 
+edit an existing review (show it in a text area) and star rating, and clicking an Edit button should result
+in the review being edited. Check for errors returned from your update web service!</li>
+</ol>
+
+</body>
+</html>
