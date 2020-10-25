@@ -1,5 +1,8 @@
 # Week 3: A-Frame and JavaScript
 
+(**NOTE that these notes are subject to minor change between now and
+Tuesday.**)
+
 ## Introduction
 
 Last week we looked at how to create some basic A-Frame scenes with HTML. We
@@ -586,3 +589,38 @@ HTML, to make the camera vertical controls faster or slower.
 the camera's vertical velocity. When the value of the `range` changes, update the `velocity` property of the `vertical-controls` component of the camera to
 the current value of the `range`. The `range` should cover 0.5 to 10 in 
 steps of 0.5.
+
+## Entity-component-system architecture
+
+A-Frame adopts what is called an *entity-component-system* architecture.
+We have already seen the roles of entities and components. What are systems?
+A `system` is an object which contains the detailed logic of a component.
+The idea is to keep the component itself lightweight, so that it mostly just
+contains lifecycle methods - and then add the detailed logic to the system.
+If you register a system with `AFRAME.registerSystem()` and that system has
+the same name as a component, it will be accessible from the component via
+`this.system`. For example:
+
+```
+AFRAME.registerComponent("mycomponent", {
+	init: function() {
+		// the system can be accessed from the component as this.system 
+		// e.g. this.system.doSomething() will call the doSomething() function
+		// of the system
+	}
+});
+
+// System contains functions which do the detailed logic
+AFRAME.registerSystem("mycomponent", {
+	doSomething: function() {
+	},
+
+	doSomethingElse: function() {
+	}
+});
+```
+Our components so far are not complex enough to need systems, but as you
+build more complex components you'll find your code becomes more modular if
+you separate out the detailed logic into a system.
+
+See [here](https://aframe.io/docs/1.0.0/introduction/entity-component-system.html) for more detail.

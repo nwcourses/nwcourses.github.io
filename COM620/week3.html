@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3aframeandjavascript">Week 3: A-Frame and JavaScript</h1>
+<p>(<strong>NOTE that these notes are subject to minor change between now and
+Tuesday.</strong>)</p>
 <h2 id="introduction">Introduction</h2>
 <p>Last week we looked at how to create some basic A-Frame scenes with HTML. We
 found we could do quite a bit with plain HTML, for example we could move around
@@ -211,7 +213,7 @@ component of the entity. It takes as its parameters, the name of the component
 for the properties of the component we wish to update (here, just the <code>color</code>
 property of the <code>material</code> component).</p></li>
 </ul>
-<p>See <a href="../wad/objects.html">here</a> for notes on JavaScript objects. We will briefly go through these notes in class.</p>
+<p>See <a href="../wad/objects.html">here</a> for notes on JavaScript objects. </p>
 <h3 id="makingtheaboveexamplemoreconciseusinganarrowfunction">Making the above example more concise using an arrow function</h3>
 <p>The above example will work, however it can be made more concise using an
 <em>arrow function</em>. An arrow function is an anonymous function that can be
@@ -519,4 +521,34 @@ HTML, to make the camera vertical controls faster or slower.</p></li>
 the camera's vertical velocity. When the value of the <code>range</code> changes, update the <code>velocity</code> property of the <code>vertical-controls</code> component of the camera to
 the current value of the <code>range</code>. The <code>range</code> should cover 0.5 to 10 in 
 steps of 0.5.</p></li>
-</ol></body></html>
+</ol>
+<h2 id="entitycomponentsystemarchitecture">Entity-component-system architecture</h2>
+<p>A-Frame adopts what is called an <em>entity-component-system</em> architecture.
+We have already seen the roles of entities and components. What are systems?
+A <code>system</code> is an object which contains the detailed logic of a component.
+The idea is to keep the component itself lightweight, so that it mostly just
+contains lifecycle methods - and then add the detailed logic to the system.
+If you register a system with <code>AFRAME.registerSystem()</code> and that system has
+the same name as a component, it will be accessible from the component via
+<code>this.system</code>. For example:</p>
+<pre><code>AFRAME.registerComponent("mycomponent", {
+    init: function() {
+        // the system can be accessed from the component as this.system 
+        // e.g. this.system.doSomething() will call the doSomething() function
+        // of the system
+    }
+});
+
+// System contains functions which do the detailed logic
+AFRAME.registerSystem("mycomponent", {
+    doSomething: function() {
+    },
+
+    doSomethingElse: function() {
+    }
+});
+</code></pre>
+<p>Our components so far are not complex enough to need systems, but as you
+build more complex components you'll find your code becomes more modular if
+you separate out the detailed logic into a system.</p>
+<p>See <a href="https://aframe.io/docs/1.0.0/introduction/entity-component-system.html">here</a> for more detail.</p></body></html>
