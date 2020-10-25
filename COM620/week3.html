@@ -90,9 +90,7 @@ to "Hello A-Frame!". How can we extract that property and display it?
 What we need to do is define a <strong>schema</strong> for our component. The schema 
 defines what properties a component expects, and what data types each
 component will have. For example:</p>
-<pre><code>import 'aframe';
-
-AFRAME.registerComponent('greeting', {
+<pre><code>AFRAME.registerComponent('greeting', {
     schema: {
         message: {
             type: 'string',
@@ -179,9 +177,9 @@ week 1? </p>
 <p>The problem is that <code>AFRAME.registerComponent()</code>, which is used to register
 a component we saw above, has
 to be loaded <em>before</em> the A-Frame scene is loaded into memory, and <em>not</em>
-after the page has loaded. If it is left until after the page has finished
-loading, the components will not be recognised 
-and therefore not initialised.</p>
+after the page has loaded. When the HTML of an A-Frame scene is read by the
+browser, each component the browser comes across is checked if it is a registered component and if it is, it's initialised. If it isn't registered, it's ignored. So, if component registration is left until after the page has finished
+loading, the components will not be recognised and therefore not initialised.</p>
 <p>In this example, we <em>could</em> put the <code>onload</code> code in a script with a <code>defer</code>
 (because <code>AFRAME.registerComponent()</code> is not used)
 but larger A-Frame applications are likely to need to register some custom
@@ -193,6 +191,10 @@ scene is loaded, but components can only be <em>accessed</em> after the scene is
 loaded) we typically make our JavaScript files load before the page but ensure
 any code which deals with the DOM of the HTML page is placed in a 
 <code>window.onload()</code> function to ensure it is only loaded <em>after</em>.</p>
+<p>(Actually, this is not really best practice for JavaScript applications as
+of ECMA6: best practice states that all JavaScript should be loaded <em>after</em>
+the page, ideally as a module. But it is the way that A-Frame works, so we have
+to do things this way).</p>
 <p>To continue with the code:</p>
 <ul>
 <li><p>Within this function we add a <code>click</code> event listener function to the button,
@@ -454,7 +456,7 @@ velocity is above 0, or down if the velocity is negative. </p>
         const curPos = this.el.getAttribute("position");
         this.el.setAttribute("position", {
             x: curPos.x,
-            y: curPos.y + this.velocity
+            y: curPos.y + this.velocity,
             z: curPos.z
         });
     }
@@ -490,7 +492,7 @@ some arbitrary value.</p>
         const curPos = this.el.getAttribute("position");
         this.el.setAttribute("position", {
             x: curPos.x,
-            y: curPos.y + delta * 0.001 * this.velocity
+            y: curPos.y + delta * 0.001 * this.velocity,
             z: curPos.z
         });
     }

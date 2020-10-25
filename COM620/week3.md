@@ -105,8 +105,6 @@ What we need to do is define a **schema** for our component. The schema
 defines what properties a component expects, and what data types each
 component will have. For example:
 ```
-import 'aframe';
-
 AFRAME.registerComponent('greeting', {
     schema: {
         message: {
@@ -206,9 +204,9 @@ week 1?
 The problem is that `AFRAME.registerComponent()`, which is used to register
 a component we saw above, has
 to be loaded *before* the A-Frame scene is loaded into memory, and *not*
-after the page has loaded. If it is left until after the page has finished
-loading, the components will not be recognised 
-and therefore not initialised.
+after the page has loaded. When the HTML of an A-Frame scene is read by the
+browser, each component the browser comes across is checked if it is a registered component and if it is, it's initialised. If it isn't registered, it's ignored. So, if component registration is left until after the page has finished
+loading, the components will not be recognised and therefore not initialised.
 
 In this example, we *could* put the `onload` code in a script with a `defer`
 (because `AFRAME.registerComponent()` is not used)
@@ -223,6 +221,10 @@ loaded) we typically make our JavaScript files load before the page but ensure
 any code which deals with the DOM of the HTML page is placed in a 
 `window.onload()` function to ensure it is only loaded *after*.
 
+(Actually, this is not really best practice for JavaScript applications as
+of ECMA6: best practice states that all JavaScript should be loaded *after*
+the page, ideally as a module. But it is the way that A-Frame works, so we have
+to do things this way).
 
 To continue with the code:
 
@@ -518,7 +520,7 @@ AFRAME.registerComponent('vertical-controls', {
         const curPos = this.el.getAttribute("position");
         this.el.setAttribute("position", {
             x: curPos.x,
-            y: curPos.y + this.velocity
+            y: curPos.y + this.velocity,
             z: curPos.z
         });
     }
@@ -555,7 +557,7 @@ AFRAME.registerComponent('vertical-controls', {
         const curPos = this.el.getAttribute("position");
         this.el.setAttribute("position", {
             x: curPos.x,
-            y: curPos.y + delta * 0.001 * this.velocity
+            y: curPos.y + delta * 0.001 * this.velocity,
             z: curPos.z
         });
     }
