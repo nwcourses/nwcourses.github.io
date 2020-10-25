@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 5</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
+<style type='text/css'>
+.draft { background-color: red; color:white}
+</style>
+</head>
+<body>
+<h1>Topic 5 - Binary Trees</h1> 
+<h2>Trees</h2>
+<p>A <em>tree</em> is a commonly-used data structure to represent data
+in a hierarchical manner. An example of a tree is shown below:
+<img src='images/tree.png' alt='Tree structure' />
+</p>
+<p>As can be seen, a tree structure resembles a real tree, but is upturned.
+It consists of a series of <em>nodes</em>, and each node can have one or more
+<em>descendants</em>. We can easily perform an operation on each node of the 
+tree by starting at the root node, then looping through each immediate 
+descendant in turn. Within a descendant, we loop through <em>its</em>
+descendants, and so on.</p>
+<h3>What are trees used for?</h3>
+<p>Trees have a variety of uses in computing, including:	
+	<ul>
+	<li>Representing hierarchical documents, such as HTML, the language of
+	web pages. In HTML pages, the page contains a body (the content), the body
+	can contain sections, and sections can contain paragraphs and images.
+	Thus the body can be seen as the root node, a section would be the
+	descendant of the body, and a paragraph or image, a descendant of a
+	section.</li>
+	<li>Providing a way of sorting and searching for data efficiently - we
+	will see this during this week and subsequent weeks in the algorithms
+	section of the module.</li>
+	<li><em>Scene graphs</em> in graphical applications such as games. A
+	scene graph is a way of organising 3D components of a graphical application
+	so that 3D objects can have child, or descendant objects - and that any
+	transformations applied to the parent object will be applied to all its
+	descendants. For example
+	a horse object might have a rider object. The rider would be a descendant
+	of the horse. When the horse moves or turns, we want the rider to move 
+	or turn with it.</li>
+	</ul>
+<h2>Binary Trees</h2>
+<p>A <em>binary tree</em> is a form of tree 
+in which each node has two child nodes, a "left node" and a "right node". </p>
+<p>This structure can be used to sort data. If you have an array of sortable
+data, such as numbers or words, you place the first member of the array inside
+the <em>root node</em> (the top node of the tree). With each subsequent
+item of data, you place the item in the left node if the data item
+is less than the item in the root node, and in the right node if the data item
+is greater than the item in the root node. If the appropriate child 
+node is already filled with data, we <em>descend the tree</em> by moving down to that child node, and then comparing the new value to the value in the child node and then placing it in either the left or the right child node of
+<em>that</em> node.</p>
+<p>This is probably best illustrated by example.
+Imagine you want to sort the
+numbers 29, 20, 17, 40, 25, 18, 1. How might you do that with a binary
+tree?
+</p>
+<p>
+You put the first number (i.e. 29) in the root node of the tree:
+</p>
+<p><img src="images/tree1.png" alt="Tree stage 1" /></p>
+<p>The next number (20) is less than 29, so it gets placed in the left
+child node of the tree:</p>
+<p><img src="images/tree2.png" alt="Tree stage 2" /></p>
+<p>The third number (17) is less than 29 and less than 20, so first we
+descend the left node of the root node (containing 29) and reach the
+node containing 20. 17 is less than 20 as well, so it gets placed in the
+left child node of the node containing 20.</p> 
+<p><img src="images/tree3.png" alt="Tree stage 3" /></p>
+<p>The fourth number (40) is greater than 29, so it gets placed in the
+right child node of the root node.</p>
+<p><img src="images/tree4.png" alt="Tree stage 4" /></p>
+<p>The fifth number (25) is less than 29 but greater than 20, so first we
+descend the left node of the node
+containing 29, to reach the node containing 20. Since 25 is greater than 20,
+we place it in the right child node of the node containing 20.</p>
+<p><img src="images/tree5.png" alt="Tree stage 5" /></p>
+<p>The sixth number (18) is less than 29, so we descend the left node of
+the root node to get to the node containing the number 20. 18 is less than 
+20 so we descend the left node again, to reach the node containing the
+number 17. 18 is greater than 17, so 18 is placed in the right child node
+of the node containing the number 17.</p>
+<p><img src="images/tree6.png" alt="Tree stage 6" /></p>
+<p>The seventh number (1) is less than 29, so we descend the left node of
+the root node to get to the node containing the number 20. 1 is less than 
+20 so we descend the left node again, to reach the node containing the
+number 17. 1 is less than 17, so 1 is placed in the left child node
+of the node containing the number 17.</p>
+<p><img src="images/tree7.png" alt="Tree stage 7" /></p>
+<h3>Exercise</h3>
+<p>On paper, create a binary tree containing these numbers in order:
+<pre> 8934 9 843 1 83 23 389</pre>
+</p>
+<h3>How do we retrieve the sorted data?</h3>
+<p>Once we have placed the data in the tree, how do we actually retrieve it
+to display it (or operate it in some other way) in order?</p>
+<ol>
+<li>Start at the root node.</li>
+<li>Descend to the left child node.</li>
+<li>If it has child nodes of its own: 
+    <ul>
+    <li>first descend its <em>left child node</em> and
+    print out the value within;</li> 
+    <li>print out the value within <em>this</em> node;</li>
+    <li>then descend its <em>right child node</em> and
+    print out the value within.</li> 
+    </ul>
+</li>
+<li>If it does not have child nodes of its own, simply display 
+the value within.</li>
+<li>Repeat the process with the right child node of the root.</li>
+</ul>
+<p>What do we do if the left child node's own left child node also has
+child nodes? We simply repeat the process and keep going until we finally
+hit a node with no child nodes of its own.</p>
+<p>Again this is probably best illustrated by example. Taking the tree
+produced above:</p>
+<p><img src="images/tree7.png" alt="Tree stage 7" /></p>
+<ul>
+<li>The 29 node has two child nodes, 20 and 40, so we descend to 20 first.
+</li>
+<li>The 20 node has two child nodes, 17 and 25, so we descend to 17 first.</li>
+<li>The 17 node has two child nodes, 1 and 18, so we descend to 1 first.</li>
+<li>1 has no child nodes, so we just <em>print out 1</em> and ascend to its
+parent (the node containing 17)</li>
+<li>Having dealt with the left child of the node containing 17, we print
+out <em>the value itself (17)</em> first, 
+then descend to the right node (18)</li>
+<li>The 18 node has no child nodes, so we just <em>print out 18</em></li>
+<li>We then ascend back to the 17 node. The 18 node was the right node of
+the 17 node, so we are done processing this branch of the tree. So we 
+go back up again to the 20 node.</li>
+<li>We have dealt with the left branch of the 20 node, but not the right.
+This means we first <em>print out the value, 20</em> and then descend
+the right node.</li>
+<li>The right node of 20 contains a value, 25, but no child nodes of its own
+so we just <em>print out the value (25)</em></li>
+<li>We then ascend back to the parent, 20, as we are done with this branch.
+</li>
+<li>We have also covered all branches of 20, so we ascend back up to the
+root node, 29.</li>
+<li>We have dealt with the left branch of the 29 node, but not the right.
+This means we first <em>print out the value, 29</em> and then descend the
+right node.</li>
+<li>The right node of 29 contains a value, 40, but no child nodes of its own
+so we just <em>print out the value (40)</em></li>
+<li>We then ascend back to the parent, 29, as we are done with this branch.
+</li>
+<li>We have now covered the left branch, the value, and the right branch
+of the root node. This means we are done with the tree. If you track back
+the order in which the values were printed, you'll find they are in order:
+<pre>1 17 18 20 25 29 40</pre>
+</li>
+</ol>
+<h3>Recursion</h3>
+<p>To implement a tree effectively we have to use a programming technique
+called <em>recursion</em>. The idea of recursion is that a function calls
+itself repeatedly until some condition is met. You can think of this as
+producing a <em>stack</em> of calls to the same function, 
+one on top of each other.
+Then we stop recursing and
+descend the stack of function calls. To illustrate the concept here
+is some code to print out the numbers 1 to 10 using recursion:</p>
+<pre>
+def recursive_print (value, max_value):
+    print(value)
+    if value &lt; max_value:
+        value += 1
+        recursive_print(value, max_value)
+
+recursive_print (1, 10)
+
+</pre>
+What happens when we run this?
+    <ul>
+    <li>We call the <em>recursive_print</em> function with the arguments 1
+    (representing the current value) and 10 (the maximum value).</li>
+    <li>The function prints the current value (1) and then compares the 
+    current value (1) to the maximum value (10). Because the current value
+    is less than the maximum, the if statement runs, which adds one to the
+    value (so it becomes 2) and then calls the function again. This is
+    the recursion.</li>
+    <li>The function then runs again. 2 is still less than 10, so we print
+    out the value 2, add one to the value (to give 3) and call the function
+    yet again.</li>
+    <li>Eventually the current value will become 10. At this point, we print
+    out the value (10) but the if statement will no longer whole true, because
+    10 is not less than 10. So the call to <em>recursive_print()</em>
+     with the 
+    <em>value</em> parameter equal to 10 will immediately return.</li>
+    <li>This then returns us to the call to <em>recursive_print()</em>
+    with the <em>value</em> parameter set to 9. Since there are no more
+    statements in <em>recursive_print()</em> after the call to itself,
+    this call also returns immediately.</li>
+    <li>We then return to the call to <em>recursive_print()</em> with the
+    <em>value</em> parameter set to 8, which also immediately returns
+    and so we keep descending the stack of function calls until we return
+    to the original call, where <em>value</em> was 1.</li>
+    <li>We then return to the main program (outside the function) and our 
+    program exits, having printed 1 to 10 in order recursively.</li>
+    </ul>
+Clearly recursion is an inefficient way of counting up to 10 (!), but in 
+situations such as descending all branches of a tree, it's the best way of tackling the problem.</p>
+<h3>Using recursion on a binary tree</h3>
+<p>So how would we use recursion on a binary tree?</p>
+<ul>
+<li>Start at the root node and:
+    <ul>
+    <li>Descend the left branch (see below);</li>
+    <li>Print the value in the node.</li>
+    <li>Descend the right branch (see below)</li>
+    </ul>
+</li>
+<li>For each node we get to (for example the immediate child nodes of the
+root node), perform the first three steps again:
+    <ul>
+    <li>Descend the left branch, if it exists</li>
+    <li>Print the value in the node.</li>
+    <li>Descend the right branch, if it exists</li>
+    </ul>
+</li>
+<li>Hopefully you can see that the act of descending a branch is recursive,
+because when we descend a branch to reach a child node, we then may need to
+descend a branch again. Once we get to the bottom of a tree, we then 
+ascend the tree again by returning from each successive
+function call.</li>
+</ul>
+<h3>Exercise: Creating a Binary Tree and using it to sort some data</h3>
+<ol>
+<li>Create a TreeNode data structure to represent a single node in a tree:
+<pre>
+class TreeNode:
+    def __init__(self, value):
+        self.left = None
+        self.value = value
+        self.right = None
+</pre>
+</li>
+<li>Create a BinaryTree class with one attribute, <em>root</em> (the root
+node of the tree) 
+and two methods: insert(), which adds an int value to 
+the tree, and
+printTree(), which prints out the entire contents of the tree.</li>
+<li>Implement an <em>insert()</em> method in BinaryTree. 
+This should take one parameter: the value to insert, 
+and do the following:
+    <ul>
+    <li>If the root node already exists, insert the value into the root
+    node by calling the root node's <em>insert()</em> method, see below. This
+    will recursively search the tree for an appropriate node to add the value,
+    as discussed above.  </li>
+    <li>If it doesn't exist, create the root node and set the root node's
+    value to the value passed in.</li>
+    </ul>
+</li>
+<li>Write an <em>insert()</em> method in the <em>TreeNode</em> class. This 
+should:
+        <ul>
+        <li>See if the value is less than or greater than the current
+        node's value;</li>
+        <li>If the value is less than the current value, see if there is a
+        left child node. If there is not one (i.e. it's None), 
+        create a node storing the value
+        passed in. If there is a left child node, then we'll have to pass the
+        value onto it. So, recursively
+        call the <em>insert()</em> method on the left node. The effect of this
+        will be to search the tree to find a suitable node to insert the 
+        value.</li>
+        <li>If the value is greater than the current value, do the same but
+        with the right node.</li>
+        </ul>
+    </li> 
+    </ul>
+</li>
+<li>Implement the <em>printTree()</em> method. This should take a 
+parameter which represents the node to start printing from,
+initially the root node.
+    <ul>
+    <li>Declare a variable which represents the 
+    current node. Set this initially to the root node.</li>
+    <li>Recursively call <em>printTree()</em> on the left node, if the
+    left node exists (i.e. is not None)</li>
+    <li>Print the value in the node.</li>
+    <li>Recursively call <em>printTree()</em> on the right node, if the
+    right node exists (i.e. is not None)</li>
+    </ul>
+This will print the whole tree, and nicely illustrates the power of recursion!
+</li>
+</ul>
+</body>
+</html>
