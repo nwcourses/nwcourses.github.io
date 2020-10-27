@@ -63,13 +63,18 @@ AFRAME.registerComponent('greeting', {
 });
 ```
 What is this doing?  We register the component with `AFRAME.registerComponent()`.  This function takes two arguments: the name of the component (`greeting`
-here), and a list of component **lifecycle functions**. These functions run
+here), and a list of component **lifecycle methods**. Lifecycle methods
+are functions which run
 at different stages of the component's lifecycle. We'll come across more
-of these later, but for now, we will just consider the `init()` function.
+of these later, but for now, we will just consider the `init()` lifecycle
+method.
 This runs when the component is first created, and is typically used - as you
 might guess - to initialise the component. So in this
 example, as soon as the component is created, the "Hello World!" message
 will appear.
+
+The lifecycle methods are described
+[here](https://aframe.io/docs/1.0.0/core/component.html#definition-lifecycle-handler-methods)
 
 ### Exercise 1
 
@@ -127,7 +132,7 @@ has a `default` value of "Hello World!" In other words, if no `message`
 property is provided, it will take "Hello World!" as the default value.
 
 How do we access the property in our code? You can see this in the `init()`
-function; we use `this.data` to access the properties of the current 
+method; we use `this.data` to access the properties of the current 
 component. So to access the `message` property, we use `this.data.message`.
 
 ### Exercise 2
@@ -138,7 +143,7 @@ component. So to access the `message` property, we use `this.data.message`.
 that it displays "Hello World!" as the default message.
 
 3. Try adding a second property to your schema, `name`. This should represent
-the name of a person. The `init()` function should now display the message plus
+the name of a person. The `init()` method should now display the message plus
 the name. For example if the message was "Hello" and the name was "Fred", it
 should display "Hello Fred".
 
@@ -493,11 +498,11 @@ component to the camera, we have to explicitly include the
 ```
 You will find it works, but it's rather jerky and doesn't give a pleasant, smooth experience.
 
-What we need instead is to make use of another lifecycle function of 
-a component, `tick()`. The `tick()` function runs every time the scene is 
+What we need instead is to make use of another lifecycle method of 
+a component, `tick()`. The `tick()` method runs every time the scene is 
 rendered.  The strategy, a common one for smooth key event handling, is to set 
 a velocity to a non-zero value when the user presses 'q' or 'z', and reset the
-velocity to 0 when they release either key. In the `tick` function, we 
+velocity to 0 when they release either key. In the `tick()` method, we 
 increase `y` by the current velocity, so that the camera moves up if the
 velocity is above 0, or down if the velocity is negative. 
 
@@ -534,7 +539,7 @@ A further improvement to the smoothness can be made. At the moment, the
 `tick()` is called. The problem is that the time difference between successive
 `tick()` calls will vary depending on what else the computer is doing; if
 it's doing a lot of heavy processing, there will be a larger gap between 
-`tick()` calls. Luckily, there is an easy solution, the `tick()` function
+`tick()` calls. Luckily, there is an easy solution, the `tick()` method
 takes a `delta` parameter representing the number of milliseconds passed since
 the last call. So we can specify our velocity in units per second, rather than
 some arbitrary value.
@@ -566,7 +571,7 @@ AFRAME.registerComponent('vertical-controls', {
     }
 });
 ```
-Note that the `tick()` function takes two parameters: `time`, which is the
+Note that the `tick()` method takes two parameters: `time`, which is the
 system time in milliseconds since January 1st 1970, and `delta`, the number
 of milliseconds since the last call to `tick()`. So, to calculate the change
 in `y`, we multiply the `delta` by 0.001 (so that we can work in seconds, which
@@ -605,12 +610,12 @@ the same name as a component, it will be accessible from the component via
 AFRAME.registerComponent("mycomponent", {
 	init: function() {
 		// the system can be accessed from the component as this.system 
-		// e.g. this.system.doSomething() will call the doSomething() function
-		// of the system
+		// e.g. this.system.doSomething() will call the doSomething() method 
+		// (function) of the system
 	}
 });
 
-// System contains functions which do the detailed logic
+// System contains methods (functions) which do the detailed logic
 AFRAME.registerSystem("mycomponent", {
 	doSomething: function() {
 	},
