@@ -172,7 +172,7 @@ manipulating our A-Frame elements from regular HTML controls.
 <a-scene embedded style='width:50%; height:600px; border: 1px solid black'>
 <a-sky color='skyblue'></a-sky>
 <a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow></a-plane>
-<a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'></a-box>
+<a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'></a-entity>
 </a-scene>
 Change the box colour: <input id="boxcolour" type="text" />
 <input type="button" id="go" value="go!" />
@@ -184,7 +184,7 @@ and this JavaScript:
 // The parameter `e` is an event object, it can be used to obtain more detail
 // about the event. We don't use it here, however.
 function handleClick(e) {
-    const box = document.getElementById('box1');
+    const box1 = document.getElementById('box1');
     const value = document.getElementById('boxcolour').value;
     box1.setAttribute('material', {
         color: value
@@ -226,11 +226,6 @@ loaded) we typically make our JavaScript files load before the page but ensure
 any code which deals with the DOM of the HTML page is placed in a 
 `window.onload()` function to ensure it is only loaded *after*.
 
-(Actually, this is not really best practice for JavaScript applications as
-of ECMA6: best practice states that all JavaScript should be loaded *after*
-the page, ideally as a module. But it is the way that A-Frame works, so we have
-to do things this way).
-
 To continue with the code:
 
 - Within this function we add a `click` event listener function to the button,
@@ -261,7 +256,7 @@ So we can rewrite the above JavaScript as follows:
 ```
 window.onload = () => {
     document.getElementById('go').addEventListener('click', e => {
-        const box = document.getElementById('box1');
+        const box1 = document.getElementById('box1');
         const value = document.getElementById('boxcolour').value;
         box1.setAttribute('material', {
             color: value
@@ -310,7 +305,7 @@ Here is an example:
 <a-scene embedded style='width:50%; height:600px; border: 1px solid black'>
 <a-sky color='skyblue'></a-sky>
 <a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow></a-plane>
-<a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'></a-box>
+<a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'></a-entity>
 </a-scene>
 Move the box: <input type="range" id="boxmove" min="-5" max="5" step="0.5" value="0" />
 </body>
@@ -320,12 +315,12 @@ and this JavaScript:
 ```
 window.onload = () => {
     document.getElementById('boxmove').addEventListener('change', e=> {
-        const box = document.getElementById('box1');
+        const box1 = document.getElementById('box1');
         const value = document.getElementById('boxmove').value;
         box1.setAttribute('position', {
             x: value,
             y: 1,    
-            z: 5    
+            z: -5    
         });
     });
 };
@@ -383,13 +378,13 @@ Here is an example:
 <a-scene cursor='rayOrigin: mouse'>
 <a-sky color='skyblue'></a-sky>
 <a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'></a-plane>
-<a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker></a-sphere>
+<a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker></a-entity>
 </a-scene>
 </body>
 </html>
 ``` 
 Note how we add the `cursor` component to our `<a-scene>`. Note also how we've
-added a `clicker` component to our `<a-sphere>` object. Let's look at 
+added a `clicker` component to our `<a-entity>` object. Let's look at 
 the code for this component:
 ```
 AFRAME.registerComponent("clicker", {

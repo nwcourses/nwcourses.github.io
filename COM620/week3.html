@@ -148,7 +148,7 @@ manipulating our A-Frame elements from regular HTML controls.</p>
 &lt;a-scene embedded style='width:50%; height:600px; border: 1px solid black'&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'&gt;&lt;/a-box&gt;
+&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
 Change the box colour: &lt;input id="boxcolour" type="text" /&gt;
 &lt;input type="button" id="go" value="go!" /&gt;
@@ -159,7 +159,7 @@ Change the box colour: &lt;input id="boxcolour" type="text" /&gt;
 <pre><code>// The parameter `e` is an event object, it can be used to obtain more detail
 // about the event. We don't use it here, however.
 function handleClick(e) {
-    const box = document.getElementById('box1');
+    const box1 = document.getElementById('box1');
     const value = document.getElementById('boxcolour').value;
     box1.setAttribute('material', {
         color: value
@@ -195,10 +195,6 @@ scene is loaded, but components can only be <em>accessed</em> after the scene is
 loaded) we typically make our JavaScript files load before the page but ensure
 any code which deals with the DOM of the HTML page is placed in a 
 <code>window.onload()</code> function to ensure it is only loaded <em>after</em>.</p>
-<p>(Actually, this is not really best practice for JavaScript applications as
-of ECMA6: best practice states that all JavaScript should be loaded <em>after</em>
-the page, ideally as a module. But it is the way that A-Frame works, so we have
-to do things this way).</p>
 <p>To continue with the code:</p>
 <ul>
 <li><p>Within this function we add a <code>click</code> event listener function to the button,
@@ -223,7 +219,7 @@ inserted, in its entirety, where a function is expected as an argument.
 So we can rewrite the above JavaScript as follows:</p>
 <pre><code>window.onload = () =&gt; {
     document.getElementById('go').addEventListener('click', e =&gt; {
-        const box = document.getElementById('box1');
+        const box1 = document.getElementById('box1');
         const value = document.getElementById('boxcolour').value;
         box1.setAttribute('material', {
             color: value
@@ -267,7 +263,7 @@ documentation on the different data types).</p>
 &lt;a-scene embedded style='width:50%; height:600px; border: 1px solid black'&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'&gt;&lt;/a-box&gt;
+&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
 Move the box: &lt;input type="range" id="boxmove" min="-5" max="5" step="0.5" value="0" /&gt;
 &lt;/body&gt;
@@ -276,12 +272,12 @@ Move the box: &lt;input type="range" id="boxmove" min="-5" max="5" step="0.5" va
 <p>and this JavaScript:</p>
 <pre><code>window.onload = () =&gt; {
     document.getElementById('boxmove').addEventListener('change', e=&gt; {
-        const box = document.getElementById('box1');
+        const box1 = document.getElementById('box1');
         const value = document.getElementById('boxmove').value;
         box1.setAttribute('position', {
             x: value,
             y: 1,    
-            z: 5    
+            z: -5    
         });
     });
 };
@@ -332,14 +328,14 @@ Here is an example:</p>
 &lt;a-scene cursor='rayOrigin: mouse'&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker&gt;&lt;/a-sphere&gt;
+&lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
 <p>
 Note how we add the <code>cursor</code> component to our <code>&lt;a-scene&gt;</code>. Note also how we've
-added a <code>clicker</code> component to our <code>&lt;a-sphere&gt;</code> object. Let's look at 
+added a <code>clicker</code> component to our <code>&lt;a-entity&gt;</code> object. Let's look at 
 the code for this component:</p>
 <pre><code>AFRAME.registerComponent("clicker", {
     init: function() {
