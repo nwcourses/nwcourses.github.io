@@ -1,8 +1,5 @@
 # Week 3: A-Frame and JavaScript
 
-(**NOTE that these notes are subject to minor change between now and
-Tuesday.**)
-
 ## Introduction
 
 Last week we looked at how to create some basic A-Frame scenes with HTML. We

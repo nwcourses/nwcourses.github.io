@@ -1,6 +1,4 @@
 <!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3aframeandjavascript">Week 3: A-Frame and JavaScript</h1>
-<p>(<strong>NOTE that these notes are subject to minor change between now and
-Tuesday.</strong>)</p>
 <h2 id="introduction">Introduction</h2>
 <p>Last week we looked at how to create some basic A-Frame scenes with HTML. We
 found we could do quite a bit with plain HTML, for example we could move around
@@ -54,13 +52,17 @@ which we are going to write now. We create a component with
 });
 </code></pre>
 <p>What is this doing?  We register the component with <code>AFRAME.registerComponent()</code>.  This function takes two arguments: the name of the component (<code>greeting</code>
-here), and a list of component <strong>lifecycle functions</strong>. These functions run
+here), and a list of component <strong>lifecycle methods</strong>. Lifecycle methods
+are functions which run
 at different stages of the component's lifecycle. We'll come across more
-of these later, but for now, we will just consider the <code>init()</code> function.
+of these later, but for now, we will just consider the <code>init()</code> lifecycle
+method.
 This runs when the component is first created, and is typically used - as you
 might guess - to initialise the component. So in this
 example, as soon as the component is created, the "Hello World!" message
 will appear.</p>
+<p>The lifecycle methods are described
+<a href="https://aframe.io/docs/1.0.0/core/component.html#definition-lifecycle-handler-methods">here</a></p>
 <h3 id="exercise1">Exercise 1</h3>
 <p>Write the JavaScript above, save it (e.g. as <code>greeting.js</code>), include it in 
 the HTML with a <code>&lt;script&gt;</code> tag and run it in the browser.</p>
@@ -110,7 +112,7 @@ the <code>schema</code> has one property, <code>message</code> which is of data 
 has a <code>default</code> value of "Hello World!" In other words, if no <code>message</code>
 property is provided, it will take "Hello World!" as the default value.</p>
 <p>How do we access the property in our code? You can see this in the <code>init()</code>
-function; we use <code>this.data</code> to access the properties of the current 
+method; we use <code>this.data</code> to access the properties of the current 
 component. So to access the <code>message</code> property, we use <code>this.data.message</code>.</p>
 <h3 id="exercise2">Exercise 2</h3>
 <ol>
@@ -118,7 +120,7 @@ component. So to access the <code>message</code> property, we use <code>this.dat
 <li><p>Try removing the property from the <code>greeting</code> component in your HTML, so 
 that it displays "Hello World!" as the default message.</p></li>
 <li><p>Try adding a second property to your schema, <code>name</code>. This should represent
-the name of a person. The <code>init()</code> function should now display the message plus
+the name of a person. The <code>init()</code> method should now display the message plus
 the name. For example if the message was "Hello" and the name was "Fred", it
 should display "Hello Fred".</p></li>
 </ol>
@@ -430,11 +432,11 @@ component to the camera, we have to explicitly include the
 &lt;/html&gt;
 </code></pre>
 <p>You will find it works, but it's rather jerky and doesn't give a pleasant, smooth experience.</p>
-<p>What we need instead is to make use of another lifecycle function of 
-a component, <code>tick()</code>. The <code>tick()</code> function runs every time the scene is 
+<p>What we need instead is to make use of another lifecycle method of 
+a component, <code>tick()</code>. The <code>tick()</code> method runs every time the scene is 
 rendered.  The strategy, a common one for smooth key event handling, is to set 
 a velocity to a non-zero value when the user presses 'q' or 'z', and reset the
-velocity to 0 when they release either key. In the <code>tick</code> function, we 
+velocity to 0 when they release either key. In the <code>tick()</code> method, we 
 increase <code>y</code> by the current velocity, so that the camera moves up if the
 velocity is above 0, or down if the velocity is negative. </p>
 <pre><code>AFRAME.registerComponent('vertical-controls', {
@@ -469,7 +471,7 @@ velocity is above 0, or down if the velocity is negative. </p>
 <code>tick()</code> is called. The problem is that the time difference between successive
 <code>tick()</code> calls will vary depending on what else the computer is doing; if
 it's doing a lot of heavy processing, there will be a larger gap between 
-<code>tick()</code> calls. Luckily, there is an easy solution, the <code>tick()</code> function
+<code>tick()</code> calls. Luckily, there is an easy solution, the <code>tick()</code> method
 takes a <code>delta</code> parameter representing the number of milliseconds passed since
 the last call. So we can specify our velocity in units per second, rather than
 some arbitrary value.</p>
@@ -500,7 +502,7 @@ some arbitrary value.</p>
     }
 });
 </code></pre>
-<p>Note that the <code>tick()</code> function takes two parameters: <code>time</code>, which is the
+<p>Note that the <code>tick()</code> method takes two parameters: <code>time</code>, which is the
 system time in milliseconds since January 1st 1970, and <code>delta</code>, the number
 of milliseconds since the last call to <code>tick()</code>. So, to calculate the change
 in <code>y</code>, we multiply the <code>delta</code> by 0.001 (so that we can work in seconds, which
@@ -534,12 +536,12 @@ the same name as a component, it will be accessible from the component via
 <pre><code>AFRAME.registerComponent("mycomponent", {
     init: function() {
         // the system can be accessed from the component as this.system 
-        // e.g. this.system.doSomething() will call the doSomething() function
-        // of the system
+        // e.g. this.system.doSomething() will call the doSomething() method 
+        // (function) of the system
     }
 });
 
-// System contains functions which do the detailed logic
+// System contains methods (functions) which do the detailed logic
 AFRAME.registerSystem("mycomponent", {
     doSomething: function() {
     },
