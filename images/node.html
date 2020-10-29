@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Introduction to node.js</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Introduction to node.js</h1>
+</div>
+
+<br />
+
+<p><em>node.js</em> (see <a href="http://www.nodejs.org">www.nodejs.org</a>) is a technology which 
+allows you to develop server-side applications in JavaScript. This has the a number of advantages,
+for example:
+    <ul>
+    <li>You can use the same language to develop both client- and server-side components to your web
+    application, minimising the number of languages you have to learn;</li>
+    <li>A similar style of programming is used (node.js extensively uses asynchronous development with
+    callbacks);</li>
+    <li>JavaScript language features and APIs, such as JSON.parse() and bind(), promises, arrow functions, etc. will work with node.js as they do with in-browser
+    JavaScript;</li>
+    <li>Because node.js is JavaScript it is easy to exchange JSON with the client.</li>
+    </ul>
+</p>
+
+<h2>Installing and using node.js</h2>
+
+<p>node.js can be downloaded from <a href="http://www.nodejs.org">the website</a>.
+It is already installed on Edward and Neptune. Rather than using an Apache server you
+write your own custom, lightweight HTTP server with node.js running on a different port to Apache
+(port 3000 is used in here). This is similar to what you did with the WebSocket server recently.</p>
+
+<h3>npm</h3>
+
+<p>Node also comes with a <em>package manager</em> called <em>npm</em>. This allows you to use add-ons to Node
+(libraries) which perform additional tasks, not part of the core node.js distribution,
+ such as communicating with a database. To use npm to install new packages, you enter:
+ <pre>npm install &lt;packagename&gt;</pre>
+ at the command-line (e.g. DOS or Linux shell prompt).</p>
+ 
+ <h2>Logging onto the Edward command-line and using the text
+ editor</h2>
+ 
+ <p>Because you need to <em>run</em> a node script, you need to log
+ on to Edward and use the Edward command-line (Linux shell prompt)
+as well as using FTP. To do this you should use
+ <em>putty</em> (available on the lab
+computers, use the search). Find putty and then
+ login with the 'node' account (the same one you used in the WebSocket
+ session). You should see
+ a prompt rather like this (but on Edward, not Edward):<br />
+ <img src="images/putty1.png" alt="Linux shell prompt" /><br />
+ Enter the following code in Notepad++, save as <em>hello.js</em>
+ and upload to your home directory
+(the one <em>before</em> public_html) using FileZilla:
+ <pre>console.log("Hello world!");</pre>
+ On PuTTY run your
+ Node.js script on the command line by entering:
+<pre>node hello.js</pre>
+You should see this output:<br />
+ <img src="images/putty5.png" alt="Node output" /><br />
+ 
+ Hopefully this script is self-explanatory.
+ <em>console.log()</em> simply writes the specified text to the
+ console, so that here, for example, <em>"Hello World!"</em> is
+ displayed.</p>
+<h2>HTTP Servers</h2>
+<p>Probably the most useful thing to learn with node.js is how
+to create a lightweight <em>HTTP server</em>. With node.js, typically
+you do not use Apache but instead write your own server using the
+Node.js HTTP APIs. Here is a very basic HTTP server:
+<pre>
+var http = require("http");
+
+var server = http.createServer(
+    (request, response) =&gt;
+    {
+        response.write(`Requested with a method of ${request.method}`);
+        response.end();
+    }
+);
+
+server.listen(3000);
+</pre>
+Looking at how this works:
+    <ul>
+    <li>First we import the http <em>module</em>. Node comes with
+    <em>modules</em> which are libraries: they provide additional
+    capabilities to the Node environment. Many are provided by third
+    parties. The <em>npm</em> command line tool allows you to install new
+    modules. The <em>http</em> module, however, is provided with Node
+    by default.</li>
+    <li>Next we <em>create an HTTP server</em> with the 
+    createServer() method. This returns a server object. Note how we
+    <em>specify a callback function (arrow function) as a parameter to the 
+    createServer() method</em>. This is an example of an 
+    <em>anonymous function</em>, which you have seen already.</li>
+    <li>The callback runs each time we get a request from a client.
+    It takes two parameters, <em>request</em> and <em>response</em>,
+    two objects representing the HTTP request and response respectively.
+    Look at what it's doing: we use the <em>write()</em> method of
+    the request to send some content back to the client, and then
+    <em>we must finish the response by calling response.end()</em></li>
+    <li>This simple example just displays what HTTP method (GET or
+    POST) was used to request the server. The <em>request.method</em>
+    property contains the HTTP method.</li>
+    </ul>
+</p>
+<h3>Exercise 1</h3>
+<p>
+Try running this. Rather than 3000, use your own personal port 
+number that I have given you: you will all be running your own 
+node servers on Edward and therefore must each use different ports.
+You'll find it goes into an infinite loop and does not return you to
+the command line: this is because it is running the server continuously
+listening for requests.</p>
+<p>Now try sending an HTTP request to the server from your web 
+browser. Enter:
+<pre>http://edward.solent.ac.uk:NNNN/</pre>
+from the browser, where NNNN is your own personal port number.
+You should see this output appear:
+<pre>Requested with a method of: GET</pre>
+because you have sent a GET request to the server.</p>
+<h3>API documentation</h3>
+<p>See <a href="https://nodejs.org/api/http.html">here</a> for full Node API
+documentation on the HTTP module.</p>
+<h3>POST requests</h3>
+<p>Now try sending a POST request. Write this form and FTP it to
+the server with FileZilla in the normal way. Note how the form's
+action is pointing to your Node server. Again, replace NNNN with
+your port number.
+<pre>
+&lt;html&gt;
+&lt;body&gt;
+
+&lt;h1&gt;Node POST&lt;/h1&gt;
+&lt;form method="post" action="http://edward.solent.ac.uk:NNNN"&gt;
+&lt;input type="submit" value="Go!" /&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+Load this into your browser as normal, e.g:
+<pre>http://edward.solent.ac.uk/~jsmith/form.html</pre>
+You'll see a blank form. Click the submit button, and now this output
+will appear:
+<pre>Requested with a method of: POST</pre>
+because you have now used a method of POST to request your Node
+server.</p>
+<h2>Using Express.js</h2>
+<p>The above example showed how to create a webserver from first principles
+in Node, using the HTTP module. However, there is a very well-known Node
+framework which makes the process of developing a web server, particularly
+one offering REST-compliant web services, much easier - <em>Express.js</em>.
+As is typical, Express.js is offered as a Node module and should be installed
+with npm.
+This has been installed on Edward and Neptune already. To give an idea of
+how to install it:
+<pre>npm install express</pre>
+This will install it locally to your current project. Or:
+<pre>sudo npm install -g express</pre>
+This requires 'sudo' rights (admin privileges) on a Linux/Unix system but
+will install it globally, to make it available to all projects and
+all users.</p>
+<h3>Hello World with Express</h3>
+<p>The example below is the Hello World with Express.
+<pre>
+var express = require('express');
+var app = express();
+
+app.get('/', (req,res)=&gt; {
+    res.send('Hello World from Express!');
+});
+
+app.listen(3000);
+</pre>
+Hopefully you can see it is similar in structure to the non-Express 
+web server, above. We require the express module, then create an Express
+app object with <em>express()</em>.</p>
+<p>Next we handle a <em>routes</em>. A route is a link between a URL
+and code to handle that URL; typically the URL is REST-compliant.
+REST-compliant URLs are known as <em>API endpoints</em>.
+Express allows us to set up routes very easily; and furthermore it's
+easy to set up GET, POST <em>and</em> PUT routes, allowing easy development
+of a REST web service. Here we are simply handling the top level,
+'root' route, e.g.: 
+<pre>http://localhost:3000/</pre>
+without any parameters supplied.</p>
+<p>The handler for the route is a function which takes two parameters,
+<em>req</em> representing the HTTP request and <em>res</em> representing the
+HTTP response. In this example we call the <em>send()</em> method of the
+response object to send back <em>Hello World from Express!</em> to the 
+client.</p>
+<h3>Example</h3>
+<pre>
+var express = require('express');
+var app = express();
+
+
+app.get('/hello', (req,res)=&gt; {
+    res.send('Hello World!');
+});
+
+
+app.get('/time', (req,res)=&gt; {
+    res.send(`There have been ${Date.now()} milliseconds since 1/1/70.`);
+});
+app.listen(3000);
+</pre>
+This example sets up two routes '/hello' and '/time'. The first will
+send back 'Hello World!' and the second will send back the number of 
+milliseconds since January 1st 1970. You could set up <em>POST</em>
+and <em>PUT</em> API endpoints 
+with <em>app.post()</em> and <em>app.put()</em>.</p>
+<h3>Exercise 2</h3>
+<p>Try out the example above. Run the server and request each route by
+typing in the appropriate URL in your web browser.</p>
+<h3>URL parameters</h3>
+<p>Express allows us to easily specify URL parameters, though these are
+typically passed into the URL as part of the route (REST style) rather than
+via query strings e.g:
+<pre>
+http://localhost:3000/artist/Oasis
+http://localhost:3000/artist/Madonna
+</pre>
+etc. You set up the route to contain named parameters and
+then you can use these named parameters in your JavaScript. This example 
+counts up to a named parameter: 
+<pre>
+var express = require('express');
+var app = express();
+
+
+app.get('/countTo/:ntimes', (req,res)=&gt; {
+    var response = '';
+    for(var count=1; count&lt;=req.params.ntimes; count++) {
+        response += `${count}&lt;br /&gt;`;
+    }
+    res.send(response);
+});
+
+
+app.listen(3000);
+</pre>
+Note how this will setup the route <em>/countTo</em> followed
+by a parameter <em>:ntimes</em>
+representing the number of times. So API endpoints such as
+<pre>
+http://localhost:3000/countTo/3
+http://localhost:3000/countTo/6
+http://localhost:3000/countTo/goat
+</pre>
+will be matched. (There is no check that ntimes is numeric, so the final
+URL will be matched. However you can use regular expressions in Express
+routes to ensure that only numbers are passed in the parameter).
+</p>
+<p>
+To access the named parameter from the JavaScript code, use
+<em>req.params.&lt;name of parameter&gt;</em>. 
+So here <em>req.params.ntimes</em>
+will reference the <em>:ntimes</em> parameter and the output will count from
+1 to the specified parameter.</p>
+<p>Note we can specify more than one parameter, eg:
+<pre>
+var express = require('express');
+var app = express();
+
+
+app.get('/countTo/:ntimes/step/:step', (req,res)=&gt; {
+    var response = '';
+    for(var count=1; count&lt;=req.params.ntimes; count+=req.params.step) {
+        response += `${count}&lt;br /&gt;`;
+    }
+    res.send(response);
+});
+
+
+app.listen(3000);
+</pre>
+This example will match a route in which a <em>step</em> is supplied in
+the API endpoint URL, which specifies the step to count up with. So:
+<pre>
+http://localhost:3000/countTo/9/step/2
+</pre>
+will produce a response counting from 1 to 9 in steps of 2.</p>
+<h3>Exercise 3</h3>
+<ol>
+<li>Create an Express application to set up an <em>artist</em> route.
+The word <em>artist</em> should be followed by a parameter for the artist
+name and the application should respond to the request with a message such
+as 
+<pre>You are searching for songs by Oasis</pre>
+(obviously, it shouldn't always show Oasis, but whatever artist was entered
+in the URL).
+</li>
+<li>Make the application also respond to URLs of this form:
+<pre>http://localhost:3XXX/artist/Oasis/song/Wonderwall</pre>
+which would display: 
+<pre>You are searching for Wonderwall by Oasis</pre>
+(obviously, it should respond to any title and artist, not just Wonderwall
+by Oasis!</li>
+</ol>
+<h3>Handling POST data</h3>
+<p>How do we handle POST data in Express? We can do it manually, by
+examining the request, but it's much easier to use the <em>body-parser</em>
+module. The <em>body-parser</em> module is a module separate to Express
+(but designed for it) which can interpret the request body and extract the
+POST data from it. It needs to be installed with npm separately from
+Express. Here is an example:
+<pre>
+var express = require('express');
+var bodyParser = require('body-parser');
+
+var app = express();
+
+app.use(bodyParser.urlencoded({extended:true});
+
+app.post('/addSong', (req,res) =&gt; {
+    res.send(`Downloading song with ID of ${req.body.songID}.`);
+});
+
+app.listen(3000);
+</pre>
+Note how we tell the app to use the body-parser module with:
+<pre>app.use(bodyParser.urlencoded({extended:true});</pre>
+and to refer to the POST data (the equivalent of $_POST in PHP) we use:
+<pre>req.body.&lt;fieldname&gt;</pre>
+e.g. <em>req.body.songID</em> here to read in
+an item of POST data with the name of <em>songID</em>.</p>
+<h3>Exercise 4</h3>
+<p>Try out the above example. You'll need to create a regular HTML form
+with an appropriate <em>action</em> and appropriate form fields.</p>
+
+<h3>Middleware</h3>
+
+<p>Express uses the concept of <em>middleware</em>. Middleware in the
+Express context consists of code which runs before a request is handled,
+which can modify the <em>req</em> and <em>res</em> objects. It is typically
+used to prepare the request before it's handled. The <em>body-parser</em>
+is actually middleware. It parses the body of the incoming HTTP request
+and adds a <em>body</em> property to the <em>req</em> object allowing you
+to easily access POST data. Without the middleware, the <em>body</em>
+property of <em>req</em> would not exist.</p>
+<p>Middleware is included with the <em>use()</em> method of your <em>app
+</em> object. If you look at the POST example above you can see how
+<em>use()</em> has been used to run the body-parser as middleware.
+Note the <em>urlencoded()</em> method; this means the body-parser is being setup
+to handle classic POST form data. An increasingly popular alternative
+approach is to pass POST data as a JSON object instead (rather than named
+fields); this is the approach the <em>fetch()</em> API for sending AJAX
+requests takes, for instance. To use body-parser to parse JSON, you would
+use <em>json()</em> rather than <em>urlencoded()</em>.</p>
+
+<h4>Middleware and routes</h4>
+<p>We can use routes to specify that a given middleware will only
+run before handling <em>a particular route</em>. This can be useful as,
+for example, we can run middleware to open a database only if we are
+handling requests that need a database connection.</p>
+
+<p>Here is an example of a middleware that will run on any request.
+<pre>
+var express = require('express');
+var app = express();
+
+app.use( (req,res,next) =&gt; {
+    console.log(`Received a request at ${Date.now()} milliseconds.`);
+    next();
+});
+
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+app.listen(3000);
+</pre>
+Note how <em>use()</em> expects a function which takes request and response
+as parameters, the same as the route handlers. This example writes a
+message to the console informing the user of the time of the request.</p>
+<p>Notice the call to the <em>next();</em> function (also passed as a
+parameter to use()). This is necessary to
+execute the next middleware (we can set up multiple items of middleware
+with multiple <em>use()</em> methods) and the route handler.</p>
+
+<p>We can also supply an optional first argument to <em>use()</em> to
+specify which routes will run this middleware.
+The middleware below (showing the time of the request once again)
+will only run with a route of <em>search</em> followed
+by a search term:
+<pre>
+var express = require('express');
+var app = express();
+
+app.use( '/search/:query', (req,res,next) =&gt; {
+    console.log(`Received a request for /search at ${Date.now()} milliseconds.`);
+    next();
+});
+
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+app.get('/search/:query', (req,res) =&gt; {
+    res.send(`Searching for ${req.params.query}...`);
+});
+
+app.listen(3000);
+</pre>
+</p>
+
+<h2>Node and MySQL</h2>
+<p>In this unit, we will be looking at Node and the NoSQL database MongoDB,
+as they work particularly well together, and are often used together.
+However, to allow you to write a useful Express application now
+(a Node/Express version of your HT-Tracks web service) I'm going to 
+introduce the MySQL Node module. This must be installed as a module as
+usual (it has been installed on Edward and Neptune already). Very good
+documentation is available <a href=''>here</a>.</p>
+
+<p>To summarise using the MySQL Node module:
+<ul>
+<li>Connecting to the database is as follows. Note the callback-based,
+asynchronous approach; the <em>connect()</em> method takes a callback 
+function as an argument which runs as soon as we are connected. This callback
+will receive an <em>err</em> parameter if there was an error.
+<pre>
+var con = mysql.createConnection({
+        host: 'localhost',
+        user: 'ephp001',
+        database: 'ephp001',
+        password: 'thepassword'});
+
+con.connect( err=&gt; {
+            if(err) {
+                   console.log(`Error connecting to mysql: ${err}`);
+            } else { 
+                console.log('connected to mysql ok');
+                //  now we have a successful connection, query the database..
+            }
+        });
+</pre>
+</li>
+<li>Performing a SELECT statement is as follows. Note how it's callback-based
+again: the first argument to <em>query()</em> is the query, the second an
+array of the bound parameters (using prepared statements), and the third is
+a <em>callback</em> which runs when the query has returned results. 
+This callback has three parameters: an error (if there is one); the results
+(an array of objects, one object for each record) and the database fields.
+<pre>
+con.query(`SELECT * FROM students WHERE lastname=?`,
+    [lastname], (error,results,fields) =&gt; { 
+        if(error) {
+            console.log(`Error with mysql statement: details: ${JSON.stringify(error)}1);
+        } else {
+            var resultText="";
+            results.forEach (result=&gt;
+                resultText+=`Name ${result.name} Course ${result.course} Grade: ${result.grade}`);
+            console.log(resultText);
+        }
+    });
+</pre>
+Note how we loop through the results, add the details of each result to a 
+string variable, and then write that variable to the console.
+</li>
+<li>Performing an UPDATE statement uses the same approach:
+<pre>
+con.query(`UPDATE products SET quantity=quantity-1 WHERE id=?`, [productId], (error,results,fields)=&gt; {
+    if(results.affectedRows==1) {
+        console.log('You bought it successfully.');
+    } else {
+        console.log('Unable to update, is there a product with that ID?');
+    }
+} );
+</pre>
+Note how we use the <em>affectedRows</em> property of the results object to
+determine whether any results were updated.</li>
+</ul>
+
+<h3>Writing a custom module to easily connect to MySQL</h3>
+
+<p>The above examples show a potential issue with using the Node MySQL
+module: it's callback based, so the code ends up relatively complex.
+This means that, to integrate MySQL into an Express application, you'd
+need to connect to MySQL first and then put your Express code in the
+MySQL connection callback. This makes your code perhaps rather messy and
+convoluted. A better approach is to <em>create your own Node module</em>
+and put the connection code in that. Here is an example:
+<pre>
+// File - mysqlconn.js
+var mysql = require('mysql');
+
+var con = mysql.createConnection({
+        host: 'localhost',
+        user: 'ephp001',
+        database: 'ephp001',
+        password: 'password'});
+
+        con.connect( err=&gt; {
+            if(err) {
+                   console.log(err);
+                process.exit(1); // exit the server
+            } else { 
+                console.log('connected to mysql ok');
+            }
+        });
+    
+<em>module.exports = con;</em>
+</pre>
+Note how we have created a file <em>mysqlconn.js</em> which connects to
+the database. Note the final line as this is key:
+<pre>module.exports=con;</pre>
+This <em>exports</em> the variable <em>con</em> (representing the connection)
+to the outside world. This is how we can define a Node module; write some
+code and then <em>export</em> an object to the outside world.</p>
+<p>To use our custom module in our Express application, we use 
+<em>require()</em> in the same way that we imported third-party modules:
+<pre>var con = <em>require('./mysqlconn');</em></pre>
+The variable <em>con</em> will represent our MySQL connection. Note how
+it's set equal to the return value of <em>require()</em>; this will be
+whatever was exported from our module. Also note the module name
+<em>./mysqlconn</em> and how this corresponds to the module filename
+<em>mysqlconn.js</em>; the <em>./</em> means the current directory.</p>
+
+<h2>Exercise 5</h2>
+<p>Write a version of your HT-Tracks search web service 
+using Node.js and Express. The search web service should respond
+to the route:
+<pre>/artist/&lt;artist name&gt;</pre>
+Connect your AJAX search from Topic 7 to your search web service.</p>
+<p>If you do that, implement your download web service using Express
+(in the same application as your search service).
+The download web service should respond to the route:
+<pre>/download/&lt;song ID&gt;</pre>
+and (if you did it) your AJAX DOM-based download from Topic 8 
+should be connected to your download web service.
+Please note <em>there is no need to include authentication.</em></p>
+<p>Things you'll need to know for this:
+<ul>
+<li>The response object <em>res</em> has a <em>status()</em> method which
+can be used to send back any HTTP status code.</li>
+<li>The response object also has a <em>set</em> method which can be used
+to set a particular HTTP header in the response. You'll need this for CORS
+as <em>your AJAX front end will be served from a standard Apache server
+while the back-end is your Node server, on a different port</em> so the
+same-origin policy does not apply. You'll need something like:
+<pre>res.set('Access-Control-Allow-Origin', 'http://edward.solent.ac.uk');</pre>
+</li>
+</ul>
+
+<h2>Finally - deploying a live Node.js app</h2>
+<p>What happens when you want to deploy a Node.js application to production?
+If it's running on port 3000, it will not be accessible to the outside
+world (for security reasons it's not a good idea to open up non-standard
+ports), which means you need to provide a 'backdoor' 
+means for the outside world to
+access it. A common approach is to use a conventional web
+server (on port 80)
+as a 'reverse proxy' so that requests which match a particular URL
+will be routed to your Node application on port 3000.  
+A commonly used web server on Node-based systems is <em>Nginx</em>.
+DigitalOcean have an article on this: <a href='https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04'>here</a>.</p>
+
+
+<h3>Further resources</h3>
+<ul>
+<li><a href="https://nodejs.org/">node.js home page</a></li>
+<li><a href="https://nodejs.org/api/">API documentation</a></li>
+<li><a href="http://nodeschool.io">NodeSchool</a>, practical walk-through
+exercises which provide a detailed introduction to node.js.</li>
+<li><a href='https://expressjs.com'>Express home page</a></li>
+<li><a href='https://github.com/mysqljs/mysql'>Node MySQL module</a></li>
+</ul>
+</body>
+</html>
