@@ -203,10 +203,7 @@ has finished loading will all our A-Frame components be loaded into
 memory. 
 
 Why can we not just put the code inside the `onload` function
-directly inside our "main" JavaScript instead, and include it into our HTML with `defer` - to prevent it loading until the page has loaded - as we did in 
-week 1? 
-
-The problem is that `AFRAME.registerComponent()`, which is used to register
+directly inside our "main" JavaScript instead, and include it into our HTML with `defer` - to prevent it loading until the page has loaded - as we did in week 1?  The problem is that `AFRAME.registerComponent()`, which is used to register
 a component we saw above, has
 to be loaded *before* the A-Frame scene is loaded into memory, and *not*
 after the page has loaded. When the HTML of an A-Frame scene is read by the
@@ -218,18 +215,13 @@ In this example, we *could* put the `onload` code in a script with a `defer`
 but larger A-Frame applications are likely to need to register some custom
 components and if we tried to register components in a script with 
 `defer`red loading, it would not work as they would be registered after the
-page has finished loading. 
-
-So to accommodate both constraints (components must be registered before the
-scene is loaded, but components can only be *accessed* after the scene is
-loaded) we typically make our JavaScript files load before the page but ensure
-any code which deals with the DOM of the HTML page is placed in a 
+page has finished loading.  So to accommodate both constraints (components must be registered before the scene is loaded, but components can only be *accessed* after the scene is loaded) we typically make our JavaScript files load before the page but ensure any code which deals with the DOM of the HTML page is placed in a 
 `window.onload()` function to ensure it is only loaded *after*.
 
 To continue with the code:
 
-- Within this function we add a `click` event listener function to the button,
-so that the `handleClick()` function runs when we click the button. 
+- Within the `window.onload()` function we add a `click` event listener 
+function to the button, so that the `handleClick()` function runs when we click the button. 
 
 - Inside this `handleClick()` function we use the standard 
 `document.getElementById()` to obtain our box using its ID.
@@ -250,9 +242,10 @@ See [here](../wad/objects.html) for notes on JavaScript objects.
 ### Making the above example more concise using an arrow function
 
 The above example will work, however it can be made more concise using an
-*arrow function*. An arrow function is an anonymous function that can be
-inserted, in its entirety, where a function is expected as an argument.
-So we can rewrite the above JavaScript as follows:
+*arrow function*. 
+Arrow functions are a new feature of the recent JavaScript standard,
+ECMAScript 6. They are anonymous, nameless functions which can be used 
+as parameters where a function name (such as `clickHandler` in the example above) is expected. Rather than writing the event handler function as a separate function, and specifying the name of the event handler as a parameter, we write the function in full where the function name is expected. Here is the JavaScript example above rewritten so that the event handler is an arrow function. Note also how we do not use the word "function" with arrow functions, but separate the parameter list and function body with the arrow operator (<em>=&gt;</em>):
 ```
 window.onload = () => {
     document.getElementById('go').addEventListener('click', e => {
