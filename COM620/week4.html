@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Week 4 - AJAX, JSON, Web APIs and A-Frame</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+</head>
+<body>
+<h1>Week 4: AJAX, JSON, Web APIs and A-Frame</h1>
+<h2>Introduction</h2>
+<p>This week we will:
+<ul>
+<li>Finish the work on the <code>vertical-controls</code> component that we
+looked at last week.</li>
+<li>Revise and update our knowledge on AJAX</li>
+<li>Look at how we can dynamically <em>create</em> components in A-Frame</li>
+</ul>
+<h2>Vertically controlling the camera</h2>
+<p>Before we begin the new material today, we will finish the last section
+from <a href='week3.html#controllingthecamera'>last time</a>.</p>
+<h2>AJAX revision</h2>
+<p>Last year on DFTI we looked at <em>AJAX</em> and saw that it was 
+approach to developing highly interactive web applications which communicate
+with the server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as <em>JSON</em>. 
+The JSON is then <em>parsed</em>
+and the page dynamically updated with the new data.</p>
+<p>For example, we could have an AJAX application to search for all products of a given type (e.g cornflakes). Our JavaScript could send a product type, such as "Cornflakes", to a PHP script running on a server, and the PHP could send back JSON containing all the cornflakes manufactured by different manufacturers. Then, the second JavaScript function (the AJAX <em>callback</em>), could parse the JSON and update the HTML front-end with the search results (all cornflakes products).</p>
+<p>You can find some AJAX 
+refresher notes <a href='../wad/ajax.html'>on WAD</a>, including how to parse 
+JSON.</p>
+<h2>New style AJAX requests with the fetch API</h2>
+<p>Last year, we looked at an older approach to AJAX (the XMLHttpRequest 
+API). However, this has now been superseded by another
+API - the fetch API. Here is an example of the use of the fetch API;
+<pre>
+function ajaxSearch(productType) {
+    fetch(`https://server/api.php?productType=${productType}`)
+        .then(response =&gt; response.text())
+        .then(text =&gt; {
+            document.getElementById('results').innerHTML = text;
+        });
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType).value;
+    ajaxSearch(product);
+});
+</pre>
+How is this working?
+<ul>
+<li>We fetch a response from the given URL. Here we are contacting a 
+server-side script which searches for all products of a given type.</li>
+<li><em>then</em>, when we get the response, we obtain the text from it.</li>
+<li><em>then</em>, when we have the raw text of the response, we run an 
+arrow function to place the results inside a &lt;div&gt;. This arrow
+function is passed the raw text of the response as a parameter.</li> 
+</ul>
+<h3>Promises</h3>
+<p>We'll now look in a bit more detail at what is going on with our fetch API
+request, and in particular look at the concept of a <em>promise</em>. The
+<code>fetch</code> call, above, returns a <em>Promise</em> object.
+A promise is an object which "promises" to do a particular (typically)
+asynchronous, background task which will complete at some point in the future,
+such as an AJAX request. The <code>fetch()</code> function will return 
+immediately, but will not do the AJAX request immediately. Instead, it returns
+a <em>promise object</em> which will, at some point in the future, be either
+<em>fulfilled</em> or <em>rejected</em>. These outcomes are as follows;
+    <ul>
+    <li>A promise is <em>fulfilled</em> or <em>resolved</em> as soon as the 
+    background task completes successfully, for example when a response is
+    received from an AJAX call;</li>
+    <li>or it is <em>rejected</em> if it fails with an error, for example
+    there is a network timeout on an AJAX call.</li>
+    </ul>
+We handle each of those two outcomes using the <code>then()</code> and
+<code>catch()</code> functions. The function supplied as an argument to
+<code>then</code> (the <strong>resolve</strong> function)
+will run <strong>as soon as the promise is fulfilled</strong>
+while the function supplied as an argument to <code>catch</code> will run 
+<strong>as soon as the promise is rejected</strong>.
+</p>
+<p>
+So, promises allow you to write code with intuitive, clean syntax in
+this form:
+<pre>promise.then(resolveFunction).catch(rejectFunction);</pre>
+where "promise" is the promise object, and <code>resolveFunction</code> and
+<code>rejectFunction</code> are the functions which run on fulfilment and
+rejection, respectively.</p>
+<p>Note that this topic does not include how to write your own promises from
+scratch, only how to use promises returned from APIs written by others, for
+example the fetch API. You can read about how to create your own promises in
+the <a href='../wad/promises.html'>WAD notes on promises</a>.</p> 
+<h4>Relating promises to the fetch API</h4>
+<p>So, returning to our fetch API example, what is happening with this code in
+terms of promises? (Note, I have now added a <code>catch()</code>).
+<pre>
+fetch(`https://server/api.php?productType=${productType}`)
+    .then(response =&gt; response.text())
+    .then(text =&gt; {
+        document.getElementById('results').innerHTML = text;
+    })
+    .catch(e =&gt; { alert(`An error occurred: ${e}`); } );
+</pre>
+<ul>
+<li>We make our <code>fetch()</code> request. This returns a promise, which
+will resolve when we get a response back from the server.</li>
+<li>We supply the arrow function <code>response =&gt; response.text()</code>
+as the resolve function. This takes the response and obtains text from it.
+Note that this is shorthand for:
+<code>.then(response =&gt; { return response.text(); } );</code>
+in other words, if an arrow function only returns a value and does not do
+anything else, we can omit the curly brackets and the <code>return</code>.
+</li>
+<li>Note that <code>response.text()</code> does not return the text directly. Perhaps surprisingly, <code>response.text()</code> <strong>itself returns a promise</strong>, which will fulfil as soon as text is obtained from the response so we need <strong>yet another then()</strong> with a <strong>second resolve function</strong> passed as an argument, i.e:
+<pre>
+.then(text =&gt; {
+    document.getElementById('results').innerHTML = text;
+});
+</pre>
+This second resolve function gets passed the text as a parameter, and
+simply places this text inside a &lt;div&gt;.</li>
+<li>Finally, any errors that might occur during the whole process are handled
+with the <code>catch()</code>.</li>
+</ul>
+<h3>async/await</h3>
+<p>ECMAScript 8 (aka ECMAScript 2017) introduces <em>async/await</em>.
+This allows you to write promise-based,
+asynchronous code in a sequential manner. Here is how we would rewrite our
+<em>fetch</em> API code using async/await:
+<pre>
+<em>async</em> function ajaxSearch(productType) {
+    const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
+    const text = <em>await</em> resonse.text();
+    document.getElementById('results').innerHTML = text;
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType).value;
+    ajaxSearch(product);
+});
+</pre>
+Note how we're doing a whole AJAX / JSON parsing procedure using sequential
+code, even though AJAX is an asynchronous process. The key things are:
+    <ul>
+    <li>The function <em>ajaxSearch()</em> is declared as <em>async</em>, 
+    which makes it a special kind of function (an <em>AsyncFunction</em>)
+    allowing us to do async/await;</li>
+    <li><em>fetch()</em> (which if you remember returns a promise to do an
+    AJAX call) is preceded by <em>await</em>. What <em>await()</em> does is
+    suspend execution of the rest of the <em>async</em> function until the
+    promise concerned has been fulfilled. 
+    The argument to the resolve function of
+    the promise is then <em>returned</em> from the <em>await</em> call.
+    </li>
+    </ul>
+Note also that <em>await</em> will only work with a promise. It's
+<em>awaiting the successful resolution of that promise</em>. Trying to use
+<em>await</em> without a Promise will not work!</li>
+</p>
+<p>To make the code more robust we need to handle errors. Here is how to
+do this with <em>async/await</em>:
+<pre>
+<em>async</em> function ajaxSearch(productType) {
+    try {
+        const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
+        const text = <em>await</em> resonse.text();
+        document.getElementById('results').innerHTML = text;
+    } catch(e) {
+        alert(`Error: ${e}`);
+    }
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType).value;
+    ajaxSearch(product);
+});
+</pre>
+Note how we <em>try</em> to do the promise based, asynchronous code and
+<em>catch</em> any promise rejections in the <em>catch</em> block. The catch
+block gets passed the error message accompanying the promise rejection.</p>
+<h4>async/await with JSON</h4>
+<p>The previous examples have shown <em>fetch()</em> AJAX requests which return
+plain text. Here is a version which communicates with a server which returns
+JSON instead:
+<pre>
+<em>async</em> function ajaxSearch(productType) {
+    // Send a request to our remote URL
+       const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
+
+    // Parse the JSON.
+    const products = <em>await</em> response.json();
+
+    // Loop through the array of JSON objects and add the results to a &lt;div&gt;
+    let html = "";
+    products.forEach ( product =&gt; {
+        html += `Product Name: ${product.name} Manufacturer: ${product.manufacturer} Price: ${product.price}&lt;br /&gt;`;
+    });
+    document.getElementById('results').innerHTML = html;
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType).value;
+    ajaxSearch(product);
+});
+</pre>
+This code is very similar to the text-based example. The main difference is
+we use <code>response.json()</code> rather than <code>response.text()</code>.
+This returns a promise which resolves when the JSON in the response has
+been parsed (compare <code>response.text()</code>, which returns a promise
+which resolves when we have extracted text from the response).</p>
+<p>The other diference is that we need to loop through our array of JSON
+objects returned from the server. The JSON might look like this:
+<pre>
+[
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Organic Products Ltd.",
+        "price": 2.49 
+    },
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Cockadoodle Cereal Co.",
+        "price": 1.79 
+    },
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Smith Emporium",
+        "price": 0.79 
+    },
+]
+</pre>
+so hopefully you can see how we loop through each product object within the JSON
+and extract the name, manufacturer and price fields from it. Notice also how
+<code>forEach()</code> allows us to loop through each member of an array
+without needing a <code>for</code> loop with an index. 
+<code>forEach()</code> is a function which performs a second function on each member of an array. Each member of the array in turn is passed into this second function as a parameter.</p>
+<h2>Dynamic Creation of Components with A-Frame</h2>
+<p>We are now going to look at how we can <em>dynamically create entities and
+components using A-Frame</em> and the DOM. So far, our entities and components 
+have been hard-coded in HTML. However in many cases, we might want to 
+dynamically build a scene based on data sent back, in JSON for example, from
+the web. Most augmented reality apps would work this way: the augmented 
+content would not be hard-coded but downloaded from a server. For example,
+points of interest in an AR or VR POI app would be downloaded from a server
+and in Pokemon Go the locations of the Pokemon are also downloaded. So we
+need to know how to dynamically generate content in A-Frame.</p>
+<p>In the DOM notes we looked at <code>document.createElement</code> So,
+we can use <code>document.createElement()</code> here to dynamically create
+our A-Frame content. Here is an example:
+<pre>
+AFRAME.registerComponent('dynamic-content-loader', {
+    init: function() {
+        // Create an entity with document.createElement()
+        const entity = document.createElement('a-entity');
+
+        // Add a geometry component to it (a box primitive)
+        entity.setAttribute('geometry', {
+            primitive: 'box'
+        });
+
+        // Add a material component to it (red colour)
+        entity.setAttribute('material', {
+            color: 'red'
+        });
+
+        // Set its position within the 3D world
+        entity.setAttribute('position', {
+            x: 0,
+            y: 1,
+            z: -5
+        });
+
+        // Append the entity to the scene (this.el.sceneEl)
+        this.el.sceneEl.appendChild(entity);
+    }
+});
+</pre>
+which would be used along with an A-Frame scene such as that below:
+<pre>
+&lt;a-scene&gt;
+&lt;a-sky color="skyblue"&lt;&lt;/a-sky&gt;
+&lt;a-plane color='green' position='0 0 0' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-entity dynamic-content-loader&gt;&lt;/a-entity&gt;
+&lt;/a-scene&gt;
+</pre>
+What is this doing?
+    <ul>
+    <li>We are definining a component called <code>dynamic-content-loader</code>.
+    This component is attached to a generic &lt;a-entity&gt; in our scene.
+    </li>
+    <li>Within this component we create an <code>a-entity</code> dynamically using DOM, and set its <code>geometry</code>, <code>material</code> and <code>position</code> components.</li>
+    <li>Then we <em>append</em> the entity we've just created to the A-Frame <em>scene</em>. Note how we can access the A-Frame scene from any entity using <code>this.el.sceneEl</code>. Whereas <code>this.el</code> represents the current entity, <code>this.el.sceneEl</code> represents the scene as a whole. So the entity we've dynamically created will be a child of our <em>scene</em>.</li>
+    </ul>
+</p>
+<p>This example is just a simple example of creating dynamic content, but
+you could use a component like this to load JSON over AJAX and then create
+content based on parsing the JSON.</p>
+<h2>Exercise</h2>
+<p>The exercise is to bring this all together and dynamically create a scene
+by contacting a web API to retrieve JSON. At the URL
+<pre>https://www.free-map.org.uk/course/imm/world.php</pre>
+is a server-side application which returns JSON of various points of interest
+(restaurants, cafes etc). If no 'type' parameter is supplied, <strong>all</strong> points of interest are returned, while if there is a type, e.g:
+<pre>https://www.free-map.org.uk/course/imm/world.php?type=cafe</pre>
+only points of interest of that type are returned.
+</p>
+<ol>
+<li><strong>If you want practice on basic AJAX</strong>, 
+first build a simple, HTML-based
+application (no A-Frame) which searches for all points of interest of a given
+type by sending an AJAX request to this URL, parsing the
+JSON returned, and listing the points of interest in a &lt;div&gt;. See
+the JSON async/await example above and modify this. Your HTML page should
+have a text field allowing the user to enter the type, and a button
+which calls your AJAX function when it is clicked.
+</li>
+<li>Build an A-Frame application which contacts this
+URL, downloads the data (<strong>all</strong> points of interest)
+from it (using fetch), parses the JSON, and uses the
+data contained in the JSON to create A-Frame spheres for each point of 
+interest at their coordinates.</li>
+<li>Add code so that an alert box with the name of the point of interest
+appears when you click on it. You should be able to work out how to do this from the mouse events section from last week.</li>
+<li>Change your code to colour the spheres differently depending on point
+of interest type. Cafes should be in brown, restaurants in blue and bars
+in red.</li>
+</ol>
+</body>
+</html>
