@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JSON API</title>
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+<script>
+AFRAME.registerComponent('worldapi', {
+	init: async function() {
+		const res = await fetch('https://hikar.org/course/imm/world.php');
+		const json = await res.json();
+		json.forEach ( obj => {
+			console.log('json');
+			const entity = document.createElement('a-entity');
+			entity.setAttribute('geometry', {
+				primitive: 'sphere' 
+			});
+			entity.setAttribute('material', {
+				color: 'brown'
+			});
+			entity.setAttribute('position', {
+				x: obj.x,
+				y: obj.y,
+				z:obj.z
+			});
+			entity.addEventListener('click', e => {
+				alert(obj.name);
+			});
+			this.el.sceneEl.appendChild(entity);
+		});
+		console.log('init completed');
+	},
+	update: function() {
+		console.log('update');
+	}
+});
+</script>
+</head>
+<body>
+<a-scene cursor='rayOrigin: mouse'>
+<a-sky color='skyblue'></a-sky>
+<a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow></a-plane>
+<a-entity worldapi></a-entity>
+</a-scene>
+</body>
+</html>

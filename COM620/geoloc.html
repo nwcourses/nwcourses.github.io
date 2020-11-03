@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Geolocation</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+</head>
+<body>
+<h1>Geolocation</h1>
+<h2>Latitude and Longitude</h2>
+<p>In order to understand location-based applications, it is important
+to understand the coordinate system used on the earth. The most common
+coordinate system uses <em>latitude and longitude</em>. Latitude is a measure
+of how far north or south you are: the equator is at 0 degrees,
+while the North Pole is at 90 degrees North, we are at about 50 and Spain
+is at about 40. Longitude is a measure of how far east or west you are:
+0 degrees of longitude is referred to as the <em>Prime Meridian</em>
+(or <em>Greenwich Meridian</em>) and passes through Greenwich, London. 
+By contrast Germany is located
+between approximately 7 degrees and 15 degrees East, while New York is at
+74 degrees West and the west coast of North America at approximately 120
+degrees West.</p>
+<p><img src="../images/latlon.png" alt="Latitude and longitude" /></p>
+<p>So a given point on the earth can be defined via its latitude and
+longitude. We are at, approximately, 50.9 North (latitude) and 1.4 West
+(longitude). By convention, latitudes north of the equator and longitudes
+east of Greenwich are treated as positive, so we can also define our
+position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
+<h2>The Geolocation API</h2>
+<h3>Introduction</h3>
+<p>The Geolocation API allows you to obtain the current location of the
+device running the browser from within JavaScript. Even on desktop browsers
+this will give a result if you are using a wireless network, but its real
+use is in the mobile web development world. A mobile browser can talk to the
+GPS chip of the phone and obtain the phone's current location on the earth.
+Alternatively, if the GPS chip is not available, a rough estimate can be
+obtained from cell towers or wireless networks.</p>
+<h4>Using the Geolocation API</h4>
+<p>It is fairly straightforward to use the Geolocation API. Here is an 
+example (<strong>please note - all examples in this topic will show the JavaScript only, not the HTML</strong>):
+<pre>
+if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition (
+            gpspos=&gt; {
+                console.log(`Lat ${gpspos.coords.latitude} Lon ${gpspos.coords.longitude}`); // show on the console
+            },
+
+            err=&gt; {
+                alert(`An error occurred: ${err.code}`);
+            }
+
+        );
+    } else {
+        alert("Sorry, geolocation not supported in this browser");
+    }
+}
+</pre>
+</p>
+<p>How is this working?
+    <ul>
+    <li>The code
+    tests whether geolocation is possible in our browser by checking for the
+    existence of the <em>navigator.geolocation</em> variable. If it doesn't
+    exist, we display an error. If it <em>does</em> exist, we tell the
+    geolocation object to obtain the current position with 
+    <em>getCurrentPosition()</em>. This takes two arguments, both functions:
+        <ul>
+        <li>The first argument (an arrow function here)
+        is the function that will run as soon as we get a 
+        location back from the GPS chip (or wireless network, etc)</li>
+        <li>The second (here, another arrow function) will run if there
+        was an error obtaining the location.</li>
+        </ul>
+    </li>
+    <li>
+    Note the <em>asynchronous</em> approach here, just like AJAX. It might
+    take time to obtain a position, so we set up a <em>callback</em>
+    function to run once we have obtained the position, and continue
+    processing in the meantime. So any statements below the 
+    <em>getCurrentPosition()</em> might run before 
+    the callback <em>processPosition()</em> starts running.
+    </li>
+    <li>Considering each of these two functions in turn, let's look at
+    <em>processPosition()</em> first. This is automatically supplied with
+    one parameter, <em>gpspos</em>, which is an object 
+    representing the position returned from the GPS device or other location provider. This object has a property <em>coords</em> representing the
+    coordinates, and <em>coords</em> itself has two properties,
+    <em>latitude</em> and <em>longitude</em>.
+    Therefore, we can obtain the latitude and
+    longitude with <em>gpspos.coords.latitude</em> and 
+    <em>gpspos.coords.longitude</em>. So what this example is doing is
+    displaying the coordinates in the console (you can view the console
+    via More Tools-Developer Tools in Chrome or Web Developer-Web Console
+    in Firefox).</li>
+    <li>Moving onto <em>handleError()</em> which is the function which
+    is run if there is any sort of error in obtaining the position: again, 
+    this is automatically supplied with one parameter, <em>err</em>,
+    an object representing the exact error which occurred. The most meaningful
+    property of <em>err</em> is a numerical code, <em>err.code</em>, which
+    is what we are displaying here. There are several codes
+    (ref <a href='http://www.diveintohtml5.info/geolocation.html'>Dive into 
+    HTML5</a>, Mark Pilgrim):
+        <ul>
+        <li>1 means that the user denied the browser access to the device's
+        location. For security reasons, a user has to agree to the browser
+        accessing the device's GPS chip, and if they deny that access, the
+        error function will run with a code of 1.</li>
+        <li>2 means that the location could not be obtained, e.g the
+        GPS satellites or wireless networks are unavailable;</li>
+        <li>3 means a timeout, i.e. the GPS satellites or network are 
+        available but it has taken too long to contact them.</li>
+        </ul>
+    </li>
+    </ul>
+</p>
+<h3>Watching the position</h3>
+<p>The above code will simply obtain the current position and stop. In a
+typical mobile GPS application, however, the user will want to be informed
+of their location on a regular basis. To do this we use 
+<em>watchPosition()</em> in place of <em>getCurrentPosition()</em>. Here is
+an example:
+<pre>
+if(navigator.geolocation) {
+    navigator.geolocation.watchPosition (
+
+        gpspos=&gt; {
+            console.log(`Lat ${gpspos.coords.latitude} Lon ${gpspos.coords.longitude}`); // show on the console
+        },
+
+        err=&gt; {
+            alert(`An error occurred: ${err.code}`);
+        },
+
+        {
+            enableHighAccuracy:true, 
+            maximumAge: 5000 
+        }
+
+    );
+} else {
+    alert("Sorry, geolocation not supported in this browser");
+}
+</pre>
+</p>
+<p>Note that the code is almost the same as the first example, except:
+    <ul>
+    <li>We use <em>watchPosition()</em> rather than 
+    <em>getCurrentPosition()</em>. The result will be that the GPS chip 
+    (or other location provider) will communicate the current location back
+    to the process position arrow 
+    function every time the location changes, rather 
+    than just the once.</li>
+    <li>Note also the additional options passed as a third parameter to
+    <em>watchPosition()</em>. On many mobile devices, if we want to use the
+    GPS chip (rather than cell towers, wireless networks, etc) we have
+    to set the <em>enableHighAccuracy</em> option to <em>true</em>. Also
+    if we want to force the GPS to return a reading every so-many seconds,
+    we have to specify a value for the <em>maximumAge</em> option, in 
+    milliseconds. So the above example will refresh at least every 5 
+    seconds.</li>
+    </ul>
+</p>
+<h3>IMPORTANT - Geolocation API now needs HTTPS server</h3>
+<p>For security reasons (the risk of your location being intercepted by
+packet-sniffers) the Geolocation API now
+requires the use of an HTTPS server (a web server with
+encrypted communication), on both Chrome and Firefox. 
+If you are running on <code>localhost</code> (your own local machine),
+however, HTTPS is not needed.</p>
+<p>See <a href='https://letsencrypt.org'>Let's Encrypt</a> for information on
+setting up an HTTPS server.</p>
+<h2>Exercise</h2>
+<ol>
+<li>Write a simple application that displays your current latitude and
+longitude inside a &lt;div&gt;. Note that if you are on a wifi network this
+might be inaccurate; for example at home I am located at Stoke-on-Trent,
+a long way from where I live!</li>
+<li>At this URL:
+<pre>https://hikar.org/fm/ws/bsvr.php?bbox=WEST,SOUTH,EAST,NORTH&amp;poi=all&amp;format=json</pre>
+is a JSON web service which returns nearby points of interest.
+(WEST, SOUTH, EAST and NORTH represent the edges of a box to search in).
+Write an application which creates a box where;
+<ul>
+<li>WEST=your current longitude-0.05</li>
+<li>SOUTH=your current latitude-0.05</li>
+<li>EAST=your current longitude+0.05</li>
+<li>NORTH=your current latitude+0.05</li>
+</ul>
+and sends an AJAX request to the above URL. Parse the JSON returned and show
+the contents of the <em>properties</em> of each feature in the
+ JSON within a &lt;div&gt;.</li>
+</ol>
+
+</body>
+</html>
