@@ -133,7 +133,7 @@ asynchronous code in a sequential manner. Here is how we would rewrite our
 <pre>
 <em>async</em> function ajaxSearch(productType) {
     const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
-    const text = <em>await</em> resonse.text();
+    const text = <em>await</em> response.text();
     document.getElementById('results').innerHTML = text;
 }
 
@@ -168,7 +168,7 @@ do this with <em>async/await</em>:
 <em>async</em> function ajaxSearch(productType) {
     try {
         const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
-        const text = <em>await</em> resonse.text();
+        const text = <em>await</em> response.text();
         document.getElementById('results').innerHTML = text;
     } catch(e) {
         alert(`Error: ${e}`);
@@ -192,7 +192,7 @@ JSON instead:
 <pre>
 <em>async</em> function ajaxSearch(productType) {
     // Send a request to our remote URL
-       const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
+    const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
 
     // Parse the JSON.
     const products = <em>await</em> response.json();
