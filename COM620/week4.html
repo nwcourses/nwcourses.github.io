@@ -21,7 +21,8 @@ from <a href='week3.html#controllingthecamera'>last time</a>.</p>
 <h2>AJAX revision</h2>
 <p>Last year on DFTI we looked at <em>AJAX</em> and saw that it was 
 approach to developing highly interactive web applications which communicate
-with the server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as <em>JSON</em>. 
+with the server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as <em>JSON</em>
+(see <a href='../wad/wad1.html'>here</a> for more information about JSON). 
 The JSON is then <em>parsed</em>
 and the page dynamically updated with the new data.</p>
 <p>For example, we could have an AJAX application to search for all products of a given type (e.g cornflakes). Our JavaScript could send a product type, such as "Cornflakes", to a PHP script running on a server, and the PHP could send back JSON containing all the cornflakes manufactured by different manufacturers. Then, the second JavaScript function (the AJAX <em>callback</em>), could parse the JSON and update the HTML front-end with the search results (all cornflakes products).</p>
