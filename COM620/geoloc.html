@@ -50,9 +50,8 @@ if(navigator.geolocation) {
             }
 
         );
-    } else {
-        alert("Sorry, geolocation not supported in this browser");
-    }
+} else {
+    alert("Sorry, geolocation not supported in this browser");
 }
 </pre>
 </p>
@@ -170,6 +169,8 @@ however, HTTPS is not needed.</p>
 <p>See <a href='https://letsencrypt.org'>Let's Encrypt</a> for information on
 setting up an HTTPS server.</p>
 <h2>Exercise</h2>
+<p><strong>You'll need to run this via a local web server using `ws` as
+introduced in week 1, or on an HTTPS-enabled server.</strong></p>
 <ol>
 <li>Write a simple application that displays your current latitude and
 longitude inside a &lt;div&gt;. Note that if you are on a wifi network this
