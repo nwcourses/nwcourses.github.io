@@ -1,0 +1,208 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week5modelsandtextinaframe">Week 5: Models and Text in A-Frame</h1>
+<h2 id="introduction">Introduction</h2>
+<p>This week we will start to make our A-Frame applications look more realistic
+by looking at how we can add <em>3D models</em> to our scene, and also look at how
+we can add <em>text</em> to our scene to explain to the user what they are looking 
+at.</p>
+<h2 id="models">Models</h2>
+<p>Most real-world 3D applications would use 3D <em>models</em> of real-world objects,
+such as people, animals or objects. These models typically consist of many
+small triangles; each triangle has three <em>vertices</em> (points). Triangles are
+typically used because 3D hardware is optimised to work with triangles.</p>
+<p>Models also consist of:</p>
+<ul>
+<li><p><em>Textures</em>: images which are overlaid on specific
+parts of the model, for example a model of a Coke can might contain the 
+cylindrical can as a series of triangle, plus an image of the Coke logo as
+an external file - or texture - which could then be applied to the model to
+look realistic.</p></li>
+<li><p><em>Normals</em>: normals are mathematical vectors indicating which direction is
+'up' for each vertex. Returning to the Coke can example, the normals would
+point from each vertex away from the can, i.e. towards the outside world
+rather than towards the interior of the can. Normals are used to calculate
+lighting effects: in 3D graphics we can position lights within our world
+which can then be reflected by outwards-facing surfaces. Returning to the
+concept of a <em>material</em>, first encountered in week 2: we can set our 
+A-Frame entity's material to have a particular <em>texture</em>, even if we are not
+working with 3D models.</p></li>
+</ul>
+<h3 id="whatmodelformatsareavailable">What model formats are available?</h3>
+<p>There are various formats for 3D models. Two are supported by A-Frame:
+see <a href="https://aframe.io/docs/1.0.0/introduction/models.html">the A-Frame documentation</a>.</p>
+<ul>
+<li><p>The <em>Wavefront OBJ</em> format. This is a long-standing format which has been
+around since at least 1992.</p></li>
+<li><p>The <em>glTF</em> format. A more recent format with support for more advanced
+features, such as animations, and, as described in the
+<a href="https://aframe.io/docs/1.0.0/components/gltf-model.html">A-Frame documentation</a>, information about the scene, such as light sources and cameras.</p></li>
+</ul>
+<h3 id="howtoincludeamodelinanaframeapplication">How to include a model in an A-Frame application</h3>
+<p>The first thing to note is that models can be rather large files. If our
+application is creating many instances of entities all using the same model
+(e.g. many monsters in a game) you do not want to load the same model over 
+and over again because this will be very inefficient. Instead, we want to load
+the model <em>once</em>, on startup, and then reference the <em>loaded</em> model when we
+create our entities. Luckily we can do this in A-Frame by making use of 
+A-Frame <em>assets</em> (the <code>&lt;a-assets&gt;</code> tag).</p>
+<p>Here is an example of <code>&lt;a-assets&gt;</code>. Note that the <code>&lt;a-assets&gt;</code> are contained
+within your <code>&lt;a-scene&gt;</code>.</p>
+<pre><code>&lt;a-assets&gt;
+&lt;a-asset-item src='assets/cow.obj' id='cow'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/pig.obj' id='pig'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/cow.mtl' id='cow-material'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/pig.mtl' id='pig-material'&gt;
+&lt;/a-assets&gt;
+</code></pre>
+<p>There are four assets here, two OBJ models of a cow and a pig, and two
+accompanying <code>.mtl</code> (material) files. Material files describe the properties of
+the material used for the model, including its colour and its reflective
+properties. The <code>.mtl</code> file will also contain a link to a texture image
+(e.g. a PNG image), if one is provided. Note how generic assets, such as 
+models, are specified using <code>&lt;a-asset-item&gt;</code>.
+Note also how each asset has an ID; this will be used when we
+create an entity using that asset later.</p>
+<h4 id="howwewouldreferenceanassetinourcode">How we would reference an asset in our code</h4>
+<p>Here is how we could reference an asset in our code:</p>
+<pre><code>&lt;a-entity obj-model='obj: #cow'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>This is creating an entity which will represent an OBJ model, hence the
+<code>obj-model</code> component. The <code>obj-model</code> component contains a property <code>obj</code> 
+whose value is <code>#cow</code>, which references the asset with the ID of <code>cow</code>.</p>
+<p>To link the <code>.mtl</code> (material) asset, we use the <code>mtl</code> property, e.g:</p>
+<pre><code>&lt;a-entity obj-model='obj: #cow; mtl: #cow-material'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>As well as OBJ, we can handle GLTF with the <code>gltf-model</code> component, e.g this
+<code>gltf-model</code> is using an asset with an ID of <code>horse</code>:</p>
+<pre><code>&lt;a-entity gltf-model='#horse'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>We can of course also dynamically create our entities from JavaScript, for
+example:</p>
+<pre><code>const entity = document.createElement('a-entity');
+
+// Add the obj-model component. This will simply reference the ID of the asset
+// as its 'obj' property.
+entity.setAttribute('obj-model', {
+    obj: '#cow',
+    mtl: '#cow-material'
+});
+</code></pre>
+<h3 id="pointstoconsiderwithmodels">Points to consider with models</h3>
+<p>There are reasons why models might not appear as you expect them to. Note
+that models have their own, local coordinate system; the coordinates of
+each vertex are relative to the local origin of the model. The local origin
+is the point within the model which has coordinates x=0, y=0, z=0 in the 
+model file. When the model is placed within the world at a particular world position, the local origin of the model will be placed at that world position.</p>
+<p>In many cases this is what we want - the base of the model will have the local
+coordinates 0,0,0 - but some models have negative <code>y</code> coordinates for some 
+vertices. This will result in the model being partially buried underground
+if we add it to the world unchanged. So in these cases, if we wish the model
+to rest on our world's surface (e.g. a plane), we may need to place
+the model at a <code>y</code> coordinate above 0 in the world to compensate for the fact
+that some of the model's local <code>y</code> coordinates are negative. In this way we
+will ensure the entire model appears "above ground".</p>
+<p>Also some models, by default, have a very large scale, e.g. the local x, y and
+z coordinates of the model range from, say, 0 to 100. It may be necessary
+to scale then down (by setting the x, y and z <code>scale</code> to values below 1) to
+get the model to appear a sensible size.</p>
+<h2 id="text">Text</h2>
+<p>We can also create text in A-Frame, using 
+an <code>&lt;a-entity&gt;</code> with a <code>text</code> component. The <code>text</code> component has various
+properties, the most important being the <code>value</code> - the actual text. See
+<a href="https://aframe.io/docs/1.0.0/components/text.html">the A-Frame documentation</a>
+for details.  By default, text is rather small, so it needs to be scaled to 
+make it visible (scaling up by 100 gives a usable size).</p>
+<pre><code>entity.setAttribute('text', {
+    value: 'Some text'
+});
+entity.setAttribute('scale', {
+    x: 100,
+    y: 100,
+    z: 100
+});
+</code></pre>
+<h3 id="lookingatthecamera">Looking at the camera</h3>
+<p>By default, text will look towards positive z however this isn't necessarily
+what we want. We more commonly want the text to <em>look at the camera</em> so that
+it's always visible. To do this we make use of the third-party <code>look-at</code>
+component. To use <code>look-at</code> you need to include it as a link in your HTML:</p>
+<pre><code>&lt;script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"&gt;&lt;/script&gt;
+</code></pre>
+<p>then you can add it to an entity e.g:</p>
+<pre><code>&lt;a-entity text='value: Hello World' scale='100 100 100' look-at='[camera]'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>Note how in this example the text is looking at the camera. We specify the camera with the square brackets syntax <code>[camera]</code>. (Remember that square brackets
+in CSS select any element with that attribute present. In A-Frame this is equivalent to selecting an entity with the given component present. So here, we are selecting the entity which contains the <code>camera</code> component, i.e. our camera entity). We can, as an alternative, look at any other entity in our scene by specifying an appropriate CSS selector.</p>
+<h3 id="othertextproperties">Other text properties</h3>
+<p>See <a href="https://aframe.io/docs/1.0.0/components/text.html">the A-Frame documentation</a>. Other properties you can set on the <code>text</code> component include:</p>
+<ul>
+<li><code>align</code>: horizontally justifying the text (left, center or right);</li>
+<li><code>baseline</code>: specifying the baseline of the text (top, center or bottom) - 
+i.e. will the top, the centre or the bottom of the text be placed at the
+<code>y</code> coordinate?</li>
+</ul>
+<h3 id="positioningtextonaplane">Positioning text on a plane</h3>
+<p>A common use-case is to position text on an existing plane, for example to
+draw a noticeboard or signpost. What you can do here is to create an 
+<code>&lt;a-plane&gt;</code> with a <code>text</code> component. e.g.</p>
+<pre><code>&lt;a-plane text='value: Hello' material='color: red' width=4 height=1 look-at='[camera]'&gt;&lt;/a-plane&gt;
+</code></pre>
+<p>Note how the <code>&lt;a-plane&gt;</code> has a material, a width and a height - but also has
+its own <code>text</code> component. This will draw the text directly on the plane.
+The text is automatically scaled to fit on the plane, though by default the
+text will be very small. You can, however, use the <code>wrapCount</code> property of
+the <code>text</code> component to specify approximately how many characters will fit on 
+the plane, for example if you set <code>wrapCount</code> to 20, the text will scale to
+a size where it would exactly fit on the plane if it contained 20 characters.
+Any characters beyond the <code>wrapCount</code> will appear on the next line.</p>
+<h3 id="internationalcharacters">International characters</h3>
+<p>Note that A-Frame text will <em>not</em> by default work with international character sets. Only characters present in a given font will be renderered (drawn) and for the default font used by A-Frame, these are just the standard ASCII characters. The font format used is known as the <em>MSDF</em> format. If you wish to render international characters, you need to use an online font-generator such as <a href="https://msdf-bmfont.donmccurdy.com">Don McCurdy's font generator</a>. To use this, you upload a TrueType (<code>.ttf</code>) font containing your chosen characters to this site, and it will generate a MSDF font for those characters. This consists of two files: </p>
+<ul>
+<li>a JSON file defining the font properties,</li>
+<li>and a PNG image containing the actual characters. </li>
+</ul>
+<p>These can then be used to render text by 
+setting the <code>font</code> and <code>fontImage</code> properties of the <code>text</code> attribute to the
+JSON file and PNG image respectively.</p>
+<h2 id="usingmaterialstotextureobjects">Using materials to texture objects</h2>
+<p>One thing we have not covered yet is that we can use images as <em>textures</em>
+to define the material of an entity. For example:</p>
+<pre><code>&lt;a-plane material='src: grass.png' width='100' height='100' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+</code></pre>
+<p>will texture the plane with the image file found in <code>grass.png</code>. Note how we set the <code>src</code> property of the <code>material</code> component.</p>
+<h2 id="exercise">Exercise</h2>
+<p>The exercise for this week is to extend last week's dynamic scene (loaded from
+AJAX) to use models and text.</p>
+<ol>
+<li><p>Select some appropriate models. A good place to find models is 
+<a href="https://clara.io">Clara.io</a>; note that you will need to sign up first.
+The data includes bars, restaurants and cafes so select things like coffee
+mugs, beer or wine glasses, and food. Make sure you download OBJ format
+(GLTF is generally not available).</p></li>
+<li><p>Unzip the models; they typically come as a <code>zip</code> file. In the <code>zip</code> file you
+should find a <code>.obj</code> model plus, probably, a <code>.mtl</code> material file.</p></li>
+<li><p>Alter your code from last week so that appropriate models are drawn in your
+world, rather than spheres, depending on the point of interest type. You may
+need to experiment with scaling the model, and changing the <code>y</code> coordinate
+(see above).</p></li>
+<li><p>Now try adding the name of the point of interest as text, so that it
+appears above the model. You will need to centre-justify your text with
+the <code>align</code> property of the <code>text</code> component.
+You will need to scale the text for it to appear a sensible size (this is
+often a case of experimentation to see what works). However, you need the
+text scaling to be <em>independent</em> of the model scaling. How would you do this?</p></li>
+<li><p>Alter your answer to question 4 to add the <code>text</code> component to an <code>&lt;a-plane&gt;</code>. Give the <code>&lt;a-plane&gt;</code> a colour and set the <code>wrapCount</code> to be an appropriate value. Experiment with different values of <code>align</code> and <code>baseline</code> on the <code>text</code> component.</p></li>
+</ol>
+<h2 id="moreadvancedexerciseasimplechasegame">More advanced exercise - a simple chase game</h2>
+<p>Go to Clara.io again and find a model of a person, monster, alien etc. It
+should be something that can represent an enemy. Write a simple
+game where this model constantly chases the player (the player position will
+be the camera position). You should be able to work this out based on what
+we've learnt so far. One thing you will need to know is how to access the
+camera from a component attached to another entity. You can use the
+square-brackets CSS selector once again; the code below finds the entity with the <code>camera</code> component attached to it, in other words our camera entity.</p>
+<pre><code>const camera = document.querySelector('[camera]');
+</code></pre>
+<p>The model should always look at the camera; again you should be able to
+work out how to do this.</p>
+<p>When the enemy is within 0.1 units of the camera, the game should end
+(you can use <code>Math.abs()</code> to work this out).</p></body></html>
