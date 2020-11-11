@@ -63,7 +63,7 @@ within your `<a-scene>`.
 <a-asset-item src='assets/cow.obj' id='cow'></a-asset-item>
 <a-asset-item src='assets/pig.obj' id='pig'></a-asset-item>
 <a-asset-item src='assets/cow.mtl' id='cow-material'></a-asset-item>
-<a-asset-item src='assets/pig.mtl' id='pig-material'>
+<a-asset-item src='assets/pig.mtl' id='pig-material'></a-asset-item>
 </a-assets>
 ```
 
