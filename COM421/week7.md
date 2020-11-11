@@ -174,7 +174,7 @@ this.
 
 ```
 For i = 0 to number of itens in list minus one (outer loop)
-    For j = 0 to number of items in list minus one (inner loop)
+    For j = 0 to number of items in list minus the iteration number of the outer loop (inner loop)
         If item at j is greater than item at j+1
             Swap items at j and j+1
 ```
