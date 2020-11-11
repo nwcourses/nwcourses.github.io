@@ -278,4 +278,9 @@ If you are struggling to write actual code, write *pseudocode* first, using the 
 
 If you finish one sorting algorithm, code the other.
 
+## Further reading
+
+- [Toptal, Sorting Algoritmms Animations](https://www.toptal.com/developers/sorting-algorithms)
+- [Rob Bell, A beginner's guide to Big O notation](https://rob-bell.net/2009/06/a-beginners-guide-to-big-o-notation/)
+
 <script type='text/javascript' src='week7.js'></script>
