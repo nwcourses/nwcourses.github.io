@@ -1,0 +1,26 @@
+<html>
+<head>
+<script type="text/javascript">
+function repnode()
+{
+    /* Use the ID to get the element to replace */
+    var elemToReplace = document.getElementById('para1');
+
+    /* Make a new paragraph (as before) */
+    var newElem = document.createElement('P');
+    var newText = document.createTextNode("This is the new paragraph!");
+    newElem.appendChild(newText);    
+        
+    /* Replace the old element with the new */
+    document.body.replaceChild(newElem,elemToReplace);
+}
+</script>
+</head>
+<link rel="stylesheet" type="text/css" href="../../../css/dfti0910.css">
+<body>
+<p>This example replaces a paragraph of text</p>
+<p id="para1">This paragraph will be replaced!</p>
+<p>right click to view source</p>
+<input type="button" value="replace!" onclick="repnode()">
+</body>
+</html>

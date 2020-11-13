@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JSON API</title>
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+<script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+<script type='text/javascript' src='js/world-models.js'></script>
+</head>
+<body>
+<a-scene cursor='rayOrigin: mouse'>
+<a-assets>
+	<a-asset-item id='mug-realistic' src='assets/mug-realistic.obj'></a-asset-item>
+	<a-asset-item id='mug-realistic-mtl' src='assets/mug-realistic.mtl'></a-asset-item>
+	<a-asset-item id='burger' src='assets/burger.obj'></a-asset-item>
+	<a-asset-item id='burger-mtl' src='assets/burger.mtl'></a-asset-item>
+	<a-asset-item id='beer-bottle' src='assets/beer-bottle.obj'></a-asset-item>
+	<a-asset-item id='beer-bottle-mtl' src='assets/beer-bottle.mtl'></a-asset-item>
+</a-assets>
+<a-sky color='skyblue'></a-sky>
+<a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" material='color: #7bcba4' shadow></a-plane>
+<a-entity world></a-entity>
+</a-scene>
+</body>
+</html>

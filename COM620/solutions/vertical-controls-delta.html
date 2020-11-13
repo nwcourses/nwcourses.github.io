@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Basic A-Frame Scene</title>
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+<!-- Include your vertical-controls component -->
+<script type='text/javascript' src='js/vertical-controls-delta.js'></script>
+</head>
+<body>
+<a-scene>
+<a-camera vertical-controls='velocity: 2'></a-camera>
+<a-sky color="skyblue"></a-sky>
+<a-plane position='0 0 0' width='100' height='100' color="#7bcba4" rotation="-90 0 0"></a-plane>
+<a-sphere position="0 1 -10" color="red" scale="2 4 2"></a-sphere>
+<a-sphere position="-2 1 -5" color="green" radius="2"></a-sphere>
+<a-sphere position="2 1 -2" color="blue" radius="2"></a-sphere>
+<a-sphere position="0 1 10" color="yellow" scale="3 1 1"></a-sphere>
+<a-box position="5 1 -10" color="orange" scale="1 3 1"></a-box>
+</a-scene>
+</body>
+</html>
