@@ -14,7 +14,6 @@ class TreeNode:
       if self.left is None:
         self.left = TreeNode(new_value)
       else: # not None
-
         self.left.insert(new_value)
     elif new_value > self.value:
       if self.right is None:
