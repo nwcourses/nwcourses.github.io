@@ -1,0 +1,169 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week8efficientsearchingalgorithms">Week 8: Efficient searching algorithms</h1>
+<h2 id="introduction">Introduction</h2>
+<p>This week we will continue with our look at algorithms by looking at how we can perform efficient <em>searches</em> with the binary search. We will also examine approaches for searching <em>trees</em> (which we did in Topic 5), considering breadth-first search and depth-first-search. This topic will prepare us for looking at graphs in two weeks' time.</p>
+<h2 id="efficientsearchingavoidingbruteforcealgorithms">Efficient searching - avoiding brute-force algorithms</h2>
+<p>As we saw last week, searching through a list is an <code>O(n)</code> operation, as the worst-case scenario performance will be linearly proportional to the length of the list. We have to loop through each member of the list until we find the item that we are looking for, which, if near the end of the list, may take some time. </p>
+<p>This approach is known as <em>brute-force</em>. Brute-force algorithms attempt to find an answer through testing every possibility (here, every item in the list) and do not try to use any optimisations or more efficient techniques. Another example of a brute-force algorithm would be trying to find the factors of a number (factors of a number are every integer that the number can be divided by to give a further integer, for example the factors of 24 are 2, 3, 4, 6, 8 and 12). What we could do in a brute-force algorithm is to divide the number by every integer from 2 to the number to see if we get an integer as a result. This works, but is not efficient (<code>O(n)</code> with respect to the number). </p>
+<p>Another perhaps notorious brute-force technique is one which, sadly, has been proven successful despite the time taken, and that is brute-force password attacks. In this, every possible password of a certain length is tested on a login system. The result will be that the password will eventually discovered. Brute-force password attacks are now feasible due to increased computing power, notably brute-force dictionary attacks (in which known words are tested) which is the reason why longer and more obscure passwords - with special characters, lower- and upper-case letters, and numbers -  are now recommended compared to say 20 years ago.</p>
+<h3 id="binarysearch">Binary search</h3>
+<p>Binary search is a significantly more efficient approach to searching than ordinary brute-force search (called <em>linear search</em>). It has <code>O(log n)</code> complexity, which as we saw last week, will mean it performs much better with large sets of data than an <code>O(n)</code> algorithm.</p>
+<p>How does binary search work? It works by repeatedly "guessing" a position to index in a list to find a particular item of data. This is described in more detail below, but one point that needs to be made clear is that the data should be <em>sorted</em> - using a sorting algorithm - first. You might be asking yourself, wouldn't that make binary search not particularly efficient compared to linear search, as we have to sort first? The answer is - not necessarily. In many use-cases, such as, for example, searching for a record in a large list of people in some sort of records system (such as a student records system) it's likely that <em>searching</em> will have to be done many, many times. By contrast, the data would only have to be <em>sorted</em> once - i.e. when the data is first created - or at worst, when a new record is added to the data, which is likely to be infrequent.</p>
+<p>Binary search is known as a <em>divide and conquer</em> algorithm because the data we are searching is repeatedly divided in order to efficiently find what we are looking for. This is how you would play a "guess the number" game. Someone would try to repeatedly guess a number, and the other person would say "lower" or "higher". The person guessing would then use the other person's response to narrow down the range of numbers they select from.</p>
+<p>Here is an example of binary search. We have an array with 100 members containing names sorted in alphabetical order, and we are searching for "Smith, Tim".</p>
+<ul>
+<li>First we select the <em>midpoint</em> of the list. This could be the member with index 49 or 50 (doesn't matter which) for an 100-member list. If we use, in Python:</li>
+</ul>
+<pre><code>math.floor((start + end) / 2) # need to import math
+</code></pre>
+<p>where <code>start</code> is the start of the portion of the list we are searching (0 - as
+we are searching the whole list) and <code>end</code> is the end of the portion of the list
+(99 here, assuming a list of 100)
+then it will always give a suitable midpoint to index. Note that <code>math.floor</code> takes a floating-point number and rounds it down. If the length is an even number (e.g. 100) it will give us the index of the item immediately before the midpoint (49) while if it is an odd number (e.g. 101) it will give us the exact midpoint (because indices start from 0 and <code>math.floor(101/2)</code> is <code>math.floor(50.5)</code> which is 50, in other words, exactly halfway between 0 and 100.</p>
+<ul>
+<li>You then see what value is at the midpoint. If it's <em>after</em> the search term, you know that you need to look at the portion of the list before the midpoint (i.e. 0-48) while if it is <em>before</em> the midpoint, you know that you need to look at the portion after the midpoint (i.e. 50-99). If the midpoint contains the value you're looking for, of course, you stop as the search has completed.</li>
+</ul>
+<p>So, say we find "Jones, Jane" at position 49 in our example. We know we need to look within the range 50-99 because "Smith, Tim" is after "Jones, Jane" in the alphabet.</p>
+<p>So we repeat the divide-and-conquer operation. We find the midpoint of 50 and 99 (74) and look at the value there. It's "Nodd, Nigel".</p>
+<p>We repeat the process. "Smith, Tim" is after "Nodd, Nigel" in the alphabet so we know we have to search the portion of the list <em>after</em> 74. So we find the midpoint of 75 and 99, which is 87. We might get "Trott, Tina" at this position, so now we need to look at the portion <em>before</em> 87 (as "Smith, Tim" is before "Trott, Tina" in the alphabet). So we have to search within the portion75-86. We choose the midpoint, 80, and now found "Raven, Roger".</p>
+<p>Our area of search is cut down now to 81-86. We pick 83 and find "Smith, Alice", i.e just before "Smith, Tim" alphabetically. We then only have three list positions to search - 84 to 86. So we pick the midpoint 85. We find "Smith, Simon". We now only have one possibility - 86 - and looking at item 86 we finally find what we want, "Smith, Tim".</p>
+<p>The diagram below shows the process. Our search term (Smith, Tim) is shown using a red circle.</p>
+<p><img src="images/binary_search.png" alt="Binary search" /></p>
+<p>So how many searches did we need until we found Smith, Tim?</p>
+<ol>
+<li>The first search, picking index 49 in the whole list gave "Jones, Jane"</li>
+<li>The second search, picking index 74, gave us "Nodd, Nigel"</li>
+<li>The third search, picking index 87, gave us "Trott, Tina".</li>
+<li>The fourth search, picking index 80, gave us "Raven, Roger"</li>
+<li>The fifth search, picking index 83, gave us "Smith, Alice"</li>
+<li>The sixth search, picking index 85, gave us "Smith, Simon"</li>
+<li>… and in the seventh search, we eliminated the possibilites down to one index - 86 - and found what we were looking for, "Smith, Tim".</li>
+</ol>
+<p>Clearly 7 checked items (and this was a worst case scenario here, as we only found what we were looking for after narrowing down the possibilities to one) is a good deal more efficient than the 87 we would have to check with a brute-force linear search!</p>
+<h3 id="whyisthecomplexityofbinarysearchologn">Why is the complexity of binary search <code>O(log n)</code>?</h3>
+<p>The complexity of binary search is <code>O(log n)</code>, with <code>n</code> the number of items in the list. In our example <code>n</code> was 100. What is <code>log(2) 100</code>? The exact value does not matter, but we know it will be between 6 and 7, as <code>log(2) 64</code> is 6 and <code>log(2) 128</code> is 7. So you can see that <code>O(log n)</code> fairly represents the complexity, as, in this worst-case scenario, we had 7 iterations.</p>
+<p>How can we prove this? Think of a list with an exact power of 2 length, such
+as 64, and imagine it's a worst-case scenario, where we have to narrow down to one possibility before we find what we are looking for.</p>
+<ul>
+<li>In the first iteration, we take the midpoint of 64 items and split the list into two portions of length 31 and 32 (rejecting the midpoint as it doesn't contain our search item)</li>
+<li>In the second iteration, we assume we search the longer portion of length 32, and split it into two portions of length 15 and 16 (again rejecting the midpoint)</li>
+<li>In the third iteration, we assume we search the portion of length 16, splitting it into portions of length 7 and 8;</li>
+<li>In the fourth iteration, we assume we search the portion of length 8, splitting it into portions of length 3 and 4;</li>
+<li>In the fifth iteration, we assume we search the portion of length 4, splitting it into portions of length 1 and 2,</li>
+<li>In the sixth iteration, we have two values. We assume we pick the "wrong" one.</li>
+<li>So in the seventh iteration, we only have one possibility left and we finally find what we are looking for, or conclude that it is not in the list.</li>
+</ul>
+<p>So the length of the portion under search decreases from 64-32-16-8-4-2-1 in each iteration of the list. In other words, assuming the list length is an exact power of two, the number of iterations will be <code>log n + 1</code> (+1 because we also check a list of length 1 as well as the various powers of two; the lengths in each subsequent iteration are 2^6, 2^5, 2^4, 2^3, 2^2, 2^1 and 2^0 - i.e. 1). But as we saw last week, we only need to take the most significant term of the complexity and can discard the <code>+1</code> (as we are interested in the general behaviour of algorithms at large <code>n</code>, not the <em>exact</em> complexity) - giving us <code>O(log n)</code>.</p>
+<p>Likewise, for a value <code>n</code> between <code>2^p</code> and <code>2^(p+1)</code>, the number of iterations will be <code>p-1</code>, or <code>log(floor(n))-1</code> - but again we can simplify to <code>O(log n)</code>. (For example, try repeating the above on a list of length 63, a value between 32 and 64, and you find that only six iterations are needed, as the length of the portion being searched will decrease 63-31-15-7-3-1).</p>
+<h3 id="exercise1">Exercise 1</h3>
+<p>Implement binary search to find if a number is a <em>square number</em> of any number from 1 to 100. You can initialise a list containing all these square numbers using a <em>list comprehension</em> as follows.</p>
+<pre><code>numbers = [i*i for i in range(1,101)]
+</code></pre>
+<p>This code means "fill the list with each value <code>i*i</code> for every value of <code>i</code> in the range 1 to 100" - in other words, the square of every number from 1 to 100, i.e. 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, … etc …, up to 10000 (100^2).</p>
+<p>The user should input a number to search for. The binary search should search the list using binary search to find out if the number is within the list, and should also print its position within the list.</p>
+<h2 id="treesearching">Tree searching</h2>
+<p>We can efficiently search a <em>tree</em> by virtue of its structure. There are two 
+general techniques for searching a tree:</p>
+<ul>
+<li><p><em>Depth-first search</em>. This uses the recursive tree traversal technique we have examined already in <a href="week5.html">Week 5</a>, starting at the root node and then
+recursively descending into the child nodes. When the search term is found, we will return it. If the tree is not sorted, we need to keep track of which nodes have been visited and which have not, so we can explore the whole tree. </p></li>
+<li><p><em>Breadth-first search</em>. Rather than recursively descending the tree, we
+instead we consider each <em>level</em> one at a time. So if we have a tree 
+organised as below:</p></li>
+</ul>
+<p><img src="images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
+<p>we would first consider node A (the first level), then nodes B and C (the second level), then nodes D, E, F and G (the third level).</p>
+<p>Breadth-first search has various applications in route-finding, so by covering it now, we will prepare ourselves for the graphs and route-finding topic in Week 10. </p>
+<h3 id="breadthfirstsearch">Breadth-first search</h3>
+<p>We will now look at breadth-first search in some detail. It is of note that breadth-first search does <em>not require recursion</em>.</p>
+<p>Note the order again in which we consider our nodes: A (the root node) first, followed by B and C (the root's child nodes), followed by D, E, F, and G (the child nodes of B and C).</p>
+<p>Our aim is to try and search for a value in the tree. How might we do this?
+We check A first, adding it to a collection of nodes to be considered.</p>
+<pre><code>[A]
+</code></pre>
+<p>If A doesn't match, we move on to its child nodes - B and C - and remove A from the collection of nodes to be considered. So, once we've considered and rejected A, the collection will contain B and C.</p>
+<pre><code>[B C]
+</code></pre>
+<p>If B doesn't match, then we know we might need to consider <em>its</em> child nodes (D and E) so we add them to the collection of nodes. Because we are doing a <em>breadth first</em> search, though, and considering the tree "level by level", D and E must be added to the collection of nodes to be searched <em>after</em> C - because when we consider B, we will not have considered C yet, and C is on the same level as B. So after considering B, we remove it fron the collection of nodes to be considered - so we are left with:</p>
+<pre><code>[C D E]
+</code></pre>
+<p>Next we consider C. If C doesn't match, then we know we might need to consider <em>its</em> child nodes (F and G) so we add them to the collection of nodes to be considered. Because we consider each level left-to-right, these should again be added to the collection <em>after</em> D and E. If C doesn't match, again we remove it, so at this stage, the collection of nodes to be considered will be:</p>
+<pre><code>[ D E F G ]
+</code></pre>
+<p>Hopefully you can see that it has linear <code>O(n)</code> complexity, dependent on the number of nodes, and thus is not especially efficient when it comes to simple trees. The use of breadth-first search becomes more apparent when we look at graphs; I am introducing the algorithm here so that you understand it when we begin the graphs topic.</p>
+<h4 id="question">Question</h4>
+<p>Can you see what data structure can be used to represent the collection of nodes to be considered? Why? <strong>We will consider this in class and I will add the answer here after the class. I will also show you how you can use the Python standard library to create an instance of this data structure.</strong></p>
+<h3 id="usingtreestostorekeyvaluepairs">Using trees to store key/value pairs</h3>
+<p>I have said several times that we test whether each node 'matches'. What exactly do we mean by this? We'd typically use a tree to store and efficiently search for data as an alternative to hash tables. In other words, each node would contain a key/value pair, such as "1smitj01"/"John Smith" for the key and value respectively in a student records system. In Python, this would probably be stored as a tuple (if we didn't want to change the values) or two-member list (if we did). So we could search the tree for a given key (index), and test each node we find in breadth-first (or depth-first) search to see if its key is the key we are searching for. If it is, then we return the value.</p>
+<h3 id="binarysearchtreedepthfirst">Binary search tree (depth-first)</h3>
+<p>This uses the technique we have seen already to search a tree for a given key (index), namely recursion. We recursively search each successive child node, starting at the root node, until we find the key we are looking for. </p>
+<p>For the search to be efficient, we need the tree to be <em>sorted</em>. We have seen already in <img src="week5.html" alt="Topic 5" /> how to add items to a tree in sorted order. The search technique can be considered a specific case of depth-first search in which the tree is sorted and thus we know whether to select the left or right child node, and can ignore the other. For general depth-first search, we cannot guarantee this, and we will need to "backtrack" along branches of the tree to ensure all nodes are visited. In fact depth-first search is a general technique that works on graphs - to be covered in week 10 - as well as trees. As we will see, graphs are usually not sorted in any way.</p>
+<p>To search a sorted binary tree we need to:</p>
+<ul>
+<li>Start at the root node and test that first. Return the value if the key matches.</li>
+<li>If the root node key is less than the key we are searching for, descend to the right node, otherwise descend to the left node.</li>
+<li>Repeat the process recursively until the key matches; when that happens, return the value.</li>
+</ul>
+<p>Hopefully you can see that the complexity is of <code>O(log n)</code> form  (though requires slightly more than <code>log n</code> iterations). Nonetheless it scales well to large values of <code>n</code>, the number of items stored in the tree.</p>
+<ul>
+<li>If the tree has one level (a root only), we search one node.</li>
+<li>If the tree has two levels (three members), we search two nodes.</li>
+<li>If the tree has three levels (six members), we search three nodes.</li>
+<li>If the tree has four levels (ten members), we search four nodes.</li>
+</ul>
+<p>The table below shows the relation between the number of nodes in a sorted and balanced binary tree, and the number of searches. (A <em>balanced</em> tree is one in which the data is evenly added to the left and right sides of the tree. There are techniques for ensuring this, but we will not have time to cover these in this module; I will leave this up to you to research).</p>
+<table>
+<thead>
+<tr>
+<th>Number of nodes</th>
+<th>Number of searches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3</td>
+</tr>
+<tr>
+<td>10</td>
+<td>4</td>
+</tr>
+<tr>
+<td>15</td>
+<td>5</td>
+</tr>
+<tr>
+<td>21</td>
+<td>6</td>
+</tr>
+<tr>
+<td>28</td>
+<td>7</td>
+</tr>
+<tr>
+<td>36</td>
+<td>8</td>
+</tr>
+<tr>
+<td>45</td>
+<td>9</td>
+</tr>
+<tr>
+<td>55</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exercise2">Exercise 2</h3>
+<p>Start with either your own tree from week 5 (if you have completed the week 5 exercise) or the pre-written tree solution at <a href="https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py">GitHub</a></p>
+<ol>
+<li>Implement breadth-first search using the tree.</li>
+<li>If you finish question 1, implement a depth-first binary search using the tree.</li>
+</ol></body></html>
