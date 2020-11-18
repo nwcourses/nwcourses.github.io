@@ -154,12 +154,12 @@ To search a sorted binary tree we need to:
 - If the root node key is less than the key we are searching for, descend to the right node, otherwise descend to the left node.
 - Repeat the process recursively until the key matches; when that happens, return the value.
 
-Hopefully you can see that the complexity is of `O(log n)` form  (though requires slightly more than `log n` iterations). Nonetheless it scales well to large values of `n`, the number of items stored in the tree.
+Hopefully you can see that the complexity is of `O(log n)` form and it scales well to large values of `n`, the number of items stored in the tree.
 
 - If the tree has one level (a root only), we search one node.
 - If the tree has two levels (three members), we search two nodes.
-- If the tree has three levels (six members), we search three nodes.
-- If the tree has four levels (ten members), we search four nodes.
+- If the tree has three levels (seven members), we search three nodes.
+- If the tree has four levels (15 members), we search four nodes.
 
 The table below shows the relation between the number of nodes in a sorted and balanced binary tree, and the number of searches. (A *balanced* tree is one in which the data is evenly added to the left and right sides of the tree. There are techniques for ensuring this, but we will not have time to cover these in this module; I will leave this up to you to research).
 
@@ -167,14 +167,14 @@ The table below shows the relation between the number of nodes in a sorted and b
 | --------------- | ------------------ |
 | 1               | 1                  |
 | 3               | 2                  |
-| 6               | 3                  |
-| 10              | 4                  |
-| 15              | 5                  |
-| 21              | 6                  |
-| 28              | 7                  |
-| 36              | 8                  |
-| 45              | 9                  |
-| 55              | 10                 |
+| 7               | 3                  |
+| 15              | 4                  |
+| 31              | 5                  |
+| 63              | 6                  |
+| 127             | 7                  |
+| 255             | 8                  |
+| 511             | 9                  |
+| 1023            | 10                 |
 
 ### Exercise 2
 

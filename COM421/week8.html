@@ -104,12 +104,12 @@ We check A first, adding it to a collection of nodes to be considered.</p>
 <li>If the root node key is less than the key we are searching for, descend to the right node, otherwise descend to the left node.</li>
 <li>Repeat the process recursively until the key matches; when that happens, return the value.</li>
 </ul>
-<p>Hopefully you can see that the complexity is of <code>O(log n)</code> form  (though requires slightly more than <code>log n</code> iterations). Nonetheless it scales well to large values of <code>n</code>, the number of items stored in the tree.</p>
+<p>Hopefully you can see that the complexity is of <code>O(log n)</code> form and it scales well to large values of <code>n</code>, the number of items stored in the tree.</p>
 <ul>
 <li>If the tree has one level (a root only), we search one node.</li>
 <li>If the tree has two levels (three members), we search two nodes.</li>
-<li>If the tree has three levels (six members), we search three nodes.</li>
-<li>If the tree has four levels (ten members), we search four nodes.</li>
+<li>If the tree has three levels (seven members), we search three nodes.</li>
+<li>If the tree has four levels (15 members), we search four nodes.</li>
 </ul>
 <p>The table below shows the relation between the number of nodes in a sorted and balanced binary tree, and the number of searches. (A <em>balanced</em> tree is one in which the data is evenly added to the left and right sides of the tree. There are techniques for ensuring this, but we will not have time to cover these in this module; I will leave this up to you to research).</p>
 <table>
@@ -129,35 +129,35 @@ We check A first, adding it to a collection of nodes to be considered.</p>
 <td>2</td>
 </tr>
 <tr>
-<td>6</td>
+<td>7</td>
 <td>3</td>
 </tr>
 <tr>
-<td>10</td>
+<td>15</td>
 <td>4</td>
 </tr>
 <tr>
-<td>15</td>
+<td>31</td>
 <td>5</td>
 </tr>
 <tr>
-<td>21</td>
+<td>63</td>
 <td>6</td>
 </tr>
 <tr>
-<td>28</td>
+<td>127</td>
 <td>7</td>
 </tr>
 <tr>
-<td>36</td>
+<td>255</td>
 <td>8</td>
 </tr>
 <tr>
-<td>45</td>
+<td>511</td>
 <td>9</td>
 </tr>
 <tr>
-<td>55</td>
+<td>1023</td>
 <td>10</td>
 </tr>
 </tbody>
