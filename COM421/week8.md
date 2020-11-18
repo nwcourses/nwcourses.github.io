@@ -86,6 +86,8 @@ This code means "fill the list with each value `i*i` for every value of `i` in t
 
 The user should input a number to search for. The binary search should search the list using binary search to find out if the number is within the list, and should also print its position within the list.
 
+As for last week, write out the algorithm in *pseudocode* if you are struggling to create actual code.
+
 ## Tree searching
 
 We can efficiently search a *tree* by virtue of its structure. There are two 
@@ -180,3 +182,6 @@ Start with either your own tree from week 5 (if you have completed the week 5 ex
 
 1. Implement breadth-first search using the tree.
 2. If you finish question 1, implement a depth-first binary search using the tree.
+
+Again, you may find that *pseudocode* helps you.
+
