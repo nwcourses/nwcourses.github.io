@@ -92,7 +92,7 @@ actual position, or fake location (see below). To see the box clearly, I would r
 
 ### How does this work?
 
-- Note that our `<a-scene>` now has an `arjs` component (actually, it's not a component, strictly splaceing, but a system: see [week 2](week2.html)).
+- Note that our `<a-scene>` now has an `arjs` component (actually, it's not a component, strictly speaking, but a system: see [week 2](week2.html)).
 
 - The `arjs` system of our `a-scene` initialises AR.js. Note the properties
 we are setting: we set the `sourceType` to `webcam` to specify that our camera feed is coming from the webcam, and also set `videoTexture` to true. This is vital in an outdoor location-based AR app as it allows distant augmented content - such as mountain places - to be seen. (It does this by using a three.js texture for the camera feed which can be easily combined with our augmented content; if it is missed out, you will only be able to see content up to around 1 kilometre away).
@@ -115,7 +115,7 @@ You can download the **Location Guard** extension for either [Firefox](https://a
 
 ![Location Guard - Pick your location](images/fixedloc1.png)
 
-After you install, you will see a screen rather like the above. Select **Fixed Location**. This will give you a map which you can drag. Move to somewhere fairly urban in **Europe or Turkey**, so that places can be found - but not a very big city as there might be so mich data (Southampton is OK, London is not) - and ideally, not your real location, for privacy reasons. Note that you should choose somewhere which uses the Roman alphabet (ABCDE etc), rather than Greek or Cyrillic for example - unless you install a custom font, see [Week 5](week5.html).
+After you install, you will see a screen rather like the above. Select **Fixed Location**. This will give you a map which you can drag. Move to somewhere fairly urban in **Europe or Turkey**, so that places can be found - but not a very big city as there might be so much data (Southampton is OK, London is not) - and ideally, not your real location, for privacy reasons. Note that you should choose somewhere which uses the Roman alphabet (ABCDE etc), rather than Greek or Cyrillic for example - unless you install a custom font, see [Week 5](week5.html).
 
 Then, once you have chosen a fake location, select Options and then choose "Use fixed location" for "Default level", as shown below.
 
