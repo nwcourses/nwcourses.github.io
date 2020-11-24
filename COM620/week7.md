@@ -125,9 +125,7 @@ Then, once you have chosen a fake location, select Options and then choose "Use 
 
 Start with the example above, changing the specified latitude and longitude to points close to your actual - or faked - location, as described above. Use a phone or tablet if you have your own web hosting space and have a good GPS signal, or a fake location on a desktop or laptop. On a desktop or laptop you will have to emulate moving the phone around by dragging the mouse left or right, in the same way as a regular A-Frame scene.
 
-Note that Location Guard does not give your exact position. However, I have
-added some code to this page which gets your position. Your current position
-(real or fake) is:
+Note that Location Guard does not give numerical values for your position. However, I have added some code to this page which gets it as numerical values. Your current position (real or fake) is:
 
 <div id='position'></div>
 
