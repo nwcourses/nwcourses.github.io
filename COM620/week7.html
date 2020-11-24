@@ -65,7 +65,7 @@ sure you replace <code>near-your-lat</code> and <code>near-your-lon</code> with 
 actual position, or fake location (see below). To see the box clearly, I would recommend an offset of around 0.001 degrees in any direction for both the latitude and longitude. So if your latitude and longitude are 51.049 and -0.723, for example, I would recommend using values such as latitude=51.048, longitude=-0.724.</p>
 <h3 id="howdoesthiswork">How does this work?</h3>
 <ul>
-<li><p>Note that our <code>&lt;a-scene&gt;</code> now has an <code>arjs</code> component (actually, it's not a component, strictly splaceing, but a system: see <a href="week2.html">week 2</a>).</p></li>
+<li><p>Note that our <code>&lt;a-scene&gt;</code> now has an <code>arjs</code> component (actually, it's not a component, strictly speaking, but a system: see <a href="week2.html">week 2</a>).</p></li>
 <li><p>The <code>arjs</code> system of our <code>a-scene</code> initialises AR.js. Note the properties
 we are setting: we set the <code>sourceType</code> to <code>webcam</code> to specify that our camera feed is coming from the webcam, and also set <code>videoTexture</code> to true. This is vital in an outdoor location-based AR app as it allows distant augmented content - such as mountain places - to be seen. (It does this by using a three.js texture for the camera feed which can be easily combined with our augmented content; if it is missed out, you will only be able to see content up to around 1 kilometre away).</p></li>
 <li><p>Note the <code>gps-projected-camera</code> component on our <code>a-camera</code>. This is the 
@@ -80,7 +80,7 @@ We can position <em>any</em> A-Frame entity at a given latitude and longitude us
 <p>GPS signals can be unreliable indoors, depending on exactly where you are - if you're near a window in a less-urban area you will be OK, but away from windows and/or in cities you may have difficulty. Also, location can be wildly inaccurate on a desktop or laptop (rather than a mobile device), because it relies on wifi networks or IP addresses to get your location. For example at my home address it gives me a location more than 200 kilometres away. For this reason, if on a desktop/laptop you might want to <strong>fake your location</strong>. How can we do this? </p>
 <p>You can download the <strong>Location Guard</strong> extension for either <a href="https://addons.mozilla.org/en-US/firefox/addon/location-guard/">Firefox</a> or <a href="https://chrome.google.com/webstore/detail/location-guard/cfohepagpmnodfdmjliccbbigdkfcgia">Chrome</a>. This will allow you to set a fake location for your browser, which will be reported when the Geolocation API is used in any application. (This also has the side-effect of hiding your real location from websites which may wish to gather this information for less-than-ethical purposes).</p>
 <p><img src="images/fixedloc1.png" alt="Location Guard - Pick your location" /></p>
-<p>After you install, you will see a screen rather like the above. Select <strong>Fixed Location</strong>. This will give you a map which you can drag. Move to somewhere fairly urban in <strong>Europe or Turkey</strong>, so that places can be found - but not a very big city as there might be so mich data (Southampton is OK, London is not) - and ideally, not your real location, for privacy reasons. Note that you should choose somewhere which uses the Roman alphabet (ABCDE etc), rather than Greek or Cyrillic for example - unless you install a custom font, see <a href="week5.html">Week 5</a>.</p>
+<p>After you install, you will see a screen rather like the above. Select <strong>Fixed Location</strong>. This will give you a map which you can drag. Move to somewhere fairly urban in <strong>Europe or Turkey</strong>, so that places can be found - but not a very big city as there might be so much data (Southampton is OK, London is not) - and ideally, not your real location, for privacy reasons. Note that you should choose somewhere which uses the Roman alphabet (ABCDE etc), rather than Greek or Cyrillic for example - unless you install a custom font, see <a href="week5.html">Week 5</a>.</p>
 <p>Then, once you have chosen a fake location, select Options and then choose "Use fixed location" for "Default level", as shown below.</p>
 <p><img src="images/fixedloc2.png" alt="Location Guard - Levels" /></p>
 <h3 id="exercise1">Exercise 1</h3>
@@ -336,6 +336,12 @@ json.features.forEach ( feature => {
 <li>a <code>scale</code> of 1000, this will make the text appear large enough. If too large (e.g you are very close to a given place) then try reducing the scale.</li>
 <li>a <code>gps-projected-entity-place</code> component containing the latitude and longitude from the GeoJSON.</li>
 </ul>
+<p>*** !!! IMPORTANT !!! """</p>
+<p>You will need to make your event listener an <code>async</code> function so that you can use <code>await</code> within it. For example:</p>
+<pre><code>window.addEventListener('gps-camera-update-position', async (e) =&gt; {
+    // do your code to connect to the web API and generate the augmented content
+});
+</code></pre>
 <h4 id="furtherthingstotry">Further things to try</h4>
 <ul>
 <li><p>Rather than hard-coding the scale at 1000, add it as a property using the component's schema, and experiment with different values by setting the property in your HTML.</p></li>

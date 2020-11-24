@@ -416,6 +416,14 @@ For each place returned from the GeoJSON (all will have a `Point` geometry), cre
 - a `scale` of 1000, this will make the text appear large enough. If too large (e.g you are very close to a given place) then try reducing the scale.
 - a `gps-projected-entity-place` component containing the latitude and longitude from the GeoJSON.
 
+*** !!! IMPORTANT !!! """
+
+You will need to make your event listener an `async` function so that you can use `await` within it. For example:
+```
+window.addEventListener('gps-camera-update-position', async (e) => {
+    // do your code to connect to the web API and generate the augmented content
+});
+```
 #### Further things to try
 
 - Rather than hard-coding the scale at 1000, add it as a property using the component's schema, and experiment with different values by setting the property in your HTML.
