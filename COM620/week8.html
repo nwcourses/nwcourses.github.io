@@ -72,7 +72,7 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 &lt;script src="https://aframe.io/releases/1.0.4/aframe.min.js"&gt;&lt;/script&gt;
 &lt;script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"&gt;&lt;/script&gt;
 &lt;script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"&gt;&lt;/script&gt;
-&lt;script src="js/bundle.js"&gt;&lt;/script&gt;
+&lt;script src="dist/main.js"&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
     &lt;a-scene
@@ -86,7 +86,7 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 </code></pre>
 <p>What's new here?</p>
 <ul>
-<li>Note that we are linking in our JavaScript (which we will come to shortly) as a <em>bundle</em>. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below.</li>
+<li>Note that we are linking in our JavaScript (which we will come to shortly) as a <em>bundle</em>. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below. The bundle here is in <code>dist/main.js</code>; this is the default Webpack output, see below.</li>
 <li>Note how our custom entity now has some additional components: the <code>terrarium-dem</code> and <code>osm3d</code> components which we discussed above. Note how each component has a <code>url</code> property defining the source URL to download the data.</li>
 <li>Note also how we set the <code>zoom</code> to 12 for <code>terrarium-dem</code>. This will use the zoom level of 12 for our tiles, which means that places several kilometres away in every direction will be downloaded on startup.</li>
 </ul>

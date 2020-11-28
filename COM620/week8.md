@@ -103,7 +103,7 @@ The app will download elevation and OSM data to create peaks with elevations. We
 <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
 <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-<script src="js/bundle.js"></script>
+<script src="dist/main.js"></script>
 </head>
 <body>
     <a-scene
@@ -118,7 +118,7 @@ The app will download elevation and OSM data to create peaks with elevations. We
 
 What's new here?
 
-- Note that we are linking in our JavaScript (which we will come to shortly) as a *bundle*. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below.
+- Note that we are linking in our JavaScript (which we will come to shortly) as a *bundle*. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below. The bundle here is in `dist/main.js`; this is the default Webpack output, see below.
 - Note how our custom entity now has some additional components: the `terrarium-dem` and `osm3d` components which we discussed above. Note how each component has a `url` property defining the source URL to download the data.
 - Note also how we set the `zoom` to 12 for `terrarium-dem`. This will use the zoom level of 12 for our tiles, which means that places several kilometres away in every direction will be downloaded on startup.
 
