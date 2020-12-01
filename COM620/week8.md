@@ -198,7 +198,7 @@ install the `aframe-osm-3d` package with NPM (included with [Node.js](https://no
 ```
 npm install aframe-osm-3d
 ```
-Next, we need to create a *bundle* with [Browserify](https://browserify.org). Browserify is an alternative bundler to Webpack. Unfortunately Webpack has some issues with the library used to read PNG images so we cannot easily use it here; but Browserify does much te same job. You need to install it before using it:
+Next, we need to create a *bundle* with [Browserify](http://browserify.org). Browserify is an alternative bundler to Webpack. Unfortunately Webpack has some issues with the library used to read PNG images so we cannot easily use it here; but Browserify does much te same job. You need to install it before using it:
 ```
 npm install browserify
 npx browserify peakfinder.js > bundle.js
