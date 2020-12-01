@@ -64,6 +64,12 @@ application once, when we got the location for the first time. Obviously it
 would be better if we could *continuously* download data as we move from place
 to place, so that we get data local to our area if we travel around. So, for example, places within 10km of us are downloaded when we srart the app, and then, as we reach the edge of the already-downloaded area, new places are downloaded.
 
+This approach is known as *tiling*. A *tile* is a rectangular, often square, area of the earth containing geographical data. When we start the application, the local tile - representing our current area - is downloaded, and cached on the device so that next time we visit the area we don't need to download again. Then, when we move to another area, a new tile is downoloaded and again cached. If we return to the original area, we load the data from the cache rather than over the internet.
+
+This is shown below. Sometimes, to enable us to see points of interest some distance away if we are near the edge of a tile, the current tile *and the eight surrounding tiles* are downloaded.
+
+![Tiling](images/tiles.png)
+
 It would be also nice to consider the *elevation* of points of interest when we show them, so that, for example, a mountain peak is displayed in its correct
 place on the top of the mountain rather than at the base of the mountain.
 
@@ -78,9 +84,9 @@ These issues provide much of the complexity of a location-based AR app. Luckily,
 You can find out how these components work in more detail by visiting their [GitHub repository](https://github.com/nickw1/aframe-osm-3d).
 
 
-### Tiling
+### Tiling coordinate systems
 
-The `aframe-osm-3d` components discussed above both work using a **tiling** system. Regions of the world are split up into *tiles*, using the "XYZ" or "Google" tiling system, which you can read about in more detail [on the WAD notes](/course/wad/webmapping.html) and [here](https://developers.google.com/maps/documentation/javascript/coordinates) The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:
+The `aframe-osm-3d` components discussed above both work using a tiling system with *coordinates*. Regions of the world are split up into *tiles*, using the "XYZ" or "Google" tiling system, which you can read about in more detail [on the WAD notes](/course/wad/webmapping.html) and [here](https://developers.google.com/maps/documentation/javascript/coordinates) The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:
 
 - X represents the tile's coordinate on a west-east axis; 
 - Y represents the tile's coordinate on a north-south axis; 

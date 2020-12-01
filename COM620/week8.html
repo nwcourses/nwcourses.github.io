@@ -44,6 +44,9 @@ As I indicated last week, Natural Feature Tracking allows an image to be scanned
 application once, when we got the location for the first time. Obviously it
 would be better if we could <em>continuously</em> download data as we move from place
 to place, so that we get data local to our area if we travel around. So, for example, places within 10km of us are downloaded when we srart the app, and then, as we reach the edge of the already-downloaded area, new places are downloaded.</p>
+<p>This approach is known as <em>tiling</em>. A <em>tile</em> is a rectangular, often square, area of the earth containing geographical data. When we start the application, the local tile - representing our current area - is downloaded, and cached on the device so that next time we visit the area we don't need to download again. Then, when we move to another area, a new tile is downoloaded and again cached. If we return to the original area, we load the data from the cache rather than over the internet.</p>
+<p>This is shown below. Sometimes, to enable us to see points of interest some distance away if we are near the edge of a tile, the current tile <em>and the eight surrounding tiles</em> are downloaded.</p>
+<p><img src="images/tiles.png" alt="Tiling" /></p>
 <p>It would be also nice to consider the <em>elevation</em> of points of interest when we show them, so that, for example, a mountain peak is displayed in its correct
 place on the top of the mountain rather than at the base of the mountain.</p>
 <p>These issues provide much of the complexity of a location-based AR app. Luckily, though, a pre-built solution to both problems exists. One of the great things about A-Frame is the fact that there are <em>many pre-built components which can be added to our app</em>, and two pre-built components exist for this precise problem: <code>terrarium-dem</code> and <code>osm3d</code>, both part of the <a href="https://github.com/nickw1/aframe-osm-3d">aframe-osm-3d</a> package.</p>
@@ -53,8 +56,8 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 <li><p><code>osm3d</code> is used to download OSM data from a GeoJSON data structure in 3D, in other words, the coordinates of the OSM features contain not just latitude and longitude, but elevation in metres. The elevation is obtained from the DEM emitted from <code>terrarium-dem</code>, above; <code>osm3d</code> automatically listens for the <code>terrarium-dem-loaded</code> event emitted from <code>terrarium-dem</code> and uses the DEM to calculate the elevation.</p></li>
 </ul>
 <p>You can find out how these components work in more detail by visiting their <a href="https://github.com/nickw1/aframe-osm-3d">GitHub repository</a>.</p>
-<h3 id="tiling">Tiling</h3>
-<p>The <code>aframe-osm-3d</code> components discussed above both work using a <strong>tiling</strong> system. Regions of the world are split up into <em>tiles</em>, using the "XYZ" or "Google" tiling system, which you can read about in more detail <a href="/course/wad/webmapping.html">on the WAD notes</a> and <a href="https://developers.google.com/maps/documentation/javascript/coordinates">here</a> The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:</p>
+<h3 id="tilingcoordinatesystems">Tiling coordinate systems</h3>
+<p>The <code>aframe-osm-3d</code> components discussed above both work using a tiling system with <em>coordinates</em>. Regions of the world are split up into <em>tiles</em>, using the "XYZ" or "Google" tiling system, which you can read about in more detail <a href="/course/wad/webmapping.html">on the WAD notes</a> and <a href="https://developers.google.com/maps/documentation/javascript/coordinates">here</a> The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:</p>
 <ul>
 <li>X represents the tile's coordinate on a west-east axis; </li>
 <li>Y represents the tile's coordinate on a north-south axis; </li>
