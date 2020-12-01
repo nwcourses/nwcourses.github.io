@@ -109,7 +109,7 @@ The app will download elevation and OSM data to create peaks with elevations. We
 <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
 <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-<script src="dist/main.js"></script>
+<script src="bundle.js"></script>
 </head>
 <body>
     <a-scene
@@ -124,7 +124,7 @@ The app will download elevation and OSM data to create peaks with elevations. We
 
 What's new here?
 
-- Note that we are linking in our JavaScript (which we will come to shortly) as a *bundle*. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below. The bundle here is in `dist/main.js`; this is the default Webpack output, see below.
+- Note that we are linking in our JavaScript (which we will come to shortly) as a *bundle*. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below. The bundle here is in `bundle.js`; you can change this to whatever yours is. 
 - Note how our custom entity now has some additional components: the `terrarium-dem` and `osm3d` components which we discussed above. Note how each component has a `url` property defining the source URL to download the data.
 - Note also how we set the `zoom` to 12 for `terrarium-dem`. This will use the zoom level of 12 for our tiles, which means that places several kilometres away in every direction will be downloaded on startup.
 
@@ -132,9 +132,9 @@ You'll notice that the `url` property for `terrarium-dem` is not an AWS URL but 
 
 For the OSM URL (on `hikar.org`), we do not need a proxy as this script has [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) enabled by default.
 
-We can now move on to our JavaScript. First of all you need to import the `aframe-osm-3d` module (see below for installation details):
+We can now move on to our JavaScript. First of all you need to import the `aframe-osm-3d` module (see below for installation details). Note that `require()` is an alternative and slightly older way of importing a module. We have to use it here due to an issue which prevents Webpack working with the PNG reader library used.
 ```
-import 'aframe-osm-3d'
+require('aframe-osm-3d');
 ```
 The `init()` function in your `placefinder` component should be altered as follows. Note that we are now writing a `peakfinder`, not a `placefinder`. The only difference between the `placefinder` from last week and the `peakfinder` from this in terms of data downloaded is that we are asking the web API for peaks, rather than places.
 ```javascript
@@ -198,13 +198,14 @@ install the `aframe-osm-3d` package with NPM (included with [Node.js](https://no
 ```
 npm install aframe-osm-3d
 ```
-Next, we need to create a *bundle* with Webpack, again as done in Week 1.
+Next, we need to create a *bundle* with [Browserify](https://browserify.org). Browserify is an alternative bundler to Webpack. Unfortunately Webpack has some issues with the library used to read PNG images so we cannot easily use it here; but Browserify does much te same job. You need to install it before using it:
 ```
-npx webpack peakfinder.js
+npm install browserify
+npx browserify peakfinder.js > bundle.js
 ```
 (assuming that you saved your peakfinder component as `peakfinder.js`).
 
-The output, by default, will be in `dist/main.js`.
+This will output a bundle called `bundle.js`.
 
 And that is it! Try it out and see if it works. For a good test, try somewhere
 reasonably mountainous as your fake location. For instance:
