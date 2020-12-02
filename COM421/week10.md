@@ -108,7 +108,7 @@ Using the notes to help you, implement Dijkstra's algorithm to solve the problem
 
 Some hints:
 
-- your `Node` class should contain `data` (a tuple, containing the distance and the node itself i.e. `self`), together with a `name`, a `parent`, a `used` Boolean (set this to false when the node is removed from the priority queue) and an `edges` list. There should also be an `add_edge()` method which adds an edge to the edges list.
+- your `Node` class should contain `data` (a tuple, containing the distance and the node itself i.e. `self`), together with a `name`, a `parent`, a `used` Boolean (set this to false when the node is removed from the priority queue) and an `edges` list. There should also be an `add_edge()` method which adds an edge to the edges list. **The distance should initally be a large number such as `sys.maxsize` (for which you need to `import sys`)** so that when updated, the new value will always be less than the old.
 
 - your `Edge` class should contain `start` (the start node), `end` (the end node) and `dist` (the edge distance) and an appropriate initialiser method to initialise these three attributes.
 
@@ -120,8 +120,10 @@ This way you have a two-way connection between nodes which will be more efficien
 - your `Graph` should also have a `dijkstra()` method. This should take the `start` and `end` nodes as parameters and implement the algorithm:
 
     - You'll need a `cur_node` variable representing the current node, and a priority queue containing the nodes to still be processed. 
+    - Set the distance on the start node to 0.
     - Loop until we've either reached the end node or there are no more nodes to be processed in the priority queue. 
     - When looping through the edges of a node, only add the `end` node of the edge if the end node's `used` boolean is `False`. 
+    - When considering a neighbour node, update its distance if it's lower via the current node than its existing distance.
     - After looping through the edges, you should then select the new current node using `heappop()` and set the current node's `used` boolean to `True` so it will not be considered again.
 
 Use a `deque` to loop back from end to start once you've found the route, e.g:

@@ -70,7 +70,7 @@ while len(h) &gt; 0:
 <p>Using the notes to help you, implement Dijkstra's algorithm to solve the problem in these notes (i.e. shortest train route from London to Munich). You will need to create <code>Node</code> and <code>Edge</code> classes to represent nodes and edges respectively, and a `Graph' class to represent the graph. </p>
 <p>Some hints:</p>
 <ul>
-<li><p>your <code>Node</code> class should contain <code>data</code> (a tuple, containing the distance and the node itself i.e. <code>self</code>), together with a <code>name</code>, a <code>parent</code>, a <code>used</code> Boolean (set this to false when the node is removed from the priority queue) and an <code>edges</code> list. There should also be an <code>add_edge()</code> method which adds an edge to the edges list.</p></li>
+<li><p>your <code>Node</code> class should contain <code>data</code> (a tuple, containing the distance and the node itself i.e. <code>self</code>), together with a <code>name</code>, a <code>parent</code>, a <code>used</code> Boolean (set this to false when the node is removed from the priority queue) and an <code>edges</code> list. There should also be an <code>add_edge()</code> method which adds an edge to the edges list. <strong>The distance should initally be a large number such as <code>sys.maxsize</code> (for which you need to <code>import sys</code>)</strong> so that when updated, the new value will always be less than the old.</p></li>
 <li><p>your <code>Edge</code> class should contain <code>start</code> (the start node), <code>end</code> (the end node) and <code>dist</code> (the edge distance) and an appropriate initialiser method to initialise these three attributes.</p></li>
 <li><p>your <code>Graph</code> class should contain an <code>add_edge()</code> method. This should take as parameters <code>start</code>, <code>end</code> and <code>dist</code>, representing the start node, end node and distance. It should then call the <code>add_edge()</code> method of <code>Node</code> twice:</p>
 <ul>
@@ -80,8 +80,10 @@ This way you have a two-way connection between nodes which will be more efficien
 <li><p>your <code>Graph</code> should also have a <code>dijkstra()</code> method. This should take the <code>start</code> and <code>end</code> nodes as parameters and implement the algorithm:</p>
 <ul>
 <li>You'll need a <code>cur_node</code> variable representing the current node, and a priority queue containing the nodes to still be processed. </li>
+<li>Set the distance on the start node to 0.</li>
 <li>Loop until we've either reached the end node or there are no more nodes to be processed in the priority queue. </li>
 <li>When looping through the edges of a node, only add the <code>end</code> node of the edge if the end node's <code>used</code> boolean is <code>False</code>. </li>
+<li>When considering a neighbour node, update its distance if it's lower via the current node than its existing distance.</li>
 <li>After looping through the edges, you should then select the new current node using <code>heappop()</code> and set the current node's <code>used</code> boolean to <code>True</code> so it will not be considered again.</li></ul></li>
 </ul>
 <p>Use a <code>deque</code> to loop back from end to start once you've found the route, e.g:</p>
