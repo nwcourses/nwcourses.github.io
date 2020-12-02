@@ -1,0 +1,99 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week10graphsandpathfinding">Week 10: Graphs and Path-Finding</h1>
+<h2 id="introduction">Introduction</h2>
+<p>A common problem in computing is how to find the <em>shortest path</em> from one point to another. This is particularly useful in <em>route finding</em>; for example, imagine we wanted to find the shortest or fastest route to the south of France by road, or the fastest walking route from the railway station to a cafe. There would be many possible routes we could take, so we need to find an efficient algorithm to calculate the "best" - usually quickest or shortest - route. We could use some other metric to measure the "best" route, for example if cycling you might want to avoid hills and busy roads, or if walking in the countryside you might want to avoid roads and experience nice views.</p>
+<p>Another application of path-finding would be in a game, where we want monsters to intelligently calculate a route to the hero. A good example would be Pacman. If we just compared the <code>x</code> and <code>y</code> coordinates of the Pacman and the ghosts, the ghosts would get stuck behind walls. We need an intelligent algorithm to allow the ghosts to find their way around the walls and continue to chase the Pacman.</p>
+<h2 id="graphs">Graphs</h2>
+<p>When performing path-finding, we need to represent the network of possible routes as a specialised data structure. This data structure is called a <em>graph</em>. A graph consists of <em>nodes</em> (also called <em>vertices</em>), representing individual points (e.g. points of interest, or road junctions) and <em>edges</em>, representing the connections between nodes. Edges would typically be annotated with the distance, so that we can take this into account when routing. They might also be annotated with other properties, for example is the route accessible to different modes of transport, such as foot, bike, car or horse?</p>
+<p>What data would nodes and edges contain?</p>
+<p><em>Nodes</em> would typically contain arbitrary data of some kind, such as the name of a place. They would also have a list of all <em>edges</em> leading from this node.</p>
+<p><em>Edges</em> link two nodes. They would typically contain <code>start_node</code> and <code>end_node</code> attributes representing the start and end node of a given edge. They would also typically have a numerical <em>weight</em> and a series of <em>properties</em> describing the edge, such as the name and class of the road that the edge represents. The weight is often the distance, but might factor in other metrics such as those mentioned above.</p>
+<p>Here is a diagram of an example graph, showing the inter-city rail network between certain cities in Western Europe (note, this is approximate and not to
+scale).  </p>
+<p><img src="images/railgraph.png" alt="Example graph" /></p>
+<p>You'll note that the graph is not supposed to be an accurate map, but a representation of key points (nodes; cities here) and the connections between them (edges). You can see a potential routing problem here. How would we route from
+London to Munich? We could either go via Brussels, Cologne and Frankfurt 
+(3 intermediate stops), or via Paris and Stuttgart (2 intermediate stops) - plus potentially other, longer routes - but which would be the faster or the shorter? </p>
+<p>Note how the edges are annotated with the distance (in km) between each node, but we need an efficient way of considering all possibilities and finding the shortest route. Algorithms include:</p>
+<ul>
+<li>Dijkstra's algorithm</li>
+<li>A*</li>
+</ul>
+<h2 id="dijkstrasalgorithm">Dijkstra's algorithm</h2>
+<p>Dijkstra's algorithm is one of the simplest route-finding algorithms. It starts at a given node and then adds all the surrounding nodes to a queue using breadth-first search. Each node is then given a distance. The distance is the distance of the parent (previous) node plus the distance of the edge leading to the node.</p>
+<p>With Dijkstra's algorithm we start at the starting node and gradually explore adjacent nodes until we arrive at the destination. With each node, we pick its neighbour nodes and add them to a data structure known as the <em>open list</em>. The open list is the set of nodes still to be considered. We work through the open list in <em>distance order</em>, so when selecting the next node to consider, we pick the one with the shortest distance from the origin. As soon as we have considered a node from the open list, we remove it, so it's not considered again.</p>
+<p>The open list is typically implemented as a specialised data structure known as a <em>priority queue</em>. A priority queue is an enhanced version of a regular queue; it's a queue which can have a custom ordering, typically a numerical ordering. So in Dijkstra's algorithm we could order the nodes by distance from the starting node.</p>
+<p>This is best illustrated by working through an example. Imagine we want to calculate the shortest route from London to Munich, using the graph shown above. 
+We would follow steps shown on the diagram below.</p>
+<p><img src="images/dijkstra2.png" alt="Dijkstra's algorithm to route from London to Munich" /></p>
+<p>To explain in words, we'd start at the London node and add London's neighbours - Brussels and Paris - to the open list, in distance order (so Brussels first and then Paris, as Brussels is nearer). </p>
+<p>When we add a neighbour node, we store its total distance from the origin within the node. So the node for Brussels stores the value 370 km and the node for Paris, 461 km.</p>
+<p>Having considered a node, it is then removed from the open list (so as soon as we add the neighbours of London to the open list, we remove London from it). Note how this is a breadth-first technique; you should recognise the approach from Week 8.</p>
+<p>So we then move on to Brussels as it's the closest-to-London member of the open list (370km), and add <em>its</em> neighbours - Amsterdam and Cologne, which as it happens are exactly the same distance from Brussels. Note that Brussels also has Paris as a neighbour. However, because the distance of London to Paris via Brussels is longer than directly, we do nothing. At this point we remove Brussels from the open list.</p>
+<p>Next we consider Paris (461km from London). Paris has Brussels as a neighbour, but Brussels has now been removed from the open list so we ignore it. So we add the two other neighbours of Paris: Frankfurt and Stuttgart, in that order (as Frankfurt is nearer Paris than Stuttgart is) and remove Paris from the open list.</p>
+<p>We could then choose from either Amsterdam or Cologne, as both are 581km from London. Let's say we arbitrarily pick Amsterdam, perhaps because it's first in the alphabet. Nothing changes at this step as Brussels is not on the open list, and the route to Cologne via Amsterdam is longer than the direct route.
+So Amsterdam is removed.</p>
+<p>We move onto Cologne. This is where it gets a bit interesting. Two of Cologne's neighbours - Amsterdam and Brussels - have already been considered and removed from the open list. The other, Frankfurt, has a distance (1033km) found from an earlier routing via Paris. However, the distance from London to Frankfurt via Brussels and Cologne is substantially shorter - 771km - so the old Frankfurt distance is replaced by the new. So hopefully you can see that even though there are more intermediate nodes via Brussels and Cologne, the actual distance is shorter.
+Having done this, we remove Cologne from the open list.</p>
+<p>Next is Frankfurt (771km from London). Again some neighbours (Paris and Cologne) have been considered already. However, another - our destination, Munich - is not yet on the open list so we add it. The final neighbour - Stuttgart - is on the open list, but once again, we update its distance from London as the route via Brussels, Cologne and Frankfurt is shorter (978km) than via Paris (1085km). We then remove Frankfurt from the open list.</p>
+<p>Then we consider Stuttgart (978km). The only neigbbour still on the open list is Munich, but neither route via Stuttgart is shorter than the route we have already calculated the distance of via Brussels, Cologne and Frankfurt, so we do not alter its distance.</p>
+<p>Finally, we are at Munich, and have worked out the shortest route - i.e. the route via Brussels, Cologne and Frankfurt, at 1164km.</p>
+<p>How, though, do we get an actual route? We have to now start at the destination (i.e Munich) and work backwards to London, adding each node in turn to the <em>front</em> of a data structure. A <em>deque</em> (double-ended queue) is good for this, as you can add to both the front and the back of a deque. So starting at Munich, the contents of the deque will be, at each step:</p>
+<pre><code>["Munich"]
+["Frankfurt", "Munich"]
+["Cologne", "Frankfurt", "Munich"]
+["Brussels", "Cologne", "Frankfurt", "Munich"]
+["London", "Brussels", "Cologne", "Frankfurt", "Munich"]
+</code></pre>
+<p>To allow this "walking backwards" along the route to occur, each node will need a <code>parent</code> attribute representing its parent node in a Dijkstra routing. So, for example, the parent of Munich will be Frankfurt. The parent of Frankfurt will be Cologne. The parent of Cologne will be Brussels, and the parent of Brussels will be London. </p>
+<p>We set the parent attribute when adding nodes to the open list. Each node that we add to the open list has the parent set to the current node, so that, for example, when we add Brussels and Paris to the open list, we set their parent to be the current node, which will be London. Furthermore, when we update a node's distance because we have found a shorter route (e.g. updating Frankfurt's distance due to finding a shorter route via Brussels and Cologne than via Paris) we also change the parent, so that in this example, the parent of Frankfurt will be changed from Paris to Cologne.</p>
+<p>This variant of Dijkstra simply calculated the path from one origin to one destination. Some variants of Dijkstra pre-calculate the shortest path from a given node to every other node, which can be useful if you want to do a lot of route-finding calculations.</p>
+<h3 id="implementingapriorityqueueinpython">Implementing a priority queue in Python</h3>
+<p>You can easily implenent a priority queue in Python using functions from the <code>heapq</code> module. Priority queues are implemented using a specific type of sorted tree known as a <em>heap</em>, hence the name. A heap is a tree "for which every parent node has a value less than or equal to any of its children" <a href="https://docs.python.org/3/library/heapq.html">Python docs</a>. Here is a simple example of creating a priority queue and then removing items from it. Note how we use <code>heappush()</code> to add to the queue and <code>heappop()</code> to remove from the front of it. See the documentation <a href="https://docs.python.org/3/library/heapq.html">here</a></p>
+<pre><code>import heapq
+from heapq import heappush, heappop
+
+# Create an empty list. This will be converted to a heap.
+h = []
+
+# Add tuples containing a numerical value and another item of data (place name here) to the priority queue. If tuples are added, the queue will be prioritised using the first item in the tuple.
+heappush (h, (461, 'Paris'))
+heappush (h, (370, 'Brussels'))
+heappush (h, (1164, 'Munich'))
+heappush (h, (771, 'Frankfurt'))
+
+# Remove each item one by one from the priority queue until it's empty.
+while len(h) &gt; 0:
+    hp = heappop(h)
+    print(hp)
+</code></pre>
+<h2 id="exercise">Exercise</h2>
+<p>Using the notes to help you, implement Dijkstra's algorithm to solve the problem in these notes (i.e. shortest train route from London to Munich). You will need to create <code>Node</code> and <code>Edge</code> classes to represent nodes and edges respectively, and a `Graph' class to represent the graph. </p>
+<p>Some hints:</p>
+<ul>
+<li><p>your <code>Node</code> class should contain <code>data</code> (a tuple, containing the distance and the node itself i.e. <code>self</code>), together with a <code>name</code>, a <code>parent</code>, a <code>used</code> Boolean (set this to false when the node is removed from the priority queue) and an <code>edges</code> list. There should also be an <code>add_edge()</code> method which adds an edge to the edges list.</p></li>
+<li><p>your <code>Edge</code> class should contain <code>start</code> (the start node), <code>end</code> (the end node) and <code>dist</code> (the edge distance) and an appropriate initialiser method to initialise these three attributes.</p></li>
+<li><p>your <code>Graph</code> class should contain an <code>add_edge()</code> method. This should take as parameters <code>start</code>, <code>end</code> and <code>dist</code>, representing the start node, end node and distance. It should then call the <code>add_edge()</code> method of <code>Node</code> twice:</p>
+<ul>
+<li>first create an Edge going from the <code>start</code> to <code>end</code> and add it to the <code>start</code> node's edges.</li>
+<li>then create an Edge going from the <code>end</code> to <code>start</code> and add it to the <code>end</code> node's edges.
+This way you have a two-way connection between nodes which will be more efficient,</li></ul></li>
+<li><p>your <code>Graph</code> should also have a <code>dijkstra()</code> method. This should take the <code>start</code> and <code>end</code> nodes as parameters and implement the algorithm:</p>
+<ul>
+<li>You'll need a <code>cur_node</code> variable representing the current node, and a priority queue containing the nodes to still be processed. </li>
+<li>Loop until we've either reached the end node or there are no more nodes to be processed in the priority queue. </li>
+<li>When looping through the edges of a node, only add the <code>end</code> node of the edge if the end node's <code>used</code> boolean is <code>False</code>. </li>
+<li>After looping through the edges, you should then select the new current node using <code>heappop()</code> and set the current node's <code>used</code> boolean to <code>True</code> so it will not be considered again.</li></ul></li>
+</ul>
+<p>Use a <code>deque</code> to loop back from end to start once you've found the route, e.g:</p>
+<pre><code>route = collections.deque([])
+while cur_node is not None:
+    route.appendleft(cur_node.name) # add to front of deque
+    cur_node = cur_node.parent
+return route
+</code></pre>
+<ul>
+<li>You will get a problem with the priority queue because, when comparing values, the queue will compare both the distance and the <code>Node</code> in the tuple and <code>Nodes</code> cannot by default be compared. (This is so that the priority queue knows how to order the data if the distances are equal). However, you can compare nodes by name by <em>overloading the < operator for Nodes</em>. Here is how to do this. Add a <code>__lt__()</code> magic method to your <code>Node</code> class which compares <code>Node</code>s by name:</li>
+</ul>
+<pre><code>   def __lt__(self, other):
+        return self.name &lt; other.name
+</code></pre></body></html>
