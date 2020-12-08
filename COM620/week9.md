@@ -252,7 +252,7 @@ PWAs have a number of core requirements:
 - they must be hosted with HTTPS, for security reasons. If you use GitHub Pages, this requirement will be satisfied.
 - they must have a *manifest* file, which informs the browser about the application when first visited, and how to process the app. The manifest will let the browser know which is the main page of the app, and which icons it should use to display on the home screen. 
 
-By covering service workers, we have already covered the hardest part of creating a PWA. The only remaining topic to cover is the creation of the *manifest*. This is a JSON file, using a format known as *webmanifest*, an example of which is given below.
+By covering service workers, we have already covered the hardest part of creating a PWA. The only remaining topic to cover is the creation of the *manifest*. This is a JSON file, using a format known as *webmanifest*, an example of which is given below. It would be saved with a `.webmanifest` file extension.
 ```
 {
     "name": "Hikar Webapp",
@@ -276,6 +276,11 @@ By covering service workers, we have already covered the hardest part of creatin
     "background_color": "#87CEEB"
 }
 ```
+To link it to your web page, use a `<link>` tag:
+```
+<link rel='manifest' href='hikar.webmanifest' />
+```
+
 Much of this is quite easy to understand. We give it a `name` (the name that will appear on the splash screen when the app is launched), a `short_name` (the name as it will appear on your device under the app icon) and a description. We then specify an array of `icons` for different resolutions. It is recommended to create a 512x512 icon (which will appear on the splash screen when loading the app) and a 192x192 icon (which will appear on the device's home screen).
 
 We then specify a `start_url` which is the initial HTML page of the PWA. The `display` property can be used to enable fullscreen, making the PWA appear even more like a native app (no URL bar can be seen). The `theme_color` is used to set the theme of the app (navigation bar colour, etc) while the `background_color` is the background colour of your splash screen.
@@ -290,7 +295,7 @@ Chrome comes with a tool *Lighthouse* which allows you to audit your PWA before 
 
 - does the main page of the app still load if accessing offline?
 - does it have a service worker?
-- is HTTPS used?
+- is HTTPS used (or is it running on localhost)?
 
 Lighthouse will tell you which of these checks pass and which do not. If they do, then it is a standards compliant PWA and will be installable on a PWA-supporting browser. 
 

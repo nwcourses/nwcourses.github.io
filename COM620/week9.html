@@ -221,7 +221,7 @@ There should be a simple CSS file as well as the HTML.</p>
 <li>they must be hosted with HTTPS, for security reasons. If you use GitHub Pages, this requirement will be satisfied.</li>
 <li>they must have a <em>manifest</em> file, which informs the browser about the application when first visited, and how to process the app. The manifest will let the browser know which is the main page of the app, and which icons it should use to display on the home screen. </li>
 </ul>
-<p>By covering service workers, we have already covered the hardest part of creating a PWA. The only remaining topic to cover is the creation of the <em>manifest</em>. This is a JSON file, using a format known as <em>webmanifest</em>, an example of which is given below.</p>
+<p>By covering service workers, we have already covered the hardest part of creating a PWA. The only remaining topic to cover is the creation of the <em>manifest</em>. This is a JSON file, using a format known as <em>webmanifest</em>, an example of which is given below. It would be saved with a <code>.webmanifest</code> file extension.</p>
 <pre><code>{
     "name": "Hikar Webapp",
     "short_name": "hikarweb",
@@ -244,6 +244,9 @@ There should be a simple CSS file as well as the HTML.</p>
     "background_color": "#87CEEB"
 }
 </code></pre>
+<p>To link it to your web page, use a <code>&lt;link&gt;</code> tag:</p>
+<pre><code>&lt;link rel='manifest' href='hikar.webmanifest' /&gt;
+</code></pre>
 <p>Much of this is quite easy to understand. We give it a <code>name</code> (the name that will appear on the splash screen when the app is launched), a <code>short_name</code> (the name as it will appear on your device under the app icon) and a description. We then specify an array of <code>icons</code> for different resolutions. It is recommended to create a 512x512 icon (which will appear on the splash screen when loading the app) and a 192x192 icon (which will appear on the device's home screen).</p>
 <p>We then specify a <code>start_url</code> which is the initial HTML page of the PWA. The <code>display</code> property can be used to enable fullscreen, making the PWA appear even more like a native app (no URL bar can be seen). The <code>theme_color</code> is used to set the theme of the app (navigation bar colour, etc) while the <code>background_color</code> is the background colour of your splash screen.</p>
 <p>Interestingly PWAs also work in some cases on desktops and laptops: again if you select the appropriate option from the menu you can install the PWA to your desktop, and run it by clicking on its icon.</p>
@@ -253,7 +256,7 @@ There should be a simple CSS file as well as the HTML.</p>
 <ul>
 <li>does the main page of the app still load if accessing offline?</li>
 <li>does it have a service worker?</li>
-<li>is HTTPS used?</li>
+<li>is HTTPS used (or is it running on localhost)?</li>
 </ul>
 <p>Lighthouse will tell you which of these checks pass and which do not. If they do, then it is a standards compliant PWA and will be installable on a PWA-supporting browser. </p>
 <p><img src="images/lighthouse.png" alt="Lighthouse" /></p>
