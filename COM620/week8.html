@@ -1,0 +1,246 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week8furtherarjsnfttilingelevation">Week 8 - Further AR.js: NFT, Tiling, Elevation</h1>
+<h2 id="introduction">Introduction</h2>
+<p>This is a relatively "light" week to allow you to catch up with previous weeks if necessary, as Week 6 and Week 7 had a lot of content. We will cover a few additional AR-related topics this week; first of all a taster of NFT (Natural Feature Tracking) and secondly the technique of <em>tiling</em> which allow you to efficiently download data to be used in an AR application. We will also look at how we can account for <em>elevation</em>.</p>
+<p>I would recommend that you finish previous weeks before attempting this week's work.</p>
+<h2 id="naturalfeaturetracking">Natural feature tracking</h2>
+<p>We will just take a quick look this week at Natural Feature Tracking in AR.js.
+As I indicated last week, Natural Feature Tracking allows an image to be scanned with numerical data - known as <em>descriptors</em> - extracted from the image which can be used to later recognise it.</p>
+<p>Natural Feature Tracking allows an image to be scanned with numerical data - known as <em>descriptors</em> - extracted from the image which can be used to later recognise it.</p>
+<p>See the documentation <a href="https://ar-js-org.github.io/AR.js-Docs/image-tracking/">here</a>.</p>
+<p>There are two steps:</p>
+<ul>
+<li>Use a command line tool to extract the descriptors. This is available on <a href="https://github.com/Carnaux/NFT-Marker-Creator">GitHub</a>.</li>
+<li>Use AR.js with NFT to later detect the image by scanning it with your phone camera.</li>
+</ul>
+<p>An image of a T-Rex has been prepared by the AR.js developers and is available <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex-image-big.jpeg">here</a>. Try scanning this image by visiting <a href="https://hikar.org/nft/t-rex.html">this link</a>. You should find - hopefully - that a T-Rex model appears whenever the image is detected by your phone.</p>
+<p>The NFT feature of AR.js is based on the <a href="https://github.com/artoolkitx/jsartoolkit5">jsartoolkit</a> library. This is a port of the C++ based ARToolkit library to the web, and is a lower-level library for performing marker- and NFT-based AR.</p>
+<p>The image has to be high quality and high resolution with many unique features to be successfully detected. See the <a href="https://ar-js-org.github.io/AR.js-Docs/image-tracking/">AR.js docs</a> for details.</p>
+<p>Here is an example of how NFT can be integrated into an A-Frame application. This example has been taken from the example from the <a href="https://ar-js-org.github.io/AR.js-Docs/">AR.js Docs</a>.</p>
+<pre><code> &lt;a-nft
+      type="nft"
+      url="/nft/trex/trex-image/trex"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance=".01"
+      smoothThreshold="5"
+    &gt;
+    &lt;!--Had to rotate about x-axis to get the T-Rex to appear as intended--&gt;
+      &lt;a-entity
+        gltf-model="/nft/trex/scene.gltf"
+        scale="5 5 5"
+        position="50 150 0"
+        rotation="-90 0 0"
+      &gt;
+      &lt;/a-entity&gt;
+&lt;/a-nft&gt;
+</code></pre>
+<p>Note how we specify an <code>&lt;a-nft&gt;</code> entity to add a Natural Feature Tracking entity to our page. It has a <code>url</code> property which should point to the location of the descriptors created by the command-line tool, above. The URL in the above example is a relative URL, in other words it will be at path <code>/nft/trex/trex-image/trex</code> on the current server. The command-line tool outputs three files, with extensions <code>.fset</code>, <code>.fset3</code> and <code>.iset</code>. They will have a common name with different extensions e.g. <code>trex.fset</code>, <code>trex.fset3</code> and <code>trex.iset</code>; it is this name minus the extensions that you have to specify here, i.e. <code>trex</code>. So here, these three descriptor files will be within the <code>/nft/trex/trex-image</code> directory on the current server. </p>
+<p>Note the "smoothing" parameters to the <code>&lt;a-nft&gt;</code> entity. These prevent the model making sudden "jerky" movements - more details are given in the <a href="https://ar-js-org.github.io/AR.js-Docs/image-tracking/">documentation</a>.</p>
+<p>We then place an <code>&lt;a-entity&gt;</code> within our <code>&lt;a-nft&gt;</code> to represent the model itself. In this example, it's a GLTF model called <code>scene-gltf</code> within the <code>/nft/trex</code> directory on our server; we could alternatively place it within our <code>&lt;a-assets&gt;</code>. We add a <code>scale</code>, a <code>position</code> and a <code>rotation</code> to make it appear where we want it (in my test it appeared on the laptop keyboard when I was scanning the image in using the phone).  (I found that on my device I had to rotate the T-Rex model by 90 degrees clockwise around the X-axis compared to the example given in the documentation).</p>
+<h2 id="tileddataandelevation">Tiled data and elevation</h2>
+<h3 id="usingtilinginarjsapps">Using tiling in AR.js apps</h3>
+<p>(Please note, most of the following was taken directly from <a href="https://ar-js-org.github.io/AR.js-Docs/location-based-tutorial/">the AR.js peakfinder tutorial</a> and modified slightly. This tutorial was created by myself.)</p>
+<p>In the examples last week, we downloaded points of interest from our AR.js
+application once, when we got the location for the first time. Obviously it
+would be better if we could <em>continuously</em> download data as we move from place
+to place, so that we get data local to our area if we travel around. So, for example, places within 10km of us are downloaded when we srart the app, and then, as we reach the edge of the already-downloaded area, new places are downloaded.</p>
+<p>This approach is known as <em>tiling</em>. A <em>tile</em> is a rectangular, often square, area of the earth containing geographical data. When we start the application, the local tile - representing our current area - is downloaded, and cached on the device so that next time we visit the area we don't need to download again. Then, when we move to another area, a new tile is downoloaded and again cached. If we return to the original area, we load the data from the cache rather than over the internet.</p>
+<p>This is shown below. Sometimes, to enable us to see points of interest some distance away if we are near the edge of a tile, the current tile <em>and the eight surrounding tiles</em> are downloaded.</p>
+<p><img src="images/tiles.png" alt="Tiling" /></p>
+<p>It would be also nice to consider the <em>elevation</em> of points of interest when we show them, so that, for example, a mountain peak is displayed in its correct
+place on the top of the mountain rather than at the base of the mountain.</p>
+<p>These issues provide much of the complexity of a location-based AR app. Luckily, though, a pre-built solution to both problems exists. One of the great things about A-Frame is the fact that there are <em>many pre-built components which can be added to our app</em>, and two pre-built components exist for this precise problem: <code>terrarium-dem</code> and <code>osm3d</code>, both part of the <a href="https://github.com/nickw1/aframe-osm-3d">aframe-osm-3d</a> package.</p>
+<h4 id="howtheaframeosm3dcomponentswork">How the aframe-osm-3d components work</h4>
+<ul>
+<li><p><code>terrarium-dem</code> downloads Digital Elevation Model (DEM) elevation data for a given location. DEM data consists of elevation (height) data at closely-spaced points on the Earth, in a grid. This data was based on NASA SRTM data, and was converted into the Terrarium PNG format by the former mapping company Mapzen (see <a href="https://www.mapzen.com/blog/terrain-tile-service/">original article</a>). As discussed in this article, elevation is encoded in the red, green, and blue channels of a PNG image, and is now available, without usage restrictions, on <a href="https://registry.opendata.aws/terrain-tiles/">AWS</a>. The raw elevation data is emitted within an event (see below) and optionally, the terrain is rendered as a 3D mesh.</p></li>
+<li><p><code>osm3d</code> is used to download OSM data from a GeoJSON data structure in 3D, in other words, the coordinates of the OSM features contain not just latitude and longitude, but elevation in metres. The elevation is obtained from the DEM emitted from <code>terrarium-dem</code>, above; <code>osm3d</code> automatically listens for the <code>terrarium-dem-loaded</code> event emitted from <code>terrarium-dem</code> and uses the DEM to calculate the elevation.</p></li>
+</ul>
+<p>You can find out how these components work in more detail by visiting their <a href="https://github.com/nickw1/aframe-osm-3d">GitHub repository</a>.</p>
+<h3 id="tilingcoordinatesystems">Tiling coordinate systems</h3>
+<p>The <code>aframe-osm-3d</code> components discussed above both work using a tiling system with <em>coordinates</em>. Regions of the world are split up into <em>tiles</em>, using the "XYZ" or "Google" tiling system, which you can read about in more detail <a href="/course/wad/webmapping.html">on the WAD notes</a> and <a href="https://developers.google.com/maps/documentation/javascript/coordinates">here</a> The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:</p>
+<ul>
+<li>X represents the tile's coordinate on a west-east axis; </li>
+<li>Y represents the tile's coordinate on a north-south axis; </li>
+<li>Z represents the tile's zoom level, discussed in more detail in the link above.</li>
+</ul>
+<p><code>terrarium-dem</code> reads in a given longitude and latitude, and downloads the current XYZ elevation tile at a given zoom level, <em>and</em> the eight surrounding tiles (nine in total). These tiles are internally cached by <code>terrarium-dem</code> so that if a nearby location is requested, and the user hasn't moved to a different tile, the cached data will be used, avoiding unnecessary downloads. Also, when tiles are downloaded, they are emitted within the <code>terrarium-dem-loaded</code> event, which the <code>osm3d</code> component responds to by downloading the corresponding tiles from an OSM web API, calculating the OSM data's elevation using the DEM, and again caching and emitting the result.</p>
+<h3 id="thecodebuildingapeakfinderapp">The code - building a peakfinder app</h3>
+<p>With that in mind, we will develop a simple peak finder application which makes use of <code>terrarium-dem</code> and <code>osm3d</code>. What is a peak finder? Well, have you ever stood on a hill or mountain and wondered what other mountains you're looking at? A peak finder is an app which allows you to answer that by pointing your phone at mountain peaks and the name of the peak will be displayed in AR. </p>
+<p>The app will download elevation and OSM data to create peaks with elevations. We will start with the HTML:</p>
+<pre><code class="html language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="utf-8" /&gt;
+&lt;title&gt;AR.js Peak Finder&lt;/title&gt;
+&lt;script src="https://aframe.io/releases/1.0.4/aframe.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"&gt;&lt;/script&gt;
+&lt;script src="bundle.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;a-scene
+        vr-mode-ui="enabled: false"
+        arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'&gt;
+    &lt;a-camera gps-projected-camera rotation-reader&gt;&lt;/a-camera&gt;
+    &lt;a-entity terrarium-dem='zoom: 12; url: https://hikar.org/webapp/proxy.php?x={x}&amp;y={y}&amp;z={z}' osm3d='url: https://hikar.org/fm/ws/tsvr.php?x={x}&amp;y={y}&amp;z={z}&amp;amp;poi=natural&amp;amp;outProj=4326' peakfinder&gt;&lt;/a-entity&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>What's new here?</p>
+<ul>
+<li>Note that we are linking in our JavaScript (which we will come to shortly) as a <em>bundle</em>. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below. The bundle here is in <code>bundle.js</code>; you can change this to whatever yours is. </li>
+<li>Note how our custom entity now has some additional components: the <code>terrarium-dem</code> and <code>osm3d</code> components which we discussed above. Note how each component has a <code>url</code> property defining the source URL to download the data.</li>
+<li>Note also how we set the <code>zoom</code> to 12 for <code>terrarium-dem</code>. This will use the zoom level of 12 for our tiles, which means that places several kilometres away in every direction will be downloaded on startup.</li>
+</ul>
+<p>You'll notice that the <code>url</code> property for <code>terrarium-dem</code> is not an AWS URL but rather a URL on hikar.org, <code>proxy.php</code>. Why is this? Due to the <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">same-origin-policy</a> we cannot contact AWS directly via AJAX, so we need to create a proxy script to do it for us. </p>
+<p>For the OSM URL (on <code>hikar.org</code>), we do not need a proxy as this script has <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a> enabled by default.</p>
+<p>We can now move on to our JavaScript. First of all you need to import the <code>aframe-osm-3d</code> module (see below for installation details). Note that <code>require()</code> is an alternative and slightly older way of importing a module. We have to use it here due to an issue which prevents Webpack working with the PNG reader library used.</p>
+<pre><code>require('aframe-osm-3d');
+</code></pre>
+<p>The <code>init()</code> function in your <code>placefinder</code> component should be altered as follows. Note that we are now writing a <code>peakfinder</code>, not a <code>placefinder</code>. The only difference between the <code>placefinder</code> from last week and the <code>peakfinder</code> from this in terms of data downloaded is that we are asking the web API for peaks, rather than places.</p>
+<pre><code class="javascript language-javascript">AFRAME.registerComponent('peakfinder', {
+
+    init: function() {
+
+        // Handle a GPS update ...
+        window.addEventListener('gps-camera-update-position', e =&gt; {
+            // Set the 'lat' and 'lon' attributes of the 'terrarium-dem'
+            // component to our current latitude and longitude. This will
+            // trigger a chain reaction of downloading first the DEM data, and
+            // then the OSM data
+            this.el.setAttribute('terrarium-dem', {
+                lat: e.detail.position.latitude,
+                lon: e.detail.position.longitude 
+            })
+        });
+
+        // This event will fire when the elevation of our current location is available from the DEM.
+        this.el.addEventListener('elevation-available', e =&gt; {
+            // Imagine that 'camera' is our camera (see last week for how to obtain the camera)
+            camera.object3D.position.y = e.detail.elevation + 1.6;
+        });
+
+        // This event will fire when the OSM data has been downloaded.
+        this.el.addEventListener('osm-data-loaded', e =&gt; {
+            // e.detail.pois contains GeoJSON data, as for last week.
+            e.detail.pois
+                .filter ( poi =&gt; poi.properties.natural == 'peak')
+                .forEach ( peak =&gt; {
+                    // Parse the GeoJSON, as for last week, and create an entity
+                    // from it: ... for you to do ...
+
+                    // set the elevation of the entity. This will be contained
+                    // within the GeoJSON geometry's 'coordinates' array, as the
+                    // third member. Units are in metres.
+                    // To do this set the y of the element's position to this
+                    // value from the GeoJSON.
+
+                    // Add the entity to the scene as for last week ...
+            });
+        });
+    }
+});
+</code></pre>
+<p>How does this work?</p>
+<ul>
+<li><p>We start by <em>import</em>ing the <code>aframe-osm-3d</code> package. We have looked at importing packages already, in Week 1. This is a package available on <a href="https://npmjs.com">NPM</a>, and as we have seen, contains the <code>terrarium-dem</code> and <code>osm3d</code> components.</p></li>
+<li><p>Our <code>init()</code>. This works a bit differently this time:</p>
+<ul>
+<li>We once again handle the <code>gps-camera-update-position</code> event, but this time we pass the latitude and longitude onto our <code>terrarium-dem</code> component. As we saw above, this will download the local tiles for this position.</li>
+<li>We next handle the <code>elevation-available</code> event, which is emitted from our <code>terrarium-dem</code> component as soon as we have elevation available for our current position. The current elevation is contained in the emitted event; we handle it by setting the camera's <code>y</code> coordinate to that elevation plus 1.6 (to account for the fact that a user will be holding the device above the ground).</li>
+<li>We then handle the <code>osm-data-loaded</code> event. This will be emitted from <code>osm3d</code> whenever new data has been downloaded from the OSM API and elevation added. This event contains various properties, but we will use the <code>pois</code> property which is an array of GeoJSON features, one for each POI. We filter these to only select peaks.</li>
+<li>We then create one entity per place, as before. We ensure the entity is looking at the camera, and then create the text as per last week.</li>
+<li>Note how, once we have set the latitude and longitude with <code>gps-projected-entity-place</code>, we <strong>set the elevation</strong> of each peak entity. We do this using the third member of the <code>coordinates</code> array contained within the GeoJSON, which will contain the peak's elevation in metres.</li></ul></li>
+</ul>
+<p>We now need to <em>build</em> the application, as we did in week 1. First 
+install the <code>aframe-osm-3d</code> package with NPM (included with <a href="https://nodejs.org">Node.js</a>).</p>
+<pre><code>npm install aframe-osm-3d
+</code></pre>
+<p>Next, we need to create a <em>bundle</em> with <a href="http://browserify.org">Browserify</a>. Browserify is an alternative bundler to Webpack. Unfortunately Webpack has some issues with the library used to read PNG images so we cannot easily use it here; but Browserify does much te same job. You need to install it before using it:</p>
+<pre><code>npm install browserify
+npx browserify peakfinder.js &gt; bundle.js
+</code></pre>
+<p>(assuming that you saved your peakfinder component as <code>peakfinder.js</code>).</p>
+<p>This will output a bundle called <code>bundle.js</code>.</p>
+<p>And that is it! Try it out and see if it works. For a good test, try somewhere
+reasonably mountainous as your fake location. For instance:</p>
+<ul>
+<li>Grasmere, Cumbria, England</li>
+<li>Garmisch-Partenkirchen, Bavaria, Germany</li>
+<li>Mayrhofen, Tirol, Austria</li>
+<li>Somewhere else mountainous that you know of…</li>
+</ul>
+<h3 id="exercise">Exercise</h3>
+<p>Implement the peakfinder, using the code above to get you started and the code from last week to parse the GeoJSON and create entities from it.</p>
+<ul>
+<li>Initially just show the peak name as text. Set the text scale to 1500.</li>
+<li>Next, create a compound entity for each peak containing two sub-entities: a text entity for the name and a cone (<code>&lt;a-cone&gt;</code>) for a graphic showing the peak. The compound entity should be placed at the peak's elevation. The text entity should once again have a scale of 1500 and be placed 300 metres above the
+peak's elevation. The cone entity should have a scale of 150, a <code>height</code> of 3, a <code>radiusTop</code> of 0.1 and a <code>magenta</code> material colour.</li>
+</ul>
+<h4 id="furtherthingstotry">Further things to try</h4>
+<p>It would be nice to show users status messages as the places are downloading. You can do this by handling a couple of other events:</p>
+<ul>
+<li><code>terrarium-start-update</code> is emitted when we start to download new DEM data.</li>
+<li><code>terrarium-dem-loaded</code>, as we have already seen, is emitted when DEM data has finished downloading.</li>
+</ul>
+<p>Adapt your example to include a <code>&lt;div&gt;</code> which displays a status message. (You can make a <code>&lt;div&gt;</code> a child of your <code>&lt;a-scene&gt;</code>). Display "Downloading elevation data…" while it's downloading the DEM data, and then "Downloading OSM data" when the DEM download has finished. Finally, when the OSM data has loaded, set the <code>&lt;div&gt;</code>'s contents to a blank string. </p>
+<h2 id="oneortwootherthings">One or two other things</h2>
+<p>There are one or two other things regarding A-Frame that we have not covered
+yet, but are important - the <em>component lifecycle</em> and <em>emitting events</em>.</p>
+<h3 id="componentlifecycle">Component lifecycle</h3>
+<p>We have considered <code>init()</code> and <code>tick()</code> methods of an A-Frame component, but
+there are also other methods which can be important.</p>
+<p>See <a href="https://aframe.io/docs/1.0.0/core/component.html">the A-Frame documentation</a></p>
+<h4 id="theupdatemethod">The update() method</h4>
+<p>The <code>update()</code> method is a key lifecycle method. It is fired whenever <em>you update the properties of an A-Frame component</em> and also <em>on initialisation, after init()</em>. For example, the code below updates the <code>velocity</code> property of the component <code>my-component</code>.</p>
+<pre><code>this.el.setAttribute('my-component', {
+    velocity: 2
+});
+</code></pre>
+<p>This would trigger the <code>update()</code> method of the <code>my-component</code> component.
+In an <code>update()</code> method of a component, you would handle any changes that
+need to be made as a result of the properties being updated. Note that the <code>update()</code> method has an <code>oldData</code> parameter containing the old values of the component's properties, so that you can compare the old and new data. (The new data will be accessible via <code>this.data</code>). So you can use code such as this:</p>
+<pre><code>AFRAME.registerComponent('my-component', {
+    schema: {
+        velocity: {
+            type: 'int',
+            default: 1
+        },
+    },
+
+    init: function() {
+        // ...
+    },
+
+    update: function(oldData) {
+        // if the new velocity is not the same as the old velocity...    
+        if (this.data.velocity != oldData.velocity) {
+            // add code to handle the velocity changing...
+        }
+    }
+});
+</code></pre>
+<h4 id="othermethods">Other methods</h4>
+<p>Other lifecycle methods include:</p>
+<ul>
+<li><code>pause()</code>: when the component 'pauses' e.g. when the scene is no longer visible. Can be used to stop such things as animations, or an enemy moving towards the player, when the scene is no longer visible. </li>
+<li><code>play()</code>: when the component 'resumes' e.g. when the scene becomes visible again. Can be used to resume animations, or enemy movement, when the scene resumes.</li>
+<li><code>remove()</code>: when the component is removed, for example it's removed from an entity using DOM function calls. Used to clean up resources which are no longer needed when the component is not present.</li>
+</ul>
+<h3 id="events">Events</h3>
+<p>We have seen examples of <em>event handlers</em> to handle different types of event, however how do we generate events in the first place? In fact, A-Frame uses standard DOM techniques for generating events. To generate an event, it's <em>emitted</em> from a specific entity. For example, the <code>elevation-available</code> event is emitted from <code>terrarium-dem</code> whenever the elevation is available. We handled this event in the peakfinder example. the code to generate this event might look like this:</p>
+<pre><code>this.el.emit('elevation-available', {
+    elevation: // ... some elevation value ... 
+}); 
+</code></pre>
+<p>Note how <code>emit()</code> takes two arguments, the <em>event name</em> (<code>elevation-available</code> here) and the <em>data</em> to pass through the event, which is a JavaScript object. In this example, the JavaScript object contains just one property, <code>elevation</code>, but it could potentially contain more. This data can then be retrieved later in the event handler using <code>e.detail</code>, where <code>e</code> is the event object. So in this example we would use <code>e.detail.elevation</code> to retrieve the elevation - as we saw in our peakfinder app, above.</p>
+<p>To handle the event we attach an event listener to the entity which originally
+emitted the event, so that when we handle the event with code such as:</p>
+<pre><code>this.el.addEventListener('elevation-available', e =&gt; {
+    // do something with e.detail.elevation
+});
+</code></pre>
+<p>then <code>this.el</code> would need to be the parent entity of the <code>terrarium-dem</code>
+component, because the event was emitted from within <code>terrarium-dem</code> and therefore when we emit the event <code>this.el</code> would be te parent entity of <code>terrarium-dem</code>. (In our peakfinder, this is easy if the <code>peakfinder</code> component
+is attached to the same entity as <code>terrarium-dem</code>).</p></body></html>
