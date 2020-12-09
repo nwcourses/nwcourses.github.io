@@ -133,10 +133,22 @@ Next we consider C. If C doesn't match, then we know we might need to consider *
 
 Hopefully you can see that it has linear `O(n)` complexity, dependent on the number of nodes, and thus is not especially efficient when it comes to simple trees. The use of breadth-first search becomes more apparent when we look at graphs; I am introducing the algorithm here so that you understand it when we begin the graphs topic.
 
-#### Question
+#### Which data structure to use for the nodes to be processed?
 
-Can you see what data structure can be used to represent the collection of nodes to be considered? Why? **We will consider this in class and I will add the answer here after the class. I will also show you how you can use the Python standard library to create an instance of this data structure.**
+We use a *queue* here, because with the breadth-first search, we process the nodes in the order they are added. In other words, the node we add first is the node we process first. We can use the standard library collection `collections.deque` to do this. A *deque* is a double-ended queue: a queue which you can add to and remove from both the front and back of. However, here we are just using it as a regular queue.
 
+Here is an example of using a deque as a regular queue. Note how we use `append()` to add to the deque, and `popleft()` to remove from it.
+
+```
+import collections
+
+q = collections.deque([])
+q.append(123)
+q.append(456)
+q.append(789)
+print(q.popleft())
+print(len(q))
+```
 
 ### Using trees to store key/value pairs
 

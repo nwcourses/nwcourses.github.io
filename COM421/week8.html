@@ -91,8 +91,18 @@ We check A first, adding it to a collection of nodes to be considered.</p>
 <pre><code>[ D E F G ]
 </code></pre>
 <p>Hopefully you can see that it has linear <code>O(n)</code> complexity, dependent on the number of nodes, and thus is not especially efficient when it comes to simple trees. The use of breadth-first search becomes more apparent when we look at graphs; I am introducing the algorithm here so that you understand it when we begin the graphs topic.</p>
-<h4 id="question">Question</h4>
-<p>Can you see what data structure can be used to represent the collection of nodes to be considered? Why? <strong>We will consider this in class and I will add the answer here after the class. I will also show you how you can use the Python standard library to create an instance of this data structure.</strong></p>
+<h4 id="whichdatastructuretouseforthenodestobeprocessed">Which data structure to use for the nodes to be processed?</h4>
+<p>We use a <em>queue</em> here, because with the breadth-first search, we process the nodes in the order they are added. In other words, the node we add first is the node we process first. We can use the standard library collection <code>collections.deque</code> to do this. A <em>deque</em> is a double-ended queue: a queue which you can add to and remove from both the front and back of. However, here we are just using it as a regular queue.</p>
+<p>Here is an example of using a deque as a regular queue. Note how we use <code>append()</code> to add to the deque, and <code>popleft()</code> to remove from it.</p>
+<pre><code>import collections
+
+q = collections.deque([])
+q.append(123)
+q.append(456)
+q.append(789)
+print(q.popleft())
+print(len(q))
+</code></pre>
 <h3 id="usingtreestostorekeyvaluepairs">Using trees to store key/value pairs</h3>
 <p>I have said several times that we test whether each node 'matches'. What exactly do we mean by this? We'd typically use a tree to store and efficiently search for data as an alternative to hash tables. In other words, each node would contain a key/value pair, such as "1smitj01"/"John Smith" for the key and value respectively in a student records system. In Python, this would probably be stored as a tuple (if we didn't want to change the values) or two-member list (if we did). So we could search the tree for a given key (index), and test each node we find in breadth-first (or depth-first) search to see if its key is the key we are searching for. If it is, then we return the value.</p>
 <h3 id="binarysearchtreedepthfirst">Binary search tree (depth-first)</h3>
