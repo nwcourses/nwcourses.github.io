@@ -1,0 +1,616 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<title>Client-Side Databases: IndexedDB</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1>Week 10: Client-Side Databases: IndexedDB</h1>
+<h2>Credits</h2>
+<p>This material was compiled using the following sources:
+<ul>
+<li>
+<a href="https://developer.mozilla.org/en-US/docs/IndexedDB/Using_IndexedDB">Mozilla: Using IndexedDB</a>
+</li>
+<li>David Flanagan: JavaScript, The Definitive Guide, 6th Edition, Chapter 22, section 22.8, page 705</li>
+</ul>
+</p>
+<h2>Introduction</h2>
+<p>Last week, when considering service workers, we looked at the browser Cache API to cache responses from the server. However, we might not want to cache the entire response, but only key data within the response. For this,
+we can use a <em>client-side web database</em>. Client-side databases are similar in concept to server-side databases - except that (obviously) the data is stored on the user's computer rather than a web server machine. 
+<em>IndexedDB</em> is the leading client-side database.</p>
+<h3>IndexedDB is an object database</h3>
+<p>IndexedDB differs from the sort of databases that you have been exposed to so far, in that it is not SQL-based -
+indeed, it does not fit the normal relational model for databases. Instead, it is an <em>object-based</em> database. You store
+JavaScript objects in the database, and then retrieve them with <em>keys</em>. Typically, every set of data will include a
+<em>key</em> which uniquely identifies each object: one example would be a student number or product ID. When setting up
+an IndexedDB database you define which field is the key and then use the key to access individual objects. A collection of
+related objects is called an <em>object store</em>. So, we can say that:
+    <ul>
+    <li>Keys are similar in concept to primary keys in relational databases;</li>
+    <li>Objects are similar in concept to records in relational databases.</li>
+    <li>Object stores are similar in concept to tables in relational databases.</li>
+    </ul>
+</p>
+<p>As well as keys, you can define <em>indexes</em> with IndexedDB. An <em>index</em> is a field in the database which can
+be used for optimised, fast searches. Indexes need not be unique - for example you can define a student's course to be
+an index in a database of students, and that will allow you to do a fast lookup of students by course. Because more than one
+student would typically be studying a given course, this would give you a set of results: in such cases, you use another
+IndexedDB construct, a <em>cursor</em>, to loop through each result.</p>
+<h3>Asynchronous Development</h3>
+<p>Like many JavaScript APIs you have seen already (for example AJAX), 
+IndexedDB is <em>asynchronous</em>. Querying a database can take time, and therefore you do
+not want the browser to just sit there waiting for a result to come back, as the user will be unable to interact with the
+page in the meantime. Instead, and in the same way as you do for AJAX or for the Geolocation API,
+you query the database and define <em>callback functions</em> 
+to run when the database responds, either with success or
+with an error. The way in which you make asynchronous calls is as follows:
+    <ul>
+    <li>You call a function which queries the database. This returns <em>immediately</em>, before the data has been retrieved, and gives you
+    a request object which you can attach your callbacks to.</li>
+    <li>You then assign <em>onsuccess</em> and <em>onerror</em> callbacks to this request object, which will run when the
+    data has been retrieved, and if an error occured, respectively.</li>
+    </ul>
+</p>
+<p>These callback functions can be written as arrow functions, as you have seen
+already.</p>
+<h2>Example of using IndexedDB</h2>
+<pre>
+let db;
+
+const indexedDB = window.indexedDB;
+const request = indexedDB.open("studentdb", 1);
+
+request.onsuccess = function(e) {
+    displayMessage("Successfully opened the database!");
+    db = e.target.result;
+}
+request.onerror = function(e) {
+    // Imagine displayMessage() is a function which fills a div with content
+    displayMessage("Error opening database: " + e.target.errorCode);
+}
+
+request.onupgradeneeded = e=&gt; {
+    const db = e.target.result; // IDBDatabase instance
+
+    // If upgrading to version &gt;=2, delete the old object store
+    if(db.version &gt;= 2) {
+        db.deleteObjectStore('students');
+    }
+
+    const objectStore = db.createObjectStore("students", {
+            keyPath:"username"
+    });
+
+    const students = [
+        { name: "Deep Patel", username: "dp061", course: "CNWD" },
+        { name: "Tim Smith", username: "ts282", course: "Computing" },
+        { name: "Jamie Bailey", username: "jb139", course: "Computing" }
+                    ];
+
+    for(let i=0; i&lt;students.length; i++) {
+        objectStore.add(students[i]);
+    }
+};
+
+</pre>
+<p>This is probably the bare-minimum example necessary to illustrate the use of IndexedDB. Here is a step-by-step explanation:
+    <ul>
+    <li><pre>const indexedDB = window.indexedDB;</pre>
+    This obtains an IndexedDB object, representing the connection to the
+    database.</li>
+    <li><pre>const request = indexedDB.open("studentdb", 1);</pre>
+    This line opens a named database, <em>studentdb</em> here. As we saw above, IndexedDB works
+    <em>asynchronously</em>. Rather than waiting to open the database, something which might take some
+    time, the open() method returns <em>immediately</em> and gives us a <em>request</em> object
+    (of type IDBRequest). We attach success and error callbacks to this <em>request</em> object:
+    <pre>
+    request.onsuccess = function(e)
+    {
+        displayMessage("Successfully opened the database!");
+        db = e.target.result;
+    }
+    request.onerror = function(e)
+    {
+        displayMessage("Error opening database: " + e.target.errorCode);
+    }
+    </pre>
+    </li>
+    <li>Note the line:
+    <pre>db = e.target.result;</pre>
+    in the <em>onsuccess</em> callback. In general, IndexedDB callbacks get passed an event object (similar to the event
+    handling you have seen already) which we can query to obtain details about the source of the event. <em>e.target</em> is typically
+    the request object (of type IDBRequest) that was returned from the original asynchronous call (<em>open()</em> here), and we can query 
+    <em>e.target</em> to obtain the data we want from the database with <em>e.target.result</em>; Here the data is the database connection itself, an object of type <em>IDBDatabase</em>. We will need this later on, so we store it in a global variable <em>db</em>.</li>
+    <li>Note also the second argument to <em>open()</em>, <em>1</em>. This is important
+    in IndexedDB as it indicates the database <em>version</em> currently required. 
+    The idea is, that each time we change the schema of our
+    database, the version number increases by one. In this example we are specifying that the code needs at least version 1
+    of the database to run. If the current version of the database is less than the specified version number, or the
+    database does not exist at all (which will be the case the first time we run the code), then the
+    database will need to be upgraded. This is done with the
+    function specified as the <em>onupgradeneeded</em> property of the database connection will be run, to upgrade the
+    database. Here, this upgrade function is called <em>upgradeDB</em>:
+    <pre>request.onupgradeneeded = { /* upgrade function - see below */ } ;</pre>
+    What does the upgrade function typically do? It contains the instructions to <em>change the schema</em> (e.g. add new
+    indexes or fields) and then <em>loads existing data into the database</em>. This might typically be sourced over the web
+    via AJAX.</li>
+    <li>Looking at the <em>onupgradeneeded</em> function in more detail:
+    <pre>const objectStore = db.createObjectStore("students", { keyPath: "username" } );</pre>
+    An <em>object store</em> is the rough equivalent of a table in a standard relational database: it is a collection of
+    related objects. Here we are creating an object store called <em>students</em> and specifying that the key
+    is to be the <em>username</em> field.
+    <pre>
+    const students = [
+        { name: "Deep Patel", username: "dp061", course: "CNWD" },
+        { name: "Tim Smith", username: "ts282", course: "Computing" },
+        { name: "Jamie Bailey", username: "jb139", course: "Computing" }
+                    ];
+                    
+    for(let i=0; i&lt;students.length; i++)
+    {
+        objectStore.add(students[i]);
+    }
+    </pre>
+    Here we create an array of JavaScript objects representing students, and loop through each object in the array, adding
+    it to the object store.</li>
+    <li>So in summary, this example has shown that:
+        <ul>
+        <li>We first get hold of the specific <em>indexedDB</em> object for our browser;</li>
+        <li>We then open a connection to a given database;</li>
+        <li>When opening a connection, we need to specify the minimum version number needed;</li>
+        <li>If the database is currently at a version number lower than this, the function specified in the
+        <em>onupgradeneeded</em> property of the connection is called, and this function upgrades the database by 
+        creating an object store, setting up its schema, and filling it with data.</li>
+        <li>The first time the code runs, the database will not exist at all, so the <em>onupgradeneeded</em> function is
+        automatically called.</li>
+        </ul>
+    </li>
+    </ul>
+</p>
+<h2>Querying the database</h2>
+<p>The first example simply showed how to set a database up and fill it with data. What about querying the database?
+The simplest way of querying the database is to use the object store's key, which is the username here. The following
+example illustrates this:
+<pre>
+// Assume we are responding to a button click
+document.getElementById('search').addEventListener('click', e=&gt; {
+    const username = document.getElementById('username').value;
+    const transaction = db.transaction("students");
+    const objectStore = transaction.objectStore('students');
+    const request = objectStore.get(username);
+    request.onsuccess =  e =&gt; {
+        if(e.target.result) {
+            document.getElementById('username2').value  = e.target.result.username; 
+            document.getElementById('name').value = e.target.result.name;
+            document.getElementById('course').value = e.target.result.course;
+        } else {
+            displayMessage('No results!');
+        } 
+    };
+
+    request.onerror = e =&gt; {
+        displayMessage(`ERROR ${e.target.errorCode}`);
+    };
+});
+
+</pre>
+</p>
+<p>Note how this is working:
+    <ul>
+    <li>
+    <pre>const transaction = db.transaction("students");</pre>
+    We first open a <em>transaction</em>. A transaction is a continuous set of
+    queries with the database. </li>
+    <li>
+    <pre>const objectStore = transaction.objectStore("students");</pre>
+    Having obtained a transaction, we then obtain a named object store (the <em>students</em> object store, which we
+    used before)</li>
+    <li>
+    <pre>const request = objectStore.get(username);</pre>
+    We then use the <em>get()</em> method on the object store, to return an object matching a given key (remember that
+    here the key is the username)</li>
+    <li><pre>request.onsuccess = /* success function */</pre>
+    Remember that operations on the database are asynchronous, because they might take some time. Therefore we have
+    to specify a <em>callback</em> to run when we have performed the operation. As before, this callback is specified
+    by setting the <em>onsuccess</em> property of the return value of the <em>get()</em> method.</li>
+    <li>
+    <pre>
+     request.onsuccess =  e =&gt; {
+        if(e.target.result) {
+            document.getElementById('username2').value  = e.target.result.username; 
+            document.getElementById('name').value = e.target.result.name;
+            document.getElementById('course').value = e.target.result.course;
+        } else {
+            displayMessage('No results!');
+        } 
+    };
+    </pre>
+    The callback runs when we get the data back. In the same way as when we <em>opened</em> the database,
+   <em>e.target</em> is the original request object returned immediately from the <em>get()</em> method.
+    To obtain the requested data, we use the <em>result</em> property of this object once again, i.e.
+    <em>e.target.result</em>. In this case, this
+    is the object that matches the query. Since <em>e.target.result</em> is the matched object, we can then address its
+    individual properties, e.g. <em>e.target.result.name</em> for the name.</li>
+    </ul>
+</p>
+<h2>Adding a new object</h2>
+<p>We will probably want to add <em>new objects</em> to the object store. The following example shows how to do this:
+<pre>
+// Assume we are responding to a button click
+document.getElementById('add').addEventListener('click', e=&gt; {
+    const u = document.getElementById('username2').value;
+    const n = document.getElementById('name').value;
+    const c = document.getElementById('course').value;
+    const transaction = db.transaction("students", "readwrite");
+    const objectStore = transaction.objectStore("students");
+    const newObj = { username: u, name: n, course: c };
+    const request = objectStore.add(newObj);
+    request.onsuccess =  e =&gt; {
+        displayMessage('Successfully added.');
+    };
+    request.onerror = e =&gt; {
+        displayMessage(`ERROR ${e.target.errorCode}`);
+    };
+});
+</pre>
+</p>
+<p>This should be fairly clear, as adding a record to the database is
+in many ways very similar to retrieving a record. 
+<pre>
+const transaction = db.transaction("students", "readwrite");
+const objectStore = transaction.objectStore("students");
+</pre>
+As before, we initialise a transaction, <strong>but this time we have to 
+specify that it is a "readwrite" transaction rather than the default, read-only
+transaction, as we are updating the database</strong>.
+We then get the object store. We then create a JavaScript
+object using the data entered in the form:
+<pre> const newObj = { username: u, name: n, course: c };</pre>
+and use the <em>add()</em> method of the object store to add the new object to
+the database. As with other database operations, 
+the <em>add()</em> operation is asynchronous, and we have to specify success and error callbacks
+on the request object returned from <em>add()</em>. However, since we are not retrieving any data from the database, these
+can be simple functions which just display a status message.</p>
+<h2>Cursors</h2>
+<p>To loop through several objects in a database, we need to use a <em>cursor</em>. A cursor can be considered to be a
+"pointer" to the current object in the database; we can advance the cursor on to the next object, and by continually advancing
+the cursor until there are no more objects left, we can display (or perform some other operation on) each object in the
+database. The following example illustrates the use of a cursor to display all objects in the database:
+<pre>
+// Assume we are responding to a button click
+document.getElementById('displayAll').addEventListener('click', e=&gt; {
+    const transaction = db.transaction("students");
+    const objectStore = transaction.objectStore("students");
+    const request = objectStore.openCursor();
+    html = "";
+    request.onsuccess = e =&gt; {
+        const cursor = e.target.result;
+        if(cursor) {
+            html += `${cursor.key} ${cursor.value.name} ${cursor.value.course}<br />`;
+            cursor.continue();
+        } else {
+            displayMessage(html);
+        }
+    };
+});
+</pre>
+</p>
+<p>How is this working? As in the previous examples, we initialise a transaction and obtain the object store. We then
+<em>obtain a cursor</em> for this object store with the <em>openCursor()</em> method:
+<pre>const request = objectStore.openCursor();</pre>
+As <em>openCursor()</em> communicates with the database, it is again an asynchronous method, returning immediately and
+giving us back a request object. So once again, we attach an <em>onsuccess</em> callback to the request object:
+<pre>request.onsuccess = /* function to show results */</pre>
+</p>
+<p>Hopefully you can see that the onsuccess callback function will run as soon as we get a cursor back from the
+database. Once more, in common with most callbacks used by IndexedDB, you can obtain the "context" object - here, the cursor - 
+through the use of <em>e.target.result</em>.</p>
+<p>We then test whether the cursor is a valid object (the reason we do this will become apparent later) with:
+<pre>if(cursor)</pre>
+If it is, we can obtain the <em>key</em> (the unique field) of the object that the cursor is pointing to with <em>cursor.key</em> and
+the <em>value</em> (the object itself) with <em>cursor.value</em>. We can then obtain the individual fields with
+<em>cursor.value.field</em>, e.g. <em>cursor.value.name</em> and <em>cursor.value.course</em>. Here, we place them in a string
+ready to be placed within a &lt;div&gt; when we reach the end of the collection of objects.</p>
+<p>We then execute the command:
+<pre>cursor.continue();</pre>
+This is where it gets interesting. The <em>continue()</em> method of a cursor moves the cursor on to the next
+object <em>but also calls the cursor's callback method again</em> (specified with the onsuccess callback when we initially opened the cursor). Here, the cursor's callback method is <em>the current method</em> so the current method (the 
+onsuccess callback) will be called again. If we have reached the end of the list of objects, <em>e.target.result</em> will now be undefined,
+so the "else" will be called,
+which, in this example, places the HTML string (containing all found objects) inside a &lt;div&gt;. If, on the other hand,
+<em>e.target.result</em> is <em>not</em> undefined, we still have more objects to loop through and so we continue the process.</p>
+<h2>Defining indexes</h2>
+<p>So far, we have done a search on the <em>key</em> - the unique field in the database, which in our example is the username.
+However, what if we wanted to search on other fields such as, for instance, searching by course? IndexedDB allows us to define one or
+more <em>index</em> fields, fields which we can perform fast and efficient searches with.</p>
+<h3>Upgrading the database to define an index</h3>
+<p> Defining an index changes the schema of the
+database so if we wish to add an index, having already defined our database structure earlier, we must alter the database version number.
+Imagine the code below is run <em>after</em> running the examples above:
+<pre>
+request.onupgradeneeded = e=&gt; {
+    const db = e.target.result; // IDBDatabase instance
+    alert(db.version);
+    // If upgrading to version &gt;=2, delete the old object store
+    if(db.version &gt;= 2) {
+        db.deleteObjectStore('students');
+    }
+
+    const objectStore = db.createObjectStore("students", {
+            keyPath:"username"
+    });
+
+    if(db.version == 2) {
+        objectStore.createIndex("course", "course", { unique: false } );
+    }
+
+    const students = [
+        { name: "Deep Patel", username: "dp061", course: "CNWD" },
+        { name: "Tim Smith", username: "ts282", course: "Computing" },
+        { name: "Jamie Bailey", username: "jb139", course: "Computing" }
+                    ];
+
+    for(let i=0; i&lt;students.length; i++) {
+        objectStore.add(students[i]);
+    }
+};
+</pre>
+To open the database at version 2, we would do the following:
+<pre>const request = indexedDB.open("studentdb", 2);</pre>
+This indicates that we are expecting to work with <em>version 2</em> of the database. If the previously stored database is not version 2
+(i.e. it's version 1), then the <em>onupgradeneeded</em> 
+callback function will be called to upgrade the database and add the index. The 
+<em>onupgradeneeded</em> callback function here defines an index, <em>course</em>, allowing us to search on course:
+<pre>objectStore.createIndex("course", "course", {unique:false});</pre>
+and then repopulates the database with the default data. To explain the three arguments:
+    <ul>
+    <li>The first argument is the index name, <em>course</em> here. This is the name we use to refer to the index later. It is often
+    the same name as the field that it is indexing, but need not be.</li>
+    <li>The second argument is the field name in the database that we are indexing, which in this example is the
+    <em>course</em> field.</li>
+    <li>The third argument specifies options to use. Note here how we define 
+    <em>unique:false</em> for the <em>course</em> index. This
+    means that the <em>course</em> field is not unique, i.e. more than one student can have the same course.</li>
+    </ul>
+</p>
+<p>Note also that the <em>onupgradeneeded</em> callback function needs to delete the existing object store if the new version is 2 or more. This is because there
+will already be an object store of that name present, so we cannot create another
+one of the same name.</p>
+<h3>Searching by index</h3>
+<p>The example below extends the code above to perform a search using the <em>course</em> index:
+<pre>
+// Assume we are responding to a button click
+document.getElementById('searchByCourse').addEventListener('click', e=&gt; {
+    const course = document.getElementById('course2').value;
+    const transaction = db.transaction("students");
+    const objectStore = transaction.objectStore("students");
+    const index = objectStore.index('course');
+    const request = index.openCursor(IDBKeyRange.only(course));
+    html = "";
+    request.onsuccess = e =&gt; {
+        const cursor = e.target.result;
+        if(cursor) {
+            html += `${cursor.value.username} ${cursor.value.name} ${cursor.key}<br />`;
+            cursor.continue();
+        } else {
+            displayMessage(html);
+        }
+    };
+});
+</pre>
+</p>
+<p>This is a search function which makes use of our <em>course</em> index.
+We first setup a transaction and access the object store - as before - 
+but then we obtain an <em>index</em> in our object store with:
+<pre>const index = objectStore.index("course");</pre>
+This gives us access to the specified index within the object store, i.e. the course. We then obtain a cursor
+<em>from the index, rather than from the object store as a whole</em> with:
+<pre>const request = index.openCursor(IDBKeyRange.only(enteredCourse));</pre>
+The <em>IDBKeyRange.only(enteredCourse)</em> specifies that the cursor will only iterate through those records for which the 
+value of the <em>course</em> index matches the course entered by the user (i.e. enteredCourse).</p>
+<p>The code to advance the cursor through the set of matching objects then works in exactly the same way as the previous example which
+showed all objects in the current object store. The only difference is that
+the cursor key is now the index - the course - and not the username.</p>
+<h3>Deleting an object</h3>
+<p>Deleting an object follows much the same pattern as the other operations,
+except we call the object store's `delete()` method, passing in a key value
+(i.e. the username here):
+<pre>
+// Assume we are responding to a button click
+document.getElementById('delete').addEventListener('click', e=&gt; {
+    const u = document.getElementById('username').value;
+    const transaction = db.transaction("students", "readwrite");
+    const objectStore = transaction.objectStore("students");
+    const request = objectStore.delete(u);
+    request.onsuccess = e=&gt; {
+        displayMessage('Successfully deleted.');
+    }
+    request.onerror = e=&gt; {
+        displayMessage(e);
+    }
+});
+</pre>
+<h3>Updating an object</h3>
+<p>Updating again follows the same kind of pattern, but is a little more
+complex as it is a <em>two-stage</em> process. First, we need to search for
+the object by key, and then, having found our object, we change the 
+properties we need, and update it in the object store with the `put()`
+method.
+<pre>
+// Assume we are responding to a button click
+document.getElementById('update').addEventListener('click', e=&gt; {
+    const u = document.getElementById('username2').value;
+    const n = document.getElementById('name').value;
+    const c = document.getElementById('course').value;
+    const transaction = db.transaction("students", "readwrite");
+    const objectStore = transaction.objectStore("students");
+	
+	// First find the object
+    const request = objectStore.get(u);
+
+    request.onsuccess = e=&gt; {
+		// If we successfully find it, e.target.result will contain our object
+        const data = e.target.result;
+
+		// Change its properties
+        data.name = n;
+        data.course = c;
+
+		// Update it in the object store
+        const request2 = objectStore.put(data);
+        request2.onsuccess = e=&gt; {
+            displayMessage("Updated successfully.");
+        }
+        request2.onerror = e=&gt; {
+            displayMessage(e);
+        }
+    }
+    request.onerror = e=&gt; {
+        displayMessage(e);
+    }
+});
+
+</pre>
+<h2>Exercises</h2>
+<h3>Standard</h3>
+<ol>
+<li>To get a feel for IndexedDB, try creating a full, working application using the example presented above and using the snippets above. Use
+this HTML to help you; the snippets will work with this.
+```
+<!DOCTYPE html>
+<html>
+<head>
+<title>IndexedDB</title>
+<script type='text/javascript' src='idb.js' defer></script>
+</head>
+<body>
+<h1>IndexedDB Test</h1>
+<p>Search for a student by username:
+<input id='username' /><br />
+<input type='button' id='search' value='Go!' />
+<input type='button' id='delete' value='Delete!' />
+<p>Add/update a student:<br />
+Username:<br />
+<input id='username2' /><br />
+Name:<br />
+<input id='name' /><br />
+Course:<br />
+<input id='course'/><br />
+<input type='button' value='add' id='add' />
+<input type='button' value='update' id='update' />
+<br/>
+<input type='button' value='Display All' id='displayAll' />
+<br />
+Search by course:
+<input id='course2' />
+<input type='button' id='searchByCourse' value='Go!' /><br />
+<div id='msg' style='border: 1px solid black;'></div>
+</body>
+</html>
+```
+Do it in this order, and <em>test</em> each part before moving on.
+To work with the HTML code above, your JavaScript should be in a file
+<code>idb.js</code>.
+	<ul>
+	<li>First, do a basic search by student ID.</li>
+	<li>Then, implement "add a student"</li>
+	<li>Next, implement "show all students"</li>
+	<li>Next, implement search by course, using an index. At this stage,
+	ensure you change your <code>onupgradeneeded</code> event handler to 
+	recreate the database with an index for the course, using the code
+	given above. Also ensure that the database is opened at version 2,
+	again as shown above.</li>
+	<li>Next, implement "delete a student"</li>
+	<li>Finally, implement "update a student".</li>
+	</ul>
+</li>
+<li>Create an IndexedDB to store music tracks. Each track should have an ID (the key), a title, an artist and a year.
+Initially, in your upgrade function, fill the database with a few tracks.</li>
+<li>Allow the user to search for a track by ID.</li>
+<li>Allow the user to add a new track to the database.</li>
+<li>Allow the user to search on artist. All matching tracks should be displayed.</li>
+<li>Allow the user to search on title. All matching tracks should be displayed. The HTML interface should allow the user to choose
+whether to search on artist or on title (do not have two separate forms).</li>
+<li>Allow the user to update a track. They should first search by ID.</li>
+<li>Allow the user to delete a track, using its ID.</li>
+</ol>
+<h3>Advanced Challenge</h3>
+<div style='border: 1px solid black'><strong>Warning!</strong> 
+<p>This exercise is very advanced and you must be
+comfortable with everything we have covered in the module before attempting it;
+you will struggle greatly otherwise. If you are not comfortable I would advise
+going back and ensuring you are happy with all previous material.
+You are expected to try and work on this on your own to tbe best of your
+ability. I will help you if you are seriously stuck, but you need to show
+that you have made a good effort to solve the problem first.</p>
+<p>This exercise will also require you to read, and understand, in full,
+the <a href='/wad/promises.html'>promises notes</a> on WAD. You will be 
+expected to create your own promises. Feel free to try out the exercises in
+these WAD notes first.</p>
+</div>
+<p>Use IndexedDB in your PWA from last week, so that when the JSON
+is downloaded from the web API in the service worker, each track is stored as an object in your IndexedDB rather than the cache. You will need to do this in your service worker's "fetch" event handler. </p>
+
+To do this, please note:
+
+- You can access an IndexedDB from a service worker using `indexeddb`.
+- Inside your service worker, write three functions `createDB()`, `dbsearch()` and `dbadd()`. These should, respectively, open and create the database (use `artist` as the key), search the database for a given artist, and add all songs by a given artist to the database. 
+- Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. For `createDB()`, if opened successfully, resolve with the database object. For `dbsearch()`, if the search completes successfully, resolve with the database results. For `dbadd()`, if the add operation completes successfully, call your resolve function with no parameters.
+- `dbsearch()` should take the artist as a parameter.
+- `dbadd()` should take, as parameters, the artist and an array of their songs (which will be returned from your API). Add an object with two properties `artist` and `records` (containing the artist and their songs respectively), and add it to the database.
+- Write your service worker's `activate()` as follows:
+```
+self.addEventListener('activate', ev=> {
+    ev.waitUntil(
+        // Create the database. If the promise resolves, add the database to
+        // the service worker by making it a property of self.
+        createDB().then ( db => {
+            console.log('Got the db!');
+            self.db = db;
+        })
+    );
+    return self.clients.claim();
+});
+```
+In the fetch event handler, remove all code to deal with the Cache API.
+Instead, use code which does the following.
+- Tries to find results in the database matching the user's chosen artist.
+- If the search promise resolves, and there are results, then return a Response object containing them, e.g:
+```
+// If there are results...
+if(results) {
+	// Create a JSON string with the results, we are assuming the "records"
+	// field contains a set of all results for that artist
+	const str = JSON.stringify(results.records);
+
+	// Create a new Response object containing the data, and with a JSON
+	// content-type. Response is an inbuilt JavaScript object.
+	return new Response(str, { headers: {"Content-Type": "application/json"}});
+}
+```
+If, on the other hand, there are no results in the database, then fetch using the fetch API as normal, add the results to the database (create an object with an "artist" field for the artist, and a "records" field for the array of results), and create a new Response object containing the JSON data. Use this logic:
+```
+// Fetch from the API
+return fetch(ev.request)
+	.then(resp2 => {
+		// Convert the response to JSON
+		return resp2.json().then (jsondata => {
+			// If the promise resolves, add it to the database
+			return dbadd(artist, jsondata)
+				.then ( ()=> {
+					// If the "add to database" promise resolves, then
+					// convert the JSON to a string and return a Response
+					// object containing it.
+					const str = JSON.stringify(jsondata);
+					return new Response(str, { headers: 
+						{"Content-Type": "application/json"}});
+					}
+				);
+
+```
+Note how we have many "promises within promises" here. We always have to `return` the result of promise calls, as promise chain return values will cascade outwards. A promise chain will return with the return value of any promise chains within it. Note, for example, how the `dbadd()` promise chain resolves with our
+Reaponse object. We return this promise (which resolves with our Response object) from the `dbadd()` promise chain; this will mean that the `resp2.json()` promise chain will resolve with this Response object. In turn, the `fetch()` promise chain will resolve with the resolved value of `resp2.json()`, i.e. the Response object. If we leave any `return` statements out, the `Response` object will not cascade out in this way.
+</body>
+</html>
