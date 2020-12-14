@@ -535,8 +535,8 @@ whether to search on artist or on title (do not have two separate forms).</li>
 <li>Allow the user to delete a track, using its ID.</li>
 </ol>
 <h3>Advanced Challenge</h3>
-<div style='border: 1px solid black'><strong>Warning!</strong> 
-<p>This exercise is very advanced and you must be
+<div style='border: 5px solid black'><strong>Warning!</strong> 
+<p>This exercise is highly advanced and you must be
 comfortable with everything we have covered in the module before attempting it;
 you will struggle greatly otherwise. If you are not comfortable I would advise
 going back and ensuring you are happy with all previous material.
@@ -550,13 +550,14 @@ these WAD notes first.</p>
 </div>
 <p>Use IndexedDB in your PWA from last week, so that when the JSON
 is downloaded from the web API in the service worker, each track is stored as an object in your IndexedDB rather than the cache. You will need to do this in your service worker's "fetch" event handler. </p>
-<p>To do this, please note:</p>
+<p>To do this, please use the following guidelines: </p>
 <ul>
-<li>You can access an IndexedDB from a service worker using <code>indexeddb</code>.</li>
+<li>You can access an IndexedDB from a service worker using the variable <code>indexeddb</code>; use <code>indexeddb</code> rather than <code>window.indexeddb</code>.</li>
 <li>Inside your service worker, write three functions <code>createDB()</code>, <code>dbsearch()</code> and <code>dbadd()</code>. These should, respectively, open and create the database (use <code>artist</code> as the key), search the database for a given artist, and add all songs by a given artist to the database. </li>
-<li>Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. For <code>createDB()</code>, if opened successfully, resolve with the database object. For <code>dbsearch()</code>, if the search completes successfully, resolve with the database results. For <code>dbadd()</code>, if the add operation completes successfully, call your resolve function with no parameters.</li>
-<li><code>dbsearch()</code> should take the artist as a parameter.</li>
-<li><code>dbadd()</code> should take, as parameters, the artist and an array of their songs (which will be returned from your API). Add an object with two properties <code>artist</code> and <code>records</code> (containing the artist and their songs respectively), and add it to the database.</li>
+<li>Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. Look at the <a href="/wad/promises.html">WAD promises notes</a> to see how to do this.</li>
+<li>For <code>createDB()</code>, if the database is opened successfully, call your resolve function, passing in the database object as a parameter. </li>
+<li><code>dbsearch()</code> should take the artist as a parameter. If the search completes successfully, call the resolve function with the database results. </li>
+<li><code>dbadd()</code> should take, as parameters, the artist and an array of their songs (which will be returned from your API). Add an object with two properties <code>artist</code> and <code>records</code> (containing the artist and their songs respectively), and add it to the database. If the add operation completes successfully, call your resolve function with no parameters.</li>
 <li>Write your service worker's <code>activate()</code> as follows:</li>
 </ul>
 <pre><code>self.addEventListener('activate', ev=&gt; {
@@ -571,11 +572,15 @@ is downloaded from the web API in the service worker, each track is stored as an
     return self.clients.claim();
 });
 </code></pre>
-<p>In the fetch event handler, remove all code to deal with the Cache API.
-Instead, use code which does the following.</p>
+<p>In the fetch event handler, remove all code to deal with the Cache API. You
+will not need this now, as you are using IndexedDB.
+Instead, write code which does the following.</p>
 <ul>
-<li>Tries to find results in the database matching the user's chosen artist.</li>
-<li>If the search promise resolves, and there are results, then return a Response object containing them, e.g:</li>
+<li>Tries to search for results in the database matching the user's chosen artist.</li>
+<li>If the search promise resolves, and there are results, then return a <em>Response</em> object containing them. The <em>Response</em> object is part of the fetch API and
+allows you to construct your own custom HTTP response. Essentially what we are
+doing is overriding the default response from the <code>fetch</code> API with a response
+created from the contents of the database. See the code snippet below:</li>
 </ul>
 <pre><code>// If there are results...
 if(results) {
@@ -588,10 +593,10 @@ if(results) {
     return new Response(str, { headers: {"Content-Type": "application/json"}});
 }
 </code></pre>
-<p>If, on the other hand, there are no results in the database, then fetch using the fetch API as normal, add the results to the database (create an object with an "artist" field for the artist, and a "records" field for the array of results), and create a new Response object containing the JSON data. Use this logic:</p>
-<pre><code>// Fetch from the API
-return fetch(ev.request)
-    .then(resp2 =&gt; {
+<p>If, on the other hand, there are no results in the database, then fetch using the <code>fetch</code> API as normal, add the results to the database. Create an object with an "artist" field for the artist, and a "records" field for the array of results, and create a new <code>Response</code> object containing the JSON data. Use this logic:</p>
+<pre><code>    // Fetch from the API 
+    return fetch(ev.request)
+      .then(resp2 =&gt; {
         // Convert the response to JSON
         return resp2.json().then (jsondata =&gt; {
             // If the promise resolves, add it to the database
@@ -606,7 +611,8 @@ return fetch(ev.request)
                     }
                 );
 </code></pre>
-<p>Note how we have many "promises within promises" here. We always have to <code>return</code> the result of promise calls, as promise chain return values will cascade outwards. A promise chain will return with the return value of any promise chains within it. Note, for example, how the <code>dbadd()</code> promise chain resolves with our
-Reaponse object. We return this promise (which resolves with our Response object) from the <code>dbadd()</code> promise chain; this will mean that the <code>resp2.json()</code> promise chain will resolve with this Response object. In turn, the <code>fetch()</code> promise chain will resolve with the resolved value of <code>resp2.json()</code>, i.e. the Response object. If we leave any <code>return</code> statements out, the <code>Response</code> object will not cascade out in this way.
+<p>Note how we have many "promises within promises" here. </p>
+<p>We always have to <code>return</code> the result of promise calls, as promise chain return values will cascade outwards. A promise chain will return with the return value of any promise chains within it. Note, for example, how the <code>dbadd()</code> promise chain resolves with our <code>Response</code> object. </p>
+<p>We return this promise (which resolves with our Response object) from the <code>dbadd()</code> promise chain; this will mean that the <code>resp2.json()</code> promise chain will resolve with this Response object. In turn, the <code>fetch()</code> promise chain will resolve with the resolved value of <code>resp2.json()</code>, i.e. the Response object. If we leave any <code>return</code> statements out, the <code>Response</code> object will not cascade out in this way.
 </body>
 </html></p></body></html>

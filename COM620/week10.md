@@ -446,19 +446,19 @@ document.getElementById('update').addEventListener('click', e=&gt; {
     const c = document.getElementById('course').value;
     const transaction = db.transaction("students", "readwrite");
     const objectStore = transaction.objectStore("students");
-	
-	// First find the object
+    
+    // First find the object
     const request = objectStore.get(u);
 
     request.onsuccess = e=&gt; {
-		// If we successfully find it, e.target.result will contain our object
+        // If we successfully find it, e.target.result will contain our object
         const data = e.target.result;
 
-		// Change its properties
+        // Change its properties
         data.name = n;
         data.course = c;
 
-		// Update it in the object store
+        // Update it in the object store
         const request2 = objectStore.put(data);
         request2.onsuccess = e=&gt; {
             displayMessage("Updated successfully.");
@@ -513,18 +513,18 @@ Search by course:
 Do it in this order, and <em>test</em> each part before moving on.
 To work with the HTML code above, your JavaScript should be in a file
 <code>idb.js</code>.
-	<ul>
-	<li>First, do a basic search by student ID.</li>
-	<li>Then, implement "add a student"</li>
-	<li>Next, implement "show all students"</li>
-	<li>Next, implement search by course, using an index. At this stage,
-	ensure you change your <code>onupgradeneeded</code> event handler to 
-	recreate the database with an index for the course, using the code
-	given above. Also ensure that the database is opened at version 2,
-	again as shown above.</li>
-	<li>Next, implement "delete a student"</li>
-	<li>Finally, implement "update a student".</li>
-	</ul>
+    <ul>
+    <li>First, do a basic search by student ID.</li>
+    <li>Then, implement "add a student"</li>
+    <li>Next, implement "show all students"</li>
+    <li>Next, implement search by course, using an index. At this stage,
+    ensure you change your <code>onupgradeneeded</code> event handler to 
+    recreate the database with an index for the course, using the code
+    given above. Also ensure that the database is opened at version 2,
+    again as shown above.</li>
+    <li>Next, implement "delete a student"</li>
+    <li>Finally, implement "update a student".</li>
+    </ul>
 </li>
 <li>Create an IndexedDB to store music tracks. Each track should have an ID (the key), a title, an artist and a year.
 Initially, in your upgrade function, fill the database with a few tracks.</li>
@@ -537,8 +537,8 @@ whether to search on artist or on title (do not have two separate forms).</li>
 <li>Allow the user to delete a track, using its ID.</li>
 </ol>
 <h3>Advanced Challenge</h3>
-<div style='border: 1px solid black'><strong>Warning!</strong> 
-<p>This exercise is very advanced and you must be
+<div style='border: 5px solid black'><strong>Warning!</strong> 
+<p>This exercise is highly advanced and you must be
 comfortable with everything we have covered in the module before attempting it;
 you will struggle greatly otherwise. If you are not comfortable I would advise
 going back and ensuring you are happy with all previous material.
@@ -553,13 +553,14 @@ these WAD notes first.</p>
 <p>Use IndexedDB in your PWA from last week, so that when the JSON
 is downloaded from the web API in the service worker, each track is stored as an object in your IndexedDB rather than the cache. You will need to do this in your service worker's "fetch" event handler. </p>
 
-To do this, please note:
+To do this, please use the following guidelines: 
 
-- You can access an IndexedDB from a service worker using `indexeddb`.
+- You can access an IndexedDB from a service worker using the variable `indexeddb`; use `indexeddb` rather than `window.indexeddb`.
 - Inside your service worker, write three functions `createDB()`, `dbsearch()` and `dbadd()`. These should, respectively, open and create the database (use `artist` as the key), search the database for a given artist, and add all songs by a given artist to the database. 
-- Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. For `createDB()`, if opened successfully, resolve with the database object. For `dbsearch()`, if the search completes successfully, resolve with the database results. For `dbadd()`, if the add operation completes successfully, call your resolve function with no parameters.
-- `dbsearch()` should take the artist as a parameter.
-- `dbadd()` should take, as parameters, the artist and an array of their songs (which will be returned from your API). Add an object with two properties `artist` and `records` (containing the artist and their songs respectively), and add it to the database.
+- Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. Look at the [WAD promises notes](/wad/promises.html) to see how to do this.
+- For `createDB()`, if the database is opened successfully, call your resolve function, passing in the database object as a parameter. 
+- `dbsearch()` should take the artist as a parameter. If the search completes successfully, call the resolve function with the database results. 
+- `dbadd()` should take, as parameters, the artist and an array of their songs (which will be returned from your API). Add an object with two properties `artist` and `records` (containing the artist and their songs respectively), and add it to the database. If the add operation completes successfully, call your resolve function with no parameters.
 - Write your service worker's `activate()` as follows:
 ```
 self.addEventListener('activate', ev=> {
@@ -574,43 +575,51 @@ self.addEventListener('activate', ev=> {
     return self.clients.claim();
 });
 ```
-In the fetch event handler, remove all code to deal with the Cache API.
-Instead, use code which does the following.
-- Tries to find results in the database matching the user's chosen artist.
-- If the search promise resolves, and there are results, then return a Response object containing them, e.g:
+In the fetch event handler, remove all code to deal with the Cache API. You
+will not need this now, as you are using IndexedDB.
+Instead, write code which does the following.
+- Tries to search for results in the database matching the user's chosen artist.
+- If the search promise resolves, and there are results, then return a *Response* object containing them. The *Response* object is part of the fetch API and
+allows you to construct your own custom HTTP response. Essentially what we are
+doing is overriding the default response from the `fetch` API with a response
+created from the contents of the database. See the code snippet below:
 ```
 // If there are results...
 if(results) {
-	// Create a JSON string with the results, we are assuming the "records"
-	// field contains a set of all results for that artist
-	const str = JSON.stringify(results.records);
+    // Create a JSON string with the results, we are assuming the "records"
+    // field contains a set of all results for that artist
+    const str = JSON.stringify(results.records);
 
-	// Create a new Response object containing the data, and with a JSON
-	// content-type. Response is an inbuilt JavaScript object.
-	return new Response(str, { headers: {"Content-Type": "application/json"}});
+    // Create a new Response object containing the data, and with a JSON
+    // content-type. Response is an inbuilt JavaScript object.
+    return new Response(str, { headers: {"Content-Type": "application/json"}});
 }
 ```
-If, on the other hand, there are no results in the database, then fetch using the fetch API as normal, add the results to the database (create an object with an "artist" field for the artist, and a "records" field for the array of results), and create a new Response object containing the JSON data. Use this logic:
-```
-// Fetch from the API
-return fetch(ev.request)
-	.then(resp2 => {
-		// Convert the response to JSON
-		return resp2.json().then (jsondata => {
-			// If the promise resolves, add it to the database
-			return dbadd(artist, jsondata)
-				.then ( ()=> {
-					// If the "add to database" promise resolves, then
-					// convert the JSON to a string and return a Response
-					// object containing it.
-					const str = JSON.stringify(jsondata);
-					return new Response(str, { headers: 
-						{"Content-Type": "application/json"}});
-					}
-				);
+If, on the other hand, there are no results in the database, then fetch using the `fetch` API as normal, add the results to the database. Create an object with an "artist" field for the artist, and a "records" field for the array of results, and create a new `Response` object containing the JSON data. Use this logic:
+
+``` 
+    // Fetch from the API 
+    return fetch(ev.request)
+      .then(resp2 => {
+        // Convert the response to JSON
+        return resp2.json().then (jsondata => {
+            // If the promise resolves, add it to the database
+            return dbadd(artist, jsondata)
+                .then ( ()=> {
+                    // If the "add to database" promise resolves, then
+                    // convert the JSON to a string and return a Response
+                    // object containing it.
+                    const str = JSON.stringify(jsondata);
+                    return new Response(str, { headers: 
+                        {"Content-Type": "application/json"}});
+                    }
+                );
 
 ```
-Note how we have many "promises within promises" here. We always have to `return` the result of promise calls, as promise chain return values will cascade outwards. A promise chain will return with the return value of any promise chains within it. Note, for example, how the `dbadd()` promise chain resolves with our
-Reaponse object. We return this promise (which resolves with our Response object) from the `dbadd()` promise chain; this will mean that the `resp2.json()` promise chain will resolve with this Response object. In turn, the `fetch()` promise chain will resolve with the resolved value of `resp2.json()`, i.e. the Response object. If we leave any `return` statements out, the `Response` object will not cascade out in this way.
+Note how we have many "promises within promises" here. 
+
+We always have to `return` the result of promise calls, as promise chain return values will cascade outwards. A promise chain will return with the return value of any promise chains within it. Note, for example, how the `dbadd()` promise chain resolves with our `Response` object. 
+
+We return this promise (which resolves with our Response object) from the `dbadd()` promise chain; this will mean that the `resp2.json()` promise chain will resolve with this Response object. In turn, the `fetch()` promise chain will resolve with the resolved value of `resp2.json()`, i.e. the Response object. If we leave any `return` statements out, the `Response` object will not cascade out in this way.
 </body>
 </html>
