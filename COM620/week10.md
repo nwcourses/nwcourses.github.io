@@ -555,7 +555,7 @@ is downloaded from the web API in the service worker, each track is stored as an
 
 To do this, please use the following guidelines: 
 
-- You can access an IndexedDB from a service worker using the variable `indexeddb`; use `indexeddb` rather than `window.indexeddb`.
+- You can access an IndexedDB from a service worker using the variable `indexedDB`; use `indexedDB` rather than `window.indexedDB`.
 - Inside your service worker, write three functions `createDB()`, `dbsearch()` and `dbadd()`. These should, respectively, open and create the database (use `artist` as the key), search the database for a given artist, and add all songs by a given artist to the database. 
 - Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. Look at the [WAD promises notes](/wad/promises.html) to see how to do this.
 - For `createDB()`, if the database is opened successfully, call your resolve function, passing in the database object as a parameter. 

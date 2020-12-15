@@ -552,7 +552,7 @@ these WAD notes first.</p>
 is downloaded from the web API in the service worker, each track is stored as an object in your IndexedDB rather than the cache. You will need to do this in your service worker's "fetch" event handler. </p>
 <p>To do this, please use the following guidelines: </p>
 <ul>
-<li>You can access an IndexedDB from a service worker using the variable <code>indexeddb</code>; use <code>indexeddb</code> rather than <code>window.indexeddb</code>.</li>
+<li>You can access an IndexedDB from a service worker using the variable <code>indexedDB</code>; use <code>indexedDB</code> rather than <code>window.indexedDB</code>.</li>
 <li>Inside your service worker, write three functions <code>createDB()</code>, <code>dbsearch()</code> and <code>dbadd()</code>. These should, respectively, open and create the database (use <code>artist</code> as the key), search the database for a given artist, and add all songs by a given artist to the database. </li>
 <li>Each of the three functions should return a promise, which should resolve if the operation was successful and reject if not. Look at the <a href="/wad/promises.html">WAD promises notes</a> to see how to do this.</li>
 <li>For <code>createDB()</code>, if the database is opened successfully, call your resolve function, passing in the database object as a parameter. </li>
