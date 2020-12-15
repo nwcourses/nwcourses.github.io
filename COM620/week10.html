@@ -577,6 +577,16 @@ will not need this now, as you are using IndexedDB.
 Instead, write code which does the following.</p>
 <ul>
 <li>Tries to search for results in the database matching the user's chosen artist.</li>
+<li>To get the artist from the query string of the request URL, use code such as;</li>
+</ul>
+<pre><code>// Split the URL at the '?'
+const parts = ev.request.url.split("?");
+
+// parts[1] will be the query string, so get the artist by removing the
+// "artist=" part
+const artist = parts[1].replace("artist=","");
+</code></pre>
+<ul>
 <li>If the search promise resolves, and there are results, then return a <em>Response</em> object containing them. The <em>Response</em> object is part of the fetch API and
 allows you to construct your own custom HTTP response. Essentially what we are
 doing is overriding the default response from the <code>fetch</code> API with a response

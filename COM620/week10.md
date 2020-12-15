@@ -579,6 +579,15 @@ In the fetch event handler, remove all code to deal with the Cache API. You
 will not need this now, as you are using IndexedDB.
 Instead, write code which does the following.
 - Tries to search for results in the database matching the user's chosen artist.
+- To get the artist from the query string of the request URL, use code such as;
+```
+// Split the URL at the '?'
+const parts = ev.request.url.split("?");
+
+// parts[1] will be the query string, so get the artist by removing the
+// "artist=" part
+const artist = parts[1].replace("artist=","");
+```
 - If the search promise resolves, and there are results, then return a *Response* object containing them. The *Response* object is part of the fetch API and
 allows you to construct your own custom HTTP response. Essentially what we are
 doing is overriding the default response from the `fetch` API with a response
