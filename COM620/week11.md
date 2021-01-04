@@ -246,10 +246,10 @@ The modified Spinosaurus code of `stsphanho` is here, with comments (added by my
                     let element = this.el;
 
                     // The select event is triggered when the user interacts
-                    // with the scene e.g. touches the screen
+                    // with the scene e.g. touches the screen where there is
+                    // a plane
                     session.addEventListener('select', function () {
-                        // Get the scene position where the ray intersects
-                        // a real-world surface 
+                        // The current reticle position, set in tick() below
                         let position = element.getAttribute('position');
 
                         // Place the dinosaur at that position
