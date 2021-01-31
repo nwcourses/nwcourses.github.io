@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>COM518 Topic 2 - Further JavaScript Features</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<h1 class="front">Topic 2 - Further JavaScript Features</h1>
+<p>In Topic 2 we continue to explore fundamental features of JavaScript by looking at some concepts you have probably not met already in the first year. Speficically, we will be looking at:
+<ul>
+<li>Arrow Functions</li>
+<li>JavaScript Objects</li>
+</ul>
+</p>
+<h2>Arrow functions</h2>
+<p>Arrow functions are a new feature of the recent JavaScript standard,
+ECMAScript 6. They are anonymous, nameless functions which can be used 
+as parameters where a callback function is expected. Rather than writing the callback function as a separate, named, function, and specifying the name of the callback as an argument to another function, we write the arrow function in its entirety and supply it as an argument to the other function.</p>
+<p>Arrow functions have the syntax:
+<pre> (parameter list) =&gt; { function code; }</pre>
+</p>
+<p>Remember the second example from the last topic, in which we set up an event handler for a button using <code>addEventListener()</code>:
+<pre>
+// JavaScript file, example2.js
+
+// Find the element with the ID 'btn1' and attach the click event handler to it
+document.getElementById("btn1").addEventListener("click", clickHandler);
+    
+function clickHandler() {
+    alert("You clicked me!");
+}
+</pre>
+</p>
+<p>Here is the JavaScript example above rewritten so that the callback is an arrow function. 
+<pre>
+// JavaScript file, arrowf1.js
+document.getElementById("btn1").addEventListener("click", <strong>()=&gt; { 
+    alert("You clicked me!") 
+} </strong>);
+</pre>
+Notice how this time, rather than creating a named function called <em>clickHandler()</em>, we pass in an anonymous, arrow function as the second parameter to <em>addEventListener()</em>. Note the syntax of the arrow function:
+<pre>() =&gt; {
+    alert("You clicked me!");
+}</pre>
+The <em>()</em> is the parameter list to the arrow function (here, the function takes no parameters). We follow the parameter list with the arrow operator (=&gt;) and then write the body of the function, beginning and ending with braces { }
+in the same way as normal functions.</p>
+<h2>JavaScript Objects</h2>
+<p>Good understanding of the concepts of <em>arrays</em> and <em>objects</em> is needed to understand this module. You will have done arrays already, but objects will probably be new to you.</p>
+<h3>What is an object?</h3>
+<p>In programming we frequently come across the concept of an
+<em>object</em>. An object is a representation of a real-world
+entity, such as a person, a cat, or a web page element, in programming code.
+Objects have:
+    <ul>
+    <li> <em>properties</em>, also known as <em>attributes</em>, which
+    <em>describe</em> an object. For example a cat object might have <em>name</em>, 
+    <em>age</em> and <em>weight</em> properties.</li>
+    <li><em>methods</em>, which are things we can
+    <em>do</em> with an object. For example, a cat object might have methods to <em>walk</em>, 
+    <em>feed</em> and <em>meow</em>.
+    Methods are very similar to <em>functions</em>, which you've already seen, but they work with a specific
+    object.</li>
+    </ul>
+</p>
+
+<h3>JavaScript Objects Built In To The Browser Environment</h3>
+<p>
+Remember that you can use the DOM from within JavaScript to
+manipulate page elements. This involves the use of JavaScript objects which are built into the web browser
+environment. They are available whenever you use JavaScript with a standards-compliant web browser.
+To go through an example:
+<pre>
+var elem = document.getElementById("mydiv");
+elem.style.color = 'red';
+</pre>
+This code shows the use of some in-built JavaScript objects. <em>document</em> is an object 
+representing the document, i.e. the web page. We call a <em>method</em> of the document object called
+<em>getElementById()</em>, which takes an element ID as an argument and returns the corresponding element
+as another object. In this code, we assign the element object to the variable <em>elem</em> - from this point
+onwards, <em>elem</em> will represent our page element object and we will be able to manipulate its
+<em>properties</em>. Here, we set the <em>color</em> property of the element's
+<em>style</em> (and the style itself is an object) to red. So it can be seen that:
+    <ul>
+    <li>The <em>document</em> object has a <em>getElementById()</em> method which takes an element ID as an
+    argument and returns a page element as an object;</li>
+    <li>An element object has a <em>style</em> property which is itself an object, and that <em>style</em> object
+    has a number of its own properties representing different aspects of its style, e.g. its text colour, background
+    colour, position, font, and so on.</li>
+    </ul>
+</p>
+<h3>Defining our own objects</h3>
+<p>In many cases it is sufficient to merely work with inbuilt JavaScript objects. However, if you are 
+building the more complex HTML5 applications increasingly commonly found today, you will probably find yourself needing
+to create your own objects. Here is an example of how to do this. <strong>We are assuming that there is a button with an ID of <code>btn1</code> in our HTML, and adding a "click" event handler to it, so that the cat will be created when the user clicks the button.</strong>
+<pre>
+// JS
+document.getElementById("btn1").addEventListener("click", () =&gt; {
+
+    const cat = { name: "Tiddles", 
+                age: 5, 
+                weight: 10 }; 
+
+    console.log(`${cat.name} ${cat.age} ${cat.weight}`);
+});</pre>
+Note how the properties are contained within curly brackets, and each property consists of its name 
+(e.g. <em>age</em>)
+and its value (e.g. <em>10</em>), separated by a colon. If you have encountered associative arrays or Maps in other languages, you can probably appreciate that a JavaScript
+object is fairly similar in the sense that it has a series of <em>keys</em>, i.e. properties, and values.
+These are known as <em>key-value pairs</em>.
+
+We could then add this code to the arrow function
+to create a second cat:
+<pre>
+const cat2 = { name: "Old Tom", 
+             age: 10};
+
+console.log(`${cat2.name} ${cat2.age}`);
+</pre>
+Note that the second cat does not have a weight. If you have had previous experience with object-orientated languages
+such as Java or C++, you will probably notice a difference here. In JavaScript, there are no true <em>classes</em>
+(i.e. blueprints from which we create objects of a given type, such as from a Cat class). Instead, we simply create
+a plain <em>Object</em> and give it arbitrary properties (and methods). We can dynamically add new properties (and
+methods) to an object at any time; this is another difference from Java or C++.</p>
+<h3>Methods</h3>
+<p>So far we have only dealt with object properties, which <em>describe</em> the object concerned. Remember, however, we
+can also <em>do</em> things to objects, such as change their state. We use <em>methods</em> to do this. A method represents
+an action on an object: it will typically change its state in some way (such as increase the weight for a cat).
+</p>
+<h4>Anonymous functions</h4>
+<p>Before showing how methods are done in JavaScript, it is helpful to 
+revise the concept of the
+<em>anonymous function</em>.
+An anonymous function is a function without a name. We used a form of
+these when doing arrow functions (above) but we can also have
+regular functions as anonymous functions. In objects, the <em>methods</em>
+are <em>anonymous functions which are properties of the object</em>.</p>
+<h3>Setting up methods</h3>
+<p>
+On a basic level, we set up methods in a very similar way to properties. 
+As we saw above, each method can be considered
+a property, in which the value of the property is an anonymous function. 
+For example:
+<pre>
+// JS
+document.getElementById("btn1").addEventListener("click", =&gt; {
+{
+    const cat = {
+        name: "Tiddles",
+        age: 5,
+        weight: 10,
+    
+        meow: function()
+        {
+            console.log("Meow!");
+        },
+
+        walk: function()
+        {
+            // "--" reduces the weight by 1
+            this.weight--;
+        },
+
+        eat: function()
+        {
+            // "++" increases the weight by 1
+            this.weight++;
+
+            // Make the cat purr. Note how we call a method from another method.
+            this.purr();
+        },
+
+        purr: function()
+        {
+            console.log('Purrrr......');
+        }
+    };
+});
+</pre>
+Note the similar syntax in setting up the <em>meow()</em>,
+<em>walk()</em> and <em>eat()</em> methods compared to the properties. The
+difference is that rather than setting the properties to values (such as "Tiddles" or 10) we set them to <em>functions</em>
+which perform a particular task, such as decrease or increase the weight. This makes them <em>methods</em>.
+So in JavaScript we can say that:
+<pre>A method is a property which is a function.</pre>
+Note the use of <em>this</em> in the method.
+<em>this</em> refers to the object which we 
+are operating on. So, the walk() method is reducing the weight of the current cat object by 1, and the eat method is 
+increasing it by 1.</p>
+
+
+<h3>Calling methods</h3>
+<p>The previous code merely defines how the cat object works. 
+It specifies how cats make a noise, eat or
+walk <em>but does not actually make the cat make a noise, eat or 
+walk</em>. To do this we need to <em>call</em> the methods, as oppose to
+merely defining them as we did above. To call a method 
+we use the object name, followed by a dot, followed by the method name. 
+The code below
+creates a cat object, defines its methods 
+<em>and then</em> calls the <em>eat()</em> and <em>meow()</em> methods:
+<pre>
+// JS
+document.getElementById("btn1").addEventListener("click", () =&gt; {
+    const cat = {
+        name: "Tiddles",
+        age: 5,
+        weight: 10,
+    
+        meow: function()
+        {
+            console.log("Meow!");
+        },
+
+        walk: function()
+        {
+            // "--" reduces the weight by 1
+            this.weight--;
+        },
+
+        eat: function()
+        {
+            // "++" increases the weight by 1
+            this.weight++;
+
+            // Make the cat purr. Note how we call a method from another method.
+            this.purr();
+        },
+
+        purr: function()
+        {
+            console.log('Purrrr......');
+        }
+    };
+ 
+    console.log(cat.weight);
+    cat.meow();
+    cat.eat();
+    console.log(cat.weight);
+    cat.eat();
+    console.log(cat.weight);
+});
+</pre>
+Note carefully the difference between:
+<pre>eat : function() { this.weight++; }</pre>
+and
+<pre>cat.eat();</pre>
+The former <em>specifies how the eat() method works</em>. It does <em>not</em> actually call the method,
+in other words, it does not make the cat eat. It just stores the method in memory, ready for later
+use. The latter, by contrast, actually calls the method and makes
+the cat eat, so that its weight goes up by one. Note also how we can call the same method more than once.</p>
+<h3>Arguments</h3>
+<p>We might want to pass some information into a function. For example, we
+might want to tell the <em>eat()</em> method how much food to eat. The
+example below shows this:
+<pre>
+// JS
+document.getElementById("btn1").addEventListener("click", () =&gt; {
+    const cat = {
+        name: "Old Tom",
+        age: 10,
+        weight: 10,
+    
+        meow: function()
+        {
+            console.log("Meow!");
+        },
+
+        walk: function()
+        {
+            // "--" reduces the weight by 1
+            this.weight--;
+        },
+
+        // Note the "amount" parameter
+        eat: function(<em>amount</em>)
+        {
+            // "+=" increases the weight by the given amount 
+            this.weight+=amount;
+            this.purr();
+        }
+
+        purr: function()
+        {
+            console.log('Purrrr......');
+        }
+
+    };
+ 
+    console.log(cat.weight);
+    cat.meow();
+    cat.eat(<em>2</em>); // argument of 2
+    console.log(cat.weight);
+    cat.eat(<em>3</em>); // argument of 3
+    console.log(cat.weight);
+});
+</pre>
+Note how the amount of food is passed to the <em>eat()</em> function as 
+an argument (2 the first time, 3 the second time). Note also how the
+declaration of the function takes the amount as a variable, this is called
+as a <em>parameter</em>:
+<pre>eat: function(<em>amount</em>)
+{
+    // "+=" increases the weight by the given amount 
+    this.weight+=amount;
+}</pre>
+</p> 
+<h3>The toString() method</h3>
+<p>JavaScript has a special <em>toString()</em> method which can be used to <em>return</em> a string representation
+of that object. For a cat, this could be its name, age and weight. Here is an example:
+<pre>
+const cat3 = 
+    { name: "Tigger",
+      age: 8,
+      weight: 7, 
+      meow: function() { console.log("Meow!") },
+      walk: function() { this.weight--; },
+      eat: function() { this.weight++; },
+      <em>toString: function() { return `${this.name} ${this.age} ${this.weight}`; }</em>
+    };
+</pre>
+The advantage of <em>toString()</em> is that it allows you to easily display an object. If we supply an object
+as an argument to <em>console.log()</em>, for instance, it would use <em>toString()</em> to determine how to display
+the object. So if we did the following:
+<pre>console.log(cat3);</pre>
+we would get:
+<pre>Tigger 8 7</pre>
+</p>
+<h2>Exercises</h2>
+<ol>
+<li>Convert your work from Topic 1 to use <em>arrow functions</em>, rather than named callback functions. However, <strong>ensure you keep a copy of the original code from last week</strong>, so that you have it for reference.</li>
+<li>Create a web page containing <em>only</em> a button.
+Use this HTML code:
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type='module' src='objectsExercise.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Objects Exercise&lt;/h1&gt;
+&lt;p&gt;
+&lt;input type="button" value="test" id="btn1" /&gt;
+&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</li>
+<li>Begin an <em>objectsExercise.js</em> file with code which links the 
+button with the ID of <em>btn1</em> to a new arrow function, so that the arrow function will run when the button is clicked.</li>
+<li>Write the arrow function. In the function,
+create a <em>car</em> object. It should have properties for make, model, engine capacity (cc), top speed, and current speed (mph or km/h - doesn't really matter).  Set them to appropriate values (current speed should initially be zero)</li>
+<li>Add <em>accelerate()</em> and <em>decelerate()</em> methods. These should increase and decrease the speed by 5 units, respectively. <em>decelerate()</em> should ideally check to make sure that the speed doesn't go below
+0 and <em>accelerate()</em> should ideally check to make sure that the speed doesn't go above the top speed.</li>
+<li>Add a <em>toString()</em> method to return a string representation of the car.</li> <li>Try displaying the car object, accelerating it, displaying it again, decelerating it, and displaying it once more.</li>
+<li>Adjust your <em>accelerate()</em> and <em>decelerate()</em> so that the
+amount to increase and decrease the speed by is passed in as an argument.</li>
+</ol>
+</p>
+</body>
+</html>

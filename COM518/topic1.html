@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>COM518 - Topic 1 - JavaScript Fundamentals</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+
+<h1>Topic 1. JavaScript Fundamentals</h1>
+<p>This first topic should hopefully be mostly revision, but it is possible that some of it will be new to you. As you are all on different courses, your JavaScript knowledge will be at different levels. Therefore, before we start to move on to new material, I need to be sure that you are comfortable with the fundamentals of JavaScript.</p>
+
+<h2>JavaScript Basics</h2>
+<p>You should know already that JavaScript is used to provide <em>interactivity</em> to HTML pages. However you can do far more than simple form validation, colour changes and animations: you can build <em>complete web applications</em>, equivalent in functionality to desktop applications, using JavaScript. You can also write <em>server-side JavaScript code</em> with <em>Node.js</em> which we will meet later in the module. (Some of you have done some Node.js already, but some of you have not, so I will need to introduce it from first principles).</p>
+<h3>JavaScript Simple Example</h3>
+<p>
+Here is a basic JavaScript example. Remember that the JavaScript goes in its own <code>.js</code> file, e.g. <code>hello.js</code>:
+<pre>
+function hello() 
+{
+    alert('Hello from JavaScript!');
+}
+</pre>
+and we can link it from an HTML page as follows:
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Basic JavaScript Example&lt;/title&gt;
+&lt;script type='text/javascript' src='hello.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Test JavaScript Event Handling Page&lt;/h1&gt;
+&lt;input type='button' id='btn1' value='Click Away!' onclick='hello()' /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p>
+<p>
+JavaScript typically is linked from the <em>head</em> section of the page, within <em>script</em> tags, and normally consists of a series of functions: 
+self-contained pieces of code which perform a particular task. The JavaScript within this 
+page contains one function, called hello() , which brings up an alert box reading "Hello from JavaScript!"</p>
+<h3>Better event Handling with Unobtrusive JavaScript and addEventListener()</h3>
+<p>The first example illustrates <em>event handling</em>: the ability to respond to user interactions - or <em>events</em> - on a page, such as the user clicking a button. The above example was rather "dirty" because the event handling was set up in the HTML. It is better to write what we call <em>unobtrusive JavaScript</em> in which the HTML and JavaScript are kept entirely separate, for better maintainability.</p>
+<p>We can achieve this by attaching an <em>event handler</em> to a user interface element using the <em>addEventListener()</em> function. addEventListener() expects two pieces of information (<em>arguments</em>):
+<ul>
+<li>the event type (e.g. <code>click</code>),</li>
+<li> and the function which will run when the event occurs: the <em>event handler function</em>.</li>
+</ul>
+<p>If you look at the example below, you can see that the event type is <code>click</code> and the event handler function, or callback, is <code>clickHandler</code>. Note how we attach the event handler to the element with the ID of <code>btn1</code>:  
+<pre>
+// JavaScript file, example2.js
+
+// Find the element with the ID 'btn1' and attach the click event handler to it
+document.getElementById("btn1").addEventListener("click", clickHandler);
+    
+function clickHandler() {
+    alert("You clicked me!");
+}
+</pre>
+This event handler function is an example of a <em>callback</em> function. Callback functions are supplied as arguments to other functions, and are known as callbacks because they do not run immediately: instead it will be "called back" at some point in the future. In this example, the callback will run when the user clicks the button.</p>
+<p>The accompanying HTML might look like this:
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type=<strong>'module'</strong> src='example2.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Test JavaScript Event Handling Page&lt;/h1&gt;
+&lt;input type='button' id='btn1' value='Click Away!' /&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</p>
+Note how we now link in the JavaScript with a type of <code>module</code> rather than <code>text/javascript</code>. This is specifying that the JavaScript is an <em>ECMAScript 6 module</em>: we have not covered modules yet but for the purposes of this topic, the key thing about a module is that it is loaded <em>after the page has completed loading</em> and therefore we will know that all page elements have been loaded into memory and are ready to be used.</p>
+<h2>A word on Data Types</h2>
+<p>Before we begin on some of the new JavaScript features we will look at in EWT,
+particularly <em>objects</em>, it helps to have
+some understanding of <em>data types</em> in JavaScript. Unlike other languages such as Java or C++, but similar to PHP and Python, JavaScript is a <em>loosely-typed</em> language. This means that when creating a variable,
+you do not have to declare the data type. So while in Java you would have to do:
+<pre>int a = 3;</pre>
+to set up an integer (whole number) variable <em>a</em>, in JavaScript you simply do:
+<pre>let a = 3;</pre>
+in other words, you do not have to specify the type of data (number, boolean[true/false], string etc) that the variable will hold. In fact, you can even reuse the same variable to hold a different data type. You declare the variable with <code>let</code>, which declares the variable as existing in the current <code>scope</code>. The following is perfectly valid JavaScript:
+<pre>
+// Initially "a" holds a number
+let a = 3;
+alert(a);
+
+// Now it holds a string
+a = "Hello!";
+alert(a);
+
+// Now it holds a boolean 
+a = true;
+alert(a);
+</pre>
+When you try to do something with a variable in JavaScript, such as adding two variables together, the JavaScript environment works out what sort of variable is by examining it. This is known as "duck typing" ("if it walks like a duck and quacks like a duck, it is a duck"). For example, if you do:
+<pre>
+let c = a + b;
+</pre>
+JavaScript will examine the contents of <em>a</em> and <em>b</em>. If they are numbers, it will do an arithmetic addition. If at least one of them is a string, it will concatenate <em>a</em> and <em>b</em> (e.g. "Hello " + "World" = "Hello World", or 3 + " bears" = "3 bears").
+</p>
+<h3>JavaScript Data Types</h3>
+<p>JavaScript has six fundamental data types:
+<ul>
+    <li>Number: note that it doesn't distinguish between integers and floating-point numbers.</li>
+    <li>String</li>
+    <li>Boolean (true/false)</li>
+    <li>Object (<em>arrays</em>, below, are a type of object)</li>
+    <li>Undefined: if we try to use a variable we haven't defined yet, e.g. we do <em>alert(a)</em> without 
+    setting <em>a</em> equal to anything, then <em>a</em> will be an <em>undefined</em> variable.</li>
+    <li>Null: typically used for setting up "blank" variables which don't contain anything yet. It is often
+    used to explicitly initialise a variable to a "blank" value, so that we can test for null
+    later. This is different
+    to undefined. An undefined variable is one we haven't set up yet, whereas a <em>null</em> variable is one which
+    has been explicitly set to <em>null</em>. For example, in:
+    <pre>
+let a;
+alert(a);
+a = null;
+alert(a);
+    </pre>
+    a is initially <em>undefined</em> but then it becomes <em>null</em>.
+    </li>
+    </ul>
+</p>
+<h2>JavaScript Arrays</h2>
+<p>
+You should be familiar with the concept of an <em>array</em>. Arrays are similar in concept to <em>lists</em> in Python.  Arrays are a special type of variable used to collect like items together, such as a set of months or student marks.</p>
+<p>To set up an array containing the months of the year, we would do the following:
+<pre>
+const months = ["January","February","March", 
+        "April","May","June",
+        "July","August","September","October",
+        "November","December"];
+</pre>
+</p>
+<p>Note the use of <code>const</code> rather than <code>let</code>. A <code>const</code> variable is an <em>immutable</em> variable, in other words, it can't be changed, whereas a variable declared with <code>let</code> can.</p>
+<p>
+To access each member of the array we index it. An index is a numerical value pointing to a particular member of an array. The index starts with 0 for the first member of the array, then 1 for the second member of the array, and so on. For example:
+<pre>
+alert (`The first month of the year is ${months[0]}`);
+alert (`The third month of the year is ${months[2]}`);
+</pre>
+would show:
+<pre>
+The first month of the year is January
+The third month of the year is March
+</pre>
+</p>
+<p>Note that this example introduces a syntax which might also be new to you: the <em>backtick syntax</em>. Backticks (``) allow you to embed variables - and more complex expressions - directly inside strings without having to use string concatenation. Note how the variable or expression is placed inside curly brackets { } and the curly brackets are preceded with a dollar sign $.</p>
+<h3>Arrays and Loops</h3>
+<p>
+Often loops are used in conjunction with arrays to operate on a set of data at once.  The following code will loop through the months in the previous array.  <pre>
+for (let count=0; count<12; count++)
+{
+    alert(months[count]);
+}
+</pre>
+The variable <em>count</em> is used to index each member of the array in turn on each go of the loop, it increases by one. So on the first go of the loop, it will reference member 0 (the first member), on the second go of the loop, it will reference member 1 (the second member) and so on.  </p>
+<p>
+
+Here is a complete example which sets up an array containing 12 average temperatures for each month and loops through them: 
+<pre>
+function displayTemps()
+{
+    const months = ["January","February","March", 
+        "April","May","June",
+        "July","August","September","October",
+        "November","December"];
+
+    const temps = [4,7,12,15,18,21,24,23,20,15,11,6];
+    
+    for(let count=0; count<12; count++)
+    {
+        alert (`${months[count]} has an average maximum temperature of ${temps[count]} degrees C`);
+    }
+}
+</pre>
+</p>
+<h2>More on JavaScript Functions</h2>
+<p>We have already seen <em>functions</em> as self-contained pieces of JavaScript code which run on response to user interaction with a web page. More generally, however, functions are <em>reusable sections of code which accomplish a particular task</em>. They may be called at any time, including from other functions. To give an example:
+<pre>
+console.log("Calling counter the first time");
+counter();
+console.log("Calling counter the second time");
+counter();
+
+function counter()
+{
+    for(let i=1; i<=10; i++)
+    {
+        console.log(i);
+    }
+}
+</pre>
+Here, the <em>ftest1()</em> function is running when the user clicks the button, and that, in turn, calls the 
+<em>counter()</em> function which counts from 1 to 10 by displaying console.log boxes. Note how <em>counter()</em> is called
+twice, to show you how you can re-use functions.</p>
+<h3>Output to the Console - Developer Tools</h3>
+<p>Note also how we are now outputting the messages with <code>console.log</code>. Rather than using perhaps-annoying repeated alert boxes, we are testing our code by writing a message to the <em>console</em>. This can be viewed in the <em>Developer Tools</em> of your web browser, specifically:
+	<ul>
+	<li>Web Developer-Web Console in Firefox;</li>
+	<li>More tools-Developer Tools in Chrome.</li>
+	</ul>
+Under the Developer Tools there is a 'Console' tab, where anything output with <em>console.log</em> will be displayed.</p>
+<p><strong>Another important use of the console is for debugging.</strong> If there are errors in your JavaScript code, they will appear in the console in red. <em>This is very useful for debugging your code</em>, so, before you do anything else, <em>check the console</em> when your code is not working.</p>
+<h3>Function Parameters and Return Values</h3>
+<p>Functions can also take <em>parameters</em>. A parameter is a variable representing a 
+piece of information passed into the function, which
+tells the function how to do its job. The information itself 
+being passed into the function is known as an <em>argument</em>; the parameter is the variable
+in the function representing that information.
+For example, we might want to adapt the <em>counter()</em> function above so that
+it can count up to <em>any</em> number. The example below shows how we can use a parameter to do this:
+<pre>
+console.log("Calling counter the first time");
+counter(3);
+console.log("Calling counter the second time");
+counter(5);
+
+function counter(ntimes)
+{
+    for(let i=1; i<=ntimes; i++)
+    {
+        console.log(i);
+    }
+}
+</pre>
+In this example note how the counter function is written with a parameter <em>ntimes</em> which tells the function how
+far to count:
+<pre>function counter(<em>ntimes</em>)</pre>
+and when we call the function, we specify the number of times we wish to count to as an <em>argument</em>:
+<pre>counter(3);
+...
+counter(5);</pre>
+The parameter <em>ntimes</em> will take on the value passed in, in other words the argument
+(3 or 5 in this case) and the function will count up to the
+given number. So the output from this program (as console.log boxes) will be:
+<pre>Calling counter the first time
+1
+2
+3
+Calling counter the second time
+1
+2
+3
+4
+5</pre>
+</p>
+<h3>Multiple parameters</h3>
+<p>Often we might want to pass <em>more than one</em> argument to a function. For example we might want to
+display a user-defined message a particular number of times. The following example shows this:
+<pre>
+displayMessage("hello", 3);
+displayMessage("goodbye", 2);
+
+function displayMessage(message, ntimes)
+{
+    for(let i=1; i<=ntimes; i++)
+    {
+        console.log(message);
+    }
+}
+</pre>
+The <em>displayMessage()</em> function now takes <em>two</em> parameters, <em>message</em> and <em>ntimes</em>. It uses
+them to display the specified message the specified number of times, using a loop. Note when we call the function, from
+<em>ftest3()</em>, we have to therefore supply these <em>two</em> arguments.</p>
+<h3>Return values</h3>
+<p>Finally, functions can <em>return</em> a value. This is particularly useful if we write a function to do some sort of
+mathematical calculation: we will want to return the calculated value. Here is an example:
+<pre>
+const a = cube(3);
+console.log(a);
+console.log(cube(4));
+
+function cube(number)
+{
+    return number * number * number;
+}
+</pre>
+Note how we write a function called <em>cube()</em> which takes a number and calculates its cube. The result is 
+<em>returned</em> from the function, using the <em>return</em> keyword. In the <em>ftest4()</em> function we call the
+<em>cube()</em> function, pass a value to it, and assign the return value to a variable <em>a</em> which we then display.
+Note also how we can directly display (or do anything else with) the return value of the function without having to assign
+it to a variable, as in the second call:
+<pre>console.log(cube(4));</pre>
+which calls the cube function and console.logs the result of it.
+</p>
+<h2>JavaScript and the Document Object Model (DOM)</h2>
+<p>
+The <em>Document Object Model (DOM)</em>
+is an addressing system for web pages or XML documents.
+The DOM represents the elements of a web page or XML document as a series
+of hierarchically-nested <em>objects</em> (see above), in which 
+objects representing child tags are contained within objects representing the
+parent. Using the DOM, we can access and manipulate properties of a web page 
+using 
+JavaScript. 
+This allows us to dynamically update the state of the page, for example change the colour 
+of a <em>div</em> or the text within 
+it. Each page element is treated as a JavaScript object. Each object then has a series of 
+attributes which we can manipulate.</p>
+
+<p>
+Probably the most important feature of the DOM is the getElementById() 
+<em>method</em> of the 
+<em>document</em> object (an object representing the entire web page). This 
+method takes 
+the ID of a page element, and gives us back
+a JavaScript object representing that page element. 
+For example:
+<pre>
+document.getElementById('div1').style.backgroundColor='red';
+document.getElementById('div1').style.color='white';
+</pre>
+</p>
+<p>The JavaScript uses <em>document.getElementById()</em> to get hold of that element, and then changes the <code>backgroundColor</code> (background colour) and <code>color</code> (text colour) properties of its style to red and white respectively. </p>
+
+<h3>Changing the contents of a page element</h3>
+<p>Another feature (not an official DOM feature, but an unofficial extension supported by
+most browsers) is the ability to change the contents of a page element using
+<em>innerHTML</em>. This is quite simple to use, for example:
+<pre>document.getElementById("mydiv").innerHTML = "Some new text!";</pre>
+</p>
+<h3>Reading text from a form field</h3>
+<p>Use the <code>value</code> property of the form field to get the text, e.g.
+<pre>const emailAddress = document.getElementById('email').value;</pre>
+</p>
+<h3>Exercise</h3>
+<ol>
+<li>Write a web page which contains a &lt;div&gt;, together with a form field
+(with an ID) and a button. When the user clicks the button, a JavaScript function should run which reads in 
+a colour (e.g "red") from the input box and sets the div's background colour to that colour. 
+<br />
+<strong>Use the "unobtrusive" JavaScript method that I introduced in the second code example</strong>. To do this, write an external JavaScript file, and in your JavaScript file use <code>addEventListener()</code> to add an event handler function to the button. Then, write this event handler function to change the <code>div</code>'s background colour.</li>
+<li>Extend your answer to add a second form field, allowing the user to enter the div's text colour. Also extend your event handler function so that it reads in the contents of this second text field, and set's the <code>div</code>'s text colour appropriately, as well as background colour.</li>
+<li>Add another button to the page and, in the <em>same JavaScript file</em>, connect it to a <em>second</em> JavaScript function, again using <em>addEventListener()</em>. This function should create two arrays, containing the English (spring, summer, autumn, winter) and German (Fruehling, Sommer, Herbst, Winter) names for the seasons. Write a loop which displays both names in a series of alert boxes, e.g.:
+<pre>The German for spring is Fruehling</pre>
+</li>
+<li>Add a third function to change the properties of the div (so you have three functions in total) This new function should be called <em>setDivColour()</em> and should take three parameters representing the div ID, the background colour, and the text colour. It should set the background and text colour of the element with that ID to the parameters passed in.
+<br />
+Then, change your answer to Question 2 so that it sets the <code>div</code>'s colour by <em>calling this new function, passing the div ID and contents of the text fields to it as arguments</em>, rather than setting the <code>div</code>'s properties directly.</li>
+</ol>
+</p>
+
+<p>If you finish this, please read ahead to <a href='objects.xhtml'>Topic 2</a>.</p>
+</body>
+</html>
