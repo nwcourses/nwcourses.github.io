@@ -6,10 +6,11 @@
 </head>
 <body>
 <h1 class="front">Topic 2 - Further JavaScript Features</h1>
-<p>In Topic 2 we continue to explore fundamental features of JavaScript by looking at some concepts you have probably not met already in the first year. Speficically, we will be looking at:
+<p>In Topic 2 we continue to explore fundamental features of JavaScript by looking at some concepts you have probably not met already in the first year. Specifically, we will be looking at:
 <ul>
 <li>Arrow Functions</li>
 <li>JavaScript Objects</li>
+<li>JavaScript Classes</li>
 </ul>
 </p>
 <h2>Arrow functions</h2>
@@ -70,7 +71,7 @@ manipulate page elements. This involves the use of JavaScript objects which are 
 environment. They are available whenever you use JavaScript with a standards-compliant web browser.
 To go through an example:
 <pre>
-var elem = document.getElementById("mydiv");
+const elem = document.getElementById("mydiv");
 elem.style.color = 'red';
 </pre>
 This code shows the use of some in-built JavaScript objects. <em>document</em> is an object 
@@ -100,7 +101,7 @@ document.getElementById("btn1").addEventListener("click", () =&gt; {
                 age: 5, 
                 weight: 10 }; 
 
-    console.log(`${cat.name} ${cat.age} ${cat.weight}`);
+    alert(`${cat.name} ${cat.age} ${cat.weight}`);
 });</pre>
 Note how the properties are contained within curly brackets, and each property consists of its name 
 (e.g. <em>age</em>)
@@ -114,7 +115,7 @@ to create a second cat:
 const cat2 = { name: "Old Tom", 
              age: 10};
 
-console.log(`${cat2.name} ${cat2.age}`);
+alert(`${cat2.name} ${cat2.age}`);
 </pre>
 Note that the second cat does not have a weight. If you have had previous experience with object-orientated languages
 such as Java or C++, you will probably notice a difference here. In JavaScript, there are no true <em>classes</em>
@@ -151,7 +152,7 @@ document.getElementById("btn1").addEventListener("click", =&gt; {
     
         meow: function()
         {
-            console.log("Meow!");
+            alert("Meow!");
         },
 
         walk: function()
@@ -171,7 +172,7 @@ document.getElementById("btn1").addEventListener("click", =&gt; {
 
         purr: function()
         {
-            console.log('Purrrr......');
+            alert('Purrrr......');
         }
     };
 });
@@ -208,7 +209,7 @@ document.getElementById("btn1").addEventListener("click", () =&gt; {
     
         meow: function()
         {
-            console.log("Meow!");
+            alert("Meow!");
         },
 
         walk: function()
@@ -228,16 +229,16 @@ document.getElementById("btn1").addEventListener("click", () =&gt; {
 
         purr: function()
         {
-            console.log('Purrrr......');
+            alert('Purrrr......');
         }
     };
  
-    console.log(cat.weight);
+    alert(cat.weight);
     cat.meow();
     cat.eat();
-    console.log(cat.weight);
+    alert(cat.weight);
     cat.eat();
-    console.log(cat.weight);
+    alert(cat.weight);
 });
 </pre>
 Note carefully the difference between:
@@ -262,7 +263,7 @@ document.getElementById("btn1").addEventListener("click", () =&gt; {
     
         meow: function()
         {
-            console.log("Meow!");
+            alert("Meow!");
         },
 
         walk: function()
@@ -281,17 +282,17 @@ document.getElementById("btn1").addEventListener("click", () =&gt; {
 
         purr: function()
         {
-            console.log('Purrrr......');
+            alert('Purrrr......');
         }
 
     };
  
-    console.log(cat.weight);
+    alert(cat.weight);
     cat.meow();
     cat.eat(<em>2</em>); // argument of 2
-    console.log(cat.weight);
+    alert(cat.weight);
     cat.eat(<em>3</em>); // argument of 3
-    console.log(cat.weight);
+    alert(cat.weight);
 });
 </pre>
 Note how the amount of food is passed to the <em>eat()</em> function as 
@@ -312,20 +313,20 @@ const cat3 =
     { name: "Tigger",
       age: 8,
       weight: 7, 
-      meow: function() { console.log("Meow!") },
+      meow: function() { alert("Meow!") },
       walk: function() { this.weight--; },
       eat: function() { this.weight++; },
       <em>toString: function() { return `${this.name} ${this.age} ${this.weight}`; }</em>
     };
 </pre>
 The advantage of <em>toString()</em> is that it allows you to easily display an object. If we supply an object
-as an argument to <em>console.log()</em>, for instance, it would use <em>toString()</em> to determine how to display
+as an argument to <em>alert()</em>, for instance, it would use <em>toString()</em> to determine how to display
 the object. So if we did the following:
-<pre>console.log(cat3);</pre>
+<pre>alert(cat3);</pre>
 we would get:
 <pre>Tigger 8 7</pre>
 </p>
-<h2>Exercises</h2>
+<h2>Exercise 1</h2>
 <ol>
 <li>Convert your work from Topic 1 to use <em>arrow functions</em>, rather than named callback functions. However, <strong>ensure you keep a copy of the original code from last week</strong>, so that you have it for reference.</li>
 <li>Create a web page containing <em>only</em> a button.
@@ -355,5 +356,213 @@ create a <em>car</em> object. It should have properties for make, model, engine 
 amount to increase and decrease the speed by is passed in as an argument.</li>
 </ol>
 </p>
+<h2>Classes - A Taster</h2>
+<p>Above we looked at <em>objectss</em> and defined objects representing cats. The only problem is, that if you need to create several objects of a similar
+type, for example several cats, you find yourself having to <em>repeat the same code</em>, i.e. write <em>walk()</em>, <em>eat()</em> and <em>meow()</em> methods for each object. This quickly becomes very repetitive. For example, the code below creates two cats, Tiddles and Old Tom. Each cat works in the same way but we have to repeat all the methods.
+<pre>
+// JS
+document.getElementById("btn1").addEventListener("click", () =&gt; {
+    const cat = {
+        name: "Tiddles",
+        age: 5,
+        weight: 10,
+    
+        meow: function()
+        {
+            alert("Meow!");
+        },
+
+        walk: function()
+        {
+            // "--" reduces the weight by 1
+            this.weight--;
+        },
+
+        eat: function()
+        {
+            // "++" increases the weight by 1
+            this.weight++;
+
+            // Make the cat purr. Note how we call a method from another method.
+            this.purr();
+        },
+
+        purr: function()
+        {
+            alert('Purrrr......');
+        }
+    };
+
+    const cat2 = {
+        name: "Old Tom",
+        age: 10,
+        weight: 10,
+    
+        meow: function()
+        {
+            alert("Meow!");
+        },
+
+        walk: function()
+        {
+            // "--" reduces the weight by 1
+            this.weight--;
+        },
+
+        eat: function()
+        {
+            // "++" increases the weight by 1
+            this.weight++;
+
+            // Make the cat purr. Note how we call a method from another method.
+            this.purr();
+        },
+
+        purr: function()
+        {
+            alert('Purrrr......');
+        }
+    };
+ 
+    alert(cat.weight);
+    cat.meow();
+    cat.eat();
+    alert(cat.weight);
+    cat.eat();
+    alert(cat.weight);
+    cat2.meow();
+    cat2.eat();
+    alert(cat2.weight);
+});
+</pre>
+Instead, as from ECMAScript 6, we can used <em>classes</em> to JavaScript, 
+which work in a similar way to classes in full object-oriented languages such as Java.</p>
+<p>Note that it is important to understand that <em>JavaScript doesn't use real classes</em>, in the way that other
+languages such as Java do. JavaScript classes are "syntactic sugar" (as stated
+in the Mozilla article, below), round JavaScript's real underlying
+object mechanism, prototypes, which are descibed <a href='prototypes.html'>in this further reading link</a> </p>.
+<h3>Classes and Objects</h3>
+<p> What is a class?
+It is a general description, or blueprint, of something while an 
+object is a particular example, or instance, of that class. 
+For example:
+    <ul>
+    <li>Dog is a class; Lassie, Fido and Bowser are Dog objects.</li>
+    <li>Popstar is a class; Madonna and Michael Jackson are Popstar objects.</li>
+    <li>Room is a class; RM602, RM603, RM605 and RM607 are Room objects.</li>
+    <li>Country is a class; the UK and Germany are Country objects.</li>
+    </ul>
+
+<p>More detail can be found on the
+<a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes'>
+Mozilla page</a>.
+</p>
+<p>Here is a simple example where we define a class representing a student.
+<pre>
+class Student
+{
+    // constructor
+    constructor(nameIn,courseIn)
+    {
+        this.name = nameIn;
+        this.course = courseIn;
+    }
+
+    display()
+    {
+        alert(`Name ${this.name} Course ${this.course}`);"
+    }
+}
+const student1 = new Student("John" , "Software Engineering");
+const student2 = new Student("Surjan" , "Web Design");
+student1.display();
+student2.display();
+</pre>
+<p>
+<p>How does the example work?
+<ul>
+<li>
+The actual Student class is the section of code highlighted.</li>
+<li>We create a class called Student and then define the <em>constructor</em>
+ with constructor(). What is the constructor?
+It's a special function which runs when we create a new object of that class. 
+It initialises two properties - name and course - to a name and course passed in from outside as parameters.</li>
+<li>Note that <em>this</em> is a reference to the current object, so we're
+setting the name and course properties of the current Student object we're
+dealing with.
+</li>
+<li> The highlighted code does not create any objects; it merely defines how a Student class works.
+</li>
+<li>
+The actual object creation is
+done instead in the code below:
+<pre>
+const student1 = new Student("John" , "Software Engineering");
+const student2 = new Student("Surjan" , "Web Design");
+</pre>
+</li>
+<li>
+Note the use of the keyword <em>new</em> 
+to create new objects of the Student class. Two new objects, student1 and student2, are created. 
+</li>
+<li>When we create a Student object, the constructor (see above) is called to initialise the objects.
+</li>
+<li> Note how, for the first object, we pass the values "John" and "Software Engineering" to the constructor. The parameters to the 
+constructor, nameIn and courseIn, will take on the values "John" and "Software Engineering" 
+respectively, as these are the two pieces of information that have been passed in. The constructor then 
+sets the name and course attributes to these two values. </li>
+<li>
+Therefore, the object student1 will have a name attribute of "John" and a course attribute of 
+"Software Engineering".</li>
+<li>Finally we call each student's display() method:
+<pre>
+student1.display();
+student2.display();
+</pre>
+As can be seen from the class, the display method displays the details of that student.
+</li>
+</ul>
+<h3>Another example: a Dog class</h3>
+<pre>
+class Dog
+{
+    constructor(nameIn, weightIn)
+    {
+        this.name = nameIn;
+        this.weight = weightIn;
+    }
+
+    display()
+    {
+        alert(`${this.name} ${this.weight}`);
+    }
+
+    walk()
+    {
+        if(this.weight &gt; 10)
+        {
+           this.weight--; // reduce weight by 1
+        }
+        else
+        {                
+            alert("The poor dog will be half starved if you carry on!");
+        }
+    }
+}
+
+const dog1 = new Dog("Fido", 11);
+const dog2 = new Dog("Lassie", 13);
+dog1.display();
+dog2.display();
+dog1.walk();
+dog1.display();
+dog1.walk();
+dog1.display();
+</pre>
+<p>
+Note how the walk() method of Dog is defined in the class. It simulates walking the dog by reducing the 
+weight by one, but if the weight goes below 10, the dog refuses to walk as they don't want to starve!!!</p>
+<h2>Exercise 2</h2>
+<p>Rewrite your code from Exercise 1 (question 3 onwards) to use classes. Create a Car class to define a car, and give it the same properties and methods as your individual Car objects. Note how you no longer need to repeat the code to define a car object each time you create a car!</p> 
 </body>
 </html>
