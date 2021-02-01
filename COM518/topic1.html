@@ -59,15 +59,15 @@ This event handler function is an example of a <em>callback</em> function. Callb
 <pre>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-&lt;script type=<strong>'module'</strong> src='example2.js'&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
 &lt;h1&gt;Test JavaScript Event Handling Page&lt;/h1&gt;
 &lt;input type='button' id='btn1' value='Click!' /&gt;
+&lt;script type='text/javascript' src='example2.js'&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</pre>
 </p>
-Note how we now link in the JavaScript with a type of <code>module</code> rather than <code>text/javascript</code>. This is specifying that the JavaScript is an <em>ECMAScript 6 module</em>: we have not covered modules yet but for the purposes of this topic, the key thing about a module is that it is loaded <em>after the page has completed loading</em> and therefore we will know that all page elements have been loaded into memory and are ready to be used.</p>
+Note how we now link in the JavaScript at the end of the &lt;body&gt;, <em>not</em> the &lt;head&gt;. This is to ensure that it is loaded <em>after the page has completed loading</em> and therefore we will know that all page elements have been loaded into memory and are ready to be used.</p>
 <h2>A word on Data Types</h2>
 <p>Before we begin on some of the new JavaScript features we will look at in EWT,
 particularly <em>objects</em>, it helps to have
