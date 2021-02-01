@@ -148,12 +148,19 @@ The third month of the year is March
 <h3>Arrays and Loops</h3>
 <p>
 Often loops are used in conjunction with arrays to operate on a set of data at once.  The following code will loop through the months in the previous array.  <pre>
-for (let count=0; count<12; count++)
+for (let count=0; count&lt;12; count++)
 {
     alert(months[count]);
 }
 </pre>
 The variable <em>count</em> is used to index each member of the array in turn on each go of the loop, it increases by one. So on the first go of the loop, it will reference member 0 (the first member), on the second go of the loop, it will reference member 1 (the second member) and so on.  </p>
+<p>We can obtain the length of an array with the <code>length</code> property. So we could rewrite the previous example to use <code>length</code> rather than the hard-coded value <code>12</code>:
+<pre>
+for (let count=0; count&lt;months.length; count++)
+{
+    alert(months[count]);
+}
+</pre>
 <p>
 
 Here is a complete example which sets up an array containing 12 average temperatures for each month and loops through them: 
@@ -167,7 +174,7 @@ function displayTemps()
 
     const temps = [4,7,12,15,18,21,24,23,20,15,11,6];
     
-    for(let count=0; count<12; count++)
+    for(let count=0; count&lt;months.length; count++)
     {
         alert (`${months[count]} has an average maximum temperature of ${temps[count]} degrees C`);
     }
@@ -184,7 +191,7 @@ counter();
 
 function counter()
 {
-    for(let i=1; i<=10; i++)
+    for(let i=1; i&lt;=10; i++)
     {
         console.log(i);
     }
@@ -217,7 +224,7 @@ counter(5);
 
 function counter(ntimes)
 {
-    for(let i=1; i<=ntimes; i++)
+    for(let i=1; i&lt;=ntimes; i++)
     {
         console.log(i);
     }
@@ -253,7 +260,7 @@ displayMessage("goodbye", 2);
 
 function displayMessage(message, ntimes)
 {
-    for(let i=1; i<=ntimes; i++)
+    for(let i=1; i&lt;=ntimes; i++)
     {
         console.log(message);
     }
