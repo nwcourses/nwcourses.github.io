@@ -459,109 +459,88 @@ Mozilla page</a>.
 </p>
 <p>Here is a simple example where we define a class representing a student.
 <pre>
-class Student
+class Cat 
 {
-    // constructor
-    constructor(nameIn,courseIn)
+    constructor(nameIn, ageIn, weightIn) 
     {
-        this.name = nameIn;
-        this.course = courseIn;
+        this.name=nameIn; 
+        this.age=ageIn; 
+        this.weight=weightIn; 
+    } 
+
+    meow()
+    {
+        alert("Meow!");
     }
 
-    display()
+    walk()
     {
-        alert(`Name ${this.name} Course ${this.course}`);"
+        this.weight--;
+    }
+
+    eat()
+    {
+        this.weight++;
+
+        // Make the cat purr. Note how we call a method from another method.
+        this.purr();
+    }
+
+    purr()
+    {
+        alert('Purrrr......');
     }
 }
-const student1 = new Student("John" , "Software Engineering");
-const student2 = new Student("Surjan" , "Web Design");
-student1.display();
-student2.display();
+
+document.getElementById('btn1').addEventListener('click', () =&gt; {
+    const cat1 = new Cat("Tiddles" , 5, 10);
+    const cat2 = new Cat("Old Tom", 10, 10);
+    cat1.meow();
+    cat1.eat();
+    cat2.meow();
+    cat2.eat();
+});
 </pre>
 <p>
 <p>How does the example work?
 <ul>
-<li>
-The actual Student class is the section of code highlighted.</li>
-<li>We create a class called Student and then define the <em>constructor</em>
+<li>We create a class called Cat and then define the <em>constructor</em>
  with constructor(). What is the constructor?
 It's a special function which runs when we create a new object of that class. 
-It initialises two properties - name and course - to a name and course passed in from outside as parameters.</li>
+It initialises two properties - name and course - to a name, age and weight passed in from outside as parameters.</li>
 <li>Note that <em>this</em> is a reference to the current object, so we're
-setting the name and course properties of the current Student object we're
+setting the name, age and weight properties of the current Student object we're
 dealing with.
 </li>
-<li> The highlighted code does not create any objects; it merely defines how a Student class works.
+<li> The class definition not create any objects; it merely defines how a Cat class works.
 </li>
 <li>
 The actual object creation is
 done instead in the code below:
 <pre>
-const student1 = new Student("John" , "Software Engineering");
-const student2 = new Student("Surjan" , "Web Design");
+const cat1 = new Cat("Tiddles" , 5, 10);
+const cat2 = new Cat("Old Tom", 10, 10);
 </pre>
 </li>
 <li>
 Note the use of the keyword <em>new</em> 
-to create new objects of the Student class. Two new objects, student1 and student2, are created. 
+to create new objects of the Cat class. Two new objects, cat1 and cat2, are created. 
 </li>
-<li>When we create a Student object, the constructor (see above) is called to initialise the objects.
+<li>When we create a Cat object, the constructor (see above) is called to initialise the objects.
 </li>
-<li> Note how, for the first object, we pass the values "John" and "Software Engineering" to the constructor. The parameters to the 
-constructor, nameIn and courseIn, will take on the values "John" and "Software Engineering" 
-respectively, as these are the two pieces of information that have been passed in. The constructor then 
-sets the name and course attributes to these two values. </li>
+<li> Note how, for the first object, we pass the values "Tiddles", 5 and 10 to the constructor. The parameters to the constructor, nameIn, ageIn, and weightIn, will take on the values "Tiddles", 5 ad 10 respectively, as these are the three pieces of information that have been passed in. The constructor then sets the name, age and weight properties to these two values. </li> 
 <li>
-Therefore, the object student1 will have a name attribute of "John" and a course attribute of 
-"Software Engineering".</li>
-<li>Finally we call each student's display() method:
+Therefore, the object cat1 will have a name property of "Tiddles", an age property of 5, and a weight property of 10.</li> a and a course attribute of 
+<li>Finally we call each cat's meow() and eat() methods when the button is
+clicked:
 <pre>
-student1.display();
-student2.display();
+cat1.meow();
+cat1.eat();
+cat2.meow();
+cat2.eat();
 </pre>
-As can be seen from the class, the display method displays the details of that student.
 </li>
 </ul>
-<h3>Another example: a Dog class</h3>
-<pre>
-class Dog
-{
-    constructor(nameIn, weightIn)
-    {
-        this.name = nameIn;
-        this.weight = weightIn;
-    }
-
-    display()
-    {
-        alert(`${this.name} ${this.weight}`);
-    }
-
-    walk()
-    {
-        if(this.weight &gt; 10)
-        {
-           this.weight--; // reduce weight by 1
-        }
-        else
-        {                
-            alert("The poor dog will be half starved if you carry on!");
-        }
-    }
-}
-
-const dog1 = new Dog("Fido", 11);
-const dog2 = new Dog("Lassie", 13);
-dog1.display();
-dog2.display();
-dog1.walk();
-dog1.display();
-dog1.walk();
-dog1.display();
-</pre>
-<p>
-Note how the walk() method of Dog is defined in the class. It simulates walking the dog by reducing the 
-weight by one, but if the weight goes below 10, the dog refuses to walk as they don't want to starve!!!</p>
 <h2>Exercise 2</h2>
 <p>Rewrite your code from Exercise 1 (question 3 onwards) to use classes. Create a Car class to define a car, and give it the same properties and methods as your individual Car objects. Note how you no longer need to repeat the code to define a car object each time you create a car!</p> 
 </body>
