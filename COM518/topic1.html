@@ -190,7 +190,7 @@ function counter()
     }
 }
 </pre>
-Here, the <em>ftest1()</em> function is running when the user clicks the button, and that, in turn, calls the 
+Here, the initial JavaScript code calls the  
 <em>counter()</em> function which counts from 1 to 10 by displaying console.log boxes. Note how <em>counter()</em> is called
 twice, to show you how you can re-use functions.</p>
 <h3>Output to the Console - Developer Tools</h3>
@@ -260,8 +260,8 @@ function displayMessage(message, ntimes)
 }
 </pre>
 The <em>displayMessage()</em> function now takes <em>two</em> parameters, <em>message</em> and <em>ntimes</em>. It uses
-them to display the specified message the specified number of times, using a loop. Note when we call the function, from
-<em>ftest3()</em>, we have to therefore supply these <em>two</em> arguments.</p>
+them to display the specified message the specified number of times, using a loop. Note when we call the function
+we have to therefore supply these <em>two</em> arguments.</p>
 <h3>Return values</h3>
 <p>Finally, functions can <em>return</em> a value. This is particularly useful if we write a function to do some sort of
 mathematical calculation: we will want to return the calculated value. Here is an example:
@@ -276,8 +276,7 @@ function cube(number)
 }
 </pre>
 Note how we write a function called <em>cube()</em> which takes a number and calculates its cube. The result is 
-<em>returned</em> from the function, using the <em>return</em> keyword. In the <em>ftest4()</em> function we call the
-<em>cube()</em> function, pass a value to it, and assign the return value to a variable <em>a</em> which we then display.
+<em>returned</em> from the function, using the <em>return</em> keyword. We call the <em>cube()</em> function, pass a value to it, and assign the return value to a variable <em>a</em> which we then display.
 Note also how we can directly display (or do anything else with) the return value of the function without having to assign
 it to a variable, as in the second call:
 <pre>console.log(cube(4));</pre>
