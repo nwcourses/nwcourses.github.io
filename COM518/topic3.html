@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 3: Introduction to node.js</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Topic 3: Introduction to node.js</h1>
+</div>
+<h2>Clients and servers</h2>
+<p>This week we are going to look at <em>node.js</em>, but before we do so, we will start by looking at the concept of <em>clients</em> and <em>servers</em>.
+This is essential to understand how the web works, and is certainly essential to understand how a server-side platform such as node.js works.</p>
+<h3>What is a client/server system?</h3>
+A client/server system consists of two pieces of software which communicate with each other across a 
+network: the <em>client</em> and the <em>server</em>.
+The <em>client</em> software makes a <em>request</em> to the 
+<em>server</em> software, which then answers with a <em>response</em>.
+Server software need to run <em>continuously</em> in order to accept 
+requests from clients at any time.</p>
+<p>The web is a typical client/server system. When you are using a web browser, the browser is acting as a <em>client</em>. When you type in an address, you are making a <em>request</em> for a web page. This request is received by a web <em>server</em> running on the website's hardware (we will see shortly what this is), which sends the requested page back as a <em>response</em>.</p>
+<img src="../images/clientserver1.png" alt="A client/server system"/>
+<h3>Hypertext Transfer Protocol: HTTP</h3>
+<p>Client/server communication over the web takes place via <em>Hypertext Transfer Protocol</em> or <em>HTTP</em>. HTTP is a set of instructions for sending messages across a network.  Your browser sends the website an <em>HTTP request</em> for a web page, and the <em>server software</em> running on the website's hardware then responds with an <em>HTTP response</em> containing your requested page.</p>
+<h4>The HTTP Request: Asking the Website for a Web Page</h4>
+<p>When the user enters the address in their browser e.g.
+<pre>http://www.hittastic.com/about.html</pre></li>
+the browser generates an <em>HTTP request.</em> This is an instruction to the web server to send back the requested page in a format that the web server understands. An HTTP request looks like this:
+<pre>GET /about.html HTTP/1.1
+Host: www.hittastic.com</pre>
+It can be seen that we are requesting the page <code>about.html</code> from the domain <code>www.hittastic.com</code>. (Potentially one server can host several domains, that is why we need the domain name). The instruction <em>GET</em> is known as the HTTP <em>method</em>; there are various types of HTTP method such as GET, POST, PUT, or DELETE. A request with a method of GET (called a <em>GET</em> request) is used when we are simply <em>looking up a web page</em>, rather than creating or modifying an existing page.</p>
+<p>Once the website's server hardware receives the HTTP request, it is processed by <em>server software</em> continuously running on it. Server software continuuously listens to HTTP requests for a given page from clients, and
+delivers the appropriate page back as an 
+<em>HTTP response</em>.</p>
+<p>Examples of server software include:</p>
+<ul>
+<li><strong>Apache</strong>: free, open source, cross platform</li>
+<li><strong>Nginx</strong>: another free, open source server</li>
+<li><strong>Microsoft Internet Information Services (IIS)</strong>: 
+available for Windows only (comes with certain versions of Windows)</li>
+<li><strong>A custom node.js server</strong></li>
+</ul>
+<img src="../images/clientserver2.png" alt="The role of web server software"/>
+<h3>What does the Web Server Software do?</h3>
+<p>The web server software <em>interprets</em> ("reads")
+the HTTP request from the client (the browser),  and sends the requested page (or image, video, etc) back as an <em>HTTP response</em>.</p>
+</ul> 
+<img src="../images/http.png" alt="Web server software and HTTP"/>
+<h3>THe HTTP response</h3>
+<p>The HTTP response looks like this:
+<pre>HTTP/1.1 200 OK
+Date: 
+Content-Type: text/html
+Content-Length: 4444
+
+&lt;!DOCTYPE ... &gt;
+&lt;html&gt;
+&lt;head&gt;
+...
+&lt;/head&gt;
+&lt;body&gt;
+...
+&lt;/body&gt;
+&lt;/html&gt; </pre>
+It consists of three parts:
+    <ul>
+    <li>A <em>status code</em> (200 OK)</li>
+    <li>A <em>header</em>, consisting of information about the response</li>
+    <li>The <em>content</em> (the web page itself)</li>
+    </ul>
+<h4>HTTP Response Part 1: Status Code</h4>
+<pre>HTTP/1.1 200 OK</pre>
+<p>Status codes indicate to the client whether the request was successful. 
+The status code <em>200 OK</em> indicates that the request was successful,
+however there are various <em>error codes</em> to indicate different kinds
+of error. These include:
+    <ul>
+    <li><em>404 Not Found</em> - the requested page was not on the server;
+    </li>
+    <li><em>500 Internal Server Error</em> - the web server software encountered
+    some sort of internal error</li>
+    <li><em>401 Unauthorized</em> - you tried to request a web page which you do not have the rights to view</li>
+    </ul>
+</li>
+If the response contains an error code, the browser can act appropriately
+to handle the error.</p>
+<h4>HTTP Response Part 2: The header</h4>
+<pre>Date: Fri, 31 Dec 1999 23:59:59 EEST
+Content-Type: text/html
+Content-Length: 4444</pre>
+<p>The HTTP response header consists of <em>information about the response</em>, including:
+    <ul>
+    <li>The <em>MIME type</em> (content-type) - 
+    what sort of content is being sent
+    back (HTML, image, PDF file, etc). Example MIME types include
+    <code>text/html</code>, the MIME type for an HTML page, or
+    <code>image/jpg</code>, the MIME type for a JPEG image.</li>
+    <li>The <em>content length</em> - length of the content</li>
+    <li>The <em>date</em></li>
+    </ul>
+The client's browser <em>uses the contents of the header</em> to determine
+<em>how to display the content</em>, for example if the browser reads the 
+MIME type as <code>text/html</code>, it will know to interpret the response
+as an HTML page, whereas if the MIME type is <code>image/jpeg</code>, it will
+know to interpret the response as a JPEG image.</p>
+<p>To summarise the operation of the web client/server system.</p>
+<img src="../images/clientserver3.png" alt="Client/server system on the web"/>
+<hr />
+<h2>node.js</h2>
+<p>Having looked at clients, servers and HTTP, we can now start to look at
+<em>node.js</em>, which allows us to develop our own custom web server
+software in JavaScript. 
+Developing web servers in JavaScript has a number of advantages, for example:
+    <ul>
+    <li>You can use the same language to develop both client- and server-side components to your web
+    application, minimising the number of languages you have to learn;</li>
+    <li>A similar style of programming is used (node.js extensively uses asynchronous development with
+    callbacks);</li>
+    <li>JavaScript language features and APIs, such as arrow functions, etc. will work with node.js as they do with in-browser JavaScript;</li>
+    </ul>
+</p>
+
+<h3>Installing and using node.js</h3>
+
+<p>node.js can be downloaded from <a href="http://www.nodejs.org">the website</a>.  Rather than using a web server such as Apache you
+write your own custom, lightweight HTTP server with node.js running on a custom port (port 3000 is fairly typical).</p> 
+
+<h3>npm</h3>
+
+<p>Node also comes with a <em>package manager</em> called <em>npm</em>. This allows you to use add-ons to Node (libraries) which perform additional tasks, not part of the core node.js distribution, such as communicating with a database. To use npm to install new packages, you enter:
+ <pre>npm install &lt;packagename&gt;</pre>
+ at the command-line (e.g. DOS or Linux shell prompt).</p>
+ 
+<h3>A simple HTTP Web Server in node.js</h3>
+<p>As we saw above, node.js is commonly used to develop our own web server
+software. It is easy in node.js
+to create a lightweight <em>HTTP server</em>. With node.js
+you write your own server using the
+Node.js HTTP APIs. Here is a very basic HTTP server:
+<pre>
+const http = require("http");
+
+const server = http.createServer(
+    (request, response) =&gt;
+    {
+        response.write(`Requested with a method of ${request.method}`);
+        response.end();
+    }
+);
+
+server.listen(3000);
+</pre>
+Looking at how this works:
+    <ul>
+    <li>First we import the http <em>module</em>. Node comes with
+    <em>modules</em> which are libraries: they provide additional
+    capabilities to the Node environment. Many are provided by third
+    parties. The <em>npm</em> command line tool allows you to install new
+    modules. The <em>http</em> module, however, is provided with Node
+    by default.</li>
+    <li>Next we <em>create an HTTP server</em> with the 
+    createServer() method. This returns a server object. Note how we
+    <em>specify a callback function (arrow function) as a parameter to the 
+    createServer() method</em>. This is an example of an 
+    <em>anonymous function</em>, which you have seen already.</li>
+    <li>The callback runs each time we get a request from a client.
+    It takes two parameters, <em>request</em> and <em>response</em>,
+    two objects representing the HTTP request and response respectively.
+    Look at what it's doing: we use the <em>write()</em> method of
+    the request to send some content back to the client, and then
+    <em>we must finish the response by calling response.end()</em></li>
+    <li>This simple example just displays what HTTP method (GET,
+    POST, etc) was used to request the server. The <em>request.method</em>
+    property contains the HTTP method.</li>
+    </ul>
+</p>
+<h3>Exercise 1</h3>
+<p>
+Try running this. 
+You'll find it goes into an infinite loop and does not return you to
+the command line: this is because it is running the server continuously
+listening for requests.</p>
+<p>Now try sending an HTTP request to the server from your web 
+browser. Enter:
+<pre>http://localhost:3000/</pre>
+from the browser.  You should see this output appear:
+<pre>Requested with a method of: GET</pre>
+because you have sent a GET request to the server.</p>
+<h3>API documentation</h3>
+<p>See <a href="https://nodejs.org/api/http.html">here</a> for full Node API
+documentation on the HTTP module.</p>
+<h2>Using Express</h2>
+<p>The above example showed how to create a webserver from first principles
+in Node, using the HTTP module. However, there is a very well-known Node
+framework which makes the process of developing a web server
+much easier - <em>Express</em>.
+As is typical, Express is offered as a Node module and should be installed
+with npm.
+This has been installed on Neptune and Edward2 already. To give an idea of
+how to install it:
+<pre>npm install express</pre>
+This will install it locally to your current project. Or to install it globally
+so that it's accessible anywhere on your machine, for all projects and all 
+users:
+<pre>npm install -g express</pre>
+On Linux and other Unix-based systems, this requires 'sudo' rights (admin privileges).</p>
+<h3>Hello World with Express</h3>
+<p>The example below is the Hello World with Express. 
+<pre>
+const express = require('express');
+const app = express();
+
+app.get('/', (req,res)=&gt; {
+    res.send('Hello World from Express!');
+});
+
+app.listen(3000);
+</pre>
+Hopefully you can see it is similar in structure to the non-Express 
+web server, above. We require the express module, then create an Express
+app object with <em>express()</em>.</p>
+<p>With Express, we set up <em>routes</em>. Routes are combinations of URLs to access different functions of the API (these URLs care called <em>API endpoints</em>), with functions to handle requests to each API endpoint.  In this example we are simply handling the top level, 'root' endpoint, e.g.: 
+<pre>http://localhost:3000/</pre>
+without any parameters supplied.</p>
+<p>The handler for the endpoint is a function which takes two parameters,
+<em>req</em> representing the HTTP request and <em>res</em> representing the
+HTTP response. In this example we call the <em>send()</em> method of the
+response object to send back <em>Hello World from Express!</em> to the 
+client.</p>
+<h3>Example</h3>
+<pre>
+const express = require('express');
+const app = express();
+
+
+app.get('/hello', (req,res)=&gt; {
+    res.send('Hello World!');
+});
+
+
+app.get('/time', (req,res)=&gt; {
+    res.send(`There have been ${Date.now()} milliseconds since 1/1/70.`);
+});
+app.listen(3000);
+</pre>
+This example sets up two routes '/hello' and '/time', to handle the corresponding endpoints.. The first will send back 'Hello World!' and the second will send back the number of milliseconds since January 1st 1970. 
+</p>
+<h3>Exercise 2</h3>
+<p>Try out the example above. Run the server and request each endpoint by
+typing in the appropriate URL in your web browser.</p>
+<h3>URL parameters</h3>
+<p>Express allows us to easily specify URL parameters, e.g:
+<pre>
+http://localhost:3000/artist/Oasis
+http://localhost:3000/artist/Madonna
+</pre>
+etc. You set up the route to contain named parameters and
+then you can use these named parameters in your JavaScript. This example 
+counts up to a named parameter: 
+<pre>
+const express = require('express');
+const app = express();
+
+
+app.get('/countTo/:ntimes', (req,res)=&gt; {
+    let response = ''; // let - locally-scoped variable which can be changed
+    for(var count=1; count&lt;=req.params.ntimes; count++) {
+        response += `${count}&lt;br /&gt;`;
+    }
+    res.send(response);
+});
+
+
+app.listen(3000);
+</pre>
+Note how this will setup the route <em>/countTo</em> followed
+by a parameter <em>:ntimes</em>
+representing the number of times. So API endpoints such as
+<pre>
+http://localhost:3000/countTo/3
+http://localhost:3000/countTo/6
+http://localhost:3000/countTo/goat
+</pre>
+will be matched. (There is no check that ntimes is numeric, so the final
+URL will be matched. However you can use a pattern-matching technique known as <em>regular expressions</em> in Express routes to ensure that only numbers are passed in the parameter, for example:
+<pre>
+/countTo/:ntimes(\\d+)
+</pre>
+specifies that the <code>:ntimes</code> parameter has to contain one or more (<code>+</code>) digits (<code>\d</code>). The second backslash <code>\</code> before the <code>\d</code> is because in strings, backslashes are used for escape sequences (e.g. <code>\n</code> for a new line) so if we want to use a backslash for any other purpose, we have to escape it with a second backslash so we get a double backslash <code>\\</code>.
+</p>
+<p>
+To access the named parameter from the JavaScript code, use
+<em>req.params.&lt;name of parameter&gt;</em>. 
+So here <em>req.params.ntimes</em>
+will reference the <em>:ntimes</em> parameter and the output will count from
+1 to the specified parameter.</p>
+<h3>Exercise 3</h3>
+<ol>
+<li>Create an Express application to set up an <em>artist</em> route.
+The word <em>artist</em> should be followed by a parameter for the artist
+name and the application should respond to the request with a message such
+as 
+<pre>You are searching for songs by Oasis</pre>
+(obviously, it shouldn't always show Oasis, but whatever artist was entered
+in the URL).
+</li>
+<li>Make the application also respond to URLs of this form:
+<pre>http://localhost:3000/artist/Oasis/song/Wonderwall</pre>
+which would display: 
+<pre>You are searching for Wonderwall by Oasis</pre>
+(obviously, it should respond to any title and artist, not just Wonderwall
+by Oasis!</li>
+</ol>
+</p>
+<h2>Web APIs</h2>
+<p>node.js and Express are particularly useful for developing <em>web APIs</em>,
+otherwise known as <em>web services</em>. What is a web API and why is it
+useful? A web API is a web server application which sends back <em>pure
+data</em> to its clients, rather than HTML.</p>
+<p>
+Ordinary websites, written in HTML, are very much geared towards the end user. The end user uses the HTML interface to perform particular tasks. However the end user is not the only possible consumer of information on the web. Other types of application - particularly smartphone apps and desktop applications - also need to connect to web servers and process data provided by the web server. For these applications, HTML is cumbersome as it contains layout and formatting as well as the actual data we're interested in. Web APIs, by contrast, provide the <em>data</em> and the <em>data alone</em>. This means that a smartphone app or desktop client can easily process the data and integrate it within its own interface.</p>
+<p>
+Here are a few examples of web APIs and their clients:
+</p>
+
+<p>
+<ul>
+<li>
+<em>Flights:</em>
+An airline provides flight times and a booking service available on its own website. However, other organisations might wish to make use of this. Third-party sites such as Expedia.com or travel agents may wish to provide this service themselves. In these cases, scripts on the Expedia.com web server, or a standalone booking application at a travel agent (which might be written in Java, for example) might connect to the 
+airline's web service, and receive flight information back. The clients (Expedia and the travel agent application) could also contact the web service to perform bookings.
+</li>
+
+<li>
+<em>Weather:</em>
+a weather web service might make available current conditions in various cities around the world. Then, a website (e.g. a tourism website for London or Paris) could connect to the weather web service and display the current conditions in that city, retrieved from the web service but at the same time integrated seamlessly into the layout of its own site. Furthermore, a smartphone "app" could
+connect to the web service and show the weather for the user's current location
+within the app's interface.
+</li>
+
+<li>
+<em>Mapping:</em>
+electronic maps are typically stored in a database, which contains information about the roads and the latitude/longitude coordinates making up each point on the road (position on the earth, e.g. we are at approximately latitude 50.9 degrees North, longitude 1.4 degrees West, the Equator being latitude 0, the North Pole, 90 degrees North, and the Greenwich Meridian, longitude 0). 
+
+A mapping web service could make available this mapping information, so that client websites could use the raw data sent back from the web service to draw a map in their own style and colour scheme. OpenStreetMap (http://www.openstreetmap.org) is an example of such a mapping web service.
+</li>
+</ul>
+
+</p>
+
+
+<h3>How is information sent back from web APIs?</h3>
+
+<p>
+As we saw above, what we want is a format which represents the data, and the data alone. There are a number of formats we can use including <em>XML</em> (eXtensible Markup Language) and <em>JSON</em> (JavaScript Object Notation).  In this unit we will focus on JSON, because many web services use JSON these days, and it is easy to generate from node.js and parse (interpret) from client-side JavaScript. (If you are doing MAD, you will come across XML when creating Android layouts).</p>
+<h3>JSON</h3>
+<p>JSON uses JavaScript syntax (hence the name) to represent data as it gets sent across the web.
+With JSON we represent a single entity (such as a person, a song or a film)
+using curly brackets {} and we represent a collection of entities (an array) using square brackets [].
+The former is called a JSON <em>object</em> while the latter is called a JSON <em>array</em>. As you will
+see later in the unit, this syntax is the same as the syntax for representing objects and arrays in 
+JavaScript code.</p>
+<p>Here is an example of a JSON object representing a single student.
+<pre>
+{ 
+    "name": "Tim Smith",
+    "username": "2smitt82",
+    "course": "Computer Studies"
+}
+</pre>
+Note how the JSON object representing the student is defined by curly brackets { and }, and inside the curly
+bracket, we specify each property of the student (name, username and course) and the
+corresponding value ("Tim Smith", "2smitt82", and "Computer Studies", respectively). A colon (:) 
+separates the property and the value, and a comma separates each property/value pair.</p>
+<p>The next example shows a <em>collection (array) of students</em>. Note how we use the JSON array syntax [ and ] to
+define the collection, how each individual student object is represented by curly brackets { and }, and
+how each student object within the array is separated by a comma.
+<pre>
+[
+    { 
+      "name": "Tim Smith",
+      "username": "2smitt82",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Jamie Bailey",
+      "username": "1bailj39",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Deep Patel",
+      "username": "0pated61",
+      "course": "Networks and Web Design"
+    }
+]
+</pre>
+</p>
+<h3>Writing JSON web APIs</h3>
+<p>It's easy to generate JSON from JavaScript. JavaScript arrays map to JSON
+arrays, and JavaScript objects map to JSON objects. In client-side JavaScript,
+or node.js outside Express, you would use <code>JSON.stringify()</code> with
+the appropriate data structure, for example:
+<pre>
+const timSmith = { name: "Tim Smith", username: "ts282", course: "Computing" };
+console.log(JSON.stringify(timSmith));
+</pre>
+would generate the JSON:
+<pre>
+{ 
+    "name": "Tim Smith",
+    "username": "ts282",
+    "course": "Computing"
+}
+</pre>
+or, with an array of objects:
+<pre>
+const students = [
+    {
+        name: "Tim Smith",
+        username: "ts282",
+        course: "Computing"
+    },
+    {
+        name: "Deep Patel",
+        username: "dp061",
+        course: "Web Design"
+    }
+];
+console.log(JSON.stringify(students));
+</pre>
+would generate:
+<pre>
+[ 
+    {
+        "name": "Tim Smith",
+        "username": "ts282",
+        "course": "Computing"
+    },
+    {
+        "name": "Deep Patel",
+        "username": "dp061",
+        "course": "Web Design"
+    }
+]
+</pre>
+</p>
+<p>With Express, it's even easier though.
+You just replace
+<em>send()</em> with <em>json()</em>, and pass it a JavaScript array or
+object which you want to convert to JSON e.g.:
+<pre>res.json({'error': 'you did not provide a search query'});</pre>
+To send back HTTP status codes, to indicate different types of error which may occur, use <em>status()</em>. These calls can be chained, e.g: the 400 error (Bad Request) is typically used if the request is invalid or missing information:
+<pre>res.status(400).json({'error': 'you did not provide a search query'});</pre>
+</p>
+<h3>Exercise 4</h3>
+<ol>
+<li>
+Create a JavaScript array of JavaScript objects representing songs (one object per song, so you have an array of songs). Each song should have a song ID, title, artist and year. 
+Do this <em>before</em> you initialise Express, so it's global and accessible to all routes. Then, create a route <code>/allSongs</code> in your Express 
+server, and in this route, convert the array to JSON and send it back to the client.</li>
+<li>
+Update your <code>/artist</code> route to search this array to find all
+songs by the given artist and return them as JSON. To do this efficiently in JavaScript, you can use the <em>filter</em> method which filters an array based on a certain condition. For example, this would specifically find all songs called 'Crazy': 
+<pre>const matchingSongs = allSongs.filter ( song =&gt; song.title == 'Crazy' );</pre>
+</li>
+<li>Add two additional routes to find all songs before, or after, a given
+year:
+<pre>
+/before/:year
+/after/:year
+</pre>
+Each route should filter the array to show only those songs released before,
+or after, the given year, and again return the results as JSON.
+</li>
+</ol>
+<h2>Serving static web pages with Express</h2>
+<p>You can also make Express serve <em>static web content</em> (e.g. HTML
+pages, images, etc) through the use of the <code>express.static()</code> method, which takes a folder containing the static resources as an argument. A common convention is to place static resources inside a folder called <em>public</em>.To do this, use code such as:
+<pre>
+app.use(express.static('public'));
+</pre>
+after initialising your Express app. Once you have done this, you can place any static content inside the <code>public</code> folder and the Express server will send it back if it is requested. For example if you have a <code>index.html</code> page inside <code>public</code>, you will be able to request it with:
+<pre>http://localhost:3000/index.html</pre>
+</p>
+<h3>Exercise 5</h3>
+<p>Create a <code>public</code> folder, and in it, create an HTML page containing hyperlinks to each endpoint you have created in the previous exercises (just hard-code artists, titles and years; the user does not have to type them in). Test it out by running your Express server and requesting the HTML page in your browser.</p>
+<h2>Further resources</h2>
+<ul>
+<li><a href="https://nodejs.org/">node.js home page</a></li>
+<li><a href="https://nodejs.org/api/">API documentation</a></li>
+<li><a href="http://nodeschool.io">NodeSchool</a>, practical walk-through
+exercises which provide a detailed introduction to node.js.</li>
+<li><a href='https://expressjs.com'>Express home page</a></li>
+</ul>
+</body>
+</html>
