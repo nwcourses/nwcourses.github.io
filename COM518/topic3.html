@@ -130,7 +130,7 @@ write your own custom, lightweight HTTP server with node.js running on a custom 
  <pre>npm install &lt;packagename&gt;</pre>
  at the command-line (e.g. DOS or Linux shell prompt).</p>
  
-<h3>A simple HTTP Web Server in node.js</h3>
+<h3 id='simpleserver'>A simple HTTP Web Server in node.js</h3>
 <p>As we saw above, node.js is commonly used to develop our own web server
 software. It is easy in node.js
 to create a lightweight <em>HTTP server</em>. With node.js
@@ -173,18 +173,6 @@ Looking at how this works:
     property contains the HTTP method.</li>
     </ul>
 </p>
-<h3>Exercise 1</h3>
-<p>
-Try running this. 
-You'll find it goes into an infinite loop and does not return you to
-the command line: this is because it is running the server continuously
-listening for requests.</p>
-<p>Now try sending an HTTP request to the server from your web 
-browser. Enter:
-<pre>http://localhost:3000/</pre>
-from the browser.  You should see this output appear:
-<pre>Requested with a method of: GET</pre>
-because you have sent a GET request to the server.</p>
 <h3>API documentation</h3>
 <p>See <a href="https://nodejs.org/api/http.html">here</a> for full Node API
 documentation on the HTTP module.</p>
@@ -194,9 +182,7 @@ in Node, using the HTTP module. However, there is a very well-known Node
 framework which makes the process of developing a web server
 much easier - <em>Express</em>.
 As is typical, Express is offered as a Node module and should be installed
-with npm.
-This has been installed on Neptune and Edward2 already. To give an idea of
-how to install it:
+with npm. The command below will install it: 
 <pre>npm install express</pre>
 This will install it locally to your current project. Or to install it globally
 so that it's accessible anywhere on your machine, for all projects and all 
@@ -226,7 +212,7 @@ without any parameters supplied.</p>
 HTTP response. In this example we call the <em>send()</em> method of the
 response object to send back <em>Hello World from Express!</em> to the 
 client.</p>
-<h3>Example</h3>
+<h3 id='basicroutes'>Example</h3>
 <pre>
 const express = require('express');
 const app = express();
@@ -244,9 +230,6 @@ app.listen(3000);
 </pre>
 This example sets up two routes '/hello' and '/time', to handle the corresponding endpoints.. The first will send back 'Hello World!' and the second will send back the number of milliseconds since January 1st 1970. 
 </p>
-<h3>Exercise 2</h3>
-<p>Try out the example above. Run the server and request each endpoint by
-typing in the appropriate URL in your web browser.</p>
 <h3>URL parameters</h3>
 <p>Express allows us to easily specify URL parameters, e.g:
 <pre>
@@ -293,24 +276,6 @@ To access the named parameter from the JavaScript code, use
 So here <em>req.params.ntimes</em>
 will reference the <em>:ntimes</em> parameter and the output will count from
 1 to the specified parameter.</p>
-<h3>Exercise 3</h3>
-<ol>
-<li>Create an Express application to set up an <em>artist</em> route.
-The word <em>artist</em> should be followed by a parameter for the artist
-name and the application should respond to the request with a message such
-as 
-<pre>You are searching for songs by Oasis</pre>
-(obviously, it shouldn't always show Oasis, but whatever artist was entered
-in the URL).
-</li>
-<li>Make the application also respond to URLs of this form:
-<pre>http://localhost:3000/artist/Oasis/song/Wonderwall</pre>
-which would display: 
-<pre>You are searching for Wonderwall by Oasis</pre>
-(obviously, it should respond to any title and artist, not just Wonderwall
-by Oasis!</li>
-</ol>
-</p>
 <h2>Web APIs</h2>
 <p>node.js and Express are particularly useful for developing <em>web APIs</em>,
 otherwise known as <em>web services</em>. What is a web API and why is it
@@ -453,6 +418,50 @@ object which you want to convert to JSON e.g.:
 To send back HTTP status codes, to indicate different types of error which may occur, use <em>status()</em>. These calls can be chained, e.g: the 400 error (Bad Request) is typically used if the request is invalid or missing information:
 <pre>res.status(400).json({'error': 'you did not provide a search query'});</pre>
 </p>
+<h2>Serving static web pages with Express</h2>
+<p>You can also make Express serve <em>static web content</em> (e.g. HTML
+pages, images, etc) through the use of the <code>express.static()</code> method, which takes a folder containing the static resources as an argument. A common convention is to place static resources inside a folder called <em>public</em>.To do this, use code such as:
+<pre>
+app.use(express.static('public'));
+</pre>
+after initialising your Express app. Once you have done this, you can place any static content inside the <code>public</code> folder and the Express server will send it back if it is requested. For example if you have a <code>index.html</code> page inside <code>public</code>, you will be able to request it with:
+<pre>http://localhost:3000/index.html</pre>
+</p>
+<hr />
+<h2>Exercises</h2>
+<h3>Exercise 1</h3>
+<p>
+Try running the very first Node example, i.e. the <a href='#simpleserver'>basic Node server using node's <code>http</code> module and <code>http.createServer()</code></a> (<em>not</em> Express).
+You'll find it goes into an infinite loop and does not return you to
+the command line: this is because it is running the server continuously
+listening for requests.</p>
+<p>Now try sending an HTTP request to the server from your web 
+browser. Enter:
+<pre>http://localhost:3000/</pre>
+from the browser.  You should see this output appear:
+<pre>Requested with a method of: GET</pre>
+because you have sent a GET request to the server.</p>
+<h3>Exercise 2</h3>
+<p>Try out the <a href='#basicroutes'>Express example with <code>/hello</code> and <code>/time</code> routes</a>. Run the server and request each endpoint by
+typing in the appropriate URL in your web browser.</p>
+<h3>Exercise 3</h3>
+<ol>
+<li>Create an Express application to set up an <em>artist</em> route.
+The word <em>artist</em> should be followed by a parameter for the artist
+name and the application should respond to the request with a message such
+as 
+<pre>You are searching for songs by Oasis</pre>
+(obviously, it shouldn't always show Oasis, but whatever artist was entered
+in the URL).
+</li>
+<li>Make the application also respond to URLs of this form:
+<pre>http://localhost:3000/artist/Oasis/song/Wonderwall</pre>
+which would display: 
+<pre>You are searching for Wonderwall by Oasis</pre>
+(obviously, it should respond to any title and artist, not just Wonderwall
+by Oasis!</li>
+</ol>
+</p>
 <h3>Exercise 4</h3>
 <ol>
 <li>
@@ -474,15 +483,6 @@ Each route should filter the array to show only those songs released before,
 or after, the given year, and again return the results as JSON.
 </li>
 </ol>
-<h2>Serving static web pages with Express</h2>
-<p>You can also make Express serve <em>static web content</em> (e.g. HTML
-pages, images, etc) through the use of the <code>express.static()</code> method, which takes a folder containing the static resources as an argument. A common convention is to place static resources inside a folder called <em>public</em>.To do this, use code such as:
-<pre>
-app.use(express.static('public'));
-</pre>
-after initialising your Express app. Once you have done this, you can place any static content inside the <code>public</code> folder and the Express server will send it back if it is requested. For example if you have a <code>index.html</code> page inside <code>public</code>, you will be able to request it with:
-<pre>http://localhost:3000/index.html</pre>
-</p>
 <h3>Exercise 5</h3>
 <p>Create a <code>public</code> folder, and in it, create an HTML page containing hyperlinks to each endpoint you have created in the previous exercises (just hard-code artists, titles and years; the user does not have to type them in). Test it out by running your Express server and requesting the HTML page in your browser.</p>
 <h2>Further resources</h2>
