@@ -319,12 +319,12 @@ class FeetToMetresActivity : AppCompatActivity () {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)        
         setContentView(R.layout.activity_main)
-        val b = findViewById(R.id.btn1)
+        val b = findViewById<Button>(R.id.btn1)
         b.setOnClickListener {
-    		val et1 = findViewById(R.id.et1)
+    		val et1 = findViewById<EditText>(R.id.et1)
     		val feet = et1.getText().toString().toDouble()
     		val metres = feet*0.305
-    		val tv1 = findViewById(R.id.tv1)
+    		val tv1 = findViewById<TextView>(R.id.tv1)
     		tv1.setText("In metres that is: $metres")
 		}
     }
@@ -372,16 +372,16 @@ You can combine types with the "or" symbol |, e.g.
 negative decimal numbers.</p>
 <h3>On to the Kotlin code</h3>
 <p>OK, how about the actual Kotlin code? First of all note how we access the user interface components from Kotlin. We use code such as:
-<pre>val b = findViewById(R.id.btn1)</pre>
+<pre>val b = findViewById&lt;Button&gt;(R.id.btn1)</pre>
 Note how the <em>findViewById()</em> method takes in an ID and returns the corresponding component. The ID matches the IDs that we specified in the XML file; for instance, our button was given an ID of <em>btn1</em> so we reference it in code with <em>R.id.btn1</em>.</p>
 <h3>Event handling</h3>
 <p>Obviously we need to make something happen when the user clicks the button! If you have worked with Java Swing or AWT, the approach taken by Android should be quite familiar.  We attach an <em>event handler</em> to the button. Note how our event handler here is a <em>lambda function</em>:
 <pre>
 b.setOnClickListener {
-	val et1 = findViewById(R.id.et1)
+	val et1 = findViewById&lt;EditText&gt;(R.id.et1)
 	val feet = et1.getText().toString().toDouble()
 	val metres = feet*0.305
-	val tv1 = findViewById(R.id.tv1)
+	val tv1 = findViewById&lt;TextView&gt;(R.id.tv1)
 	tv1.setText("In metres that is: $metres")
 }
 </pre>
@@ -457,10 +457,10 @@ the class).
 We can use them to make our code more concise, e.g:
 <pre>
 b.setOnClickListener {
-	val et1 = findViewById(R.id.et1)
+	val et1 = findViewById&lt;EditText&gt;(R.id.et1)
 	val feet = et1.<em>text</em>.toString().toDouble()
 	val metres = feet*0.305
-	val tv1 = findViewById(R.id.tv1)
+	val tv1 = findViewById&lt;TextView&gt;(R.id.tv1)
 	tv1.<em>text</em> = "In metres that is: $metres"
 }
 </pre>
@@ -477,8 +477,8 @@ and <em>setText()</em>.</p>
 Try to add the four buttons in their own row. <strong>Hint!</strong> You can
 place layouts within layouts, e.g.:
 ```
-<LinearLayout orientation='vertical' .... >
-   <LinearLayout orientation='horizontal' ...>
+<LinearLayout android:orientation='vertical' .... >
+   <LinearLayout android:orientation='horizontal' ...>
 ```
 Note how the inner LinearLayout has a horizontal orientation, which means that
 the widgets within it will be arranged horizontally, rather than vertically.
