@@ -303,7 +303,7 @@ Notice that it contains several static variables. These are identifiers which yo
 
 
 <h2>Making our app do something!</h2>
-<p>OK our app says 'Hello World'. And we've translated it into another language. But it doesn't yet actually <em>do</em> anything.  In this exercise you will add some <em>interactivity</em> by developing a simple application to convert feet to metres. <strong>Create a new project</strong> and call the main activity <strong>FeetToMetresActivity</strong>. Replace the auto-generated code with this code (obviously change the package name to that appropriate in your case):
+<p>OK our app says 'Hello World'. And we've translated it into another language. But it doesn't yet actually <em>do</em> anything.  In this exercise you will add some <em>interactivity</em> by developing a simple application to convert feet to metres. <strong>Create a new project</strong> and call the main activity <strong>MainActivity</strong>. Replace the auto-generated code with this code (obviously change the package name to that appropriate in your case):
 ```
 package whatever.your.package.is
 
@@ -315,7 +315,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.EditText
 
-class FeetToMetresActivity : AppCompatActivity () {
+class MainActivity : AppCompatActivity () {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)        
         setContentView(R.layout.activity_main)
