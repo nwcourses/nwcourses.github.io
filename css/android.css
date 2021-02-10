@@ -1,0 +1,156 @@
+/* DFTI stylesheet 04/05 */
+/* 14/11/04 The "popup" class style has now been placed in two alternative
+   stylesheets (dfti0405popup.css and dfti0405nopopup.css); the appropriate
+   one is applied depending on whether we want popups. */
+body
+{ 
+	background-color : white;
+	font-family : arial; 
+	color : black; 
+	font-weight : normal;
+    font-size: 120%
+}
+
+html,body
+{
+	width: 100%;
+	height: 100%;
+}
+
+#sidebar 
+{ 
+	width : 100px; 
+	vertical-align : top; 
+	background-color : white;	
+	top : 0px; 
+	left: 0px; 	
+	position : fixed;
+}
+
+#main 
+{ 
+	color : black; 
+	vertical-align : top;
+	top : 0px;
+	left : 100px;
+	margin-left : 2%;
+	position: absolute;
+}
+
+
+
+.title, .front
+{ 
+	text-align : center 
+}
+
+.titlebox
+{
+	text-align: center; 
+	margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
+	background-color : #f0fff0;
+	border-style: outset;
+	border-color: #800000;
+	color:white;
+}
+
+.subtitle
+{
+	text-align: center; 
+	margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
+}
+
+	
+a
+{
+	text-decoration: none ;
+}
+
+
+pre
+{
+	font-size: 120%;
+	border-style: solid;
+	overflow: auto;
+}
+
+img
+{
+	border-style: none;
+}
+
+em
+{
+	font-style: italic;
+	font-weight: bold;
+	color: #008000; 
+}
+
+strong
+{
+	font-weight: bold;
+	font-style: normal;
+}
+
+
+
+
+.slide
+{
+	font-size: 175%
+}
+
+#thisweeksstuff
+{
+	font-size: 120%;
+	background-color: #600000;
+	color: white;
+}
+	
+.zzz
+{
+}
+
+.slide li
+{
+	margin: 10px;
+}
+
+table
+{
+	border-width: 2px; 
+	border-style: solid;
+	margin: 5px;
+	
+}
+
+th
+{
+	font-weight: solid;
+	border-style: solid;
+	border-width: 2px;
+}
+td
+{
+	font-weight:normal; 
+	border-style: solid;
+	border-width: 2px;
+	padding: 5px;
+}
+
+.comment
+{
+	color:  blue;
+	font-style: italic;
+	font-weight: bold
+}
+
+em.black
+{
+	color: black;
+}
+
+h1,h2,h3,h4,h5
+{
+	color: #40c040;
+}
