@@ -213,7 +213,7 @@ we can convert it straight to JSON and send it back to the client.</p>
 <p>Performing an UPDATE statement uses the same approach. Here is a route which could be used to <em>buy a product with a given ID</em> by reducing its quantity in stock by one. <strong>Note how this route has a method of POST, following the REST principles discussed above.</strong>
 <pre>
 app.post('/products/:id/buy', (req, res) =&gt; {
-    con.query('UPDATE products SET quantity=quantity-1 WHERE id=?', [productId], (error,results,fields)=&gt; {
+    con.query('UPDATE products SET quantity=quantity-1 WHERE id=?', [req.params.id], (error,results,fields)=&gt; {
         if(error) {
             res.status(500).json({error: error});
         } else if(results.affectedRows==1) {
@@ -229,7 +229,7 @@ We first test whether there was an error, as for the <em>SELECT</em> example. If
 <p>DELETE is similar to UPDATE. As we saw above, a route which results in the deletion of data makes use of the HTTP <em>DELETE</em> method.
 <pre>
 app.delete('/products/:id', (req, res) =&gt; {
-    con.query('DELETE FROM products WHERE id=?', [productId], (error,results,fields)=&gt; {
+    con.query('DELETE FROM products WHERE id=?', [req.params.id], (error,results,fields)=&gt; {
         if(error) {
             res.status(500).json({error: error});
         } else if(results.affectedRows==1) {
