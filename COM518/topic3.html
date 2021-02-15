@@ -471,8 +471,8 @@ Do this <em>before</em> you initialise Express, so it's global and accessible to
 server, and in this route, convert the array to JSON and send it back to the client.</li>
 <li>
 Update your <code>/artist</code> route to search this array to find all
-songs by the given artist and return them as JSON. To do this efficiently in JavaScript, you can use the <em>filter</em> method which filters an array based on a certain condition. For example, this would specifically find all songs called 'Crazy': 
-<pre>const matchingSongs = allSongs.filter ( song =&gt; song.title == 'Crazy' );</pre>
+songs by the given artist and return them as JSON. To do this efficiently in JavaScript, you can use the <em>filter</em> method which filters an array based on a certain condition. For example, this would specifically find all songs called 'Crazy' (note how we convert the requested title to lower case, so we can handle requests containing the word 'Crazy' in either lower case, upper case or a mixture of both): 
+<pre>const matchingSongs = allSongs.filter ( song =&gt; song.title.toLowerCase() == 'crazy' );</pre>
 </li>
 <li>Add two additional routes to find all songs before, or after, a given
 year:
