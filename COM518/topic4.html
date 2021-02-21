@@ -324,10 +324,64 @@ You can also add data to the request body. This is shown below, note how we have
 RESTer also allows you to test error conditions: if you supply invalid 
 request data and your web API checks for this, then you will get a non-200
 status code returned.</p>
+<h2>Using a database client</h2>
+<p>To populate your database you need a <em>database client</em>, as discussed above. If you download MySQL or MariaDB, either on their own or as part of a package such as XAMPP, you will be able to use the command line tool from your command prompt. This will be either <code>mysql</code> or <code>mariadb</code>.
+For example, to launch the MySQL client you would enter, at the command
+line:
+<pre>mysql -u root</pre>
+The screenshot below shows this; note that on my system, it requires a password; yours will probably not.
+<br />
+<img src='../images/mysql1.png' alt='Launching MySQL client' />
+<br />
+You will then be in the console-based MySQL, or MariaDB, client. Next you
+need to select your database with the <code>USE</code> command:
+<br />
+<img src='../images/mysql2.png' alt='Selecting a database with USE' />
+<br />
+Once you've done this, you can enter SQL commands which will be sent to the
+database server, e.g:
+<br />
+<img src='../images/mysql3.png' alt='Sending a SELECT statement to the database server with the MySQL client' />
+<br />
+</p>
+<h3>Using a graphical database client</h3>
+<p>As a more user-friendly alternative to the console-based client you can
+use a graphical interface, such as <a href='https://phpmyadmin.net'>PHPMyAdmin</a> which comes with XAMPP and can be installed on Linux systems. This is a web-based front-end to a MySQL or MariaDB database, written in the PHP server-side scripting language. Once installed, you should be able to access via
+<code>http://localhost/phpmyadmin/</code>
+You will see a login screen like this if you have a database password set up:
+</p>
+<p>
+<img src='../images/phpmyadmin1.png' alt='PHPMyAdmin login screen' />
+</p>
+<p>
+If you do not have a password set up, it should take you straight to the main
+screen:
+</p> <p>
+<img src='../images/phpmyadmin2.png' alt='PHPMyAdmin main screen' />
+</p> <p>
+You can see your database name on the left; by default it may be <code>mysql</code> but in my screenshot it's <code>ephp001</code>. If you expand your database you will see a list of tables:
+</p> <p>
+<img src='../images/phpmyadmin3.png' alt='PHPMyAdmin tables' />
+</p> <p>
+and then if you select a specific table (<code>wadsongs</code> in my case)
+you will see its contents:
+</p> <p>
+<img src='../images/phpmyadmin4.png' alt='PHPMyAdmin tables' />
+</p> <p>
+If you now click the 'SQL' tab, you will be able to enter SQL commands to send to the database server.
+</p>
 <h2>Exercises</h2>
 <ol>
 <li>Launch your database and create a <code>wadsongs</code> table containing
-songs.  Use this <a href='wadsongs.sql'>SQL file</a> to populate it with around 1000-1500 songs. By week 4, fuller instructions will be available, if you are reading ahead, please ask me if you're not sure what to do here.</li>
+songs. Use this <a href='wadsongs.sql'>SQL file</a> to populate it with around 1000-1500 songs. In PHPMyAdmin, you can use the Import tab to import them:
+<br />
+<br />
+<img src='../images/phpmyadmin_import.png' alt='PHPMyAdmin import' />
+<br />
+<br />
+If using the command prompt, you can use a shell command (enter in your command prompt or shell, NOT in the MySQL or MariaDB client), e.g.
+<pre>mysql -u root &lt; wadsongs.sql</pre>
+</li>
 <li>Develop a simple REST API in Node and Express with endpoints to: 
     <ul>
     <li>GET: search for all songs by a given artist;</li>
@@ -340,7 +394,9 @@ songs.  Use this <a href='wadsongs.sql'>SQL file</a> to populate it with around 
     </ul>
 </li>
 <li>Test the GET endpoints in the browser, and the others in RESTer.</li>
-<li>Create a static HTML page linking to each of your GET endpoints and add it to <code>public/</code> so it can be requested; you did this last week.</li>
+<li><strong>More advanced</strong>: In the <code>public</code> folder (see last week), create a static HTML page containing a field for the artist and a button. When the user clicks a button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API. Use <code>window.location</code> to redirect the browser, e.g.
+<pre>window.location = `http://localhost:3000/.....`; // for you to complete!</pre>
+Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>Use Express to serve the static page, as discussed at the end of last week's notes, and access it via <code>http://localhost:3000/filename.html</code>.</li>
 </ol>
 </body>
 </html>
