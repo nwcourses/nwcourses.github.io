@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 5: Introduction to AJAX</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Topic 5: Introduction to AJAX</h1></div>
+<p>Today we will cover the following topics:</p>
+<ul>
+<li>AJAX</li>
+<li>Introduction to Promises and async/await</li>
+<li>Using JSON in AJAX applications</li>
+</ul>
+<h2>Introduction to AJAX</h2>
+
+<p><img src="../images/ajax2.png" alt="AJAX applications"/></p>
+<p><em>AJAX</em> (<em>A</em>synchronous <em>J</em>avaScript <em>A</em>nd <em>X</em>ML) is an approach to developing highly interactive web applications in which the front-end (JavaScript running client-side in the browser) communicates with a web server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your client-side JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as XML or JSON (even though AJAX stands for Asynchronous JavaScript and <em>XML</em>, JSON can also be used). The JSON or XML is then <em>parsed</em> (interpreted) by a second client-side JavaScript function, and the page dynamically updated with the new data.</p>
+<p>For example, we could have an AJAX application to search for all products of a given type (e.g cornflakes). Our client-side, front-end JavaScript could send a product type, such as "Cornflakes", to a Node server, and the Node server could send back JSON containing all the cornflakes manufactured by different manufacturers. Then, a second JavaScript function (the AJAX <em>callback</em>), could receive the JSON from the server, parse (interpret it) and update the HTML front-end with the data provided in the JSON (all brands of cornflakes available).</p>
+<p>
+How might a user interact with an AJAX application? They might enter a search term in a form and click Go, and then the search results would be sent back from the server as JSON in the background, and <em>one small part of the page only</em> (as opposed to the entire page) updated with the search results. 
+Furthermore,as  requests to the server are sent, and responses received, <em>in the background</em>.  so the user can <em>continue to interact with the page</em> while waiting for the response to come back.</p>
+
+<p>
+AJAX is not an actual language, but a combination of technologies used to produce the effect above. An AJAX application typically consists of three components:
+<ul>
+<li>
+the client side application, usually JavaScript running in the browser which sends HTTP requests to a server and processes the response;</li>
+<li>
+a web server which receives the HTTP request sent from the JavaScript, above, and delivers the response;</li>
+<li>
+the data sent back from the server to the client, which is typically in a data description format such as JSON or XML.
+</li>
+</ul>
+</p>
+
+<h3 id='cors'>The same-origin policy</h3>
+
+<p>AJAX applications are normally subject to the <em>same-origin policy</em>. This means that the back-end (the server-side script that the JavaScript talks to) must be delivered from the same exact domain as the front-end. The reason for this is security: the ability for an AJAX front end to talk to a third-party server opens up the possibility of cross-site scripting.  According to the W3C on their <a href='http://www.w3.org/Security/wiki/Same_Origin_Policy'>
+same origin policy document</a>, with the same-origin policy "the overarching intent is to let users visit untrusted web sites without those web sites interfering with the user's session with honest web sites" - in other words, it prevents the possibility of a third-party AJAX-based site using AJAX to communicate with a legitimate site which the user might be currently
+logged on to, which could lead to stealing of session-specific information.</p>
+<p>
+The domain must be exact; subdomains of a top-level domain are treated as different.  For example <em>booking.solentholidays.com</em> and
+<em>hotels.solentholidays.com</em> are treated as different. This is because several users with different subdomains might be sharing the same top-level domain of a hosting company, e.g.  <em>fredsmith.solenthosting.com</em> and <em>timjones.solenthosting.com</em>.</p>
+
+<h3>Circumventing the same-origin policy with CORS</h3>
+<p>There is, however, a way in which server-side developers can circumvent the same origin policy in certain cases. This is done by explicitly allowing, on the server side, certain AJAX clients to connect.  A common case is where one person owns two domains, and would like the two domains to communicate with each other over AJAX. For example, Solent Holidays might have two domains, <em>hotels.solentholidays.com</em> and <em>booking.solentholidays.com</em> - and wishes to be able to send users' booking details from <em>booking.solentholidays.com</em> to a hotels web service on <em>hotels.solentholidays.com</em>. To do this, they would have to add code to the server-side scripts on <em>hotels.solentholidays.com</em> to <em>allow booking.solentholidays.com to connect</em>.
+</p>
+
+<p>This is done by using the technique of <em>Cross-Origin Resource Sharing (CORS)</em>.  An <em>Access-Control-Allow-Origin</em> headere is added to the HTTP response from the server the <em>header()</em> function, e.g. an HTTP response
+might contain the header:
+<pre>Access-Control-Allow-Origin: booking.solentholidays.com</pre>
+which would allow the client at <em>booking.solentholidays.com</em> to connect
+to the script.
+</p>
+<p>To add a CORS header to a Node/Express server, it's easy if you install the <code>cors</code> package:
+<pre>npm install cors</pre>
+You just use:
+<pre>const cors = require('cors');
+app.use(cors());</pre>
+</p>
+
+<h2>New style AJAX requests with the fetch API</h2>
+<p>The easiest way to communicate with a server using AJAX is the
+<em>fetch API</em>. Here is an example of the use of the fetch API. Note
+that <strong>even though the server would normally send back a data format such as JSON or XML, in this example the server is simply sending back plain text, for simplicity</strong>.
+<pre>
+function ajaxSearch(productType) {
+    fetch(`https://server/api/product/${productType}`)
+        .then(response =&gt; response.text())
+        .then(text =&gt; {
+            document.getElementById('results').innerHTML = text;
+        });
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+How is this working?
+<ul>
+<li>We fetch a response from the given URL. Here we are contacting a 
+server-side script which searches for all products of a given type.</li>
+<li><em>then</em>, when we get the response, we obtain the text from it.</li>
+<li><em>then</em>, when we have the raw text of the response, we run an 
+arrow function to place the results inside a &lt;div&gt;. This arrow
+function is passed the raw text of the response as a parameter.</li> 
+</ul>
+<h3>Promises</h3>
+<p>We'll now look in a bit more detail at what is going on with our fetch API
+request, and in particular look at the concept of a <em>promise</em>. The
+<code>fetch</code> call, above, returns a <em>Promise</em> object.
+A promise is an object which "promises" to do a particular (typically)
+asynchronous, background task which will complete at some point in the future,
+such as an AJAX request. The <code>fetch()</code> function will return 
+immediately, but will not do the AJAX request immediately. Instead, it returns
+a <em>promise object</em> which will, at some point in the future, be either
+<em>fulfilled</em> or <em>rejected</em>. These outcomes are as follows;
+    <ul>
+    <li>A promise is <em>fulfilled</em> or <em>resolved</em> as soon as the 
+    background task completes successfully, for example when a response is
+    received from an AJAX call;</li>
+    <li>or it is <em>rejected</em> if it fails with an error, for example
+    there is a network timeout on an AJAX call.</li>
+    </ul>
+We handle each of those two outcomes using the <code>then()</code> and
+<code>catch()</code> functions. The function supplied as an argument to
+<code>then</code> (the <strong>resolve</strong> function)
+will run <strong>as soon as the promise is fulfilled</strong>
+while the function supplied as an argument to <code>catch</code> will run 
+<strong>as soon as the promise is rejected</strong>.
+</p>
+<p>
+So, promises allow you to write code with intuitive, clean syntax in
+this form:
+<pre>promise.then(resolveFunction).catch(rejectFunction);</pre>
+where "promise" is the promise object, and <code>resolveFunction</code> and
+<code>rejectFunction</code> are the functions which run on fulfilment and
+rejection, respectively.</p>
+<p>Note that this topic does not include how to write your own promises from
+scratch, only how to use promises returned from APIs written by others, for
+example the fetch API. You can read about how to create your own promises in
+the <a href='../wad/promises.html'>third-year notes on promises</a>.</p> 
+<h4>Relating promises to the fetch API</h4>
+<p>So, returning to our fetch API example, what is happening with this code in
+terms of promises? (Note, I have now added a <code>catch()</code>).
+<pre>
+fetch(`https://server/api/product/${productType}`)
+    .then(response =&gt; response.text())
+    .then(text =&gt; {
+        document.getElementById('results').innerHTML = text;
+    })
+    .catch(e =&gt; { alert(`An error occurred: ${e}`); } );
+</pre>
+<ul>
+<li>We make our <code>fetch()</code> request. This returns a promise, which
+will resolve when we get a response back from the server.</li>
+<li>We supply the arrow function <code>response =&gt; response.text()</code>
+as the resolve function. This takes the response and obtains text from it.
+Note that this is shorthand for:
+<code>.then(response =&gt; { return response.text(); } );</code>
+in other words, if an arrow function only returns a value and does not do
+anything else, we can omit the curly brackets and the <code>return</code>.
+</li>
+<li>Note that <code>response.text()</code> does not return the text directly. Perhaps surprisingly, <code>response.text()</code> <strong>itself returns a promise</strong>, which will fulfil as soon as text is obtained from the response so we need <strong>yet another then()</strong> with a <strong>second resolve function</strong> passed as an argument, i.e:
+<pre>
+.then(text =&gt; {
+    document.getElementById('results').innerHTML = text;
+});
+</pre>
+This second resolve function gets passed the text as a parameter, and
+simply places this text inside a &lt;div&gt;.</li>
+<li>Finally, any errors that might occur during the whole process are handled
+with the <code>catch()</code>.</li>
+</ul>
+<h3>async/await</h3>
+<p>ECMAScript 8 (aka ECMAScript 2017) introduces <em>async/await</em>.
+This allows you to write promise-based,
+asynchronous code in a sequential manner. Here is how we would rewrite our
+<em>fetch</em> API code using async/await:
+<pre>
+<em>async</em> function ajaxSearch(productType) {
+    const response = <em>await</em> fetch(`https://server/api/product/${productType}`);
+    const text = <em>await</em> response.text();
+    document.getElementById('results').innerHTML = text;
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+Note how we're doing a whole AJAX / JSON parsing procedure using sequential
+code, even though AJAX is an asynchronous process. The key things are:
+    <ul>
+    <li>The function <em>ajaxSearch()</em> is declared as <em>async</em>, 
+    which makes it a special kind of function (an <em>AsyncFunction</em>)
+    allowing us to do async/await;</li>
+    <li><em>fetch()</em> (which if you remember returns a promise to do an
+    AJAX call) is preceded by <em>await</em>. What <em>await()</em> does is
+    suspend execution of the rest of the <em>async</em> function until the
+    promise concerned has been fulfilled. 
+    The argument to the resolve function of
+    the promise is then <em>returned</em> from the <em>await</em> call.
+    </li>
+    </ul>
+Note also that <em>await</em> will only work with a promise. It's
+<em>awaiting the successful resolution of that promise</em>. Trying to use
+<em>await</em> without a Promise will not work!</li>
+</p>
+<p>To make the code more robust we need to handle errors. Here is how to
+do this with <em>async/await</em>:
+<pre>
+<em>async</em> function ajaxSearch(productType) {
+    try {
+        const response = <em>await</em> fetch(`https://server/api/product/${productType}`);
+        const text = <em>await</em> response.text();
+        document.getElementById('results').innerHTML = text;
+    } catch(e) {
+        alert(`Error: ${e}`);
+    }
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+Note how we <em>try</em> to do the promise based, asynchronous code and
+<em>catch</em> any promise rejections in the <em>catch</em> block. The catch
+block gets passed the error message accompanying the promise rejection.</p>
+<h4>async/await with JSON</h4>
+<p>The previous examples have shown <em>fetch()</em> AJAX requests which return
+plain text. Here is a version which communicates with a server which returns
+JSON instead:
+<pre>
+<em>async</em> function ajaxSearch(productType) {
+    // Send a request to our remote URL
+    const response = <em>await</em> fetch(`https://server/api/product/${productType}`);
+
+    // Parse the JSON.
+    const products = <em>await</em> response.json();
+
+    // Loop through the array of JSON objects and add the results to a &lt;div&gt;
+    let html = "";
+    products.forEach ( product =&gt; {
+        html += `Product Name: ${product.name} Manufacturer: ${product.manufacturer} Price: ${product.price}&lt;br /&gt;`;
+    });
+    document.getElementById('results').innerHTML = html;
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+This code is very similar to the text-based example. The main difference is
+we use <code>response.json()</code> rather than <code>response.text()</code>.
+This returns a promise which resolves when the JSON in the response has
+been parsed (compare <code>response.text()</code>, which returns a promise
+which resolves when we have extracted text from the response).</p>
+<p>The other diference is that we need to loop through our array of JSON
+objects returned from the server. The JSON might look like this:
+<pre>
+[
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Organic Products Ltd.",
+        "price": 2.49 
+    },
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Cockadoodle Cereal Co.",
+        "price": 1.79 
+    },
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Smith Emporium",
+        "price": 0.79 
+    },
+]
+</pre>
+so hopefully you can see how we loop through each product object within the JSON
+and extract the name, manufacturer and price fields from it. Notice also how
+<code>forEach()</code> allows us to loop through each member of an array
+without needing a <code>for</code> loop with an index. 
+<code>forEach()</code> is a function which performs a second function on each member of an array. Each member of the array in turn is passed into this second function as a parameter.</p>
+<h2>Exercises</h2>
+<p><strong>IMPORTANT!</strong> If you are reading this <em>before</em> the scheduled delivery date for this topic of week 5, these exercises <strong>MAY NOT BE COMPLETE</strong>.</p>
+<p>Your aim is to develop <em>HitTastic!</em>, a website allowing users to
+search for, and buy, music. You are going to develop a front-end for 
+HitTastic! and connect it to your Node server that you wrote last week.</p>
+<ol>
+<li>Develop an HTML front end for HitTastic!, a site which allows you to search for, and buy, music online. If you are doing this in advance of the session, feel free to use a bit of creativity here and create an appealing front-end (though this is not compulsory!) Ensure that your HitTastic! page 
+includes a form field to allow the user to enter an artist, and a button, which
+when clicked, will connect, via AJAX, to your server. 
+</li>
+<li>In a separate JavaScript file on the front-end, write an AJAX request function which connects to your <code>/artist</code> API endpoint from topic 4. You 
+should <em>parse</em> the JSON returned.  Place the results within a &lt;div&gt;. Remember that you can use <em>innerHTML</em>
+to fill a page element, e.g:
+<pre>document.getElementById("div1").innerHTML = "New content!";</pre></li>
+<li>Display the results in a table.</li>
+<li>Add an additional column to the table. If the song was released before the
+year 2000 (you can tell this from the <code>year</code> property in the JSON, based on the <code>year</code> column in the database) then display "CLASSIC HIT!" in this column.</li>
+<li>Add an additional <code>&lt;select&gt;</code> box to the front-end. This should
+contain the options Title, Artist or Year, allowing the user to search on
+either title, artist or year.
+<pre>
+&lt;select id='searchType'&gt;
+&lt;option&gt;title&lt;/option&gt;
+&lt;option&gt;artist&lt;/option&gt;
+&lt;option&gt;year&lt;/option&gt;
+&lt;/select&gt;
+</pre>
+Next to this <code>&lt;select&gt;</code>, add a button labelled "Search by Type" and connect this to a new JavaScript function. This should read the search type
+from the select box (you can just use <code>document.getElementById(....).value</code> here, the same as for input boxes) and then make a request to the
+appropriate API endpoint. You will need to add a new endpoint to your REST API
+to find all songs released in a given year, as you will not have done this last week.</li>
+</ol>
+</body>
+</html>
