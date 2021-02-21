@@ -302,10 +302,7 @@ either title, artist or year.
 &lt;option&gt;year&lt;/option&gt;
 &lt;/select&gt;
 </pre>
-Next to this <code>&lt;select&gt;</code>, add a button labelled "Search by Type" and connect this to a new JavaScript function. This should read the search type
-from the select box (you can just use <code>document.getElementById(....).value</code> here, the same as for input boxes) and then make a request to the
-appropriate API endpoint. You will need to add a new endpoint to your REST API
-to find all songs released in a given year, as you will not have done this last week.</li>
+Next to this <code>&lt;select&gt;</code>, add another text field, and a button labelled "Search by Type" and connect this to a new JavaScript function. This should read the search type from the select box (you can just use <code>document.getElementById(....).value</code> here, the same as for input boxes) and the search term from the text field, and then make a request to the appropriate API endpoint. You will need to add a new endpoint to your REST API to find all songs released in a given year, as you will not have done this last week.</li>
 </ol>
 </body>
 </html>
