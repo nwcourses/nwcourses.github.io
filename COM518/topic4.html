@@ -48,7 +48,7 @@ user's web browser, but the <em>client</em> with respect to the database server:
 </p>
 <h2>Downloading a database server</h2>
 <p>To work on this topic you will need to <em>download a database server</em>,
-either <a href='https://mysql.com'>MySQL</a> or <a href='https://mariadb.com'>MariaDB</a>(which is a fork of MySQL). The easiest way to get set up on Windows is probably to download <a href='https://www.apachefriends.org'>XAMPP</a>, which is a package containing an Apache server (which we will look at later), PHP (another server-side scripting language, which you might find interesting to look at in your own time), MariaDB and the database administration tool <a href='https://phpmyadmin.net'>PHPMyAdmin</a>, which allows you to manage your database through a web-based interface.</p>
+either <a href='https://mysql.com'>MySQL</a> or <a href='https://mariadb.org'>MariaDB</a>(which is a fork of MySQL). The easiest way to get set up on Windows or Mac is probably to download <a href='https://www.apachefriends.org'>XAMPP</a>, which is a package containing an Apache server (which we will look at later), PHP (another server-side scripting language, which you might find interesting to look at in your own time), MariaDB and the database administration tool <a href='https://phpmyadmin.net'>PHPMyAdmin</a>, which allows you to manage your database through a web-based interface.</p>
 <p>If you are on Linux, you can install MySQL or MariaDB via your package management system (<code>apt</code>, <code>rpm</code> etc).</p>
 <h2>Node and MySQL</h2>
 <p>We are going to look now at how you can connect to a MySQL or MariaDB 
@@ -324,8 +324,15 @@ You can also add data to the request body. This is shown below, note how we have
 RESTer also allows you to test error conditions: if you supply invalid 
 request data and your web API checks for this, then you will get a non-200
 status code returned.</p>
-<h2>Using a database client</h2>
-<p>To populate your database you need a <em>database client</em>, as discussed above. If you download MySQL or MariaDB, either on their own or as part of a package such as XAMPP, you will be able to use the command line tool from your command prompt. This will be either <code>mysql</code> or <code>mariadb</code>.
+<h2>Installing and Using a database client</h2>
+<p>You need to install and use a database client. There are a number of ways
+in which you can do this:
+	<ul>
+	<li>Install a package such as <a href='https://apachefriends.org'>XAMPP</a>, which, as discussed above, contains not just a database (MariaDB) but also the Apache web server, PHP and the database administration tool PHPMyAdmin. XAMPP generally works but a small number of users have reported problems starting Apache. An alternative is <a href='https://www.wampserver.com/en/download-wampserver-64bits'>WAMP</a> which you may find works if XAMPP does not work for you.</li>
+	<li>Install a database directly, as a standalone application, for example <a href='https://mysql.com/products/community'>MySQL Community Edition</a> or <a href='https://mariadb.org/download/'>MariaDB</a>. Please ensure you follow the installation instructions carefully, for example <a href='https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html'>these for MySQL on Windows</a>.</li>
+	</ul>
+</p>
+<p>Also, to populate your database you need a <em>database client</em>, as discussed above. If you download MySQL or MariaDB, either on their own or as part of a package such as XAMPP, you will be able to use the command line tool from your command prompt. This will be either <code>mysql</code> or <code>mariadb</code>.
 For example, to launch the MySQL client you would enter, at the command
 line:
 <pre>mysql -u root</pre>
@@ -346,7 +353,7 @@ database server, e.g:
 </p>
 <h3>Using a graphical database client</h3>
 <p>As a more user-friendly alternative to the console-based client you can
-use a graphical interface, such as <a href='https://phpmyadmin.net'>PHPMyAdmin</a> which comes with XAMPP and can be installed on Linux systems. This is a web-based front-end to a MySQL or MariaDB database, written in the PHP server-side scripting language. Once installed, you should be able to access via
+use a graphical interface, such as <a href='https://phpmyadmin.net'>PHPMyAdmin</a> which comes with XAMPP and can be installed on Linux systems. This is a web-based front-end to a MySQL or MariaDB database, written in the PHP server-side scripting language. Once installed, you should be able to access it via
 <code>http://localhost/phpmyadmin/</code>
 You will see a login screen like this if you have a database password set up:
 </p>
@@ -372,8 +379,7 @@ If you now click the 'SQL' tab, you will be able to enter SQL commands to send t
 </p>
 <h2>Exercises</h2>
 <ol>
-<li>Launch your database and create a <code>wadsongs</code> table containing
-songs. Use this <a href='wadsongs.sql'>SQL file</a> to populate it with around 1000-1500 songs. In PHPMyAdmin, you can use the Import tab to import them:
+<li>Launch your database (see the instructions above) Use this <a href='wadsongs.sql'>SQL file</a> to create a <code>wadsongs</code> table and populate it with around 1000-1500 songs. In PHPMyAdmin, you can use the Import tab to import them:
 <br />
 <br />
 <img src='../images/phpmyadmin_import.png' alt='PHPMyAdmin import' />
@@ -382,7 +388,7 @@ songs. Use this <a href='wadsongs.sql'>SQL file</a> to populate it with around 1
 If using the command prompt, you can use a shell command (enter in your command prompt or shell, NOT in the MySQL or MariaDB client), e.g.
 <pre>mysql -u root &lt; wadsongs.sql</pre>
 </li>
-<li>Develop a simple REST API in Node and Express with endpoints to: 
+<li>Once your database is populated, develop a simple REST API in Node and Express with endpoints to: 
     <ul>
     <li>GET: search for all songs by a given artist;</li>
     <li>GET: search for all songs with a given title;</li>
