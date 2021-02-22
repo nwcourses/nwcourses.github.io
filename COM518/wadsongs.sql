@@ -1,3 +1,4 @@
+USE mysql;
 DROP TABLE IF EXISTS `wadsongs`;
 CREATE TABLE `wadsongs` (
   `title` varchar(255) DEFAULT NULL,
