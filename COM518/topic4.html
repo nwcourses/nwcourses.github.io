@@ -69,6 +69,8 @@ npm install mariadb
 <p>All three of these modules can be used in the same way with basic
 queries. Here is a simple example with the <code>mysql2</code> module:
 <pre>
+// mysql2 will also work with MariaDB, alternatively use
+// const mysql = require('mariadb/callback')
 const mysql = require('mysql2');
 
 const con = mysql.createConnection({
@@ -96,6 +98,8 @@ Here is an example:
 <pre>
 const express = require('express');
 const app = express();
+// mysql2 will also work with MariaDB, alternatively use
+// const mysql = require('mariadb/callback')
 const mysql = require('mysql2');
 
 const con = mysql.createConnection({
@@ -283,7 +287,7 @@ app.post('/product/create', (req, res) =&gt; {
         (error, results, fields) =&gt; {
             if(error) {
                 res.status(500).json({error: error});
-            } else 
+            } else {
                 res.json({success: 1});
             } 
     );
