@@ -1,0 +1,466 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>MAD Topic 4: Android Permissions, GPS Location</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head>
+
+<body>
+<div class='titlebox'>
+<h1>MAD Topic 4: Android Permissions, More Mapping</h1> 
+</div>
+<h2>Android Runtime Permissions</h2>
+<h3>Revision: The manifest file and Permissions</h3>
+<p>Last week you were very briefly introduced to <em>permissions</em>. 
+Apps need to be granted <em>permissions</em> to perform sensitive 
+operations. Sensitive operations can include:
+    <ul>
+    <li><em>Using the internet</em> - because this might incur a cost to
+    the user, and have potential privacy/security concerns;</li>
+    <li><em>Tracking your location</em> - because this could be potentially
+    abused (e.g. by stalkers)</li>
+    <li><em>Reading from and writing to files</em> - again this has
+    security concerns.</li>    
+    </ul>
+The permissions an app needs are specified in the <em>AndroidManifest.xml</em> file, within the <em>manifests</em> directory, before the <code>&lt;application&gt;</code> tag. For example, to specify that we need internet permission, we
+would add the line:
+<pre>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</pre>
+</p>
+<h3>The classic permissions model</h3>
+<p>Before Android 6, permissions were specified at <em>install time</em>, so a user was informed what permissions an app needed when they installed the app.
+However, this model had some disadvantages. It is not very flexible; a user might want to use <em>some</em> sensitive permissions but turn others  for example, it might be that a user wishes to use all features of a mapping app except location tracking</p>
+<h3>Runtime Permissions</h3>
+<p>Android 6 (API level 23) uses a runtime permissions model, in which permissions can be turned on and off at run time, rather than install time.  With Android 6 permissions, you can grant an app certain permissions but not others, at run time. You can also turn permissions on and off at any time via the device's Settings.</p>
+<p>To enforce the use of Android 6 permissions, the <code>targetSdkVersion</code> of your app must be at least 23; we looked at <code>targetSdkVersion</code> last week.</p>
+<h3>Using the Android 6 permissions model</h3>
+<ul>
+<li>You must still declare the permissions you need in the manifest file</li>
+<li>In addition, you now need to include logic in your application to perform checks on whether the appropriate permission has been granted. For example, before attempting to obtain the device's location using the GPS chip, your code needs to check whether the GPS permission has been granted by the user or not, and if it hasn't, the app needs to request the permission by asking the user whether they want to grant it.</li>
+</ul>
+<h4>Dangerous permissions</h4>
+<p>Certain permissions in Android are more sensitive than others, these are
+called <em>dangerous permissions</em>.  Dangerous permissions include location, using the GPS (for privacy reasons), camera (even more so) and file I/O
+(because of the risk of a rogue app reading private data on your device).
+It is <em>these dangerous permissions</em> which require runtime permission checking, and these permissions which can be turned on or off in the Settings.</p>
+<p>Less sensitive permissions, such as internet, can be done purely via the manifest, as before; these do <em>not</em> need runtime permission checking.</p>
+<p>See <a href="https://developer.android.com/guide/topics/permissions/overview">this documentation on the Android site</a></p>
+<h4>What happens from the user point of view?</h4>
+<ul>
+<li>When a user runs an app which uses dangerous permissions, a dialog is presented to the user, asking them whether they wish to grant or deny that permission (or strictly speaking, that permission group - see below)</li>
+<li>If a user presses 'grant', code associated with granting the permission (see below) will run</li>
+</ul>
+<p>As well as granting the permission at runtime, a user can grant permission by going into the phone's Settings, selecting "Apps" and then the appropriate app, and then turning the appropriate setting on. A user can also revoke the permission through the Settings.</p>
+</ul>
+<h3>Implementation details</h3>
+<h4>Checking whether a permission has been granted</h4>
+<p>You use the <code>checkSelfPermission()</code> call for this, though it is recommended to use  <code>ContextCompat.checkSelfPermission()</code> from the Jetpack AppCompat library, to allow your code to run on older devices.
+<p>Here is an example of checking for the <code>READ_EXTERNAL_STORAGE</code> (read files on the device) permission. You can imagine that this is in <code>onCreate()</code> for now, but later, when we consider the <em>activity lifecycle</em>, you will see somewhere better to put it.
+<pre>
+// imagine this code is in your onCreate() for now
+if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+{ 
+    // read from file...
+  
+} else {
+    // request the 'READ_EXTERNAL_STORAGE' permission
+}
+</pre>
+Note how checkSelfPermission() takes the permission we are interested in (READ_EXTERNAL_STORAGE) as an argument.</p>
+<p>This method will return one of these constants:
+    <ul>
+    <li><code>PackageManager.PERMISSION_GRANTED</code> if the permission has already been granted by the user;</li>
+    <li><code>PackageManager.PERMISSION_DENIED</code> if not.</li>
+    </ul>
+If you are targeting API level 23 and above, Android Studio's <em>lint</em> tool will produce an error if you leave this check out (and if you disable the <em>lint</em> tool, the app will crash at runtime with a SecurityException)</p>
+<h4>Granting permissions in your code</h4>
+<p>If <em>checkSelfPermission()</em> returns <em>PackageManager.PERMISSION_DENIED</em>, then you should request that permission from the user in your code.
+Use <code>ActivityCompat.requestPermissions()</code> to request a particular permission. Again, this uses the Jetpack AppCompat library, to provide support to older devices. Here is an example:
+<pre>ActivityCompat.requestPermissions(this, arrayOf&lt;String&gt;(Manifest.permission.READ_EXTERNAL_STORAGE ), 0)</pre>
+<p>Note how we put the requested permissions (there can be more than one) in a String array. Note also <em>the code of 0 passed as the third argument</em>.  The <em>onRequestPermissionsResult()</em> callback uses the code to determine which permission request it is processing.  In <code>onRequestPermissionsResult()</code>, you would perform the requested sensitive operation (e.g. listen for GPS position) if the appropriate permission was granted.</p>
+<p>It is important to note that this will not immediately grant the permission. It <em>requests permission from the user</em>. It will bring up a dialog warning the user which permissions the app wants, and give the user the option to either grant or deny the request. When the user has done this, a callback function (<code>onRequestPermissionsResult()</code>) will be run, to be discussed next.</p>
+<h4>Example of onRequestPermissionsResult() callback</h4>
+<p>As discussed above, the <code>onRequestPermissionsResult()</code> callback runs when the permissions have been granted (or denied) by the user. An example of this method is shown below; it would be added to your <em>Activity</em>:
+<pre>
+// add as a method of your Activity
+override fun onRequestPermissionsResult(requestCode:Int, permissions:Array&lt;String&gt;, grantResults: IntArray) {
+    when(requestCode) {
+        0 -&gt; {
+            if(grantResults.isNotEmpty() &amp;&amp; grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // now open the file 
+            } else {
+                // user has denied file read permission so inform them that the app will not be able to read files 
+            }
+        }
+    }
+  
+}</pre>
+Note the three parameters to the method:
+<ul>
+<li><em>requestCode</em> is the code mentioned in 
+<em>requestPermissions()</em> above, so we can check which permission request we are processing.</li>
+<li>permissions is our array of permissions 
+(we are not using this here as we are using the request code to work out which permission we are granting)</li>
+<li><em>grantResults</em> is an array of the results for each permission being granted;
+ Here it only has one member as we only requested one permission (file read). 
+ The values within this array will either be 
+ <em>PackageManager.PERMISSION_GRANTED</em> or 
+ <em>PackageManager.PERMISSION_DENIED</em>. </li>
+ </ul>
+If a permission has been granted, you might implement code which relies on that permission being granted such as turning on a LocationListener to listen for GPS updates.</p>
+ <h3>General logic for using dangerous permissions</h3>
+<p>A good approach is to <em>put the code which checks for, and
+uses,  a dangerous permission in its own method</em>.  That way, once the permission has been granted, we can call this method again, and this time, the dangerous operation will run as the permission is now granted</p>
+<p>For example, in the code below, <code>readFromFile()</code> tries to read from file, but checks that the permission has been granted first, and if it hasn't, it requests it:
+<pre>fun readFromFile() {
+    // is the permission granted yet?
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        // ... actual code to open and read from a file 
+    } else {
+        // request the permission
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)    
+    }
+}</pre>
+In a simple activity, this could be called in <code>onCreate()</code>, though it could potentially be placed anywhere in our app where we need to perform the operation:
+<pre>override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    // do other setup stuff ...
+    readFromFile()
+}</pre>
+The corresponding <code>onRequestPermissionsResult()</code> runs when the permission has been granted (or denied) by the user. If it was granted, we call <code>readFromFile()</code> again:
+<pre id='onrequestpermissionsresult'>
+override fun onRequestPermissionsResult(requestCode:Int, permissions:Array&lt;String&gt;, grantResults: IntArray) {
+    when(requestCode) {
+        0 -&gt; {
+            if(grantResults.isNotEmpty() &amp;&amp; grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                readFromFile() 
+            } else {
+                // user has denied file read permission so inform them that the app will not be able to read files via an AlertDialog
+                AlertDialog.Builder(this)
+                    .setPositiveButton("OK", null) // add an OK button with an optional event handler
+                    .setMessage("You will be unable to read from file.") // set the message
+                    .show() // show the dialog
+            }
+        }
+    }
+  
+}</pre>
+Note how we call <code>readFromFile()</code> again when the user has granted file read permission. This time, as the permission has been granted, the app will actually be able to read from the file.</p>
+<h3>Using runtime permissions on devices running older versions of Android</h3>
+<p>As long as we manage runtime permissions via the Jetpack AppCompat library (as we did in the examples above), code using runtime permissions will compile and run on these old versions of Android, as long as our <code>targetSdkVersion</code> is at least 23. However, that the user will not actually be prompted to grant permissions on a pre-Android 6 device; it will fall back to install-time
+permissions
+    <ul>
+    <li>Using Jetpack AppCompat for permission handling simply allows runtime permission code to <em>compile and run</em> on such devices</li>
+    </ul>
+</p>
+<h2>Location</h2>
+<p>Having covered runtime permission handling, we are now going to look at a key piece of functionality which <em>uses</em> it; obtaining your current <em>location</em>. Many of the most interesting mobile apps are <em>location-based apps</em>, in other words, the app is sensitive to the user's location on earth. We might, for instance, have an app which displays a map of your current location. Or an app which looks up the nearest pubs, bus stops or railway stations. Such apps send the user's <em>location</em> to a web server, which then delivers data near that location. Most smartphones contain a <em>GPS chip</em> which obtains the device's location by communicating with Global Positioning System (GPS) satellites: the same mechanism used in car satnav systems. So, since location is
+so important in mobile app development, we are going to look at it now.</p>
+<h3>Ethical issues with geolocation</h3>
+<p>There are important ethical issues when it comes to location. Potentially,
+a malicious app could gather your location and send it to a server with a user's personal details, which could allow the user to be tracked without their consent. For this reason, location tracking is treated as a dangerous permission and must be granted by the user at runtime.</p>
+<p>Furthermore, it is recommended to create an explicit privacy policy on
+your app's website (which can be linked to from Google Play) which spells
+out to users why the app needs location information and what will be done
+with it.</p>
+<h4>Adding location permission to the manifest file</h4>
+<p>There are two permissions for location: <code>ACCESS_FINE_LOCATION</code> for accurate (GPS) position, and <code>ACCESS_COARSE_LOCATION</code> (for less-accurate (wifi and cell-tower) position. As for any permission (dangerous and non-dangerous), you need to add the appropriate permission to the manifest:
+<pre>&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;</pre>
+</p>
+<h3>Basic use of Geolocation</h3>
+<p>This <em>incomplete</em> example shows how to obtain your location. Note
+that a fully-working example would also need to request the <code>ACCESS_FINE_LOCATION</code> permission at runtime, using the technique described above.
+<pre>package com.example.nickw.location
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.location.LocationManager
+import android.location.LocationListener
+import android.location.Location
+import android.content.Context
+import android.widget.Toast
+
+// Use commas to separate superclasses and interfaces (extends and implements)
+class MainActivity : AppCompatActivity(), LocationListener 
+{
+    // Add runtime permission handling, as described above (for you to do!!!)
+
+    // this method should be called:
+    // - if ACCESS_FINE_LOCATION permission is already granted
+    // - as soon as a user has granted ACCESS_FINE_LOCATION permission
+    fun requestLocation() {
+       
+        if(GPS permission granted) { // for you to complete!!! 
+            // note the use of 'as' to perform type casting in Kotlin
+            // getSystemService() returns a superclass type of LocationManager,
+            // so we need to cast it to LocationManager.
+            val mgr=getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+
+            // Distance (third argument) is float.
+            // In Kotlin we must explicitly use "f" to specify it's a float
+            mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0f,this)
+        }
+    }  
+    
+    override fun onLocationChanged(newLoc: Location?) {
+        // newLoc might be null, so use the Kotlin apply() method to only run 
+        // the specified lambda if it's not null.
+        // Inside an apply() lambda, "this" refers to the subject of the        
+        // apply() call (newLoc here)
+        newLoc?.apply {        
+            // Inside the apply() lambda, "this" will refer to newLoc, so to
+            // refer to the activity object, we need "this@MainActivity"
+            Toast.makeText (this@MainActivity, "Location=${this.latitude},${this.longitude}", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    override fun onProviderDisabled(provider: String) {
+        Toast.makeText (this@MainActivity, "Provider disabled", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        Toast.makeText (this@MainActivity, "Provider enabled", Toast.LENGTH_LONG).show()
+    }
+    
+    // Deprecated at API level 29, but must still be included, otherwise your
+    // app will crash on lower-API devices as their API will try and call it
+    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+    
+    }
+}</pre>
+This code sample shows how to use the Location API. It will listen to the device's GPS and update the main content view with the current latitude and longitude (position on earth). So how does it work? The key thing is that there are three main components involved in obtaining your location: 
+<ul>
+<li>the <em>location provider</em> (representing the actual provider of your location, such as the GPS, WiFi network or cell tower network). A string is used to refer to the provider.</li>
+<li>the <em>location manager</em> (class LocationManager) which controls access to the provider, allowing you to set such things as frequency of updates;</li>
+<li>the <em>location listener</em> (the object which handles location updates, so that every time the GPS location changes, for example, code in the location listener will run to react to the change in location).
+</li>
+</ul>
+</p>
+<p>
+To go through the code above in more detail:
+<ul>
+<li>First we obtain a LocationManager. We do not instantiate a LocationManager
+object; instead we ask the system to obtain the default location manager for
+us with:
+<pre>val mgr: LocationManager = getSystemService(Context.LOCATION_SERVICE)</pre>
+</li>
+<li>We then ask the location manager to update the app with new location informatiom, using:
+<pre>mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this)</pre>
+Note the parameters:
+    <ul>
+    <li>The first parameter specifies we are using a GPS provider (we could, alternatively, request a network provider - e.g. WiFi/cell tower - instead with
+    <em>LocationManager.NETWORK_PROVIDER</em>), though these are less accurate.</li>
+    <li>The second parameter specifies the frequency of updates in milliseconds (0 means update as frequently as possible);</li>
+    <li>The third parameter specifies the minimum distance we must travel, in metres, before an update is obtained (again 0 means update as frequently as possible);</li>
+    <li>The fourth parameter specifies the <em>LocationListener</em> object which will process the location updates received - here it is <em>this</em>, i.e the current Activity will act as the LocationListener.</li>
+    </ul>
+</li>
+<li>A LocationListener is any object which <em>implements the LocationListener interface</em> e.g.
+<pre>public class MainActivity : AppCompatActivity(), <em>LocationListener</em></pre>.</li>
+</ul>
+</p>
+<p>In a <em>LocationListener</em>, you must provide four methods to handle different location events:
+    <ul>
+    <li><em>onLocationChanged()</em>, which takes a Location object as a parameter. This runs when a new location is received from the provider.</li>
+    <li><em>onProviderDisabled()</em> and <em>onProviderEnabled()</em>, which run when you physically disable, or re-enable, that provider (e.g the GPS) from your device.  Often you can leave these blank but if you want specific behaviour to occur when the user switches the GPS on and off, you would write it here.</li>
+    <li><em>onStatusChanged()</em> which runs when then status of the location provider changes, e.g. we lose the GPS signal. Again, this can be left blank for simple applications. In fact, this method is deprecated in API level 29 (the <a href='https://developer.android.com/reference/android/location/LocationListener#onStatusChanged(java.lang.String,%20int,%20android.os.Bundle)'>documentation</a> states that "providers can be considered as always in the Location.Provider#AVAILABLE state", i.e. you can assume that the provider is always available, so it is rather unclear as to what happens if you lose GPS signal!). However, despite it being deprecated, you should still implement it, otherwise your app will crash on lower-API devices. This is because a device running an older version of Android might try to call this method at runtime, and if it is not present, you will get a runtime crash due to the method not being present in the compiled bytecode.</li>
+    <li>For more on these methods, see
+    <a href="http://developer.android.com/reference/android/location/LocationListener.html">the API documentation</a>.</li>
+    </ul>
+</p>
+<p>The<em>onLocationChanged()</em> method takes a single parameter - a <em>Location</em> object representing our current location. It has two properties, <em>latitude</em> and <em>longitude</em>, for getting the actual latitude and longitude. So, in this app, we simply display the current latitude and longitude with what is called a <em>Toast</em>. A Toast is a temporary message which appears as an overlay on the screen. To create and show a Toast we do:
+<pre>Toast.makeText (this, message, length).show()</pre>
+<em>this</em> refers to the activity. <em>length</em> can either be 
+Toast.LENGTH_SHORT or Toast.LENGTH_LONG.</p>
+<h4>Testing with a virtual device</h4>
+<p>If you do not have a real device, or are located indoors (as you will probably be during the class; indoor GPS signals are not reliable) it is possible to test it in a development environment (with a GPS provider) by sending "virtual" locations to the emulator.</p> 
+<p>This is quite straightforward. Click on the three dots (...) at the bottom of the controls of the virtual device (to the right of the screen). This will take you to a dialog showing a map, by default located in Silicon Valley, California. You can change location by moving the map or searching for locations
+and then clicking "SET LOCATION".  This will send a virtual GPS signal to the device, containing the latitude and longitude entered. </p>
+<p>This is shown below:
+<br />
+<img src='../images/extendedcontrols.png' alt='Emulator extended controls' />
+</p>
+<h2>Map Markers</h2>
+<p>This topic is relatively easy compared to some of the recent topics but is a useful topic to know if you are developing any sort of geographically-aware app: the ability to add <em>markers</em> to a mapping application. Many geographically-aware apps show points of interest as <em>markers</em> on the map. </p>
+
+<h3>How to code markers in osmdroid</h3>
+<h4>Adding markers to a map</h4>
+<p>The example below shows how to add markers to a map:
+<pre>
+package com.example.basicmapapp
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.preference.PreferenceManager
+import org.osmdroid.config.Configuration
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.ItemizedIconOverlay
+import org.osmdroid.views.overlay.OverlayItem
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // This line sets the user agent, a requirement to download OSM maps
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+
+        setContentView(R.layout.activity_main)
+        val map1 = findViewById&lt;MapView&gt;(R.id.map1)
+        map1.controller.setZoom(14.0)
+        map1.controller.setCenter(GeoPoint(51.05, -0.72))
+
+        val items = ItemizedIconOverlay(this, arrayListOf&lt;OverlayItem&gt;(), null)
+        val fernhurst = OverlayItem("Fernhurst", "Village in West Sussex", GeoPoint(51.05, -0.72))
+        val blackdown = OverlayItem("Blackdown", "highest point in West Sussex", GeoPoint(51.0581, -0.6897))
+        items.addItem(fernhurst)
+        items.addItem(blackdown)
+        map1.overlays.add(items)
+    }
+}
+</pre>
+Note what we are doing here. There are two key classes:
+    <ul>
+    <li><em>OverlayItem</em>, representing an individual marker, and 
+    </li>
+    <li>
+    <em>ItemizedIconOverlay</em>, representing a <em>layer</em> of markers.</li>
+    </ul>
+How does the code work?
+    <ul>
+    <li>We create an <em>ItemizedIconOverlay</em> object. An <em>overlay</em> is a separate layer on top of the map, which can
+    be used to display markers (and other overlays such as lines and polygons).</li>
+    <li>The ItemizedIconOverlay constructor takes three parameters:
+        <ul>
+        <li>The current activity (<em>this</em>);</li>
+        <li>A blank ArrayList to hold the individual OverlayItems;</li>
+        <li>A marker gesture listener. This is a listener object which listens out for taps or presses on the markers and reacts
+        to them. This is set to <em>null</em> for now.</li>
+        </ul>
+    </li>
+    <li>Each marker is an <em>OverlayItem</em> object</li> 
+    <li>We then create an OverlayItem, using a given location, a title ("Fernhurst" here) and a snippet (a short description))
+    description ("Village in West Sussex" here):
+    <pre>OverlayItem fernhurst = OverlayItem("Fernhurst", "Village in West Sussex", GeoPoint(51.05, -0.72))</pre></li>
+    <li>
+    We add the OverlayItem to the overlay:
+    <pre>items.addItem(fernhurst)</pre>
+    </li>
+    <li>We then add the overlay to the list of overlays on the MapView:
+    <pre>mv.overlays.add(item)</pre>
+    </li>
+    </ul>
+</p>
+<h3>Custom markers</h3>
+<p>So far we have used the built-in osmdroid marker. However we can use
+<em>custom markers</em> for our app. Here is how we do this with the <em>fernhurst</em> OverlayItem:
+<pre>fernhurst.setMarker(ContextCompat.getDrawable(this, R.drawable.marker))</pre>
+</p>
+<p>Note how the <em>setMarker()</em> method takes the parameter
+    <pre>ContextCompat.getDrawable(this, R.drawable.marker)</pre>
+    This is an object of type <em>Drawable</em> representing the marker icon. We obtain a <em>Drawable</em> by supplying
+    the resource ID <em>R.drawable.marker</em> as a parameter to <em>getDrawable()</em>. The resource ID
+    <em>R.drawable.marker</em> points to an image <em>marker.png</em> 
+    in the <em>drawable</em>
+    folder (the folder storing drawables, i.e. images and icons)
+    within the <em>res</em> folder of the project. </p>
+<h2>Exercises</h2>
+<ol>
+<li>Add runtime permission checking to the basic Location example above, to turn it into a fully working app.</li>
+<li>Extend your map app from last week (Exercise 2) so that it requests GPS permission and, once permission is granted, it starts listening for GPS updates.
+When a GPS update is received, set the centre of the map to the current GPS
+position.</li>
+<li>Try the following to test it:
+<ul><li>Run the app. Grant the permission. Use the emulator controls to set the location. Does it work?</li>
+<li>Press the Back button on the app to quit it. Go to the settings and turn the permission off. Run the app again by clicking its icon on the device's home screen. It will ask you to grant the permission again. Deny it this time. Use the emulator controls to set the location. Now does it work?</li>
+<li>Press the Back button once more to quit the app, and try running it again by clicking its icon on the device's home screen. What happens now?</li>
+</ul>
+</li>
+<li>Enhance the app so that when the GPS position is obtained, add a marker to the map at this position.
+</li>
+<li>Find points of interest in your home town (such as pubs, churches, restaurants, sports grounds, etc) in your home town, and add markers to each. Test it out by setting the fake GPS position in the emulator to your home town.</li>
+<li>Use different markers for different point of interest types. There are some sample markers <a href="https://www.free-map.org.uk/fm/icons">here</a>.</li>
+<li>If you finish, look at the further reading below, and make an <a href='#onrequestpermissionsresult'>AlertDialog</a> appear when the user taps on each marker, displaying its name and description.</li>
+</ol>
+<hr />
+<h2>Further reading: Marker events</h2>
+<p>We probably want something to happen when we tap on a marker, for example display details of that marker. How do we do this?
+We have to create an <em>OnItemGestureListener</em> object to listen to tap events, i.e. the user tapping items on the overlay, or
+long press events, i.e. the user pressing on the item for a second or two:
+<pre>
+package com.example.basicmapapp
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.preference.PreferenceManager
+import android.widget.Toast
+import org.osmdroid.config.Configuration
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.ItemizedIconOverlay
+import org.osmdroid.views.overlay.OverlayItem
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // This line sets the user agent, a requirement to download OSM maps
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+
+        setContentView(R.layout.activity_main)
+        val map1 = findViewById<MapView>(R.id.map1)
+        map1.controller.setZoom(14.0)
+        map1.controller.setCenter(GeoPoint(51.05, -0.72))
+
+        <em>val markerGestureListener = object:ItemizedIconOverlay.OnItemGestureListener&lt;OverlayItem&gt;
+        {
+            override fun onItemLongPress(i: Int, item:OverlayItem ) : Boolean
+            {
+                Toast.makeText(this@MainActivity, item.snippet, Toast.LENGTH_SHORT).show()
+                return true
+            }
+
+            override fun onItemSingleTapUp(i: Int, item:OverlayItem): Boolean
+            {
+                Toast.makeText(this@MainActivity, item.snippet, Toast.LENGTH_SHORT).show()
+                return true
+            }
+        }</em>
+
+        val items = ItemizedIconOverlay(this, arrayListOf&lt;OverlayItem&gt;(), <em>markerGestureListener</em>)
+        val fernhurst = OverlayItem("Fernhurst", "Village in West Sussex", GeoPoint(51.05, -0.72))
+        val blackdown = OverlayItem("Blackdown", "highest point in West Sussex", GeoPoint(51.0581, -0.6897))
+        items.addItem(fernhurst)
+        items.addItem(blackdown)
+        map1.overlays.add(items)
+    }
+    
+}
+</pre>
+The new code is highlighted. Note how we create an object <code>markerGestureListener</code> which is an object which implements the interface <code>ItemizedIconOverlay.OnItemGestureListener&lt;OverlayItem&gt;</code>. Note that <code>markerGestureListener</code> is the single instance of an <em>anonymous class</em>: an object which extends an abstract class or implenents an interface without having to create a new class, which could be considered overkill as we are just creating a single instance.
+</p>
+<p>
+This is a listener object - an event handler - which responds to user interaction with the items on the layer. You must provide the methods:
+    <ul>
+    <li> <code>onItemSingleTapUp()</code> - an event handler method containing code to run if the user taps any overlay item on the overlay, and</li>
+    <li> <code>onItemLongPress()</code> - an event handler method containing code to run if the user long-presses any item on the overlay.</li>
+    </ul>
+</p>
+<p>These two methods each take two parameters, the index of the OverlayItem within the overlay, and the
+OverlayItem itself which was tapped.</p>
+<p>In each method, we make a Toast using that overlay item:
+<pre>Toast.makeText(this@MainActivity, item.snippet, Toast.LENGTH_SHORT).show()</pre>
+<code>snippet</code> gives us the description of that overlay item (e.g. "Village in West Sussex" for Fernhurst).
+We can also use <code>title</code> to get the title of the overlay item.</p>
+    
+<p>To link the listener to the overlay layer, you provide it as the third parameter (this was null in the first example) to the 
+ItemizedIconOverlay:
+<pre>
+items = ItemizedIconOverlay&lt;OverlayItem&gt;(this, arrayListOf&lt;OverlayItem&gt;(), <em>markerGestureListener</em>)
+</pre>
+</p>
+</body>
+</html>
