@@ -368,7 +368,9 @@ How does the code work?
     within the <em>res</em> folder of the project. </p>
 <h2>Exercises</h2>
 <ol>
-<li>Add runtime permission checking to the basic Location example above, to turn it into a fully working app.</li>
+<li>Add runtime permission checking to the basic Location example above, to turn it into a fully working app. To prevent too many <code>Toast</code>s appearing on top of each other, I would advise using a 5-second update interval for GPS, i.e.:
+<pre>mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, <em>5000</em>, 0f, this)</pre>
+</li>
 <li>Extend your map app from last week (Exercise 2) so that it requests GPS permission and, once permission is granted, it starts listening for GPS updates.
 When a GPS update is received, set the centre of the map to the current GPS
 position.</li>
