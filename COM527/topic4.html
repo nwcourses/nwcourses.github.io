@@ -203,24 +203,16 @@ class MainActivity : AppCompatActivity(), LocationListener
         }
     }  
     
-    override fun onLocationChanged(newLoc: Location?) {
-        // newLoc might be null, so use the Kotlin apply() method to only run 
-        // the specified lambda if it's not null.
-        // Inside an apply() lambda, "this" refers to the subject of the        
-        // apply() call (newLoc here)
-        newLoc?.apply {        
-            // Inside the apply() lambda, "this" will refer to newLoc, so to
-            // refer to the activity object, we need "this@MainActivity"
-            Toast.makeText (this@MainActivity, "Location=${this.latitude},${this.longitude}", Toast.LENGTH_LONG).show()
-        }
+    override fun onLocationChanged(newLoc: Location) {
+        Toast.makeText (this, "Location=${this.latitude},${this.longitude}", Toast.LENGTH_LONG).show()
     }
     
     override fun onProviderDisabled(provider: String) {
-        Toast.makeText (this@MainActivity, "Provider disabled", Toast.LENGTH_LONG).show()
+        Toast.makeText (this, "Provider disabled", Toast.LENGTH_LONG).show()
     }
 
     override fun onProviderEnabled(provider: String) {
-        Toast.makeText (this@MainActivity, "Provider enabled", Toast.LENGTH_LONG).show()
+        Toast.makeText (this, "Provider enabled", Toast.LENGTH_LONG).show()
     }
     
     // Deprecated at API level 29, but must still be included, otherwise your
