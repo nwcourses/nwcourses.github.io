@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity(), LocationListener
     }  
     
     override fun onLocationChanged(newLoc: Location) {
-        Toast.makeText (this, "Location=${this.latitude},${this.longitude}", Toast.LENGTH_LONG).show()
+        Toast.makeText (this, "Location=${newLoc.latitude},${newLoc.longitude}", Toast.LENGTH_LONG).show()
     }
     
     override fun onProviderDisabled(provider: String) {
