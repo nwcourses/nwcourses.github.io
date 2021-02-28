@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 5:
+Menus and Multiple-Activity Applications</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head>
+
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 5</h1>
+<h1>Menus and Multiple Activities</h1>
+</div>
+
+<p>In this section we will:
+    <ul>
+    <li>Look at menus</li>
+    <li>Look at how to create a multiple-activity application</li>
+    </ul>
+</p>
+<h2>Menus and Multiple Activities</h2>
+<p>So far, our apps have contained just one <em>Activity</em>, or screen to interact with the user. However, a typical app will contain <em>several</em> activities, each of which gathers different data from the user. The next section will cover how to create a second Activity, and how to pass data between activities. The second Activity is going to be a screen containing two buttons, to allow the user to choose the style of map to show on our map app (regular map, or opentopomap view). </p>
+<h3>The goal</h3>
+<p>We will be allowing the user to choose between the regular map and OpenTopoMap - a different style oriented towards walkers and cyclists. To see the latter effectively, ensure your default map location is:
+    <ul>
+    <li>Latitude 51.05</li>
+    <li>Longitude -0.72</li>
+    <li>Zoom level 14</li>
+    </ul>
+</p>
+<h3>Menus</h3>
+<p>Before we create the second Activity, we are going to add a <em>menu</em> to our map app from the previous section.  Most Android apps contain a menu of some sort.  There are various methods for implementing a menu in Android. Menus are activated via the <em>action bar</em> - the bar at the top of the app, often in a custom colour, which contains the app's actions. </p>
+<p>There are two common styles of menu:
+    <ul>
+    <li>First, the classic "three dots" style of menu on the right-hand side of the action bar. The menu appears when you press on the three dots.</li>
+    <li>The "hamburger menu"
+    (three horizontal lines) on the left of the action bar which brings up a slide-out menu (or <em>navigation drawer</em>) on the left of the screen.</li>
+    </ul>
+</p>
+<p>The "three dots" style menu is the classic style, still used by some apps today.  We will be examining this style of menu in this unit; the navigation drawer is used by many contemporary apps but is more complex to implement so we will leave it until the end of the module.</p>
+<p>
+To create your menu, right click on the <em>res</em> directory of your app and then create a new Menu resource. Give it a name of <code>menu.xml</code>.
+<br />
+<img src='../images/createmenu.png' alt='Android Studio - create menu resource' />
+<br />
+Add this code to the <code>menu.xml</code> file:
+<pre>
+&lt;menu
+  xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+&lt;item android:id="@+id/choosemap" android:title="@string/choosemap"/&gt;
+&lt;/menu&gt;
+</pre>
+Note that there is a &lt;menu&gt; tag to define the menu as a whole, while each
+item is defined as an &lt;item&gt; tag.
+The item has an ID of <em>choosemap</em> and a title equal to the string with
+the name of <em>choosemap</em> (which should be
+defined in the strings.xml file).</p>
+<h4>Making the menu appear</h4>
+<p>The code above defines a menu in XML, however it does not actually make the menu appear.
+In our Java code we have to explicitly <em>inflate the menu</em>. To do this 
+you add an <em>onCreateOptionsMenu()</em> method to your main activity. 
+<pre>
+override fun onCreateOptionsMenu(menu: Menu) : Boolean {
+    // In Java we would need to use getMenuInflater()
+    // In Kotlin, we can just use 'menuInflater' instead (see the notes on
+    // Kotlin properties in week 2)
+    menuInflater.inflate(R.menu.menu, menu)
+    return true
+}
+</pre>
+and you have to add the following new import lines:
+<pre>
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+</pre>
+The code above will run automatically when the activity is created; it basically loads in the menu from the XML (<em>R.menu.menu</em> is referencing
+the <em>menu.xml</em> file)
+and "inflates" it so that it can be seen in the GUI. Note
+that the example assumes that your menu is saved in the file 
+<em>menu.xml</em>. If your menu is saved in another file, you need
+to change the reference to <em>R.menu.menu</em> appropriately.</p>
+<p>
+If you add this code to your map app and run it, you should find that a menu with one item
+appears when you press the Menu button.</p>
+<h3>Reacting to a menu item selection</h3>
+<p>Next thing we want to do is to launch a second Activity when the user selects the menu
+item. First thing to do is to write code to respond to the user selecting a menu item. 
+To do this, you override <em>onOptionsItemSelected()</em> in Activity. Here is 
+an example:
+<pre>
+override fun onOptionsItemSelected(item: MenuItem) : Boolean {
+    when(item.itemId) {
+        R.id.choosemap -&gt; {
+            return true
+        }
+    }
+    return false
+}
+</pre>
+The <em>onOptionsItemSelected()</em> method takes a MenuItem as a parameter, which is the menu item which was selected. We can find out which MenuItem was selected by using the <em>itemId</em> property of the MenuItem (again, we are using Kotlin property syntax here; in Java we would need to use <em>getItemId()</em>). This will return the item's ID as defined in the menu.xml file. So in this example, if the menu item with the ID of <em>choosemap</em> was selected, we do something.</p>
+<h3>Launching a second Activity</h3>
+<p>To launch a second Activity we create an <em>Intent</em>. An Intent
+basically represents an
+instruction to do something, such as launch a second Activity or 
+even use the services of an entirely different app. Data can be added 
+to the Intent; that is how we send data between activities.
+</p>
+<p>
+Add the following code to the if statement above:
+<pre>
+val intent = new Intent(this,MapChooseActivity::class.java);
+startActivity(intent)
+</pre>
+and add the following additional import:
+<pre>
+import android.content.Intent
+</pre>
+This code creates a new Intent. The two parameters are a reference to the current Activity (this) and the MapChooseActivity <em>class</em>. This is a variable representing the class, not an instance of it. (The perhaps-strange-looking <em>.java</em> at the end indicates that this is a Java class, not a Kotlin class; this is because <code>MapChooseActivity</code> will inherit from <code>AppCompatActivity</code>, a Java class; we can only leave out the <code>.java</code> if working with a pure-Kotlin class not inheriting from any Java classes.) </p>
+<p>We haven't created this Activity yet but this is intended to be our second Activity. We then start up our activity with <em>startActivity()</em>.</p>
+<h3>Creating the second Activity</h3>
+<p>We now need to create our second Activity. This will offer the user a choice to which map style to use - either the regular style, or a public transport view showing bus routes, train routes, etc. This will be done using a pair of buttons. The appropriate map style will be set depending on which button the user pressed.  (This is not the most friendly way, it would be better
+to use radio buttons or a list, but it will do for now).
+Do this as follows:
+    <ul>
+    <li>In Studio, select the <em>java</em> folder:
+    <br />
+    <img src="../images/newjavaclass.png" alt="New Class" />
+    <br />
+    and then select <em>File-New-Kotlin Class or File</em>. Select Kotlin class and enter the name <em>MapChooseActivity</em>.</li>
+    <li>Add the following code to the new class:
+    <pre>
+    package ..... // LEAVE YOUR PACKAGE UNCHANGED, do not literally write this!
+
+    import androidx.appcompat.app.AppCompatActivity
+    import android.os.Bundle
+    import android.content.Intent
+    import android.widget.Button
+    import android.view.View
+
+    class MapChooseActivity : AppCompatActivity() {
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_map_choose)
+        }
+    }
+    </pre>
+    </li>
+    <li>Note the <em>setContentView(R.layout.activity_map_choose)</em>.  This sets the main content view
+    of the activity to a layout defined in an (as yet uncreated) XML file called
+    <em>activity_map_choose.xml</em>. You are going to add this next.</li>
+    <li>Now add this new layout file.  Highlight the <em>layout</em> folder
+    inside <em>res</em> (in a similar way to how you highlighted the
+    <em>menu</em> folder when creating a menu) and
+    select <em>File-New-Layout resource file</em>
+    and enter the filename <em>activity_map_choose.xml</em>. Add the following
+    code to the activity_map_choose.xml file:
+    <pre>
+    &lt;LinearLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"&gt;
+    &lt;Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/regularview" 
+    android:id="@+id/btnRegular" /&gt;
+    &lt;Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/opentopomapview" 
+    android:id="@+id/btnOpenTopoMap" /&gt;
+    &lt;/LinearLayout&gt;
+    </pre>
+    </li>
+    <li>Add appropriate entries to your strings.xml file, i.e. "regularview"
+    and "opentopomapview" with appropriate text.</li>
+    <li>Lastly (and this is a step which is often forgotten) you have to add the second
+    activity to the manifest file. This step actually associates the activity with this
+    app. Open your manifest file again, and, immediately after the 
+    <em>&lt;/activity&gt;</em> tag of the main activity, add the code:
+    <pre> 
+&lt;activity android:name=".MapChooseActivity" android:label="@string/selectmap"&gt;
+&lt;/activity&gt;</pre>
+    (The label should be a reference into your strings.xml file. You'll need to add
+    a "selectmap" entry in your strings.xml file).
+    </li>
+    </ul>
+Run your app now. You should find that if you select the menu option, the second activity with the three buttons appears.
+Note that you can then press the phone's Back button
+to return to your original activity.</p>
+<h3>Sending data back to the original activity</h3>
+<p>OK, we have a second activity created but we don't yet send the user's chosen option
+back to the original activity. How is this done? Basically we have to create another Intent in
+the second activity and send it back to the first.</p>
+<p>You'll need to add some code to the onCreate() inside <em>the second
+activity</em> to handle the button press. Here is some example code: 
+<pre>
+val regular = findViewById&lt;Button&gt;(R.id.btnRegular)
+regular.setOnClickListener {
+    sendBackMapChoice(false)
+}
+val opentopomap = findViewById&lt;Button&gt;(R.id.btnOpenTopoMap)
+opentopomap.setOnClickListener {
+    sendBackMapChoice(true)
+}
+</pre>
+Note how we add lambdas to each button, to handle click events on each. Each
+lambda then calls the method <code>sendBackMapChoice()</code> (to be discussed below) and passes an appropriate Boolean to it. This Boolean represents whether or not the opentopomap was chosen.</p>
+<p>We now need to send this value back to the main activity. 
+As briefly mentioned above, we can do this by sending an Intent back to the
+main activity, containing this boolean value. As well as launching a given Activity, we can use Intents to <em>pass information between activities</em>.</p> 
+<p>We will now write the <code>sendBackMapChoice()</code> method inside the
+<code>MapChooseActivity</code> to do this, with the following code:
+<pre>
+fun sendBackMapChoice(opentopo: Boolean) {
+    val intent = Intent()
+    val bundle = bundleOf("com.example.opentopomap" to opentopo)
+    intent.putExtras(bundle)
+    setResult(RESULT_OK, intent)
+    finish()
+}
+</pre>
+This code, specifically <code>bundleOf()</code>, creates something called a <em>Bundle</em>. A Bundle is basically a collection of data which can be passed around between Activities - think of it as a collection of key-value pairs. Here, the bundle contains one item - a boolean storing whether the OpenTopoMap is being used. </p>
+<p>Note also how the entry in the bundle is labelled with the identifier
+<em>com.example.opentopomap</em>. Many entries can be placed in one bundle, so each
+needs to be identified uniquely. It is convention to start each entry with your
+domain name reversed (such as <em>com.example</em> here), hence <em>com.example.opentopomap</em>, the <em>opentopomap</em> bundle entry belonging to the <em>example.com</em> domain.</p>
+<p>
+Having created the Bundle, we then add it to the intent and then call <em>setResult</em> to send a <em>result</em> back to the parent activity. You can think of a <em>result</em> as a little like a return code for a function. Here, we send back the result <em>RESULT_OK</em> to indicate to the calling activity (the app's main activity) that the secondary activity completed successfully. (You can also send back <em>RESULT_CANCELED</em> to indicate that the user cancelled the action in the second activity). Finally we call <em>finish()</em> to forcibly finish the activity.</p>
+<h3>Reading the data from the first activity</h3>
+<p>The final part of the equation is to read the data sent back from the second activity in the original activity. There are two steps to this.
+First, when launching the second activity from the first, we have to specify that we are expecting a result to be sent back. To do this, change the line:
+    <pre>
+    startActivity(intent)
+    </pre>
+    to
+    <pre>
+    startActivityForResult(intent,0)
+    </pre>
+    This launches the second activity and states that we are expecting a result to be
+    sent back. The 0 is an ID that we use to determine which child activity produced
+    the result (a parent activity could launch several child activities, so when we 
+    get a result, we need to identify which child activity produced the result).</p>
+    <p>This brings us straight on to the result-handling code, which runs in
+    the first activity when we get a result from the second. 
+    This takes place in 
+    a method called <em>onActivityResult()</em>. Add this method to your main
+    activity as follows:
+    <pre>
+    override fun onActivityResult(requestCode : Int,resultCode : Int, intent: Intent?) {
+        if (resultCode==RESULT_OK) {
+            when(requestCode) {
+                0 -&gt; { 
+                    intent?.apply {
+                        val opentopomap = this.getBooleanExtra("com.example.opentopomap")
+                        mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
+                    }
+                }
+            }
+        }
+    }
+    </pre>
+    Note that you need the following additional import:
+    <pre>
+    import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+    </pre>
+    Note how the <em>onActivityResult()</em> is working. It takes three parameters, including the <em>requestCode</em> (the ID of 0 that we used to identify our activity launch, see above), the <em>resultCode</em> (the code that the second
+    Activity sent back - RESULT_OK in our case to indicate all was OK) and the
+    Intent used to send the result back to the first activity. So our 
+    <em>onActivityResult()</em> checks that a successful result was returned, and then checks that the result was sent back from a request with an ID of 0 (see above). </p>
+    <p>If so, we then extract the bundle data that we originally sent from the second Activity within the Bundle (see above) and set the map tile source to either <code>OpenTopo</code> (OpenTopoMap) or <code>MAPNIK</code> (the default map) 
+    depending on what was sent back from the second activity.</p>
+    <p><em>Note the use of <code>apply()</code></em> on the <code>Intent</code> returned. This is a nice technique to avoid having to use an <code>if</code> statement to check whether <code>intent</code> is null. Instead, we use <code>apply()</code> with the safe-access operator <code>?.</code> and specify a lambda. Inside the lambda specified with <code>apply()</code>, the <code>this</code> keyword will refer to the object which <code>apply()</code> is called on, i.e. <code>intent</code> here. The nice thing about this approach is that the lambda will never be called if <code>intent</code> is null (due to the safe-access operator), resulting in arguably more elegant and concise code compared to using an <code>if</code> statement.</p>
+<h2>Exercises</h2>
+<ol>
+<li>Create a <em>new</em> mapping project in Android Studio. This should be
+separate from your work from last week with GPS and permissions, and should just contain a simple OSMDroid map, as for Topic 3, Exercise 2. Ensure you add OSMDroid as a dependency in your build.gradle and create a layput containing a map - again, see Topic 3, Exercise 2.</li>
+<li>Use the code snippets and guidance above to get the example  (allowing the user to change the map style from a separate activity) working.</li>
+<li>Add a <strong>third activity</strong> to allow the user to enter a latitude and longitude and set the map to this location. 
+To do this:
+    <ul>
+    <li>Add a further menu option to your app from above labelled
+    "Set Location".</li>
+    <li>Create a third activity to allow the user to enter a latitude and
+    longitude. Give it an XML layout file with two EditTexts, one for latitude and one for longitude, and a button.  When the button is clicked, the latitude and longitude should be read from the EditTexts and sent back to the main activity in a Bundle in an Intent. <strong>Hint:</strong> you can store more than one item in a bundle using code such as: 
+<pre>val bundle = bundleOf("key1" to value1, "key2" to value2)</pre></li>
+    <li>In your <em>onOptionsItemSelected()</em> method, launch the third activity, with a request code of 1, if the "Set Location" menu option is selected.</li>
+    <li>In your <em>onActivityResult()</em> method, set the latitude and
+    longitude of the map to the contents of the Bundle from the Intent if the
+    request code is 1.</li>
+    </ul>
+</li>
+</ol>
+
+
+</body>
+</html>
