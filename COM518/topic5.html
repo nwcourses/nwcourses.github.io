@@ -67,7 +67,7 @@ app.use(cors());</pre>
 that <strong>even though the server would normally send back a data format such as JSON or XML, in this example the server is simply sending back plain text, for simplicity</strong>.
 <pre>
 function ajaxSearch(productType) {
-    fetch(`https://server/api/product/${productType}`)
+    fetch(`https://example.com/api/product/${productType}`)
         .then(response =&gt; response.text())
         .then(text =&gt; {
             document.getElementById('results').innerHTML = text;
@@ -129,7 +129,7 @@ the <a href='../wad/promises.html'>third-year notes on promises</a>.</p>
 <p>So, returning to our fetch API example, what is happening with this code in
 terms of promises? (Note, I have now added a <code>catch()</code>).
 <pre>
-fetch(`https://server/api/product/${productType}`)
+fetch(`https://example.com/api/product/${productType}`)
     .then(response =&gt; response.text())
     .then(text =&gt; {
         document.getElementById('results').innerHTML = text;
@@ -164,7 +164,7 @@ asynchronous code in a sequential manner. Here is how we would rewrite our
 <em>fetch</em> API code using async/await:
 <pre>
 <em>async</em> function ajaxSearch(productType) {
-    const response = <em>await</em> fetch(`https://server/api/product/${productType}`);
+    const response = <em>await</em> fetch(`https://example.com/api/product/${productType}`);
     const text = <em>await</em> response.text();
     document.getElementById('results').innerHTML = text;
 }
@@ -199,7 +199,7 @@ do this with <em>async/await</em>:
 <pre>
 <em>async</em> function ajaxSearch(productType) {
     try {
-        const response = <em>await</em> fetch(`https://server/api/product/${productType}`);
+        const response = <em>await</em> fetch(`https://example.com/api/product/${productType}`);
         const text = <em>await</em> response.text();
         document.getElementById('results').innerHTML = text;
     } catch(e) {
@@ -224,7 +224,7 @@ JSON instead:
 <pre>
 <em>async</em> function ajaxSearch(productType) {
     // Send a request to our remote URL
-    const response = <em>await</em> fetch(`https://server/api/product/${productType}`);
+    const response = <em>await</em> fetch(`https://example.com/api/product/${productType}`);
 
     // Parse the JSON.
     const products = <em>await</em> response.json();
