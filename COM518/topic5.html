@@ -283,7 +283,9 @@ HitTastic! and connect it to your Node server that you wrote last week.</p>
 <ol>
 <li>Develop an HTML front end for HitTastic!, a site which allows you to search for, and buy, music online. If you are doing this in advance of the session, feel free to use a bit of creativity here and create an appealing front-end (though this is not compulsory!) Ensure that your HitTastic! page 
 includes a form field to allow the user to enter an artist, and a button, which
-when clicked, will connect, via AJAX, to your server. 
+when clicked, will connect, via AJAX, to your server. <strong>Place this page in a <code>public</code> folder, and use <code>express.static()</code> - see the end of week 3 - so that you can access it via your Node server</strong>, e.g. 
+if your file is <code>hittastic.html</code> you would access it with:
+<pre>http://localhost:3000/hittastic.html</pre>
 </li>
 <li>In a separate JavaScript file on the front-end, write an AJAX request function which connects to your <code>/artist</code> API endpoint from topic 4. You 
 should <em>parse</em> the JSON returned.  Place the results within a &lt;div&gt;. Remember that you can use <em>innerHTML</em>
