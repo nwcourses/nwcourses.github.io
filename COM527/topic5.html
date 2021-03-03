@@ -251,11 +251,12 @@ First, when launching the second activity from the first, we have to specify tha
     activity as follows:
     <pre>
     override fun onActivityResult(requestCode : Int,resultCode : Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
         if (resultCode==RESULT_OK) {
             when(requestCode) {
                 0 -&gt; { 
                     intent?.apply {
-                        val opentopomap = this.getBooleanExtra("com.example.opentopomap")
+                        val opentopomap = this.getBooleanExtra("com.example.opentopomap", false) // false is a default value
                         mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
                     }
                 }
