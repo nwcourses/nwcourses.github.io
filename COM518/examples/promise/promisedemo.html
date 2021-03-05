@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>promises</title>
+<script type='text/javascript'>
+function makeAjaxPromise(url) 
+{
+	var p = new Promise(
+            (resolve,reject)=> // this is the task function
+			{ 
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('GET', url);
+                xhr2.addEventListener("load", e=>
+				{			  
+					if(e.target.status>=400 && e.target.status<=599)
+					{
+						reject('HTTP error: ' + e.target.status);  
+                    } 
+					else 
+					{
+                        resolve(e.target);
+                    }
+                } );
+                xhr2.send();
+            }
+        );
+		
+	return p;
+}
+
+function ajaxrequest() {
+	alert(square1(1));
+	alert(square1(4));
+	var a = document.getElementById("artist").value;
+	makeAjaxPromise('/course/mad/ws/hits.php?format=json&artist='+a).then(ajaxresponse).then(displayjson).catch(ajaxerror);
+}
+
+
+function ajaxresponse(xmlhttp) {
+	alert('ajaxresponse(): ' + xmlhttp);
+	return new Promise(function(resolve, reject) {
+			var data = JSON.parse(xmlhttp.responseText);
+			if(data.length==0) {
+				reject('no songs by artist in the database');
+			} else {
+				resolve(data);
+			}
+		} );
+	
+	/*
+	var data = JSON.parse(xmlhttp.responseText);
+	return data;
+	*/
+}
+
+function ajaxerror(code) {
+	alert('error; ' + code);
+}
+
+function displayjson(data) {
+	alert('displayjson()');
+	var html = "";
+	for(var i=0; i<data.length; i++) {
+		html += "Song: "+ data[i].song + "<br />";
+	}
+	document.getElementById("response").innerHTML = html; 
+}
+
+function rejectartist(msg) {
+	alert(msg);
+}
+
+var square1 = val => val*val;
+
+</script>
+</head>
+<body>
+Artist:
+<input id="artist" />
+<input type="button" value="Search!" onclick="ajaxrequest()" />
+<div id="response"></div>
+</body>
+</html>
+
+</script>

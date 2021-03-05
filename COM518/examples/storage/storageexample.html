@@ -1,0 +1,74 @@
+<html>
+<head>
+
+<script type='text/javascript'>
+
+function init()
+{
+    if(window.localStorage)
+    {
+        var storedBackcol = localStorage.getItem('backcol');
+        var storedTextcol = localStorage.getItem('textcol');
+        
+         if(storedBackcol!=null)
+         {
+             document.getElementById('testdiv').style.backgroundColor = storedBackcol;
+         }
+         else
+         {
+             document.getElementById('testdiv').style.backgroundColor = 'black';
+         }
+             
+         if(storedTextcol!=null)
+         {
+             document.getElementById('testdiv').style.color=storedTextcol;
+         }
+         else
+         {
+             document.getElementById('testdiv').style.color = 'white';
+         }
+         
+         // Link the 'click' event on the button with the ID of 'storeBtn' to the 'store' function
+         document.getElementById('storeBtn').addEventListener('click', store);
+    }
+    else
+    {
+        alert('no local storage');
+    }
+}
+
+function store()
+{
+    if(window.localStorage)
+    {
+        var back = document.getElementById('backcol').value;
+        var text = document.getElementById('textcol').value;
+        
+        document.getElementById('testdiv').style.backgroundColor = back;
+        document.getElementById('testdiv').style.color = text;
+        
+        localStorage.setItem('backcol', back);
+        localStorage.setItem('textcol', text);
+    }
+    else
+    {
+        alert('no local storage');
+    }
+}
+</script>
+
+</head>
+<body onload='init()'>
+
+<div id='testdiv'>
+<h1>Local Storage Example</h1>
+<p>The colour scheme of this div can be saved using local storage and
+restored when the user revisits the site.</p>
+</div>
+<p>
+Background colour: <input id='backcol' />
+Text colour: <input id='textcol' />
+<input type='button' id='storeBtn' value='Store!' />
+</p>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>promises</title>
+<script type='text/javascript'>
+
+function ajaxrequest() {
+	var a = document.getElementById("artist").value;
+
+	fetch('/course/mad/ws/hits.php?format=json&artist='+a).then(ajaxresponse).
+		then(parseJSON).catch(ajaxerror);
+}
+
+
+function ajaxresponse(response) {
+	// json() returns a promise, as does text()
+	return response.json();
+}
+
+function ajaxerror(code) {
+	alert('error; ' + code);
+}
+
+function parseJSON(jsonData) {
+	var html = "";
+	for(var i=0; i<jsonData.length; i++) {
+		html += `Song: ${jsonData[i].song} <br />`;
+	}
+	document.getElementById("response").innerHTML = html;
+}
+
+function filldiv(text) {
+	document.getElementById("response").innerHTML = text;
+}
+
+</script>
+</head>
+<body>
+Artist:
+<input id="artist" />
+<input type="button" value="Search!" onclick="ajaxrequest()" />
+<div id="response"></div>
+</body>
+</html>
+
+</script>

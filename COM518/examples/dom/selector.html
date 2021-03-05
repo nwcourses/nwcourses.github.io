@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" HREF="../../../css/dfti0910.css">
+<style type='text/css'>
+div { margin: 10px; }
+</style>
+<script type='text/javascript'>
+
+function selectorTest() {
+	var div = document.querySelector("#div1");
+	div.style.backgroundColor = 'black';
+	div.style.color = 'white';
+
+	var imp = document.querySelector(".important");
+	console.log(imp);
+	var imp = document.querySelectorAll(".important");
+	console.log(imp);
+	for(var i=0; i<imp.length; i++) {
+		imp[i].style.backgroundColor = 'red';
+		imp[i].style.color = 'white';
+	}
+}
+
+</script>
+</head>
+
+<body>
+<h1>Selectors</h1>
+
+<div id="div1">
+This is the first div
+</div>
+
+<div class="important">
+This is an IMPORTANT message!!! Please ensure you CATCH UP with any unfinished
+work!!!!
+</div>
+
+<div class="important">
+There are no WAD classes the week of the 31st.
+</div>
+
+<p>
+<input type="button" value="Go!" onclick="selectorTest()" />
+</p>
+
+</body>
+</html>
+
