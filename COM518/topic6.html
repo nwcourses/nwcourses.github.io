@@ -7,7 +7,6 @@
 </head>
 <body>
 <h1>Topic 6: Further AJAX</h1>
-<h1>DRAFT - Not complete</h1>
 <h2>Introduction</h2>
 <p>Last week we looked at AJAX and saw how to develop an AJAX front-end to
 a web API which sends GET requests to the API and parses the JSON returned.
@@ -18,7 +17,7 @@ dynamically manipulate the page.</p>
     <ul>
     <li>How to retrieve an HTTP status code from an AJAX client;</li>
     <li>How to send POST requests from an AJAX client</li>
-    <li>The Document Object Mdoel (DOM)</li> 
+    <li>The Document Object Model (DOM)</li> 
     </ul>
 </p>
 <h3>How to test the HTTP status code from an AJAX client</h3>
@@ -51,7 +50,7 @@ const response = await fetch('https://example.com/products/newproduct', {
     body: JSON.stringify(product)
 });</pre>
 Note how we send a <code>fetch()</code> request to the given URL, but this
-time, have to specify a number of options in a JavaScript object as a second argument to the <code>fetch()</code> function. These are:
+time, we have to specify a number of options in a JavaScript object as a second argument to the <code>fetch()</code> function. These are:
     <ul>
     <li>the HTTP method (POST here);</li>
     <li>the HTTP headers we want to add to the request. This is itself a JavaScript object containing a series of property/value pairs, the properties being the header name and the value, its value. So here, we are setting the <code>Content-Type</code> header to <code>application/json</code>.</li>
@@ -246,23 +245,6 @@ var textNode = document.createTextNode("some text");
 parent.firstChild.appendChild(textNode);
 </pre>
 </li>
-<li><em>parentNode</em> property - the parent node of a given child node. So for the code:
-<pre>
-var p = document.createElement("p");
-parent.appendChild(p);
-</pre>
-the <em>parentNode</em> of <em>p</em> would be <em>parent</em>.
-</li>
-<li><em>previousSibling</em> and <em>nextSibling</em> - find the sibling nodes 
-(siblings = Geschwister in German). Imagine that a given parent node has three child 
-nodes, 0, 1 and 2. The <em>previousSibling</em> of child node 1 would be child node 0. The
-<em>nextSibling</em> of child node 1 would be child node 2. </li>
-<li><em>insertBefore</em> method - inserts a child node into a parent node at an arbitrary
-position, e.g:
-<pre>
-parentNode.insertBefore(newNode,parentNode.childNodes[3]);
-</pre>
-This code would insert <em>newNode</em> before child node 3 of the parent.</li>
 <li> <em>document.querySelector()</em> 
 and <em>document.querySelectorAll()</em> give the first
 element, and all elements, which match a CSS selector respectively, eg
@@ -272,20 +254,17 @@ will give an array of all elements with a class of <em>important</em>.
 </ul>
 <h3>Inspecting elements</h3>
 <p>The <em>inspect</em> functionality in the browser will help you see
-what's going on - try it as you do this exercise - right click on an
-element. Inspecting helps you to see the actual current DOM structure of the
+what's going on - try it as you do the exercise for this week - right click on an element. Inspecting helps you to see the actual current DOM structure of the
 page - including any dynamically-created elements.</p>
 <h2>Exercise</h2>
 <p>The main exercise is to add "Buy" functionality to your AJAX front-end
-fron last week. Modify your AJAX front-end so that there is a "Buy" button
-for each search result. When the user clicks on the "Buy" button, you should
-call another function which sends an AJAX POST request to your "buy" route
-from week 3. Initially, do this by adding the button to the HTML string and setting an <code>onclick</code> property on the button which calls a new <code>buy()</code> function, for example:
+fron last week, so that a user can buy a given song. Songs will be bought by sending an AJAX POST request to the "buy" route of your web API.</p>
+<p>Modify your AJAX front-end so that there is a "Buy" button for each search result. When the user clicks on the "Buy" button, you should call another function which sends an AJAX POST request to your "buy" route from week 3. Initially, do this by adding the button to the HTML string and setting an <code>onclick</code> property on the button which calls a new <code>buy()</code> function, for example:
 <pre>html += `&lt;input type='button' value='Buy!' onclick='buy(${the song ID from the JSON})' /&gt;`;</pre>
 Then, write a <code>buy()</code> function in your client-side JavaScript, which takes the song ID as a parameter and sends an AJAX POST request to your Buy route on your web API:
 <pre>
 function buy(songID) {
-    // ... for you to complete
+    // ... AJAX POST request - for you to complete
 }
 </pre>
 </p>
@@ -293,17 +272,15 @@ function buy(songID) {
 <h2>More advanced exercise - writing the Buy functionality using the DOM</h2>
 <p>The first exercise was a simple approach to linking your search results to the Buy functionality. However the approach taken, of embedding the <code>buy()</code> call in your HTML, is rather messy as it mixes HTML and JavaScript and is not unobtrusive JavaScript. So this exercise allows you to rewrite it in a cleaner way using the DOM.</p>
 
+<p>Make a copy, in a new file, of your existing HitTastic!  AJAX page. Delete all the existing code in the <em>forEach</em> arrow function and and replace it with the code below:</p>
 <ol>
-<li>Make a copy, in a new file, of your existing HitTastic!
-AJAX page. Delete all the existing code in the <em>foreach</em> loop.</li>
-<li>Add code to your AJAX callback function
-so that it <em>creates a DOM paragraph (p) element</em>
+<li>Add code to <em>create a DOM paragraph (p) element</em>
 for each song returned.</li>
 <li>Within this <em>p</em>, create:
     <ul>
     <li>a text node containing the details of the song, and </li>
     <li>a button node (i.e. an 
-    "input" with a type of "button") allowing the user to order 
+    "input" with a type of "button") allowing the user to buy 
     the song. Add both to the paragraph node using <em>appendChild()</em>. 
     </li>
     </ul>
@@ -328,19 +305,19 @@ btn.addEventListener ("click", e =&gt;
 This will set the "click" handler of the button to be an arrow function.</li>
 <li>Add each paragraph to the results div using <em>appendChild()</em>.</li>
 <li>You can now complete the arrow function which runs when the user clicks
-the button. Use AJAX to call the "order" route of your web API.
+the button. Use AJAX to call the "buy" route of your web API.
 You will need to call the web API using a method of POST (see above),
 though in this case you will not need to send any FormData.
 </li>
 <li>
-The callback to the AJAX order request should 
-display a "Successfully ordered" message, e.g. in an alert box.</li>
-<li>Add error handling to the "order" route of your web API so that if the required song is out of stock, a 404 is returned.</li>
-<li>Alter your AJAX front end to check for a 404 from the "order" 
+The callback to the AJAX buy request should 
+display a "Successfully bought" message, e.g. in an alert box.</li>
+<li>Add error handling to the "buy" route of your web API so that if the required song is out of stock, a 404 is returned.</li>
+<li>Alter your AJAX front end to check for a 404 from the "buy" 
 route of your web API. In the callback, display a different message
 depending on whether the song was bought successfully or not.</li> 
-<li><strong>More advanced:</strong> Alter your "order" route to be able
-to order more than one copy of the song (receive the quantity as POST
+<li><strong>More advanced:</strong> Alter your "buy" route to be able
+to buy more than one copy of the song (receive the quantity as POST
 data). Update your AJAX front end to allow the user to enter the quantity,
 and send the entered quantity to the web service.
 <strong>As this is an advanced question, I am leaving it up to you to figure
