@@ -223,7 +223,7 @@ and the DOM)</p>
 <ul>
 <li><em>childNodes</em> property - an array of all the child nodes of a given node.e.g.:
 <pre>
-parent.childNodes.forEach ( { childNode =&gt;
+parent.childNodes.forEach ( childNode =&gt; {
         alert(childNode.nodeName); // show name of the node
 });
 </pre>
@@ -250,6 +250,7 @@ and <em>document.querySelectorAll()</em> give the first
 element, and all elements, which match a CSS selector respectively, eg
 <pre>document.querySelectorAll(".important")</pre>
 will give an array of all elements with a class of <em>important</em>.
+See <a href="examples/dom/selector.html">Example</a></p>
 </li>
 </ul>
 <h3>Inspecting elements</h3>
