@@ -294,12 +294,10 @@ button, then you can use: <pre>btn.type = "button";</pre>
 <li>Set up a "click" event handler for the button. as an arrow function, e.g: 
 <pre>
 btn.addEventListener ("click", e =&gt; 
-        { 
-
-                // fill in your arrow function here.
-                // It should call your "buy" web API route, passing in the ID of the current song.
-
-        } 
+    { 
+        // fill in your arrow function here.
+        // It should call your "buy" web API route, passing in the ID of the current song.
+    } 
 );
 </pre>
 This will set the "click" handler of the button to be an arrow function.</li>
@@ -312,7 +310,7 @@ though in this case you will not need to send any FormData.
 <li>
 The callback to the AJAX buy request should 
 display a "Successfully bought" message, e.g. in an alert box.</li>
-<li>Add error handling to the "buy" route of your web API so that if the required song is out of stock, a 404 is returned.</li>
+<li>Add error handling to the "buy" route of your web API so that if the required song is out of stock (quantity is 0), a 404 is returned. You will need to add an additional SELECT statement for this to work.</li>
 <li>Alter your AJAX front end to check for a 404 from the "buy" 
 route of your web API. In the callback, display a different message
 depending on whether the song was bought successfully or not.</li> 
