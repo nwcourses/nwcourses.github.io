@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 6: Persistence I - Preferences</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head>
+
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 6</h1>
+<h1>Persistence I - Preferences</h1>
+</div>
+
+<p>In this section we will:
+    <ul>
+    <li>Look at preferences and how to write a preferences XML file</li>
+    <li>Look at how to access preferences from Kotlin code</li>
+    <li>Look at the Android activity lifecycle</li>
+    </ul>
+</p>
+
+<h2>Persistence</h2>
+
+<p>To <em>persist</em> data means to preserve data across multiple executions of the application. For example the first time you run an app you might enter your username
+and password to log on to a web server. The next time you run the app, you'll probably want your login details to be remembered. So we need some method of
+<em>persisting</em> data between individual uses of the app. There are a number of different mechanisms we can use, including:
+    <ul>
+    <li>Preferences</li>
+    <li>Using the <em>savedInstanceState</em> Bundle</li>
+    <li>File I/O</li>
+    <li>On-device databases, e.g. SQLite</li>
+    <li>Storing data on a web server</li>
+    </ul>
+Today we will look at <em>preferences</em> and in a future topic we will start to look at <em>databases</em>.  We will look at web communication a bit later in the unit.  
+</p>
+
+<h2>Preferences</h2>
+
+<p>Frequently a user might want to select <em>preferences</em> in an app. For example, they might want to select their preferred language or login details. Android makes this easy for us through the use of <em>preferences</em>. Preferences are selected by the user in a <em>PreferenceScreen</em> which can be defined in an XML file much like layouts can. In Kotlin code, you can then write a <em>PreferenceFragment</em>: a sub-component of an Activity designed specifically for displaying a PreferenceScreen.</p>
+
+<h3>Adding a preferences XML file to your project</h3>
+<ul>
+<li>Open a new resource file as normal (highlight the <em>res</em> folder and choose
+<em>File-New-Android Resource file).</em></li>
+<li>In the dialog which appears, set up your preference file as shown in the diagram below:
+<br />
+<img src="../images/studioprefs.png" alt="Adding preferences file" />
+<br />
+</li>
+<li>A preferences file will then appear in the <em>xml</em> section of your resources:
+<br />
+<img src="../images/studioprefs2.png" alt="The preferences file within the xml section of the resources" />
+<br />
+</li>
+</ul>
+<h3>Defining a PreferenceScreen in XML</h3>
+
+<p>The first thing we will look at is how to define a set of preferences in XML. There are a number of types of preference, we will look at:
+    <ul>
+    <li>EditTextPreference</li>
+    <li>CheckBoxPreference</li>
+    <li>ListPreference</li>
+    </ul>
+</p>
+
+<h4>EditTextPreference</h4>
+
+<p>The <em>EditTextPreference</em>  is one of the simplest types of preference. It allows the user to store a single value in a text field: 
+for example, if you wanted to store the default location of a map (as latitude and longitude) you could use two EditTextPreferences, one for the latitude and
+one for the longitude. Here is an example of a preferences XML file with two EditTextPreferences:
+```
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<EditTextPreference android:key="lat" android:defaultValue="50.9" android:title="Latitude" android:summary="Latitude to show the map at initially." />
+<EditTextPreference android:key="lon" android:defaultValue="-1.4" android:title="Longitude" android:summary="Longitude to show the map at initially." />
+</PreferenceScreen>
+```
+You can hopefully see that each preference is defined by an &lt;EditTextPreference&gt; tag and that each preference has a number of attributes:
+    <ul>
+    <li>The <em>key</em>. Uniquely identifies a preference. We use this to access <em>this particular preference</em> in code.</li>
+    <li>The <em>defaultValue</em>. Default value of the preference; will appear within the edit text the first time a user accesses the preferences.</li>
+    <li>The <em>title</em>. Used to label the preference on the preference screen.</li>
+    <li>The <em>summary</em>. Longer text which appears under the title, to explain in more detail what the preference is for.</li>
+    </ul>
+</p>
+
+<h4>CheckBoxPreference</h4>
+
+<p>The <em>CheckBoxPreference</em> is also quite easy to understand. A CheckBoxPreference is a boolean value, which can be set to either true
+(if the checkbox is selected) or false (if it isn't). It is typically used for "on/off" values, for example in an app which accesses the internet to
+automatically download data about surrounding cinemas (their location, films showing, etc), 
+the user might want to turn downloading on or off depending on whether they are 
+connected to a wifi network. The XML is also quite simple:
+```
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<CheckBoxPreference android:key="autodownload" android:defaultValue="true" android:title="Auto-download" 
+android:summary="Auto-download data about surrounding cinemas?" />
+</PreferenceScreen>
+```
+It can be seen that the XML is almost the same: the only differences are that it's a CheckBoxPreference and not an EditTextPreference, and that
+the default value is now a boolean meaning the preference will automatically be selected the first time the user runs the app.</p>
+
+<h4>ListPreference</h4>
+
+<p>The <em>ListPreference</em> is a bit more complex as it allows the user to pick from a list of values, typically presented as a set of
+radio buttons. The list of values has to be defined somewhere, and that place is the <em>arrays</em> resource file (array.xml). In a similar manner to
+strings.xml, array.xml is a convenient place to put all <em>arrays</em> that might be used in the UI. You can create the array.xml file by adding
+a <em>values XML file</em> to your project: right click on <em>res</em> and
+then create a new resource file, ensuring the type is <em>Values</em>. 
+<br />
+<img src="../images/studioprefs3.png" alt="Adding a values XML file" />
+<br />
+A ListPreference contains an <em>array</em> of values so 
+we store all the values in the array.xml file. Here is an example of an array.xml file which could be used for a ListPreference:
+```
+<resources>
+    <string-array name="pizzaFlavours">
+        <item>Cheese, Tomato and Mushroom</item>
+        <item>Ham and Pineapple</item>
+        <item>Hot n'Spicy</item>
+        <item>Seafood</item>
+    </string-array>
+    <string-array name="pizzaFlavourCodes">
+        <item>CTM</item>
+        <item>HP</item>
+        <item>HS</item>
+        <item>SF</item>
+    </string-array>
+</resources>
+```
+Note how this arrays XML file actually defines <em>two</em> arrays, with the &lt;string-array&gt; tag. (string-array as they are arrays of strings).
+    <ul>
+    <li>The <em>pizzaFlavours</em> array defines the text that will appear on the screen in the ListPreference;</li>
+    <li>The <em>pizzaFlavourCodes</em> array defines the <em>values</em> that will be passed through to the application, i.e. the values that the Kotlin code would actually see. Note how these are two- or three-letter
+    codes. These are easier to process in our app than text descriptions, which are prone to typos when testing for in code (missing spaces, punctuation, etc).</li>
+    </ul>
+</p>
+<p>
+If we now look at the preferences XML file for a ListPreference, note how this links to the arrays defined above:
+```
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<ListPreference android:key="pizza" android:title="Pizza flavour" android:summary="Choose your pizza flavour."
+android:entries="@array/pizzaFlavours" android:entryValues="@array/pizzaFlavourCodes" />
+</PreferenceScreen>
+```
+Note how we define the ListPreference. Many of the attributes (key, title, summary) are as before; however
+note <em>android:entries</em> and <em>android:entryValues</em>. The former is a link to the array containing the entries that will appear on the screen
+(<em>@array/pizzaFlavours</em>) and the latter is a link to the actual values that will be carried through to the Kotlin code (<em>@array/pizzaFlavourCodes</em>).
+</p>
+<p>
+Note also how we refer to array XML resources in a similar way to strings; we use <em>@array/arrayname</em> to reference an array with a <em>name</em> of arrayname.
+Also note that in a real application, the <em>android:title</em> and <em>android:summary</em> would probably refer to entries in the strings.xml file, rather than
+hardcoded strings.
+</p>
+
+<h3>Defining an Activity to handle Preferences</h3>
+
+<p>To actually show these preferences in a real app, we need to create a <em>separate activity</em> to show the preferences. This needs to incorporate a <em>PreferenceFragment</em> (or more specifically, a <em>PreferenceFragmentCompat</em> for backwards-compatibility reasons), which is a sub-section of the Activity which will hold the preference options.  Here is an example:
+```
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import androidx.preference.PreferenceFragmentCompat
+
+class MyPrefsActivity : AppCompatActivity() {
+    override fun onCreate (savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        supportFragmentManager.beginTransaction()
+            .replace(android.R.id.content, MyPrefsFragment())
+            .commit()
+    }
+}
+
+class MyPrefsFragment : PreferenceFragmentCompat {
+    override fun onCreatePreferences(
+        savedInstanceState: Bundle?,
+        rootKey: String?
+    ) {
+        addPreferencesFromResource(R.xml.preferences)
+    }
+}
+```
+Most of the work in setting up the preferences is done in the XML file
+so the activity code is relatively simple. It consists of two parts:
+	<ul>
+	<li>the activity itself, and</li>
+	<li>the preferences fragment.</li>
+	</ul>
+We will look at the <em>fragment</em> first, as it's the simplest component. We have not yet covered fragments (we will at the end of the module), but a fragment can be defined as a sub-section of an activity. It is possible for one activity to contain multiple fragments, all showing different components of the application (main screen, preferences, lists of options, etc).</p>
+<p>We override one method <code>onCreatePreferences()</code> which runs when the preference fragment loads. We simply
+add the preferences from the external resource referenced
+by <code>R.xml.<em>preferences</em></code> using the <code>addPreferencesFromResource()</code> method; <code>R.xml.preferences</code> corresponds to an XML file called <code><em>preferences</em>.xml</code>.
+</p>
+<p>We will now consider the <em>activity</em>. This is again fairly simple.
+It performs an operation known as a <em>fragment transaction</em>. Fragment transactions are used to replace one fragment with another. To perform a fragment transaction, we need to obtain a <em>FragmentManager</em> (<code>supportFragmentManager</code>), begin the transaction, perform the fragment eeplacement and then commit (save) the transaction. Here, we are replacing the contents of the activity (referenced by <code>android.R.id.content</code>) with an instance of our
+<code>MyPrefsFragment</code> class. So the main content of the activity will
+be set to our preferences fragment, which will contain the preferences.</p> 
+<h3>The Android Activity Lifecycle</h3>
+<p>To understand how to read preferences correctly you need to have some
+understanding of the Android activity lifecycle.</p>
+<p>Mobile apps are not quite like standard desktop applications. In particular,
+<em>the application may be interrupted</em>, most commonly by the user
+answering a phone call. Also, users commonly switch from one app to another.
+Unless the user quits the app using the "back" button, when this happens
+<em>the original app is still runningin the background</em>.</p>
+
+<p> 
+To manage these possiblities, Android activities have a defined 
+<em>lifecycle</em>. The idea is to code activities to respond to the different
+points in the lifecycle. The lifecycle consists of a series of methods which run
+one after the other, as follows. When coding your app, you override whichever
+methods you want specific behaviour to occur at. With practically every
+activity, this includes <em>onCreate()</em>, but your activity might need
+to override the others too.
+</p>
+<p>
+<img src="../images/lifecycle.png" alt="The Android activity lifecycle" />
+</p>
+<p>It is described in full
+on the Android website, 
+<a href='http://developer.android.com/reference/android/app/Activity.html#ActivityLifecycle'>
+here</a>.</p>
+<p>
+The original article describes the lifecycle in full but to summarise,
+the following methods run when certain events occur:
+    <ul>
+    <li><em>onCreate()</em>: runs when the application is first launched.
+    Note also that certain actions, such as changing the device orientation,
+    can force <em>onCreate()</em> to run.</li>
+    <li><em>onStart()</em>: runs when the activity becomes visible. This can
+    either be when it first becomes visible, or becomes visible again after
+    being hidden. For example, it will be called
+    after you return to the current Activity after using another application,
+    or after closing a second activity within the same application, e.g. a
+    preferences screen, causing the original activity to become visible again.</li>
+    <li><em>onStop()</em>: runs when the activity is hidden, e.g.
+    you open another application which hides the current app, or you run a second activity
+    within the same application, e.g. a preferences screen, which hides the current activity.</li>
+    <li><em>onDestroy()</em>: runs when the user dismisses the application. This will happen
+    when the user presses the Back button from the main activity. It can also be called under other
+    circumstances, e.g. Android kills the activity due to low memory, or when the user rotates the
+    device.</li>
+    <li><em>onPause()</em>: when an activity not occupying the whole of the
+    screen comes in front of the current activity. In this case, the current activity is not
+    completely hidden, so <em>onStop()</em> is not called. <em>However</em>, as shown on the
+    diagram above, onPause() also runs
+    immediately before onStop() when the activity becomes completely hidden.</li>
+    <li><em>onResume()</em>: when the current activity becomes focused again
+    after <em>onPause().</em>. In this case, the current activity was never
+    completely hidden, so <em>onStart()</em> is not called.
+    <em>However</em>, as shown on the diagram above, onResume() also runs
+    immediately after onStart() when the activity becomes visible after being completely hidden.</li>
+    </ul>
+</p>
+<p>The lifecycle can have important consequences for development. For example, in a mapping app you might want to stop GPS communication when the activity becomes invisible and start it again when it becomes visible again (to save battery), in which case you would stop the GPS in <em>onPause()</em> and start it in <em>onResume()</em>. If you did this in <em>onDestroy()</em> and <em>onCreate()</em> instead, the GPS would still be running if the activity was running but invisible, which for a mapping app would be unnecessary.</p>
+<p>The differences between <em>onStart()/onStop()</em> and <em>onResume()/onPause()</em> are quite subtle and need only be considered if you are writing activities which do not occupy the whole of the screen, which is very rare. You can
+use either; <strong>one key advantage of using onResume() is that it is always called after onActivityResult() (see <a href='https://developer.android.com/reference/android/app/Activity#onActivityResult(int,%20int,%20android.content.Intent)'>the documentation</a>),</strong> which can make your code logic easier in some cases. There is no guarantee as to whether <em>onStart()</em> is called before or after <em>onActivityResult()</em>. Therefore, if given a choice, I would advise <em>onPause()/onResume()</em> rather than <em>onStart()/onStop()</em>.</p>
+<h3>Accessing Preferences from the App</h3>
+
+<p>The other thing we need to look at is <em>how to access the values of preferences from your Kotlin code</em>. This can be accomplished by means of the
+<em>PreferenceManager</em> class, which controlls access to the preferences, and <em>SharedPreferences</em> which represents a set of preferences. 
+Here is how you would read preferences. This code should be in your <em>main activity</em>, not the preferences activity.
+```
+override fun onResume() {
+    super.onResume()
+    val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+    val lat = prefs.getString("lat", "50.9").toDouble()
+    val lon = prefs.getString("lon", "-1.4").toDouble()
+    val autodownload = prefs.getBoolean("autodownload", true)
+    val pizzaCode = prefs.getString("pizza", "NONE")
+    
+    // do something with the preference data...
+}
+```
+<ul>
+<li>First of all, note how the code is in the <em>onResume()</em> method of your main activity.  Why is this? Remember from the section above on the Android activity lifecycle that the <em>onResume()</em> method is called when the activity re-appears, having been hidden. 
+When preferences are changed via a preference activity containing a PreferenceFragment, the user will most likely press the Back button to dismiss the preference activity containing a PreferenceFragment, resulting in the 
+main activity appearing again and therefore its <em>onResume()</em> method being called - so <em>onResume()</em> is a good place to put code to read 
+preferences. (You could also use <em>onStart()</em>, but as we saw above, <em>onResume()</em> is always called after <em>onActivityResult()</em>, which can make your application logic easier if you are dealing with multiple activities).</li>
+<li>Note how we obtain a <em>SharedPreferences</em> object by using <em>PreferenceManager.getDefaultSharedPreferences()</em>. This takes as a parameter
+a <em>Context</em> object. This object represents the context of the preferences; we can have preferences which relate to the application as a whole or
+to an individual activity. Here we use <em>getApplicationContext()</em> to indicate that we want the preferences relating to the application as a 
+whole, i.e. they can be accessed across all activities. Note that the Activity class is a subclass of <em>Context</em>, as is Application, the class representing
+the application as a whole. This means that the return value of <em>getApplicationContext()</em> could be either an Activity or an Application. In
+the case of <em>applicationContext</em> (a Kotlin property again; in Java we would need to use <em>getApplicationContext()</em>) it is the Application. Many UI elements, such as dialog boxes, require a Context of some kind (usually, but not always, an Activity) as 
+a parameter in the constructor, which represents the "parent" element of that UI element.</li>
+<li>Having got hold of the <em>SharedPreferences</em>, we then use <em>get</em> methods to obtain an individual preference. These <em>get</em> methods use the
+preference's <em>key</em> to look up that particular preference. Notice also how the <em>get</em> methods take a second parameter, which is the default value to
+use if that preference does not exist. Note also how the <em>EditTextPreference</em>s and the <em>ListPreference</em> return Strings, while the
+<em>CheckBoxPreference</em> returns a boolean.</li>
+
+</ul>
+</p>
+
+<h3>Preferences outside a Preference Screen</h3>
+
+<p>It is possible for an app to have <em>additional</em> preferences, outside those defined in the XML for the PreferenceScreen. One example might be an app which is 
+recording a trail of your position on the Earth using GPS; you might want to use this to record a walking or cycling route, for example. If the app is still recording
+when the app is closed down, you might want to save the recording status so that the next time the app starts up (which could be after powering the phone down and switching
+it back on again), the app can read the recording status from the preferences so that it continues recording if it was recording last time it was used. However, unlike
+preferences in a PreferenceScreen, these additional preferences will not automatically be saved when the app is destroyed. You instead need to make use of
+a <em>SharedPreferences.Editor</em> to save the preferences. For example:
+```
+override fun onDestroy() {
+    super.onDestroy()
+    val prefs = PreferenceManager.getDefaultSharedPreferences(aplicationContext)
+    val editor = prefs.edit()
+    editor.putBoolean ("isRecording", isRecording)
+    editor.apply()
+}
+```
+Note how the code is in the <em>onDestroy()</em> method; remember that <em>onDestroy()</em> is called when the app is destroyed, e.g. pressing the "back" button from the main activity or powering the phone down. Note also how we:
+    <ul>
+    <li>Obtain a SharedPreferences.Editor object using the <em>edit()</em> method of SharedPreferences;</li>
+    <li>Use an appropriate <em>put</em> method to set the preference. The first parameter is the preference key (which we would use again when reading the preference
+    back) and the second parameter is the variable we want to save in the preferences. Here, <em>isRecording</em> would probably be an attribute of the Activity which
+    represents whether we are recording a track.</li>
+    <li>Finally we <em>apply()</em> the changes to our preferences.</li>
+    </ul>
+With these sorts of additional preferences not controlled via a preference screen, we'd probably want to read them back in <em>onCreate()</em>, rather than 
+<em>onResume()</em>, as we only need to save the data in preferences in between executions of the activity. Remember from the activity lifecycle that the activity remains in memory when <em>onPause()</em> is called (e.g. when another activity comes in front of the original activity) so we can just save application state in attributes of the Activity object. It is only when the Activity is actually destroyed that we need to save the activity's state in preferences.
+</p>
+
+<h2>Exercise</h2>
+<ol>
+<li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, and <code>onResume()</code> to your <em>main map activity from last week</em>. In each method, as well as in <code>onCreate()</code>,
+display an <code>AlertDialog</code> with a message saying which method has
+been called. <em>All these methods should call the superclass version of the method</em>. You can avoid duplicating code by creating a <code>showDialog()</code> method which shows the alert dialog, and calling it from each of these lifecycle methods.
+For example: 
+<pre>
+// Generic function to show a dialog, to avoid code duplication
+fun showDialog(message) {
+	AlertDialog.Builder(this)
+		.setPositiveButton("OK", null)
+		.setMessage(message)
+		.show()
+}
+
+// Show the dialog from onResume(). 
+// You should also add the other lifecycle methods onCreate() and onStart(), as explained above
+override fun onResume() {
+	super.onResume()
+	showDialog("onResume() called") // call our generic dialog function
+}
+</pre>
+Test by launching your app, changing the mapping provider using the second activity, returning to the main activity, and then pressing the Back button to 
+quit the application entirely. <strong>Note how many times <code>onCreate()</code>, <code>onStart()</code> and <code>onResume()</code> are called.</strong>
+</li>
+<li>The idea of this exercise is to develop a version of your mapping app which uses preferences, rather than a custom activity. 
+Add an extra menu item to launch the preferences, and add 
+a preference activity containing a PreferenceFragment which includes the following:
+    <ul>
+    <li>Current Latitude and Longitude of the map (EditTextPreference; incorporate the code provided above)</li>
+    <li>Default zoom level for the map (EditTextPreference)</li>
+    </ul>
+Add code in the <em>onResume()</em> to get these working. Once this is working,
+add the following further preference:
+    <ul>
+    <li>Map style - Regular or OpenTopoMap(use a ListPreference)</li>
+    </ul>
+Make sure the preferences are read when the main activity is started, so that the app immediately changes when the preference activity containing a PreferenceFragment is dismissed. Also save the selected mapping provider when the app is destroyed, so that when the user starts the app again, the same mapping provider will be used as last time.
+</li>
+</ol>
+    
+<hr />
+
+<h2>Additional reading</h2>
+<p>This is not essential for the module but is provided for your own interest.
+</p>
+<h3>Saving Instance State</h3>
+
+<p>(ref: <a href='http://developer.android.com/training/basics/activity-lifecycle/recreating.html'>Recreating an Activity</a> on the Android site)</p>
+<p>The technique described in "Preferences outside a Preference Screen" above is necessary to save the activity's state where the user deliberately closes down the activity. However occasionally the system destroys your
+activity and restarts it again, for example if memory is low or if the user rotates the screen. In these cases, we can use the simpler method of 
+<em>saving instance state</em> to save the activity's data. To do this you need to implement an <em>onSaveInstanceState()</em> method:
+```
+override fun onSaveInstanceState (savedInstanceState: Bundle) {
+    savedInstanceState.putBoolean("isRecording", isRecording)
+}
+```
+Note how the method is automatically passed a <em>Bundle</em> object (a collection of indices and values); you use appropriate <em>put</em> methods to save data in this Bundle. You can then read it back in the <em>onCreate()</em> method; remember that <em>onCreate()</em> takes one parameter <em>savedInstanceState</em>, of data type <em>Bundle</em>. This is used to restore instance state.
+```
+override fun onCreate (savedInstanceState: Bundle?) {
+    super.onCreate (savedInstanceState)
+	savedInstanceState?.apply {
+        isRecording = this.getBoolean ("isRecording")
+    }
+}
+```
+Hopefully this code is self-explanatory: we read back the same boolean that we saved in the Bundle. Note though that we need to
+test for <em>savedInstanceState</em> being null; if the activity is started without any saved instance state (e.g. for the first time)
+the Bundle will be null.</p>
+
+
+
+</body>
+</html>
