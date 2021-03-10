@@ -264,7 +264,7 @@ fron last week, so that a user can buy a given song. Songs will be bought by sen
 <pre>html += `&lt;input type='button' value='Buy!' onclick='buy(${the song ID from the JSON})' /&gt;`;</pre>
 Then, write a <code>buy()</code> function in your client-side JavaScript, which takes the song ID as a parameter and sends an AJAX POST request to your Buy route on your web API:
 <pre>
-function buy(songID) {
+async function buy(songID) {
     // ... AJAX POST request - for you to complete
 }
 </pre>
