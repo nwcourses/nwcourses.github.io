@@ -144,7 +144,7 @@ class MyPrefsActivity : AppCompatActivity() {
     }
 }
 
-class MyPrefsFragment : PreferenceFragmentCompat {
+class MyPrefsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(
         savedInstanceState: Bundle?,
         rootKey: String?
@@ -168,6 +168,9 @@ by <code>R.xml.<em>preferences</em></code> using the <code>addPreferencesFromRes
 It performs an operation known as a <em>fragment transaction</em>. Fragment transactions are used to replace one fragment with another. To perform a fragment transaction, we need to obtain a <em>FragmentManager</em> (<code>supportFragmentManager</code>), begin the transaction, perform the fragment eeplacement and then commit (save) the transaction. Here, we are replacing the contents of the activity (referenced by <code>android.R.id.content</code>) with an instance of our
 <code>MyPrefsFragment</code> class. So the main content of the activity will
 be set to our preferences fragment, which will contain the preferences.</p>
+<p>You should also add this additional dependency to your app's <em>build.gradle</em>:
+<pre>implementation 'androidx.preference:preference-ktx:1.1.1'</pre>
+This links in the Jetpack library for preferences.</p>
 <h3>The Android Activity Lifecycle</h3>
 <p>To understand how to read preferences correctly you need to have some
 understanding of the Android activity lifecycle.</p>
@@ -233,10 +236,10 @@ use either; <strong>one key advantage of using onResume() is that it is always c
 Here is how you would read preferences. This code should be in your <em>main activity</em>, not the preferences activity.<pre><code>override fun onResume() {
     super.onResume()
     val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-    val lat = prefs.getString("lat", "50.9").toDouble()
-    val lon = prefs.getString("lon", "-1.4").toDouble()
-    val autodownload = prefs.getBoolean("autodownload", true)
-    val pizzaCode = prefs.getString("pizza", "NONE")
+    val lat = prefs.getString("lat", "50.9")?.toDouble() ?: 50.9
+    val lon = prefs.getString("lon", "-1.4")?.toDouble() ?: -1.4
+    val autodownload = prefs.getBoolean("autodownload", true) ?: true
+    val pizzaCode = prefs.getString("pizza", "NONE") ?: "NONE"
 
     // do something with the preference data...
 }
@@ -257,7 +260,7 @@ a parameter in the constructor, which represents the "parent" element of that UI
 preference's <em>key</em> to look up that particular preference. Notice also how the <em>get</em> methods take a second parameter, which is the default value to
 use if that preference does not exist. Note also how the <em>EditTextPreference</em>s and the <em>ListPreference</em> return Strings, while the
 <em>CheckBoxPreference</em> returns a boolean.</li>
-
+<li>Note how we also have to use the Elvis operator, this is because the <code>getString()</code>, and <code>getBoolean()</code> methods could return null. This may seen strange as we give a default value, but it is due to the Android API being a Java API which we are using from Kotlin, and Java traditionally did not have a concept of nullability so the data type returned from these methods is nullable.</li>
 </ul>
 </p>
 <h3>Preferences outside a Preference Screen</h3>

@@ -266,10 +266,10 @@ Here is how you would read preferences. This code should be in your <em>main act
 override fun onResume() {
     super.onResume()
     val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-    val lat = prefs.getString("lat", "50.9").toDouble()
-    val lon = prefs.getString("lon", "-1.4").toDouble()
-    val autodownload = prefs.getBoolean("autodownload", true)
-    val pizzaCode = prefs.getString("pizza", "NONE")
+    val lat = prefs.getString("lat", "50.9")?.toDouble() ?: 50.9
+    val lon = prefs.getString("lon", "-1.4")?.toDouble() ?: -1.4
+    val autodownload = prefs.getBoolean("autodownload", true) ?: true
+    val pizzaCode = prefs.getString("pizza", "NONE") ?: "NONE"
     
     // do something with the preference data...
 }
@@ -290,7 +290,7 @@ a parameter in the constructor, which represents the "parent" element of that UI
 preference's <em>key</em> to look up that particular preference. Notice also how the <em>get</em> methods take a second parameter, which is the default value to
 use if that preference does not exist. Note also how the <em>EditTextPreference</em>s and the <em>ListPreference</em> return Strings, while the
 <em>CheckBoxPreference</em> returns a boolean.</li>
-
+<li>Note how we also have to use the Elvis operator, this is because the <code>getString()</code>, and <code>getBoolean()</code> methods could return null. This may seen strange as we give a default value, but it is due to the Android API being a Java API which we are using from Kotlin, and Java traditionally did not have a concept of nullability so the data type returned from these methods is nullable.</li>
 </ul>
 </p>
 
