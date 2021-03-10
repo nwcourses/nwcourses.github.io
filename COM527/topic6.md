@@ -170,7 +170,7 @@ class MyPrefsActivity : AppCompatActivity() {
     }
 }
 
-class MyPrefsFragment : PreferenceFragmentCompat {
+class MyPrefsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(
         savedInstanceState: Bundle?,
         rootKey: String?
@@ -194,6 +194,9 @@ by <code>R.xml.<em>preferences</em></code> using the <code>addPreferencesFromRes
 It performs an operation known as a <em>fragment transaction</em>. Fragment transactions are used to replace one fragment with another. To perform a fragment transaction, we need to obtain a <em>FragmentManager</em> (<code>supportFragmentManager</code>), begin the transaction, perform the fragment eeplacement and then commit (save) the transaction. Here, we are replacing the contents of the activity (referenced by <code>android.R.id.content</code>) with an instance of our
 <code>MyPrefsFragment</code> class. So the main content of the activity will
 be set to our preferences fragment, which will contain the preferences.</p> 
+<p>You should also add this additional dependency to your app's <em>build.gradle</em>:
+<pre>implementation 'androidx.preference:preference-ktx:1.1.1'</pre>
+This links in the Jetpack library for preferences.</p>
 <h3>The Android Activity Lifecycle</h3>
 <p>To understand how to read preferences correctly you need to have some
 understanding of the Android activity lifecycle.</p>
