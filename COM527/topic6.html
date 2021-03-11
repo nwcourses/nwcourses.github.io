@@ -1,10 +1,10 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><p><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <title>Mobile Application Development: Part 6: Persistence I - Preferences</title>
 <link rel="stylesheet" type="text/css" href="../css/android.css" />
 </head></p>
-<p><body></p>
+<body>
 <div class='titlebox'>
 <h1>Mobile Application Development - Part 6</h1>
 <h1>Persistence I - Preferences</h1>
@@ -271,7 +271,7 @@ it back on again), the app can read the recording status from the preferences so
 preferences in a PreferenceScreen, these additional preferences will not automatically be saved when the app is destroyed. You instead need to make use of
 a <em>SharedPreferences.Editor</em> to save the preferences. For example:<pre><code>override fun onDestroy() {
     super.onDestroy()
-    val prefs = PreferenceManager.getDefaultSharedPreferences(aplicationContext)
+    val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
     val editor = prefs.edit()
     editor.putBoolean ("isRecording", isRecording)
     editor.apply()
