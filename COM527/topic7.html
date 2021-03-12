@@ -271,7 +271,7 @@ applications</h3>
 <li>One key feature of contemporary Kotlin Android apps
 is the ability to write concise asynchronous
 code, to perform operations such as connecting to a remote server</li>
-<li>You probably remember doing this previously with <em>AsyncTask</em>,
+<li>Previously this was done in Android with <em>AsyncTask</em>,
 or even using raw <em>threads</em>
     <ul>
     <li>A <em>thread</em> is a separate strand of execution which permits
@@ -283,8 +283,6 @@ or even using raw <em>threads</em>
 </li>
 <li>However Kotlin allows you to achieve the same effect with
 <em>coroutines</em></li>
-<li>We will look at coroutines in more depth in topic 7, but here is a
-taster, using coroutines to perform network communication</li>
 </ul>
 <h3>Introduction to coroutines</h3>
 <ul>
@@ -398,7 +396,8 @@ database
     <li>Note the API call we need to get the text from the text field:
 <pre>studentIdTextField.text.<em>toString().toLong()</em></pre>
     </li>
-    <li>The <em>toString()</em> is needed because the <em>text</em> property
+    <li>The <em>toString()</em> is needed because (as we have see before) the 
+	<em>text</em> property
     of an EditText returns an Editable, not a String, so we need to convert
     it to a String</li>
     <li>We then use <em>toLong()</em> to convert the String to a Long</li>
@@ -437,6 +436,5 @@ exist.</li>
 song with that ID does not exist.</li>
 </ul>
 <h3>Further reading</h3>
-<p><a href="https://developer.android.com/training/data-storage/room/">Save data in a local database using Room</a> - Android
-documentation on Room.</p>
+<p><a href="https://developer.android.com/training/data-storage/room/">Save data in a local database using Room</a> - Android documentation on Room.</p>
 </body></html>
