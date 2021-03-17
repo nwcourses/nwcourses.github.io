@@ -162,6 +162,12 @@ interface StudentDao {
 
     @Insert
     fun insert(student: Student) : Long
+
+    @Update
+    fun update(student: Student) : Int
+
+    @Delete
+    fun delete(student: Student) : Int
 }</pre>
 </li>
 <li>Note how:
@@ -178,7 +184,8 @@ interface StudentDao {
     <li>The <em>insert()</em> method is marked with the special annotation
     <em>@Insert</em>. This will take an object of the data class and
     automatically add it to the database.</li>
-    <li>There are corresponding <em>@Update</em> and <em>@Delete</em>
+    <li>As can be seen there 
+    are corresponding <em>@Update</em> and <em>@Delete</em>
     annotations which will take an object and either update or delete
     the record, respectively</li>
     <li>If declared, the update and delete methods will return an int
@@ -370,11 +377,16 @@ class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
         
         val db = StudentDatabase.getDatabase(application)
-        
+       
+        val btnSearch = findViewById&lt;Button&gt;(R.id.btnSearch)
+        val etStudentId = findViewById&lt;EditText&gt;(R.id.etStudentId)
+        val txtName = findViewById&lt;TextView&gt;(R.id.txtName)
+        val txtCourse = findViewById&lt;TextView&gt;(R.id.txtCourse)
+ 
         btnSearch.setOnClickListener {
             lifecycleScope.launch {
                 var student: Student? = null
-                val id = studentIdTextField.text.toString().toLong()
+                val id = etStudentId.text.toString().toLong()
                 withContext(Dispatchers.IO) {
                     student = db.studentDao().getStudentById(id)
                 }
@@ -394,10 +406,10 @@ switch to the Dispatchers.IO context to search for the student in the
 database
     <ul>
     <li>Note the API call we need to get the text from the text field:
-<pre>studentIdTextField.text.<em>toString().toLong()</em></pre>
+<pre>etStudentId.text.<em>toString().toLong()</em></pre>
     </li>
     <li>The <em>toString()</em> is needed because (as we have see before) the 
-	<em>text</em> property
+    <em>text</em> property
     of an EditText returns an Editable, not a String, so we need to convert
     it to a String</li>
     <li>We then use <em>toLong()</em> to convert the String to a Long</li>
