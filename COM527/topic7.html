@@ -316,8 +316,7 @@ our code on the main thread and some in the background</li>
 </ul>
 <h3>Coroutine scopes</h3>
 <ul>
-<li>Coroutines must be <em>launched</em> from a <em>scope</em> (we will
-explore scope in more depth later)</li>
+<li>Coroutines must be <em>launched</em> from a <em>scope</em></li>
 <li>You can create this yourself in Android but alternatively, can use
 the <em>LifecycleScope</em></li>
 <li>The LifecycleScope is part of the new Android <em>lifecycle components</em>
@@ -350,7 +349,7 @@ class MainActivity: AppCompatActivity() {
 </ul>
 <h3>Jetpack components required for Android coroutine development</h3>
 <ul>
-<li>Include these in your build.gradle:
+<li>Include these in your build.gradle (note that newer versions may be available, Android Studio will let you know if so):
 <pre>implementation 'androidx.core:core-ktx:1.1.0' 
 implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'</pre>
 </li>
@@ -421,7 +420,7 @@ database
 <h2>Exercise</h2>
 <p>Develop an application to store music in an SQLite database using Room.
 You'll need four classes: the data entity, the DAO, the database and the
-main activity.  You'll need these dependencies in your build.gradle:
+main activity.  You'll need these dependencies in your build.gradle (note that newer versions may be available):
 <pre>
 implementation 'androidx.core:core-ktx:1.1.0'
 implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
