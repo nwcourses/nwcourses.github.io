@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 8: Further Node and Express: Routers and Middleware</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 8: Further Node and Express: Routers and Middleware</h1>
+</div>
+This week we will look at
+<ul>
+<li>Using Node <em>modules</em> from an Express application;</li>
+<li>Using the Express <em>router</em> to organise and group routes;</li>
+<li>Using <em>middleware</em> to intercept requests before they are processed by routes, and therefore perform <em>pre-processing tasks</em>.</li>
+</ul>
+
+<h2>Modules</h2>
+<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by splitting our routes into groups, all dealing with the same type of entity (for example, songs or users), and create a separate <em>router</em> for each route group. To do this, though, you need to be familiar with the concept of <em>modules</em>, so we will cover this first.</p>
+
+<h3>Writing a custom module to easily connect to MySQL</h3>
+
+<p>The examples from <a href='topic4.html'>topic 4</a>  show a potential issue with using the Node MySQL module: it's callback based, so the code ends up relatively complex.  This means that, to integrate MySQL into an Express application, you'd need to connect to MySQL first and then put your Express code in the MySQL connection callback. This makes your code perhaps rather messy and convoluted. A better approach is to <em>create your own Node module</em> and put the connection code in that. Here is an example:
+<pre>
+// File - mysqlconn.js
+const mysql = require('mysql2');
+
+const con = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        database: 'mysql'});
+
+con.connect( err=&gt; {
+    if(err) {
+        console.log(err);
+        process.exit(1); // exit the server
+    } else { 
+        console.log('connected to mysql ok');
+    }
+});
+    
+<em>module.exports = con;</em>
+</pre>
+Note how we have created a file <em>mysqlconn.js</em> which connects to
+the database. Note the final line as this is key:
+<pre>module.exports=con;</pre>
+This <em>exports</em> the variable <em>con</em> (representing the connection)
+to the outside world. This is how we can define a Node module; write some
+code and then <em>export</em> an object to the outside world.</p>
+<p>To use our custom module in our Express application, we use 
+<em>require()</em> in the same way that we imported third-party modules:
+<pre>const con = <em>require('./mysqlconn');</em></pre>
+The variable <em>con</em> will represent our MySQL connection. Note how
+it's set equal to the return value of <em>require()</em>; this will be
+whatever was exported from our module. Also note the module name
+<em>./mysqlconn</em> and how this corresponds to the module filename
+<em>mysqlconn.js</em>; the <em>./</em> means the current folder.</p>
+<p>You might be thinking that a problem with that approach is: if the database connection is asynchronous, what if a user tries to do a query before the connection has succeeded? You need to remember, though, that the Express server is running <em>continuously</em>, and the connection will be made <em>as soon as the Express server starts up</em> (which will only happen if the server admin needs to shut down and restart the server for any reason) and a user would literally have to make a request in the first two or three seconds of the server running for this error to occur.</p>
+
+<h3>Using a module to define your routes</h3>
+<p>In a larger application, you will quickly find that your main Express file (often app.js) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.js</em>) which we would save in our <em>routes</em> folder:
+<pre>
+const express = require('express');
+// song.js
+const productRouter = express.Router();
+
+productRouter.get('/all', (req,res)=&gt; {
+    // code to return all products
+});
+
+productRouter.get('/id/:id', (req,res)=&gt; {
+    // code to find the product with the given ID
+});
+
+module.exports = productRouter; // export the module for external use
+</pre>
+Then, in your main Express app, you could <em>use</em> the router as
+follows:
+<pre>
+const express = require('express');
+const app = express();
+
+// Import our product router module which we created above
+const productRouter = require('./routes/product');
+
+// Tell the app to use productRouter for all routes beginning with /producs
+// As we are using "use()", the router is acting as a middleware - see below
+app.use('/products', productRouter);
+app.listen(3000);
+</pre>
+So the song router is imported from the <em>routes/product</em> module
+(corresponding to routes/product.js) and then we call <em>use()</em> 
+with two arguments:
+    <ul>
+    <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
+    <li>The router object itself.</li>
+    </ul>
+So, the route <code>/products/all</code> will be handled via the product 
+router (as the route begins with <code>/products</code>) and then via the <code>/all</code> route within the <code>products</code> router.</p>
+
+<h2>Middleware</h2>
+
+<p>Express uses the concept of <em>middleware</em>. Middleware in 
+the context of web APIs consists of code which runs before a request is handled,
+which can modify the <em>req</em> and <em>res</em> objects. It is typically
+used to prepare the request before it's handled, or intercept requests to perform operations such as logging. The <em>body-parser</em>, which you have already seen, is actually middleware. It parses the body of the incoming HTTP request and adds a <em>body</em> property to the <em>req</em> object allowing you to easily access POST data. Without the middleware, the <em>body</em> property of <em>req</em> would not exist.</p>
+<p>Middleware is included with the <code>use()</code> method of your <code>app
+</code> object, or with <code>get()</code> and <code>post()</code> if you only want a certain piece of middleware to run with GET and POST requests, respectively. Revisiting the use of <code>body-parser</code>, note how it is included with <code>use()</code>:
+<pre>app.use(bodyParser.json());</pre>
+</p>
+<h3>Writing our own middleware</h3>
+<p>THe above example showed how you can use in-built or third-party middleware with Express. However, you will frequently want to write <em>your own middleware</em>. A piece of middleware is simply a function which takes three parameters - described below - and can examine the request or modify the request and/or the response. The three parameters taken by a middleware function are:
+    <ul>
+    <li>the request object (typically called <code>req</code>);</li>
+    <li>the response object (typically called <code>res</code>);</li>
+    <li>the next function in the middleware chain (see below; typically called <code>next</code>).</li>
+    </ul>
+We write our middleware function and then <code>use()</code> it from our Express application object.</p>
+<p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request.
+<pre>
+const express = require('express');
+const app = express();
+
+app.use( (req,res,next) =&gt; {
+    console.log(`Received a request at ${Date.now()} milliseconds.`);
+    next();
+});
+
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+app.listen(3000);
+</pre>
+Note how <em>use()</em> expects a function which takes request and response
+as parameters, the same as the route handlers, as well as <code>next</code>. This example writes a message to the console informing the user of the time of the request.</p>
+<p>Notice the call to the <em>next();</em> function (also passed as a
+parameter to use()). This calls the next function in the middleware chain.
+What do we mean by this? It is important to note that we can <em>specify multiple items of middleware via multiple <code>use()</code> calls</em>. Each item of middleware is called in the order it is specified, as long as <code>next()</code> is called from the previous item. So, if another middleware function is specified after this one, it will be called with <code>next()</code>. If there is no middleware after this one, the route handler itself will be called with <code>next()</code>.</p>
+<p>The diagram below shows how the request can pass through multiple items of
+middleware before reaching the route handler:
+<br />
+<img src="../images/middleware.png" alt="Multiple items of middleware" />
+</p>
+<h3>Another example - CORS</h3>
+<p>Here is a second example (snippet only, not the whole server) which adds a <a href='topic5.html'>CORS</a> header to all responses to allow clients from any domain to connect. In this example, the middleware will be added as a custom function which will allow any client to connect to this server.
+<pre>
+app.use((req, res, next) =&gt; {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+}
+</pre> 
+Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
+<h3>Writing middleware as a separate function in a module</h3>
+<p>Furthermore, we can write the middleware as a separate function, rather than an arrow function, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. The advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
+<pre>
+// corsMiddleware.js
+function corsMiddleware(req, res, next) {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+}
+
+module.exports = corsMiddleware;
+</pre>
+We could then <code>require()</code> this from our main server, and <code>use()</code> it, as follows:
+<pre>const express = require('express');
+const app = express();
+
+// Require the middleware module
+const corsMiddleware = require('./corsMiddleware');
+
+// use() it
+app.use(corsMiddleware);
+
+// Routes
+app.get('/', ...);
+
+// etc
+
+app.listen(3000);</pre>
+</p>
+
+
+<h3>Middleware with specific routes</h3>
+<p>We can use routes to specify that a given middleware will only
+run before handling <em>a particular route</em>. This can be useful as,
+we might want certain middleware to only run in response to certain
+requests.  We do this by supplying an optional first argument to <em>use()</em> to specify which routes will run this middleware. For example,
+the middleware below (showing the time of the request once again)
+will only run with a route of <em>search</em> followed by a search term:
+<pre>
+const express = require('express');
+const app = express();
+
+// Note that middleware only runs with /search/:query route
+app.use( '/search/:query', (req,res,next) =&gt; {
+    console.log(`Received a request for /search at ${Date.now()} milliseconds.`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called
+app.get('/search/:query', (req,res) =&gt; {
+    res.send(`Searching for ${req.params.query}...`);
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h3>Middleware with specific HTTP methods</h3>
+<p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
+<pre>
+const express = require('express');
+const app = express();
+
+// This middleware will only run with POST requests, due to the use of
+// app.post() rather than app.use()
+// * means 'match all', so this middleware will run with all POST requests
+app.post( '*', (req,res,next) =&gt; {
+    console.log(`Received a POST request at ${Date.now()} milliseconds.`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called, because it uses post()
+app.post('/product/new', (req,res) =&gt; {
+    // Code to add a product to the database
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h3>Using middleware to prevent access to a route under certain conditions</h3>
+<p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. In the example below, the middleware handling the <code>/christmasSurprise</code> route tests whether it's December. If it is, then the <code>/christmasSurprise</code> route is called with <code>next()</code>. if not, the user is told to come back when it's Christmas!
+<pre>
+const express = require('express');
+const app = express();
+
+// Christmas checker middleware: is it December?
+app.use('/christmasSurprise', (req, res, next) =&gt; {
+    // Create an object representing today's date
+    const d = new Date();
+
+    // Get the current month, note that d.getMonth() gives a month in the range
+    // 0-11 so we have to add one to get the normal numbering (1-12)
+    const month = d.getMonth() + 1;
+
+    // If it's December, let the client access the route
+    if (month == 12) {
+        next();
+    // If not, tell them to come back later!
+    } else {
+        res.send(`It's not Christmas yet, come back in ${12 - month} months!`); 
+    }
+});
+
+// Christmas surprise route, "guarded" by the middleware above
+app.get('/christmasSurprise', (req, res) =&gt; {
+    const html = "&lt;h1&gt;HERE IS YOUR CHRISTMAS SURPRISE!&lt;/h1&gt; ... etc ...";
+    res.send(html);
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h2>dotenv - Environment variables</h2>
+<p>Finally this week we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. This is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
+<pre>npm install dotenv</pre>
+You then <code>require()</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
+<pre>
+const express = require('express');
+const app = express();
+<em>require('dotenv').config();</em>
+</pre>
+Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
+<pre>
+DB_HOST=localhost
+DB_USER=root
+DB_DBASE=mysql
+</pre>
+We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example:
+<pre>
+const con = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_DBASE
+});
+</pre>
+It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
+<hr />
+<h2>Exercise</h2>
+<p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
+<ol>
+<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference. As shown in the first example, create a separate module to connect to your MySQL database, and <code>require()</code> it from the new <em>copy</em> of your server.</li>
+<li>Available <a href='ht_users.sql'>here</a> is an SQL file to create and populate a <code>ht_users</code> table with data about users. Download it and import it into your database.</li>
+<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.js</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
+    <ul>
+    <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
+    <li>a <code>/user/:username</code> route which returns details of a specific user, identified by username.</li>
+    </ul>
+</li>
+<li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
+<li>Test it out by trying out the following in your browser (type in the URL directly, do not access from AJAX):
+    <ul>
+    <li>List all users;</li>
+    <li>Look up a user by username.</li>
+    </ul>
+</li>
+<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.js</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
+<li>Install <code>dotenv</code> and <code>require()</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
+<pre>
+if(process.env.APP_USER === undefined) {
+    // process.env.APP_USER does not exist (it's undefined)
+    // Return a 401 (Unauthorized) HTTP code, with a JSON error message
+    res.status(401).json({error: "You're not logged in. Go away!"});
+} else {
+    // username exists, carry on...
+}
+</pre>
+Test this out by first trying to access a <code>POST</code> route without creating a <code>.env</code> file. Test this out in RESTer; you should get a 401 error and the "Go away" message as a response. Then, create a <code>.env</code> file with a <code>username</code> environment variable. The username can be anything, for example:
+<pre>APP_USER=AdamAdams</pre>
+You should now be able to access your POST route.
+</li>
+<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>require()</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
+<li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists. Use the same middleware for this.</li>
+</ol>
+</body>
+</html>
