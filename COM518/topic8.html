@@ -331,6 +331,7 @@ You should now be able to access your POST route.
 </li>
 <li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>require()</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
 <li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists. Use the same middleware for this.</li>
+<li><strong>Advanced question:</strong> Modify your answer to the previous question so that, if the <code>/users</code> group of routes is requested, the middleware checks that the <code>APP_USER</code> username is <em>actually in the database</em> and that the value of the <code>isadmin</code> column of this user is 1. In this way, only admin users can access the <code>/users</code> routes which, for data protection reasons, is probably a good idea!</li>
 </ol>
 </body>
 </html>
