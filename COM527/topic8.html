@@ -76,7 +76,7 @@ var parsedData = ""
 val jsonArray = JSONArray(json) // 'json' contains our JSON (see above)
 
 // JSONArray.length() gives the number of elements inside the array
-for(var i in 0 until jsonArray.length()) {
+for(i in 0 until jsonArray.length()) {
     // Get the JSON object at index i within the JSON array
     val curObject = jsonArray.getJSONObject(i)
     
@@ -229,7 +229,7 @@ url.httpGet().responseJson { request, response, result -&gt;
             var str = ""
             for(i in 0 until jsonArray.length()) {
                 val curObj = jsonArray.getJSONObject(i)
-                str += "Manufacturer: ${curObj.getName("manufacturer")} Price: ${curObj.getName("price")}\n" 
+                str += "Manufacturer: ${curObj.getString("manufacturer")} Price: ${curObj.getString("price")}\n" 
             }
             tv1.text = str
         }
