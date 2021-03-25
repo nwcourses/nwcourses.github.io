@@ -316,6 +316,21 @@ url.httpPost(postData).response { request, response, result -&gt;
     </ul>
 </p>
 <h3>Questions</h3>
+<p>Ensure you add the imports below to your application. Some of them will not be available via Alt-Enter.
+<pre>
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import com.github.kittinunf.fuel.core.Parameters
+import com.github.kittinunf.fuel.httpGet
+// import com.github.kittinunf.fuel.json.responseJson // for JSON - uncomment when needed
+// import com.github.kittinunf.fuel.gson.responseObject // for GSON - uncomment when needed
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.result.Result
+</pre>
+</p>
 <ol>
 <li>Create a <em>new Android project</em>, and create a main activity containing an <code>EditText</code> (allowing the user to enter an artist to search for), a button (which when clicked will send a request to the server) and a TextView (to show the results).</li>
 <li>Write code to send a request, using Fuel, to your server, so that it looks up all songs by the user's chosen artist. Note that on the emulator, you can use the special IP address <code>10.0.2.2</code> to access the host machine, i.e. your desktop or laptop. Your Node server will be running on port 3000, unless you changed the port, so you can access your server via a URL such as:
