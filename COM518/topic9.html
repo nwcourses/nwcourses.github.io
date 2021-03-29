@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 9: Session variables</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 9: Session Variables</h1>
+</div>
+<p>Today we will take a look at <em>session variables</em> and how we can use them in node.js.</p>
+<h2>Cookies</h2>
+<p>Before looking at session variables, we will quickly take a look at
+<em>cookies</em>. You may have come across cookies before: they are data saved
+on your machine by a website when you visit it. They are stored in an area of
+your machine known as the <em>cookie jar</em> and are sent to your browser
+embedded within the HTTP response. Next time you visit the site, the cookie is
+sent back to the site via the HTTP request, and thus the site can "remember"
+data saved by it at the time of the last visit. Cookies can be used for various
+things, both benign and controversial. For example:
+	<ul>
+	<li>They can be used to save preferences, such as language, colour scheme
+	or font size;</li>
+	<li>They can be used to remember your username, so you do not have to
+	fill in the username field next time you login;</li>
+	<li>Slightly more controversially, they can be used by advertising networks
+	to provide appropriate adverts based on what pages you visit;</li>
+	<li>Most controversially of all, and most would say unethically, cookies
+	can be used to build a profile of what kind of person you are including such things as personality type and political persuasions (based on sites you visit, things you search for, your comments on social media, etc), which can be exploited in such things as election campaigns and referenda. For example it is likely that cookies played a part in the Cambridge Analytica scandal.</li>
+	</ul>
+</p>
+<p>Consequently a user needs to be careful with cookies. It is now law that a site which uses cookies for non-essential purposes must allow the user to turn such cookies off, and this functionality must be clearly visible to the user.</p>
+<p>The diagram below shows how cookies work:
+<br />
+<img src="../images/cookies.png" alt="Cookies" />
+</p>
+<h2>Session variables</h2>
+<p>Having looked briefly at cookies, we will now start to look at <em>session variables</em>.</p>
+<ul>
+<li>Special variables used to <em>maintain state</em>, i.e. preserve information between successive HTTP requests</li>
+<li>Unlike cookies, they are stored <em>server side</em> - typically in a database
+    <ul>
+    <li>... and are thus more secure than using cookies, which are stored 
+    locally in the cookie jar on the hard drive</li>
+    </ul>
+</li>
+</ul>
+<h3>What is a session?</h3>
+<ul>
+<li>A session is a <em>continuous period of interaction between a user and
+a website</em></li>
+<li>The session ends typically ends after a specified period of inactivity, in which the user is not interacting with the website (this is configurable)</li>
+<li>Session variables remain accessible throughout a session</li>
+<li>... but are destroyed when a session ends</li>
+<li>So unlike cookies, session variables cannot be used to save data 
+between <em>separate</em> visits to a website...</li>
+<li>... but only throughout a <em>single</em> visit to a website</li>
+</ul>
+<h3>Using session variables in server-side coding</h3>
+<ul>
+<li>Session variables can be used in any scenario where we want to preserve
+information from page to page</li>
+<li>Common uses of session variables:
+    <ul>
+    <li><em>Login system:</em> - use a session variable to remember the
+    currently logged-in user</li>
+    <li><em>Shopping basket:</em> - on an e-commerce site, store the shopping
+    basket in a session variable so that it can be remembered across all the
+    pages of the site</li>
+    </ul>
+</li>
+</ul>
+<h2>How sessions work: Multiple clients, one session variable</h2>
+<ul>
+<li>We are now going to look at how sessions work "under the hood"</li>
+<li>Remember that session variables are stored on the <em>server</em> - typically in a database</li>
+<li>Imagine a cinema booking website, which uses session variables called <em>film</em> and <em>date</em> to store the user's chosen film, and the date they want to see it. What if more than one user was using the website at the same time? How would the website distinguish between the values of these session variables for different users?</li>
+</ul>
+<h3>Session IDs</h3>
+<ul>
+<li>Each client which connects to the server is given a unique
+<em>session ID</em> number</li>
+<li>On the server, the same session variable from different clients is
+distinguished by the session ID and stored as different entries in the 
+database</li>    
+<li>The session ID is normally stored on the client as a <em>cookie</em>
+(more on that below)</li>
+<li>See the diagram below</li>
+</ul>
+<br />
+<img src="../images/session_multiple_clients.png" alt="The use of session IDs for  distinguishing between clients"/>
+<br/>
+<h3>Session cookies</h3>
+<ul>
+<li>Usually,
+when a session variable is first used, the session ID is sent to the client
+in the HTTP header of hte response as a cookie (the <em>session cookie</em>). You can see this by inspecting the HTTP headers of the response in RESTer.</li>
+<li>When a session variable is used in a later page, the server retrieves
+the session cookie (containing the session ID) from the HTTP request and uses 
+it to obtain the correct value for the session variable for <em>that</em> user</li>
+<li><em>The data itself is <strong>NOT</strong> stored as a cookie, only the
+session ID is!</em></li>
+<li>The session cookie expires when the user closes the browser</li>
+</ul>
+<h3>How a session is maintained</h3>
+<img src="../images/sessions_routes.png" alt="How a session is maintained"/> 
+<br/>
+<h2>Using sessions in node.js</h2>
+<h3>Introduction</h3>
+<p>Most server-side technologies can use session variables. Some technologies, such as PHP, come with session variables enabled by default as part of the core distribution. With node.js, we have to use a third-party <em>module</em> depending on which server framework we are using. With Express, the usual module is <code>express-session</code> which can be installed in the normal way:
+<pre>npm install express-session</pre>
+<code>express-session</code> will create session cookies and send them back to the client automatically, and also retrieve session cookies from clients and use them to work out the correct session variables for that user. <code>express-session</code> will store session data in a <em>session store</em>. You can configure <code>express-session</code> to tell it which session store to use. By default, it uses an in-memory store, but this is regarded as insecure. Instead, it is better to use whichever database you are using to store the session data, which in our case will be MySQL. So we will need to install the <code>express-mysql-session</code> module:
+<pre>npm install express-mysql-session</pre>
+The module will store the data in a table called <code>sessions</code> by default, which you might want to look at to see exactly how the session data is stored. Each entry in <code>sessions</code> contains a JSON object with the session ID plus the values of the session variables themselves.</p>
+<h3>Requiring and setting up the modules</h3>
+<p>This code demonstrates how we can require and setup the <code>express-session</code> and <code>express-mysql-session</code> modules. First we require the two modules:
+<pre>
+const expressSession = require('express-session');
+const MySQLStore = require('express-mysql-session')(expressSession);
+</pre>
+Note how we have to pass in the <code>expressSession</code> object as an argument to the <code>require()</code> for <code>express-mysql-session</code>.</p>
+<p>Then we create a MySQL session store object:
+<pre>
+// require mysql connection from external module, as per last week
+const con = require('./conn'); 
+
+// use connection to create the session store. Note we have to use the connection in promise-based mode
+const sessionStore = new MySQLStore({ } , con.promise());
+</pre>
+Note how we create the MySQL session store using our existing connection. We have to use the connection in promise-based mode for the session store to work correctly.</p>
+<p>Once we have created the session store, we can initialise the Express session object itself. You have to specify quite a few options: these are summarised in the comments accompanying the code and explained in more detail on the <a href='https://npmjs.com/package/express-session'>NPM page</a> for the module. The options below should be good for use with the MySQL session store and common web applications.</p>
+<pre>
+app.use(expressSession({
+    <span class='comment'>// Specify the session store to be used.</span>
+    store: sessionStore, 
+
+    <span class='comment'>// a secret used to digitally sign session cookie, use something unguessable (e.g. random bytes as hex) in a real application.</span>
+    secret: 'BinnieAndClyde', 
+
+    <span class='comment'>// use as recommended by your chosen session store - related to internals of how session stores work</span>
+    resave: false, 
+
+    <span class='comment'>// save session to store before modification</span>
+    saveUninitialized: false, 
+
+    <span class='comment'>// reset cookie for every HTTP response. The cookie expiration time will be reset, to 'maxAge' milliseconds beyond the time of the response. 
+    // Thus, the session cookie will expire after 10 mins of *inactivity* (no HTTP request made and consequently no response sent) when 'rolling' is true.
+    // If 'rolling' is false, the session cookie would expire after 10 minutes even if the user was interacting with the site, which would be very
+    // annoying - so true is the sensible setting.</span>
+    rolling: true, 
+
+    <span class='comment'>// destroy session (remove it from the data store) when it is set to null, deleted etc</span>
+    unset: 'destroy', 
+
+    <span class='comment'>// useful if using a proxy to access your server, as you will probably be doing in a production environment: this allows the session cookie to pass through the proxy</span>
+    proxy: true, 
+
+    <span class='comment'>// properties of session cookie</span>
+    cookie: { 
+        maxAge: 600000, <span class='comment'>// 600000 ms = 10 mins expiry time</span>
+        httpOnly: false <span class='comment'>// allow client-side code to access the cookie, otherwise it's kept to the HTTP messages</span>
+    }
+}));
+</pre>
+</p>
+<p>The code above will set up the session using the given session store. Note how <code>expressSession()</code> returns a <em>middleware</em> function which sets up the session, which is then used by the application.</p>
+<p>However, how do we actually <em>store data in session variables?</em>. We can use the object <code>req.session</code>, which is setup as soon as you have initialised your session as above. For example, we could use code such as:
+<code>req.session.name = 'Fred Smith';</code>
+to setup a session variable called <code>name</code>. This session variable could then be used by all subsequent requests, until the session is deleted. To end a session, we can set the session to <code>null</code> which, as described in the comments above, will destroy the session and remove it from the database:
+<code>req.session = null;</code>
+</p>
+<p>Here is an example of a MuSQL session store. Two users logged in to the system (John Stevenson and Kate Palmer) and for each, a session was created. The screenshot below shows the sessions table being queried twice (from the MySQL command-line client), once after John Stevenson logged in and again after Kate Palmer logged in. When a user logs in, their username is stored in a session variable (see below). Note how, as a result, each user has an entry in the sessions table.
+<br />
+<img src="../images/sessions_in_db.png" alt="Session data stored in a MySQL databasse" />
+</p>
+<h3>Session variables and Authentication</h3>
+<p>A common use of session variables is in site <em>authentication</em>.
+In authentication, the user must enter a username and password to gain acces
+to the site. What happens is as follows:
+    <ul>
+    <li>An authentication route tests that the user entered a valid username and
+    password on a web form</li>
+    <li>If they did, we store the username in a session variable, e.g. <code>req.session.username</code></li> 
+    <li>We protect any routes which we want to restrict access to logged in users by writing a piece of middleware which checks for the existence of this session variable.Thus, such routes are "locked out" to unauthorised users</li>
+    <li>We then write a logout route which sets <code>req.session</code> to <code>null</code>, as described above, thus terminating the session.</li>
+    </ul>
+</p>
+<p>Here is some code (an extract from a full server) which will actually do this. Note that we have three routes and one piece of 'checking' middleware.
+<pre>
+<span class='comment'>// Login route</span>
+app.post('/login', (req, res) =&gt; {
+        if(req.body.username == 'SimonSmith' &amp;&amp; req.body.password == 'secret' ) {
+            req.session.username = req.body.username; 
+            res.json({success: 1});
+        } else {
+            res.status(401).json({error: "Incorrect login!"});
+        } 
+});
+
+<span class='comment'>// Logout route</span>
+app.post('/logout', (req, res) =&gt; {
+    req.session = null;
+    res.json({'success': 1 });
+});
+
+<span class='comment'>// 'GET' login route - useful for clients to obtain currently logged in user</span>
+app.get('/login', (req, res) =&gt; {
+    res.json({username: req.session.username || null} );
+});
+
+<span class='comment'>// Middleware which protects any routes using POST or DELETE from access by users who are are not logged in</span>
+app.use( (req, res, next) =&gt; {
+    if(["POST", "DELETE"].indexOf(req.method) == -1) {
+        next();
+    } else {
+        if(req.session.username) { 
+            next();
+        } else {
+            res.status(401).json({error: "You're not logged in. Go away!"});
+        }
+    }
+});
+</pre>
+What do these routes do?
+    <ul>
+    <li>Firstly the <code>/login</code> <code>POST</code> route checks the <code>POST</code> data sent to it, specifically the <code>username</code> and <code>password</code> fields. Here, it simply checks that they are equal to <em>SimonSmith</em> and <em>secret</em> respectively. If the details are correct, the supplied username is stored in a session variable (<code>req.body.username</code>). This is a deliberately simple example: in a more realistic example it would need to check the username and password are in the users table in the database.</li>
+    <li>Next, the <code>/logout</code> route sets <code>req.session</code> to null and in doing so, removes the session from the session store. This will mean that <code>req.session.username</code> will no longer exist.</li>
+    <li>The next route is the <code>/login</code> <code>GET</code> route. This returns the currently logged-in user within a JSON object, or <code>null</code> if a user is not logged in. This can be used by clients (e.g. AJAX front ends) to display the currently logged-in user in the UI.</li>
+    <li>Finally, we have some middleware which is used to prevent access to routes with a method of <code>POST</code> or <code>DELETE</code> if the user is not logged in. To explain this:
+    <ul>
+    <li> The first thing we do is check whether the method of the request (<code>req.method</code>) is contained within the array <code>["POST", "DELETE"]</code>, i.e. we check whether the method is either <code>POST</code> or <code>DELETE</code>. We use <code>indexOf()</code> to do this, which returns the position of an element within an array, or -1 if it is not in the array.</li>
+    <li>So <code>indexOf()</code> will return 0 for <code>POST</code>, 1 for <code>DELETE</code> or -1 for any other method (such as <code>GET</code>).</li>
+    <li>So, if the value is -1 (the method is not <code>POST</code> or <code>DELETE</code>), we just call <code>next()</code> to forward the user on to the route without checking if they're logged in. Otherwise, we check whether <code>req.session.username</code> exists (i.e. whether the user is logged in) and either call <code>next()</code> (if it does exist) or return a 401 Unauthorized error and appropriate error message (if it does not).</li>
+    </ul>
+    </li>
+    </ul>
+</p>
+
+<h2>Exercise</h2>
+<h3>Essential questions</h3>
+<ol>
+<li>Add code to initialise <code>express-session</code> and <code>express-mysql-session</code> on your Express server, as shown above.</li>
+<li>Add the three routes in the example above (<code>/login</code> GET, <code>/login</code> POST and <code>/logout</code>), as well as the session-checking middleware, to your Express server. You should make one important change: <em>the <code>/login</code> POST route should check whether the username and password are contained within the <code>ht_users</code> table</em>, rather than just checking for a hard-coded username and password. To do this, perform your query and then check that the number of rows returned is one by checking the length of the <code>results</code> array, for example:
+<pre>
+if(results.length == 1) {
+	res.json({"username": req.body.username});
+} else {
+    // ...
+}
+</pre>
+This code will also return the username as JSON back to the client if the login was successful, which will allow the client to display a <code>Logged in as ...</code> message.</li>
+<li>Run through this process in RESTer to check that it all works:
+	<ul>
+	<li>Send a POST request to your <code>/login</code> route with an appropriate username and password from the <code>ht_users</code> table. <strong>Look at the HTTP response</strong>; you should find that a session cookie is contained within it.</li>
+	<li>Send a DELETE request to your route which deletes a song with a given ID. It should be successful. Look again at the HTTP response; the session cookie should still be there, and will be there until the session is destroyed.</li>
+	<li>Send a POST request to your <code>/logout</code> route. This should log you out; look at the HTTP response again and you should find the session ID is no longer there.</li>
+	<li>Send another DELETE request to your delete song route. You should now be unable to do so.</li>
+	</ul>
+</li>
+<li>Now start to add login functionality to your AJAX front end. Create a <code>&lt;div&gt;</code> containing a login form, with username and password fields and a "Login" button. When the button is clicked, send a request to your <code>/login</code> POST route to log the user in. Check the HTTP code sent back from the server (via <code>response.status</code>). If it's 200, replace the contents of the login &lt;div&gt; with a message 'Logged in as ...' containing the username. Use <code>innerHTML</code> for this. Otherwise display an error via an alert box.</li>
+<li>Modify the "buy" functionality (week 6) so that if a 401 is returned from the <code>buy</code> route, an error message telling the user they're not logged in should appear as an alert box. Test it by trying to buy music before the user is logged in (it should not work) and then after they've logged in (it should work).</li>
+</ol>
+<h3>More advanced questions</h3>
+<p>Enhance your login system so that you have "Logout" functionality, and also modify your code so that if the user reloads the page, the "Logged in as ..." message remains present. To do this: 
+	<ol>
+	<li>When a user has logged in, add a button to the "Logged in as..." message which appears in the &lt;div&gt;. You can do this simply by adding the button HTML to the <code>innerHTML</code> text (or, if you are feeling ambitious, use the DOM). Ensure this button has an ID, so that you can attach an event listener to it. For example:
+<pre>document.getElementById(...).innerHTML = `Logged in as ... &lt;input type='button' value='Logout' id='logoutBtn' /&gt;`</pre>
+</li>
+	<li>On the next line of code, use <code>document.getElementById()</code> and <code>addEventListener()</code> to add a "click" event to this button so that the user is logged out by calling the <code>/logout</code> route. Once logged out, your should re-fill the login &lt;div&gt; with the original login form (use <code>innerHTML</code> for this, similar to the example in the previous question; note you will need to connect the 'Login' button to an event listener to handle login).</li>
+	<li><strong>If the user reloads the page, you want the "Logged in as ..." message to remain present. This question allows you to do this.</strong> At the start of your client-side JavaScript, call the <code>/login</code> GET route of your web server to determine if the user is logged in or not. If they are, the <code>username</code> field of the JSON returned will be non-null. If the username is non-null, display the "Logged in as... " message with the Logout button, and add the event listener to the Logout button, as in the earlier question. If not, display the login form, ensuring you continue to add an event listener to the Login button.</li>
+	</ol>
+</p>
+<h3>Other things to try</h3>
+<ul>
+	<li>Modify your <code>buy</code> route so that the balance of the currently logged-in user is reduced by 0.79 when they buy a song.</li>
+</ul>
+
+</body></html>
+
+
