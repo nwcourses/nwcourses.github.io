@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 8: Network Communication</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 9</h1>
+<h1>Lists with RecyclerView</h1>
+</div>
+<p>This week we will look at how we can create <em>lists</em> of items in Android, making use of <em>RecyclerView</em>.</p>
+
+<h2>RecyclerView</h2>
+
+<ul>
+<li>
+The <em>RecyclerView</em> allows you to implement lists in a memory-efficient way.</li>
+<li>We insert the RecyclerView in an XML layout, wherever we want it to appear, in the normal way</li> 
+<li>Example code for a recycler view, which can be placed in an XML layout
+(this example will occupy the whole of the parent):
+<pre>&lt;androidx.recyclerview.widget.RecyclerView 
+android:layout_width="match_parent" 
+android:layout_height="0px" 
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintTop_toTopOf="parent"
+android:id="@+id/poiListView"/&gt;</pre>
+</li>
+<li>When using a recycler view you have to specify its layout using
+a LayoutManager, e.g. <em>LinearLayoutManager</em> will specify that the
+items are arranged linearly (vertically):
+<pre>// This code is in the onCreate() of the Activity
+val poiListView = findViewById&lt;RecyclerView&gt;(R.id.poiListView)
+poiListView.layoutManager = LinearLayoutManager(this)</pre>
+</li>
+<li>To use RecyclerView you must include it in your build.gradle 
+dependencies, as it's a Jetpack library:
+<pre>implementation 'androidx.recyclerview:recyclerview:1.1.0'</pre>
+</li>
+</ul>
+<h3>Components of a RecyclerView</h3>
+
+<p>A RecyclerView contains:</p>
+<ul>
+<li>an <em>adapter</em>, which is used to control how the data being presented in the list is displayed.</li> 
+<li>a series of <em>ViewHolder</em>s. A ViewHolder is used to hold an individual View (list item) within the list being shown. It should extend from <em>RecyclerView.ViewHolder</em>.</li>
+<li>The idea is to preserve memory by only creating as many ViewHolders as
+are needed to contain <strong>visible</strong> list items</li>
+<li>So when we scroll the list up and down, resulting in some list items 
+disappearing and new ones appearing, we can reallocate already-existing ViewHolders to the newly-visible items</li>
+<li>For example, if our list contains 100 items, but only 10 are visible
+at any one time, we need only create 10 ViewHolders, not 100, and then 
+reuse these ViewHolders as the user scrolls the list up and down, so that they
+contain the 10 <em>currently visible</em> items</li>
+</ul>
+<h3>How to code a RecyclerView</h3>
+<ul>
+<li>Create an Adapter class which should extend from RecyclerView.Adapter</li>
+<li>CWithin the Adapter, override the methods <em>onCreateViewHolder()</em>, 
+<em>onBindViewHolder()</em>, and <em>getItemCount()</em>. What are these used for?
+<ul>
+<li><em>onCreateViewHolder()</em> runs when we need to create a new view holder, e.g. when a list is first created, we create as many ViewHolders as we need
+to hold the visible items.</li> 
+<li><em>onBindViewHolder()</em> runs when we need to bind an already-created holder with a particular item of data, e.g. if we scroll the screen and need to replace
+the contents of a view holder with a previously-hidden, newly-visible item.</li>
+<li><em>getItemCount()</em> should return the number of elements in our 
+data set.</li>
+</ul>
+</li>
+<li>Link the Adapter to your recycler view, e.g. if <em>MyAdapter</em> is
+your adapter class and <em>poiListView</em> is a variable containing your 
+RecyclerView, you could add code such as this to the <em>onCreate()</em> of your Activity to link the Adapter to the RecyclerView:
+<pre>poiListView.adapter = MyAdapter(..)</pre>
+</li>
+</ul>
+<h3>Full example of adapter</h3>
+<pre>
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+// The names and descriptions to be displayed are passed as parameters to
+// our Adapter.
+class MyAdapter(val titles: List&lt;String&gt;, 
+                val descriptions: List&lt;String&gt;): 
+    RecyclerView.Adapter&lt;RecyclerView.ViewHolder&gt;() {
+
+    // A ViewHolder is associated with a particular adapter, so it makes
+    // sense to create the holder as an inner class of the adapter.
+    // The ViewHolder takes the associated View as a parameter
+
+    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        // Inflate the child elements of the View and store them as properties,
+        // so we have easy access to them later
+
+        val tvName = itemView.findViewById(R.id.poiName) as TextView
+        val tvDescription = itemView.findViewById(R.id.poiDescription) as TextView
+    }
+
+    // onCreateViewHolder() - called when a ViewHolder is first created.
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType:Int) : RecyclerView.ViewHolder {
+        // Inflate the XML layout and create a ViewHolder using it 
+
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val inflatedLayout = layoutInflater.inflate(R.layout.list_item_layout, parent, false)
+        return MyViewHolder(inflatedLayout)
+    }
+
+    // onBindViewHolder() - called when a ViewHolder is bound to a certain item of data.
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
+        // Cast to our specific ViewHolder class
+
+        val myViewHolder = holder as MyViewHolder
+    
+        // Fill the name and description within the ViewHolder to the 
+        // current elements within our two lists of data
+
+        myViewHolder.tvName.text = titles[index]
+        myViewHolder.tvDescription.text = descriptions[index]
+    }
+
+    override fun getItemCount(): Int {
+        return titles.size
+    }
+}</pre>    
+<h3>Explanation of example: onCreateViewHolder()</h3>
+<p>In onCreateViewHolder(), we inflate a layout for an individual 
+list item within the list. 
+<ul>
+<li>We write an XML layout file to define the layout of each individual list item. This might contain, for example, a TextView for a title and another for a description. An example is given <a href='#listitemlayout'>below</a>.</li>
+<li>We use a LayoutInflater to inflate this layout, which returns a View object
+containing the layout.</li>
+<li>We then create a ViewHolder to "hold" this view:  
+    <ul>
+    <li>In the constructor of our ViewHolder (which takes the View as
+    a parameter), we use View.findViewById() to obtain the
+    child elements of the view (e.g. TextViews for title and description)
+     using their ID.  We then add these to the ViewHolder as properties, so that they can easily later be populated with data.</li>
+    <li>For programming convenience, the ViewHolder is often implemented as an
+    <em>inner class</em> of the adapter (an inner class is a class within 
+    another class) as it means the ViewHolder can access all the adapter
+    properties.</li>
+    </ul>
+</li>
+<li>The created <em>ViewHolder</em> is returned from onCreateViewHolder().</li>
+</ul>
+<h3>Explanation of example: onBindViewHolder()</h3>
+<p>In onBindViewHolder(), we bind the appropriate data to the current list item (e.g. the elements within our lists of data corresponding to the list item index)</p>
+<ul>
+<li>onBindViewHolder() has two parameters: the index of the list item we
+are processing, and its associated ViewHolder.</li>
+<li>We retrieve the corresponding item of data (e.g. from an array, list or
+database table holding the data)</li>
+<li>We then set the contents of the text views within this view holder to
+the details of the current item, so that the current item appears in the list</li>
+</ul>
+<h3 id='listitemlayout'>Layout for a list item</h3>
+<ul>
+<li>As seen above, we have to define a layout for <em>each list item in the RecyclerView</em></li>
+<li>Make it a <em>LinearLayout</em> and ensure that the height is set to
+<em>wrap_content</em>, not <em>match_parent</em>, otherwise each list item
+will occupy the whole screen</li>
+<li>e.g.<pre>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"&gt;
+
+&lt;TextView android:layout_width="match_parent" 
+android:layout_height="wrap_content" android:id="@+id/poiName" android:textSize="12pt" /&gt;
+
+&lt;TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/poiDescription" android:textSize="10pt" /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+</li>
+</ul>
+<h3>Handling events</h3>
+<ul>
+<li>We may wish to <em>handle events</em> in our list, e.g. the user clicking
+on a list item.</li>
+<li>With <em>ListActivity</em> (the old way of implementing lists, before RecyclerView) this was done automatically by means of overriding the onListItemClick() event handler.</li>
+<li> With RecyclerView however we have to do it ourselves.</li>
+<li>ViewHolder has an "itemView" property representing the
+View associated with the ViewHolder.</li>
+<li> So, in onBindViewHolder() we can add an <em>OnClickListener</em>
+to the "itemView" of the ViewHolder, and call a callback function, passing 
+the index to the callback.</li>
+<li>Kotlin makes this easy as we can pass in a callback to our Adapter and 
+handle the click via a lambda which then calls our callback, passing in the 
+index.</li>
+<li>e.g:<pre>
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+class MyAdapter(val titles: List&lt;String&gt;, 
+        val descriptions: List&lt;String&gt;,
+        val callback: (Int) -&gt; Unit): 
+    RecyclerView.Adapter&lt;RecyclerView.ViewHolder&gt;() {
+
+    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvName = itemView.findViewById(R.id.poiName) as TextView
+        val tvDescription = itemView.findViewById(R.id.poiDescription) as TextView
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType:Int) : RecyclerView.ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        return MyViewHolder(layoutInflater.inflate(R.layout.list_item_layout, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
+        val myViewHolder = holder as MyViewHolder
+        holder.tvName.text = titles[index]
+        holder.tvDescription.text = descriptions[index]
+        
+        // Run our callback when the holder's itemView is clicked
+        holder.itemView.setOnClickListener { callback(index) }
+    }
+
+    override fun getItemCount(): Int {
+        return titles.length
+    }
+}</pre>    
+</li>
+</ul>
+
+<h2>Exercise</h2>
+<ol>
+<li>Turn the example above into a complete working application (at the moment, the RecyclerView part of the application has been coded, but not the main activity, so you need to implement an activity). Give the main activity an XML layout with a RecyclerView, as shown above. Fill the RecyclerView with the following titles and descriptions:
+    <ul>
+    <li><em>Title</em>: Immersive Technologies, <em>Description:</em> Learn about developing augmented reality applications for the web, making use of three.js and A-Frame.</li>
+    <li><em>Title</em>: Mobile Application Development, <em>Description:</em> Learn about Android development using Kotlin.</li>
+    <li><em>Title</em>: Web Application Development, <em>Description:</em> Learn about web application development, including web APIs, JSON and AJAX.</li>
+    </ul>
+</li>
+<li><strong>More advanced:</strong> Modify your exercise from last week (to search for all songs by a given artist by connecting to a web API) so that the search results appear in a RecyclerView, with each list item containing:
+    <ul>
+    <li>The song title as the title;</li>
+    <li>The artist and year as the description.</li>
+    </ul>
+You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON.</li>
+</ol> 
+</body>
+</html>
