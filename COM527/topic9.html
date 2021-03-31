@@ -243,7 +243,10 @@ class MyAdapter(val titles: List&lt;String&gt;,
     <li>The song title as the title;</li>
     <li>The artist and year as the description.</li>
     </ul>
-You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON.</li>
+You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON.<br />
+<strong>Note that if you update your adapter with new data (i.e. new song details when doing a new search) you need to call the adapter's <code>notifyDataSetChanged()</code> method to inform the adapter that the data has changed and it needs to be redrawn. For example:</strong>
+<pre>myRecyclerView.adapter.notifyDataSetChanged()</pre>
+</li>
 <li>Modify your answer to add a callback function when a list item is pressed. This callback can be passed in to to the adapter as a lambda function. The callback should simply display the details of the selected song as a Toast.</li>
 </ol> 
 </body>
