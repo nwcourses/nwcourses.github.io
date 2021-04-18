@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 10: More Modular Applications: DAOs and Controllers</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 10: More Modular Applications: DAOs and Controllers</h1>
+</div>
+<hr />
+<h2>Firstly - one or two hints for the assignment</h2>
+<p>Here are one or two hints about the assignment which relate to questions some of you have been asking.</p>
+<h3>How do I add a form to a popup?</h3>
+<p>This may help you for task 13. <code>bindPopup()</code> can take a DOM node as well as plain text or HTML. So you can create a DOM structure containing your form and pass it in as an argument to <code>bindPopup()</code>, e.g.:
+<pre>
+const domDiv = document.createElement('div');
+// ... other code to create a form ...
+marker.bindPopup(domDiv); // add the DOM-created div to a marker
+</pre>
+</p>
+<h3>How do I show and hide an element?</h3>
+<p>You may wish to do this for task 9, in which you want to use a &lt;div&gt; with some form fields to enter the POI details, but you do not want the &lt;div&gt; to show all the time. First, set its <code>display</code> property to <code>none</code> in the CSS:
+<pre>
+#myDiv {
+    display: none;
+}
+</pre>
+Then, at the point you want to show it, change the <code>display</code> property from JavaScript to <code>block</code>, e.g.:
+<pre>document.getElementById('myDiv').style.display = 'block';</pre>
+Then, when you want to hide it again, change <code>display</code> back to <code>none</code>:
+<pre>document.getElementById('myDiv').style.display = 'none';</pre>
+</p>
+<hr />
+<h2>The main material</h2>
+<p>Now onto the main topic for this week. Today we will look at using a more modular, easier-to-maintain structure for our Node/Express applications by making use of <em>Data Access Objects (DAOs)</em> and <em>controllers</em>.</p>
+<p><strong>Note that this is a more advanced topic, which can help you get a mid-high A, so if you are aiming for a lower grade in the assignment, you might prefer to work on the assignment or catch up with previous topics during class this week.</strong></p>
+<h2>Data Access Objects</h2>
+<ul>
+<li>We have already seen how to interact with a MySQL database from node.js</li>
+<li>However, we can make our code more structured and object-oriented (remember we did classes and objects in Week 2)</li>
+<li>When writing object-oriented code to interact with a database, we 
+typically deal with <em>data access objects (DAOs)</em>.</li>
+<li>A <em>DAO</em> provides an interface to your table as a whole, and
+might contain methods such as <em>findStudentById()</em> or
+<em>findStudentsByName()</em></li>
+</ul>
+<h3>Example of a DAO for the students table</h3>
+<pre>
+
+class StudentDao {
+    // conn is our mysql database connection
+    // table is the table storing the students
+    constructor(conn, table) {
+        this.conn = conn;
+        this.table = table;
+    }
+
+
+    // find a student with a given ID
+
+    findStudentById(id) {
+        return new Promise ( (resolve, reject) =&gt; {
+            this.conn.query(`SELECT * FROM ${this.table} WHERE ID=?`, [id],
+                (err, results, fields) =&gt; {
+                    if(err) {
+                        reject(err);
+                    } else if (results.length == 0) {
+                        // resolve with null if no results - this is not considered an error, so we do not reject
+                        resolve(null); 
+                    } else {
+                        // only one student will be found but "results" will still be an array with one member. 
+                        // To simplify code which makes use of the DAO, extract the one and only row from the array 
+                        // and resolve with that.
+                        resolve(results[0]);
+                    }
+                });
+        });
+    }
+                            
+
+    // find all students on a given course
+    findStudentsByCourse(course) {
+        return new Promise ( (resolve, reject) =&gt; {
+            this.conn.query(`SELECT * FROM ${this.table} WHERE course=?`, [course],
+                (err, results, fields) =&gt; {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(results);
+                    }
+                });
+        });
+    }
+
+    // add a new student 
+
+    addStudent(name, course) {
+        return new Promise ( (resolve, reject) =&gt; {
+            this.conn.query(`INSERT INTO ${this.table} (name,course) VALUES (?,?)`, [name, course],
+                (err, results, fields) =&gt; {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(results.insertId); // resolve with the record's allocated ID
+                    }
+                });
+        });
+    }
+
+    // update a student - takes student ID, name, and course as parameters and 
+    // updates the name and the course of the record with that ID
+    // For you to complete!
+
+    updateStudent(id, name, course) {
+    }
+
+
+    // delete a student - takes a student ID as a parameter
+    // and deletes the record with that ID.
+    // For you to complete!
+
+    deleteStudent(id) {
+    }
+}
+
+module.exports = StudentDao; // so that other code can use it</pre>
+<h3>DAO - Explanation</h3>
+<ul>
+<li>Note how the DAO contains a series of methods which perform various
+database operations</li>
+<li>The rest of our code would interface with the DAO, rather than
+the database directly, keeping it clean and keeping all the 'messy' SQL
+statements in one place</li>
+<li>Each method in the DAO performs a particular database operation (find a student by ID, find all students on a given course, add a student, update a student's details, and delete a student)</li>
+<li>Finally, note how each method <em>returns a Promise object</em>. This is
+to make coding using the DAO easier, as we no longer have to worry about
+callbacks and can instead write sequential code with <code>async</code>/<code>await</code> (remember from Topic 5 that we can use <code>await</code> with any method which returns a promise). This allows you to use simpler code such as:
+<pre>const dao = new StudentDao(dbconn, "students");
+const student = <em>await</em> dao.findStudentById(req.params.id);</pre>
+</li>
+</ul>
+</p>
+<p>Note how we create our own custom <em>Promise</em>, which will either resolve or reject depending on whether the query succeeded or not:
+<ul>
+<li> When you create your own custom Promise object, you must supply <em>a function which will carry out the promise</em>. This function will typically be an arrow function, and takes two parameters: <code>resolve</code> (a function which will run when the promise resolves), and <code>reject</code> (a function which will run when the promise rejects). These functions will be supplied by the code which uses the promise (in this example, the code which calls the DAO method).</li>
+<li>For example if you are using "plain promises" rather than async/await, the <code>resolve</code> function corresponds to the argument to <code>then()</code> and the <code>reject</code> function corresponds to the argument to <code>catch()</code>. If using async/await, the argument to <code>resolve()</code> will become the return value of the <code>await</code> call and the argument to <code>reject()</code> will become the parameter of the <code>catch</code> block.</li>
+<li> Note how the code to query the database is placed inside this arrow function, and note how we call either <code>resolve</code> or <code>reject</code> depending on whether the operation succeeded or not.</li>
+<li>Please see the notes <a href='https://nwcourses.github.io/wad/promises.html'>here</a> for more details on creating your own custom promises, specifically the section entitled <strong>"How to implement a promise"</strong>.</li>
+</ul>
+</p>
+<h2>Controllers</h2>
+<p>We can further enhance the modularity of our code through the use of <em>controllers</em>. Controllers are part of the <em>model/view/controller</em> (MVC) architecture, in which we divide the code into three components:
+    <ul>
+    <li>the <em>model</em> - those components which directly interact with the database, i.e. the DAO</li>
+    <li>the <em>view</em> - those components used to <em>present</em> the data (i.e. output the data as JSON or as HTML)</li>
+    <li>the <em>controller</em> - which manages the interaction between the model and the view.</li>
+    </ul>
+<br />
+<img src="../images/mvc.png" alt="MVC architecture" /><br />
+The typical role of a controller would be to communicate with the model (the DAO) to get database results, and then format those results to be presented to the client. Or, alternatively, the controller could gather information from the client and then forward it on to the model (DAO) to insert it into the database.</p>
+<p>Hopefully, from this you may be able to figure out that the <em>router</em> takes the role of the controller. To improve the modularity of your code, however, you can create separate <em>controller objects</em> to represent the controller, and add methods to these objects to carry out the functionality of your router. Then, in your router, you create a controller object and call these methods from each route in the router.</p>
+<p>A good way to organise your project is to have sub-folders within the main folder of your project for routes, controllers and DAOs. These folders could simply be named:
+	<ul>
+	<li><code>routes</code> containing all your route files;</li>
+	<li><code>controllers</code> containing all your controllers;</li>
+	<li><code>dao</code> containing all your DAOs.
+	</ul>
+</p>
+<p>So, if we imagine a student router, within the <code>routes</code> folder:
+<pre>
+const express = require('express');
+const studentRouter = express.Router();
+
+// include our database connection, note that .. means "go up a folder" so the 
+// mysqlconn.js is in the parent folder to the routes folder
+const db = require('../mysqlconn'); 
+
+// assume the StudentController is inside a 'student.js' file within the 
+// 'controllers' folder of the project, as described above
+const StudentController = require('../controllers/student'); 
+
+
+// Create the controller object, and pass in the database connection as an argument
+const sController = new StudentController(db);
+
+// handle get requests to route /id/{id} using the controller's findStudentById() method
+studentRouter.get('/id/{id}', sController.findStudentById.bind(sController));
+
+// handle get requests to route /course/{course} using the controller's findStudentByCourse() method
+studentRouter.get('/course/{course}', sController.findStudentByCourse.bind(sController));
+
+// handle post requests to /create using the controller's addStudent() method
+studentRouter.post('/create', sController.addStudent.bind(sController));
+
+module.exports = studentRouter; // so that main application can use it</pre>
+Note how the router creates a StudentController object, passing the database connection to it (which will be needed by the DAO) and note also how we handle each route with <em>methods of the controller object</em>. One thing you might be asking yourself is: what is the meaning of the "<code>bind()</code>" function? <code>bind()</code> is necessary here to <strong>preserve the context of the <code>this</code> object in callbacks</strong>. By default, the context of <code>this</code> (the current object) is lost in a callback function, and to preserve the context of <code>this</code>, you have to <em>bind</em> the callback to the object you wish to use as <code>this</code> (which will be the controller here). You can read about <code>bind()</code> in more detail <a href='https://nwcourses.github.io/wad/bind.html'>here</a>.</p>
+<p>So, let's look at the Controller object, which would be in the <code>controllers</code> folder:
+<pre>// assume the DAO is in a 'student.js' file within the 
+//'dao' folder of the project, as described above
+const StudentDao = require('../dao/student'); 
+
+class StudentController {
+    constructor(db) {
+        // Create a DAO for communicating with the database
+        this.dao = new StudentDao(db, "students");
+    }
+
+    // findStudentById()
+    // calls the DAO's findStudentById() method, passing the ID parameter to
+    // it, and formats the JSON returned.
+    async findStudentById(req, res) {
+        try {
+            const student = await this.dao.findStudentById(req.params.id);
+            // Remember from the DAO that the promise resolves with null if there are no results
+            if(student == null) {
+                res.status(404).json({error: "No student with that ID"});
+            } else {
+                res.json(student);    
+            }
+        } catch(e) {
+            res.status(500).json({error: e});
+        }
+    }
+
+    // findStudentByCourse()
+    // calls the DAO's findStudentByCourse() method, passing the course parameter to
+    // it, and formats the JSON returned.
+    async findStudentByCourse(req, res) {
+        try {
+             const students = await this.dao.findStudentByCourse(req.params.course);
+            res.json(students);    
+        } catch(e) {
+            res.status(500).json({error: e});
+        }
+    }
+
+    // addStudent()
+    // calls the DAO's addStudent() method, passing in the 'name' and 'course'
+    // POST data to it, and formats the allocated ID as JSON to send back to the client.
+    async addStudent(req, res) {
+        try {
+            const studentId = await this.dao.addStudent(req.body.name, req.body.course);
+            res.json({id: studentId});
+        } catch(e) {
+            res.status(500).json({error: e});
+        }
+    }
+}
+
+module.exports = StudentController; // so that the router can use it</pre>
+Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
+
+<h2>Exercise</h2>
+<p>Rewrite questions 1 to 6 from Topic 8 to use appropriate DAOs and controllers as well as routes. If you do not have topic 8 on its own, and only have topics 8 and 9 together, you may find it helpful to make a copy of topic 9 with the session/login code removed, as that will minimise the chance of complications.</p>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 11: Passport (further reading)</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 11: Passport (further reading)</h1>
+</div>
+<p><strong>Note:</strong> it is unlikely we will have the time to go over these notes in the lecture this week, but I have provided them for further reading, as Passport is one possible way to obtain a higher A in the assignment (also, and more importantly, it's a standard API for doing authentication in node.js so it will be helpful to know it!)</p>
+
+<p>To understand the examples you will need to have read <a href='topic10.html'>topic 10</a> as the examples use DAOs which were introduced in topic 10.</p>
+<hr />
+<h2>Introduction</h2>
+Passport is a Node module which can provide seamless authentication with a range of login providers, including Google, Facebook and the like, as well as local login with the usernames and passwords stored in your own database, as covered in Topic 8. The goal of Passport is to use common code to authenticate with different providers.  In other words, with Passport, it is possible to provide a login system which works with locally-stored usernames and passwords as well as with third-party login providers.</p>
+
+<p>Passport is based around <em>strategies</em>. Each strategy represents a method of logging in with a different provider. So you have strategies for third-party login providers such as Google and Facebook, and you have the <em>local strategy</em> for managing local logins.</p>
+<h2>Using Passport</h2>
+<p>We will only cover the local strategy here in any detail, but the others
+are described at the <a href='http://passportjs.org'>Passport website</a></p>
+<p>To use Passport, you first <code>require()</code> it, as usual for a third-party module:
+<pre>const passport = require('passport');</pre>
+You then import the specific strategy you want to use. This has to be installed as a separate NPM package. For example, to use the local strategy, you would need to install <code>passport-local</code> and use it:
+<pre>const LocalStrategy = require('passport-local').Strategy;</pre>
+You then add each strategy you want to use to Passport, using Passport's <code>use()</code> method. Each strategy defines how the login information is processed. We will examine code for a local strategy shortly.</p>
+<h3>The login route</h3>
+<p>We  will start with a <code>/login</code> route which can be used with
+Passport, as this is the natural place to start in order to understand Passport. However, note that <em>this will not come first in your code</em>. It
+must come <em>after</em> you have setup a strategy.  A commented <code>/login</code> route is provided below. <code>passport</code> is the Passport object, imported as shown above.
+<pre>
+app.post('/login',
+    // call passport's authenticate() method (which is actually middleware)
+    // This will use the appropriate strategy to authenticate the user: the
+    // local strategy is used here as we pass an argument of 'local'. 
+    // The strategy must authenticate the user with the given credentials
+    // and return an object containing the user details on completion.
+    passport.authenticate('local'), 
+
+    // A second item of middleware which actually sends a response back to the
+    // client. This will be called once the strategy has
+    // completed. (We can specify multiple items of middleware as separate
+    // functions when defining a route)
+    (req, res, next) =&gt; {
+        // the strategy code will attach the user details to 'req' as the 
+        // property 'req.user'. More on that below.
+        // Here, we send 'req.user' back to the client as JSON.
+        res.json(req.user); 
+    }
+);
+</pre>
+You are probably thinking: what happens to the username and password within
+the request? This is processed in the <em>strategy</em>. An example of using
+a LocalStrategy is shown below. This code must come <em>before</em> your 
+<code>/login</code> route; it is only presented after it in these notes as it helps understanding of Passport if the <code>/login</code> route is explained before the strategy (because <code>/login</code> will run first).
+<pre>
+// Note that the local strategy will AUTOMATICALLY read fields named 'username'
+// and 'password' from req.body, and will supply them as parameters to the
+// function passed in as an argument to LocalStrategy. So in the code below,
+// 'username' and 'password' will contain the user's login credentials.
+
+passport.use(new LocalStrategy(async(username, password, done)=&gt; {
+    // Imagine we have a user DAO which contains code to query the 'users' table
+    const userDao = new UserDao(db);
+    try {
+        // imagine our user DAO has a method to check the username and password
+        // against the database. It will return an object containing the full 
+        // details of the user (username, user id, admin status) if the 
+        // username and password is correct, or null otherwise.
+        const userDetails = await userDao.login(username, password);
+
+        // If null is returned, call the 'done()' callback with 'false' as
+        // the second argument - to indicate authentication was unsuccessful
+        if(userDetails === null)
+            return done(null, false);
+        } else {
+            // otherwise call the 'done()' callback with the user object as
+            // the second argument. This will be attached to the 'req' 
+            // object as 'req.user'
+            return done(null, userDetails);
+        }
+    } catch(e) {
+        // If there were errors with the database (e.g could not connect to
+        // the database), call 'done()' with the error as the first argument
+        return done(e);
+    }
+}));
+</pre>
+Hopefully you can follow what the strategy is doing from the comments. The
+key thing is that <em>the object passed as an argument to the done() function
+will be attached to the request object <code>req</code> as the <code>user</code> property, i.e. <code>req.user</code></em>. So once the strategy has completed,
+the current user will be accessible via <code>req.user</code>, as we saw in
+the <code>/login</code> route above.</p>
+<h3>Linking Passport to our application</h3>
+<p>We must link Passport to our application as middleware. You need to add
+the following lines to your main app.js:
+<pre>app.use(passport.initialize());
+app.use(passport.session());</pre>
+The first middleware is for initialising Passport, the second for using 
+Passport with sessions (see "Serialisation and deserialisation", below).
+<strong>The <code>app.use(passport.session())</code> must come AFTER initialising <code>express.session</code>, as it relies on sessions having been setup 
+already, but should also come BEFORE any other Passport code.</strong></p>
+<h3>Serialisation and deserialisation</h3>
+<p>OK, we have implemented authentication with a local strategy and saved our
+user in <code>req.user</code>. However, how can we preserve information across
+requests? <code>req.user</code>, being a property of the request object, only
+has a lifetime within the current request. To preserve the user across multiple
+requests, we need to make use of sessions and <em>serialisation</em>/<em>deserialisation</em>.  We define <em>serialisation</em> and <em>deserialisation</em> functions which save and restore login information within <code>req.session</code> (i.e. as a session variable) across requests. </p>
+<p>
+Typically we do not need to preserve <em>all</em> the user information in the session, just enough to identify the user - so the user ID will be fine.  
+<pre>
+// this defines how the user details are serialised to req.session so that they 
+// are remembered on the next request. Here, we are serialising the user as 
+// the user ID, as the ID is sufficient information to uniquely identify the user. 
+// The parameter 'userDetails' is the information contained within 'req.user'
+
+passport.serializeUser((userDetails, done) =&gt; {
+    done(null, userDetails.id);
+});
+
+// this defines how the user details are deserialised. When we make a new
+// request, we deserialise the user from the session by taking the ID (from the
+// session) and looking up the full details of the user again.
+passport.deserializeUser(async(userid, done) =&gt; {
+    try {
+        const userDao = new UserDao(db);
+
+        // use the DAO to find the full user details from the user ID.
+        const details = await userDao.findById(userid);
+
+        // call "done()" with the full details. This will result in the details
+        // being attached to the "req" object as "req.user".
+        done(null, details);
+    } catch(e) {
+        done(e);
+    }
+});
+</pre>
+</p>
+<h2>Using another strategy</h2>
+<p>Passport makes it easy to implement multiple strategies in the same application, which can be selected based on the argument passed to <code>passport.authenticate()</code>. I will not go into any detail as to how to implement strategies other than the local strategy, but I will show you a snippet of code making use of another strategy - the OpenStreetMap strategy - which allows you to login to a site using your <a href='https://openstreetmap.org'>OpenStreetMap</a> login details:
+<pre>
+passport.use(new OpenStreetMapStrategy({ 
+    //OpenStreetMap options (omitted)...
+}, (token, tokenSecret, profile, done) {
+    // OpenStreetMap authentication callback function...
+    return done (null, { id: profile.id, username: profile.displayName  } );
+});
+</pre>
+I will not describe the OpenStreetMap strategy in any detail but you should
+take note of the similarities to the local strategy. You will
+notice that it takes a callback function which runs when the user has 
+authenticated with OpenStreetMap. The <code>profile</code> object contains an
+<code>id</code> field with the user's OpenStreetMap ID, and a <code>displayName</code> field with the
+user's name, which can be placed in an object and passed to
+<code>done()</code> in the same way as the local strategy. This object will
+then be stored in <code>req.user</code>, as before.</p>
+<p>Then, you could setup an OpenStreetMap login route to use the strategy:
+<pre>
+app.post('/osm/login',
+    passport.authenticate('openstreetmap'); // use OpenStreetMap strategy
+});
+</pre>
+</p>
+<h2>Documentation</h2>
+<p>See the official documentation <a href='http://www.passportjs.org/docs/'>here</a>.</p>
+<h2>Exercise</h2>
+<p>Rewrite your login system from Topic 9 to use Passport, storing the user's ID, username and admin status inside <code>req.user</code>.</p>
+</body>
+</html>
