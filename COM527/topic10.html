@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 10: Fragments</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 10</h1>
+<h1>Introduction to Fragments</h1>
+</div>
+
+
+<h2>Introduction - the need for fragments</h2>
+
+<p>Originally, Android ran primarily on phones, and the model of a main activity for the main screen, followed by sub-activities
+for lists, preferences, and so on, worked well. However, after a while, Android tablets with larger screens started appearing. For tablets, having
+to navigate to a separate activity to choose one of a list of options, or to set preferences, is a little wasteful in terms of time: would it not be better for a tablet if the main activity and sub-activities shared screen space?
+For example, in an app which shows local restaurants, you could have a map on the main part of the screen and a sidebar containing a list
+allowing the user to select restaurant types (Chinese, Indian, etc). By contrast, on a phone the same app could have just the map on the 
+main screen and the list of restaurant types as a separate activity.</p>
+
+<p>So the question is, how can we do this? How can we develop an app in which two activities are on the main screen on a tablet, but on separate
+screens on a phone? The first thing to realise is that <em>we can never have more than one activity per screen</em>, so we cannot simply
+have two activities side by side. 
+Instead, we do this through the use of <em>fragments</em>. A <em>fragment</em> is a sub-section of an activity which performs a 
+specific job. So on the tablet, our main activity would contain two fragments (map and list) while on the phone, we would have two separate
+activities, each with <em>one</em> fragment (either the map or the list).</p>
+
+<p>This is illustrated in the diagrams below.</p>
+
+<h3>Phone layout</h3>
+<p><img src="../images/phonelayout.png" alt="Phone layout - two separate activities, each with own fragment" /></p>
+
+<h3>Tablet layout</h3>
+<p><img src="../images/tabletlayout.png" alt="Tablet layout - one activity with two side-by-side fragments" /></p>
+
+<h3>Landscape vs. portrait</h3>
+
+<p>The use of fragments is not restricted to tablets. Even if we are only interested in phones, in landscape mode
+we might be able to fit two side-by-side fragments into the activity, while in portrait mode we would have to use two activities each with their own fragment.
+Because you may not have access to a tablet, the examples will involve using a one-activity two-fragment layout in landscape mode and a
+two-activity one-fragment-per-each layout in portrait mode. However the principles apply equally to phone vs. tablet.</p>
+
+<h3>Dynamically swapping sections of the user interface</h3>
+<p>Another common use of fragments is to <em>dynamically swap areas of screen content</em>. For example, in a music database application, the main activity could by default contain a fragment to allow the user to search for music. When the user selects a menu option, this fragment could be dynamically swapped for another fragment to allow the user to <em>add</em> a new song.</p>
+
+<h2>Developing fragment-based apps</h2>
+
+<p>We will do some work on fragments this week, and more next week. Today,
+we will focus on <em>dynamically swapping sections of the user interface</em> and next week we will look at how we can send information between fragments.</p>
+
+<h3>Navigation Drawer</h3>
+<p>Before we look at fragments we will take a look at the <em>navigation drawer</em>. The navigation drawer is part of <em>material design</em>: a series of user interface guidelines for Android and web apps drawn up by Google. Material design comes with a series of standard components, of which the navigation drawer is one. The navigation drawer is a component allowing a "slide-out" menu from typically the left of the screen. A common pattern in fragment-based applications is to have menu options on a navigation drawer which swap one fragment for another.</p>
+<o>Credit: <a href="https://guides.codepath.com/android/fragment-navigation-drawer">this article</a> was used to draw up these notes.</p>
+<h4>How to create a navigation drawer</h4>
+<ul>
+<li>
+To create a navigation drawer, you need to use a DrawerLayout for your top-level layout</li>
+<li>,To this, you add a layout element for your main UI and also a NavigationView object
+</li>
+<li>The NavigationView represents your navigation drawer.</li>
+<li>For example:
+<pre>
+&lt;androidx.drawerlayout.widget.DrawerLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+
+    &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity"&gt;
+
+   
+    ... MAIN ACTIVITY LAYOUT GOES HERE ...
+
+    &lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+
+    &lt;com.google.android.material.navigation.NavigationView
+        android:id="@+id/nv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/menu" /&gt;
+
+&lt;/androidx.drawerlayout.widget.DrawerLayout&gt;</pre>
+</li>
+
+
+<li>The layout_gravity specifies that the drawer will appear on the left hand side (or right for languages that read from right to left)</li>
+<li>Note how we link the NavigationView to a menu with the app:menu property. Here we are specifying that the NavigationView will use the menu.xml file. The menu can either be the
+same as the toolbar or an entirely different menu.</li>
+
+</ul>
+<h4>Handling a NavigationView selection</h4>
+<ul>
+<li>To handle the user selecting items in the navigation view, you have to use different code to regular menu handling with onOptionsItemSelected().</li>
+<li>You have to set up a <em>NavigationItemSelectedListener</em> and override
+<em>onNavigationItemSelected()</em>, though due to SAM conversions you can use a lambda:
+<pre> nv.setNavigationItemSelectedListener {
+            when(it.itemId) {
+                R.id.item1 -&gt; { ... }
+                R.id.item2 -&gt; { ... }
+                else -&gt;  { ... }
+            }
+            true // can omit "return" in lambdas
+        }
+           </pre>
+</li>
+</ul>
+<h4>NavigationDrawer and Fragments</h4>
+<ul>
+<li>
+A common approach is to combine the NavigationDrawer with fragments, so that the user can navigate between different subsections of the app without having to move to a new Activity. Each subscreen has its own Fragment and when the user selects a particular item in the Navigation Drawer, the fragment showing in the main activity is replaced by another.
+</li>
+<li>To do this, you need to make the main area of your layout a 
+    <em>FrameLayout</em>.</li>
+<li> A FrameLayout is a layout designed for holding other components, such as fragments. An example of such a layout is below, note the FrameLayout within the constraint layout:
+
+<pre>androidx.drawerlayout.widget.DrawerLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+
+    &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity"&gt;
+
+    &lt;FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/frameLayout1"/&gt;
+
+    &lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+
+    &lt;com.google.android.material.navigation.NavigationView
+        android:id="@+id/nv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/menu" /&gt;
+
+&lt;/androidx.drawerlayout.widget.DrawerLayout&gt;</pre>
+</li>
+</ul>
+<p>Each entry in the Navigation Drawer should make a particular
+fragment appear in the FrameLayout when selected. To do this we will make use
+of <em>fragment transactions</em>, described below. Before we do this, we
+will discuss how to code a simple Fragment. The Fragment would be in a separate
+class, entirely separate to the main activity.</p>
+<h3>Coding a fragment</h3> 
+<p>Here is a simple example of code for a Fragment; note that the <em>onCreateView()</em> method is used to set the UI of a fragment by inflating a layout (<em>frag1.xml</em> here). So whatever is in <em>frag1.xml</em> would become the fragment's layout.
+<pre>
+import androidx.fragment.app.Fragment
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+class Frag1 : Fragment() {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater?.inflate(R.layout.frag1, container, false)
+    }
+}</pre>
+</li>
+<p>Note how we use a <code>LayoutInflater</code> to inflate the XML layout described in <em>frag1.xml</em> into a <em>View</em> object, which becomes the fragment's View. Note also the "false" passed in as the third parameter to inflate().  This indicates that we should not automatically attach the fragment to its parent.  In this example, we will attach fragments programmatically when the user selects navigation drawer items, so we do not want to attach the fragment to its parent.</p>
+<h3>Fragment transactions</h3>
+<p>We will now return to replacing the fragment inside the FrameLayout with
+another. We use a <em>fragment transaction</em> for this.  The code below shows how you can replace the contents of the FrameLayout using a fragment transaction. Imagine we have two fragment classes, <code>Frag1</code> and <code>Frag2</code>, and we want to swap between these two fragments when the user selects the appropriate menu items in the navigation drawer:
+<pre>val frag1 = Frag1() // create instance of fragment 1
+val frag2 = Frag2() // create instance of fragment 2
+nv.setNavigationItemSelectedListener {
+            try {
+                val frag = if (it.itemId == R.id.item1) frag1 else frag2 
+                drawerLayout.closeDrawers()
+                supportFragmentManager.beginTransaction().replace(R.id.frameLayout1, frag).commit()
+
+                true
+            } catch(e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }</pre>
+</li>
+<li>Note how we create instances of both fragment classes, <code>Frag1</code> and <code>Frag2</code>, and use the fragment manager to replace the contents of the frame layout with the selected fragment.</li>
+<li>Also note how we close the drawer with <em>drawerLayout.closeDrawers()</em></li>
+<li>Note also that, when the activity <em>first runs</em>, you need to perform
+a fragment transaction to fill the initial empty FrameLayout with
+whichever fragment you want to appear by default</li>
+<li>This is shown on the full example on the next page</li>
+</ul>
+<h3>Full navigation drawer layout example with fragment transactions</h3>
+<pre>package com.example.navdrawerapp
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val nv = findViewById&lt;NavigationView&gt;(R.id.nv)
+        val drawerLayout = findViewById&lt;DrawerLayout&gt;(R.id.drawerLayout)
+
+        val frag1 = Frag1()
+        val frag2 = Frag2()
+
+        nv.setNavigationItemSelectedListener {
+            try {
+                val frag = if (it.itemId == R.id.item1) frag1 else frag2 
+                drawerLayout.closeDrawers()
+                supportFragmentManager.beginTransaction().replace(R.id.frameLayout1, frag).commit()
+
+                true
+            } catch(e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+        // Fill the FrameLayout with fragment 1 by default
+        try {
+            supportFragmentManager.beginTransaction().replace(R.id.frameLayout1, frag1).commit()
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}</pre>
+
+</p>
+<h3>Which dependencies should be included?</h3>
+<p>To work with the above example you need to include the following dependency, which includes the Material Design components:
+<pre>implementation 'com.google.android.material:material:1.3.0'</pre>
+</p>
+<h2>Exercise</h2>
+<p>Return to your Room database application (week 7) and modify to use fragments. Change your activity to use a DrawerLayout and a navigation drawer. There
+should be two fragments, of which only one should be visible at a time. Each
+fragment will need its own XML layout (separate from the main activity layout). So you will need:
+<ul>
+<li>a main activity;</li>
+<li>the main activity XML layout, with DrawerLayout and navigation drawer;</li>
+<li>two fragment classes;</li>
+<li>two fragment XML layouts, one for each fragment.</li>
+</ul>
+</p>
+<p>Do the following:
+<ul>
+<li>One fragment should allow allow the user to search. The user should be able to search by artist (use an EditText in the fragment's layout), and when a button is pressed, all the search results should appear in a TextView below the EditText. This fragment should appear when the activity is first created.</li>
+<li> the second fragment should allow the user to enter a new song. The fragment's layout should be fields for song, artist and year and when a button is pressed, the song should be added to the database.</li>
+</ul>
+Use menu items in the navigation drawer to select which fragment will appear.</p>
+<p>To access elements of a fragment layout, you need to use <code>findViewById()</code> on the fragment's <em>view</em> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. For example, from within the MainActivity, this code would find the EditText with the ID of <code>et1</code> within <code>frag1</code>.
+<pre>
+// the fragment's view may be null, that's why we use the null-safety operator and apply()
+frag1.view?.apply {
+    // inside the apply(), 'this' refers to frag1.view
+    val et1 = this.findViewById&lt;EditText&gt;(R.id.et1)
+    // ... etc
+}
+</pre>
+</p>
+</body>
+</html>
