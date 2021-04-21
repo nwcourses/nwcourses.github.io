@@ -266,10 +266,11 @@ fragment will need its own XML layout (separate from the main activity layout). 
 <li> the second fragment should allow the user to enter a new song. The fragment's layout should be fields for song, artist and year and when a button is pressed, the song should be added to the database.</li>
 </ul>
 Use menu items in the navigation drawer to select which fragment will appear.</p>
-<p>To access elements of a fragment layout, you need to use <code>findViewById()</code> on the fragment's <em>view</em> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. For example, from within the MainActivity, this code would find the EditText with the ID of <code>et1</code> within <code>frag1</code>.
+<p>To access elements of a agment layout, you need to use <code>findViewById()</code> on the fragment's <em>view</em> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. For example, from within the MainActivity, this code would find the EditText with the ID of <code>et1</code> within the current fragment.</p>
+<p>This code should go <strong>inside the onActivityCreated() method of your fragment.</strong> Please see the video recording on Teams (labelled Week10_PLEASE_WATCH_THIS...) for more details. Only in <code>onActivityCreated()</code> will the fragment and activity be fully initialised. Inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
 <pre>
 // the fragment's view may be null, that's why we use the null-safety operator and apply()
-frag1.view?.apply {
+view?.apply {
     // inside the apply(), 'this' refers to frag1.view
     val et1 = this.findViewById&lt;EditText&gt;(R.id.et1)
     // ... etc
