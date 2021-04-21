@@ -267,13 +267,17 @@ fragment will need its own XML layout (separate from the main activity layout). 
 </ul>
 Use menu items in the navigation drawer to select which fragment will appear.</p>
 <p>To access elements of a agment layout, you need to use <code>findViewById()</code> on the fragment's <em>view</em> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. For example, from within the MainActivity, this code would find the EditText with the ID of <code>et1</code> within the current fragment.</p>
-<p>This code should go <strong>inside the onActivityCreated() method of your fragment.</strong> Please see the video recording on Teams (labelled Week10_PLEASE_WATCH_THIS...) for more details. Only in <code>onActivityCreated()</code> will the fragment and activity be fully initialised. Inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
+<p>The code to access the layout should go <strong>inside the onActivityCreated() method of your fragment.</strong> Please see the video recording on Teams (labelled <code>Week10_PLEASE_WATCH_THIS...</code>) for more details. Only in <code>onActivityCreated()</code> will the fragment and activity be fully initialised; before this the fragment's view may be null which means you cannot access the UI elements. Inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
 <pre>
-// the fragment's view may be null, that's why we use the null-safety operator and apply()
-view?.apply {
-    // inside the apply(), 'this' refers to frag1.view
-    val et1 = this.findViewById&lt;EditText&gt;(R.id.et1)
-    // ... etc
+// In your fragment
+override fun onActivityCreated(savedInstanceState: Bundle) {
+    // the fragment's view is nullable, that's why we use the null-safety 
+    // operator and apply()
+    view?.apply {
+        // inside the apply(), 'this' refers to the view
+        val et1 = this.findViewById&lt;EditText&gt;(R.id.et1)
+        // ... etc
+    }
 }
 </pre>
 </p>
