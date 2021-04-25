@@ -249,6 +249,22 @@ class MainActivity : AppCompatActivity() {
 <p>To work with the above example you need to include the following dependency, which includes the Material Design components:
 <pre>implementation 'com.google.android.material:material:1.3.0'</pre>
 </p>
+<h3>Accessing elements within the fragment layout</h3>
+<p><em>The next section has been <strong>updated</strong> to reflect very recent (February 21) changes in the Android API. In particular, the use of <code>onActivityCreated()</code> has been replaced by <code>onViewCreated()</code>.</em></p>
+<p>To access elements of a fragment layout, you need to use <code>findViewById()</code> on the fragment's <code>view</code> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. </p>
+<p>The code to setup event handling the elements of the fragment's layout should go <strong>inside the onViewCreated() method of your fragment.</strong> Only in <code>onViewCreated()</code> will the fragment and activity be fully initialised; before this the fragment's view may be null which means you cannot access the UI elements. <code>onViewCreated()</code> takes the fragment's View as an argument, so you can use this to access the View inside this method.</p>
+<p>Here is an example, which sets up an event handler for the button in <code>onViewCreated()</code>: 
+<pre>// In your fragment
+override fun onViewCreated(fragmentView: View) {
+    val btn1 = fragmentView.findViewById&lt;EditText&gt;(R.id.btn1)
+    btn1.setOnClickListener {
+        val et1 = fragmentView.findViewById&lt;EditText&gt;(R.id.et1)
+        // ... do something with the contents of the edit text
+    }
+}</pre>
+</p>
+<h3>Accessing the activity within the fragment</h3>
+<p>A fragment may use functionality that needs an activity passed in as an argument, e.g. it may need to create an AlertDialog or a Toast, or interact with a database. This is easily obtained: inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
 <h2>Exercise</h2>
 <p>Return to your Room database application (week 7) and modify to use fragments. Change your activity to use a DrawerLayout and a navigation drawer. There
 should be two fragments, of which only one should be visible at a time. Each
@@ -266,20 +282,5 @@ fragment will need its own XML layout (separate from the main activity layout). 
 <li> the second fragment should allow the user to enter a new song. The fragment's layout should be fields for song, artist and year and when a button is pressed, the song should be added to the database.</li>
 </ul>
 Use menu items in the navigation drawer to select which fragment will appear.</p>
-<p>To access elements of a agment layout, you need to use <code>findViewById()</code> on the fragment's <em>view</em> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. For example, from within the MainActivity, this code would find the EditText with the ID of <code>et1</code> within the current fragment.</p>
-<p>The code to access the layout should go <strong>inside the onActivityCreated() method of your fragment.</strong> Please see the video recording on Teams (labelled <code>Week10_PLEASE_WATCH_THIS...</code>) for more details. Only in <code>onActivityCreated()</code> will the fragment and activity be fully initialised; before this the fragment's view may be null which means you cannot access the UI elements. Inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
-<pre>
-// In your fragment
-override fun onActivityCreated(savedInstanceState: Bundle) {
-    // the fragment's view is nullable, that's why we use the null-safety 
-    // operator and apply()
-    view?.apply {
-        // inside the apply(), 'this' refers to the view
-        val et1 = this.findViewById&lt;EditText&gt;(R.id.et1)
-        // ... etc
-    }
-}
-</pre>
-</p>
 </body>
 </html>

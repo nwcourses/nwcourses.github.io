@@ -92,6 +92,10 @@ strong
 	font-style: normal;
 }
 
+em > strong {
+	background-color: #e0ffc0;	
+    color: #004000;
+}
 
 
 
