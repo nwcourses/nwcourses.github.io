@@ -184,11 +184,11 @@ const StudentController = require('../controllers/student');
 // Create the controller object, and pass in the database connection as an argument
 const sController = new StudentController(db);
 
-// handle get requests to route /id/{id} using the controller's findStudentById() method
-studentRouter.get('/id/{id}', sController.findStudentById.bind(sController));
+// handle get requests to route /id/:id using the controller's findStudentById() method
+studentRouter.get('/id/:id', sController.findStudentById.bind(sController));
 
-// handle get requests to route /course/{course} using the controller's findStudentByCourse() method
-studentRouter.get('/course/{course}', sController.findStudentByCourse.bind(sController));
+// handle get requests to route /course/:course using the controller's findStudentByCourse() method
+studentRouter.get('/course/:course', sController.findStudentByCourse.bind(sController));
 
 // handle post requests to /create using the controller's addStudent() method
 studentRouter.post('/create', sController.addStudent.bind(sController));
