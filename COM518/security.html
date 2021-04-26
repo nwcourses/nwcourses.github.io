@@ -31,7 +31,7 @@ grab confidential data, or even modify or delete a table!</li>
 <li>e.g. if we had code such as the following:
 <pre>
 ... connect to database ...
-dbconn.query(`select * from details where name={req.params.name}`, ...);
+dbconn.query(`select * from details where name='{req.params.name}'`, ...);
 </pre>
 </li>
 <li>If the user entered in the form the following:
@@ -47,7 +47,7 @@ with potentially devastating results!!!</li>
 <ul>
 <li>Imagine a login script to a banking site with code such as that below, which displays your card details:
 <pre>
-dbconn.query(`SELECT * FROM users where username={req.body.username} AND password={req.body.password}`, [ ], (err, results, fields) =&gt; {
+dbconn.query(`SELECT * FROM users where password='{req.body.password}' AND username='{req.body.username}'`, [ ], (err, results, fields) =&gt; {
     html = "";
     results.forEach ( result =&gt; {
         html += `Credit card: ${result.creditcard} Expiry date: ${result.expiry}&lt;br /&gt;`;
