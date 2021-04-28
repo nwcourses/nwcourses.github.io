@@ -240,7 +240,7 @@ override fun onCreate (savedInstanceState: Bundle?)
 // in PersonEntryFragment
 public class PersonEntryFragment : Fragment()
 {
-    val callback: ((String) -&gt; Unit)?
+    var callback: ((String) -&gt; Unit)? = null
 
     override fun onCreateView (inflater: LayoutInflater,  parent: ViewGroup?, savedInstanceState: Bundle?): View?
     {
