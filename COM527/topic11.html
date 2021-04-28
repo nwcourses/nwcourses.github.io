@@ -249,7 +249,7 @@ public class PersonEntryFragment : Fragment()
 
     // when the view has been created, add the event listener to the button, so
     // the callback is called when it's clicked
-    override fun onViewCreated(v: View) {
+    override fun onViewCreated(v: View, b: Bundle?) {
 
         val btnGo = v.findViewById(R.id.btnGo) as Button
         val etPersonName = v.findViewById(R.id.etPersonName) as EditText

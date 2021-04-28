@@ -255,7 +255,7 @@ class MainActivity : AppCompatActivity() {
 <p>The code to setup event handling the elements of the fragment's layout should go <strong>inside the onViewCreated() method of your fragment.</strong> Only in <code>onViewCreated()</code> will the fragment and activity be fully initialised; before this the fragment's view may be null which means you cannot access the UI elements. <code>onViewCreated()</code> takes the fragment's View as an argument, so you can use this to access the View inside this method.</p>
 <p>Here is an example, which sets up an event handler for the button in <code>onViewCreated()</code>: 
 <pre>// In your fragment
-override fun onViewCreated(fragmentView: View) {
+override fun onViewCreated(fragmentView: View, b: Bundle?) {
     val btn1 = fragmentView.findViewById&lt;EditText&gt;(R.id.btn1)
     btn1.setOnClickListener {
         val et1 = fragmentView.findViewById&lt;EditText&gt;(R.id.et1)
