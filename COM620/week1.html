@@ -1,410 +1,294 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1topic1javascriptmodules">Week 1 Topic 1 - JavaScript Modules</h1>
-<p>In this topic we will introduce <em>JavaScript modules</em> and also look at how
-<em>bundlers</em> such as <em>Webpack</em> can make our life easier. We will also take
-a look at the <code>npm</code> package management tool and how it can make installing
-third-party dependencies easier.</p>
-<h2 id="why">Why?</h2>
-<p>This topic is necessary to understand contemporary JavaScript development
-practice.</p>
-<h2 id="introductionwhyaremodulesneeded">Introduction - Why are modules needed?</h2>
-<p>You have already done some JavaScript, in Developing for the Internet (where
-we did some AJAX) and also in Internet Technology. However, so far, we have
-not created any large, complex JavaScript applications. So far, the approach
-has been to save your JavaScript in an external <code>.js</code> file, and include it
-into your HTML, e.g.</p>
-<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
-</code></pre>
-<p>However, when writing larger and more complex JavaScript applications (such as those we will write in this module), you will find that this approach will quickly become difficult to manage, as you will write multiple JavaScript files and have to include <em>each one</em> in your HTML, for example:</p>
-<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script2.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script3.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script4.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script5.js'&gt;&lt;/script&gt;
-</code></pre>
-<p>As can be seen, this quickly becomes quite unmanageable and makes your
-HTML code very messy. Furthermore, many websites rely on <em>third party</em>
-JavaScript libraries - such as A-Frame, the VR and AR library we will be using
-in this module. These have to be included too, for example here we are including A-Frame as well as 5 of our own JavaScript files:</p>
-<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script2.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script3.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script4.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='script5.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-</code></pre>
-<p>Hopefully you can see that for a complex web application with many JavaScript files, you'll end up with half your HTML code being links to external script files!</p>
-<h3 id="abetterwaymodules">A better way: modules</h3>
-<p>Clearly another way is needed and luckily there is one: the JavaScript <em>module</em>. A module is a reusable piece of JavaScript which can be <em>imported</em> into other JavaScript files. There have been various approaches to modules;</p>
-<ul>
-<li><p><em>CommonJS modules</em>. This was the first widespread approach to using modules, and is still widespread today because it is the main approach taken by the server-side JavaScript environment <em>Node.js</em>. It can also be used in the browser through the use of a <em>bundling tool</em>, see below, and indeed is stil widely used in a browser environment.</p></li>
-<li><p><em>ECMAScript 6 modules</em> ("ECMA6 modules"). This approach is part of the recent ECMAScript 6 standard, a major revision to the ECMAScript specification which forms the basis of JavaScript. Unlike CommonJS modules, ECMAScript 6 modules are supported <em>natively by the browser</em> and do not require third-party tools to process. However, support has only recently been added to browsers, and similarly, support has only recently been added to Node.js, so uptake of ECMA6 modules has been slow. Additionally, much code has been already written with CommonJS modules, necessitating conversion of CommonJS to ECMA6.</p></li>
+<html>
+<head>
+<title>Immersive Technologies - Topic 1</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h2>Topic 1: Introduction to OpenGL and three.js</h2>
+</div>
+<hr />
+<h2>Developing 3D Graphics in the Browser</h2>
+<p>The key to developing immersive applications on the web is rendering <em>3D graphics</em> (such as shapes and 3D models) in the browser. 
+To develop 3D applications you use a 3D graphics library. 
+There are two commonly used 3D graphics libraries:
+</p><ul>
+<li><em><a href='https://opengl.org'>OpenGL</a></em> is the standard cross-platform API for 3D graphics. OpenGL was originally written in C and 
+has been around since 1992, and was originally used on high-performance Unix
+workstations provided by companies such as Silicon Graphics. Later it was
+ported to other desktop environments such as Windows, Linux and the Mac - and later to mobile phone platforms such as Android and iOS as well as the web.</li>
+<li><em>Direct3D</em> - Microsoft's solution to 3D programming, which is Windows only.</li>
 </ul>
-<p>However, because they are now becoming mainstream and are supported by up-to-date browsers (and you should be using an up-to-date browser, otherwise it's a security risk) we will use them here.</p>
-<h2 id="anexampleecmascript6module">An example ECMAScript 6 module</h2>
-<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module.</p>
-<pre><code class="javascript language-javascript">function sayHello(name) {
-    console.log(`Hello ${name}!`);
-}
+<h3>OpenGL and WebGL</h3>
+<p>As mentioned above, OpenGL is also available for the web in the form of <em>WebGL</em>. In 2009, with increasing interest in full-featured, "desktop-like" web applications, WebGL arrived and allowed development of 3D graphical applications in the web browser using JavaScript. It has been supported in Firefox, for instance, since version 4.</p>
+<p>WebGL makes use of a form of OpenGL known as <em>OpenGL ES</em>. OpenGL ES is optimised for devices with limited resources, such as mobile devices (although these days many mobile devices have capabilities comparable with traditional desktop machines!) OpenGL ES programming is slightly different to standard OpenGL: it is somewhat more complex but more efficient. OpenGL ES is also used on Android.</p>
+<h3>Higher-level libraries: three.js and A-Frame</h3>
+<p>WebGL, however, is a very low-level programming API, and producing even
+code to show one single 2D triangle on the screen (never mind a 3D shape)
+is rather complex. For this reason, other, higher-level libraries are typically used when doing 3D development for the web;
+	<ul>
+	<li>First, <a href="https://threejs.org">three.js</a>. three.js arrived on the scene soon after WebGL. three.js hides a lot of the low level details needed to create a 3D scene, allowing you to create and manipulate 3D shapes
+with higher-level code. However you still need to manage certain aspects of
+your application yourself, such as responding to key presses and updating the
+user's position within the 3D world. <strong>We will start looking at three.js this week.</strong></li>
+	<li><a href='https://aframe.io'>A-Frame</a> is an even higher-level framework for 3D web development, in which we define our 3D objects (shapes, models and so on) as <em>entities</em>. It comes with components to perform common tasks (such as movement and rotation) automatically. Once we have learnt the fundamentals of 3D development with three.js, we will look at A-Frame.</li>
+	</ul>
+</p> 
+<h2>The OpenGL coordinate system</h2>
+<p>Having examined the background behind web 3D graphics, we will now look at some of the fundamental principles of OpenGL development, specifically the coordinate system. Because OpenGL is a 3D graphics API, all shapes we draw need to be specified with three coordinates: x, y and z. In the default OpenGL view, <em>x</em> represents the horizontal axis, <em>y</em> represents the vertical axis and <em>z</em> represents the depth axis:
+	<ul>
+	<li><em>x</em> increases left to right, as for standard 2D graphics;</li>
+	<li><em>y</em> increases <em>upwards</em>.  This is different to the situation in 2D computer graphics, where y increases downwards - but is the same as in standard maths.</li> 
+	<li>You can think of the <em>z</em> axis as pointing out at you from the screen, so that positive z coordinates are "in front of the screen" and negative z coordinates are "into the screen". The <em>z</em> coordinate is used to give a sense of depth, so that shapes with negative z will appear smaller and smaller as z becomes more and more negative.</li>
+	<li>The <em>origin</em>, where x=0, y=0 and z=0, is in the centre of the screen on the surface of the screen. So areas to the left of the centre of the screen will have negative x, and areas to the right of the screen will have positive x. Likewise, areas above the centre of the screen will have positive y, and areas below the centre of the screen will have negative y. As we saw above, shapes with negative z will appear further and further "back" within the scene as z becomes more and more negative. Because the default view is facing towards negative z, any shapes with <em>positive</em> z will be invisible by default, unless we rotate the default view 180 degrees.</li>
+	</ul>
 
-function square(n) {
-    return n * n;
-}
-
-export { sayHello, square };
-</code></pre>
-<p>Note how this module contains two functions, <code>sayHello()</code> and <code>square()</code>, which display a greeting and calculate the square of a number, respectively. However the interesting thing is the statement at the end:</p>
-<pre><code class="javascript language-javascript">export { sayHello, square };
-</code></pre>
-<p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>module1.js</code>.</p>
-<p>A couple of other syntax points here, which you may not have encountered before:</p>
+This is shown in the diagram below. </p>
+<p><img src="../images/defaultview.png" alt="OpenGL default view"></p>
+<h3>World and eye coordinates</h3>
+<p>The coordinate system referred to above, with the origin at the centre of the screen, is known as the <em>eye coordinate</em> system because the coordinates are with respect to the user's current view of the world. However, if we are developing a game or an augmented-reality application, we want to give our objects (e.g. game characters, augmented reality content such as Pokemon or points of interest) <em>absolute coordinates</em> within our 3D world. These will not be with respect to the user's current view of the scene, but with respect to the <em>world</em> as a whole, where the <em>world origin</em> might be some specific geographical point, such as the equator or the central room in a game. These objects will be either visible or invisible to the user, depending on where exactly the user is within the world and what direction they are facing. Because we want to place these objects at specific positions within the world, we give them <em>world coordinates</em> - absolute coordinates within the world.</p>
+<p>However, the <em>eye</em> coordinates of each object, with respect to the centre of the screen, might be different to the world coordinates. Imagine the origin of the 3D world is the central room in a 3D game. We might not be at that position in the world, we might be in a completely different room, and furthermore, we might not be looking down the negative z-axis as in the default view.  We might be looking in a direction aligned at 45 degrees to both the x and z axes. Additionally, we might be on a slope, in which case, the up direction does not correspond to the y axis.</p>
+<p>The eye coordinate (0,0,0) is always the
+centre point of the viewport (screen), even if this is not the origin within 
+our world. </p>
+<h3>The camera</h3>
+<p>In many 3D applications, we want to allow the user to navigate through a 3D world. Examples might be the player in a game, or a user navigating the real world in an augmented-reality app. In this case, we define the objects making up the world (which might include 3D buildings, terrain, points of interest, etc) in our code as world coordinates. We then define a <em>camera</em>, which represents the user's position in the world and the direction in which they are facing. Such a camera would have a set of world coordinates defining its position within the world, as well as a rotation. Such a camera, representing the user's position, is known as a <em>first-person camera</em>; other types of camera also exist which present a view of the world from the perspective of something other than the user (e.g. from the perspective of a certain room in a game, or a non-player character).</p>
+<p>The <em>world coordinates</em> of the camera would vary, as the camera moves round the world. However, because a first-person camera represents the user's position, its <em>eye coordinates</em> will <em>always</em> be x=0, y=0, z=0.</p>
+<h4>Translating and rotating the camera</h4>
+<p>As seen above, the camera has a position and rotation. In more detail, it has: 
+	<ul>
+	<li>A defined position in the world (cx, cy, cz), as world coordinates;</li>
+	<li>A defined set of <em>rotations</em> about each of the three axes in our
+	world (x, y and z)</li>
+	</ul>
+By default, the camera is placed at the world origin (cx=0, cy=0, cz=0) and 
+faces negative z. In this default position, world coordinates are equal to
+eye coordinates. However we can move the camera around the world (e.g. a
+player moving around in a game) and rotate it so it faces a direction other 
+than negative z. The diagram below (which ignores y coordinates, for 
+simplicity, in other words it shows the <em>xz-plane</em> - the flat surface on which every point has y=0) illustrates two such operations:
+	<ul>
+	<li>Firstly, the camera is translated so that it is at position cx=0, cz=+2;
+	</li>
+	<li>Secondly, the camera is rotated by 90 degrees anticlockwise.</li>
+	</ul>
+</p>
+<p>
+<img src="../images/world_and_eye_coords.png" alt="Moving a camera around, showing the relation between world and eye coordinates" />
+</p>
+<p>We are going to examine how the <em>eye coordinates</em> of points A and B
+change as we move the camera.
+	<ul>
+	<li>Initially, the eye coordinates of A and B are equal to their world
+	coordinates, as the camera is at the default position;</li>
+	<li>When we move the camera to cx=0, cz=+2, the <em>difference in z
+	coordinates between the camera and the two points increases from 2 to 4.</em>. In other words, <em>with respect to the camera</em>, or in <em>eye coordinates</em> A and B both have z coordinates of -4. The camera is at cz=+2, and still facing negative z, so points A and B both have z coordinates of -4 as they are both in front of the camera and four units away in the <em>z</em> direction. The <em>world</em> z coordinates of A and B, by contrast, are still -2: world coordinates do not change unless the objects move to a different position within the world (e.g. a monster moving in a game)</li>
+	<li>We then <em>rotate</em> the camera by 90 degrees anticlockwise. This is done <em>around the y-axis</em> as shown in the diagram below:
+<br />
+<img src="../images/plane.png" alt="xz-plane and rotating around the y-axis" />
+<br />By doing this, the camera is now facing <em>-x</em> in <em>world</em> coordinates. However, in <em>eye</em> coordinates, the camera is still facing -z, as it always does this by definition.</li>
+	<li>As a result, A and B are now both to the <em>right</em> of the camera, rather than in front of it. They are still both 4 units away from the camera, as the camera <em>position</em> has not changed (only its rotation), but since they are 4 units <em>to the right</em> of the camera (rather than in front), the <em>eye x coordinate</em> of both is +4 (rather than the eye z coordinate being -4 as was the case originally). Remember that by definition, in eye coordinates, positive x is always to the right.</li>
+	<li>The <em>eye z coordinates</em> of A and B will now differ, as A is now in front of the camera and B is behind the camera. Consequently, A will have a negative eye z coordinate and B will have a positive eye z coordinate. As both A and B are two units distance along the eye z axis, it follows that the eye z coordinate of A will be -2 and the eye z coordinate of B will be +2.</li>
+	</ul>
+</p>
+<h4>Don't get confused by the word "camera"!</h4>
+<p>It's important to not get confused by the terminology here. The first-person OpenGL camera is <strong>not</strong> the same as the actual hardware camera used to take pictures on the device. When we move onto AR, we will use the term "hardware camera" to distinguish the physical camera from the OpenGL camera.</p>
+<h3>Matrices</h3>
+<p>Many of you will have come across <em>matrices</em> in the past, either at
+school/college or in the first year Mathematical Structures in Computing 
+module. <em>Matrices</em> are two-dimensional arrays of numbers which are most commonly used to represent geometric transformations which can be applied to shapes (both 2D and 3D), such as rotation, translation, magnification, stretch and shear. There are also other, more specialised, applications of matrices in science and maths - but these are out of the scope of this module. We will not go into the maths of matrices in great detail, and you will not need to create or multiply matrices yourself (WebGL and three.js take care of this for you) but you need to be aware that a matrix represents a geometric transformation of some kind, such as translation or rotation. You also need to be aware of various matrices which exist within OpenGL which are involved in the rendering process.</p>
+<p>If you want to read more on matrices, see <a href='BRIAN_NOTES.pdf'>here</a>.</p>
+<h4>The view matrix</h4>
+<p>OpenGL defines a matrix which specifies the transformation between the
+world coordinates and the eye coordinates.  This is called the <em>view matrix</em>.  Every time you do a translation or rotation in code, the view matrix
+is multiplied by the matrix which defines that rotation/translation. Then
+finally the coordinates specified in code (the world coordinates) are multiplied by the view matrix to give the coordinates with respect to the user's current view.</p> 
+<h4>The projection matrix</h4>
+<p>The other type of matrix which is used in OpenGL is the <em>projection matrix</em>. This transforms the coordinates of shapes to add a sense of perspective, in other words it makes nearby shapes appear larger and further-away shapes appear smaller. So, shapes with eye z coordinates close to 0 (e.g. -1, -2) will appear relatively large, whereas shapes with negative z coordinates further from 0 (-10, -20, etc) will appear smaller. Without the projection matrix, no perspective is applied and shapes would appear the same size irrespective of their eye z coordinate.</p>
+<hr />
+<h2>Beginning three.js programming</h2>
+<p>We are now going to begin some basic 3D programming with <em>three.js</em>. As we saw above, three.js is a higher-level library which wraps WebGL, making development easier.</p>
+<p>three.js consists of various key objects, which are described below.</p>
 <ul>
-<li><code>console.log()</code> writes a message to the developer console, which you can
-view by going to the developer tools of your browser.</li>
-<li>Note the backtick syntax in the <code>console.log()</code> statement when we write
-out the hello message. This is another ECMAScript 6 feature, and allows us to <em>embed variables directly inside a string</em> as long as the variable is surrounded by curly brackets <code>{}</code> and the curly brackets are preceded by a dollar sign <code>$</code>. (In fact, full expressions can be placed within the curly brackets).</li>
+<li>a <code>scene</code>. The scene represents the 3D scene as a whole.</li>
+<li>a <code>camera</code>. As we have seen, the camera represents our current position and orientation within the 3D world.</li>
+<li>a <code>renderer</code>. The renderer is responsible for rendering (drawing) the scene to a particular HTML element, typically a canvas.</li>
 </ul>
-<h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
-<p>We've created a simple module, but how might we use it from another file?
-We need to <code>import</code> the functions that have been exported. Here's an example. You can imagine this is the "main" JavaScript function of your application, in other words the file which runs when the page is first loaded. This is often named <code>index.js</code> by convention.</p>
-<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
-
-// Import the two functions from the module. 
-// Note the './' before 'module1.js'. This means 'the current folder'
-import { sayHello, square } from './module1.js';
-
-// Call the sayHello() function from the module
-sayHello("Fred");
-
-// 'const' is a constant - like a variable, but can never change.
-const a = square(3);
-console.log(`The square of 3 is : ${a}`);
-</code></pre>
-<p>Note how we have to <em>import</em> the functions from the module before we can use
-them. This makes for easier-to-read code as we can tell exactly where the
-two functions <code>sayHello()</code> and <code>square()</code> have come from.</p>
-<h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
-<p>To actually make this code run, we need to link it to an HTML web page which
-can be executed from the browser. We link the <code>index.js</code> file as that is the
-main file of the application, and then the <code>module1.js</code> file will automatically
-load.</p>
-<p>We link a module in the same way as a regular JavaScript file, except we
-use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file,
-<code>index.js</code>, is itself a module. It's the 'main module' of the application and
-it's using another module, <code>module1.js</code>. For example:</p>
-<pre><code class="html language-html">&lt;html&gt;
-&lt;head&gt;
-&lt;script type='module' src='index.js'&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-...
-</code></pre>
-<p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension
-(JavaScript module) rather than <code>.js</code>. However <code>.mjs</code> is not widely supported
-by browsers yet, so I'd advise you to use <code>.js</code>.</p>
-<h3 id="example2onlyimportingsomefunctions">Example 2: Only importing some functions</h3>
-<p>It's possible to only import <em>some</em> functions from a module. For instance
-this version of our <code>index.js</code> code:</p>
-<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
-
-// Import sayHello() (only) from the module. 
-import { sayHello } from './module1.js';
-
-// Call the sayHello() function from the module
-sayHello("Fred");
-
-// This will not work now, as square() was not imported from the module
-const a = square(3);
-console.log(`The square of 3 is : ${a}`);
-</code></pre>
-<h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
-<p>The code above works, but it can be a little messy to import each function
-separately. It would be nicer if we could <em>collect together all module
-exports as a single object</em>  so that the code is a bit more, well, 
-modular. The next <code>index.js</code> example shows this:</p>
-<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
-
-// Import the two functions from the module into a module object.
-import * as MyModule from './module1.js';
-
-// Call the sayHello() function from the module
-MyModule.sayHello("Fred");
-
-const a = MyModule.square(3);
-console.log(`The square of 3 is : ${a}`);
-</code></pre>
-<p>Note how this differs from the first two examples. First, consider the
-<code>import</code> statement:</p>
-<pre><code class="javascript language-javascript">import * as MyModule from './module1.js';
-</code></pre>
-<p>Rather than importing each function separately, they are all being imported
-as a single <em>module object</em>, MyModule. You can reference each exported 
-function by referencing the module object name, then a dot, then the function
-name, for example <code>MyModule.sayHello(...)</code>. </p>
-<p>(To relate this to object-oriented programming, which we did in DFTI last year and you may have done elsewhere, <code>MyModule</code> is an <em>object</em> and <code>sayHello()</code> is a <em>method</em> of that object).</p>
-<h3 id="example4defaultexport">Example 4: Default export</h3>
-<p>If your module only needs to export one function or object, you can declare
-this as the <em>default export</em>. This is another way of achieving the effect of
-the previous example, with all exports from a module packaged into a single
-object. So here is an example of the module using a default export:</p>
-<pre><code class="javascript language-javascript">function _sayHello(name) {
-    console.log(`Hello ${name}! This is from a default export`);
-}
-
-function _square(n) {
-    return n*n;
-}
-
-export default {
-    sayHello: _sayHello,
-    square1: _square
-};
-</code></pre>
-<p>This exports a default object with two fields: The <em>sayHello</em> field is set
-equal to the function <em><em>sayHello()</em> (note that an underscore is a convention
-in JavaScript for a 'private' or 'internal function), and the <em>square</em> field
-is set equal to the function <em></em>square()</em>.</p>
-<p>We can then use the default export in our main module using:</p>
-<pre><code class="javascript language-javascript">import MyDefaultObject from './module1.js';
-</code></pre>
-<p>This will import the <em>default</em> export from the module as <code>MyDefaultObject</code>, so
-we can then call the methods with:</p>
-<pre><code class="javascript language-javascript">MyDefaultObject.sayHello('Fred');
-console.log(MyDefaultObject.square(9));
-</code></pre>
-<p>Contrast the import with Example 3, above, in which we manually grouped
-each separate import from the module into a module object in <code>index.js</code>. In that
-example, the grouping of imports into an object was done in <code>index.js</code>.
- In this example, by contrast, we are grouping them in <code>module1.js</code> by creating
-a default export.</p>
-<h3 id="example5renamingexportedfunctions">Example 5: renaming exported functions</h3>
-<p>Finally, we can alias exported functions. We will return to the first
-example to illustrate this:</p>
-<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
-
-// Import the two functions from the module. 
-// Note the './' before 'module1.js'. This means 'the current folder'
-import { sayHello as sh, square as sq } from './module1.js';
-
-// Call the sayHello() function from the module
-sh("Fred");
-
-// 'const' is a constant - like a variable, but can never change.
-const a = sq(3);
-console.log(`The square of 3 is : ${a}`);
-</code></pre>
-<p>Here we have renamed the exported <code>sayHello()</code> function as <code>sh()</code>, and the
-exported <code>square()</code> function as <code>sq()</code>.</p>
-<h3 id="exercise1">Exercise 1</h3>
-<ol>
-<li>Create this web page.</li>
-</ol>
+<p>When drawing our 3D objects, we define a series of <strong><code>mesh</code>es</strong>. A <code>mesh</code> is a 3D object within our world and consists of:</p>
+<ul>
+<li>a <code>geometry</code> describing its geometrical shape, and </li>
+<li>a <code>material</code> describing the properties of its surface (for example colour, texture, light reflectance and so on).</li>
+</ul>
+<p>There are also additional objects we can use in three.js, such as <code>light</code>s: light sources in our world. <code>light</code>s consist of ambient lights (general background lighting) and directional lights (lights placed at a particular position within our world and shining in a particular direction) amongst others. A directional light could be used to simulate the sun, for example.</p>
+<h3 id="resources">Resources</h3>
+<p>The site <a href="https://threejsfundamentals.org">threejsfundamentais.org</a> is a very good tutorial site for three.js, covering everything from the absolute basics to advanced topics such as AR. Indeed, many of the techniques in this tutorial have been used as a basis for the techniques shown in this week's notes. Furthermore, it comes with interactive tutorials in which you can change the code live in the browser and see the result. In addition, the <a href="https://threejs.org">website</a> contains full API documentation, plus examples.</p>
+<h3 id="abasicexample">A basic example</h3>
+<p>Here is a basic example of three.js. It simply sets up a scene, it doesn't
+draw anything yet. We will start with this HTML:</p>
 <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-&lt;title&gt;Modules&lt;/title&gt;
+&lt;title&gt;three.js basic example&lt;/title&gt;
+
+&lt;!-- Load the three.js library --&gt;
+&lt;script type='text/javascript' src='three.js'&gt;&lt;/script&gt;
+
+&lt;!-- Load your own JavaScript code (shown below) --&gt;
+&lt;script type='module' src='index.js'&gt;&lt;/script&gt;
+
 &lt;/head&gt;
 &lt;body&gt;
-Age from year of birth: &lt;span id='age'&gt;&lt;/span&gt;&lt;br /&gt;
-Year of birth from age: &lt;span id='yob'&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;!-- By default, canvas is 300x150 so we could omit the width and height --&gt;
+&lt;canvas id='canvas1' width='300' height='150'&gt;&lt;/canvas&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
-<ol start="2">
-<li>Create a JavaScript module containing two functions, one to calculate your
-age from your year of birth, and another to calculate your year of birth from
-your age. Assume everyone was born on January 1st (yes, strange assumption - but it's to keep the exercise simple!)</li>
-</ol>
-<p>To get the current year, you create a <code>Date</code> object and then call 
-<code>getFullYear()</code> on the <code>Date</code> object. To illustrate this, I have started 
-(but not finished) the first function which needs to go in the module:</p>
-<pre><code class="javascript language-javascript">function getAge(yearOfBirth) {
-    // Create a date object
-    const d = new Date();
+<p>You should download three.js from <a href='https://threejs.org/build/three.js'>here</a> and save it into the folder where you will create your code.</p>
+<p>Note how the HTML page contains a <code>&lt;canvas&gt;</code>. The three.js scene will appear
+here.</p>
+<p>Moving onto the JavaScript (<code>index.js</code>):</p>
+<pre>
+const canvas = document.getElementById('canvas1');
 
-    // Get the current year
-    const y = d.getFullYear();
+const camera = new THREE.PerspectiveCamera(40, 2, 0.1, 10000);
+const renderer = new THREE.WebGLRenderer({canvas: canvas});
+const scene = new THREE.Scene();
 
-    // Up to you to do... calculate the age
+requestAnimationFrame(renderScene);
 
-    // Up to you to do... return the age
+function renderScene() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(renderScene);
+}
+</pre>
+<p>Note how we create a <code>camera</code> object, a <code>renderer</code> object, and then a <code>scene</code>
+object. The camera is a <code>THREE.PerspectiveCamera</code>; why do we need this?</p>
+<h4 id="perspective">Perspective</h4>
+<p>When creating a scene, we need to account for <em>perspective</em> in order to make nearby objects look larger than further away objects. This is not done by default in WebGL so we have to create a camera which will apply perspective effects. As seen above, this sets up the <em>projection matrix</em> - you may be glad to know that by using three.js we avoid the complex maths necessary to setup the projection matrix! An example is in our code above, as our camera is a <code>THREE.PerspectiveCamera</code>. What do its arguments represent?</p>
+<ul>
+<li>The first argument is the <em>vertical field of view</em>. This is the field of view,
+in degrees, that we can currently see in the scene in the vertical direction (40 degrees here). <strong>Note that people more normally think of the horizontal field of view - the horizontal angle visible in the scene. The vertical field of view can be obtained by dividing the horizontal field of view by the aspect ratio, described below.</strong></li>
+<li>The second argument is the <em>aspect ratio</em> - the ratio of width to height. As our canvas is 300x150, we set this to 2 to match the canvas.</li>
+<li>the near clip plane (0.1)</li>
+<li>the far clip plane (10000).</li>
+</ul>
+<p>The near and far clip planes define the nearest and
+furthest distances that objects can be seen on the screen; here, images closer
+than 0.1 units or further than 10000 units away will be invisible. 
+The four arguments above define a shape, resembling a sawn-off pyramid, known as the <em>viewing frustum</em>, shown in this diagram.</p>
+<p><img src="../images/fig8.png" alt="Viewing frustum" /></p>
+<h4 id="therenderer">The renderer</h4>
+<p>Next we create our <code>THREE.WebGLRenderer</code>. Note how we create a renderer and associate it with a particular canvas element in our HTML, in this example an element with the ID of <code>canvas1</code>.Having created a renderer we then create our scene.</p>
+<h4 id="therenderscenefunction">The renderScene() function</h4>
+<p>Note how we handle scene <em>rendering</em>. We need to tell three.js to render
+the scene each time the display refreshes. We write a function <code>renderScene()</code> to do the rendering and schedule it using the JavaScript function
+<code>requestAnimationFrame()</code> (not part of three.js, but a standard browser API
+function). <code>requestAnimationFrame()</code> schedules a function to run before the next browser repaint (<a href="https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame">Mozilla</a>).  The idea is we render the scene as often as possible so that if the positions of the camera or the objects change, the scene will update.</p>
+<p>In <code>renderScene()</code> we call the three.js <code>renderer</code>'s <code>render()</code> method to render the given <code>scene</code> using the given <code>camera</code>. Then, once we've drawn the scene, we request it to be drawn again with another call to <code>requestAnimationFrame()</code>. Note that <code>requestAnimationFrame()</code> is rather like <code>setTimeout()</code> but has smoother animation as it matches the display refresh rate. It's also a bit like A-Frame's <code>tick()</code> but must be re-called on each rendering, it will not automatically be called repeatedly.</p>
+<h3 id="addinga3dobjecttotheexample">Adding a 3D object to the example</h3>
+<p>The next example creates a 3D box:</p>
+<pre><code>
+const canvas = document.getElementById('canvas1');
+
+const camera = new THREE.PerspectiveCamera(80, 2, 0.1, 10000);
+const renderer = new THREE.WebGLRenderer({canvas: canvas});
+const scene = new THREE.Scene();
+
+const geom = new THREE.BoxGeometry(2,2,2);
+const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+const mesh = new THREE.Mesh(geom, material);
+mesh.position.z = -10;
+
+scene.add(mesh);
+requestAnimationFrame(renderScene);
+
+function renderScene() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(renderScene);
 }
 </code></pre>
-<ol start="3">
-<li>Create a "main" module which imports the functions from this module,
-and contains some test code to call the two functions. You should calculate
-an age from a year of birth, and vice-versa. </li>
-</ol>
-<p>Display the results in the two <code>&lt;span&gt;</code> elements in the HTML.
-Remember that you can set the content of an HTML element with 
-<code>innerHTML</code>, using code such as:</p>
-<pre><code class="html language-html">document.getElementById(id_of_element).innerHTML = 'Contents of element';
+<p>Note how in this example we create a <code>BoxGeometry</code> with dimensions in the 
+x, y and z directions of 2 (this is similar to setting the <code>scale</code> in A-Frame).
+Then we create a <code>material</code>: the <code>MeshBasicMaterial</code> is a basic material which does not have any special properties for reflecting light, for example. We define its colour: note that we do not use HTML-style colour strings (e.g. <code>"#ff0000"</code>) but instead, a numerical value for the colour. We use hexadecimal (<code>0x</code>) to allow us to define the colour in terms of red, green and blue components: note that <code>0xff0000</code> is equivalent to <code>#ff0000</code>.</p>
+<p>Finally we create a <code>mesh</code> using the geometry and material, and add it to the scene.  Note how we set the mesh's <code>position</code>, by setting the <code>z</code> property of its <code>position</code> property. </p>
+<p>The rendering function is the same as before.</p>
+<h3 id="handlingscreenresizeevents">Handling screen resize events</h3>
+<p>The example so far just uses a canvas with a fixed size: width 300, height 150. However, more commonly, particularly on a mobile platform, we need the canvas to <em>adapt</em> to the screen size. So more commonly we will set the canvas to occupy the whole of the screen e.g.:</p>
+<pre><code>&lt;canvas id='canvas1' style='display: block; width:100%; height:100%'&gt;&lt;/canvas&gt;
 </code></pre>
-<p>For privacy reasons, do <em>not</em> test it with your real year of birth or age.</p>
-<p>Note that you need to run your code through a web server in order to test 
-code which uses ECMA6 modules. Luckily, a simple web server can be installed
-through NPM, part of the Node.js distribution (see below for more details
-on NPM). Install it from your command line (e.g. DOS prompt) with:</p>
-<pre><code>npm install -g local-web-server
+<p>We also have to, in our CSS, specify that the <code>html</code> and <code>body</code> elements will have a <code>width</code> and <code>height</code> of 100% so that the <code>html</code> (the viewport) and the <code>body</code> (the content) - and thus the canvas, which occupies the whole of the body - will stretch to cover the whole window when the window resizes.</p>
+<pre><code>&lt;style&gt;
+html, body {
+    width: 100%;
+    height: 100%;
+}
+&lt;/style&gt;
 </code></pre>
-<p>and then run it from the folder containing your web page with </p>
-<pre><code>npx ws
+<p>Try modifying your HTML in this way: give the canvas 100% width and height
+and add some CSS to set the <code>html</code> and <code>body</code> width and height to 100%.
+What happens?</p>
+<h4 id="theresult">The result</h4>
+<p>You will find that the box appears "blocky" and "pixelated". Why? The 
+problem relates to the difference between <em>canvas width and height</em> and <em>CSS width and height</em>. They are two different things. Even though the canvas will have a <em>CSS</em> width and height which covers the whole screen, its <em>canvas</em> width and height will still be 300x150. This is rather like setting the CSS width and height of an image of 300x150 pixels to 100% of the body. The image will still be 300x150 - its resolution will not magically increase - but it will be stretched across the whole of the page so will appear pixelated with poor resolution. Canvases are internally similar to images in HTML - what we are doing is stretching a 300x150 canvas across the entire screen without increasing the resolution of the actual canvas.</p>
+<p>This is shown below. Here is a cube image of dimensions 300x150:</p>
+<p><img src="../images/cube.png" alt="Unstretched cube image" /></p>
+<p>but here is the same image with the CSS width and height set to 900x450
+(even though the actual image is still 300x150):</p>
+<p><img src="../images/cube.png" alt="Stretched image" style="width: 900px; height: 450px" /></p>
+<p>To increase the canvas resolution, we have to reset its <code>width</code> and <code>height</code> properties (these are the canvas width and height) so that they are the same as the CSS width and height of the canvas element. To obtain the <em>CSS</em> width and height of the canvas, we can use <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code>.</p>
+<p>What we can then do, in our rendering function, is to test whether the canvas width and height are different to the CSS width and height. If they are (which will occur after a resize), we reset the width and height of the canvas. For example, you can add this code to your <code>renderScene()</code> function:</p>
+<pre><code>if(canvas.width != canvas.clientWidth || canvas.height != canvas.clientHeight) {
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+}
 </code></pre>
-<p>It will run a web server on port 8000, with the web root being the folder
-it was launched from. So, if you go to the browser and access</p>
-<pre><code>http://localhost:8000/
+<p>We call the renderer's <code>setSize()</code> method to perform the resizing rather than directly changing the canvas properties, this ensures that three.js keeps track of the changes.</p>
+<h3 id="updatingtheaspectratio">Updating the aspect ratio</h3>
+<p>Once you've updated the canvas size in the previous example, you will still see a problem. Namely, the cube becomes distorted as you resize the window. This is because you have setup a camera with an aspect ratio of 2 (which it will be by default, due to the default canvas size of 300x150) but the canvas no longer has an aspect ratio of 2. So when the renderer is resized, you have to recalculate the aspect ratio of the canvas and reset the camera's aspect ratio appropriately. This can be done with:</p>
+<pre><code>camera.aspect = canvas.clientWidth / canvas.clientHeight;
+camera.updateProjectionMatrix();
 </code></pre>
-<p>you should see your current folder.</p>
-<h2 id="bundlers">Bundlers</h2>
-<p>Using modules, as we have been doing, is a good way to organise your code
-and make it highly readable and understandable. However, when using 
-<em>third-party</em> code, another step is frequently required.</p>
-<p>The standard for installing third-party libraries, both in Node.js and for
-the browser, is <a href="https://npmjs.com">npm</a>. <code>npm</code> or Node Package Manager is a
-standard way to install third-party JavaScript software as <em>packages</em>. It's 
-equivalent to <code>composer</code> in PHP or <code>pip</code> in Python.</p>
-<p>An example of using <code>npm</code> would be as follows (you would run this in your
-shell prompt, e.g. the DOS prompt in Windows or a shell in Linux or Mac OS X).</p>
-<pre><code>npm install querystring
-</code></pre>
-<p>This installs the package <code>querystring</code>. (This is a useful package, as it 
-allows you to easily parse query strings from JavaScript). When a package
-has been installed, it is placed in a folder called <code>node_modules</code>. This 
-contains all NPM packages installed into your current project. (Evem though
-the name is <code>node_modules</code>, the approach is still used for client-side
-JavaScript).</p>
-<p>How do we import a third-party module? In this discussion, it is important
-to bear in mind that NPM and Node.js were originally built to use 
-CommonJS modules. These would be imported in this way:</p>
-<pre><code class="javascript language-javascript">const qs = require('querystring');
-</code></pre>
-<p>This is assigning the variable <code>qs</code> to the default object exported from the
-module <code>querystring</code>. The equivalent using ECMA6 modules would be:</p>
-<pre><code class="javascript language-javascript">import qs from 'querystring';
-</code></pre>
-<p>However, this does <em>not work as it stands.</em> The JavaScript interpreter
-is not able to magically examine the <code>node_modules</code> folder, find the
-<code>querystring</code> module from there, and import it. We need another tool, a
-<em>bundler</em>, for this. Bundlers create a single JavaScript file, or <em>bundle</em>,
-from multiple source files - and are intelligent enough to extract the
-correct <code>npm</code> package from your <code>node_modules</code> folder.</p>
-<p>Bundlers do other things too, for example they can include CSS assets too
-and perform a step known as <code>minification</code>, which is to convert your 
-JavaScript into a compressed form, which is unreadable but which leads to
-a considerably smaller file size - vital when downloading JavaScript on
-a mobile device when the signal may be poor.</p>
-<p>There are a number of tools - "bundlers" - 
-which can be used to easily include third-party dependencies.
-One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>. can
-transform code consisting of modules into a single "bundle" file which can
-be used directly in the browser. Webpack can be installed with npm. 
-As Webpack is a <em>development</em> tool, you want to install it <em>globally</em>, so that
-it is accessible to all applications on your system and all users. The
-<code>-g</code> option does this. (Normally, NPM packages are only installed locally into
-the project that needs them, within the project's <code>node_modules</code> folder).</p>
-<pre><code>npm install -g webpack webpack-cli
-</code></pre>
-<p>Here is the most simple usage:</p>
-<pre><code>npx webpack index.js
-</code></pre>
-<p>This will take the file index.js, and any modules it uses (along with any
-modules used by those modules) and prepare a single output file - a <em>bundle</em> - 
-which will, by default, be placed in the <code>dist</code> subfolder with the name
-<code>main.js</code>.  This can then be used directly in the browser e.g:</p>
-<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/main.js' defer&gt;&lt;/script&gt;
-</code></pre>
-<p>(<strong>Note the <code>defer</code> prevents the bundle loading until the page has been loaded.
-If you do not do this, the bundle will be loaded before the page, which means
-if you try to access HTML elements from your JavaScript, you will get errors.</strong>)</p>
-<p>One key advantage of using a bundler like Webpack is that
-<em>the bundler automatically includes third-party NPM packages</em> in the
-bundle, if they are imported in your code with simple import statements such as:</p>
-<pre><code class="javascript language-javascript">import qs from `querystring';
-</code></pre>
-<p>which will import the default export from the <code>querystring</code> package as the
-variable <code>qs</code>.</p>
-<h3 id="webpackconfiguration">Webpack configuration</h3>
-<p>By default, Webpack will place its output in the file <code>main.js</code> within the <code>dist</code> folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.</p>
-<p>However it is possible to configure Webpack to change this behaviour, and
-this is done via the <code>webpack.config.js</code> configuration file. This is a 
-file, itself written in JavaScript, which allows you to modify Webpack's
-default behaviour. Here is an example:</p>
-<pre><code class="javascript language-javascript">const path = require('path');
-
-module.exports = {
-    mode: 'development',
-    entry: './index.js',
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
-    },
-    optimization: {
-        minimize: false
-    }
-};
-</code></pre>
-<p>What is this doing?</p>
+<p>The first line should be obvious. The second is perhaps less so. Internally, three.js uses a mathematical <em>matrix</em> known as the <em>projection matrix</em> to represent the perspective; this matrix is used to draw objects with the correct perspective. The projection matrix depends on the properties of the viewing frustum: the aspect ratio, the field of view, and the near and far clip planes. Once we've updated the aspect ratio, we have to update the projection matrix as this will not be done automatically.</p>
+<p>Add the code above to your <code>if</code> statement which handles screen resize. You will find that the box appears correctly as a cube even if you resize the window.</p>
+<h3 id="theobject3dclass">The Object3D class</h3>
+<p>The <code>Object3D</code> class (described <a href="https://threejs.org/docs/index.html#api/en/core/Object3D">here</a>) is a fundamental component of three.js.
+<code>Object3D</code> represents a three.js object which can be moved, rotated, 
+and scaled. Other three.js objects, such as meshes and cameras, are examples
+of <code>Object3D</code>s. Furthermore <code>Object3D</code> forms the key link between three.js and
+A-Frame, to be described later.</p>
+<h3 id="exercise1">Exercise 1</h3>
 <ul>
-<li><code>mode</code> can be either <code>development</code> or <code>production</code>. This impacts upon the
-amount of minifying that takes place (less in development, more in production;
-debugging is easier with an unminified bundle)</li>
-<li>We specify the application's entry point (the JavaScript file where your
-application starts running) as <code>./index.js</code> (<code>index.js</code> in the current folder).
-This means you can run Webpack with</li>
+<li>Change the code so the box is rotated 45 degrees around the y axis, using the mesh's <code>rotation</code> property.</li>
+<li>Change the <em>camera</em> position so that it is two units distance from the box along the z axis. The box will appear bigger, because the camera is closer to it. Do not change the position of the box.</li>
 </ul>
-<pre><code class="javascript language-javascript">npx webpack
-</code></pre>
-<p>rather than</p>
-<pre><code class="javascript language-javascript">npx webpack ./index.js
-</code></pre>
-<p>because the configuration file has told Webpack that the entry point of the
-application will be <code>./index.js</code>. </p>
+<h3>Exercise 2</h3>
 <ul>
-<li>We then specify some output options. Firstly, the <code>path</code> is the folder where the output bundle will be placed. Here, we are specifying the output is the <code>dist</code> subfolder of the current folder, and the filename is <code>bundle.js</code>. So, the resulting bundle will be named <code>bundle.js</code> and not <code>main.js</code>.</li>
-<li>The <code>optimization</code> options allow us to specify various ways in which the
-output will be optimised. Here, we are turning minification off by setting
-the <code>minimize</code> option to <code>false</code>. This can be useful for debugging, as you
-will not get helpful error messages with a minified bundle file.</li>
+<li>Add buttons to control the camera's x, y and z position. Add these below the canvas. There should be six buttons labelled '-x', '+x', '-y', '+y', '-z' and '+z'. When these are clicked, the camera should move one unit in the appropriate direction. Remember that you can set up an event listener on a button using <code>addEventListener()</code> and passing in an arrow function to handle the event, as follows:
+<pre>
+document.getElementById("button1").addEventListener("click", e =&gt; {
+	// add code to move the camera in here
+});
+</pre>
+</li>
+<li>To test it, add new shapes (in addition to the red box)  as follows:
+	<ul>
+	<li>A blue (0x0000ff) box at x=5, y=0, z=0;</li> 
+	<li>A green (0xffff00) sphere of radius 1 at x=0, y=0, z=-5. To create a sphere, use a <code>SphereGeometry</code>, e.g.
+	<pre>const geom = new SphereGeometry(radius);</pre>
+	where <code>radius</code> is the radius. See <a href='https://threejs.org/docs/?q=geometry#api/en/geometries/SphereGeometry'>here</a> for more detail.</li> 
+	<li>A yellow (0x00ff00) cone of radius 1, height 2 at x=-5, y=0, z=0. To create a cone, use a <code>ConeGeometry</code> e.g.
+	<pre>const geom = new ConeGeometry(radius, height);</pre>
+	where <code>radius</code> is the radius and <code>height</code> is the height. See <a href='https://threejs.org/docs/?q=geometry#api/en/geometries/ConeGeometry'>here</a> for more detail.</li> 
+	<li>A magenta (0xff00ff) cylinder of top radius 1, bottom radius 1, and height 2 at x=0, y=0, z=5. To create a cylinder, use a <code>CylinderGeometry</code>, e.g.
+	<pre>const geom = new CylinderGeometry(radiusTop, radiusBottom, height);</pre>
+	where <code>radiusTop</code> is the radius at the top of the cylinder, <code>radiusBottom</code> is the radius at the bottom of the cylinder, and <code>height</code> is the height. See <a href='https://threejs.org/docs/?q=geometry#api/en/geometries/CylinderGeometry'>here</a> for more detail.</li> 
+	</ul>
+Try moving along the different axes to see the shapes from different positions.
+</li>
+<li>Add two more buttons to rotate the camera clockwise and anticlockwise around the y-axis. Note that angles <em>increase anticlockwise</em>; also note <em>radians</em> are used for rotation angles rather than degrees; 180 degrees is equal to PI radians. You can convert between degrees and radians easily using three.js's <code>THREE.Math.degToRad()</code> and <code>THREE.Math.radToDeg()</code> functions, e.g:
+<pre>const rad = THREE.Math.degToRad(deg);</pre>
+</li>
+<li>Test out the rotation functionality to make sure you can rotate the camera to look round the world. <em>Note that you will not yet be able to move forward in the direction the camera is facing;</em>, this requires simple trigonometry and we will consider this next time.</li>
 </ul>
-<p>There are many other things you can do with Webpack, for example you can
-include CSS inside your bundle for easy distribution. See the
-<a href="https://webpack.js.org">website</a> for more detail.</p>
-<h3 id="exercise2">Exercise 2</h3>
-<ul>
-<li>Write an HTML and JavaScript application (one HTML page, one JavaScript
-file) which makes use of the <code>querystring</code> module,
-which you have seen here. It should read the query string specified in the
-URL and display <code>title</code> and <code>artist</code> parameters within the query string.
-It should display the title and artist specified in the query string by
-displaying a message in a <code>&lt;div&gt;</code>, such as:</li>
-</ul>
-<pre><code>You entered the song: Life on Mars and the artist: David Bowie
-</code></pre>
-<p>Use <code>npm</code> and Webpack to install <code>querystring</code> build a bundle, and include
-the bundle in your web page.
-Here is how you would use <code>querystring</code>, assuming it's been imported as <code>qs</code>:</p>
-<pre><code class="javascript language-javascript">// Split the current URL at the '?'. This will create an array, the first
-// member being the URL before the '?' and the second member, the URL after
-// the '?'. So the second member of the array will be the actual query string.
-
-const urlParts = window.location.href.split('?');
-
-// Parse the query string into an object called 'get'
-const get = qs.parse(urlParts[1]);
-
-// We can now access the parameters with get.paramName, e.g. for the query string:
-// http://website/index.html?param1=value1&amp;param2=value2
-// we would access the parameters with get.param1 and get.param2.
-</code></pre>
-<ul>
-<li>The <code>validator</code> package allows you to perform common validations on
-input. Details <a href="https://www.npmjs.com/package/validator">here</a>.
-Using the examples on the package's NPM page to help you, use it to validate a simple signup form, with fields for name, email and chosen username. Write an HTML page containing this form, together with a JavaScript file which imports <code>validator</code> using ECMA6 
-module syntax and use it to validate the email and username fields (the 
-username can contain letters and numbers). It should display appropriate
-<code>alert</code> messages if any of the fields contain invalid data (the name can
-contain anything). You'll need to install
-<code>validator</code> using NPM and use webpack to create a bundle which can be included
-in your HTML web page.</li>
-</ul>
-<p>After doing that, import your year-of-birth-to-age module from Exercise 1
-into your main <code>index.js</code> file for this question, add a 'year of birth' field to the form, and use your Exercise 1 code to check whether the user is at least 18 (in addition to the validation you've already done with <code>validator</code>).</p></body></html>
+</body>
+</html>
