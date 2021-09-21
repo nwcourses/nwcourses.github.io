@@ -41,11 +41,12 @@ Mark Ramsey
 <li>We could <em>make the array bigger when we create it</em>. Try drawing an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. Looking at what you have drawn, <em>can you see the problem</em>? </li>
 </ul>
 <h2 id="workingwitharraysinpython">Working with arrays in Python</h2>
-<p>You will have been introduced to Python programming this week on another module, COM411. In this exercise, however, you will explore how to create and index a simple <em>array</em> in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the <em>list</em>, which is a flexible language component able to be used not just as an array but as various other data structures.</p>
+<p><strong>Note that this section is not necessary if you are studying this module over the summer, as you should be comfortable with this as you have already completed COM411. If you are on the summer instance, we will skip this section.</strong></p>
+<p>You will have been introduced to Python programming on another module, COM411. In this exercise, however, you will explore how to create and index a simple <em>array</em> in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the <em>list</em>, which is a flexible language component able to be used not just as an array but as various other data structures.</p>
 <p>For this reason we are not going to use the list, but use a code component that is a more accurate representation of an array, including the array's fixed-size limitation. This is part of the third-party Python package <a href="https://numpy.org">NumPy</a> which is the standard for mathematical computing in Python.</p>
 <p>When we code our own more complex data structures later, we will also use the NumPy array.</p>
 <h3 id="usingrepl">Using Repl</h3>
-<p>If you have had your COM411 class this week already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
+<p>If you have had your first COM411 class already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
 <p>You can login to Repl using your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
 <p>Once you have created a GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
 <p><img src="images/repl1.png" alt="Repl interface" /></p>
@@ -76,8 +77,8 @@ print(operating_systems[0])
 operating_systems[4] = "iOS"
 </code></pre>
 <p>Now run it. Do you get the result that you expected?</p>
-<h3 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h3>
-<h4 id="advantagefastlookup">Advantage: Fast lookup</h4>
+<h2 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h2>
+<h3 id="advantagefastlookup">Advantage: Fast lookup</h3>
 <p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.</p>
 <p>When indexing an array, the computer is able to work out where in memory the
 data is stored, <strong>because each member of a NumPy array uses up the same number of bytes</strong>. The equation is simply:</p>
@@ -93,7 +94,7 @@ we substitute the values into the equation we get:</p>
 we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
 numerical index</strong>.</p>
-<h4 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h4>
+<h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
 <p>We have seen already from our paper exercise with arrays, that they are not
 so flexible if we need to add more data later. When we create an array, we have
 to either list all the data we want to store in the array, or alternatively
@@ -105,7 +106,7 @@ array.</p>
 <li>Copy all the existing members into the new array;</li>
 <li>Add the new members onto the end of the array.</li>
 </ul>
-<h5 id="exercise">Exercise</h5>
+<h4 id="exercise">Exercise</h4>
 <p>Do this exercise on paper. </p>
 <ul>
 <li>Draw a 3-member array containing the values "Linux", "Windows" and "Mac OS X".</li>
@@ -115,7 +116,7 @@ draw the second array again, with the three existing members "Linux", "Windows" 
 <li>Write a heading "Adding new members to new array". Under this heading, 
 draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.</li>
 </ul>
-<h4 id="furtherdisadvantageinsertiondifficultfurtherreadingnotcoveredinclass">Further disadvantage: insertion difficult (Further reading, not covered in class)</h4>
+<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
 <p>What if we wanted to add a new member at a <em>specific position</em> in the array?
 For example, imagine we had an array of contacts that we wished to keep in 
 alphabetical order, e.g:</p>
@@ -232,4 +233,4 @@ below, and explain what, if anything is returned from each operation and
 any errors that might occur.</p>
 <p><code>push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().</code></p>
 <h2 id="readingfornextweek">Reading for next week</h2>
-<p>The notes for next week will appear by Monday morning. We will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on <em>Classes and Objects in Python</em>.</p></body></html>
+<p>Next time we will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on <em>Classes and Objects in Python</em>.</p></body></html>

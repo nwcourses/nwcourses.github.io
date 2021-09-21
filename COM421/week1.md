@@ -27,54 +27,28 @@ This is a good point to introduce *algorithm complexity* with the "Big O" notati
 
 Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. We will explore this in the (paper) exercise below.
 
-### Paper-based Exercise
-
-You are writing a program to store employees for a company. It's a small company, with only 10 employees. Try drawing, on paper, an array containing these 10 
-employees. Draw each name in each position in the array, similar to the 
-diagram above containing an array of fruit.
-
-```
-John Stevenson
-Jane Smith
-Tim Wilson
-Kate Stevenson
-Kate Palmer
-Tom Eastman
-Laura Green
-Mike Watson
-Sally Black
-Mark Ramsey
-```
-
-Answer these questions:
-
-- What would be the index of `Kate Stevenson` in this array? What about `Mike Watson`?
-
-- If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing `Kate Stevenson`?
 
 #### Exploring the problems with arrays
 
-Let's say, though, the company takes on an 11th employee, `Chris Dean`. Do we have space in the array to fit this 11th employee? 
+Let's say, though, the company takes on an 11th employee, `Chris Dean`. Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
 
 So **what happens if the company expands and takes on more employees**? What could we do? 
 
-- We could *make the array bigger when we create it*. Try drawing an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. Looking at what you have drawn, *can you see the problem*? 
+- We could *make the array bigger when we create it*. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. *Can you see the problem*? The *storage is inefficient* as the array has 30 spaces but only 11 are needed.
 
 ## Working with arrays in Python
 
-You will have been introduced to Python programming this week on another module, COM411. In this exercise, however, you will explore how to create and index a simple *array* in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the *list*, which is a flexible language component able to be used not just as an array but as various other data structures.
+**Note that this section is not necessary if you are studying this module over the summer, as you should be comfortable with this as you have already completed COM411. If you are on the summer instance, we will skip this section.**
 
-For this reason we are not going to use the list, but use a code component that is a more accurate representation of an array, including the array's fixed-size limitation. This is part of the third-party Python package [NumPy](https://numpy.org) which is the standard for mathematical computing in Python.
-
-When we code our own more complex data structures later, we will also use the NumPy array.
+You are being introduced to Python programming on another module, COM411. In this section, however, wewill explore how to create and index a simple *array* like data structure in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the *list*, which is a flexible language component able to be used not just as an array but as various other data structures. However, here, we will treat the list as if it was an array.
 
 ### Using Repl
 
-If you have had your COM411 class this week already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. [Repl](https://repl.it) is an online environment which allows you to program without setting up software on your own computer.
+If you have had your first COM411 class already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. [Repl](https://repl.it) is an online environment which allows you to program without setting up software on your own computer.
 
-You can login to Repl using your [GitHub](https://github.com) account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to *version-control* your code, in other words you can *commit* your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.
+You can login to Repl using either a Repl account or your [GitHub](https://github.com) account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to *version-control* your code, in other words you can *commit* your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.
 
-Once you have created a GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.
+Once you have created a Repl account or GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.
 
 ![Repl interface](images/repl1.png)
 
@@ -93,39 +67,15 @@ Hello World!
 ```
 ![Repl Console Output](images/repl3.png)
 
-### Creating a simple program making use of a NumPy array
 
-Now create a new Repl, to allow you to write a program which makes use of a NumPy array. Enter this code.
-```python
-import numpy
-operating_systems = numpy.array(["Linux", "Windows", "Mac OS X"])
-print(operating_systems[0])
-```
+## Advantages and disadvantages of arrays
 
-Note a couple of things:
-
-- We create the array using `numpy.array` and pass in a *sequence* of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.
-- Note the code: `operating_systems[0]`. This is using an array *index* - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.
-
-Try running this code but *before you do so*, try to predict what will be displayed.
-
-Once you have done so, extend your code so that "Mac OS X" is displayed (*by indexing the array*).
-
-Now, imagine you want to add two more entries to the array, "Android" and "iOS". *Before trying it*, do you think this would work?
-```python
-operating_systems[3] = "Android"
-operating_systems[4] = "iOS"
-```
-Now run it. Do you get the result that you expected?
-
-### Advantages and disadvantages of arrays
-
-#### Advantage: Fast lookup
+### Advantage: Fast lookup
 
 As we saw above, the advantage of using an array is that it is very fast to *index* an array. This is because arrays are always *sequentially stored in memory*, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.
 
 When indexing an array, the computer is able to work out where in memory the
-data is stored, **because each member of a NumPy array uses up the same number of bytes**. The equation is simply:
+data is stored, **because each member of an array uses up the same number of bytes**. The equation is simply:
 ```
 Address = Start Address + Index * Size Of One Member
 ```
@@ -142,7 +92,7 @@ we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, **arrays are optimised for fast look-up of data using a 
 numerical index**.
 
-#### Disadvantage: not flexible, an array cannot be resized
+### Disadvantage: not flexible, an array cannot be resized
 
 We have seen already from our paper exercise with arrays, that they are not
 so flexible if we need to add more data later. When we create an array, we have
@@ -157,18 +107,7 @@ If we wanted to add additional members onto an array, we would have to:
 - Add the new members onto the end of the array.
   
 
-##### Exercise
-
-Do this exercise on paper. 
-
-- Draw a 3-member array containing the values "Linux", "Windows" and "Mac OS X".
-- Draw a new, empty 5-member array with space for the two new values "Android" and "iOS". However, do not add these yet.
-- Write a heading "Copying old array to new array". Under this heading.
-draw the second array again, with the three existing members "Linux", "Windows" and "Mac OS X" inserted in the first three places.
-- Write a heading "Adding new members to new array". Under this heading, 
-draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.
-
-#### Further disadvantage: insertion difficult (Further reading, not covered in class)
+### Further disadvantage: insertion difficult 
 
 What if we wanted to add a new member at a *specific position* in the array?
 For example, imagine we had an array of contacts that we wished to keep in 
@@ -182,13 +121,10 @@ Earl Edwards
 Frances Freeman
 ```
 
-
-#### Exercise
-
 Imagine we had a new name, `Danielle Dawson` which we wanted to insert between `Charley Chase` and `Earl Edwards` in the array above. Using a similar technique as the exercise above, try doing it on paper. Can you see the problem here?
- 
-(**Bonus point if anyone can figure out where the first names of these imaginary people come from; you need to be exact!**)
 
+(TODO:diagram)
+ 
 ## More flexible data structures
 
 We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.
@@ -221,7 +157,112 @@ we do this here? **We cannot. This is because, in a linked list, items are not
 stored continuously in memory. Instead, each node contains references to the 
 memory locations of the previous and the following node.**
 
-### Exercise
+
+## The stack
+
+A stack data structure involves adding items from bottom to top, rather like a
+stack of plates. When we remove items from the stack, we remove from the top,
+again just like a stack of plates.
+The stack is known as a "last in first out" or "LIFO" data structure.
+It is called this, because the last things we add to the stack, are the
+first things we remove. Here is an example of a simple stack of numbers.
+
+![Simple stack](images/stack.png)
+
+A stack can be used for any operation in which we need to navigate back to
+a previous state. Examples could include:
+
+- Browser navigation. When we visit a website, we often need to navigate back to a previous site. When we click the 'Back' button, we want to return to the site *immediately preceding* the one we are currently viewing. So when you click 'Back', the current site might be *removed from the stack* so that you return to the previous site.
+
+- Directory/folder structure. When navigating the folder system of your computer, you typically start at a 'root' folder (for example `C:\` on Windows, or your home directory on Linux) and then navigate to subfolders, for example `C:\Pictures`. You then might navigate to a sub-sub-folder, such as `C:\Pictures\Holiday` and then `C:\Pictures\Holiday\2018` and so on. In a subfolder you can navigate upwards to the previous folder, so that if you are in `C:\Pictures\Holiday` and you navigate upwards, you arrive at `C:\Pictures` and then `C:\` if you navigate upwards once more. So the process of navigating upwards *removes the current folder from the stack* and returns to the previous folder.
+
+- "Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then removed from the stack.
+
+(In actual fact, each of these is now implemented in a slightly more complex way, in the sense that you can, in modern browsers, move both back and forwards along your history, but we are assuming a more simplified implementation in which you can only move back for the purposes of illustrating a stack).
+
+Another use of stacks, which you will appreciate more when you have done more programming, is:
+
+- Storing function calls in a program.
+
+The two key operations of a stack, adding and removing items, have special
+terms.
+
+- **Push**. To *push* an item onto a stack means to add it to the top.
+It is possible the stack may only have a certain capacity, i.e. it can only hold
+a certain number of items (perhaps due to memory constraints) in which case an error occurs if the stack is full.
+
+- **Pop**. To *pop* an item off the stack means to remove it from the top.
+The item is removed, and we also obtain it as a result of the pop operation.
+If the stack is empty, an error is generated.
+
+An additional operation is:
+
+- **Peek**, To *peek* a stack is to obtain the value of the top-most item of the stack *without* removing it.
+
+
+## Exercises
+ 
+### Exercise 1: Arrays: Paper-based
+
+You are writing a program to store employees for a company. It's a small company, with only 10 employees. Try drawing, on paper, an array containing these 10 
+employees. Draw each name in each position in the array, similar to the 
+diagram above containing an array of fruit.
+
+```
+John Stevenson
+Jane Smith
+Tim Wilson
+Kate Stevenson
+Kate Palmer
+Tom Eastman
+Laura Green
+Mike Watson
+Sally Black
+Mark Ramsey
+```
+
+Answer these questions:
+
+- What would be the index of `Kate Stevenson` in this array? What about `Mike Watson`?
+
+- If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing `Kate Stevenson`?
+
+### Arrays (code): Creating a simple program making use of an array
+
+Here is a program which makes use of an array (it's actually a Python <em>list</em>, but we're going to treat it as an array). 
+```python
+operating_systems = ["Linux", "Windows", "Mac OS X"]
+print(operating_systems[0])
+```
+
+Note a couple of things:
+
+- We define the array using square brackets <code>[]</code> and pass in a *sequence* of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.
+- Note the code: `operating_systems[0]`. This is using an array *index* - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.
+
+Try running this code but *before you do so*, try to predict what will be displayed.
+
+Once you have done so, extend your code so that "Mac OS X" is displayed (*by indexing the array*).
+
+Now, imagine you want to add two more entries to the array, "Android" and "iOS". *Before trying it*, do you think this would work?
+```python
+operating_systems[3] = "Android"
+operating_systems[4] = "iOS"
+```
+Now run it. Do you get the result that you expected?
+
+#### Exercise 3 arrays
+
+Do this exercise on paper. 
+
+- Draw a 3-member array containing the values "Linux", "Windows" and "Mac OS X".
+- Draw a new, empty 5-member array with space for the two new values "Android" and "iOS". However, do not add these yet.
+- Write a heading "Copying old array to new array". Under this heading.
+draw the second array again, with the three existing members "Linux", "Windows" and "Mac OS X" inserted in the first three places.
+- Write a heading "Adding new members to new array". Under this heading, 
+draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.
+
+### Exercise : Linked List
 
 1. Think about what you would have to do to search for a particular
    item in a linked list using its index, starting at the beginning. 
@@ -266,47 +307,6 @@ Finally, think about adding a member into the middle of the list. Remember the o
     place between `Charley Chase` and `Earl Edwards`. What operations need to be
     done now? Would this be more or less efficient than using an array? Is this easy to tell? 
 
-## The stack
-
-A stack data structure involves adding items from bottom to top, rather like a
-stack of plates. When we remove items from the stack, we remove from the top,
-again just like a stack of plates.
-The stack is known as a "last in first out" or "LIFO" data structure.
-It is called this, because the last things we add to the stack, are the
-first things we remove. Here is an example of a simple stack of numbers.
-
-![Simple stack](images/stack.png)
-
-A stack can be used for any operation in which we need to navigate back to
-a previous state. Examples could include:
-
-- Browser navigation. When we visit a website, we often need to navigate back to a previous site. When we click the 'Back' button, we want to return to the site *immediately preceding* the one we are currently viewing. So when you click 'Back', the current site might be *removed from the stack* so that you return to the previous site.
-
-- Directory/folder structure. When navigating the folder system of your computer, you typically start at a 'root' folder (for example `C:\` on Windows, or your home directory on Linux) and then navigate to subfolders, for example `C:\Pictures`. You then might navigate to a sub-sub-folder, such as `C:\Pictures\Holiday` and then `C:\Pictures\Holiday\2018` and so on. In a subfolder you can navigate upwards to the previous folder, so that if you are in `C:\Pictures\Holiday` and you navigate upwards, you arrive at `C:\Pictures` and then `C:\` if you navigate upwards once more. So the process of navigating upwards *removes the current folder from the stack* and returns to the previous folder.
-
-- "Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then removed from the stack.
-
-(In actual fact, each of these is now implemented in a slightly more complex way, in the sense that you can, in modern browsers, move both back and forwards along your history, but we are assuming a more simplified implementation in which you can only move back for the purposes of illustrating a stack).
-
-Another use of stacks, which you will appreciate more when you have done more programming, is:
-
-- Storing function calls in a program.
-
-The two key operations of a stack, adding and removing items, have special
-terms.
-
-- **Push**. To *push* an item onto a stack means to add it to the top.
-It is possible the stack may only have a certain capacity, i.e. it can only hold
-a certain number of items (perhaps due to memory constraints) in which case an error occurs if the stack is full.
-
-- **Pop**. To *pop* an item off the stack means to remove it from the top.
-The item is removed, and we also obtain it as a result of the pop operation.
-If the stack is empty, an error is generated.
-
-An additional operation is:
-
-- **Peek**, To *peek* a stack is to obtain the value of the top-most item of the stack *without* removing it.
-
 ### Stacks Exercise
 
 We are now going to perform another paper-based exercise with stacks, to help
@@ -317,7 +317,6 @@ below, and explain what, if anything is returned from each operation and
 any errors that might occur.
 
 `push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().`
-
 ## Reading for next week
 
-The notes for next week will appear by Monday morning. We will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on *Classes and Objects in Python*.
+Next time we will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on *Classes and Objects in Python*.
