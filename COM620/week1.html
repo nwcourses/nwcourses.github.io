@@ -135,7 +135,8 @@ draw anything yet. We will start with this HTML:</p>
 &lt;script type='text/javascript' src='three.js'&gt;&lt;/script&gt;
 
 &lt;!-- Load your own JavaScript code (shown below) --&gt;
-&lt;script type='module' src='index.js'&gt;&lt;/script&gt;
+&lt;!-- 'defer' ensures it loads after the page has loaded --&gt;
+&lt;script type='text/javascript' src='index.js' defer&gt;&lt;/script&gt;
 
 &lt;/head&gt;
 &lt;body&gt;
@@ -185,7 +186,7 @@ The four arguments above define a shape, resembling a sawn-off pyramid, known as
 the scene each time the display refreshes. We write a function <code>renderScene()</code> to do the rendering and schedule it using the JavaScript function
 <code>requestAnimationFrame()</code> (not part of three.js, but a standard browser API
 function). <code>requestAnimationFrame()</code> schedules a function to run before the next browser repaint (<a href="https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame">Mozilla</a>).  The idea is we render the scene as often as possible so that if the positions of the camera or the objects change, the scene will update.</p>
-<p>In <code>renderScene()</code> we call the three.js <code>renderer</code>'s <code>render()</code> method to render the given <code>scene</code> using the given <code>camera</code>. Then, once we've drawn the scene, we request it to be drawn again with another call to <code>requestAnimationFrame()</code>. Note that <code>requestAnimationFrame()</code> is rather like <code>setTimeout()</code> but has smoother animation as it matches the display refresh rate. It's also a bit like A-Frame's <code>tick()</code> but must be re-called on each rendering, it will not automatically be called repeatedly.</p>
+<p>In <code>renderScene()</code> we call the three.js <code>renderer</code>'s <code>render()</code> method to render the given <code>scene</code> using the given <code>camera</code>. Then, once we've drawn the scene, we request it to be drawn again with another call to <code>requestAnimationFrame()</code>.</p> 
 <h3 id="addinga3dobjecttotheexample">Adding a 3D object to the example</h3>
 <p>The next example creates a 3D box:</p>
 <pre><code>
@@ -195,7 +196,7 @@ const camera = new THREE.PerspectiveCamera(80, 2, 0.1, 10000);
 const renderer = new THREE.WebGLRenderer({canvas: canvas});
 const scene = new THREE.Scene();
 
-const geom = new THREE.BoxGeometry(2,2,2);
+const geom = new THREE.BoxGeometry(1,1,1);
 const material = new THREE.MeshBasicMaterial({color: 0xff0000});
 const mesh = new THREE.Mesh(geom, material);
 mesh.position.z = -10;
@@ -209,7 +210,7 @@ function renderScene() {
 }
 </code></pre>
 <p>Note how in this example we create a <code>BoxGeometry</code> with dimensions in the 
-x, y and z directions of 2 (this is similar to setting the <code>scale</code> in A-Frame).
+x, y and z directions of 1.
 Then we create a <code>material</code>: the <code>MeshBasicMaterial</code> is a basic material which does not have any special properties for reflecting light, for example. We define its colour: note that we do not use HTML-style colour strings (e.g. <code>"#ff0000"</code>) but instead, a numerical value for the colour. We use hexadecimal (<code>0x</code>) to allow us to define the colour in terms of red, green and blue components: note that <code>0xff0000</code> is equivalent to <code>#ff0000</code>.</p>
 <p>Finally we create a <code>mesh</code> using the geometry and material, and add it to the scene.  Note how we set the mesh's <code>position</code>, by setting the <code>z</code> property of its <code>position</code> property. </p>
 <p>The rendering function is the same as before.</p>
@@ -217,8 +218,7 @@ Then we create a <code>material</code>: the <code>MeshBasicMaterial</code> is a 
 <p>The <code>Object3D</code> class (described <a href="https://threejs.org/docs/index.html#api/en/core/Object3D">here</a>) is a fundamental component of three.js.
 <code>Object3D</code> represents a three.js object which can be moved, rotated, 
 and scaled. Other three.js objects, such as meshes and cameras, are examples
-of <code>Object3D</code>s. Furthermore <code>Object3D</code> forms the key link between three.js and
-A-Frame, to be described later.</p>
+of <code>Object3D</code>s. Furthermore <code>Object3D</code> forms the key link between three.js and A-Frame, to be described later.</p>
 <h3 id="exercise1">Exercise 1</h3>
 <ul>
 <li>Change the code so the box is rotated 45 degrees around the y axis, using the mesh's <code>rotation</code> property.</li>
