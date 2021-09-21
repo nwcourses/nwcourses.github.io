@@ -213,43 +213,6 @@ x, y and z directions of 2 (this is similar to setting the <code>scale</code> in
 Then we create a <code>material</code>: the <code>MeshBasicMaterial</code> is a basic material which does not have any special properties for reflecting light, for example. We define its colour: note that we do not use HTML-style colour strings (e.g. <code>"#ff0000"</code>) but instead, a numerical value for the colour. We use hexadecimal (<code>0x</code>) to allow us to define the colour in terms of red, green and blue components: note that <code>0xff0000</code> is equivalent to <code>#ff0000</code>.</p>
 <p>Finally we create a <code>mesh</code> using the geometry and material, and add it to the scene.  Note how we set the mesh's <code>position</code>, by setting the <code>z</code> property of its <code>position</code> property. </p>
 <p>The rendering function is the same as before.</p>
-<h3 id="handlingscreenresizeevents">Handling screen resize events</h3>
-<p>The example so far just uses a canvas with a fixed size: width 300, height 150. However, more commonly, particularly on a mobile platform, we need the canvas to <em>adapt</em> to the screen size. So more commonly we will set the canvas to occupy the whole of the screen e.g.:</p>
-<pre><code>&lt;canvas id='canvas1' style='display: block; width:100%; height:100%'&gt;&lt;/canvas&gt;
-</code></pre>
-<p>We also have to, in our CSS, specify that the <code>html</code> and <code>body</code> elements will have a <code>width</code> and <code>height</code> of 100% so that the <code>html</code> (the viewport) and the <code>body</code> (the content) - and thus the canvas, which occupies the whole of the body - will stretch to cover the whole window when the window resizes.</p>
-<pre><code>&lt;style&gt;
-html, body {
-    width: 100%;
-    height: 100%;
-}
-&lt;/style&gt;
-</code></pre>
-<p>Try modifying your HTML in this way: give the canvas 100% width and height
-and add some CSS to set the <code>html</code> and <code>body</code> width and height to 100%.
-What happens?</p>
-<h4 id="theresult">The result</h4>
-<p>You will find that the box appears "blocky" and "pixelated". Why? The 
-problem relates to the difference between <em>canvas width and height</em> and <em>CSS width and height</em>. They are two different things. Even though the canvas will have a <em>CSS</em> width and height which covers the whole screen, its <em>canvas</em> width and height will still be 300x150. This is rather like setting the CSS width and height of an image of 300x150 pixels to 100% of the body. The image will still be 300x150 - its resolution will not magically increase - but it will be stretched across the whole of the page so will appear pixelated with poor resolution. Canvases are internally similar to images in HTML - what we are doing is stretching a 300x150 canvas across the entire screen without increasing the resolution of the actual canvas.</p>
-<p>This is shown below. Here is a cube image of dimensions 300x150:</p>
-<p><img src="../images/cube.png" alt="Unstretched cube image" /></p>
-<p>but here is the same image with the CSS width and height set to 900x450
-(even though the actual image is still 300x150):</p>
-<p><img src="../images/cube.png" alt="Stretched image" style="width: 900px; height: 450px" /></p>
-<p>To increase the canvas resolution, we have to reset its <code>width</code> and <code>height</code> properties (these are the canvas width and height) so that they are the same as the CSS width and height of the canvas element. To obtain the <em>CSS</em> width and height of the canvas, we can use <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code>.</p>
-<p>What we can then do, in our rendering function, is to test whether the canvas width and height are different to the CSS width and height. If they are (which will occur after a resize), we reset the width and height of the canvas. For example, you can add this code to your <code>renderScene()</code> function:</p>
-<pre><code>if(canvas.width != canvas.clientWidth || canvas.height != canvas.clientHeight) {
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-}
-</code></pre>
-<p>We call the renderer's <code>setSize()</code> method to perform the resizing rather than directly changing the canvas properties, this ensures that three.js keeps track of the changes.</p>
-<h3 id="updatingtheaspectratio">Updating the aspect ratio</h3>
-<p>Once you've updated the canvas size in the previous example, you will still see a problem. Namely, the cube becomes distorted as you resize the window. This is because you have setup a camera with an aspect ratio of 2 (which it will be by default, due to the default canvas size of 300x150) but the canvas no longer has an aspect ratio of 2. So when the renderer is resized, you have to recalculate the aspect ratio of the canvas and reset the camera's aspect ratio appropriately. This can be done with:</p>
-<pre><code>camera.aspect = canvas.clientWidth / canvas.clientHeight;
-camera.updateProjectionMatrix();
-</code></pre>
-<p>The first line should be obvious. The second is perhaps less so. Internally, three.js uses a mathematical <em>matrix</em> known as the <em>projection matrix</em> to represent the perspective; this matrix is used to draw objects with the correct perspective. The projection matrix depends on the properties of the viewing frustum: the aspect ratio, the field of view, and the near and far clip planes. Once we've updated the aspect ratio, we have to update the projection matrix as this will not be done automatically.</p>
-<p>Add the code above to your <code>if</code> statement which handles screen resize. You will find that the box appears correctly as a cube even if you resize the window.</p>
 <h3 id="theobject3dclass">The Object3D class</h3>
 <p>The <code>Object3D</code> class (described <a href="https://threejs.org/docs/index.html#api/en/core/Object3D">here</a>) is a fundamental component of three.js.
 <code>Object3D</code> represents a three.js object which can be moved, rotated, 
@@ -263,7 +226,9 @@ A-Frame, to be described later.</p>
 </ul>
 <h3>Exercise 2</h3>
 <ul>
-<li>Add buttons to control the camera's x, y and z position. Add these below the canvas. There should be six buttons labelled <strong>-x</strong>, <strong>+x</strong>, <strong>-y</strong>, <strong>+y</strong>, <strong>-z</strong> and <strong>+z</strong>. When these are clicked, the camera should move one unit in the appropriate direction. Remember that you can set up an event listener on a button using <code>addEventListener()</code> and passing in an arrow function to handle the event, as follows:
+<li>Add buttons to control the camera's x, y and z position. Add these below the canvas. There should be six buttons labelled <strong>-x</strong>, <strong>+x</strong>, <strong>-y</strong>, <strong>+y</strong>, <strong>-z</strong> and <strong>+z</strong>. Remember that to create a button, you need to use an &lt;input&gt; tag with a <code>type</code> of button, e.g.
+<pre>&lt;input type="button" value="Button text" id="button_id" /&gt;</pre>
+When these are clicked, the camera should move one unit in the appropriate direction. Remember also that you can set up an event listener on a button using <code>addEventListener()</code> and passing in an arrow function to handle the event, as follows:
 <pre>
 document.getElementById("button1").addEventListener("click", e =&gt; {
 	// add code to move the camera in here
@@ -285,7 +250,8 @@ document.getElementById("button1").addEventListener("click", e =&gt; {
 	</ul>
 Try moving along the different axes to see the shapes from different positions.
 </li>
-<li>Add two more buttons to rotate the camera clockwise and anticlockwise around the y-axis. Note that angles <em>increase anticlockwise</em>; also note <em>radians</em> are used for rotation angles rather than degrees; 180 degrees is equal to PI radians. You can convert between degrees and radians easily using three.js's <code>THREE.Math.degToRad()</code> and <code>THREE.Math.radToDeg()</code> functions, e.g:
+<li>You will find that the cylinder and cone both look rather low-resolution and 'blocky'. Look at the documentation, linked to above, to find out how to increase their resolution and produce a smoother cylinder and cone.</li>
+<li>Add two more buttons to rotate the camera clockwise and anticlockwise around the y-axis by 10 degrees. Note that angles <em>increase anticlockwise</em>; also note <em>radians</em> are used for rotation angles rather than degrees; 180 degrees is equal to PI radians. You can convert between degrees and radians easily using three.js's <code>THREE.Math.degToRad()</code> and <code>THREE.Math.radToDeg()</code> functions, e.g:
 <pre>const rad = THREE.Math.degToRad(deg);</pre>
 </li>
 <li>Test out the rotation functionality to make sure you can rotate the camera to look round the world. <em>Note that you will not yet be able to move forward in the direction the camera is facing;</em>, this requires simple trigonometry and we will consider this next time.</li>
