@@ -1,7 +1,6 @@
 # Week 1 - Basic Data Structures
 
-This week we will be looking at some basic *data structures*, the array, the linked list and the stack, and looking at their relevance. We will also start some basic Python programming using inbuilt data structures.
-
+This week we will be looking at some basic *data structures*, the array, the linked list and the stack, and looking at their relevance. We will also start some very basic Python programming using arrays. 
 
 ## The importance of data structures
 
@@ -23,14 +22,18 @@ The things to note here are:
 
 - The items in an array are stored *continuously in the computer's memory* and *each item in the array uses the same amount of memory*. Here we assume that each item uses 64 bytes, so that the first item is stored at memory address 512, the second at memory address 576 and so on. This has some important consequences for performance of arrays versus other data structures, to be considered later.
 
-This is a good point to introduce *algorithm complexity* with the "Big O" notation. We will look at algorithm complexity and "Big O" notation in more depth later in the module, but a quick introduction here. It is essentially a measure of the efficiency of code in terms of time taken, typically CPU time. Because arrays are stored continuously in memory, the process of indexing an array *does not depend on the number of items in the array* or, indeed, *what index (index 0, index 1, index 2, etc) we specify*. So we say that indexing an array is a *constant time* operation or *O(1)*.
 
-Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. We will explore this in the (paper) exercise below.
+Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. 
 
 
 #### Exploring the problems with arrays
 
-Let's say, though, the company takes on an 11th employee, `Chris Dean`. Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
+Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).
+
+![Adding to an array](images/array_problems.png)
+
+Let's say, though, the company takes on an 11th employee, `Ulysses Vernon` (UV). Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
+
 
 So **what happens if the company expands and takes on more employees**? What could we do? 
 
@@ -94,11 +97,7 @@ numerical index**.
 
 ### Disadvantage: not flexible, an array cannot be resized
 
-We have seen already from our paper exercise with arrays, that they are not
-so flexible if we need to add more data later. When we create an array, we have
-to either list all the data we want to store in the array, or alternatively
-specify its size. We cannot then add additional members onto the end of the
-array.
+We have seen already that they are not so flexible if we need to add more data later. When we create an array, we have to either list all the data we want to store in the array, or alternatively specify its size. We cannot then add additional members onto the end of the array.
 
 If we wanted to add additional members onto an array, we would have to:
 
@@ -199,7 +198,6 @@ An additional operation is:
 
 - **Peek**, To *peek* a stack is to obtain the value of the top-most item of the stack *without* removing it.
 
-
 ## Exercises
  
 ### Exercise 1: Arrays: Paper-based
@@ -227,7 +225,7 @@ Answer these questions:
 
 - If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing `Kate Stevenson`?
 
-### Arrays (code): Creating a simple program making use of an array
+### Exercise 2: Arrays (code): Creating a simple program making use of an array
 
 Here is a program which makes use of an array (it's actually a Python <em>list</em>, but we're going to treat it as an array). 
 ```python
@@ -251,7 +249,7 @@ operating_systems[4] = "iOS"
 ```
 Now run it. Do you get the result that you expected?
 
-#### Exercise 3 arrays
+#### Exercise 3: Adding new data to an array (paper)
 
 Do this exercise on paper. 
 
@@ -262,7 +260,7 @@ draw the second array again, with the three existing members "Linux", "Windows" 
 - Write a heading "Adding new members to new array". Under this heading, 
 draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.
 
-### Exercise : Linked List
+### Exercise 4 : Linked List (paper)
 
 1. Think about what you would have to do to search for a particular
    item in a linked list using its index, starting at the beginning. 
@@ -293,9 +291,21 @@ draw the second array with the new values "Android" and "iOS" inserted into the 
 
     Now try and add new elements "Android" and "iOS" to the end. What do you have to do?
 
-#### Further exercise, not covered in class
 
-Finally, think about adding a member into the middle of the list. Remember the ordered list of names:
+### Exercise 5: Stacks
+
+We are now going to perform another paper-based exercise with stacks, to help
+you understand them and their operations.
+
+Imagine you have an empty stack. Draw the stack after each operation
+below, and explain what, if anything is returned from each operation and
+any errors that might occur.
+
+`push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().`
+
+## Advanced exercise
+
+Return to your linked list exercise (exercise 4, above). Think about adding a member into the middle of the list. Remember the ordered list of names:
 
         - Alex Acland
         - Bonnie Black
@@ -307,16 +317,6 @@ Finally, think about adding a member into the middle of the list. Remember the o
     place between `Charley Chase` and `Earl Edwards`. What operations need to be
     done now? Would this be more or less efficient than using an array? Is this easy to tell? 
 
-### Stacks Exercise
-
-We are now going to perform another paper-based exercise with stacks, to help
-you understand them and their operations.
-
-Imagine you have an empty stack. Draw the stack after each operation
-below, and explain what, if anything is returned from each operation and
-any errors that might occur.
-
-`push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().`
 ## Reading for next week
 
 Next time we will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on *Classes and Objects in Python*.
