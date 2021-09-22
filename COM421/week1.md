@@ -30,12 +30,14 @@ Arrays do have some disadvantages. Their simplicity makes them easy to work with
 
 Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).
 
-![Adding to an array](images/array_problems.png)
+![Employee array](images/employee_array.png)
 
-Let's say, though, the company takes on an 11th employee, `Ulysses Vernon` (UV). Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
+Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
 
 
 So **what happens if the company expands and takes on more employees**? What could we do? 
+
+![Adding to an array](images/array_problems.png)
 
 - We could *make the array bigger when we create it*. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. *Can you see the problem*? The *storage is inefficient* as the array has 30 spaces but only 11 are needed.
 
@@ -105,6 +107,7 @@ If we wanted to add additional members onto an array, we would have to:
 - Copy all the existing members into the new array;
 - Add the new members onto the end of the array.
   
+![Array extension](images/array_extension.png)
 
 ### Further disadvantage: insertion difficult 
 
@@ -120,16 +123,25 @@ Earl Edwards
 Frances Freeman
 ```
 
-Imagine we had a new name, `Danielle Dawson` which we wanted to insert between `Charley Chase` and `Earl Edwards` in the array above. Using a similar technique as the exercise above, try doing it on paper. Can you see the problem here?
+Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What we would have to do is:
 
-(TODO:diagram)
- 
+- Create a new array, with one more space than the original array;
+- Copy the existing elements over to the new array, leaving a space for the new member;
+- Add the new member to the appropriate space in the new array. 
+
+![Array Insertion](images/array_insert.png)
+
+Clearly this is inefficient as we have to *create a new array*, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. 
+
 ## More flexible data structures
 
 We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.
 
-In fact Python uses one such data structure, the *list*. A list is essentially an extensible array, which does not have a fixed initial size; you can add additional items of data to the end of the list, and keep doing so until the computer
-runs out of memory.
+In fact Python uses one such data structure, the *list*. A list can act, amongst other things, as an extensible array, which does not have a fixed initial size; you can add additional items of data to the end of the list, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, this may require creation of a new array with additional space to hold the new elements.
+
+(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See [here](https://www.laurentluce.com/posts/python-list-implementation/) for details.)
+
+Other languages have similar "extensible array" data structures, for instance C++ has the `vector` and Java has the `ArrayList`.
 
 ## The linked list
 
@@ -221,13 +233,13 @@ Mark Ramsey
 
 Answer these questions:
 
-- What would be the index of `Kate Stevenson` in this array? What about `Mike Watson`?
+- What would be the index of "Kate Stevenson" in this array? What about "Mike Watson"?
 
 - If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing `Kate Stevenson`?
 
 ### Exercise 2: Arrays (code): Creating a simple program making use of an array
 
-Here is a program which makes use of an array (it's actually a Python <em>list</em>, but we're going to treat it as an array). 
+1. Here is a program which makes use of an array (it's actually a Python <em>list</em>, but we're going to treat it as an array). 
 ```python
 operating_systems = ["Linux", "Windows", "Mac OS X"]
 print(operating_systems[0])
@@ -247,18 +259,20 @@ Now, imagine you want to add two more entries to the array, "Android" and "iOS".
 operating_systems[3] = "Android"
 operating_systems[4] = "iOS"
 ```
-Now run it. Do you get the result that you expected?
+Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are not resizable.
+
+2. Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.
 
 #### Exercise 3: Adding new data to an array (paper)
 
-Do this exercise on paper. 
+Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.
 
-- Draw a 3-member array containing the values "Linux", "Windows" and "Mac OS X".
-- Draw a new, empty 5-member array with space for the two new values "Android" and "iOS". However, do not add these yet.
+- Draw a 4-member array containing the values "C++", "Java", "PHP" and "Python"
+- Draw a new, empty 6-member array with space for the two new values "JavaScript" and "Kotlin". However, do not add these yet.
 - Write a heading "Copying old array to new array". Under this heading.
-draw the second array again, with the three existing members "Linux", "Windows" and "Mac OS X" inserted in the first three places.
+draw the second array again, with the existing members "C++", "Java", "PHP" and "Python" inserted, leaving two spaces in the middle (the data is sorted in alphabetical order) for the two new entries. 
 - Write a heading "Adding new members to new array". Under this heading, 
-draw the second array with the new values "Android" and "iOS" inserted into the last two spaces in the array.
+draw the second array with the new values "JavaScript" and "Kotlin" inserted into the two spaces in the array.
 
 ### Exercise 4 : Linked List (paper)
 
@@ -267,29 +281,26 @@ draw the second array with the new values "Android" and "iOS" inserted into the 
 
     Draw out a linked list containing the 5 items of data: 
 
-        - Linux
-        - Windows
+        - Linux 
+        - Windows 
         - Mac OS X
         - Android
         - iOS
 
     Imagine we wish to retrieve the item with index 3 (Android). How could we 
     do this? Draw out how you think it could be done on paper, and ask yourself:
-    **how efficient is this**, particularly compared to doing the same thing with
-    an array. 
-
-    Revisiting algorithm complexity and the "Big O" notation, what property does the efficiency of the operation depend upon?
+    **how efficient is this**, particularly compared to doing the same thing with an array. 
 
 2.  Remember with an array, that we had problems if we wanted to add new data
     to the array. We had to create a brand new array with more space, and copy the 
     old data into the new array before adding the new data. Think about doing the
-    same thing with a linked list. Draw a linked list containing the elements 
+    same thing with a linked list. On paper, draw a linked list containing the elements 
 
         - Linux
         - Windows
         - Mac OS X
 
-    Now try and add new elements "Android" and "iOS" to the end. What do you have to do?
+    Now try and add new element "Android" to the end of the linked list. What do you have to do? 
 
 
 ### Exercise 5: Stacks
@@ -303,19 +314,17 @@ any errors that might occur.
 
 `push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().`
 
-## Advanced exercise
+### Exercise 6: Linked list insertion 
 
 Return to your linked list exercise (exercise 4, above). Think about adding a member into the middle of the list. Remember the ordered list of names:
 
-        - Alex Acland
-        - Bonnie Black
-        - Charley Chase
-        - Earl Edwards
-        - Frances Freeman
+- Alex Acland
+- Bonnie Black
+- Charley Chase
+- Earl Edwards
+- Frances Freeman
 
-    Draw these as a linked list. Now try to add `Danielle Dawson` at the appropriate
-    place between `Charley Chase` and `Earl Edwards`. What operations need to be
-    done now? Would this be more or less efficient than using an array? Is this easy to tell? 
+On paper Draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Do you think this would be more or less efficient than using an array? 
 
 ## Reading for next week
 
