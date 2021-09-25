@@ -159,8 +159,7 @@ we link the new node back to the previous node to form a two-way link.
 
 The first node in the list links to nothing in the reverse direction (indicated in Python by the special value `None`) and similarly, the final node in the list links to nothing in the forward direction.
  
-What are the consequences of this? We will examine this by considering the
-three scenarios we looked at for arrays:
+What are the consequences of this? 
 
 - Remember how we could use simple arithmetic, using the array index, to 
 calculate the location in memory of a given element in an array. Can
@@ -168,6 +167,9 @@ we do this here? **We cannot. This is because, in a linked list, items are not
 stored continuously in memory. Instead, each node contains references to the 
 memory locations of the previous and the following node.**
 
+- On the other hand, **as long as we have a reference to both the start and the end of the linked list, it's efficient to add a new member to the end of the linked list**. We can just create a new node and link it, both ways, to the end node. Contrast this to arrays, in which we had to create a new array with additional space and copy the elements over. We will explore this in more detail in the exercises this week.
+
+- Insertion into the *middle* of the list has mixed efficiency. On the one hand we have to find the index we want to insert the element at (which as we saw above is inefficient), on the other hand the actual insertion process is easier as we can just break the existing links between the node BEFORE the element we want to insert and the node AFTER this element, and then link in the new element. Again we will look at this in the exercises.
 
 ## The stack
 
@@ -263,7 +265,7 @@ Now run it. Do you get the result that you expected? See how this illustrates an
 
 2. Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.
 
-#### Exercise 3: Adding new data to an array (paper)
+### Exercise 3: Adding new data to an array (paper)
 
 Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.
 
@@ -300,7 +302,7 @@ draw the second array with the new values "JavaScript" and "Kotlin" inserted int
         - Windows
         - Mac OS X
 
-    Now try and add new element "Android" to the end of the linked list. What do you have to do? 
+    Now try and add new element "Android" to the end of the linked list. What do you have to do? Draw out what happens on paper.
 
 
 ### Exercise 5: Stacks
@@ -324,7 +326,7 @@ Return to your linked list exercise (exercise 4, above). Think about adding a me
 - Earl Edwards
 - Frances Freeman
 
-On paper Draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Do you think this would be more or less efficient than using an array? 
+On paper Draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? 
 
 ## Reading for next week
 

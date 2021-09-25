@@ -75,7 +75,7 @@ Charley Chase
 Earl Edwards
 Frances Freeman
 </code></pre>
-<p>Imagine we had a new name, <code>Danielle Dawson</code> which we wanted to insert between <code>Charley Chase</code> and <code>Earl Edwards</code> in the array above. What we would have to do is:</p>
+<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What we would have to do is:</p>
 <ul>
 <li>Create a new array, with one more space than the original array;</li>
 <li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
@@ -99,14 +99,15 @@ linked list.</p>
 a new item of data, we make the previous node link to the new node, and
 we link the new node back to the previous node to form a two-way link.</p>
 <p>The first node in the list links to nothing in the reverse direction (indicated in Python by the special value <code>None</code>) and similarly, the final node in the list links to nothing in the forward direction.</p>
-<p>What are the consequences of this? We will examine this by considering the
-three scenarios we looked at for arrays:</p>
+<p>What are the consequences of this? </p>
 <ul>
-<li>Remember how we could use simple arithmetic, using the array index, to 
+<li><p>Remember how we could use simple arithmetic, using the array index, to 
 calculate the location in memory of a given element in an array. Can
 we do this here? <strong>We cannot. This is because, in a linked list, items are not 
 stored continuously in memory. Instead, each node contains references to the 
-memory locations of the previous and the following node.</strong></li>
+memory locations of the previous and the following node.</strong></p></li>
+<li><p>On the other hand, <strong>as long as we have a reference to both the start and the end of the linked list, it's efficient to add a new member to the end of the linked list</strong>. We can just create a new node and link it, both ways, to the end node. Contrast this to arrays, in which we had to create a new array with additional space and copy the elements over. We will explore this in more detail in the exercises this week.</p></li>
+<li><p>Insertion into the <em>middle</em> of the list has mixed efficiency. On the one hand we have to find the index we want to insert the element at (which as we saw above is inefficient), on the other hand the actual insertion process is easier as we can just break the existing links between the node BEFORE the element we want to insert and the node AFTER this element, and then link in the new element. Again we will look at this in the exercises.</p></li>
 </ul>
 <h2 id="thestack">The stack</h2>
 <p>A stack data structure involves adding items from bottom to top, rather like a
@@ -185,7 +186,7 @@ operating_systems[4] = "iOS"
 <ol start="2">
 <li>Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.</li>
 </ol>
-<h4 id="exercise3addingnewdatatoanarraypaper">Exercise 3: Adding new data to an array (paper)</h4>
+<h3 id="exercise3addingnewdatatoanarraypaper">Exercise 3: Adding new data to an array (paper)</h3>
 <p>Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.</p>
 <ul>
 <li>Draw a 4-member array containing the values "C++", "Java", "PHP" and "Python"</li>
@@ -217,7 +218,7 @@ same thing with a linked list. On paper, draw a linked list containing the eleme
 - Windows
 - Mac OS X
 </code></pre>
-<p>Now try and add new element "Android" to the end of the linked list. What do you have to do? </p></li>
+<p>Now try and add new element "Android" to the end of the linked list. What do you have to do? Draw out what happens on paper.</p></li>
 </ol>
 <h3 id="exercise5stacks">Exercise 5: Stacks</h3>
 <p>We are now going to perform another paper-based exercise with stacks, to help
@@ -235,8 +236,6 @@ any errors that might occur.</p>
 <li>Earl Edwards</li>
 <li>Frances Freeman</li>
 </ul>
-<p>On paper Draw these as a linked list. Now try to add <code>Danielle Dawson</code> at the appropriate
-place between <code>Charley Chase</code> and <code>Earl Edwards</code>. What operations need to be
-done now? Do you think this would be more or less efficient than using an array? </p>
+<p>On paper Draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? </p>
 <h2 id="readingfornextweek">Reading for next week</h2>
 <p>Next time we will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on <em>Classes and Objects in Python</em>.</p></body></html>
