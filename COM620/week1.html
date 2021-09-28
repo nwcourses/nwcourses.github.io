@@ -239,13 +239,13 @@ document.getElementById("button1").addEventListener("click", e =&gt; {
 	<ul>
 	<li>A blue (<code>0x0000ff</code>) box at x=5, y=0, z=0;</li> 
 	<li>A green (<code>0x00ff00</code>) sphere of radius 1 at x=0, y=0, z=-5. To create a sphere, use a <code>SphereGeometry</code>, e.g.
-	<pre>const geom = new SphereGeometry(radius);</pre>
+	<pre>const geom = new THREE.SphereGeometry(radius);</pre>
 	where <code>radius</code> is the radius. See <a href='https://threejs.org/docs/?q=geometry#api/en/geometries/SphereGeometry'>here</a> for more detail.</li> 
 	<li>A yellow (<code>0xffff00</code>) cone of radius 1, height 2 at x=-5, y=0, z=0. To create a cone, use a <code>ConeGeometry</code> e.g.
-	<pre>const geom = new ConeGeometry(radius, height);</pre>
+	<pre>const geom = new THREE.ConeGeometry(radius, height);</pre>
 	where <code>radius</code> is the radius and <code>height</code> is the height. See <a href='https://threejs.org/docs/?q=geometry#api/en/geometries/ConeGeometry'>here</a> for more detail.</li> 
 	<li>A magenta (<code>0xff00ff</code>) cylinder of top radius 1, bottom radius 1, and height 2 at x=0, y=0, z=5. To create a cylinder, use a <code>CylinderGeometry</code>, e.g.
-	<pre>const geom = new CylinderGeometry(radiusTop, radiusBottom, height);</pre>
+	<pre>const geom = new THREE.CylinderGeometry(radiusTop, radiusBottom, height);</pre>
 	where <code>radiusTop</code> is the radius at the top of the cylinder, <code>radiusBottom</code> is the radius at the bottom of the cylinder, and <code>height</code> is the height. See <a href='https://threejs.org/docs/?q=geometry#api/en/geometries/CylinderGeometry'>here</a> for more detail.</li> 
 	</ul>
 Try moving along the different axes to see the shapes from different positions.
