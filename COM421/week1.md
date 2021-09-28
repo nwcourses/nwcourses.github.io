@@ -26,21 +26,6 @@ The things to note here are:
 Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. 
 
 
-#### Exploring the problems with arrays
-
-Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).
-
-![Employee array](images/employee_array.png)
-
-Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
-
-
-So **what happens if the company expands and takes on more employees**? What could we do? 
-
-![Adding to an array](images/array_problems.png)
-
-- We could *make the array bigger when we create it*. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. *Can you see the problem*? The *storage is inefficient* as the array has 30 spaces but only 11 are needed.
-
 ## Working with arrays in Python
 
 **Note that this section is not necessary if you are studying this module over the summer, as you should be comfortable with this as you have already completed COM411. If you are on the summer instance, we will skip this section.**
@@ -97,9 +82,23 @@ we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, **arrays are optimised for fast look-up of data using a 
 numerical index**.
 
-### Disadvantage: not flexible, an array cannot be resized
+### Exploring the problems with arrays
+#### Disadvantage: not flexible, an array cannot be resized
 
-We have seen already that they are not so flexible if we need to add more data later. When we create an array, we have to either list all the data we want to store in the array, or alternatively specify its size. We cannot then add additional members onto the end of the array.
+Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).
+
+![Employee array](images/employee_array.png)
+
+Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? *No, we don't, because an array has fixed size!*
+
+
+So **what happens if the company expands and takes on more employees**? What could we do? 
+
+![Adding to an array](images/array_problems.png)
+
+- We could *make the array bigger when we create it*. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. *Can you see the problem*? The *storage is inefficient* as the array has 30 spaces but only 11 are needed.
+
+#### Process needed to extend an array
 
 If we wanted to add additional members onto an array, we would have to:
 

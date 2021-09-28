@@ -13,15 +13,6 @@
 <li><p>The items in an array are stored <em>continuously in the computer's memory</em> and <em>each item in the array uses the same amount of memory</em>. Here we assume that each item uses 64 bytes, so that the first item is stored at memory address 512, the second at memory address 576 and so on. This has some important consequences for performance of arrays versus other data structures, to be considered later.</p></li>
 </ul>
 <p>Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. </p>
-<h4 id="exploringtheproblemswitharrays">Exploring the problems with arrays</h4>
-<p>Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
-<p><img src="images/employee_array.png" alt="Employee array" /></p>
-<p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
-<p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
-<p><img src="images/array_problems.png" alt="Adding to an array" /></p>
-<ul>
-<li>We could <em>make the array bigger when we create it</em>. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. <em>Can you see the problem</em>? The <em>storage is inefficient</em> as the array has 30 spaces but only 11 are needed.</li>
-</ul>
 <h2 id="workingwitharraysinpython">Working with arrays in Python</h2>
 <p><strong>Note that this section is not necessary if you are studying this module over the summer, as you should be comfortable with this as you have already completed COM411. If you are on the summer instance, we will skip this section.</strong></p>
 <p>You are being introduced to Python programming on another module, COM411. In this section, however, wewill explore how to create and index a simple <em>array</em> like data structure in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the <em>list</em>, which is a flexible language component able to be used not just as an array but as various other data structures. However, here, we will treat the list as if it was an array.</p>
@@ -56,8 +47,17 @@ we substitute the values into the equation we get:</p>
 we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
 numerical index</strong>.</p>
-<h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
-<p>We have seen already that they are not so flexible if we need to add more data later. When we create an array, we have to either list all the data we want to store in the array, or alternatively specify its size. We cannot then add additional members onto the end of the array.</p>
+<h3 id="exploringtheproblemswitharrays">Exploring the problems with arrays</h3>
+<h4 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h4>
+<p>Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
+<p><img src="images/employee_array.png" alt="Employee array" /></p>
+<p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
+<p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
+<p><img src="images/array_problems.png" alt="Adding to an array" /></p>
+<ul>
+<li>We could <em>make the array bigger when we create it</em>. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. <em>Can you see the problem</em>? The <em>storage is inefficient</em> as the array has 30 spaces but only 11 are needed.</li>
+</ul>
+<h4 id="processneededtoextendanarray">Process needed to extend an array</h4>
 <p>If we wanted to add additional members onto an array, we would have to:</p>
 <ul>
 <li>Create an array of the new, larger, size;</li>
