@@ -292,6 +292,12 @@ draw the second array with the new values "JavaScript" and "Kotlin" inserted int
     do this? Draw out how you think it could be done on paper, and ask yourself:
     **how efficient is this**, particularly compared to doing the same thing with an array. 
 
+#### Solution
+
+![Linked list indexing](images/linked_list_index.png)
+
+Note how, to find a particular index within a linked list, we have to start at the beginning and follow the links until we arrive at the element we wish to access. This is slow compared to the simple address calculation from an index in an array.
+
 2.  Remember with an array, that we had problems if we wanted to add new data
     to the array. We had to create a brand new array with more space, and copy the 
     old data into the new array before adding the new data. Think about doing the
@@ -303,6 +309,11 @@ draw the second array with the new values "JavaScript" and "Kotlin" inserted int
 
     Now try and add new element "Android" to the end of the linked list. What do you have to do? Draw out what happens on paper.
 
+#### Solution
+
+![Linked list append](images/linked_list_append.png)
+
+Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.
 
 ### Exercise 5: Stacks
 
@@ -325,7 +336,18 @@ Return to your linked list exercise (exercise 4, above). Think about adding a me
 - Earl Edwards
 - Frances Freeman
 
-On paper Draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? 
+On paper draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? 
+
+#### Solution
+
+![Linked list insertion](images/linked_list_insertion.png)
+
+Note the mixed efficiency when inserting into the middle of the linked list:
+
+- on the one hand, we have to search for the name to insert after (i.e. "Charley Chase"). As we have seen above, this is less efficient than arrays if we are searching by index (2 for "Charley Chase"). But if we are searching by name instead, we have to compare each record with the search term ("Charley Chase" here) by starting at the beginning of the data structure and comparing each item in turn to the search term. This is the same process whether we use an array or a linked list, so the efficiency is similar in either case.
+
+- on the other hand, the actual insertion process is *more* efficient, as we just have to break the links between Charley Chase and Earl Edwards, and create new links between each and Danielle Dawson. This is more efficient than an array, in which we would have to create a new array with one extra space and copy the old items over once again.
+
 
 ## Reading for next week
 
