@@ -1,370 +1,214 @@
-<p><!DOCTYPE html>
 <html>
 <head>
-<title>Week 2 - Introduction to A-Frame</title>
-<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></p>
-<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
-<p></head>
-<body></p>
-<h1 id="week2introductiontoaframe">Week 2: Introduction to A-Frame</h1>
-<h2 id="summary">Summary</h2>
-<p>This week we will start looking at <a href="https://aframe.io">A-Frame</a>, a leading framework for VR and AR on the web.</p>
-<h2 id="introduction">Introduction</h2>
-<p><a href="https://aframe.io">A-Frame</a> is a framework for developing web-based VR and AR
-applications, using only standard web technologies, in other words HTML and 
-JavaScript. No third-party plugins are required. A-Frame makes it very easy to
-create simple 3D scenes: indeed, for the most basic scenes, no JavaScript is
-needed - you can simply use HTML tags representing 3D shapes and define
-animations.</p>
-<p>A-Frame is actually a wrapper round lower-level 3D libraries: 
-<a href="https://www.khronos.org/webgl">WebGL</a> and <a href="https://threejs.org">Three.js</a>. 
-How do these fit in?</p>
-<h3 id="webglandthreejs">WebGL and Three.js</h3>
-<p>WebGL is a web implementation of the standard cross-platform API for 3D
-graphics, <a href="https://opengl.org">OpenGL</a>. OpenGL was originally written in C and 
-has been around since 1992, and was originally used on high-performance Unix
-workstations provided by companies such as Silicon Graphics. Later it was
-ported to other desktop environments such as Windows, Linux and the Mac.
-In 2009, with increasing interest in full-featured, "desktop-like" web
-applications, WebGL arrived and allowed development of 3D graphical applications
-in the web browser using JavaScript. It has been supported in Firefox, for 
-instance, since version 4.</p>
-<p>WebGL, however, is a very low-level programming API, and producing even
-code to show one single 2D triangle on the screen (never mind a 3D shape)
-is rather complex. For this reason, <a href="https://threejs.org">Three.js</a> arrived
-on the scene soon after WebGL. Three.js hides a lot of the low level details
-needed to create a 3D scene, allowing you to create and manipulate 3D shapes
-with higher-level code. However you still need to manage certain aspects of
-your application yourself, such as responding to key presses and updating the
-user's position within the 3D world, known as the <strong>camera</strong>. </p>
-<h3 id="whatdowemeanbythecamera">What do we mean by the camera?</h3>
-<p>It's important to not get confused by the terminology here. <strong>Camera</strong> in this
-context represents the user's current position, and direction of view, within
-the 3D world - not the actual hardware camera used to take pictures on the
-device. A VR application, using purely computer-generated content,
-would still have a <strong>camera</strong> in this context, representing the user or player's
-position. Throughout the rest of this week, and indeed until we start talking
-about AR, we will mean this camera when we use the word "camera".</p>
-<h2 id="aframe">A-Frame</h2>
-<p>A-Frame is one level higher still. A-Frame is a framework which implements 
-many of the standard actions of a 3D application automatically, for example:</p>
-<ul>
-<li>Moving the camera round the 3D world</li>
-<li>Rotating the camera</li>
-<li>Handling effects such as lighting </li>
-<li>Easily creating and manipulating simple 3D shapes with very little code</li>
-<li>Handling events easily (such as click events on a 3D shape)</li>
-</ul>
-<p>Furthermore, with A-Frame, we can define our 3D objects (known as 
-<em>primitives</em>) using HTML tags. For instance, we use <code>&lt;a-box&gt;</code> to create a 3D 
-box (or cube), <code>&lt;a-sphere&gt;</code> to create a 3D sphere, <code>&lt;a-cylinder&gt;</code> to create a 
-3D cylinder, <code>&lt;a-text&gt;</code> to create text, and so on.</p>
-<p>A-Frame objects live inside a <strong>scene</strong> (defined with the <code>&lt;a-scene&gt;</code> tag).
-The scene represents your 3D world. You just place this within your HTML
-page. Here is a simple example of an A-Frame scene, containing one sphere:</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;a-scene&gt;
-&lt;a-sphere position="0 0 -5" color="red"&gt;&lt;/a-sphere&gt;
-&lt;/a-scene&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+<title>Immersive Technologies - Topic 1</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h2>Topic 2: Further three.js: screen resize, keyboard events, camera movement</h2>
+</div>
+<hr />
+<h2>Introduction</h2>
+<p>This week we will continue to look at three.js by considering how to develop <em>full screen</em> applications. Last week we created a canvas occupying only part of the screen, but immersive 3D applications more typically take over the full screen. Furthermore we will look at how to handle <em>key events</em> in JavaScript, and look at how we can use basic <em>trigonometry</em> to provide additional camera controls, such as moving forward in the direction the camera is facing.</p>
+<h3>Full-screen three.js applications</h3>
+<p>The example last week just used a canvas with a fixed size: width 640, height 480. However, more commonly, particularly on a mobile platform, we need the canvas to occupy the whole screen. To achieve this, the canvas must <em>adapt</em> to the screen size. So more commonly we will set the canvas to occupy the whole of the screen e.g.:</p>
+<pre><code>&lt;canvas id='canvas1' style='display: block; width:100%; height:100%'&gt;&lt;/canvas&gt;
 </code></pre>
-<p>Try saving and running this. For this example you will <em>not</em> need to start
-a web server, you can just load the file in your browser and it will work.
-You should see a red sphere just in front of you. 
-Try moving around the world with the WASD keys and try rotating with the
-mouse. You should find that this works <em>automatically</em>, without needing to
-write any code to detect keys or mouse.</p>
-<p>Hopefully you can see how similar this code is to ordinary HTML. We are
-defining our 3D shapes using HTML tags, just like we would define ordinary
-HTML elements. Note how the <code>&lt;a-sphere&gt;</code> has two attributes, a <code>color</code>
-(which is self-explanatory) and a <code>position</code>, representing its position
-within the 3D world.</p>
-<p>What does the position (<code>0 0 -5</code>) actually represent though?</p>
-<h3 id="openglcoordinatesystem">OpenGL coordinate system</h3>
-<p>A-Frame is based on OpenGL, and since OpenGL is a 3D API, it uses three coordinates: x, y and z. It's important to realise that
-<em>x increases to the right, and y increases upwards</em> This is 
-different to the situation in 2D computer graphics, where y increases 
-downwards - but is the same as in standard maths.</p>
-<p>Because this is 3D graphics, we have a third axis, the z axis. You can
-think of this as pointing out at you from the screen, so that positive z
-coordinates are "out of the screen" and negative z coordinates are
-"into the screen". This is shown in the diagram below. </p>
-<p><img src="images/default_coord_system.png" alt="OpenGL default view" /></p>
-<p>So in this example, we place the sphere 5 units "into the screen", but
-level with the origin in the x and y directions.</p>
-<p>These coordinates represent the absolute position of the object within the 3D world - so called <em>world coordinates</em>. The <em>origin</em> of the world is where x=0,
-y=0 and z=0, and is the starting point of our camera within an A-Frame
-application unless we change something. </p>
-<h4 id="exercise1">Exercise 1</h4>
-<p>Try adding two more spheres: </p>
-<ul>
-<li>a green sphere two units to the left of the origin and two units "into the screen" relative to the origin, </li>
-<li>a blue sphere two units to the right of the origin and two units "into the
-screen" relative to the origin.</li>
-</ul>
-<p>Once you've done that try adding a third sphere:</p>
-<ul>
-<li>a yellow sphere level with the origin in the x and y direction but two units
-"out of the screen".</li>
-</ul>
-<h3 id="otherproperties">Other properties</h3>
-<p>So far we've looked at the <code>position</code> and <code>color</code> properties of our sphere.
-There are other properties too, for example <code>radius</code> will set the radius
-of a sphere.</p>
-<h4 id="exercise2">Exercise 2</h4>
-<ul>
-<li>Give the blue and green spheres a <code>radius</code> of 2. You should find they
-touch. This is what you should expect, as the blue sphere is 2 units to the
-left of the origin and the green sphere 2 units to the right, so the edge of
-each sphere, with a radius of 2, should reach the origin.</li>
-</ul>
-<p>There is also the <code>scale</code> property, which allows you to scale objects in the
-x, y, and z directions. For example:</p>
-<pre><code>&lt;a-sphere .... scale='2 2 2'&gt;
+<p>We also have to, in our CSS, specify that the <code>html</code> and <code>body</code> elements will have a <code>width</code> and <code>height</code> of 100% so that the <code>html</code> (the viewport) and the <code>body</code> (the content) - and thus the canvas, which occupies the whole of the body - will stretch to cover the whole window when the window resizes.</p>
+<pre><code>&lt;style&gt;
+html, body {
+    width: 100%;
+    height: 100%;
+}
+&lt;/style&gt;
 </code></pre>
-<p>will have the same effect on a sphere as setting the <code>radius</code> to 2, as we
-are scaling equally in the x, y and z directions. However it is possible to
-scale differently in different axes, to produce a "stretch" effect - an oval
-shape in the case of a sphere, for example:</p>
-<pre><code>&lt;a-sphere .... scale='2 4 2'&gt;
+<p>Try modifying your HTML in this way: give the canvas 100% width and height
+and add some CSS to set the <code>html</code> and <code>body</code> width and height to 100%.
+What happens?</p>
+<h4 id="theresult">The result</h4>
+<p>You will find that the box appears "blocky" and "pixelated". Why? The 
+problem relates to the difference between <em>canvas width and height</em> and <em>CSS width and height</em>. They are two different things. Even though the canvas will have a <em>CSS</em> width and height which covers the whole screen, its <em>canvas</em> width and height will still be 300x150. This is rather like setting the CSS width and height of an image of 300x150 pixels to 100% of the body. The image will still be 300x150 - its resolution will not magically increase - but it will be stretched across the whole of the page so will appear pixelated with poor resolution. Canvases are internally similar to images in HTML - what we are doing is stretching a 300x150 canvas across the entire screen without increasing the resolution of the actual canvas.</p>
+<p>This is shown below. Here is a cube image of dimensions 300x150:</p>
+<p><img src="../images/cube.png" alt="Unstretched cube image" /></p>
+<p>but here is the same image with the CSS width and height set to 900x450
+(even though the actual image is still 300x150):</p>
+<p><img src="../images/cube.png" alt="Stretched image" style="width: 900px; height: 450px" /></p>
+<p>To increase the canvas resolution, we have to reset its <code>width</code> and <code>height</code> properties (these are the canvas width and height) so that they are the same as the CSS width and height of the canvas element. To obtain the <em>CSS</em> width and height of the canvas, we can use <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code>.</p>
+<p>What we can then do, in our rendering function, is to test whether the canvas width and height are different to the CSS width and height. If they are (which will occur after a resize), we reset the width and height of the canvas. For example, you can add this code to your <code>renderScene()</code> function:</p>
+<pre><code>if(canvas.width != canvas.clientWidth || canvas.height != canvas.clientHeight) {
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+}
 </code></pre>
-<p>will scale by two units in the x and z directions, but four units in the y
-direction - so the sphere will appear to be stretched vertically.</p>
-<h4 id="exercise3">Exercise 3</h4>
-<p>Try moving your red sphere to have a <code>z</code> coordinate of -10 and your yellow
-sphere to have a <code>z</code> coordinate of 10. Then, apply a 
-<code>scale</code> of <code>2 4 2</code> to your red sphere and <code>3 1 1</code> to your
-yellow sphere. Is the effect what you would expect?</p>
-<h3 id="boxes">Boxes</h3>
-<p>We'll now move on and create a different type of shape, the box. This can
-be created using the <code>&lt;a-box&gt;</code> tag but is otherwise fairly similar. For
-example: </p>
-<pre><code>&lt;a-box position='0 0 -2' color='orange'&gt;&lt;/a-box&gt;
+<p>We call the renderer's <code>setSize()</code> method to perform the resizing rather than directly changing the canvas properties, this ensures that three.js keeps track of the changes.</p>
+<h3 id="updatingtheaspectratio">Updating the aspect ratio</h3>
+<p>Once you've updated the canvas size in the previous example, you will still see a problem. Namely, the cube becomes distorted as you resize the window. This is because you have setup a camera with an aspect ratio of 2 (which it will be by default, due to the default canvas size of 300x150) but the canvas no longer has an aspect ratio of 2. So when the renderer is resized, you have to recalculate the aspect ratio of the canvas and reset the camera's aspect ratio appropriately. This can be done with:</p>
+<pre><code>camera.aspect = canvas.clientWidth / canvas.clientHeight;
+camera.updateProjectionMatrix();
 </code></pre>
-<p>The <code>&lt;a-box&gt;</code> can also have its <code>scale</code> adjusted.</p>
-<h4 id="exercise4">Exercise 4</h4>
-<ul>
-<li><p>Add an orange <code>&lt;a-box&gt;</code> to your scene at coordinates x=5, y=0, z=-10.
-Find it in your scene (you may need to move from the origin as the other
-shapes may be hiding it initially!)</p></li>
-<li><p>Scale it so that its height is three times its width (x direction) or
-depth (z direction).</p></li>
-</ul>
-<h3 id="rotation">Rotation</h3>
-<p>We can apply <em>rotations</em> to shapes, about the x, y, or z axes. These
-rotations are specified in degrees and are anticlockwise. To imagine 
-what is happening here, picture the 3D world and its three axes (x, y and z)
-and try and imagine rotating the shape around <em>that</em> axis.</p>
-<p>The rotations about the three axes are shown below.</p>
-<p>To rotate, you give your shape a <code>rotation</code> and specify the rotations
-about the x, y and z axes in that order. For example:</p>
-<pre><code>&lt;a-box rotation='0 60 0' color='red' position='0 0 -5'&gt;&lt;/a-box&gt;
-</code></pre>
-<p>will create a box rotated 60 degrees about the y axis.</p>
-<p><img src="images/axisrotation.png" alt="Axis rotations" /></p>
-<p>The animations below show the rotations about each axis.</p>
-<h4 id="xaxis">X-axis</h4>
-<p><a-scene embedded background='color: black' style='width: 320px; height: 240px'>
-<a-box scale="1 3 0.2" position="0 1 -5" animation="property: rotation; from: 0 0 0; to: 360 0 0; loop: true; dur: 5000" color="red"></a-box>
-</a-scene></p>
-<h4 id="yaxis">Y-axis</h4>
-<p><a-scene embedded background='color: black' style='width: 320px; height: 240px'>
-<a-box scale="1 3 0.2" position="0 1.5 -2.5" animation="property: rotation; from: 0 0 0; to: 0 360 0; loop: true; dur: 5000" color="green"></a-box>
-</a-scene></p>
-<h4 id="zaxis">Z-axis</h4>
-<p><a-scene embedded background='color: black' style='width: 320px; height: 240px'>
-<a-box scale="1 3 0.2" position="0 1 -2.5" animation="property: rotation; from: 0 0 0; to: 0 0 360; loop: true; dur: 5000" color="blue"></a-box>
-</a-scene></p>
-<h4 id="exercise5">Exercise 5</h4>
-<p>Create a <em>new</em> page with a <em>new</em> <code>&lt;a-scene&gt;</code>, as the first one will by now
-be rather cluttered with shapes. Create an <code>&lt;a-box&gt;</code> within this
-scene. It should have coordinates of x=0, y=0,
-z=-10 and its scale should be 5 in the x direction, 10 in the y direction
-and 1 in the z direction. Try each of these rotations in turn:</p>
-<ul>
-<li>45 degrees anticlockwise about the y axis;</li>
-<li>45 degrees clockwise about the y axis;</li>
-<li>45 degrees anticlockwise about the x axis;</li>
-<li>45 degrees clockwise about the x axis;</li>
-<li>45 degrees anticlockwise about the z axis;</li>
-<li>45 degrees clockwise about the z axis.</li>
-</ul>
-<p>Do you get the rotations you expect?</p>
-<h3 id="addingaplane">Adding a plane</h3>
-<p>The scenes so far might look a bit abstract as the shapes are just appearing
-in white space; there is no concept of <em>ground</em>. Luckily, A-Frame comes with
-another primitive which allows you to easily add a ground effect: the
-<em>plane</em>. A plane only has width and height in two dimensions, so can be used
-to show a flat surface. Also it is one-sided: its colour will only appear
-on its front face, not its back face.
- This is represented using the <code>&lt;a-plane&gt;</code> tag:</p>
-<pre><code>&lt;a-plane position='0 0 -1' width='100' height='100' color='#7bcba4'&gt;&lt;/a-plane&gt;
-</code></pre>
-<p>Note the hex code for the colour. We can use hex codes in A-Frame just like we
-can in normal HTML elements. Just to give credit: this particular shade of
-green was taken from the basic A-Frame example on the A-Frame website.</p>
-<h4 id="exercise6">Exercise 6</h4>
-<p>Try adding the plane above to your scene. Do you get what you expect?
-Try moving forward with the 'w' key. What happens now? Try looking round
-by moving your mouse. Can you see the plane anywhere?</p>
-<h4 id="rotatingtheplane">Rotating the plane</h4>
-<p>The problem is that the plane, by default, is in what we call the <em>XY</em> plane,
-in other words the plane is that formed by the X and Y axes, and
-at a constant <em>z</em> position (z=-1). This means
-it will be upright rather than flat on the floor as we want.</p>
-<p>Also, when you moved forward with the 'w' key, you were moving towards negative 
-'z'. The plane by default is facing positive 'z', so when you're in front of
-it, it can be seen, but when you're behind it, it disappears completely - even
-if you look back.</p>
-<h4 id="exercise7">Exercise 7</h4>
-<p>Try to use an appropriate <code>rotation</code> property on the <code>&lt;a-plane&gt;</code> to make it
-appear on the ground - in other words, on the 'XZ' plane (the plane formed
-by the X and Z axes) - and facing upwards.</p>
-<h3 id="compoundentities">Compound entities</h3>
-<p>So far we have looked at simple, or primitive, shapes. However it is 
-possible to create more complex, or <em>compound</em> entities. You can use
-the <code>&lt;a-entity&gt;</code> tag to define an arbitrary entity and again, give this
-properties such as <code>scale</code>, <code>position</code> or <code>rotation</code>. Within the <code>&lt;a-entity&gt;</code>
-you can then create simple shapes. For instance:</p>
-<pre><code>&lt;a-entity position='2 0 -5'&gt;
-    &lt;a-box position='0 0.5 0' color='red' scale='1 2 1'&gt;&lt;/a-box&gt;
-    &lt;a-sphere position='0 2 0' color='blue'&gt;&lt;/a-sphere&gt;
-&lt;/a-entity&gt;
-</code></pre>
-<p>This is defining a compound entity at position x=2, y=0, z=-5 within our 
-world. The entity contains, as <em>child elements</em>, an <code>&lt;a-box&gt;</code> and an
-<code>&lt;a-sphere&gt;</code>. Note the <code>position</code> properties of these child elements. These
-are <strong>relative to the compound entity's position</strong>, not the world. So the
-box will not appear just above the world origin, but at world coordinates x=2+0, y=0+0.5, z=-5+0 (z=2, y=0.5, z=-5). Likewise, the sphere will not appear at the world origin, but at world coordinates x=2+0, y=2+2, z=-5+0 (x=2, y=4, z=-5).</p>
-<p>To give another example of a compound entity, here is a shape made up of
-a blue sphere surrounded by four red boxes, making a cross-like shape.</p>
-<pre><code>&lt;a-entity position='2 0 -5'&gt;
-    &lt;a-sphere position='0 2 0' color='blue'&gt;&lt;/a-sphere&gt;
-    &lt;a-box position='0 0.5 0' color='red'&gt;&lt;/a-box&gt;
-    &lt;a-box position='-1.5 2 0' color='red'&gt;&lt;/a-box&gt;
-    &lt;a-box position='1.5 2 0' color='red'&gt;&lt;/a-box&gt;
-    &lt;a-box position='0 3.5 0' color='red'&gt;&lt;/a-box&gt;
-&lt;/a-entity&gt;
-</code></pre>
-<p>Again the world position of this entity is at x=2, y=0, z=-5, and the 
-coordinates of the four boxes and the sphere are relative to the world
-position of the entity.</p>
-<h4 id="exercise8">Exercise 8</h4>
-<p>Add the compound entity above to your scene, to get a feel for what it
-looks like.</p>
-<p>Then, write down the <strong>world</strong> x, y, and z coordinates of the sphere and four
-boxes.</p>
-<h4 id="rotatingandscalingacompoundentity">Rotating and scaling a compound entity</h4>
-<p>Furthermore, any rotations and scaling done to the compound entity will
-rotate or scale the <strong>compound entity as a whole</strong>. So if you were to
-add a rotation as shown below:</p>
-<pre><code>&lt;a-entity position='2 0 -5' rotation='0 0 45'&gt;
-    &lt;a-sphere position='0 2 0' color='blue'&gt;&lt;/a-sphere&gt;
-    &lt;a-box position='0 0.5 0' color='red'&gt;&lt;/a-box&gt;
-    &lt;a-box position='-1.5 2 0' color='red'&gt;&lt;/a-box&gt;
-    &lt;a-box position='1.5 2 0' color='red'&gt;&lt;/a-box&gt;
-    &lt;a-box position='0 3.5 0' color='red'&gt;&lt;/a-box&gt;
-&lt;/a-entity&gt;
-</code></pre>
-<p>the entire 'cross' shape would rotate anticlockwise by 45 degrees.</p>
-<h3 id="entitiesandcomponents">Entities and components</h3>
-<p>A-Frame consists of <em>entities</em> and <em>components</em> (along with <em>systems</em>, but we
-will come on to those later). An <strong>entity</strong> is any object within our scene - 
-including shapes, and other things within our scene such as the camera. 
-Entities include not just compound entities, but also simple shapes such as 
-boxes. 
-A <strong>component</strong> is an aspect, or property, of an entity, such as its geometry, 
-its surface material, or its animation. The primitives we have 
-seen so far, such as <code>&lt;a-box&gt;</code> and <code>&lt;a-sphere&gt;</code>, are actually wrappers round 
-entities and components. Components are written in code as attributes of
-entiies. </p>
-<p>For example, an <code>&lt;a-sphere&gt;</code> could be written instead as an 
-<code>&lt;a-entity&gt;</code> with a <code>sphere</code> geometry:</p>
-<pre><code>&lt;a-entity geometry='primitive: sphere' material='color: red' position='0 0 -5'&gt;
-&lt;/a-entity&gt;
-</code></pre>
-<p>What does this code represent?</p>
-<ul>
-<li>it's a generic <code>&lt;a-entity&gt;</code>;</li>
-<li>it has a <code>geometry</code> component which is
-a <code>sphere</code> primitive (in other words it's a sphere);</li>
-<li>it has a <code>material</code> component with a red colour. An entity's <code>material</code> defines the properties of its surface. This includes not just colour but also properties such as shininess (how does it reflect background light? for example does it have a metal-like surface which reflects light eaily or a carpet-like surface which does not)</li>
-<li>it has a <code>position</code> component defining its position. We have seen this already.</li>
-</ul>
-<p>So the <code>&lt;a-entity&gt;</code> is the <strong>entity</strong>, and <code>geometry</code>, <code>material</code> and <code>position</code> are its <strong>components</strong>. With A-Frame, everything in a scene is an entity of some kind,
-and each entity has different components attached to it. A-Frame development is all about creating your own components and then attaching them to entities. The idea is to design components to be reusable so that they can be attached to different entities in different applications. You can see this with the <code>geometry</code> and <code>material</code> components in the example above; these components can be attached to any entity to define its geometry and surface material.</p>
-<h4 id="exercise9">Exercise 9</h4>
-<p>Change the four boxes and sphere within your compound entity (from the previous
-exercise) to be <code>&lt;a-entity&gt;</code>s with the geometry and colour defined using
-appropriate components.</p>
-<h3 id="animations">Animations</h3>
-<p>An interesting feature of A-Frame is the ability to create <em>animations</em>
-only using HTML code - no JavaScript is required. This is done by adding an
-<code>animation</code> component to an entity (either a primitive shape or a generic 
-<code>&lt;a-entity&gt;</code>). The animation component has various attributes including
-<code>property</code>, <code>from</code>, <code>to</code> <code>loop</code>, <code>dir</code>, and <code>dur</code>, amongst others,
-and can be used to animate various aspects of the entity including
-its position, scale, rotation and even colour (this is done by transitioning
-from one colour to another).
-The meaning of these are:</p>
-<ul>
-<li><code>property</code>: which property to animate (e.g. position, rotation, color)</li>
-<li><code>from</code>: the initial value of the property.</li>
-<li><code>to</code>: the final value of the property.</li>
-<li><code>loop</code>: whether to continuously loop the animation.</li>
-<li><code>dir</code>: the direction of animation. Can be set to <code>reverse</code> to do the animation in reverse, or <code>alternate</code> (if <code>loop</code> is true) to do the animation forwards,
-then reverse, then forwards, then reverse, and so on.</li>
-<li><code>dur</code>: the duration of the animation (in milliseconds)</li>
-</ul>
-<p>The full list is available <a href="https://aframe.io/docs/1.0.0/components/animation.html">on the A-Frame site</a>.</p>
-<p>Some examples include:</p>
-<pre><code>&lt;a-box animation='property: position; from: 0 0 0; to: 0 0 -10'&gt;
-</code></pre>
-<p>The box will move from the origin to position x=0, y=0, z=-10.</p>
-<pre><code>&lt;a-box animation='property: rotation; from: 0 0 -90; to: 0 0 90'&gt;
-</code></pre>
-<p>The box will rotate, starting from -90 about the z axis to +90 about the
-z-axis.</p>
-<pre><code>&lt;a-box animation='property: color; from: #ff0000; to: #0000ff; dur: 5000'&gt;
-</code></pre>
-<p>The box will undergo a colour transition from red to blue, through
-the intermediate colour (magenta). The colour transition will take 5 seconds
-to complete.</p>
-<h4 id="multipleanimationsononeentity">Multiple animations on one entity</h4>
-<p>You can add more than one independent animation to an entity by 
-creating components with the name <code>animation__</code> (two underscores) plus
-any text. Commonly you might use <code>animation__2</code>, <code>animation__3</code>, and
-so on. So for example:</p>
-<pre><code>&lt;a-box animation='property: rotation; from: 0 0 -90; to: 0 0 90'
-animation_2='property: position; from: 0 0 0; to: 0 0 -10'&gt;
-</code></pre>
-<p>would rotate the box from -90 to 90 about the z axis <em>and</em> move it from
-the origin to x=0, y=0, z=-10 <em>at the same time</em>.</p>
-<h4 id="exercise10">Exercise 10</h4>
-<p>Create a further web page with another A-Frame scene and add an <code>&lt;a-box&gt;</code>
-at position x=0, y=0, z=-2.</p>
-<ol>
-<li><p>Via an animation, make the box rotate to 360 degrees about the z-axis 
-over a time scale of 5 seconds. (This is how you make something rotate
-a full circle; start at 0 and finish at 360).</p></li>
-<li><p>Change the animation so it continuously rotates in a loop. </p></li>
-<li><p>Change the animation so that it rotates from 0 to 180, then 180 back to
-0, then 0 to 180, then 180 to 0, and so on - continuously in a loop.</p></li>
-<li><p>Add a second animation which changes the colour from <code>#ff0000</code> to
-<code>#00ff00</code> but over a period of 10 seconds.</p></li>
-<li><p>Add your 'cross' compound entity from the previous scene into this
-scene. Make it animate from y=0 to y=5, back to y=0, back to y=5, back to
-y=0 and so on (so it continuously 'takes off' and 'lands') over a time
-period of 5 seconds.</p></li>
-</ol>
-<h2 id="ifyoufinish">If you finish</h2>
-<p>Look at the <a href="week1a.html">DOM</a> notes and try the exercises.</p>
-<p></body>
-</html></p>
+<p>The first line should be obvious. The second updates the <em>projection matrix</em> which we covered last time. If you remember, this matrix is used to draw objects with the correct perspective. The projection matrix depends on the properties of the viewing frustum: the aspect ratio, the field of view, and the near and far clip planes. Once we've updated the aspect ratio, we have to update the projection matrix as this will not be done automatically.</p>
+<p>Add the code above to your <code>if</code> statement which handles screen resize. You will find that the box appears correctly as a cube even if you resize the window.</p>
+<h2>Handling keyboard events</h2>
+<p>Last week we built a simple application to control the camera via buttons. However in a more realistic application, we would use either the keyboard or the mouse to control the camera and move around the scene. We will therefore now look at <em>key events</em>.
+<h3>The event object</h3>
+<p>Remember that an event handler arrow function takes one parameter. <code>e</code>. For example:
+<pre>document.getElementById('btn1').addEventListener('click', e=&gt; {
+    // event handler code ...
+});</pre>
+
+What is this parameter <code>e</code>? It is the <em>event object</em>, and it is used to <em>find out information about the event</em>. Useful information about an event might include:
+    <ul>
+    <li>Which button was clicked?</li>
+    <li>What mouse button was clicked or what key was pressed?</li>
+    <li>What is the current position of the mouse on the page, or on the element
+    that was clicked?</li>
+    </ul>
+</p>
+<h3>Key events</h3>
+<p>Key events occur when the user presses a key. We make use of the event object when handling key events, to find out which key was pressed. With the growth of in-browser applications resembling traditional desktop applications, handling key events is becoming more useful. Key events include <code>keydown</code> (when the user presses a key down), <code>keypress</code> (when the user presses a key down and up immediately as you normally would when typing) and <code>keyup</code> (when the user releases a key).  Here is an example of using key events:
+<pre>
+const canvas = document.getElementById('canvas1');
+canvas.addEventListener ("keyup", e=&gt; {
+    // Print out the key code
+    console.log(`keyCode=${e.keyCode} shift?=${e.shiftKey}`);
+
+    // Specifically test whether the user pressed space (32 is code for space)
+    if(e.keyCode == 32) {
+        console.log('You pressed a space!');
+    }
+});
+</pre>
+Note how handling key events is very similar to handling other types of event such as button clicks. We use <code>addEventListener()</code> on the element which we wish to receive key events, which in this example is the canvas with the ID of <code>camvas1</code>.</p>
+<p>Note how we make use of two properties of the event object relating to key events, namely <code>keyCode</code> and <code>shiftKey</code>. <code>keyCode</code> gives us a numerical code (not necessarily the ASCII code) for each key while <code>shiftKey</code> gives us a boolean (true/false) value representing whether the Shift key was pressed or not. <code>keyCode</code> relates to the actual key, so pressing A or Shift/A will return the same value (even though lower case 'a' and capital 'A' have different ASCII codes); we use <code>shiftKey</code> to determine whether Shift was pressed at the same time. You can also use <code>ctrlKey</code> and <code>altKey</code> in the same way, but use of CTRL and Alt during in browser applications is generally not used, as these keys have default actions in the browser window itself.</p>
+<p>
+In the HTML, the canvas must have a <code>tabindex</code> attribute set to 0 (details below):
+<pre>
+&lt;canvas id='canvas1' width='400' height='400' <em>tabindex='0'</em>&gt;
+&lt;/canvas&gt;
+</pre>
+</p>
+<p>What is this used for? (Ref: <a href="http://snook.ca/archives/accessibility_and_usability/elements_focusable_with_tabindex"> Jonathan Snook</a>). Normally, you cannot focus a canvas by clicking the mouse or tabbing to it, because (unlike text fields, for example) they were not intended for text input.  Adding the attribute <code>tabindex</code> with a value of <code>0</code> (i.e. tabindex=0) to the canvas allows it to be focused by clicking the mouse on it or tabbing to it. It also allows you to force focus in code using the <code>focus()</code> method, for example:
+<pre>canvas.focus();</pre>
+</p>
+<h3>Which keys to use for an AR/VR application?</h3>
+<p>Commonly, we use the keys W (forward), A (left), S (backward) and D (right) in VR applications and games, so I will document the codes of these:
+    <ul>
+    <li>W = 87</li>
+    <li>A = 65</li>
+    <li>S = 83</li>
+    <li>D = 68</li>
+    </ul>
+We should therefore test whether <code>e.keyCode</code> equals 87, 65, 83 or 68 when deciding which direction to move the camera.
+</p>
+<h2>Moving the camera forward</h2>
+<p>Last time we looked at how to move the camera by changing its <code>position</code>. So far we have simply moved the camera along the x, y and z axes.  However, in an AR or VR application, we need to move the camera <em>in the direction it's currently facing</em>, in other words <em>move forward</em>. Let's say, for simplicity, we wish to move the camera forward <em>one unit</em> in the direction it's facing, on the xz-plane (ground plane), i.e. we are only moving <code>x</code> and <code>z</code> coordinates, not <code>y</code>. How do we do that? We need to work out <em>how far in the x direction</em> and <em>how far in the z direction</em> to move, and for this, we need some basic <em>trigonometry</em>.</p>
+<h3>Basic trigonometry - sines and cosines</h3>
+<p>The trigonometrical functions <em>sine</em>, <em>cosine</em> and <em>tangent</em> are used in calculations involving triangles, to work out either the length of the sides, or the size of angles, in a right-angled triangle. These functions take the size of an angle (usually in radians) as parameters. They are particularly used:
+	<ul>
+	<li>to work out the length of the sides of a right-angled triangle if we know the length of one side and we know the size of the triangle's angles;</li>
+	<li>to work out the size of the angles when we know the length of the sides of the right-angled triangle.</li>
+	</ul>
+The diagram below shows a <em>2D</em> mathematical representation of a right-angled triangle, with x and y axes only (no z axis). The triangle has one right angle (90 degrees) and one angle &theta;. (Because the angles of a triangle add up to 180 degrees, the other angle will be 90 - &theta;). The three sides of the triangle are known as the <em>opposite</em> side, the <em>adjacent</em> side and the <em>hypotenuse</em>. These are defined as follows:
+	<ul>
+	<li>The <em>hypotenuse</em> is the 'sloping' side of the triangle, i.e. the side opposite the right angle;</li>
+	<li>The <em>opposite</em> side, with respect to angle &theta;, is the side opposite the angle;</li>
+	<li>The <em>adjacent</em> side, with respect to angle &theta;, is the side adjacent to the angle, which is not the hypotenuse.</li>
+	</ul>
+With this in mind we can define the trigonometrical functions as follows:
+	<ul>
+	<li>The <em>sine</em> of &theta; (<code>sin &theta;</code>) is the length of the <em>opposite</em> side divided by the length of the <em>hypotenuse</em>;</li> 
+	<li>The <em>cosine</em> of &theta; (<code>cos &theta;</code>) is the length of the <em>adjacent</em> side divided by the length of the <em>hypotenuse</em>;</li> 
+	<li>The <em>tangent</em> of &theta; (<code>tan &theta;</code>) is the length of the <em>opposite</em> side divided by the length of the <em>adjacent</em> side. Note, however, we are not using the tangent here.</li> 
+	</ul>
+These can be remembered by the acronym <strong>SOHCAHTOA</strong>. See the diagram below.
+</p>
+<p><img src="../images/sohcahtoa.png" alt="SOHCAHTOA" /></p>
+<p>Why are these useful? They are available as functions from programming languages (and on calculators) and can be used to work out the length of the second and third side of a triangle when we know the length of the angle and the length of one side. This is precisely the problem we have with moving our camera: when we move a camera, we know the angle (because that is the angle the camera is currently facing) and we know the hypotenuse (because that is the distance we need to travel), but we need to find out the distance in the <code>x</code> and <code>z</code> directions in order to update the camera position.</p>
+<p>This is shown below:
+<br />
+<img src="../images/camera_trig.png" alt="Camera trigonometry" /><br />
+In this case, <code>-dx</code> is the x distance we need to move and <code>-dz</code> is the z distance we need to move. If the distance to travel is <code>d</code>, then we know, from above, that:
+	<ul>
+	<li><code>cos &theta;</code> is <code>-dx/d</code>, as the cosine is the adjacent divided by the hypotenuse. Consequently, <code>dx</code> is equal to <code>-d * cos &theta;</code>.</li>
+	<li><code>sin &theta;</code> is <code>-dz/d</code>, as the sine is the opposite divided by the hypotenuse. Consequently, <code>dz</code> is equal to <code>-d * sin &theta;.</code></li>
+	</ul>
+</p>
+
+<h3>Controlling the camera with the keyboard</h3>
+<p>It's therefore now easy to move the camera forward <code>d</code> units with the keyboard. Just subtract <code>d  * Math.cos(angle in radians)</code> from the camera's <code>x</code> coordinate and <code> d * Math.sin(angle in radians)</code> from the camera's <code>z</code> coordinate whenever the forward key (typically <code>w</code>) is pressed.</p>
+<h2>Exercise</h2>
+<p>You can now use what you learned to develop a simple camera control
+application which acts more like a VR application or game. Make a <em>copy</em> of your work from last week and:
+	<ul>
+	<li>Change the application to be full-screen, so that the three.js scene occupies the whole of the screen. You will need to handle resize events, as discussed above. Remove the button controls.</li>
+	<li>Add keyboard controls <code>q</code> to move the camera up one unit and <code>a</code> to move the camera down one unit.</li>
+	<li>Add keyboard controls to rotate the camera. The <code>z</code> key (key code 90) should rotate the camera anticlockwise by 10 degrees, and the <code>x</code> key (key code 88) should rotate the camera clockwise by 10 degrees.</li>
+	<li>Finally change the application so that <code>w</code> (key code 87) moves the camera forward one unit. If you get that working, try and code backwards movement of the camera (again, by one unit) with the <code>s</code> key (key code 83).</li>
+	</ul>
+</p>
+<h2>Mouse events</h2>
+<p><em>We may not have time for this in the lecture. If we do not, I will still go through it after 13.00, and if you cannot attend beyond the end of the class, please read and/or watch the recording in your own time.</em></p>
+<p>Similar to key events we can also detect <em>mouse</em> events. This can be useful in a 3D application because we can use the mouse to rotate the camera. With mouse events there are three main types:
+    <ul>
+    <li><code>mousedown</code>: the mouse button is pressed down;</li>
+    <li><code>mousemove</code>: the mouse is moved;</li>
+    <li><code>mouseup</code>: the mouse button is released.</li>
+    </ul>
+This code shows an example of handling mouse down, move and up events on a canvas.
+<pre>
+const canvas1 = document.getElementById("canvas1");
+
+
+// This arrow function will handle mouse presses
+canvas1.addEventListener ("mousedown", e =&gt; {
+    console.log(`Mouse down pressed! Coordinates are ${e.offsetX},${e.offsetY}`);
+}); 
+
+// This arrow function will handle mouse movement
+canvas1.addEventListener ("mousemove", e =&gt; {
+    console.log(`Mouse moved! Coordinates are ${e.offsetX},${e.offsetY}`);
+}); 
+
+// This arrow function will handle mouse release
+canvas1.addEventListener ("mouseup", e =&gt; {
+    console.log(`Mouse up pressed! Coordinates are ${e.offsetX},${e.offsetY}`);
+});
+</pre>
+</p>
+This example uses two properties of the event object, <code>offsetX</code> and <code>offsetY</code>, which represent the current x and y position of the mouse
+<em>with respect to the element it is currently over</em> (e.g. a canvas).
+Also available is <em>e.button</em> which gives a different integer depending on which mouse button was pressed. Note that these are <strong>2D coordinates</strong>, indicating the <strong>pixel position</strong> of the event on the canvas; they do <strong>not</strong> represent the OpenGL 3D coordinate! (As well as 3D applications, this code can be used for 2D graphics, e.g. a paint program which needs to detect where the mouse is to draw lines for example).</p>
+<h2>Exercise 2 - improved key event, and mouse event handling</h2>
+<p><em>I am not expecting everyone to complete this exercise. However, if you are coping reasonably well with the material, I would recommend it.</em></p>
+	<ol>
+	<li>You will notice from Exercise 1 that you have to press the key repeatedly for the camera to move. It would be better if the user presses the key down, and then the camera <em>keeps moving</em> until the key is released. You can implement this by handling both the <code>keydown</code> and <code>keyup</code> events. To do this:
+	<ul>
+	<li>Create a variable to hold the current key code, and set this to the key code when the <code>keydown</code> event occurs. This stores the key that was pressed.</li>
+	<li>Set it to zero when the <code>keyup</code> event occurs (to indicate the key is no longer being pressed).</li>
+	<li><strong>In your <code>renderScene()</code> function</strong>, rather than in your <code>keyup</code> event handler, move the camera according to the current value of this variable. This will repeatedly move the camera while the key is pressed down.</li> 
+	</ul>
+	</li>
+	<li>Implement functionality to rotate the camera using the mouse, rather than the keyboard. To do this, you need to:
+	<ul>
+	<li>
+Obtain <code>e.offsetX</code> when the user presses the mouse down, and store it in a variable.</li>
+	<li>Obtain <code>e.offsetX</code> again when the user releases the mouse. If it is <em>greater</em> than the original <code>offsetX</code>, then the user has moved the mouse right, which is equivalent to anticlockwise rotation. If it is <em>less</em> than the original <code>offsetX</code>, then the user has moved the mouse left, which is equivalent to clockwise rotation. So, in the mouse release event handler, move the camera either 1 degree clockwise or 1 degree anticlockwise.</li>
+	</ul>
+	</li>
+	</ol>
+</p>
+<h2>Advanced exercise 3 - strafe and pitch</h2>
+<p><em>This is a more challenging exercise if you complete the first two.</em></p>
+<p>Many cameras have more controls than the simple ones above. Cameras can 
+<em>strafe</em>, i.e. move sideways left or right while facing ahead. They can also
+<em>pitch</em> - move upwards and downwards while looking in the same ground direction.
+So if a camera was looking east along the ground, pitching upwards would result in it
+looking east towards the sky above the ground. These are illustrated below.
+</p>
+<h3>Strafe</h3>
+<p><img src="../images/strafe.png" alt="Strafe" /></p>
+<h3>Pitch</h3>
+<p><img src="../images/pitch.png" alt="Pitch" /></p>
+<p>Use diagrams to work out the trigonometrical equations necessary to implement strafe and pitch, and implement them in your application.</p>
+</body>
+</html>
