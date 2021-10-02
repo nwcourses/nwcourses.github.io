@@ -50,7 +50,7 @@ class Cat:
 		self.weight = weight
 
 	def eat(self):
-		self.weight+=1
+		self.weight += 1
 ```
 This code does not *create any actual cats*. It just creates a *class*, or a *blueprint* or *specification*, for what cats are and what they do. Note, in particular, the following:
 
@@ -66,7 +66,7 @@ This code does not *create any actual cats*. It just creates a *class*, or a *bl
 
 - Going back to the `eat()` method, note that it contains the code:
 ```python
-self.weight+=1
+self.weight += 1
 ```
 What does this do? Remember that `self` is the current object, in other words the current cat. The operator `+=` increases a variable by one. So `self.weight += 1` will increase the weight of the current cat by one.
 
@@ -149,24 +149,9 @@ What happens though when we try to print an object? By default we just get its m
 
 ### Exercise 2
 
-1. You are going to complete the `Stack` class above and turn it into an actual stack, but first, here is a simple exercise to work with a Python list, just so you are happy with how it works.
-```python
-a = []
-a.append(111)
-a.append(222)
-a.append(333)
-print(a)
-```
-   Note how we create an empty list. A list is essentially an extensible array,
-and `append()` adds new items onto the end of it. So here, we create a list, add items to it, and print it.
+1. Now create a separate program for your Stack. Write the `Stack` class as shown above, and try and complete the `push()` method of your `Stack` so that it takes the value passed to it, appends it to the internal array, and increases the `size` variable by 1.
 
-   Create the program above and run it.
-
-   **Note again that the Python list is quite powerful. Here, we are just treating it as a simple extensible array for the purposes of learning how to create a stack.**
-
-2. Now create a separate program for your Stack. Write the `Stack` class as shown above, and try and complete the `push()` method of your `Stack` so that it takes the value passed to it, appends it to the internal array, and increases the `size` variable by 1.
-
-3. Test your `Stack` as follows by adding this code *below* the Stack class:
+2. Test your `Stack` as follows by adding this code *below* the Stack class:
 ```python
 stack1 = Stack()
 stack1.push(1)
@@ -175,7 +160,7 @@ stack1.push(9)
 print(stack1)
 ```
 
-4. Now write a `pop()` method. This should `return the last member of the internal array` and `remove it`. How do you do this? It's easier in Python than some other languages as Python features *negative indexing* in which index -1 always represents the *last* member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your `pop()` (remember to indent it appropriately!)
+3. Now write a `pop()` method. This should `return the last member of the internal array` and `remove it`. How do you do this? It's easier in Python than some other languages as Python features *negative indexing* in which index -1 always represents the *last* member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your `pop()` (remember to indent it appropriately!)
 ```python
 del self.internalArray[-1] # try to delete the last member of the array
 return self.internalArray[-1] # and return it so the outside world can access it
@@ -191,7 +176,7 @@ print(popped2)
 You will find it
 does not. Why? **Try and fix the code yourself to get it to work!**
 
-5. Create a *second* Stack object in your test code, and this time, push these
+4. Create a *second* Stack object in your test code, and this time, push these
 items onto it:
 ```
 Linux
@@ -200,7 +185,7 @@ Mac OS X
 ```
 Again, print the stack and pop items off the stack. Does it work with strings as well as integers?
 
-6. You need to display an error if you pop an empty stack.
+5. You need to display an error if you pop an empty stack.
 Using an `if` statement (you are doing these in COM411 this week), display an error message in `pop()` if the stack is empty.
 
    How can you tell whether the stack is empty? You can use the `len()` function.  `len()` gives you the length of an array or list, or string. For example, if
@@ -210,7 +195,7 @@ if len(a) == 0:
        print("a is empty")
 ```
 
-7. Create a `peek()` method for your Stack. Remember a `peek` operation should
+6. Create a `peek()` method for your Stack. Remember a `peek` operation should
 return the top item of the stack *without* removing it.
 
 **Advanced optional exercise**: If you are coping with this module and COM411 well so far, and keen to do more programming, and want something to do in your own time, read about *exceptions* and handle the error instead by *raising an exception*. This would be how errors are handled in real-world implementations of stacks. Feel free to implement your stack using exceptions and send it to me for checking.
