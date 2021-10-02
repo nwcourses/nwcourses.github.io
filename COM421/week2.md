@@ -18,12 +18,12 @@ See [the Python documentation](https://docs.python.org/3/tutorial/classes.html) 
 
 A `class` can be thought of as a complex data type. Classes provide a way to define our own custom data structures. For example, we could create a `Cat` class to represent a cat, a `Stack` class to represent a stack, or a `LinkedList` class to represent a linked list. Classes contain two key components: 
 
-- `Methods`. A method represents an action that you can perform with a class. For example:
+- **Methods**. A method represents an action that you can perform with a class. For example:
 	- with a `Cat` class we could have `eat`, `sleep` and `meow` methods.
 	- with a stack class, we could define `push` and `pop` methods. 
 	- for a linked list class, we could define an `addNode` method, to add a node onto the end of the linked list (and update the reference to the last node).
 
-- `Attributes`. An attribute represents an item of data associated with the class. Last week, we saw that a stack uses an array to store its data. So :
+- **Attributes**. An attribute represents an item of data associated with the class. Last week, we saw that a stack uses an array to store its data. So :
 	- attributes of a `Cat` class could include the name, the age and the weight of the cat.
 	- an attribute of a `Stack` class could be the underlying array. 
 	- Likewise, a linked list contains references to the first and last nodes in the list. So these could be attributes of the `LinkedList` class. 

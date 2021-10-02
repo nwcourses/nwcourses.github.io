@@ -23,9 +23,7 @@ html, body {
 }
 &lt;/style&gt;
 </code></pre>
-<p>Try modifying your HTML in this way: give the canvas 100% width and height
-and add some CSS to set the <code>html</code> and <code>body</code> width and height to 100%.
-What happens?</p>
+<p>In the lecture we will modify the basic 'red box' example from last week (the second code example) in this way: we will give the canvas 100% width and height and add some CSS to set the <code>html</code> and <code>body</code> width and height to 100%. What will happen?</p>
 <h4 id="theresult">The result</h4>
 <p>You will find that the box appears "blocky" and "pixelated". Why? The 
 problem relates to the difference between <em>canvas width and height</em> and <em>CSS width and height</em>. They are two different things. Even though the canvas will have a <em>CSS</em> width and height which covers the whole screen, its <em>canvas</em> width and height will still be 300x150. This is rather like setting the CSS width and height of an image of 300x150 pixels to 100% of the body. The image will still be 300x150 - its resolution will not magically increase - but it will be stretched across the whole of the page so will appear pixelated with poor resolution. Canvases are internally similar to images in HTML - what we are doing is stretching a 300x150 canvas across the entire screen without increasing the resolution of the actual canvas.</p>
@@ -141,8 +139,8 @@ In this case, <code>-dx</code> is the x distance we need to move and <code>-dz</
 application which acts more like a VR application or game. Make a <em>copy</em> of your work from last week and:
 	<ul>
 	<li>Change the application to be full-screen, so that the three.js scene occupies the whole of the screen. You will need to handle resize events, as discussed above. Remove the button controls.</li>
-	<li>Add keyboard controls <code>q</code> to move the camera up one unit and <code>a</code> to move the camera down one unit.</li>
-	<li>Add keyboard controls to rotate the camera. The <code>z</code> key (key code 90) should rotate the camera anticlockwise by 10 degrees, and the <code>x</code> key (key code 88) should rotate the camera clockwise by 10 degrees.</li>
+	<li>Add keyboard controls <code>q</code> (code 81) to move the camera up one unit and <code>z</code> (code 90) to move the camera down one unit.</li>
+	<li>Add keyboard controls to rotate the camera. The <code>x</code> key (key code 88) should rotate the camera anticlockwise by 10 degrees, and the <code>c</code> key (key code 67) should rotate the camera clockwise by 10 degrees.</li>
 	<li>Finally change the application so that <code>w</code> (key code 87) moves the camera forward one unit. If you get that working, try and code backwards movement of the camera (again, by one unit) with the <code>s</code> key (key code 83).</li>
 	</ul>
 </p>

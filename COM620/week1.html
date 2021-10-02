@@ -98,7 +98,6 @@ change as we move the camera.
 <p>Many of you will have come across <em>matrices</em> in the past, either at
 school/college or in the first year Mathematical Structures in Computing 
 module. <em>Matrices</em> are two-dimensional arrays of numbers which are most commonly used to represent geometric transformations which can be applied to shapes (both 2D and 3D), such as rotation, translation, magnification, stretch and shear. There are also other, more specialised, applications of matrices in science and maths - but these are out of the scope of this module. We will not go into the maths of matrices in great detail, and you will not need to create or multiply matrices yourself (WebGL and three.js take care of this for you) but you need to be aware that a matrix represents a geometric transformation of some kind, such as translation or rotation. You also need to be aware of various matrices which exist within OpenGL which are involved in the rendering process.</p>
-<p>If you want to read more on matrices, see <a href='BRIAN_NOTES.pdf'>here</a>.</p>
 <h4>The view matrix</h4>
 <p>OpenGL defines a matrix which specifies the transformation between the
 world coordinates and the eye coordinates.  This is called the <em>view matrix</em>.  Every time you do a translation or rotation in code, the view matrix
@@ -140,8 +139,8 @@ draw anything yet. We will start with this HTML:</p>
 
 &lt;/head&gt;
 &lt;body&gt;
-&lt;!-- By default, canvas is 300x150 so we could omit the width and height --&gt;
-&lt;canvas id='canvas1' width='300' height='150'&gt;&lt;/canvas&gt;
+&lt;!-- By default, canvas is 300x150 so we could omit the width and height if we want this size --&gt;
+&lt;canvas id='canvas1' width='640' height='480'&gt;&lt;/canvas&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -152,7 +151,7 @@ here.</p>
 <pre>
 const canvas = document.getElementById('canvas1');
 
-const camera = new THREE.PerspectiveCamera(40, 2, 0.1, 10000);
+const camera = new THREE.PerspectiveCamera(60, 1.33, 0.1, 10000);
 const renderer = new THREE.WebGLRenderer({canvas: canvas});
 const scene = new THREE.Scene();
 
@@ -170,7 +169,7 @@ object. The camera is a <code>THREE.PerspectiveCamera</code>; why do we need thi
 <ul>
 <li>The first argument is the <em>vertical field of view</em>. This is the field of view,
 in degrees, that we can currently see in the scene in the vertical direction (40 degrees here). <strong>Note that people more normally think of the horizontal field of view - the horizontal angle visible in the scene. The vertical field of view can be obtained by dividing the horizontal field of view by the aspect ratio, described below.</strong></li>
-<li>The second argument is the <em>aspect ratio</em> - the ratio of width to height. As our canvas is 300x150, we set this to 2 to match the canvas.</li>
+<li>The second argument is the <em>aspect ratio</em> - the ratio of width to height. As our canvas is 640x480, we set this to 1.33 to match the canvas.</li>
 <li>the near clip plane (0.1)</li>
 <li>the far clip plane (10000).</li>
 </ul>
@@ -192,7 +191,7 @@ function). <code>requestAnimationFrame()</code> schedules a function to run befo
 <pre><code>
 const canvas = document.getElementById('canvas1');
 
-const camera = new THREE.PerspectiveCamera(80, 2, 0.1, 10000);
+const camera = new THREE.PerspectiveCamera(60, 1.33, 0.1, 10000);
 const renderer = new THREE.WebGLRenderer({canvas: canvas});
 const scene = new THREE.Scene();
 
