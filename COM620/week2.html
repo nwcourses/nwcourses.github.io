@@ -127,8 +127,8 @@ These can be remembered by the acronym <strong>SOHCAHTOA</strong>. See the diagr
 <img src="../images/camera_trig.png" alt="Camera trigonometry" /><br />
 In this case, <code>-dx</code> is the x distance we need to move and <code>-dz</code> is the z distance we need to move. If the distance to travel is <code>d</code>, then we know, from above, that:
 	<ul>
-	<li><code>cos &theta;</code> is <code>-dx/d</code>, as the cosine is the adjacent divided by the hypotenuse. Consequently, <code>dx</code> is equal to <code>-d * cos &theta;</code>.</li>
-	<li><code>sin &theta;</code> is <code>-dz/d</code>, as the sine is the opposite divided by the hypotenuse. Consequently, <code>dz</code> is equal to <code>-d * sin &theta;.</code></li>
+	<li><code>cos &theta;</code> is <code>-dz/d</code>, as the cosine is the adjacent divided by the hypotenuse. Consequently, <code>dz</code> is equal to <code>-d * cos &theta;</code>.</li>
+	<li><code>sin &theta;</code> is <code>-dx/d</code>, as the sine is the opposite divided by the hypotenuse. Consequently, <code>dx</code> is equal to <code>-d * sin &theta;.</code></li>
 	</ul>
 </p>
 
@@ -190,7 +190,7 @@ Also available is <em>e.button</em> which gives a different integer depending on
 	<ul>
 	<li>
 Obtain <code>e.offsetX</code> when the user presses the mouse down, and store it in a variable.</li>
-	<li>Obtain <code>e.offsetX</code> again when the user releases the mouse. If it is <em>greater</em> than the original <code>offsetX</code>, then the user has moved the mouse right, which is equivalent to anticlockwise rotation. If it is <em>less</em> than the original <code>offsetX</code>, then the user has moved the mouse left, which is equivalent to clockwise rotation. So, in the mouse release event handler, move the camera either 1 degree clockwise or 1 degree anticlockwise.</li>
+	<li>Obtain <code>e.offsetX</code> again when the user moves or releases the mouse. If it is <em>greater</em> than the original <code>offsetX</code>, then the user has moved the mouse right, which is equivalent to anticlockwise rotation. If it is <em>less</em> than the original <code>offsetX</code>, then the user has moved the mouse left, which is equivalent to clockwise rotation. So, in the mouse release event handler, move the camera either 1 degree clockwise or 1 degree anticlockwise.</li>
 	</ul>
 	</li>
 	</ol>
