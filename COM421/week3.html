@@ -1,12 +1,11 @@
 <!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Week 3: Implementing a Linked List</h1>
 <h2 id="implementingalinkedlistusingclasses">Implementing a linked list using classes</h2>
-<p>We've now implemented a simple stack. We'll now move on to implementing the
-other data structure we looked at last week - the linked list - in code. As
-you may remember, linked lists are a bit more complex than stacks so require
+<p>Last time we implemented a simple stack. We'll now move on to implementing the
+other data structure we looked at in the first week - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require
 a bit more effort to implement. In particular, we will now need <em>two</em> classes,
-not one:</p>
+not one.</p>
 <ul>
-<li><p>a <code>Node</code> class to represent an individual node. Remember that a node contains the actual data, plus links to the previous and next node.</p></li>
+<li><p>a <code>Node</code> class to represent an individual node. Each item of data is contained within a <em>node</em>, along with the links to the previous and next item. </p></li>
 <li><p>a <code>LinkedList</code> class to represent the linked list as a whole. Remember that
 this needs to contain references to the first and last nodes in the linked 
 list.</p></li>
@@ -23,13 +22,13 @@ list.</p></li>
 <p>What does this do? Remember we use <code>__init()__</code> to initialise an object of the class. A node needs to contain data. So this <code>__init__()</code> method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using <code>self.data = data</code>.</p>
 <p>Note how we initialise the <code>prev</code> and <code>next</code> attributes to <code>None</code>. These attributes represent the previous and next node. <code>None</code> is a special data type indicating that nothing exists yet; it will be appropriate here as we haven't linked this node to any others yet.</p>
 <ol start="2">
-<li>Add a <code>link()</code> method to your Node. This should link another node to the current node. Using the code examples you have seen so far, try to figure out how to pass the second node into the method. Then, link the second node with the current node using this code:</li>
+<li>Add a <code>link()</code> method to your Node. This should link another node to the current node. Using the code examples you have seen so far, try to figure out how to pass the new node into the method. Then, link the new node with the current node using this code. Note how it sets the <code>next</code> attribute of the current node to the new node, and the <code>prev</code> attribute of the new node to the current node.</li>
 </ol>
-<pre><code class="python language-python">self.next = otherNode 
-otherNode.prev = self
+<pre><code class="python language-python">self.next = newNode 
+newNode.prev = self
 </code></pre>
 <ol start="3">
-<li><p>Add a <code>__str()__</code> method to Node which returns the value associated with the node.</p></li>
+<li><p>Add a <code>__str()__</code> method to Node which returns a string containing the value associated with the node.</p></li>
 <li><p>Create some test code which creates two nodes, <code>n1</code> and <code>n2</code>, for example;</p></li>
 </ol>
 <pre><code class="python language-python">n1 = Node("Fred")

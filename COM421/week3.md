@@ -2,13 +2,12 @@
 
 ## Implementing a linked list using classes
 
-We've now implemented a simple stack. We'll now move on to implementing the
-other data structure we looked at last week - the linked list - in code. As
-you may remember, linked lists are a bit more complex than stacks so require
+Last time we implemented a simple stack. We'll now move on to implementing the
+other data structure we looked at in the first week - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require
 a bit more effort to implement. In particular, we will now need *two* classes,
-not one:
+not one.
 
-- a `Node` class to represent an individual node. Remember that a node contains the actual data, plus links to the previous and next node.
+- a `Node` class to represent an individual node. Each item of data is contained within a *node*, along with the links to the previous and next item. 
 
 - a `LinkedList` class to represent the linked list as a whole. Remember that
 this needs to contain references to the first and last nodes in the linked 
@@ -29,13 +28,13 @@ def __init__(self, data):
 
    Note how we initialise the `prev` and `next` attributes to `None`. These attributes represent the previous and next node. `None` is a special data type indicating that nothing exists yet; it will be appropriate here as we haven't linked this node to any others yet.
 
-2. Add a `link()` method to your Node. This should link another node to the current node. Using the code examples you have seen so far, try to figure out how to pass the second node into the method. Then, link the second node with the current node using this code:
+2. Add a `link()` method to your Node. This should link another node to the current node. Using the code examples you have seen so far, try to figure out how to pass the new node into the method. Then, link the new node with the current node using this code. Note how it sets the `next` attribute of the current node to the new node, and the `prev` attribute of the new node to the current node.
 ```python
-self.next = otherNode 
-otherNode.prev = self
+self.next = newNode 
+newNode.prev = self
 ```
 
-3. Add a `__str()__` method to Node which returns the value associated with the node.
+3. Add a `__str()__` method to Node which returns a string containing the value associated with the node.
 
 
 4. Create some test code which creates two nodes, `n1` and `n2`, for example;
