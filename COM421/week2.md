@@ -19,18 +19,22 @@ See [the Python documentation](https://docs.python.org/3/tutorial/classes.html) 
 A `class` can be thought of as a complex data type. Classes provide a way to define our own custom data structures. For example, we could create a `Cat` class to represent a cat, a `Stack` class to represent a stack, or a `LinkedList` class to represent a linked list. Classes contain two key components: 
 
 - **Methods**. A method represents an action that you can perform with a class. For example:
-	- with a `Cat` class we could have `eat`, `sleep` and `meow` methods.
-	- with a stack class, we could define `push` and `pop` methods. 
-	- for a linked list class, we could define an `addNode` method, to add a node onto the end of the linked list (and update the reference to the last node).
+    - with a `Cat` class we could have `eat`, `sleep` and `meow` methods.
+    - with a stack class, we could define `push` and `pop` methods. 
+    - for a linked list class, we could define an `addNode` method, to add a node onto the end of the linked list (and update the reference to the last node).
 
 - **Attributes**. An attribute represents an item of data associated with the class. Last week, we saw that a stack uses an array to store its data. So :
-	- attributes of a `Cat` class could include the name, the age and the weight of the cat.
-	- an attribute of a `Stack` class could be the underlying array. 
-	- Likewise, a linked list contains references to the first and last nodes in the list. So these could be attributes of the `LinkedList` class. 
+    - attributes of a `Cat` class could include the name, the age and the weight of the cat.
+    - an attribute of a `Stack` class could be the underlying array. 
+    - Likewise, a linked list contains references to the first and last nodes in the list. So these could be attributes of the `LinkedList` class. 
 
 ### What is an object?
 
 An object is a specific **instance** of a class, for example, a *specific* cat, stack or linked list. A class can be thought of as a blueprint, or specification, for how a particular data structure should work. However an object is a *specific example* of that data structure.
+
+For example, each of the two cats in the photo below (Binnie and Clyde) could be represented in code with an object. One object for Binnie, and another for Clyde.
+
+![Cats](../images/cats_small.jpg)
 
 We could define a Cat *class* and then create many cat *objects*, reperesenting individual cats.
 
@@ -44,13 +48,13 @@ We will start with a simple class representing a cat.
 
 ```python
 class Cat:
-	def __init__(self, name, age, weight):
-		self.name = name
-		self.age = age
-		self.weight = weight
+    def __init__(self, name, age, weight):
+        self.name = name
+        self.age = age
+        self.weight = weight
 
-	def eat(self):
-		self.weight += 1
+    def eat(self):
+        self.weight += 1
 ```
 This code does not *create any actual cats*. It just creates a *class*, or a *blueprint* or *specification*, for what cats are and what they do. Note, in particular, the following:
 
@@ -101,9 +105,9 @@ print(cat2.weight)
 
 1. Try out this example. Once it's working, do the following:
 
-	- Create a `walk()` method inside the `Cat` class. This should reduce the cat's weight by one.
-	- Create a third cat, "Old Tom" with age 10 and weight 6. 
-	- Make Old Tom eat, and make all three cats walk after they have eaten. After walking, display all three cats' weight again, to show that walking reduces the weight by one.
+    - Create a `walk()` method inside the `Cat` class. This should reduce the cat's weight by one.
+    - Create a third cat, "Old Tom" with age 10 and weight 6. 
+    - Make Old Tom eat, and make all three cats walk after they have eaten. After walking, display all three cats' weight again, to show that walking reduces the weight by one.
 
 2. If you have looked at `if` statements already, change the `walk()` method so that the cat cannot walk if the weight is below 1. (The intention is to avoid starving the cat). 
 
