@@ -126,8 +126,12 @@ class Stack:
     def push(self, item):
         # Code to add an item to the stack will go here
 
+        pass # ends the method when it's empty
+
     def pop(self):
         # Code to remove an item from the top of the stack will go here 
+
+        pass # ends the method when it's empty
 
     def __str__(self):
         return self.internalArray.__str__()
@@ -153,7 +157,11 @@ What happens though when we try to print an object? By default we just get its m
 
 ### Exercise 2
 
-1. Now create a separate program for your Stack. Write the `Stack` class as shown above, and try and complete the `push()` method of your `Stack` so that it takes the value passed to it, appends it to the internal array, and increases the `size` variable by 1.
+1. Now create a separate program for your Stack. Write the `Stack` class as shown above, and try and complete the `push()` method of your `Stack` so that it takes the value passed to it, appends it to the internal array, and increases the `size` variable by 1. To do this you will need to use the list's `append()` method. Here is a simple example of appending to a list:
+```python
+list1 = []
+list1.append("John")
+```
 
 2. Test your `Stack` as follows by adding this code *below* the Stack class:
 ```python

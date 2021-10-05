@@ -92,8 +92,12 @@ notice how it contains an array and <code>push()</code> and <code>pop()</code> m
     def push(self, item):
         # Code to add an item to the stack will go here
 
+        pass # ends the method when it's empty
+
     def pop(self):
         # Code to remove an item from the top of the stack will go here 
+
+        pass # ends the method when it's empty
 
     def __str__(self):
         return self.internalArray.__str__()
@@ -115,8 +119,13 @@ notice how it contains an array and <code>push()</code> and <code>pop()</code> m
 <p>What happens though when we try to print an object? By default we just get its memory address. Adding a <code>__str__()</code> method to a class allows us to return a string representation which can be understood. Here, we return the string representation of the internal array, so when we print the stack, we see the contents of the internal array.</p>
 <h3 id="exercise2">Exercise 2</h3>
 <ol>
-<li><p>Now create a separate program for your Stack. Write the <code>Stack</code> class as shown above, and try and complete the <code>push()</code> method of your <code>Stack</code> so that it takes the value passed to it, appends it to the internal array, and increases the <code>size</code> variable by 1.</p></li>
-<li><p>Test your <code>Stack</code> as follows by adding this code <em>below</em> the Stack class:</p></li>
+<li>Now create a separate program for your Stack. Write the <code>Stack</code> class as shown above, and try and complete the <code>push()</code> method of your <code>Stack</code> so that it takes the value passed to it, appends it to the internal array, and increases the <code>size</code> variable by 1. To do this you will need to use the list's <code>append()</code> method. Here is a simple example of appending to a list:</li>
+</ol>
+<pre><code class="python language-python">list1 = []
+list1.append("John")
+</code></pre>
+<ol start="2">
+<li>Test your <code>Stack</code> as follows by adding this code <em>below</em> the Stack class:</li>
 </ol>
 <pre><code class="python language-python">stack1 = Stack()
 stack1.push(1)
