@@ -14,7 +14,7 @@ this needs to contain references to the first and last nodes in the linked
 list.
 
 
-### Exercise 2: Create a Node class
+### Exercise 1: Create a Node class
 
 1. Create a *new* Repl project. Inside a new file, create a `Node` class. It should contain an `__init()__` method which looks like this:
 ```python
@@ -54,7 +54,7 @@ n2.prev
 n2.next
 ```
 
-### Exercise 3: Creating the linked list itself
+### Exercise 2: Creating the linked list itself
 
 We have now created our `Node` class. We are now going to use it in a complete `LinkedList` class which will allow you to add nodes to a linked list, and access the linked list's first and last members.
 
@@ -77,8 +77,8 @@ and should search the linked list for the node at that index. Having found it, i
 ```python
 count = 1
 while count <= 10:
-       print(count)
-       count = count + 1
+    print(count)
+    count = count + 1
 ```
 
 4. Test out your linked list by creating three `Node` objects and adding them to your `LinkedList`. Once you've added them, try searching for them within the linked list using their index. 

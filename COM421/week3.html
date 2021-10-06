@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Week 3: Implementing a Linked List</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Week 3: Implementing a Linked List</h1>
 <h2 id="implementingalinkedlistusingclasses">Implementing a linked list using classes</h2>
 <p>Last time we implemented a simple stack. We'll now move on to implementing the
 other data structure we looked at in the first week - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require
@@ -10,7 +10,7 @@ not one.</p>
 this needs to contain references to the first and last nodes in the linked 
 list.</p></li>
 </ul>
-<h3 id="exercise2createanodeclass">Exercise 2: Create a Node class</h3>
+<h3 id="exercise1createanodeclass">Exercise 1: Create a Node class</h3>
 <ol>
 <li>Create a <em>new</em> Repl project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init()__</code> method which looks like this:</li>
 </ol>
@@ -44,7 +44,7 @@ n1.next
 n2.prev
 n2.next
 </code></pre>
-<h3 id="exercise3creatingthelinkedlistitself">Exercise 3: Creating the linked list itself</h3>
+<h3 id="exercise2creatingthelinkedlistitself">Exercise 2: Creating the linked list itself</h3>
 <p>We have now created our <code>Node</code> class. We are now going to use it in a complete <code>LinkedList</code> class which will allow you to add nodes to a linked list, and access the linked list's first and last members.</p>
 <p><em>You can do this exercise in the same file as Exercise 2.</em> </p>
 <ol>
@@ -62,8 +62,8 @@ n2.next
 <p>If you are not sure how to do this, try and work it out with <em>pseudocode</em> first. Also you will need a <em>while loop</em> to solve this. While loops are being considered in COM411 this week. Here is a reminder of a simple while loop to count from 1 to 10:</p>
 <pre><code class="python language-python">count = 1
 while count &lt;= 10:
-       print(count)
-       count = count + 1
+    print(count)
+    count = count + 1
 </code></pre>
 <ol start="4">
 <li><p>Test out your linked list by creating three <code>Node</code> objects and adding them to your <code>LinkedList</code>. Once you've added them, try searching for them within the linked list using their index. </p></li>
