@@ -50,10 +50,10 @@ scene.add(light3);
 
 // Create a spotlight
 const light4 = new THREE.SpotLight(0xffffff, 1.0);
-light4.position.set(10, 10, -10);
+light4.position.set(5, 20, 10);
 
-// Change the spotlight's target to be the point x=0, y=0, z=-5
-light4.target.position.set(0, 0, -5);
+// Change the spotlight's target to be the point x=-5, y=0, z=5
+light4.target.position.set(-5, 0, 5);
 
 scene.add(light4);
 
