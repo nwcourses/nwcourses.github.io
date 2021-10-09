@@ -110,10 +110,10 @@ function renderScene() {
     requestAnimationFrame(renderScene);
 
     if(canvas.clientWidth != canvas.width || canvas.clientHeight != canvas.height) {
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         const aspect = canvas.clientWidth / canvas.clientHeight;
         camera.aspect = aspect;
         camera.updateProjectionMatrix();
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     }
 }
 

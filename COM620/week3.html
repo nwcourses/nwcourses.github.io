@@ -1,547 +1,221 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3aframeandjavascript">Week 3: A-Frame and JavaScript</h1>
-<h2 id="introduction">Introduction</h2>
-<p>Last week we looked at how to create some basic A-Frame scenes with HTML. We
-found we could do quite a bit with plain HTML, for example we could move around
-the scene, apply rotations, and even do animations. However, most of the power
-of A-Frame comes from being able to create <em>scripts</em> in JavaScript to control
-your scene and produce custom behaviour. In this way, powerful applications 
-such as games and VR/AR applications can be built.</p>
-<h2 id="itsallaboutbuildingcomponents">It's all about building components!</h2>
-<p>The key approach to developing A-Frame applications is to <em>build your own
-reusable components</em> and attach them to entities. As we have seen, A-Frame
-already comes with a range of components such as <code>position</code>, <code>rotation</code>,
-<code>scale</code> and <code>animation</code>. However, you can develop your <em>own components</em> and
-attach them to entities. The idea is to try and make your components 
-<em>reusable</em> so that once you've created a component, you can use it over and
-over again in different applications.</p>
-<p>Some examples of reusable components could be:</p>
+<html>
+<head>
+<title>Immersive Technologies - Topic 1</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h2>Topic 3: Lighting and Textures</h2>
+</div>
+<hr />
+<h2>Introduction</h2>
+<p>Having covered the basics of setting up, and navigating through, a scene, this week we will look at how to develop more realistic three.js worlds making use of <em>lighting effects</em> and <em>textures</em>.</p>
+<h2 id="materialsandlighting">Materials and lighting</h2>
+<p>We're first going to look at how we can add simple <em>lighting</em> effects to our scene. Before we do that, we need to take a look at different types of <em>materials</em>.
+<h3>Materials</h3>
+<p>A word first on custom materials. So far, we have been using the <code>THREE.MeshBasicMaterial</code>. This very basic material does not take into account lighting effects. The material will appear the same, whether there are lights in our world or not. To account for the effect of lighting, we have to use more sophisticated materials which can reflect light. There are two commonly used materials:
 <ul>
-<li>a component to allow vertical movement of the camera. By default, we can
-move around the scene using the WASD keys, but it would be nice also, 
-particularly in a 3D world, to be able to move vertically using e.g. the
-Q and Z keys. We could create a component to allow us to do this.</li>
-<li>a component to download the contents of our 3D world (for example, roads,
-buildings and so on) from a server.</li>
+<li><code>THREE.MeshLambertMaterial</code> will reflect light shone on it.</li>
+<li><code>THREE.MeshPhongMaterial</code> will also reflect light shone on it, but at a higher resolution, as the lighting effect is calculated per-pixel, rather than, as is the case for <code>THREE.MeshLambertMaterial</code> per-vertex. The result is a more 'shiny' effect, like a metallic surface. As a result, the lighting features <em>specular highlights</em>. Specular highlights are the small and intensely shiny spots of light you see on a metallic, or other shiny, surface at the point at which the light shines on its surface. A good example can be seen on cars on a sunny day, which feature small bright shiny spots at the point the sunlight shines on them.</li>
 </ul>
-<h2 id="asimplecomponent">A simple component</h2>
-<p>With that in mind, we'll write a simple component. Create the following
-HTML:</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-&lt;title&gt;A-Frame Component&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;a-scene&gt;
-&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-sphere color="red" position="0 1 -5" greeting&gt;&lt;/a-sphere&gt;
-&lt;/a-scene&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>Note that the <code>&lt;a-sphere&gt;</code> has, in addition to the <code>color</code> and <code>position</code>
-components, a <code>greeting</code> component. This is our own custom component
-which we are going to write now. We create a component with 
-<code>AFRAME.registerComponent()</code>:</p>
-<pre><code>AFRAME.registerComponent('greeting', {
-    init: function() {
-        alert('Hello World!');
-    }
-});
-</code></pre>
-<p>What is this doing?  We register the component with <code>AFRAME.registerComponent()</code>.  This function takes two arguments: the name of the component (<code>greeting</code>
-here), and a list of component <strong>lifecycle methods</strong>. Lifecycle methods
-are functions which run
-at different stages of the component's lifecycle. We'll come across more
-of these later, but for now, we will just consider the <code>init()</code> lifecycle
-method.
-This runs when the component is first created, and is typically used - as you
-might guess - to initialise the component. So in this
-example, as soon as the component is created, the "Hello World!" message
-will appear.</p>
-<p>The lifecycle methods are described
-<a href="https://aframe.io/docs/1.0.0/core/component.html#definition-lifecycle-handler-methods">here</a></p>
-<h3 id="exercise1">Exercise 1</h3>
-<p>Write the JavaScript above, save it (e.g. as <code>greeting.js</code>), include it in 
-the HTML with a <code>&lt;script&gt;</code> tag and run it in the browser.</p>
-<p>Then, to test, you can either load the HTML directly in the browser or use 
-a local web server, as we did in Week 1.</p>
-<h2 id="givingpropertiestocomponents">Giving properties to components</h2>
-<p>We can give <em>properties</em> to components. You have seen this already with 
-in-built components such as <code>position</code> (which takes x, y and z coordinates)
-and <code>animation</code> (which takes various properties including <code>from</code>, <code>to</code>,
-<code>dir</code>, <code>dur</code> etc). In this simple example, we might want to display a 
-custom greeting, not just "Hello World". The next example shows this.</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;script type='text/javascript' src='dist/main.js'&gt;&lt;/script&gt;
-&lt;title&gt;A-Frame Component&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;a-scene&gt;
-&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-sphere color="red" position="0 1 -5" greeting='message: Hello A-Frame!'&gt;&lt;/a-sphere&gt;
-&lt;/a-scene&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>Now, the <code>greeting</code> component contains a <code>message</code> property, which is set
-to "Hello A-Frame!". How can we extract that property and display it?
-What we need to do is define a <strong>schema</strong> for our component. The schema 
-defines what properties a component expects, and what data types each
-component will have. For example:</p>
-<pre><code>AFRAME.registerComponent('greeting', {
-    schema: {
-        message: {
-            type: 'string',
-            default: 'Hello World!'
-        }
-    },
-
-    init: function() {
-        alert(this.data.message);
-    }
-});
-</code></pre>
-<p>We are now giving our <code>greeting</code> component a <code>schema</code>, and specifying that
-the <code>schema</code> has one property, <code>message</code> which is of data type <code>string</code> and
-has a <code>default</code> value of "Hello World!" In other words, if no <code>message</code>
-property is provided, it will take "Hello World!" as the default value.</p>
-<p>How do we access the property in our code? You can see this in the <code>init()</code>
-method; we use <code>this.data</code> to access the properties of the current 
-component. So to access the <code>message</code> property, we use <code>this.data.message</code>.</p>
-<h3 id="exercise2">Exercise 2</h3>
-<ol>
-<li><p>Try the example out.</p></li>
-<li><p>Try removing the property from the <code>greeting</code> component in your HTML, so 
-that it displays "Hello World!" as the default message.</p></li>
-<li><p>Try adding a second property to your schema, <code>name</code>. This should represent
-the name of a person. The <code>init()</code> method should now display the message plus
-the name. For example if the message was "Hello" and the name was "Fred", it
-should display "Hello Fred".</p></li>
-</ol>
-<h2 id="usingthedomtoaccessentitiesandcomponentsfromjavascript">Using the DOM to access entities and components from JavaScript</h2>
-<p>Hopefully you have looked at the <a href="week1a.html">DOM</a> notes in your own
-time, and seen how we can use the DOM to access elements within a web page.
-Accessing elements within an A-Frame scene is exactly the same; A-Frame
-scenes consist of a hierarchical arrangement of tags, just like an HTML page
-does, and consequently, we can use the DOM to access them.</p>
-<p>The next few examples are going to <strong>embed</strong> an A-Frame scene within a web
-page. You can do this by adding <code>embedded</code> to your <code>&lt;a-scene&gt;</code> tag.
-This allows us to include regular HTML input elements on our page
-as well as the A-Frame scene. We are going to practise with the DOM by
-manipulating our A-Frame elements from regular HTML controls.</p>
-<pre><code>&lt;!DOCTYPE html&gt; 
-&lt;html&gt;
-&lt;head&gt;  
-&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-&lt;!-- your JavaScript --&gt;
-&lt;script type='text/javascript' src='update-colour.js'&gt;&lt;/script&gt;
-&lt;/head&gt;     
-&lt;body&gt;      
-&lt;h1&gt;Embedded A-Frame Scene&lt;/h1&gt;
-&lt;a-scene embedded style='width:50%; height:600px; border: 1px solid black'&gt;
-&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'&gt;&lt;/a-entity&gt;
-&lt;/a-scene&gt;
-Change the box colour: &lt;input id="boxcolour" type="text" /&gt;
-&lt;input type="button" id="go" value="go!" /&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>and this JavaScript:</p>
-<pre><code>// The parameter `e` is an event object, it can be used to obtain more detail
-// about the event. We don't use it here, however.
-function handleClick(e) {
-    const box1 = document.getElementById('box1');
-    const value = document.getElementById('boxcolour').value;
-    box1.setAttribute('material', {
-        color: value
-    });
-}
-
-window.onload = () =&gt; {
-    document.getElementById('go').addEventListener('click', handleClick);
-};
-</code></pre>
-<p>Hopefully much of this will look familiar from the DOM examples.</p>
-<p>We specify a <code>window.onload</code> function. This is a function which will 
-automatically load when the page has finished loading. Only when the page
-has finished loading will all our A-Frame components be loaded into
-memory. </p>
-<p>Why can we not just put the code inside the <code>onload</code> function
-directly inside our "main" JavaScript instead, and include it into our HTML with <code>defer</code> - to prevent it loading until the page has loaded - as we did in week 1?  The problem is that <code>AFRAME.registerComponent()</code>, which is used to register
-a component we saw above, has
-to be loaded <em>before</em> the A-Frame scene is loaded into memory, and <em>not</em>
-after the page has loaded. When the HTML of an A-Frame scene is read by the
-browser, each component the browser comes across is checked if it is a registered component and if it is, it's initialised. If it isn't registered, it's ignored. So, if component registration is left until after the page has finished
-loading, the components will not be recognised and therefore not initialised.</p>
-<p>In this example, we <em>could</em> put the <code>onload</code> code in a script with a <code>defer</code>
-(because <code>AFRAME.registerComponent()</code> is not used)
-but larger A-Frame applications are likely to need to register some custom
-components and if we tried to register components in a script with 
-<code>defer</code>red loading, it would not work as they would be registered after the
-page has finished loading.  So to accommodate both constraints (components must be registered before the scene is loaded, but components can only be <em>accessed</em> after the scene is loaded) we typically make our JavaScript files load before the page but ensure any code which deals with the DOM of the HTML page is placed in a 
-<code>window.onload()</code> function to ensure it is only loaded <em>after</em>.</p>
-<p>To continue with the code:</p>
+<h3>Light types</h3>
+<p>There are various light types available in three.js, each representing the different types of light we get in the real world. Four of the most commonly used are as follows:
 <ul>
-<li><p>Within the <code>window.onload()</code> function we add a <code>click</code> event listener 
-function to the button, so that the <code>handleClick()</code> function runs when we click the button. </p></li>
-<li><p>Inside this <code>handleClick()</code> function we use the standard 
-<code>document.getElementById()</code> to obtain our box using its ID.</p></li>
-<li><p>We then obtain the text the user entered in the input box with the ID of
-<code>boxcolour</code>;</p></li>
-<li><p>and finally set the colour of our box (which is 
-the <code>color</code> property of the <code>material</code> component) to the value
-the user entered. Note how <code>setAttribute()</code> allows us to update a specific
-component of the entity. It takes as its parameters, the name of the component
-(<code>material</code> here) plus a JavaScript <em>object</em> containing property/value pairs 
-for the properties of the component we wish to update (here, just the <code>color</code>
-property of the <code>material</code> component).</p></li>
+<li><p><code>THREE.AmbientLight</code>. Ambient light is the background lighting in our world. It does not radiate from a particular direction; there is no single light source. All objects, however they are oriented, will be lit by the ambient light. A good example of ambient light in the real world is the daylight on a cloudy day. You cannot see the sun but nonetheless the world is lit - perhaps rather dimly, but nonetheless still lit. There are no shadows, and everything is lit equally.</p></li>
+<li><p><code>THREE.DirectionalLight</code>. A directional light is a light which is placed at a particular point within our world (for example, y=100) and shines in a particular direction, towards a <em>target</em> (which, by default, is the origin). Directional lights can be considered <em>infinitely far away</em>, so that they shine from a particular direction <em>no matter where in the world you are</em>. They are thus similar to the sun. So, for example, a directional light will shine fron the same direction whether you are at x=100, y=0, z=-100 or x=-500, y=10, z=-500, so boxes at each of these locations will be lit the same way (the top face of the box only will be lit if the directional light is shining straight down).</li>
+<li><p><code>THREE.PointLight</code>. A point light is, like a directional light, placed at a particular point within our world. However, unlike a directional light, it shines in <em>all directions</em> and objects will be lit differently depending on what side of the point light they are placed. A point light is similar to a light bulb in the real world. So a box to the left of a point light will be illuminated on its right face, while a box to the right of a point light will be illuminated on its left face. Look at the diagram below showing a light bulb as a point light. The floor to the right of the bookcase is lit by the point light, but the floor to the left of the bookcase is not, because the bookcase blocks the light from the point light reaching it. Similarly only the right of the bookcase is lit by the point light, not the left.</li>
+<li><p><code>THREE.SpotLight</code>. A spotlight behaves in much the same way as a real-world spotlight. A cone of light shines down from the spotlight, and the orientation of this cone depends on the orientation of the spotlight. Only objects within the cone will be lit. On the diagram, only a small section of the floor to the right of the bookcase, and part of the right-hand side of the bookcase, are lit. With a spotlight, the direction it shines, as well as the angle covered by the cone of light, can be defined.</li>
 </ul>
-<p>See <a href="../wad/objects.html">here</a> for notes on JavaScript objects. </p>
-<h3 id="makingtheaboveexamplemoreconciseusinganarrowfunction">Making the above example more concise using an arrow function</h3>
-<p>The above example will work, however it can be made more concise using an
-<em>arrow function</em>. 
-Arrow functions are a new feature of the recent JavaScript standard,
-ECMAScript 6. They are anonymous, nameless functions which can be used 
-as parameters where a function name (such as <code>clickHandler</code> in the example above) is expected. Rather than writing the event handler function as a separate function, and specifying the name of the event handler as a parameter, we write the function in full where the function name is expected. Here is the JavaScript example above rewritten so that the event handler is an arrow function. Note also how we do not use the word "function" with arrow functions, but separate the parameter list and function body with the arrow operator (<em>=&gt;</em>):</p>
-<pre><code>window.onload = () =&gt; {
-    document.getElementById('go').addEventListener('click', e =&gt; {
-        const box1 = document.getElementById('box1');
-        const value = document.getElementById('boxcolour').value;
-        box1.setAttribute('material', {
-            color: value
-        });
-    });
-};
+<p><img src='../images/lighting.png' alt='Different light types' /></p>
+<h4>Examples of the four light types</h4>
+<p>Here is an incomplete code example (the code to setup the scene, camera and renderer is not present) of using all four light types. In general, when specifying light, you must specify its <em>colour</em> (again, as a hex code, just like for a material) and its <em>intensity</em> (a floating-point number between 0 and 1, with 1 indicating full intensity). For types other than ambient, you must also specify its <em>position</em>, and if you wish a directional light or spotlight to shine somewhere other than the origin, you must specify its <em>target</em>.
+<pre>
+// Create ambient light
+// Specify colour and intensity
+const light = new THREE.AmbientLight(0xffffff, 0.2);
+
+// Add the light to the scene
+scene.add(light);
+
+// Create a directional light
+const light2 = new THREE.DirectionalLight(0xffffff, 0.6);
+light2.position.set(0, 100, 0); // x, y and z coordinates
+scene.add(light2);
+
+// Create a point light
+const light3 = new THREE.PointLight(0xffffc0, 0.8);
+light3.position.set(0, 10, 10);
+scene.add(light3);
+
+// Create a spotlight
+const light4 = new THREE.SpotLight(0xffffff, 1.0);
+light4.position.set(10, 10, -10);
+
+// Change the spotlight's target to be the point x=0, y=0, z=-5
+light4.target.position.set(0, 0, -5);
+
+scene.add(light4);
+
+// If the target changes, it must be added to the scene
+// This also applies to directional lights
+// See https://threejs.org/docs/index.html?q=SpotLight#api/en/lights/SpotLight.target
+scene.add(light4.target);
+
+// Create some shapes using Lambert and Phong materials
+
+const redLambert = new THREE.MeshLambertMaterial({color: 0xff0000});
+const greenPhong = new THREE.MeshPhongMaterial({
+    color: 0x00ff00, 
+    shininess: 60 // default is 30
+});
+
+const box = new THREE.BoxGeometry();
+const sphere = new THREE.SphereGeometry();
+
+const mesh1 = new THREE.Mesh(box, redLambert);
+const mesh2 = new THREE.Mesh(sphere, greenPhong);
+
+mesh1.position.set(0, 0, -10);
+mesh2.position.set(0, 0, -5);
+
+scene.add(mesh1);
+scene.add(mesh2);
+</pre>
+</p>
+<h4>Removing a light</h4>
+<p>You can later remove a light (indeed, any <em>Object3D</em>, wbich also includes meshes; remember that an <em>Object3D</em> represents any object with a position which can be added to the scene) using the scene's <code>remove()</code> method, e.g.:
+<pre>scene.remove(light4);</pre>
 </code></pre>
-<p>Note how the arrow function is more concise than the first version with the
-separate <code>handleClick()</code> function. We have added the function in
-its entirety as the event handler to our click event, rather than using 
-a separate, named function called <code>handleClick()</code> as in the first example.</p>
-<h3 id="exercise3">Exercise 3</h3>
-<ol>
-<li><p>Extend the example to have two boxes, each with different IDs. Allow the
-user to enter the box ID as well as the colour in two separate input boxes
-and change the JavaScript code so that the colour of the correct box
-changes.</p></li>
-<li><p>Try changing the box to a sphere from within JavaScript, after you've
-changed its colour. Does it work?</p></li>
-</ol>
-<h2 id="updatingmorecomplexproperties">Updating more complex properties</h2>
-<p>The <code>color</code> was a simple property of the <code>material</code> component of 
-our box, which can be updated by means
-of a simple text string. However, most of the time we want to manipulate
-more complex components of entities. For example the <code>position</code> and <code>rotation</code> 
-components both have a data type 
-<code>vec3</code> (3 member vectors), i.e. they contain x, y and z properties. To update 
-these, we need to pass a JavaScript <strong>object</strong> containing x, y and z properties.
-(See <a href="https://aframe.io/docs/1.0.0/core/component.html">here</a> for 
-documentation on the different data types).</p>
-<p>Here is an example: </p>
-<pre><code>&lt;!DOCTYPE html&gt; 
-&lt;html&gt;
-&lt;head&gt;  
-&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-&lt;script type='text/javascript' src='update-pos.js'&gt;&lt;/script&gt;
-&lt;/head&gt;     
-&lt;body&gt;      
-&lt;h1&gt;Embedded A-Frame Scene&lt;/h1&gt;
-&lt;a-scene embedded style='width:50%; height:600px; border: 1px solid black'&gt;
-&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='0 1 -5'&gt;&lt;/a-entity&gt;
-&lt;/a-scene&gt;
-Move the box: &lt;input type="range" id="boxmove" min="-5" max="5" step="0.5" value="0" /&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>and this JavaScript:</p>
-<pre><code>window.onload = () =&gt; {
-    document.getElementById('boxmove').addEventListener('change', e=&gt; {
-        const box1 = document.getElementById('box1');
-        const value = document.getElementById('boxmove').value;
-        box1.setAttribute('position', {
-            x: value,
-            y: 1,    
-            z: -5    
-        });
-    });
-};
-</code></pre>
-<p>In this example we control the box with a <strong><code>range</code></strong> (a slider element).
-A <code>range</code> can be used to set one of a range of numerical values. Here, the
-<code>range</code> is setting values from a minimum -5 to a maximum +5 in steps of 0.5
-and with a default setting of 0.</p>
-<p>If we look at our JavaScript, we can see first of all that we handle the
-<code>change</code> event of the <code>range</code> element, which will occur when the <code>range</code> is
-moved.</p>
-<p>Moving on to the event handler (again, an arrow function), we can see 
-that we read the value of a range
-in the same way as a simple text field, using its <code>value</code>. We then set the
-<code>position</code> component of the box. Note how we do not set a simple value but a 
-JavaScript <em>object</em> containing x, y and z properties. Note how we 
-set the <code>x</code> property to the value of the slider and thus allow the entity
-to move in the <code>x</code> direction.</p>
-<h3 id="exercise4">Exercise 4</h3>
-<ol>
-<li><p><code>rotation</code> is also a component which stores a <code>vec3</code> - the three rotations
-about the three axes x,y and z.
-Change the example so that it allows the user to rotate the shape about
-the y axis by means of a <code>range</code> slider. The <code>range</code> should range from
-0 to 360 in steps of 10 and should update the <code>y</code> property of the <code>rotation</code> component of the shape (leave <code>x</code> and <code>z</code> at 0)</p></li>
-<li><p>Extend question 1 so that there are three sliders, one to rotate about
-each of the x, y and z axes. Connect all three sliders to the same function. 
-In this event handler, ensure the <code>x</code>, <code>y</code> and <code>z</code> properties of the <code>rotation</code> component are updated appropriately.</p></li>
-</ol>
-<h2 id="mouseevents">Mouse events</h2>
-<p>Mouse events on A-Frame entities are a bit more difficult than you might
-imagine. You cannot simply add a <code>click</code> event to an entity. This is because
-they are not HTML elements - they are not part of the HTML hierarchy of the
-page. What you have to do instead is to add a <code>cursor</code> property to your
-scene, and specify its <code>rayOrigin</code>. The <code>cursor</code> property represents a 
-mouse cursor, and the <code>rayOrigin</code> is the origin of a line (ray) leading to
-the clicked position within the 3D world. We most commonly want the origin of
-this ray to be the mouse position, so that the ray leads from the mouse to
-the appropriate place within the world. So, we specify <code>rayOrigin: mouse</code>. 
-Here is an example:</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;  
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-&lt;title&gt;A-Frame Component&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;a-scene cursor='rayOrigin: mouse'&gt;
-&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker&gt;&lt;/a-entity&gt;
-&lt;/a-scene&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+<p>Just like the camera and meshes, lights are themselves <code>Object3D</code>s. This is why we can give them properties such as a position.</p>
+<h3>Shadows</h3>
+<p>To make our world even more realistic, we can add <em>shadow</em> effects, whereby an object will <em>cast a shadow</em> on a second object (often the ground) for areas on the second object in which the object blocks a light source. Shadows require relatively expensive computation, so if you don't need them, it's best to leave them out; in fact, by default, they are left out. However they can add nice realism to virtual-reality applications and games.</p>
+<p>To create shadows, you need to do the following:
+    <ul>
+    <li>Turn on the renderer's <em>shadow map</em>:
+    <pre>renderer.shadowMap.enabled = true;</pre>
+    </li>
+    <li>If an object can <em>cast a shadow</em>, i.e. that object is capable of blocking a light source, set its <code>castShadow</code> property to <em>true</em>:
+    <pre>mesh1.castShadow = true;</pre>
+    </li>
+    <li>If an object can <em>receive a shadow</em>, i.e. shadows should be drawn on it if the light is blocked by another object, set <code>receiveShadow</code> to true:
+    <pre>groundMesh.receiveShadow = true;</pre>
+    </li>
+    <li>Any <em>lights</em> capable of casting shadows must also have <em>castShadow</em> set to <em>true</em>:
+    <pre>pointLight.castShadow = true;</pre>
+    </li>
+    </ul>
+</p>
+<h3>Planes</h3>
+<p>We are talking about casting shadows on the ground, so this is a good point to introduce the <em>plane</em> geometry. The plane geometry represents a plane, or flat surface, and so is commonly used to represent the ground. When creating a plane geometry, we specify its width and height in world units:
+<pre>const planeGeom = new THREE.PlaneGeometry(100, 100);</pre>
+This will create a plane geometry of width 100, height 100, centred about the origin by default. However an important point is that by default, the <em>plane geometry is created in the <strong>xy-plane</strong></em>, i.e. all points on the plane will have constant <code>z</code>. Also by default, the plane faces positive <code>z</code>. This will have the effect of creating a plane that appears to stand up, vertically, facing positive <code>z</code>. (Planes are single-sided by default, though we can adjust this).</p>
+<p>What we really need is a <em>ground</em> plane, i.e. a plane geometry in the <strong>xz-plane</strong>, with all <code>y</code> coordinates on the plane constant, and facing up, towards positive <code>y</code>. To do this, once we've created a mesh using the plane geometry and an appropriate material,  we need to rotate the plane by 90 degrees (0.5 * PI radians) clockwise about the <code>x</code> axis.  The diagram below clarifies the operations of rotating about the <code>x</code>, <code>y</code> and <code>z</code> axes: <br />
+<img src="../images/axisrotation.png" alt="Rotation about the x, y and z axes" />
+<br />
+To do this, we set the mesh's <code>rotation</code> to -0.5*PI radians:
+<pre>planeMesh.rotation.x = -Math.PI * 0.5;</pre>
+</p>
+<p>The effect on the plane is shown in the diagram below. Note how the plane is originally the xy-plane and we rotate it clockwise by 90 degrees so that it becomes the xz-plane:<br />
+<img src="../images/default_plane_rotation.png" alt="Rotation of the default plane geometry" />
+</p>
+<p>There are various other things we can do with planes, for example we can define a plane mesh to consist of multiple vertices (points) a specific distance apart, such as a plane with width 100, height 100 made up of many points one unit apart. This is useful for generating <em>terrain</em>, by giving each vertex a different <code>y</code> coordinate representing its height above sea level in metres. We will return to this later.</p>
+<h2>Textures</h2>
+<p>We will now move onto the second main topic for this week: <em>textures</em>.</p>
+<p>In a VR application or 3D game, most of the features of the 3D world don't have simple colours. Instead they have realistic-looking have <em>textures</em> such as brick walls, marble, metallic surfaces and so on. A texture is loaded from an image (such as a PNG image) and then associated with a material to be used as the surface for a mesh. The material can be any type of material (e.g. <code>MeshBasicMaterial</code>, <code>MeshLambertMaterial</code> and <code>MeshPhongMaterial</code>); the light reflectance will be defined by the material type rather than what is inside the PNG image.</p>
+<h3>Loading a texture</h3>
+<p>To load a texture, <code>THREE.TextureLoader</code> is used. For example:
+<pre>
+// Create a texture loader
+const loader = new THREE.TextureLoader();
+
+// Load an image to use as the texture
+const texture = loader.load('metal.png');
+
+// Create a material using the texture
+const material = new THREE.MeshLambertMaterial({map: texture});
+
+// Create a mesh
+const mesh = new THREE.Mesh(boxGeom, material);
+
+// Add it to the scene
+scene.add(mesh);
+</pre>
+Note how the texture returned from <code>loader.load()</code> is used when creating a material, by specifying it as the material's <code>map</code> (texture map) property.</p>
+<p>One issue with the above is that it might take time to load the texture, particularly if the network connection is slow. However <strong>the <code>load()</code> method returns immediately, even if the texture is not loaded.</strong> The result might be that the mesh is created before the texture has loaded, which will mean it will appear black initially, while waiting for the texture to load. We can resolve this by using the <code>TextureLoader</code> asynchronously, and specifying a <em>callback function</em> to run once the texture has loaded. For example:
+<pre>
+// Create a texture loader
+const loader = new THREE.TextureLoader();
+
+// Load an image to use as the texture
+loader.load('metal.png', texture =&gt; {
+
+    // Create a material using the texture
+    const material = new THREE.MeshLambertMaterial({map: texture});
+
+    // Create a mesh
+    const mesh = new THREE.Mesh(boxGeom, material);
+
+    // Add it to the scene
+    scene.add(mesh);
+});
+</pre>
+Note how in this version we supply a <em>callback function</em> to the <code>load()</code> method, which runs when the texture is fully loaded. This callback function takes the texture object as a parameter.</p>
+<h3>Texture wrapping</h3>
+<p><em>Texture wrapping</em> refers to the way in which the texture is applied to the mesh. By default, the texture is stretched over the whole mesh that it is applied to (this is called <em>clamping</em>). For a small mesh, that might be what we want (e.g. stretching an image containing the Coke logo over a cylinder to represent a Coke can) but for a larger mesh, such as a plane representing the ground, we probably don't want this. Let's say we have a texture image of 128x128 representing a floor tile. If this is stretched over the whole image it will appear blurred. We want instead to <em>tile</em> the texture image so that it repeats. We can do this by setting up <em>repeat wrapping</em>: 
+<pre>
+// Create a texture loader
+const loader = new THREE.TextureLoader();
+
+// Load an image to use as the texture
+loader.load('floor.png', texture =&gt; {
+
+    // The S axis of the texture is its horizontal axis (like x)
+    texture.wrapS = THREE.RepeatWrapping;
+
+    // The T axis of the texture is its vertical axis (like y)
+    texture.wrapT = THREE.RepeatWrapping;
+
+    // Make the texture repeat 64 times horizontally, 64 times vertically
+    texture.repeat.set(64, 64);
+
+    // Create a material using the texture
+    const material = new THREE.MeshLambertMaterial({map: texture});
+
+    // Create a mesh
+    const mesh = new THREE.Mesh(planeGeom, material);
+
+    // Add it to the scene
+    scene.add(mesh);
+});
+</pre>
+Note how we specify the <code>wrapS</code> and <code>wrapT</code> properties of the texture to specify how the texture is applied to the mesh in the horizontal (s) and vertical (t) directions. <code>THREE.RepeatWrapping</code> means that the texture will repeat in that direction. To specify the number of times the texture will repeat across the whole mesh, we set the properties of <code>texture.repeat</code>, the first parameter being horizontal and the second, vertical. Here, the texture will repeat 64 times both horizontally and vertically across the whole mesh.</p>
+<h3>Texture magnification and minification</h3>
+<p>Our texture occupies a certain number of pixels, for example 128x128. However the number of pixels that a mesh occupies while being displayed on screen is liely to be different to that - if the mesh is close to the camera it will likely occupy more pixels than the texture, but if it is far away it will likely occupy less. So the texture will have to be <em>magnified</em> or <em>minified</em> to fit on the mesh. There is not an exact correspondence between pixels of the texture image (called <em>texels</em>) and screen pixels.</p>
+<p>In these cases, <em>magnification and minification filters</em> need to be applied. The diagram below shows a texture being minified (when applied to a distant mesh) and magnified (when applied to a nearby mesh).
+<br />
+<img src="../images/texture_mag_min.png" alt="Texture magnification and minification "/>
+</p>
+<h4>Magnification</h4>
+<p>Magnification occurs when the texture occupies less pixels than the current view of the mesh it is to be applied to. For example, a 128x128 texture needs to be stretched across a face of a mesh occupying 256x256 screen pixels in the current view of the world. Two filter settings can be applied: 
+<ul>
+<li>One setting is <code>THREE.NearestFilter</code>. The <code>THREE.NearestFilter</code> will pick the nearest texture pixel (texel) to display on the mesh surface. For example, if the texture is 128x128 and is being displayed on a mesh which is occupying 256x256 screen pixels in the current view of the world, then the texel equal to the screen pixel divided by 2 (because 256/128 is 2) will be picked. So, mesh pixel x=200, y=200 will use texel x=100, y=100 as 200/2 is 100) but so will x=201, y=200; x=200, y=201; and x=201, y=201 (assuming rounding down during division). The end result of this will be that texel x=100, y=100 will be stretched across 2 screen pixels horizontally and 2 vertically, so 4 in total: x=200, y=200; x=201, y=200; x=200, y=201; x=201. y=201. This will lead to a very pixelated and blocky looking texture, as the texture is stretched across the mesh without any blending of the pixel colours occurring. So it is not ideal, and therefore not the default. It is computationally relatively fast, however, so may be chosen in low resource environments.</li>
+<li>The default setting is to use <code>THREE.LinearFilter</code>. Rather than always picking the closest texel to a pixel, it merges the colours from the all the closest texels to that pixel to produce the final colour, weighting each texel depending on how close it is to the pixel. So for example if we divide screen pixel x=201, y=201 by two, we get x=100.5, y=100.5. So this screen pixel is in between four texels: x=100,y=100; x=101,y=100; x=100,y=101; and x=101, y=101. So the colours of all 4 texels are blended to give the colour for this pixel.</li>
+</ul>
+</p>
+<p>The image below shows the difference. Note how with <code>NearestFilter</code> the nearest texel to a given pixel is always picked, while with <code>LinearFilter</code> blending of the colours of the nearby texels occurs, leading to a smoother and less pixelated effect.
+<br />
+<img src="../images/texturefilter.png" alt="Texture filters" />
+</p>
+<h4>Minification</h4>
+<p>Minification is the opposite to magnification, and occurs when the current view of the mesh occupies <em>less</em> pixels than the texture, for example the texture is 128x128 texels but the face of the mesh that the texture is to be applied to occupies 64x64 screen pixels. So the texture has to be <em>minified</em> (shrunk) before being applied to the mesh. The above two filters are also used for minification, but alternatively, efficiency and rendering improvements can be made with <em>mipmaps</em>.
+<p>A <em>mipmap</em> is a series of images of different dimensions in powers of 2, scaled down from the original texture. So for example if the texture is 128x128, there would be images of size 128x128, 64x64, 32x32, 16x16, 8x8, 4x4, 2x2 and 1x1. These are automatically created when a texture is loaded. For a mipmap to be created, the original texture must have power-of-2 dimensions.</p>
+<p>The diagram below shows a series of mipmap images: note the smallest are too small to be shown visibly so the shown images range from 128x128 (the original image) to 8x8.
+<br />
+<img src="../images/mipmaps.png" alt="Mipmap" />
+</p>
 <p>
-Note how we add the <code>cursor</code> component to our <code>&lt;a-scene&gt;</code>. Note also how we've
-added a <code>clicker</code> component to our <code>&lt;a-entity&gt;</code> object. Let's look at 
-the code for this component:</p>
-<pre><code>AFRAME.registerComponent("clicker", {
-    init: function() {
-        this.el.addEventListener('click', e=&gt; {
-            alert('clicked');
-        });
-    }
-});
-</code></pre>
-<p>Notice now, how we add a <code>click</code> <em>event listener</em> to the element. Note also how we use <code>this.el</code> to refer to the <strong>parent entity of the component</strong>. So <code>this.el</code> will refer to <strong>whichever element was clicked</strong>.</p>
-<h3 id="exercise5">Exercise 5</h3>
-<ol>
-<li><p>Extend the example so that the sphere turns blue when you click it.</p></li>
-<li><p>Add two more spheres and add the <code>clicker</code> component to each. When you
-click a sphere, does the correct one turn blue?</p></li>
-<li><p>Add a property <code>color</code> to the <code>clicker</code> component. When an entity with the
-<code>clicker</code> component is clicked, make sure it changes colour to the value of
-the <code>color</code> property.</p></li>
-</ol>
-<h2 id="controllingthecamera">Controlling the camera</h2>
-<p>We can add components to other kinds of entity, for example the camera.
-Why might we want to do that? We might want to control the camera in a
-different way to the default camera provided by A-Frame. For instance, we might
-want to move the camera up and down using the 'q' and 'z' keys. We could
-create and register a <code>vertical-controls</code> component which allows the camera
-to be moved vertically, and then add that component to the camera entity.</p>
-<p>How could this be done? The camera has a <code>position</code> component just like
-anything else. So, in the component, we could setup event handlers for the
-'q' and 'z' keys and move the camera appropriately. For example:</p>
-<pre><code>AFRAME.registerComponent('vertical-controls', {
-    init: function() {
-        window.addEventListener('keydown', e=&gt; {
-            const curPos = this.el.getAttribute("position");
-            if(e.keyCode == 81) {
-                this.el.setAttribute("position", {
-                    x: curPos.x,
-                    y: curPos.y + 0.1
-                    z: curPos.z
-                });
-            } else if (e.keyCode == 90) {
-                this.el.setAttribute("position", {
-                    x: curPos.x,
-                    y: curPos.y - 0.1,
-                    z: curPos.z
-                });
-            }
-        });
-    }
-});
-</code></pre>
-<p>How is this working?</p>
-<ul>
-<li><p>we add a <code>keydown</code> event listener. This will fire when the user presses a 
-key. You can read more about key events <a href="../wad/furtherevents.html">in the WAD notes</a></p></li>
-<li><p>the <code>keydown</code> event handler takes an event object, <code>e</code>. We didn't need this
-before, but now we need to find out more detail about the event, namely, which
-key was pressed. We can obtain this with <code>e.keyCode</code> which gives numerical
-codes for eah key (similar to, but not always the same as, the character's
-ASCII code).</p></li>
-<li><p>we obtain the current entity's(<code>this.el</code>), i.e. the camera's, current
-position, by obtaining the <code>position</code> component of the entity. This, as we
-have seen, is a <code>vec3</code> containing <code>x</code>, <code>y</code> and <code>z</code> properties.</p></li>
-<li><p>depending on whether the user pressed q (code 81) or z (code 90), we reset
-the <code>position</code> component so that its <code>y</code> property is either 0.1 more, or 0.1
-less, than the current value. </p></li>
-</ul>
-<p>Try this out on the scene below. Note that, because we are adding a custom
-component to the camera, we have to explicitly include the
-<code>&lt;a-camera&gt;</code> entity (the camera); normally it's added for us. </p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
-&lt;script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'&gt;&lt;/script&gt;
-&lt;!-- Include your vertical-controls component --&gt;
-&lt;script type='text/javascript' src='vertical-controls.js'&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;a-scene&gt;
-&lt;a-camera vertical-controls&gt;&lt;/a-camera&gt;
-&lt;a-sky color="skyblue"&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color="#7bcba4" rotation="-90 0 0"&gt;&lt;/a-plane&gt;
-&lt;a-sphere position="0 1 -10" color="red" scale="2 4 2"&gt;&lt;/a-sphere&gt;
-&lt;a-sphere position="-2 1 -5" color="green" radius="2"&gt;&lt;/a-sphere&gt;
-&lt;a-sphere position="2 1 -2" color="blue" radius="2"&gt;&lt;/a-sphere&gt;
-&lt;a-sphere position="0 1 10" color="yellow" scale="3 1 1"&gt;&lt;/a-sphere&gt;
-&lt;a-box position="5 1 -10" color="orange" scale="1 3 1"&gt;&lt;/a-box&gt;
-&lt;/a-scene&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>You will find it works, but it's rather jerky and doesn't give a pleasant, smooth experience.</p>
-<p>What we need instead is to make use of another lifecycle method of 
-a component, <code>tick()</code>. The <code>tick()</code> method runs every time the scene is 
-rendered.  The strategy, a common one for smooth key event handling, is to set 
-a velocity to a non-zero value when the user presses 'q' or 'z', and reset the
-velocity to 0 when they release either key. In the <code>tick()</code> method, we 
-increase <code>y</code> by the current velocity, so that the camera moves up if the
-velocity is above 0, or down if the velocity is negative. </p>
-<pre><code>AFRAME.registerComponent('vertical-controls', {
-    init: function() {
-        this.velocity = 0;
-        window.addEventListener('keydown', e=&gt; {
-            if(e.keyCode == 81) {
-                this.velocity = 0.1;
-            } else if (e.keyCode == 90) {
-                this.velocity = -0.1;
-            }
-        });
-        window.addEventListener('keyup', e=&gt; {
-            if(e.keyCode == 81 || e.keyCode == 90) {
-                this.velocity = 0;
-            }
-        });
-    },
-
-    tick: function() {
-        const curPos = this.el.getAttribute("position");
-        this.el.setAttribute("position", {
-            x: curPos.x,
-            y: curPos.y + this.velocity,
-            z: curPos.z
-        });
-    }
-});
-</code></pre>
-<p>A further improvement to the smoothness can be made. At the moment, the
-<code>y</code> coordinate of the camera is changing by the same amount each time 
-<code>tick()</code> is called. The problem is that the time difference between successive
-<code>tick()</code> calls will vary depending on what else the computer is doing; if
-it's doing a lot of heavy processing, there will be a larger gap between 
-<code>tick()</code> calls. Luckily, there is an easy solution, the <code>tick()</code> method
-takes a <code>delta</code> parameter representing the number of milliseconds passed since
-the last call. So we can specify our velocity in units per second, rather than
-some arbitrary value.</p>
-<pre><code>AFRAME.registerComponent('vertical-controls', {
-    init: function() {
-        this.velocity = 0;
-        window.addEventListener('keydown', e=&gt; {
-            if(e.keyCode == 81) {
-                this.velocity = 1;
-            } else if (e.keyCode == 90) {
-                this.velocity = -1;
-            }
-        });
-        window.addEventListener('keyup', e=&gt; {
-            if(e.keyCode == 81 || e.keyCode == 90) {
-                this.velocity = 0;
-            }
-        });
-    },
-
-    tick: function(time, delta) {
-        const curPos = this.el.getAttribute("position");
-        this.el.setAttribute("position", {
-            x: curPos.x,
-            y: curPos.y + delta * 0.001 * this.velocity,
-            z: curPos.z
-        });
-    }
-});
-</code></pre>
-<p>Note that the <code>tick()</code> method takes two parameters: <code>time</code>, which is the
-system time in milliseconds since January 1st 1970, and <code>delta</code>, the number
-of milliseconds since the last call to <code>tick()</code>. So, to calculate the change
-in <code>y</code>, we multiply the <code>delta</code> by 0.001 (so that we can work in seconds, which
-are easier to understand than milliseconds as most people have a clear idea
-what a second is), specify the velocity in units per second (here, it's 1
-unit per second) and add the delta (in seconds) multiplied by the velocity
-(in units per second) to the current <code>y</code> coordinate. In this way, we can 
-achieve smooth changes in position which take into account the time differences
-between successive calls to <code>tick()</code>.</p>
-<h3 id="exercise6">Exercise 6</h3>
-<ol>
-<li><p>Enhance the <code>vertical-controls</code> component so that it has a <code>velocity</code> 
-property (type <code>number</code>; see <a href="https://aframe.io/docs/1.0.0/core/component.html">the A-Frame component page</a> for all the 
-available property types). This should be a number (in units per second) which
-should control the velocity of the camera. Set it to different values in your
-HTML, to make the camera vertical controls faster or slower.</p></li>
-<li><p>Embed this scene in an HTML page and add a <code>range</code> slider which controls
-the camera's vertical velocity. When the value of the <code>range</code> changes, update the <code>velocity</code> property of the <code>vertical-controls</code> component of the camera to
-the current value of the <code>range</code>. The <code>range</code> should cover 0.5 to 10 in 
-steps of 0.5.</p></li>
-</ol>
-<h2 id="entitycomponentsystemarchitecture">Entity-component-system architecture</h2>
-<p>A-Frame adopts what is called an <em>entity-component-system</em> architecture.
-We have already seen the roles of entities and components. What are systems?
-A <code>system</code> is an object which contains the detailed logic of a component.
-The idea is to keep the component itself lightweight, so that it mostly just
-contains lifecycle methods - and then add the detailed logic to the system.
-If you register a system with <code>AFRAME.registerSystem()</code> and that system has
-the same name as a component, it will be accessible from the component via
-<code>this.system</code>. For example:</p>
-<pre><code>AFRAME.registerComponent("mycomponent", {
-    init: function() {
-        // the system can be accessed from the component as this.system 
-        // e.g. this.system.doSomething() will call the doSomething() method 
-        // (function) of the system
-    }
-});
-
-// System contains methods (functions) which do the detailed logic
-AFRAME.registerSystem("mycomponent", {
-    doSomething: function() {
-    },
-
-    doSomethingElse: function() {
-    }
-});
-</code></pre>
-<p>Our components so far are not complex enough to need systems, but as you
-build more complex components you'll find your code becomes more modular if
-you separate out the detailed logic into a system.</p>
-<p>See <a href="https://aframe.io/docs/1.0.0/introduction/entity-component-system.html">here</a> for more detail.</p></body></html>
+The mipmap image(s) most closely matching the current pixel dimensions of the mesh will be selected when applying the texture to the mesh. For example if the mesh, in the current view of the world, occupies 64x64 pixels, then the 64x64 pixel mipmap image will be chosen to be applied to the mesh. The advantage of mipmaps is that they are pre-computed when the texture is loaded, so that the texture does not need to be resized every time the visible size of the mesh changes, saving computational effort. Mipmaps also reduce display artefacts when the mesh is distant.</p>
+<p>There are four different mipmap-based minification modes, described in the <a href='https://threejs.org/docs/index.html?q=textu#api/en/constants/Textures'>documentation</a>. Two of the modes blend adjacent mipmap images when the visible size of the mesh is not an exact power of two, for instance if the visible size is 96x96, texels fron the 128x128 and 64x64 mipmap images will be blended. The mode which gives the highest-quality display is <code>THREE.LinearMipmapLinearFilter</code> as that performs both texel and mipmap blending.</p>
+</body>
+</html>
