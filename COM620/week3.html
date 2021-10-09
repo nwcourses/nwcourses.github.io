@@ -199,8 +199,8 @@ Note how we specify the <code>wrapS</code> and <code>wrapT</code> properties of 
 <h4>Magnification</h4>
 <p>Magnification occurs when the texture occupies less pixels than the current view of the mesh it is to be applied to. For example, a 128x128 texture needs to be stretched across a face of a mesh occupying 256x256 screen pixels in the current view of the world. Two filter settings can be applied: 
 <ul>
-<li>One setting is <code>THREE.NearestFilter</code>. The <code>THREE.NearestFilter</code> will pick the nearest texture pixel (texel) to display on the mesh surface. For example, if the texture is 128x128 and is being displayed on a mesh which is occupying 256x256 screen pixels in the current view of the world, then the texel equal to the screen pixel divided by 2 (because 256/128 is 2) will be picked. So, mesh pixel x=200, y=200 will use texel x=100, y=100 as 200/2 is 100) but so will x=201, y=200; x=200, y=201; and x=201, y=201 (assuming rounding down during division). The end result of this will be that texel x=100, y=100 will be stretched across 2 screen pixels horizontally and 2 vertically, so 4 in total: x=200, y=200; x=201, y=200; x=200, y=201; x=201. y=201. This will lead to a very pixelated and blocky looking texture, as the texture is stretched across the mesh without any blending of the pixel colours occurring. So it is not ideal, and therefore not the default. It is computationally relatively fast, however, so may be chosen in low resource environments.</li>
-<li>The default setting is to use <code>THREE.LinearFilter</code>. Rather than always picking the closest texel to a pixel, it merges the colours from the all the closest texels to that pixel to produce the final colour, weighting each texel depending on how close it is to the pixel. So for example if we divide screen pixel x=201, y=201 by two, we get x=100.5, y=100.5. So this screen pixel is in between four texels: x=100,y=100; x=101,y=100; x=100,y=101; and x=101, y=101. So the colours of all 4 texels are blended to give the colour for this pixel.</li>
+<li>One setting is <code>THREE.NearestFilter</code>. The <code>THREE.NearestFilter</code> will pick the nearest texture pixel (texel) to display on the mesh surface. For example, if the texture is 128x128 and is being displayed on a mesh which is occupying 256x256 screen pixels in the current view of the world, then the texel equal to the screen pixel divided by 2 (because 256/128 is 2) will be picked. So, screen pixel (200,200) (<strong>note the coordinate format: first figure is horizontal position, second figure is vertical position</strong>) will use texel (100,100) as 200/2 is 100 - but so will (201,200), (200,201), and (201,201) (assuming rounding down during division). The end result of this will be that the texel at (100,100) will be stretched across 2 screen pixels horizontally and 2 vertically, so 4 in total. This will lead to a very pixelated and blocky looking texture, as the texture is stretched across the mesh without any blending of the pixel colours occurring. So it is not ideal, and therefore not the default. It is computationally relatively fast, however, so may be chosen in low resource environments.</li>
+<li>The default setting is to use <code>THREE.LinearFilter</code>. Rather than always picking the closest texel to a pixel, it merges the colours from the all the closest texels to that pixel to produce the final colour, weighting each texel depending on how close it is to the pixel. So for example if we divide screen pixel (201,201) by two, we get (100.5,100.5). So this screen pixel is in between four texels: (100,100), (101,100), (100,101); and (101,101). So the colours of all 4 texels are blended to give the colour for this pixel.</li>
 </ul>
 </p>
 <p>The image below shows the difference. Note how with <code>NearestFilter</code> the nearest texel to a given pixel is always picked, while with <code>LinearFilter</code> blending of the colours of the nearby texels occurs, leading to a smoother and less pixelated effect.
@@ -217,5 +217,79 @@ Note how we specify the <code>wrapS</code> and <code>wrapT</code> properties of 
 <p>
 The mipmap image(s) most closely matching the current pixel dimensions of the mesh will be selected when applying the texture to the mesh. For example if the mesh, in the current view of the world, occupies 64x64 pixels, then the 64x64 pixel mipmap image will be chosen to be applied to the mesh. The advantage of mipmaps is that they are pre-computed when the texture is loaded, so that the texture does not need to be resized every time the visible size of the mesh changes, saving computational effort. Mipmaps also reduce display artefacts when the mesh is distant.</p>
 <p>There are four different mipmap-based minification modes, described in the <a href='https://threejs.org/docs/index.html?q=textu#api/en/constants/Textures'>documentation</a>. Two of the modes blend adjacent mipmap images when the visible size of the mesh is not an exact power of two, for instance if the visible size is 96x96, texels fron the 128x128 and 64x64 mipmap images will be blended. The mode which gives the highest-quality display is <code>THREE.LinearMipmapLinearFilter</code> as that performs both texel and mipmap blending.</p>
+<h3>Changing the magnification and minification filters in code</h3>
+<p>Use the <code>magFilter</code> and <code>minFilter</code> properties of the texture e.g:
+<pre>
+texture.magFilter = THREE.LinearFilter;
+texture.minFilter = THREE.LinearFilter;
+</pre>
+</p>
+<h2>Exercise</h2>
+<p>Create a <em>copy</em> of your work from last week. Modify this <em>copy</em> to include lighting and textures, as described below.</p>
+<ol>
+<li>Modify your shapes to use Lambert material of the same colour, except the green sphere, which should use green Phong material with a shininess of 100.</li>
+<li>Add the following lights to the scene:
+    <ul>
+    <li>White ambient light, with intensity 0.2.</li>
+    <li>A white directional light, intensity 0.8, at y=100.</li>
+    </ul>
+</li>
+<li>Run your application to test.</li>
+<li>Change the directional light to red, then green, then blue. What effect does this have on the visibility of the various shapes? Can you see why? (Hint: the apparent colour of a material is the colour of light that it <em>reflects</em>. Remember that the primary colours of light are red, green and blue - and yellow light is made up of red light and green light).</li>
+<li>Change the directional light back to white. Add a <em>spotlight</em> with coordinates x=10, y=10, z=-10, shining on x=0, y=0, z=-5. View the scene again.</li>
+<li>Add a plane, centred on the origin, of with 100, height 100. Use green Lambert material for this, for now. It should appear on the ground (see the notes for how to do this).</li>
+<li>Change the camera's <code>y</code> coordinate to 0.1, to ensure that the camera is slightly above the ground.</li>
+<li>Add shadows, so that the six meshes cast shadows, and the ground plane receives shadows. Both lights (directional and spotlight) should be capable of casting shadows.</li>
+<li>Add key controls to turn the lights on and off. These should be as follows:
+    <ul>
+    <li>0 to turn off the ambient light and 1 to turn on the ambient light;</li>
+    <li>2 to turn off the directional light and 3 to turn on the directional light;</li>
+    <li>4 to turn off the spotlight and 5 to turn on the spotlight.</li>
+    </ul>
+Turning lights off and on can be done by removing them from the scene and then adding them again. Note that, in an update to last week, the <code>e.keyCode</code> has been deprecated and it's now recommended to use <code>e.code</code> instead. This gives a string describing the key that was pressed. For letters this begins with the string <code>Key</code> while for numbers it begins with the string <code>Digit</code>, so that the A key is represented by <code>KeyA</code> and the digit 0 is represented by <code>Digit0</code>, for example.
+</li>
+<li>Available <a href='solutions/week3/texture128.png'>here</a> is a 128x128 texture. Texture the ground plane with it, so that the texture repeats 64 times in both the horizontal and vertical direction. Use the best possible filter mode for a high-quality display (see above).</li>
+<li>Add a control to move the position of the spotlight. Key 6 should reduce the spotlight's x coordinate by one, and key 7 should increase it by one. Look at the effect that has on the green sphere.</li>
+</ol>
+<h2>More advanced exercise - Sphere of Doom</h2>
+<p>This is an optional exercise for those of you coping well with the material. Using the knowledge you have gained so far, you are going to develop a very simple game, "Sphere of Doom". This simply involves a sphere chasing the player (camera) round the world.</p>
+<ol>
+<li>Take a copy of your solution to the exercise above and remove all the objects and spotlight, but keep the plane and the ambient and directional lights.</li>
+<li>Try to find wood or marble (for the floor) and metallic (for the sphere) textures from the web, to enhance the sense of realism. Ensure that you use a site with a good reputation for this, otherwise there is the risk of downloading 'tainted' images with possible security exploits embedded within them.</li>
+<li>Initialise the sphere to have coordinates some distance from the player, e.g. x=20, y=0, z=20.</li>
+<li>In the rendering function, move the sphere towards the player at a rate of one unit per second. How can you do this? The callback function supplied to <code>requestAnimationFrame()</code> takes a parameter representing the number of milliseconds that have passed since the page was loaded, e.g.
+<pre>
+requestAnimationFrame(render);
+
+function render(t) {
+    // t is the number of milliseconds since the page was loaded
+}
+</pre>
+What you need, however, is the number of milliseconds since <em>the rendering function was last called</em>, as you need to move the sphere at a constant rate in units per second. (This is necessary as different computers refresh the screen at different rates). You can use this logic to do this:
+<pre>
+// Variable containing time of last render. Set to null initially to indicate
+// no rendering has taken place yet
+let previousRenderTime = null;
+
+requestAnimationFrame(render);
+
+function render(t) {
+
+    // Use the ternary operator, a condensed 'if' statement.
+    // The logic is saying: 'if previousRenderTime is null (i.e. it's the first render),
+    // set timeSinceLastRender to 0, otherwise set it to the difference betwen
+    // the current time and the previous render time'
+
+    const timeSinceLastRender = (previousRenderTime === null) ? 0: t-previousRenderTime;
+
+    // Set previousRenderTime equal to the current time, ready for the next render
+
+    previousRenderTime = t;
+}
+</pre>
+</li>
+<li>To update the sphere's position, compare its x and z with the camera's x and z, and move accordingly. Ensure it moves one unit per second; you can use <code>timeSinceLastRender</code> from the above code example to achieve this. Remember that you need to divide by 1000 to convert from milliseconds to seconds!</li>
+<li>As a further effect, make the sphere roll. (This will only have a visible effect if the sphere's texture is not uniform).</li>
+</ol>
 </body>
 </html>
