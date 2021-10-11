@@ -238,7 +238,7 @@ texture.minFilter = THREE.LinearFilter;
 <li>Change the directional light to red, then green, then blue. What effect does this have on the visibility of the various shapes? Can you see why? (Hint: the apparent colour of a material is the colour of light that it <em>reflects</em>. Remember that the primary colours of light are red, green and blue - and yellow light is made up of red light and green light).</li>
 <li>Change the directional light back to white. Add a <em>spotlight</em> with coordinates x=10, y=10, z=-10, shining on x=0, y=0, z=-5. View the scene again.</li>
 <li>Add a plane, centred on the origin, of with 100, height 100. Use green Lambert material for this, for now. It should appear on the ground (see the notes for how to do this).</li>
-<li>Change the camera's <code>y</code> coordinate to 0.1, to ensure that the camera is slightly above the ground.</li>
+<li>Change the camera's <code>y</code> coordinate to 0.1, to ensure that the camera is slightly above the ground. Also change the downwards camera control (<code>z</code> key) so that the camera cannot go below y=0.1.</li>
 <li>Add shadows, so that the six meshes cast shadows, and the ground plane receives shadows. Both lights (directional and spotlight) should be capable of casting shadows.</li>
 <li>Add key controls to turn the lights on and off. These should be as follows:
     <ul>
