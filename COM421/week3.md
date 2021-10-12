@@ -84,3 +84,9 @@ while count <= 10:
 4. Test out your linked list by creating three `Node` objects and adding them to your `LinkedList`. Once you've added them, try searching for them within the linked list using their index. 
 
 5. Try searching for an index which does not exist in the linked list, such as index 10 for example. What happens? Change your code to handle this error.
+
+6. **More advanced**: Add functionality to insert a new element into the middle of the linked list. The method should take two parameters: the data to be inserted, and the data *before* the insertion position. So, calling the method as follows:
+```
+linkedlist.insertMiddle("Danielle Dawson", "Charley Chase")
+```
+would search for the node containing "Charley Chase" and then add "Danielle Dawson" after "Charley Chase".

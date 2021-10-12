@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Week 3: Implementing a Linked List</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Week 3: Implementing a Linked List</h1>
 <h2 id="implementingalinkedlistusingclasses">Implementing a linked list using classes</h2>
 <p>Last time we implemented a simple stack. We'll now move on to implementing the
 other data structure we looked at in the first week - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require
@@ -68,4 +68,8 @@ while count &lt;= 10:
 <ol start="4">
 <li><p>Test out your linked list by creating three <code>Node</code> objects and adding them to your <code>LinkedList</code>. Once you've added them, try searching for them within the linked list using their index. </p></li>
 <li><p>Try searching for an index which does not exist in the linked list, such as index 10 for example. What happens? Change your code to handle this error.</p></li>
-</ol></body></html>
+<li><p><strong>More advanced</strong>: Add functionality to insert a new element into the middle of the linked list. The method should take two parameters: the data to be inserted, and the data <em>before</em> the insertion position. So, calling the method as follows:</p></li>
+</ol>
+<pre><code>linkedlist.insertMiddle("Danielle Dawson", "Charley Chase")
+</code></pre>
+<p>would search for the node containing "Charley Chase" and then add "Danielle Dawson" after "Charley Chase".</p></body></html>
