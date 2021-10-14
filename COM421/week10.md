@@ -1,4 +1,4 @@
-# Week 10: Graphs and Path-Finding
+# Topic 10: Graphs and Path-Finding
 
 ## Introduction
 

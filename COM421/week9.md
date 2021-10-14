@@ -1,11 +1,10 @@
-# Week 9: More Advanced Sorting Algorithms
+# Topic 9: More Advanced Sorting Algorithms
 
 ## Warning!
 
-This is a more advanced topic which is not necessarily required for the
-assignment. It's included here to give those of you who are coping reasonably
-well with the module an idea on how more advanced and efficient sorting
-algorithms work.
+This is a more advanced topic which is not compulsory for passing the
+assignment, but might be useful for higher marks. It's included here to give 
+those of you who are coping reasonably well with the module an idea on how more advanced and efficient sorting algorithms work.
 
 If you need to catch up with previous weeks, please do this first!
 
@@ -77,7 +76,7 @@ function hoare_partition(data, start, end)
         # part of the list, so swap them, unless i and j are equal or have crossed over, 
         # in which case we have finished this run
 
-        If i and j haven't crossed over yet, swap the numbers
+        # If i and j haven't crossed over yet, swap the numbers
         If i is less than j
             Swap the numbers
         else

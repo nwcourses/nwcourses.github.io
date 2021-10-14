@@ -1,285 +1,145 @@
-# Topic 4 - Hash tables 
+# Topic 4 - Queues
 
-## What is a hash table?
+This week we are going to look at a further data structure, the *queue*.
 
-A hash table allows us to look up values efficiently using non-numerical 
-indices or keys.  For example, we might want to implement a dictionary in which the words are the keys and the descriptions, the values. Or we might want
-to implement an address book in which the names arr the keys and the addresses,
-the values. Another example would be a student records system in which the
-student ID is the key and the full student record is the value.
+## Introduction
 
-We could implement this simply by creating objects containing the key and
-the value, and then create an array containing many of these objects. However,
-this is *inefficient*. To search for an item by key, we'd have to use a loop
-(e.g. `while` or `for`) to search the array and compare the key of each item
-with the key we're searching for. If there are say 10000 items in the array
-this would be slow. We'd call this an *O(n)* operation, where *n* is the
-index of the item we're searching for in the array - in other words, the
-performance of the search depends on where the item is within the array.
+We have seen that a stack is a "last-in-first-out", or LIFO, data structure -
+in other words, the last item added (pushed) to the stack is the first item
+to be removed (popped). However, in certain circumstances it is more
+appropriate to use a "first-in-first-out", or FIFO, data structure.
+Luckily such a data structure exists, and that is the *queue*, so called 
+because it behaves like a real-world queue. Items get added onto the back 
+of the queue, and are removed from the front of the queue.
 
-We can do better than this, though, and implement this sort of look-up 
-search at an efficiency close to *O(1)* (doesn't depend on the index or
-the size of the array) using a *hash table*. A hash table is an efficient
-data structure in which the keys (indices) are converted to a numerical
-*hash code* using a mathematical function of some kind. This hash code is then 
-used to look up the item in an underlying array. The hash code will be used as 
-the array's index.
+When would we use a queue? It would be used in any situation where we want
+to process tasks - or "jobs", in the order that they are submitted. There
+are many scenarios wheere we would like to do this. For example:
+
+- a printer queue. When we send something to be printed, the software on
+the printer would add it to the back of its queue. The printer "jobs" at
+the front of the queue would be processed first, and then the other "jobs"
+would move forward when the current "job" has finished printing.
+
+- websites which need to do pre-processing of data that users have submitted. An example here would be a website which allows users to share photos. Submitted photos would need to be checked, to make sure they are suitable, and perhaps altered. For example, faces and car license plates should be blurred for privacy reasons and to comply with the GDPR, and offensive material should be removed. Many users may be submitting photos all the time. Multiple photos cannot be checked in parallel at the same time, as the techniques used to detect objects in photos use a lot of memory - so the machine would quickly run out of memory and the website would stop functioning. Therefore, a queue is a better and more memory-efficient solution, as it allows processing of one photo at a time in the order the photos were submitted. In other words, when a new photo is submitted, it's added to the back of the queue, and the pre-processing software checks each photo in the queue in turn, starting with the first. 
 
 
-## An example
+## Implementing a queue
 
-It's probably best to start with a very simple example.
-A simple hash function might simply add the ASCII codes of the characters 
-making up the key. We might use it in a dictionary program storing words
-as the keys and their meanings as the values.
+How might we implement a queue? Let's start by going back to how we implemented a stack, using an underlying array. Can we do the same with a queue? The
+diagram below demonstrates this.
 
-- e.g  for the key "cat" - summing the ASCII codes gives 99+97+116 = 312
--For the key "dog" - we get 100 + 111 + 103 = 314
-- For the key "rat" - we get 114 + 97 + 116 = 327
+![Queue with capacity of 5](images/queues.png)
 
-The hash code returned from the hash function can then be used as the array
-index to add the data to. So, we'd place the key/value pair "cat" and "Furry animal which goes meow" at index 312 in the underlying array. Similarly, we'd place the "dog" entry at index 314 and "rat" at index 327.
+Note how the queue is implemented in this example using an internal array with
+a capacity of 5. When we add an item, the item is added to the first avaiable
+position in the internal array. So if the queue is empty, the item is added
+to position 0 of the array. (**Note how I have reversed the array so that
+index 0 is on the right and index 4 on the left. This is so that the diagram
+better reflects a real-world queue, with new items added to the back**).
 
+So the first item - 3 - is added to the internal array at index 0. We then
+add another item - 99 - which is added to the back of the queue, in other
+words added to the internal array at index 1. Similarly, the next item - 7 - 
+is added to the internal array at index 2.
 
-### Clashes
+As a consequence of this, we will **need a variable to represent the index in the internal array of the back of the queue**, so we know where to add elements. This variable will be 0 when the queue is empty, 1 after we have added 3, and 2 after we have added 99. In other words it is the index **one position beyond the back of the queue**. Can you see **why** it's better to point to the position beyond the back of the queue, rather than the back of the queue itself?
 
-If, however, we try to add an entry containing the key "act" we have a problem.
-The hash function for "act" would be 97+99+116 which equals 312. 312 has 
-already been used for "cat". Thus we have a *clash*.
-There are two common solutions to clashes, *separate chaining* and
-*linear probing*.
+What happens, though, when we *remove* an item? This happens next - we
+remove the front item on the queue (3). This results in *position 0
+of the internal array becoming empty* so that the remaining queue - 99 and 7 -
+starts at *index 1 of the array* and not index 0. This illustrates a key
+point. **Because of the first-in-first-out nature of a queue, the queue is
+not always stored beginning at index 0 in the internal array.** The 
+queue can "shift" down the array, as has happened here; when we remove 3,
+the remaining items - 99 and 7 - are at indices *1 and 2* of the array.
+This is done because it is more efficient. If we wanted to ensure the queue
+always started at index 0 in the internal array, we'd have to do some
+wasteful additional processing to move 99 to index 0 in the internal array
+and move 7 to index 1. By letting the queue "shift" down the array in the
+manner shown in the diagram, we avoid the need for this additional processing.
 
-### Separate chaining
+The consequence of this in terms of implementation, though, is that **we will
+need another variable to represent the index in the internal array where the queue starts**, so that we can remove the correct item from the queue. 
+(This is originally 0, but when we remove 3 from the queue it will change to 1.). 
 
-With separate chaining, the underlying array is an array of "buckets". Each
-item with a given hash code is placed into the bucket for that hash code, so
-one bucket might have more than one item. In this example, "cat" and "act"
-would be placed in the same bucket, as they have the same hash code. Each
-bucket would contain a *list* (or array) of items.
+We then remove 99 from the queue, and consequently the queue shifts back one
+more place so that the start of the queue is at index 2. At this point, the
+queue will only store one item - 7 - so the start and the end of the queue
+both have index 2 in the internal array.
 
-This is shown ihe diagram below. 
+We then start adding items again. First we add 9, so that the queue occupies
+indices 2 and 3 of the internal array. Then we add 6, so that the queue 
+occupies indices 2, 3, and 4.
 
-![Separate chaining to resolve clashes](images/hash_chaining.png)
+What happens now, though, if we want to add a new item? We'd like to add
+a new member - 10 - which we should be able to do as our queue has a capacity
+of 5. However we have a problem because *we've reached the end of the internal
+array*. So we need to do something else.
 
-### Linear probing
+The diagram below shows a common approach, which is to implement a **circular array**. When we reach the back of the array, we start adding items to the *front* again. So if our queue occupies indices 2, 3 and 4, and we wish to add a fourth item, this will be added at *index 0* of the array. So the queue will now occupy indices 2,3,4 and 0 - in that order. If you try to visualise the array as having a circular rather than linear structure, this is probably easier to 
+understand. This is also shown on the diagram.
 
-Linear probing is an alternative approach. With linear probing, each array
-index contains only *one* item, not a list. If there is a clash with hash codes,
-the item is moved on to *the next available place in the array*. So, in the 
-above example, both "cat" and "act" would have a hash code of 312. As "act"
-is the second item to be added, it would be moved to the next available index
-after 312, which is 313. This is shown in the diagram below. 
+![Circular Queue](images/queues2.png)
 
-![Linear probing to resolve clashes](images/hash_probing.png)
+This shows how we add the fourth item (10) to index 0 as explained above, so
+that the queue occupies the array indices 2, 3, 4 and 0 in that order. Then
+we remove the front item of the queue, which is now 7, at index 2. *Make
+sure you don't get confused here into thinking that the item at index 0,
+i.e. 10, is at the front of the queue! It is not - the queue wraps around.
+The front of the queue is at index 2, then the next member is at index 3,
+then the next at index 4, and the BACK of the queue is at index 0*!
 
-The diagram also shows a second clash and how it's resolved with linear
-probing. We try to add "sea". The hash code of "sea" is 313. However, *all
-indices between 312 and 314 inclusive have been used up by this point*,
-with "cat", "act" and "dog" respectively. So we have to move "sea" on
-*two places* from its hash code, and add it to position 315 in the array.
+After removing 7, the front item of the queue is now 9, at index 3 in the
+array, so the queue occupies indices 3, 4, and 0 - with index 0 still at the
+back. So if we add yet another item - 8 - to the queue, it will be added
+at the next available space at the back of the queue, which is *index 1*
+in the array, due to the wrap-around effect.
 
+The top of this diagram shows the queue in a regular, linear view whereas
+the bottom of the diagram shows the same operations using a *circular* view
+of the array, in which the array is represented as a circle from indices 
+0 to 4 and then back to 0. Note that this is just a *diagrammatic representation* to make the concept of a circular, wrap-around array easier to understand. *The array is not actually stored in a circular way in memory!!!*
 
-Linear probing can lead to clusters if several keys have the same or similar hash code, which can be harder to search if we are looking up the entry using the key, because we have to move on several places along the array, which is 
-inefficient in terms of time. However, separate chaining also has a time
-efficiency issue, as we have to search through a list if there are clashes.
-(Opinions differ on which is actually the most efficient)
-
-### Better hash functions
-
-The extremely simple hash function above, which simply adds the ASCII codes
-of the characters making up the string, leads to a high probability of
-clashes. So for this reason we must pick a hash function which ensures clashes 
-have a low probability of occurring – these typically perform a more complex operation on the characters of the key. 
-
-When dealing with hash functions which produce a hash code for a string,
-a typical approach is to multiply a numeric code for each character in turn by
-a successive power of some factor **f** and sum the values together to arrive
-at the final hash code. To minimise clashes this should be a fairly
-large number; for example the Java language standard library uses 31.
-So, the first character's ASCII code is multiplied
-by **f^0** (1), the second character's code multiplied by **f^1**(f), the third
-character's code is multiplied by **f^2**(f squared) and so on.
-
-So the equation for this, where **f** is the chosen factor, **s** is the
-string, and **n** is the length of the string, would be:
-```
-s[0]*f^0 + s[1]*f^1 + ... + s[n-1]*(f^(n-1))
-```
-This is easy to implement with a loop, as we can just loop from 0 up to the
-length of the string and add all the values together to give the hash code.
-
-(For what it's worth, the Java language does this in reverse, in other
-words uses f^(n-1) for the first character and f^0 (i.e. 1) for the last,
-but the same concept applies;
-[Oracle](https://docs.oracle.com/javase/7/docs/api/java/lang/String.html)
-)
- 
-Using this approach, while minimising clashes, will lead to large numbers
-as hash codes. Even if we assume that only lower-case letters are valid
-characters in the key (which means we can use the numbers 1-26 to represent
-the letters rather than the full ASCII range), a small word like "cat", with a 
-factor of 31, will give
-(codes for 'c'=3; 'a'=1; 't'=20):
-```
-3*(31^0) + 1*(31^1) + 20*(31^2) = 3 + 31 + 19220 = 19254 
-```
-For longer words, the hash code is going to be an even bigger number.
-This is clearly inefficient as, if we adopt the approach above without
-taking any further steps, our underlying array is going to need 19254
-spaces ('buckets' as they are called in hash table terminology) to even
-be capable of storing a key like 'cat' !
-
-So we then typically do a modulo operation. We decide how large our
-underlying array is likely to be (which will depend on our 
-particular use-case, but should be larger than the likely number of items in
-the hash table) and take the modulo of that number. This will be a
-trade-off: over-large arrays will waste memory, but over-small arrays will
-lead to many clashes which means lookup will be slower as we will have to
-search through longer lists (assuming separate chaining) at each position
-or have to deal with more clusters (assuming linear probing). 
-To minimise clashes, you should try and ensure your array is larger than
-the likely number of entries in your hash table. (Opinions differ on exactly
-how much larger, e.g. see [here](https://cs.stackexchange.com/questions/100074/determining-an-appropriate-number-of-buckets-for-a-hash-function) and [here](https://stackoverflow.com/questions/225621/how-many-hash-buckets), so it may be a case of experimentation to try and find a size which gives a tradeoff between memory efficiency and lookup time performance).
-
-The chosen size should be prime (why this is, is explained below). So
-imagine we had a likely maximum size of 100 entries, we could find a prime
-number rather larger than 100, for instance 127. (For performance reasons
-to do with the ability to do bit-shifting operations, powers of two minus one 
-are often recommended, and 128 is a power of two). So in the above case, the 
-array index (or bucket number) for 'cat' would be:
-```
-19254 % 127 = 77
-```
-so, 'cat' would be added to bucket 77 (where buckets are numbered from 0-126,
-i.e. 127 buckets - the underlying array has a capacity of 127).
-
-#### Why use a prime array size?
-
-This is discussed [here](https://cs.stackexchange.com/questions/11029/why-is-it-best-to-use-a-prime-number-as-a-mod-in-a-hashing-function/64191#64191).
-If our hash codes are truly random, there is no reason to use a prime bucket
-size. However, in certain cases, we might want to store data which is 
-numerically related in some way. For example, as discussed in the link above,
-memory addresses are often multiples of 4, due to the way data is stored in
-memory. So if we want to calculate a hash code for a variable based on its
-memory address, all our hash codes will end up being multiples of 4. So using
-a multiple of 4 for the array size (number of buckets) will be a poor choice
-as clashes are very likely. All the buckets which are multiples of 4 will fill
-up, while all the other buckets will remain empty.
-This can be generalised: if the hash codes end
-up being multiples of some number *n*, then choosing a hash code which is
-also *n* or a multiple of *n* will end up with more clashes than expected
-by chance. So a prime number,
-(particularly a larger, 'obscure' prime number), where an enhanced likelihood 
-of clashes will only occur if the hash codes are all multiples of that prime
-number, should be chosen. Even if your hash codes will not be related in
-any way, it's good practice to get into.
-
-## Implementation details
-
-Having looked at the basic workings of a hash table, how would we actually
-implement it? A `Hashtable` class would have two key methods:
-
-- `put(key, value)`, which adds a key/value pair to the hash table.
-- `get(key)`, which looks up an item in the hash table using its
-key. It should return the corresponding value.
-
-We'll consider implementation using separate chaining, as it is the easiest
-to implement of the two methods. We'll look at the `put()` operation first,
-and then the `get()` operation.
-
-`put()` is quite easy. (The first thing we have to do is convert the key to
-a hash code using a hash function. We'd then need to add the key and value
-to the appropriate 'bucket' in the array, using the hash code as its index.
-Each 'bucket' holds a list (a linked list is generally recommended as it's
-extensible), so you need to append the key and value to this listThe most efficient way of doing this in Python is with a tuple, so we'd create
-a tuple containing the key and value, and add this tuple to the 
-linked list). As an alternative to a linked list, you could use an extensible
-array with a certain initial capacity, such as a Python `list`; searching would
-be faster but there's the risk that a slow resize operation would have to
-occur if the extensible array ran out of capacity.
-
-**Question: why do you need to add the key and value to the list, and not
-just the value?**
-
--`get()` is also fairly straightforward. (Again, we have to convert the key
-to the hash code, find the 'bucket' with the index corresponding to the hash
-code, and then search through the list within this bucket to find the entry
-corresponding to the key).
-
-### Advanced: Secondary hash function
-
-
-To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.
-
-For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:
-
-![Secondary hash function](images/secondary_hash.png)
-
-Secondary hash functions typically involve a modulo calculation for example:
-```
-secondaryHash = sumOfAsciiCodes % N
-```
-where N is some prime number (the reason for favouring prime numbers in hash
-tables is discussed below). **The secondary hash function must be different
-to the primary hash, in other words two keys with the same primary hash value
-must have different secondary hash values. If they do not, the clustering 
-problem will still occur.**
 ## Exercise 1 - Paper
 
+Exercise 1 is a "paper" exercise to help you
+understand the operations of a queue. Code is not needed for this. However
+please complete it electronically (e.g. on a text editor, Word, or Microsoft
+Paint) as it will be easier for me to check.
 
-1. Draw the 17-item hash table (array of 17 'buckets')
-that results from using the hash function:
+Start with an empty circular queue, represented internally by an array with 
+capacity 8, and perform the following
+operations on it. After each operation, draw how the queue is represented
+by showing the internal array and the queue within it.
+
+Note that `size()` should give the *size of the queue itself*, not the
+capacity of the underlying array.
 
 ```
-hashCode = (2i + 3) % 17
+add (a), add (b), remove (), add (c), remove (), remove (), 
+add (d), add (e), add (f), remove (), add (g), add (h), 
+remove (), remove (), remove (), add (i), remove (), size().
 ```
-where `i` is the (numeric) key,
-to hash the keys 36, 88, 54, 28, 49, 21, 63, 7, 19, 2, 11, 41 and 34, assuming 
-collisions are handled by separate chaining. 
 
-**Just calculate the hash code of each key using the equation above. This is
-a simpler case than the example on the notes, which involved string rather
-than numeric keys.**
+## Exercise 2 - Coding
 
-		 							
-2. Repeat question 1, but assume that collisions are handled by linear probing.
+Try creating a `Queue` class to represent a queue. Like your `Stack` class
+this should contain an internal array. As we discussed above, *we also need
+two attributes to represent the front and the back of the
+queue*, because the queue shifts position within the internal array.
 
-## Exercise 2 - Code
+You will also need a third attribute to represent the queue's capacity
+(the number of items it can hold).
 
-(*Question 1 is the most important question to finish, and ideally question
-2; the later questions involving linear probing are more advanced
-and designed for those of you coping well with the module so far*).
+Your `Queue` class should have two methods, `add()`, which should add an item
+onto the queue, and `remove()`, which should remove - and return - an item
+from the queue.
 
-1. Implement a hash table using separate chaining. The keys should be strings
-and the hash function should be simply the sum of the ASCII codes (this is a
-poor hash function, as we have seen, but it's to keep things simple to begin
-with). 
+Also give your class a `__str__()` method, so that you can easily print your
+queue to see what its internal state is. This should return the result of
+the `__str__()` method of the internal array (so you can see what is stored 
+in the array) and *also* the values of the front and back attributes.
 
-Use an underlying array with size 127 (i.e. 127 buckets), take the modulo 127 
-of the hash code, and store the key and value as a tuple in the
-corresponding list. Usse a simple Python list with an initial capacity of 5
-(initialise it to 5 `None`s as we did last week) to store the values. 
-A linked list is generally recommended, but again I'm trying to keep things
-simple initially.
-
-Implement `get()` and `put()` methods as described above.
-
-Test the hash table by `put`ting a few keys and values into it and then
-`get`ting them back. Try to choose at least two keys which will clash.
-
-2. Enhance your hash table by using the "powers-of-31" approach (described
-above) to calculate the hash code. You should still use modulo 127 to
-calculate which bucket to place the value into.
-
-3. Copy your answer to question 2 into a new Repl project, and change it
-to use linear probing rather than separate chaining. Move forward one space
-if there is a clash.
-
-4. Enhance your linear probing-based hash table to use a secondary hash
-function to calculate how many spaces to move on when searching for a free
-space. It should be:
-```
-secondaryHash = hashCode % 17 
-```
-where `hashCode` is the primary hash, i.e. the hash code calculated from
-the "powers-of-31" approach above.
+How can you efficiently implement the circular aspect, so that the front and
+back variables "wrap round" after reaching the end of the array?

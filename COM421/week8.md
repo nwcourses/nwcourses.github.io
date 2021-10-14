@@ -1,4 +1,4 @@
-# Week 8: Efficient searching algorithms
+# Topic 8: Efficient searching algorithms
 
 ## Introduction
 

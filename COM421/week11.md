@@ -1,4 +1,4 @@
-# Week 11: The A\* algorithm
+# Topic 11: The A\* algorithm
 
 ## Introduction
 

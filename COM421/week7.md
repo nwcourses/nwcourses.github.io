@@ -1,4 +1,4 @@
-# Week 7: Algorithms Introduction
+# Topic 7: Algorithms Introduction
 
 We are now going to start looking at *algorithms*. An algorithm is, as we
 have seen, a clearly-defined solution to a particular problem, which follows
@@ -153,6 +153,8 @@ one position.
 
 We'd therefore need to implement this using a loop within a loop. The outer
 loop would be the successive iterations, whereas the inner loop would be used to perform the swapping operations of *one* particular iteration of the algorithm.
+
+**It should be noted that on the first iteration of the bubble sort, the largest value will be correctly in place at the end of the list. So on the second iteration, we do not need to consider the last position in the index; for example if there are 5 values, we only need to consider 4 in the second iteration. Similarly, at the end of the second iteration, the second-biggst value will be correctly placed, so on the third iteration we do not need to consider the final two values of the list.**
 
 ### Exercise 1
 
