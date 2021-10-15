@@ -1,338 +1,427 @@
-<!DOCTYPE html>
 <html>
 <head>
-<title>Week 4 - AJAX, JSON, Web APIs and A-Frame</title>
-<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
-<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+<title>Immersive Technologies - Topic 4</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
 </head>
 <body>
-<h1>Week 4: AJAX, JSON, Web APIs and A-Frame</h1>
-<h2>Introduction</h2>
-<p>This week we will:
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h2>Topic 4: JavaScript Modules; Loading 3D Models</h2>
+</div>
+<h2 id="introduction">Introduction</h2>
+<p>There are two topics this week. Firstly we will introduce <em>JavaScript modules</em> and also look at how <em>bundlers</em> such as <em>Webpack</em> can make our life easier. Modules are increasingly commonly used in web development and are also essential for using three.js <em>add-ons</em>.</p>
+<p>We will be using three.js add-ons for the second topic of the week, <em>loading and displaying 3D models.</em></p>
+<h2>JavaScript Modules</h2>
+<h3 id="introductionwhyaremodulesneeded">Introduction - Why are modules needed?</h3>
+<p>We have looked at client-side JavaScript in this module as well as in COM518 and first-year web. However, so far, we have not created any large, complex JavaScript applications. So far, the approach has been to save your JavaScript in an external <code>.js</code> file, and include it
+into your HTML, e.g.</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
+</code></pre>
+<p>However, when writing larger and more complex JavaScript applications (such as those we will write in this module), you will find that this approach will quickly become difficult to manage, as you will write multiple JavaScript files and have to include <em>each one</em> in your HTML, for example:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='script1.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script2.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script3.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script4.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='script5.js'&gt;&lt;/script&gt;
+</code></pre>
+<p>As can be seen, this quickly becomes quite unmanageable and makes your HTML code very messy. Furthermore, many websites rely on <em>third party</em> JavaScript libraries - such as three.js. These have to be included too, as we have done so far.</p>
+<p>Hopefully you can see that for a complex web application with many JavaScript files, you'll end up with half your HTML code being links to external script files!</p>
+<h3 id="abetterwaymodules">A better way: modules</h3>
+<p>Clearly another way is needed and luckily there is one: the JavaScript <em>module</em>. A module is a reusable piece of JavaScript which can be <em>imported</em> into other JavaScript files. There have been various approaches to modules;</p>
 <ul>
-<li>Finish the work on the <code>vertical-controls</code> component that we
-looked at last week.</li>
-<li>Revise and update our knowledge on AJAX</li>
-<li>Look at how we can dynamically <em>create</em> components in A-Frame</li>
+<li><em>CommonJS modules</em>. This was the first widespread approach to using modules, and is still widespread today because it is the main approach taken by the server-side JavaScript environment <em>Node.js</em> which you looked at last year in COM518. It can also be used in the browser through the use of a <em>bundling tool</em>, see below, and indeed is stil widely used in a browser environment.</li>
+<li><em>ECMAScript 6 modules</em> ("ECMA6 modules"). This approach is part of the recent ECMAScript 6 standard, a major revision to the ECMAScript specification which forms the basis of JavaScript. Unlike CommonJS modules, ECMAScript 6 modules are supported <em>natively by the browser</em> and do not require third-party tools to process. However, support has only recently been added to browsers, and similarly, support has only recently been added to Node.js, so uptake of ECMA6 modules has been slow. Additionally, some features of modules are not available in web browsers.</li>
 </ul>
-<h2>Vertically controlling the camera</h2>
-<p>Before we begin the new material today, we will finish the last section
-from <a href='week3.html#controllingthecamera'>last time</a>.</p>
-<h2>AJAX revision</h2>
-<p>Last year on DFTI we looked at <em>AJAX</em> and saw that it was 
-approach to developing highly interactive web applications which communicate
-with the server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as <em>JSON</em>
-(see <a href='../wad/wad1.html'>here</a> for more information about JSON). 
-The JSON is then <em>parsed</em>
-and the page dynamically updated with the new data.</p>
-<p>For example, we could have an AJAX application to search for all products of a given type (e.g cornflakes). Our JavaScript could send a product type, such as "Cornflakes", to a PHP script running on a server, and the PHP could send back JSON containing all the cornflakes manufactured by different manufacturers. Then, the second JavaScript function (the AJAX <em>callback</em>), could parse the JSON and update the HTML front-end with the search results (all cornflakes products).</p>
-<p>You can find some AJAX 
-refresher notes <a href='../wad/ajax.html'>on WAD</a>, including how to parse 
-JSON.</p>
-<h2>New style AJAX requests with the fetch API</h2>
-<p>Last year, we looked at an older approach to AJAX (the XMLHttpRequest 
-API). However, this has now been superseded by another
-API - the fetch API. Here is an example of the use of the fetch API;
-<pre>
-function ajaxSearch(productType) {
-    fetch(`https://server/api.php?productType=${productType}`)
-        .then(response =&gt; response.text())
-        .then(text =&gt; {
-            document.getElementById('results').innerHTML = text;
-        });
+<h2 id="anexampleecmascript6module">An example ECMAScript 6 module</h2>
+<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module.</p>
+<pre><code class="javascript language-javascript">function sayHello(name) {
+    console.log(`Hello ${name}!`);
 }
 
-// Make the AJAX run when we click a button
-document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
-    // Read the product type from a text field
-    const product = document.getElementById('productType').value;
-    ajaxSearch(product);
-});
-</pre>
-How is this working?
+function square(n) {
+    return n * n;
+}
+
+export { sayHello, square };
+</code></pre>
+<p>Note how this module contains two functions, <code>sayHello()</code> and <code>square()</code>, which display a greeting and calculate the square of a number, respectively. However the interesting thing is the statement at the end:</p>
+<pre><code class="javascript language-javascript">export { sayHello, square };
+</code></pre>
+<p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>module1.js</code>.</p>
+<p>A couple of other syntax points here, which you may not have encountered before:</p>
 <ul>
-<li>We fetch a response from the given URL. Here we are contacting a 
-server-side script which searches for all products of a given type.</li>
-<li><em>then</em>, when we get the response, we obtain the text from it.</li>
-<li><em>then</em>, when we have the raw text of the response, we run an 
-arrow function to place the results inside a &lt;div&gt;. This arrow
-function is passed the raw text of the response as a parameter.</li> 
+<li><code>console.log()</code> writes a message to the developer console, which you can
+view by going to the developer tools of your browser.</li>
 </ul>
-<h3>Promises</h3>
-<p>We'll now look in a bit more detail at what is going on with our fetch API
-request, and in particular look at the concept of a <em>promise</em>. The
-<code>fetch</code> call, above, returns a <em>Promise</em> object.
-A promise is an object which "promises" to do a particular (typically)
-asynchronous, background task which will complete at some point in the future,
-such as an AJAX request. The <code>fetch()</code> function will return 
-immediately, but will not do the AJAX request immediately. Instead, it returns
-a <em>promise object</em> which will, at some point in the future, be either
-<em>fulfilled</em> or <em>rejected</em>. These outcomes are as follows;
-    <ul>
-    <li>A promise is <em>fulfilled</em> or <em>resolved</em> as soon as the 
-    background task completes successfully, for example when a response is
-    received from an AJAX call;</li>
-    <li>or it is <em>rejected</em> if it fails with an error, for example
-    there is a network timeout on an AJAX call.</li>
-    </ul>
-We handle each of those two outcomes using the <code>then()</code> and
-<code>catch()</code> functions. The function supplied as an argument to
-<code>then</code> (the <strong>resolve</strong> function)
-will run <strong>as soon as the promise is fulfilled</strong>
-while the function supplied as an argument to <code>catch</code> will run 
-<strong>as soon as the promise is rejected</strong>.
+<h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
+<p>We've created a simple module, but how might we use it from another file?
+We need to <code>import</code> the functions that have been exported. Here's an example. You can imagine this is the "main" JavaScript function of your application, in other words the file which runs when the page is first loaded. This is often named <code>index.js</code> by convention.</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import the two functions from the module. 
+// Note the './' before 'module1.js'. This means 'the current folder'
+import { sayHello, square } from './module1.js';
+
+// Call the sayHello() function from the module
+sayHello("Fred");
+
+// 'const' is a constant - like a variable, but can never change.
+const a = square(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<p>Note how we have to <em>import</em> the functions from the module before we can use
+them. This makes for easier-to-read code as we can tell exactly where the
+two functions <code>sayHello()</code> and <code>square()</code> have come from.</p>
+<h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
+<p>To actually make this code run, we need to link it to an HTML web page which
+can be executed from the browser. We link the <code>index.js</code> file as that is the
+main file of the application, and then the <code>module1.js</code> file will automatically
+load.</p>
+<p>We link a module in the same way as a regular JavaScript file, except we
+use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file,
+<code>index.js</code>, is itself a module. It's the 'main module' of the application and
+it's using another module, <code>module1.js</code>. For example:</p>
+<pre><code class="html language-html">&lt;html&gt;
+&lt;head&gt;
+&lt;script type='module' src='index.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+...
+</code></pre>
+<p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension (JavaScript module) rather than <code>.js</code>. However <code>.mjs</code> is not widely supported by browsers yet, so I'd advise you to use <code>.js</code>.</p>
+<p>A critical point is that <strong>you have to access your site via a web server</strong> to use modules. If you have Node.js installed, you can easily set up a web server in the current folder with:
+<pre>npx http-server</pre>
+and then access pages on port 8080, e.g:
+<pre>http://localhost:8080/index.html</pre>
 </p>
+<h3 id="example2onlyimportingsomefunctions">Example 2: Only importing some functions</h3>
+<p>It's possible to only import <em>some</em> functions from a module. For instance this version of our <code>index.js</code> code:</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import sayHello() (only) from the module. 
+import { sayHello } from './module1.js';
+
+// Call the sayHello() function from the module
+sayHello("Fred");
+
+// This will not work now, as square() was not imported from the module
+const a = square(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
+<p>The code above works, but it can be a little messy to import each function
+separately. It would be nicer if we could <em>collect together all module
+exports as a single object</em>  so that the code is a bit more, well, 
+modular. This approach is frequently used with libraries, such as three.js. The next <code>index.js</code> example shows this:</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import the two functions from the module into a module object 'MyModule'
+import * as MyModule from './module1.js';
+
+// Call the sayHello() function from the module
+MyModule.sayHello("Fred");
+
+const a = MyModule.square(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<p>Note how this differs from the first two examples. First, consider the
+<code>import</code> statement:</p>
+<pre><code class="javascript language-javascript">import * as MyModule from './module1.js';
+</code></pre>
+<p>Rather than importing each function separately, they are all being imported
+as a single <em>module object</em>, MyModule. You can reference each exported 
+function by referencing the module object name, then a dot, then the function
+name, for example <code>MyModule.sayHello(...)</code>. </p>
+<p>(To relate this to object-oriented programming, which we did in COM51COM5188 last year and you may have done elsewhere, <code>MyModule</code> is an <em>object</em> and <code>sayHello()</code> is a <em>method</em> of that object).</p>
+<!--
+<h3 id="example4defaultexport">Example 4: Default export</h3>
+<p>If your module only needs to export one function or object, you can declare
+this as the <em>default export</em>. This is another way of achieving the effect of the previous example, with all exports from a module packaged into a single
+object. So here is an example of the module using a default export:</p>
+<pre><code class="javascript language-javascript">function _sayHello(name) {
+    console.log(`Hello ${name}! This is from a default export`);
+}
+
+function _square(n) {
+    return n*n;
+}
+
+export default {
+    sayHello: _sayHello,
+    square1: _square
+};
+</code></pre>
+<p>This exports a default object with two fields: The <em>sayHello</em> field is set
+equal to the function <em><em>sayHello()</em> (note that an underscore is a convention
+in JavaScript for a 'private' or 'internal function), and the <em>square</em> field
+is set equal to the function <em></em>square()</em>.</p>
+<p>We can then use the default export in our main module using:</p>
+<pre><code class="javascript language-javascript">import MyDefaultObject from './module1.js';
+</code></pre>
+<p>This will import the <em>default</em> export from the module as <code>MyDefaultObject</code>, so we can then call the methods with:</p>
+<pre><code class="javascript language-javascript">MyDefaultObject.sayHello('Fred');
+console.log(MyDefaultObject.square(9));
+</code></pre>
+<p>Contrast the import with Example 3, above, in which we manually grouped
+each separate import from the module into a module object in <code>index.js</code>. In that example, the grouping of imports into an object was done in <code>index.js</code>.  In this example, by contrast, we are grouping them in <code>module1.js</code> by creating a default export.</p>
+<h3 id="example5renamingexportedfunctions">Example 5: renaming exported functions</h3>
+<p>Finally, we can alias exported functions. We will return to the first
+example to illustrate this:</p>
+<pre><code class="javascript language-javascript">// index.js - 'main' JavaScript file
+
+// Import the two functions from the module. 
+// Note the './' before 'module1.js'. This means 'the current folder'
+import { sayHello as sh, square as sq } from './module1.js';
+
+// Call the sayHello() function from the module
+sh("Fred");
+
+// 'const' is a constant - like a variable, but can never change.
+const a = sq(3);
+console.log(`The square of 3 is : ${a}`);
+</code></pre>
+<p>Here we have renamed the exported <code>sayHello()</code> function as <code>sh()</code>, and the
+exported <code>square()</code> function as <code>sq()</code>.</p>
+-->
+<h3>Using modules with npm</h3>
+<p>We can use <em>third-party</em> code, such as three.js, as modules.  The standard for installing third-party libraries, both in Node.js and for the browser, is, as you have already seen in COM518, <a href="https://npmjs.com">npm</a>. <code>npm</code> or Node Package Manager is a standard way to install third-party JavaScript software as <em>packages</em>. So far we've used it for Node.js applications, but we can also use it for client-side code. For example, we can install three.js via npm with:
+<pre>npm install three</pre>
+</p>
+<p>As we saw last year, it is placed in a folder called <code>node_modules</code>. This contains all NPM packages installed into your current project. (Evem though the name is <code>node_modules</code>, the approach is still used for client-side JavaScript).</p>
+<p>How do we import a third-party module? The standard is to use the package name in the import statement. So to import three.js, we would ideally be able to use code such as this:
+<pre>import * as THREE from 'three';</pre>
+This would import everything from the "three" package. If we are using Node.js, we can indeed import modules this way. However, web browsers do not yet support using package names (e.g. 'three') in import statements, so we have to use a file path, as in the first few examples. So we could do the following, in which we specify the full path to the three.js JavaScript file:
+<pre>import * as THREE from './node_modules/three/build/three.module.js'</pre>
+This indicates the path to the three.js code within the <code>node_modules</code> folder. This works, <strong>but only if you are using the core three.js library and not any add-ons</strong>. So everything we've done so far <em>will</em> work, but when you try to use add-ons, such as the add-ons for loading models that we're looking at this week, you will find you will get an error. This is because the add-on code uses the package name "three" within an import statement, and thus will not work in the browser. For example, <em>glTFLoader</em> add-on for loading glTF model files, it contains this import statement:
+<pre>import {
+    AnimationClip,
+    // ... several other classes ...
+    sRGBEncoding
+} from 'three';</pre>
+which as we have seen, will not work in a browser, because it uses the package name 'three' rather than the full path.</p>
+<h3>Bundlers</h3>
+<p>So what do we do? We cannot use package names in our imports, because they are only supported by Node.js, not in browsers - and we cannot use full paths if using three.js add-ons, because the add-on code imported in this way includes package names. This is where <em>bundlers</em> come to the rescue.</p>
+<p>A <em>bundler</em> is a piece of software which will take JavaScript code written in 'Node.js' style (i.e. directly referencing package names in import statements) and convert it to a form which is understandable by a browser. In fact, it will take <em>many</em> source JavaScript files and generate a single <em>bundle</em> (typically named bundle.js) as the output. The bundle can then be included into a web browser in the normal way (without <code>type=module</code>).
+</p>
+<p> One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>. Webpack can be installed with npm.  As Webpack is a <em>development</em> tool, you want to install it <em>globally</em>, so that it is accessible to all applications on your system and all users. The <code>-g</code> option does this. (Normally, NPM packages are only installed locally into the project that needs them, within the project's <code>node_modules</code> folder).</p>
+<pre><code>npm install -g webpack webpack-cli
+</code></pre>
+<p>Here is the most simple usage:</p>
+<pre><code>npx webpack index.js
+</code></pre>
+<p>This will take the file index.js, and any modules it uses (along with any
+modules used by those modules) and prepare a single output file - a <em>bundle</em> - which will, by default, be placed in the <code>dist</code> subfolder with the name
+<code>main.js</code>.  This can then be used directly in the browser e.g:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/main.js' defer&gt;&lt;/script&gt;
+</code></pre>
+<p>(<strong>Note the <code>defer</code> prevents the bundle loading until the page has been loaded.  If you do not do this, the bundle will be loaded before the page, which means if you try to access HTML elements from your JavaScript, you will get errors.</strong>)</p>
+<p>One key advantage of using a bundler like Webpack is that
+<em>the bundler automatically includes third-party NPM packages</em> in the
+bundle, if they are imported in your code using the package name e.g.:</p>
+<pre><code class="javascript language-javascript">import * as THREE from 'three';
+</code></pre>
+<p>which will import three.js, as we saw above.</p>
+<h4 id="webpackconfiguration">Webpack configuration</h4>
+<p>Due to time constraints, we will only take a brief look at Webpack configuration, enough to build a project making use of three.js and its add-ons. By default, Webpack will place its output in the file <code>main.js</code> within the <code>dist</code> folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.</p>
+<p>However it is possible to configure Webpack to change this behaviour, and
+this is done via the <code>webpack.config.js</code> configuration file. This is a 
+file, itself written in JavaScript, which allows you to modify Webpack's
+default behaviour. Here is an example:</p>
+<pre><code class="javascript language-javascript">const path = require('path');
+
+module.exports = {
+    mode: 'development',
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    }
+};
+</code></pre>
+<p>What is this doing?</p>
+<ul>
+<li><code>mode</code> can be either <code>development</code> or <code>production</code>. This impacts upon the amount of minifying that takes place (less in development, more in production; debugging is easier with an unminified bundle)</li>
+<li>We specify the application's entry point (the JavaScript file where your
+application starts running) as <code>./index.js</code> (<code>index.js</code> in the current folder).
+This means you can run Webpack with</li>
+</ul>
+<pre><code class="javascript language-javascript">npx webpack
+</code></pre>
+<p>rather than</p>
+<pre><code class="javascript language-javascript">npx webpack ./index.js
+</code></pre>
+<p>because the configuration file has told Webpack that the entry point of the
+application will be <code>./index.js</code>. </p>
+<ul>
+<li>We then specify some output options. Firstly, the <code>path</code> is the folder where the output bundle will be placed. Here, we are specifying the output is the <code>dist</code> subfolder of the current folder, and the filename is <code>bundle.js</code>. So, the resulting bundle will be named <code>bundle.js</code> and not <code>main.js</code>. In fact, bundle.js is a better name as <code>main.js</code> is often used for the file containing the main JavaScript code, as an alternative to <code>index.js</code>.</li>
+<li>The <code>optimization</code> options allow us to specify various ways in which the output will be optimised. Here, we are turning minification off by setting the <code>minimize</code> option to <code>false</code>. This can be useful for debugging, as you will not get helpful error messages with a minified bundle file.</li>
+</ul>
+<p>There are many other things you can do with Webpack, for example you can
+include CSS inside your bundle for easy distribution. See the
+<a href="https://webpack.js.org">website</a> for more detail.</p>
+<h3>Using Webpack with a live server to develop a three.js application - A student contribution!</h3>
+<p>I would like to announce a contribution made by one of the students on this module which you may all find useful. You can use Webpack with a built-in live server, for easy development. Any files that the server is watching will be auto-reloaded whenever changes are made; furthermore, errors in your JavaScript will be displayed on the main browser window. Please see this <a href='https://github.com/winniepukki/threejs-webpack'>repository</a> for more details and feel free to ask myself or the contribution's author for more details.</p>
+<!--
+
+-->
+<h2 id="models">Models</h2> 
+<p>Now we know how to import modules, we will nowstart to make our three.js applications look more realistic by looking at how we can add <em>3D models</em> to our scene. Loading models requires three.js <em>add-ons</em>, for which <code>import</code> statements and a bundler are needed for the most efficient development process.</p>
+<p>Most real-world 3D applications would use 3D <em>models</em> of real-world objects, such as people, animals or objects. These models typically consist of many small triangles; each triangle has three <em>vertices</em> (points). Triangles are typically used because 3D hardware is optimised to work with triangles.</p> <p>Models also consist of:</p>
+<ul>
+<li><em>Textures</em> which we looked at last week.</li>
+<li><em>Normals</em>: normals are mathematical vectors indicating which direction is 'up' for each vertex. Considering a Coke can modele, the normals would
+point from each vertex away from the can, i.e. towards the outside world
+rather than towards the interior of the can. Normals are used to calculate
+lighting effects: in 3D graphics we can position lights within our world
+which can then be reflected by outwards-facing surfaces. 
+</li>
+</ul>
+<h3>Scene graphs and child meshes</h3>
 <p>
-So, promises allow you to write code with intuitive, clean syntax in
-this form:
-<pre>promise.then(resolveFunction).catch(rejectFunction);</pre>
-where "promise" is the promise object, and <code>resolveFunction</code> and
-<code>rejectFunction</code> are the functions which run on fulfilment and
-rejection, respectively.</p>
-<p>Note that this topic does not include how to write your own promises from
-scratch, only how to use promises returned from APIs written by others, for
-example the fetch API. You can read about how to create your own promises in
-the <a href='../wad/promises.html'>WAD notes on promises</a>.</p> 
-<h4>Relating promises to the fetch API</h4>
-<p>So, returning to our fetch API example, what is happening with this code in
-terms of promises? (Note, I have now added a <code>catch()</code>).
+Before we look at actually loading and displaying models, we will take a look at a fundamental component of three.js and other 3D engines - the <em>scene graph</em>. A scene graph is a hierarchical representation of the objects in the scene and their relationships, and is useful when dealing with models. The scene is at the top of the scene graph, and objects added to the scene (such as meshes, lights or cameras) are <em>child objects</em> of the scene. However, <em>meshes themselves</em> - in fact any <code>Object3D</code> - can have child objects: for example, we could load a mesh of a table and then place objects (such as a book and a lamp) on the table. The objects on the table would be child objects of the mesh and when the table moves or rotates, its child objects would move and rotate with it.</p>
+<p>A typical scene graph is shown below:
+<br />
+<img src='../images/scene_graph.png' alt='Scene graph' />
+</p>
+<p>Here is some example code. This creates a large red box and two smaller boxes (green and blue) and adds the smaller boxes <em>to the large box</em> as its children. The positions of the smaller boxes are <em>relative to the large box, not the world</em> and if you move or rotate the large box, <em>the smaller boxes will move with it</em>.
 <pre>
-fetch(`https://server/api.php?productType=${productType}`)
-    .then(response =&gt; response.text())
-    .then(text =&gt; {
-        document.getElementById('results').innerHTML = text;
-    })
-    .catch(e =&gt; { alert(`An error occurred: ${e}`); } );
-</pre>
+// Set up meshes
+const box = new THREE.BoxGeometry(5,5,5);
+const redMtl = new THREE.MeshLambertMaterial({color: 0xff0000});
+const largeMesh = new THREE.Mesh(box, redMtl);
+const smallBox = new THREE.BoxGeometry(); // default = 1,1,1
+const greenMtl = new THREE.MeshLambertMaterial({color: 0x00ff00});
+const blueMtl = new THREE.MeshLambertMaterial({color: 0x0000ff});
+const smallMesh1 = new THREE.Mesh(smallBox, greenMtl);
+const smallMesh2 = new THREE.Mesh(smallBox, blueMtl);
+
+// add the large mesh to the scene
+scene.add(largeMesh); 
+
+// position it in the world
+largeMesh.position.z = -10; 
+
+// add the small mesh as a child of the large mesh
+largeMesh.add(smallMesh1); 
+
+// position is relative to its parent (the large mesh)
+smallMesh1.position.set(-2, 5, 0); 
+
+// add the second small mesh as a child of the large mesh
+largeMesh.add(smallMesh2); 
+
+// position is relative to its parent (the large mesh);
+smallMesh2.position.set(2, 5, 0); 
+
+// rotate large mesh, small meshes will rotate with it
+largeMesh.rotation.y = THREE.Math.degToRad(45); 
+</pre
+</p>
+<h3 id="whatmodelformatsareavailable">What model formats are available?</h3>
+<p>There are various formats for 3D models. Two common formats, both supported by three.js, are:
 <ul>
-<li>We make our <code>fetch()</code> request. This returns a promise, which
-will resolve when we get a response back from the server.</li>
-<li>We supply the arrow function <code>response =&gt; response.text()</code>
-as the resolve function. This takes the response and obtains text from it.
-Note that this is shorthand for:
-<code>.then(response =&gt; { return response.text(); } );</code>
-in other words, if an arrow function only returns a value and does not do
-anything else, we can omit the curly brackets and the <code>return</code>.
-</li>
-<li>Note that <code>response.text()</code> does not return the text directly. Perhaps surprisingly, <code>response.text()</code> <strong>itself returns a promise</strong>, which will fulfil as soon as text is obtained from the response so we need <strong>yet another then()</strong> with a <strong>second resolve function</strong> passed as an argument, i.e:
-<pre>
-.then(text =&gt; {
-    document.getElementById('results').innerHTML = text;
-});
-</pre>
-This second resolve function gets passed the text as a parameter, and
-simply places this text inside a &lt;div&gt;.</li>
-<li>Finally, any errors that might occur during the whole process are handled
-with the <code>catch()</code>.</li>
+<li><p>The <em>Wavefront OBJ</em> format. This is a long-standing format which has been around since at least 1992. When working with the OBJ format, you typically have to deal with: 
+    <ul>
+    <li>The .obj file itself, containing vertices, faces and normals;</li>
+    <li>The <em>.mtl</em> (material) file, describing the properties of the object's surface material, including colour, and any texture which will be applied to it.</li>
+    <li>Optional images for textures.</li>
+    </ul>
+In three.js, you have to load the .mtl file and the .obj file in two separate steps.</li>
+<li>The <em>glTF</em> format. A more recent format with support for more advanced features, such as animations, and, as described in the
+<a href="https://aframe.io/docs/1.0.0/components/gltf-model.html">A-Frame documentation</a>, information about the scene, such as light sources and cameras. Unlike OBJ, glTF stores the vertex data in a compact binary format, leading to smaller file sizes and faster loading time. Also unlike .obj, you can just load the .gltf file directly from three.js and the materials and textures will be auto-loaded without you having to perform another step in your code.</li>
 </ul>
-<h3>async/await</h3>
-<p>ECMAScript 8 (aka ECMAScript 2017) introduces <em>async/await</em>.
-This allows you to write promise-based,
-asynchronous code in a sequential manner. Here is how we would rewrite our
-<em>fetch</em> API code using async/await:
+<h3 id="howtoincludeamodelinanaframeapplication">How to include a model in a three.js application</h3>
+<p>As discussed above, the three.js library itself does not provide any functionality for loading models. We have to use <em>add-ons</em> to perform the loading process. Here are two examples, one for OBJ and one for glTF.</p>
+<h4>OBJ loader</h4>
+<p>
 <pre>
-<em>async</em> function ajaxSearch(productType) {
-    const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
-    const text = <em>await</em> response.text();
-    document.getElementById('results').innerHTML = text;
-}
+import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 
-// Make the AJAX run when we click a button
-document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
-    // Read the product type from a text field
-    const product = document.getElementById('productType').value;
-    ajaxSearch(product);
-});
-</pre>
-Note how we're doing a whole AJAX / JSON parsing procedure using sequential
-code, even though AJAX is an asynchronous process. The key things are:
-    <ul>
-    <li>The function <em>ajaxSearch()</em> is declared as <em>async</em>, 
-    which makes it a special kind of function (an <em>AsyncFunction</em>)
-    allowing us to do async/await;</li>
-    <li><em>fetch()</em> (which if you remember returns a promise to do an
-    AJAX call) is preceded by <em>await</em>. What <em>await()</em> does is
-    suspend execution of the rest of the <em>async</em> function until the
-    promise concerned has been fulfilled. 
-    The argument to the resolve function of
-    the promise is then <em>returned</em> from the <em>await</em> call.
-    </li>
-    </ul>
-Note also that <em>await</em> will only work with a promise. It's
-<em>awaiting the successful resolution of that promise</em>. Trying to use
-<em>await</em> without a Promise will not work!</li>
-</p>
-<p>To make the code more robust we need to handle errors. Here is how to
-do this with <em>async/await</em>:
-<pre>
-<em>async</em> function ajaxSearch(productType) {
-    try {
-        const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
-        const text = <em>await</em> response.text();
-        document.getElementById('results').innerHTML = text;
-    } catch(e) {
-        alert(`Error: ${e}`);
-    }
-}
+// setup code (omitted...)
 
-// Make the AJAX run when we click a button
-document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
-    // Read the product type from a text field
-    const product = document.getElementById('productType').value;
-    ajaxSearch(product);
-});
-</pre>
-Note how we <em>try</em> to do the promise based, asynchronous code and
-<em>catch</em> any promise rejections in the <em>catch</em> block. The catch
-block gets passed the error message accompanying the promise rejection.</p>
-<h4>async/await with JSON</h4>
-<p>The previous examples have shown <em>fetch()</em> AJAX requests which return
-plain text. Here is a version which communicates with a server which returns
-JSON instead:
-<pre>
-<em>async</em> function ajaxSearch(productType) {
-    // Send a request to our remote URL
-    const response = <em>await</em> fetch(`https://server/api.php?productType=${productType}`);
+// Create an MTLLoader object to load the .mtl file
+const mtlLoader = new MTLLoader();
 
-    // Parse the JSON.
-    const products = <em>await</em> response.json();
+// Load the MTL file. The specified arrow function will run once it's loaded
+mtlLoader.load("models/pig.mtl", mtl =&gt; {
+    // The arrow function receives an object representing the material
 
-    // Loop through the array of JSON objects and add the results to a &lt;div&gt;
-    let html = "";
-    products.forEach ( product =&gt; {
-        html += `Product Name: ${product.name} Manufacturer: ${product.manufacturer} Price: ${product.price}&lt;br /&gt;`;
+    // Create the materials
+    mtl.preload();
+
+    // Now the material file is loaded, create an OBJLoader to load the .obj file
+    const objLoader = new OBJLoader();
+
+    // Associate the material with the OBJ file to be loaded
+    objLoader.setMaterials(mtl);
+
+    // Load the OBJ file. The specified arrow function will run once it's loaded
+    objLoader.load("models/pig.obj", mesh =&gt; {
+        // The arrow function receives a mesh of the loaded model
+
+        // Set the mesh's position
+        mesh.position.z = -5;
+
+        // Add it to the scene
+        scene.add(model);
     });
-    document.getElementById('results').innerHTML = html;
-}
-
-// Make the AJAX run when we click a button
-document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
-    // Read the product type from a text field
-    const product = document.getElementById('productType').value;
-    ajaxSearch(product);
 });
 </pre>
-This code is very similar to the text-based example. The main difference is
-we use <code>response.json()</code> rather than <code>response.text()</code>.
-This returns a promise which resolves when the JSON in the response has
-been parsed (compare <code>response.text()</code>, which returns a promise
-which resolves when we have extracted text from the response).</p>
-<p>The other diference is that we need to loop through our array of JSON
-objects returned from the server. The JSON might look like this:
+The comments in the code above explain how the code is working; note how we have to load the material (.mtl file) before we load the .obj file, and note how loading is asynchronous and we specify callback functions to run when the files have loaded. This is because model files are often rather large and may take a while to load; we do not want to prevent user interaction with the page while this is occurring.</p>
+<p>Also note the <em>import</em> statements for the add-ons to load .obj and .mtl files:
 <pre>
-[
-    {
-        "name":"Cornflakes",
-        "manufacturer":"Organic Products Ltd.",
-        "price": 2.49 
-    },
-    {
-        "name":"Cornflakes",
-        "manufacturer":"Cockadoodle Cereal Co.",
-        "price": 1.79 
-    },
-    {
-        "name":"Cornflakes",
-        "manufacturer":"Smith Emporium",
-        "price": 0.79 
-    },
-]
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 </pre>
-so hopefully you can see how we loop through each product object within the JSON
-and extract the name, manufacturer and price fields from it. Notice also how
-<code>forEach()</code> allows us to loop through each member of an array
-without needing a <code>for</code> loop with an index. 
-<code>forEach()</code> is a function which performs a second function on each member of an array. Each member of the array in turn is passed into this second function as a parameter.</p>
-<h2>Dynamic Creation of Components with A-Frame</h2>
-<p>We are now going to look at how we can <em>dynamically create entities and
-components using A-Frame</em> and the DOM. So far, our entities and components 
-have been hard-coded in HTML. However in many cases, we might want to 
-dynamically build a scene based on data sent back, in JSON for example, from
-the web. Most augmented reality apps would work this way: the augmented 
-content would not be hard-coded but downloaded from a server. For example,
-points of interest in an AR or VR POI app would be downloaded from a server
-and in Pokemon Go the locations of the Pokemon are also downloaded. So we
-need to know how to dynamically generate content in A-Frame.</p>
-<p>In the DOM notes we looked at <code>document.createElement</code> So,
-we can use <code>document.createElement()</code> here to dynamically create
-our A-Frame content. Here is an example:
+Note how we access each add-on by first referencing the package (<code>three</code>) - which will be processed by the bundler to look inside the <code>three</code> folder in <code>node_modules</code> - and then access the add-ons by navigating the folder structure within the <code>three</code> package.</p>
+<h4>glTF loader</h4>
+<p>
 <pre>
-AFRAME.registerComponent('dynamic-content-loader', {
-    init: function() {
-        // Create an entity with document.createElement()
-        const entity = document.createElement('a-entity');
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-        // Add a geometry component to it (a box primitive)
-        entity.setAttribute('geometry', {
-            primitive: 'box'
-        });
+// setup code (omitted...)
 
-        // Add a material component to it (red colour)
-        entity.setAttribute('material', {
-            color: 'red'
-        });
+// Create a GLTFLoader
+const gltfLoader = new GLTFLoader();
 
-        // Set its position within the 3D world
-        entity.setAttribute('position', {
-            x: 0,
-            y: 1,
-            z: -5
-        });
+// Load the glTF file (the file with .gltf extension)
+// This will automatically load materials and textures
+// Specify an arrow function to run when the model is loaded
+gltfLoader.load("models/shiba/scene.gltf", gltf =&gt; {
 
-        // Append the entity to the scene (this.el.sceneEl)
-        this.el.sceneEl.appendChild(entity);
-    }
+    // To obtain the mesh, use the 'scene' property of the 'gltf' object received by the arrow function    
+    const mesh = gltf.scene;
+
+    // Set its position and add it to the scene
+    mesh.position.z = -5;
+    scene.add(mesh);
 });
 </pre>
-which would be used along with an A-Frame scene such as that below:
-<pre>
-&lt;a-scene&gt;
-&lt;a-sky color="skyblue"&gt;&lt;/a-sky&gt;
-&lt;a-plane color='green' position='0 0 0' rotation='-90 0 0' width='100' height='100'&gt;&lt;/a-plane&gt;
-&lt;a-entity dynamic-content-loader&gt;&lt;/a-entity&gt;
-&lt;/a-scene&gt;
-</pre>
-What is this doing?
-    <ul>
-    <li>We are definining a component called <code>dynamic-content-loader</code>.
-    This component is attached to a generic &lt;a-entity&gt; in our scene.
-    </li>
-    <li>Within this component we create an <code>a-entity</code> dynamically using DOM, and set its <code>geometry</code>, <code>material</code> and <code>position</code> components.</li>
-    <li>Then we <em>append</em> the entity we've just created to the A-Frame <em>scene</em>. Note how we can access the A-Frame scene from any entity using <code>this.el.sceneEl</code>. Whereas <code>this.el</code> represents the current entity, <code>this.el.sceneEl</code> represents the scene as a whole. So the entity we've dynamically created will be a child of our <em>scene</em>.</li>
-    </ul>
+The glTF loader is quite a bit simpler. We do not need separate stages to load the material and main model file, we just load the <code>.gltf</code> file and this will take care of loading all aspects of the model. As before, we provide an arrow function which runs once the loading is complete, and as before we need to <code>import</code> the add-on.</p>
+<h3 id="pointstoconsiderwithmodels">Points to consider with models</h3>
+<p>There are reasons why models might not appear as you expect them to. Note
+that models have their own, local coordinate system; the coordinates of
+each vertex are relative to the local origin of the model. The local origin
+is the point within the model which has coordinates x=0, y=0, z=0 in the 
+model file. When the model is placed within the world at a particular world position, the local origin of the model will be placed at that world position.</p>
+<p>In many cases this is what we want - the base of the model will have the local
+coordinates 0,0,0 - but some models have negative <code>y</code> coordinates for some 
+vertices. This will result in the model being partially buried underground
+if we add it to the world unchanged. So in these cases, if we wish the model
+to rest on our world's surface (e.g. a plane), we may need to place
+the model at a <code>y</code> coordinate above 0 in the world to compensate for the fact
+that some of the model's local <code>y</code> coordinates are negative. In this way we
+will ensure the entire model appears "above ground".</p>
+<p>Also some models, by default, have a very large scale, e.g. the local x, y and
+z coordinates of the model range from, say, 0 to 100. It may be necessary
+to scale then down (by setting the x, y and z <code>scale</code> to values below 1) to get the model to appear a sensible size. Any <code>Object3D</code> can be scaled using the <code>scale</code> property, e.g:
+<pre>mesh.scale.set(0.5, 0.5, 0.5);</pre>
 </p>
-<p>This example is just a simple example of creating dynamic content, but
-you could use a component like this to load JSON over AJAX and then create
-content based on parsing the JSON.</p>
-<h2>Exercise</h2>
-<p>The exercise is to bring this all together and dynamically create a scene
-by contacting a web API to retrieve JSON. At the URL
-<pre>https://www.free-map.org.uk/course/imm/world.php</pre>
-is a server-side application which returns JSON of various points of interest
-(restaurants, cafes etc). If no 'type' parameter is supplied, <strong>all</strong> points of interest are returned, while if there is a type, e.g:
-<pre>https://www.free-map.org.uk/course/imm/world.php?type=cafe</pre>
-only points of interest of that type are returned.
-</p>
-<ol>
-<li><strong>If you want practice on basic AJAX</strong>, 
-first build a simple, HTML-based
-application (no A-Frame) which searches for all points of interest of a given
-type by sending an AJAX request to this URL, parsing the
-JSON returned, and listing the points of interest in a &lt;div&gt;. See
-the JSON async/await example above and modify this. Your HTML page should
-have a text field allowing the user to enter the type, and a button
-which calls your AJAX function when it is clicked.
-</li>
-<li>Build an A-Frame application which contacts this
-URL, downloads the data (<strong>all</strong> points of interest)
-from it (using fetch), parses the JSON, and uses the
-data contained in the JSON to create A-Frame spheres for each point of 
-interest at their coordinates.</li>
-<li>Add code so that an alert box with the name of the point of interest
-appears when you click on it. You should be able to work out how to do this from the mouse events section from last week.</li>
-<li>Change your code to colour the spheres differently depending on point
-of interest type. Cafes should be in brown, restaurants in blue and bars
-in red.</li>
-</ol>
 </body>
 </html>
