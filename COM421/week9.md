@@ -96,22 +96,6 @@ the pivot
 
 The complexity of quicksort can be as low as `O(n^2)` in unusual cases but on average `O(n log n)`([Khan Academy](https://www.khanacademy.org/computing/computer-science/algorithms/quick-sort/a/analysis-of-quicksort)). The maths behind calculating this complexity is quite advanced but is discussed at length in this article.
 
-### Exercise (paper)
-
-I believe that you will get a better understanding of quicksort, which is a rather complex operation, by doing a paper exercise first. 
-Here is a list of numbers.
-```
-[22,56,1,59,38,7,15,17,33]
-```
-On paper, perform quicksort on these numbers. Ensure you show all steps.
-Use the middle element of the list as the initial pivot (i.e. 38).
-It might take you a while as there will be multiple recursive stages!
-
-### Exercise (code)
-
-If you finish, have a go at implementing quicksort in code, using the
-pseudocode above to help you.
-
 ## Merge sort
 
 Reference: [Khan Academy](https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/overview-of-merge-sort)
@@ -218,3 +202,21 @@ needs to be done.
 ### Complexity of merge sort
 
 The complexity of merge sort is `O(n log n)`. See [here](https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/analysis-of-merge-sort) for a detailed explanation.
+
+### Exercise (paper)
+
+I believe that you will get a better understanding of quicksort, which is a rather complex operation, by doing a paper exercise first. 
+Here is a list of numbers.
+```
+[22,56,1,59,38,7,15,17,33]
+```
+On paper, perform quicksort on these numbers. Ensure you show all steps.
+Use the middle element of the list as the initial pivot (i.e. 38).
+It might take you a while as there will be multiple recursive stages!
+
+### Exercise (code)
+
+If you finish, have a go at implementing quicksort in code, using the
+pseudocode above to help you.
+
+If you finish that, have a go at implementing merge sort.

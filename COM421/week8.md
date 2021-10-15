@@ -76,18 +76,6 @@ So the length of the portion under search decreases from 64-32-16-8-4-2-1 in eac
 
 Likewise, for a value `n` between `2^p` and `2^(p+1)`, the number of iterations will be `p-1`, or `log(floor(n))-1` - but again we can simplify to `O(log n)`. (For example, try repeating the above on a list of length 63, a value between 32 and 64, and you find that only six iterations are needed, as the length of the portion being searched will decrease 63-31-15-7-3-1).
 
-### Exercise 1
-
-Implement binary search to find if a number is a *square number* of any number from 1 to 100. You can initialise a list containing all these square numbers using a *list comprehension* as follows.
-```
-numbers = [i*i for i in range(1,101)]
-```
-This code means "fill the list with each value `i*i` for every value of `i` in the range 1 to 100" - in other words, the square of every number from 1 to 100, i.e. 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, ... etc ..., up to 10000 (100^2).
-
-The user should input a number to search for. The binary search should search the list using binary search to find out if the number is within the list, and should also print its position within the list.
-
-As for last week, write out the algorithm in *pseudocode* if you are struggling to create actual code.
-
 ## Tree searching
 
 We can efficiently search a *tree* by virtue of its structure. There are two 
@@ -187,6 +175,18 @@ The table below shows the relation between the number of nodes in a sorted and b
 | 255             | 8                  |
 | 511             | 9                  |
 | 1023            | 10                 |
+
+### Exercise 1
+
+Implement binary search to find if a number is a *square number* of any number from 1 to 100. You can initialise a list containing all these square numbers using a *list comprehension* as follows.
+```
+numbers = [i*i for i in range(1,101)]
+```
+This code means "fill the list with each value `i*i` for every value of `i` in the range 1 to 100" - in other words, the square of every number from 1 to 100, i.e. 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, ... etc ..., up to 10000 (100^2).
+
+The user should input a number to search for. The binary search should search the list using binary search to find out if the number is within the list, and should also print its position within the list.
+
+As for last week, write out the algorithm in *pseudocode* if you are struggling to create actual code.
 
 ### Exercise 2
 

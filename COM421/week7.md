@@ -156,15 +156,6 @@ loop would be the successive iterations, whereas the inner loop would be used to
 
 **It should be noted that on the first iteration of the bubble sort, the largest value will be correctly in place at the end of the list. So on the second iteration, we do not need to consider the last position in the index; for example if there are 5 values, we only need to consider 4 in the second iteration. Similarly, at the end of the second iteration, the second-biggst value will be correctly placed, so on the third iteration we do not need to consider the final two values of the list.**
 
-### Exercise 1
-
-On paper, continue the iterations to sort the values. After how many iterations are the values completely sorted?
-
-How could we express the time taken in terms of `n`, i.e. the number of items
-in the list?
-
-What, therefore, would be the complexity in Big O notation of this algorithm, where `n` is the number of values in the list? 
-
 ### Pseudocode
 
 A common way to represent the logic of an algorithm before actually writing it
@@ -201,10 +192,6 @@ of `a` anywhere else, so when we execute the statement `b = a` we will set
 The use of a temporary variable, as in the correct example, means we can
 store `a` before assigning the variable `a` to the value of `b`, which means
 we do not lose the original value of `a`.
-
-### Exercise 2
-
-Using the pseudocode for bubble sort, plus the code for swapping variables, above, have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place.
 
 ### Selection sort
 
@@ -271,6 +258,19 @@ Note that we can perform a useful "trick" here which can prevent us having to do
 **You should always be on the lookout for "tricks" like this when designing algorithms. Is there something about the data which means that, in some cases, we can avoid having to perform computationally expensive operations like an additional loop, and therefore reduce the complexity of the algorithm?**
 
 The consequence of this is that if the list is "almost sorted", then the complexity will be closer to `O(n)` than `O(n^2)`, as in most cases, we will not need an inner loop. So if, for whatever reason, we know that our list is almost sorted already, an insertion sort is a strongly favoured choice.
+
+### Exercise 1
+
+On paper, continue the iterations to sort the values. After how many iterations are the values completely sorted?
+
+How could we express the time taken in terms of `n`, i.e. the number of items
+in the list?
+
+What, therefore, would be the complexity in Big O notation of this algorithm, where `n` is the number of values in the list? 
+
+### Exercise 2
+
+Using the pseudocode for bubble sort, plus the code for swapping variables, above, have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place.
 
 ### Exercise 3
 

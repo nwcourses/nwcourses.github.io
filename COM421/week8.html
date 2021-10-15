@@ -54,13 +54,6 @@ as 64, and imagine it's a worst-case scenario, where we have to narrow down to o
 </ul>
 <p>So the length of the portion under search decreases from 64-32-16-8-4-2-1 in each iteration of the list. In other words, assuming the list length is an exact power of two, the number of iterations will be <code>log n + 1</code> (+1 because we also check a list of length 1 as well as the various powers of two; the lengths in each subsequent iteration are 2^6, 2^5, 2^4, 2^3, 2^2, 2^1 and 2^0 - i.e. 1). But as we saw last week, we only need to take the most significant term of the complexity and can discard the <code>+1</code> (as we are interested in the general behaviour of algorithms at large <code>n</code>, not the <em>exact</em> complexity) - giving us <code>O(log n)</code>.</p>
 <p>Likewise, for a value <code>n</code> between <code>2^p</code> and <code>2^(p+1)</code>, the number of iterations will be <code>p-1</code>, or <code>log(floor(n))-1</code> - but again we can simplify to <code>O(log n)</code>. (For example, try repeating the above on a list of length 63, a value between 32 and 64, and you find that only six iterations are needed, as the length of the portion being searched will decrease 63-31-15-7-3-1).</p>
-<h3 id="exercise1">Exercise 1</h3>
-<p>Implement binary search to find if a number is a <em>square number</em> of any number from 1 to 100. You can initialise a list containing all these square numbers using a <em>list comprehension</em> as follows.</p>
-<pre><code>numbers = [i*i for i in range(1,101)]
-</code></pre>
-<p>This code means "fill the list with each value <code>i*i</code> for every value of <code>i</code> in the range 1 to 100" - in other words, the square of every number from 1 to 100, i.e. 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, … etc …, up to 10000 (100^2).</p>
-<p>The user should input a number to search for. The binary search should search the list using binary search to find out if the number is within the list, and should also print its position within the list.</p>
-<p>As for last week, write out the algorithm in <em>pseudocode</em> if you are struggling to create actual code.</p>
 <h2 id="treesearching">Tree searching</h2>
 <p>We can efficiently search a <em>tree</em> by virtue of its structure. There are two 
 general techniques for searching a tree:</p>
@@ -172,6 +165,13 @@ print(len(q))
 </tr>
 </tbody>
 </table>
+<h3 id="exercise1">Exercise 1</h3>
+<p>Implement binary search to find if a number is a <em>square number</em> of any number from 1 to 100. You can initialise a list containing all these square numbers using a <em>list comprehension</em> as follows.</p>
+<pre><code>numbers = [i*i for i in range(1,101)]
+</code></pre>
+<p>This code means "fill the list with each value <code>i*i</code> for every value of <code>i</code> in the range 1 to 100" - in other words, the square of every number from 1 to 100, i.e. 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, … etc …, up to 10000 (100^2).</p>
+<p>The user should input a number to search for. The binary search should search the list using binary search to find out if the number is within the list, and should also print its position within the list.</p>
+<p>As for last week, write out the algorithm in <em>pseudocode</em> if you are struggling to create actual code.</p>
 <h3 id="exercise2">Exercise 2</h3>
 <p>Start with either your own tree from week 5 (if you have completed the week 5 exercise) or the pre-written tree solution at <a href="https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py">GitHub</a></p>
 <ol>

@@ -125,11 +125,6 @@ one position.</p>
 <p>We'd therefore need to implement this using a loop within a loop. The outer
 loop would be the successive iterations, whereas the inner loop would be used to perform the swapping operations of <em>one</em> particular iteration of the algorithm.</p>
 <p><strong>It should be noted that on the first iteration of the bubble sort, the largest value will be correctly in place at the end of the list. So on the second iteration, we do not need to consider the last position in the index; for example if there are 5 values, we only need to consider 4 in the second iteration. Similarly, at the end of the second iteration, the second-biggst value will be correctly placed, so on the third iteration we do not need to consider the final two values of the list.</strong></p>
-<h3 id="exercise1">Exercise 1</h3>
-<p>On paper, continue the iterations to sort the values. After how many iterations are the values completely sorted?</p>
-<p>How could we express the time taken in terms of <code>n</code>, i.e. the number of items
-in the list?</p>
-<p>What, therefore, would be the complexity in Big O notation of this algorithm, where <code>n</code> is the number of values in the list? </p>
 <h3 id="pseudocode">Pseudocode</h3>
 <p>A common way to represent the logic of an algorithm before actually writing it
 is known as <em>pseudocode</em>. Pseudocode looks like real code but written in
@@ -158,8 +153,6 @@ of <code>a</code> anywhere else, so when we execute the statement <code>b = a</c
 The use of a temporary variable, as in the correct example, means we can
 store <code>a</code> before assigning the variable <code>a</code> to the value of <code>b</code>, which means
 we do not lose the original value of <code>a</code>.</p>
-<h3 id="exercise2">Exercise 2</h3>
-<p>Using the pseudocode for bubble sort, plus the code for swapping variables, above, have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place.</p>
 <h3 id="selectionsort">Selection sort</h3>
 <p>Selection sort is another sorting algorithm which is conceptually simple but (relatively) inefficient. Nonetheless it has some advantages over bubble sort,
 in particular, the number of swap operations is minimised (of order <code>O(n)</code> rather than <code>O(n^2)</code>), and will be used as another example of a sorting algorithm.</p>
@@ -207,6 +200,13 @@ multiple members, of the sorted part of the list which are <em>greater</em> than
 <p>Note that we can perform a useful "trick" here which can prevent us having to do the inner loop at all. If the last value of the sorted part of the list - which will be the value immediately to the left (i.e one index below) the "divider", is <em>less</em> than the "divider", then we <strong>know</strong> that the "divider" is already in its correct position. This is because the sorted part of the list is sorted, and the highest value within the sorted part will be immediately to the left of the "divider". So if the "divider" is greater than this value, we do not to move it. Thus, we do not need an inner loop.</p>
 <p><strong>You should always be on the lookout for "tricks" like this when designing algorithms. Is there something about the data which means that, in some cases, we can avoid having to perform computationally expensive operations like an additional loop, and therefore reduce the complexity of the algorithm?</strong></p>
 <p>The consequence of this is that if the list is "almost sorted", then the complexity will be closer to <code>O(n)</code> than <code>O(n^2)</code>, as in most cases, we will not need an inner loop. So if, for whatever reason, we know that our list is almost sorted already, an insertion sort is a strongly favoured choice.</p>
+<h3 id="exercise1">Exercise 1</h3>
+<p>On paper, continue the iterations to sort the values. After how many iterations are the values completely sorted?</p>
+<p>How could we express the time taken in terms of <code>n</code>, i.e. the number of items
+in the list?</p>
+<p>What, therefore, would be the complexity in Big O notation of this algorithm, where <code>n</code> is the number of values in the list? </p>
+<h3 id="exercise2">Exercise 2</h3>
+<p>Using the pseudocode for bubble sort, plus the code for swapping variables, above, have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place.</p>
 <h3 id="exercise3">Exercise 3</h3>
 <p>Have a go at implementing <em>either</em> selection sort <em>or</em> insertion sort (your choiice - selection sort is easier to implement but as we have seen, insertion sort can be more efficient depending on how sorted the data is already) on a list of numbers. Remember that you will need an outer and inner loop!</p>
 <p>If you are struggling to write actual code, write <em>pseudocode</em> first, using the pseudocode for bubble sort above as an example.</p>
