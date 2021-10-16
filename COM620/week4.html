@@ -29,8 +29,8 @@ into your HTML, e.g.</p>
 <h3 id="abetterwaymodules">A better way: modules</h3>
 <p>Clearly another way is needed and luckily there is one: the JavaScript <em>module</em>. A module is a reusable piece of JavaScript which can be <em>imported</em> into other JavaScript files. There have been various approaches to modules;</p>
 <ul>
-<li><em>CommonJS modules</em>. This was the first widespread approach to using modules, and is still widespread today because it is the main approach taken by the server-side JavaScript environment <em>Node.js</em> which you looked at last year in COM518. It can also be used in the browser through the use of a <em>bundling tool</em>, see below, and indeed is stil widely used in a browser environment.</li>
-<li><em>ECMAScript 6 modules</em> ("ECMA6 modules"). This approach is part of the recent ECMAScript 6 standard, a major revision to the ECMAScript specification which forms the basis of JavaScript. Unlike CommonJS modules, ECMAScript 6 modules are supported <em>natively by the browser</em> and do not require third-party tools to process. However, support has only recently been added to browsers, and similarly, support has only recently been added to Node.js, so uptake of ECMA6 modules has been slow. Additionally, some features of modules are not available in web browsers.</li>
+<li><em>CommonJS modules</em>. This was the first widespread approach to using modules, and is still widespread today because it was the first approach taken by the server-side JavaScript environment <em>Node.js</em> which you looked at last year in COM518. It can also be used in the browser through the use of a <em>bundling tool</em>, see below, and indeed is stil widely used in a browser environment. CommonJS modules are included via a <code>require()</code> function.</li>
+<li><em>ECMAScript 6 modules</em> ("ECMA6 modules"). This approach is part of the recent ECMAScript 6 standard, a major revision to the ECMAScript specification which forms the basis of JavaScript. ECMA6 modules are now supported by Node.js. Unlike CommonJS modules, however, ECMAScript 6 modules are supported <em>natively by the browser</em> and do not require third-party tools to process. However, support has only recently been added to browsers, and similarly, support has only recently been added to Node.js, so uptake of ECMA6 modules has been slow. Additionally, some features of modules are not available in web browsers.</li>
 </ul>
 <h2 id="anexampleecmascript6module">An example ECMAScript 6 module</h2>
 <p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module.</p>
@@ -132,7 +132,7 @@ console.log(`The square of 3 is : ${a}`);
 as a single <em>module object</em>, MyModule. You can reference each exported 
 function by referencing the module object name, then a dot, then the function
 name, for example <code>MyModule.sayHello(...)</code>. </p>
-<p>(To relate this to object-oriented programming, which we did in COM51COM5188 last year and you may have done elsewhere, <code>MyModule</code> is an <em>object</em> and <code>sayHello()</code> is a <em>method</em> of that object).</p>
+<p>(To relate this to object-oriented programming, which we did in COM518 last year and you may have done elsewhere, <code>MyModule</code> is an <em>object</em> and <code>sayHello()</code> is a <em>method</em> of that object).</p>
 <!--
 <h3 id="example4defaultexport">Example 4: Default export</h3>
 <p>If your module only needs to export one function or object, you can declare
@@ -187,12 +187,12 @@ exported <code>square()</code> function as <code>sq()</code>.</p>
 <p>We can use <em>third-party</em> code, such as three.js, as modules.  The standard for installing third-party libraries, both in Node.js and for the browser, is, as you have already seen in COM518, <a href="https://npmjs.com">npm</a>. <code>npm</code> or Node Package Manager is a standard way to install third-party JavaScript software as <em>packages</em>. So far we've used it for Node.js applications, but we can also use it for client-side code. For example, we can install three.js via npm with:
 <pre>npm install three</pre>
 </p>
-<p>As we saw last year, it is placed in a folder called <code>node_modules</code>. This contains all NPM packages installed into your current project. (Evem though the name is <code>node_modules</code>, the approach is still used for client-side JavaScript).</p>
+<p>As we saw last year, it is placed in a folder called <code>node_modules</code>. This contains all NPM packages installed into your current project. (Even though the name is <code>node_modules</code>, the approach is still used for client-side JavaScript).</p>
 <p>How do we import a third-party module? The standard is to use the package name in the import statement. So to import three.js, we would ideally be able to use code such as this:
 <pre>import * as THREE from 'three';</pre>
 This would import everything from the "three" package. If we are using Node.js, we can indeed import modules this way. However, web browsers do not yet support using package names (e.g. 'three') in import statements, so we have to use a file path, as in the first few examples. So we could do the following, in which we specify the full path to the three.js JavaScript file:
 <pre>import * as THREE from './node_modules/three/build/three.module.js'</pre>
-This indicates the path to the three.js code within the <code>node_modules</code> folder. This works, <strong>but only if you are using the core three.js library and not any add-ons</strong>. So everything we've done so far <em>will</em> work, but when you try to use add-ons, such as the add-ons for loading models that we're looking at this week, you will find you will get an error. This is because the add-on code uses the package name "three" within an import statement, and thus will not work in the browser. For example, <em>glTFLoader</em> add-on for loading glTF model files, it contains this import statement:
+This indicates the path to the three.js code within the <code>node_modules</code> folder. This works, <strong>but only if you are using the core three.js library and not any add-ons</strong>. So everything we've done so far <em>will</em> work, but when you try to use add-ons, such as the add-ons for loading models that we're looking at this week, you will find you will get an error. This is because the add-on code uses the package name "three" within an import statement, and thus will not work in the browser. For example, the <em>GLTFLoader</em> add-on for loading glTF model files contains this import statement:
 <pre>import {
     AnimationClip,
     // ... several other classes ...
