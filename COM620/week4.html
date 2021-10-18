@@ -302,19 +302,19 @@ const smallMesh2 = new THREE.Mesh(smallBox, blueMtl);
 scene.add(largeMesh); 
 
 // position it in the world
-largeMesh.position.z = -10; 
+largeMesh.position.set(0, 2.5, -10);
 
 // add the small mesh as a child of the large mesh
 largeMesh.add(smallMesh1); 
 
 // position is relative to its parent (the large mesh)
-smallMesh1.position.set(-2, 5, 0); 
+smallMesh1.position.set(-2, 3, 0); 
 
 // add the second small mesh as a child of the large mesh
 largeMesh.add(smallMesh2); 
 
 // position is relative to its parent (the large mesh);
-smallMesh2.position.set(2, 5, 0); 
+smallMesh2.position.set(2, 3, 0); 
 
 // rotate large mesh, small meshes will rotate with it
 largeMesh.rotation.y = THREE.Math.degToRad(45); 
@@ -415,13 +415,64 @@ coordinates 0,0,0 - but some models have negative <code>y</code> coordinates for
 vertices. This will result in the model being partially buried underground
 if we add it to the world unchanged. So in these cases, if we wish the model
 to rest on our world's surface (e.g. a plane), we may need to place
-the model at a <code>y</code> coordinate above 0 in the world to compensate for the fact
-that some of the model's local <code>y</code> coordinates are negative. In this way we
-will ensure the entire model appears "above ground".</p>
-<p>Also some models, by default, have a very large scale, e.g. the local x, y and
-z coordinates of the model range from, say, 0 to 100. It may be necessary
+the model at a <code>y</code> coordinate above 0 in the world to compensate for the fact that some of the model's local <code>y</code> coordinates are negative. In this way we will ensure the entire model appears "above ground".</p>
+<p>Also some models, by default, have a very large scale, e.g. the local x, y and z coordinates of the model range from, say, 0 to 100. It may be necessary
 to scale then down (by setting the x, y and z <code>scale</code> to values below 1) to get the model to appear a sensible size. Any <code>Object3D</code> can be scaled using the <code>scale</code> property, e.g:
 <pre>mesh.scale.set(0.5, 0.5, 0.5);</pre>
+</p>
+<h2>Exercises</h2>
+<p>Make a copy of your work from last week and make the following changes:
+	<ol>
+	<li>Remove the link to three.js from your HTML. You are now going to use modules and bundling.</li>
+	<li>Remove <em>all</em> the existing meshes. Keep the lighting and keyboard and mouse controls, however.</li>
+	<li>Add code to your <code>index.js</code> to import three.js as a module, as well as <code>GLTFLoader</code>.</li>
+	<li>Add the code example under "Scene graphs", above, with a large cube mesh with two smaller child meshes.</li>
+	<li>Build the project using webpack. <strong>I hope to demo this in class, with a Teams recording.</strong> You can use a <code>package.json</code> file to specify the dependencies so that they can be all installed at once, such as the following which will install three.js as well as Webpack:
+<pre>{
+    "dependencies": {
+        "three": "^0.133.0"
+    },
+    "devDependencies": {
+        "webpack": "^5.0.0",
+        "webpack-cli": "^4.7.0",
+    }
+}</pre>
+Create the file above and save it as <code>package.json</code>. Install the dependencies with:
+<pre>npm install</pre>
+Create a webpack.config.js as follows:
+<pre>const path = require('path');
+
+module.exports = {
+    mode: 'development',
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    },
+};</pre>
+which will output to dist/bundle.js. 
+Change the script link in the HTML to load this bundle.
+Build with:
+<pre>npx webpack -w &amp;</pre>
+This will run Webpack in "watch mode", so that if you make any changes to the code, Webpack will automatically rebuild the bundle. The &amp; wil run Webpack in the background, so you can continue to use the console. You can move Webpack back into the foreground with
+<pre>fg</pre>
+</li>
+	<li>Try translating the large mesh +2 units in the x direction. <code>Object3D</code> has a <code>translateX()</code> function which will do this. Do the smaller meshes move with it?</li>
+	<li>Now try rotating the two <em>smaller</em> meshes by 30 degrees, one clockwise and one anticlockwise.</li>
+	<li>Once you've done that, try to create a simple "tree". Create a cylinder mesh representing the trunk (colour it brown: use <code>0xaa5500</code>) with a sphere representing the leaves (colour it green). <em>The sphere should be a child of the cylinder.</em> Make the cylinder 2 units tall and give the sphere a radius of 2. You may need to experiment a bit with the exact <code>y</code> placing of the sphere relative to the cylinder. Once you have the tree appearing correctly, try translating the trunk mesh (the cylinder) two units into the air, to show that the child moves with the parent.</li>
+	<li>Go to <a href='https://sketchfab.com'>Sketchfab</a> and login (you can login with various social media providers, or register for an account). Search for free models (again I will go through this in class). Choose a couple of models of animals, people, aliens etc (basically something with a face). Choose glTF format when downloading.</li>
+	<li>Modify your code to load the models and place one at x=0, y=0, z=-10 and another at x=0, y=0, z=10. <strong>You may find you have to scale the model and adjust its <code>y</code> coordinate so that it actually appears on the ground.</strong></li>
+	<li>Do both models face the camera? If one does not, try rotating it so that it does.</li>
+</ol>
+<h2>Advanced Exercise</h2>
+<p>The advanced exercise is to implement a version of Sphere of Doom from last week using a model for the enemy. In my version, I used a model of a cow (a result of too many encounters with aggressive cows in the countryside!) but feel free to replace with something else. Like Sphere of Doom, make the model 'chase' the player at the camera position. See the Sphere of Doom instructions from <a href='week3.html#sphereofdoom'>last week</a> for more detail.</p>
+<p>You will need to make the model always face the player. For that, you will need to rotate it. Use the trigonometry discussed in <a href='week2.html'>week 2</a> to do this. You will find you need to use the <em>arctangent</em> (inverse tangent) to convert a tangent back to the angle. You can use the function <code>Math.atan2()</code> to calculate the angle given the opposite and the adjacent; remember that
+<pre>tan &theta; = opposite/adjacent</pre>
+so
+<pre>angle = Math.atan2(opposite, adjacent);</pre>
 </p>
 </body>
 </html>
