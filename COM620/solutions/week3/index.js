@@ -15,6 +15,8 @@ const mesh = new THREE.Mesh(cube, redMaterial);
 mesh.position.set(0, 0.5, -10);
 scene.add(mesh);
 
+let initX;
+
 const cylinder = new THREE.CylinderGeometry(1, 1, 2);
 const cone = new THREE.ConeGeometry(1, 2);
 const sphere = new THREE.SphereGeometry(1);
