@@ -453,12 +453,15 @@ module.exports = {
         minimize: false
     },
 };</pre>
-which will output to dist/bundle.js. 
-Change the script link in the HTML to load this bundle.
-Build with:
-<pre>npx webpack -w &amp;</pre>
-This will run Webpack in "watch mode", so that if you make any changes to the code, Webpack will automatically rebuild the bundle. The &amp; wil run Webpack in the background, so you can continue to use the console. You can move Webpack back into the foreground with
-<pre>fg</pre>
+which will output to dist/bundle.js.  Change the script link in the HTML to load this bundle.</li>
+<li>To test, it's best to use Webpack in <em>watch mode</em>, so that if any changes are made to the source JavaScript file, the bundle will automatically be rebuilt. Furthermore, you will need to run a web server to test (e.g. <code>npx http-server</code>). You therefore need to run <em>both at the same time, in the background.</em>. How can you do this?
+	<ul>
+	<li>On Linux you can run <pre>npx webpack -w &amp; npx http-server</pre></li>
+	<li>On Windows (this works on the Node.js command prompt) you can run <pre>start npx http-server &amp;&amp; start npx webpack -w</pre> This will launch separate windows to run both.
+	</li>
+	</ul>
+You can access the server via:
+<pre>http://localhost:8080</pre>
 </li>
 	<li>Try translating the large mesh +2 units in the x direction. <code>Object3D</code> has a <code>translateX()</code> function which will do this. Do the smaller meshes move with it?</li>
 	<li>Now try rotating the two <em>smaller</em> meshes by 30 degrees, one clockwise and one anticlockwise.</li>
