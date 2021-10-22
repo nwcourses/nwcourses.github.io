@@ -1,208 +1,565 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week5modelsandtextinaframe">Week 5: Models and Text in A-Frame</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><p><!DOCTYPE html>
+<html>
+<head>
+<title>Week 5 - Introduction to A-Frame</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></p>
+<p></head>
+<body></p>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h2>Topic 5: Introduction to A-Frame</h2>
+</div>
+<h2 id="summary">Summary</h2>
+<p>This week we will start looking at <a href="https://aframe.io">A-Frame</a>, a leading framework for VR and AR on the web.</p>
 <h2 id="introduction">Introduction</h2>
-<p>This week we will start to make our A-Frame applications look more realistic
-by looking at how we can add <em>3D models</em> to our scene, and also look at how
-we can add <em>text</em> to our scene to explain to the user what they are looking 
-at.</p>
-<h2 id="models">Models</h2>
-<p>Most real-world 3D applications would use 3D <em>models</em> of real-world objects,
-such as people, animals or objects. These models typically consist of many
-small triangles; each triangle has three <em>vertices</em> (points). Triangles are
-typically used because 3D hardware is optimised to work with triangles.</p>
-<p>Models also consist of:</p>
+<p><a href="https://aframe.io">A-Frame</a> is a framework for developing web-based VR and AR applications, based on three.js. A-Frame makes it  easy to create simple 3D scenes: indeed, for the most basic scenes, no JavaScript is needed - you can simply use HTML tags representing 3D shapes and define animations. However, for more complex applications, you still need to use JavaScript.</p>
+<p>A-Frame is actually a wrapper round three.js, which we have already looked at in the first four weeks. For that reason, <em>you can use the full three.js API within an A-Frame application.</em>  However, A-Frame is one level higher still, and uses HTML tags to represent 3D objects and a DOM-like API to access and manipulate them. Furthermore, with A-Frame, many common actions are enabled automatically, for example: 
 <ul>
-<li><p><em>Textures</em>: images which are overlaid on specific
-parts of the model, for example a model of a Coke can might contain the 
-cylindrical can as a series of triangle, plus an image of the Coke logo as
-an external file - or texture - which could then be applied to the model to
-look realistic.</p></li>
-<li><p><em>Normals</em>: normals are mathematical vectors indicating which direction is
-'up' for each vertex. Returning to the Coke can example, the normals would
-point from each vertex away from the can, i.e. towards the outside world
-rather than towards the interior of the can. Normals are used to calculate
-lighting effects: in 3D graphics we can position lights within our world
-which can then be reflected by outwards-facing surfaces. Returning to the
-concept of a <em>material</em>, first encountered in week 2: we can set our 
-A-Frame entity's material to have a particular <em>texture</em>, even if we are not
-working with 3D models.</p></li>
+<li>Moving the camera round the 3D world</li>
+<li>Rotating the camera</li>
+<li>Adding lighting</li>
+<li>Easy creation and manipulation of simple 3D shapes with very little code</li>
+<li>Handling events easily (such as click events on a 3D shape)</li>
 </ul>
-<h3 id="whatmodelformatsareavailable">What model formats are available?</h3>
-<p>There are various formats for 3D models. Two are supported by A-Frame:
-see <a href="https://aframe.io/docs/1.0.0/introduction/models.html">the A-Frame documentation</a>.</p>
+</p>
+<h3>Why learn both three.js and A-Frame?</h3>
+<p>In this module you are being introduced to both three.js and A-Frame. Why learn both?
+    <ul>
+    <li>Both are in common use in VR and AR applications, so it helps to know both</li>
+    <li>A-Frame, as we have seen, uses three.js - so to use the full power of A-Frame, you need to have some understanding of three.js too</li>
+    <li>Each uses a different style of programming, and you personally may prefer one style or the other.</li>
+    </ul>
+</p>
+<h2>Basic A-Frame HTML coding</h2>
+<h3>A basic scene</h3>
+<p>With A-Frame, we can define our 3D objects (known as 
+<em>primitives</em>) using HTML tags. For instance, we use <code>&lt;a-box&gt;</code> to create a 3D 
+box (or cube), <code>&lt;a-sphere&gt;</code> to create a 3D sphere, <code>&lt;a-cylinder&gt;</code> to create a 
+3D cylinder, <code>&lt;a-text&gt;</code> to create text, and so on. Each of these wrap the corresponding three.js mesh.</p>
+<p>A-Frame objects live inside a <strong>scene</strong> (defined with the <code>&lt;a-scene&gt;</code> tag).
+The scene represents your 3D world and wraps the <code>THREE.Scene</code>. You just place this within your HTML
+page. Here is a simple example of an A-Frame scene, containing one sphere:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
+&lt;!--We will replace this with a Webpack-based approach later--&gt;
+&lt;script type='text/javascript' src='https://aframe.io/releases/1.2.0/aframe.min.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a-scene&gt;
+&lt;a-sphere position="0 0 -5" material="color: red"&gt;&lt;/a-sphere&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>This example displays a red sphere just in front of you, at x=0, y=0, z=-5. You can move around the world with the WASD keys and rotating with the mouse. This works <em>automatically</em>, without needing to write any code to detect keys or mouse.</p>
+<p>Hopefully you can see how similar this code is to ordinary HTML. We are
+defining our 3D shapes using HTML tags, just like we would define ordinary
+HTML elements. Note how the <code>&lt;a-sphere&gt;</code> has two attributes, a <code>material</code> (representing its material; here it's a red material) and a <code>position</code>, representing its position within the 3D world.</p>
+<h3 id="otherproperties">Other properties</h3>
+<p>So far we've looked at the <code>position</code> and <code>color</code> properties of our sphere.
+There are other properties too, for example <code>radius</code> will set the radius of a sphere.</p>
+<p>There is also the <code>scale</code> property, which allows you to scale objects in the
+x, y, and z directions. For example:</p>
+<pre><code>&lt;a-sphere .... scale='2 2 2'&gt;
+</code></pre>
+<p>will have the same effect on a sphere as setting the <code>radius</code> to 2, as we are scaling equally in the x, y and z directions. However it is possible to scale differently in different axes, to produce a "stretch" effect - an oval
+shape in the case of a sphere, for example:</p>
+<pre><code>&lt;a-sphere .... scale='2 4 2'&gt;
+</code></pre>
+<p>will scale by two units in the x and z directions, but four units in the y
+direction - so the sphere will appear to be stretched vertically.</p>
+<h3 id="boxes">Boxes</h3>
+<p>We'll now move on and create a different type of shape, the box. This can
+be created using the <code>&lt;a-box&gt;</code> tag but is otherwise fairly similar. For
+example: </p>
+<pre><code>&lt;a-box position='0 0 -2' material='color: orange'&gt;&lt;/a-box&gt;
+</code></pre>
+<p>The <code>&lt;a-box&gt;</code> can also have its <code>scale</code> adjusted.</p>
+<h3 id="rotation">Rotation</h3>
+<p>We can apply <em>rotations</em> to shapes, about the x, y, or z axes. These
+rotations are specified in degrees and are anticlockwise. To imagine 
+what is happening here, picture the 3D world and its three axes (x, y and z)
+and try and imagine rotating the shape around <em>that</em> axis.</p>
+<p>The rotations about the three axes are shown below.</p>
+<p>To rotate, you give your shape a <code>rotation</code> and specify the rotations
+about the x, y and z axes in that order. For example:</p>
+<pre><code>&lt;a-box rotation='0 60 0' material='color: red' position='0 0 -5'&gt;&lt;/a-box&gt;
+</code></pre>
+<p>will create a box rotated 60 degrees about the y axis.</p>
+<h3 id="addingaplane">Adding a plane</h3>
+<p>Adding a plane is similar to pure three.js. Just like in pure three.js, the plane is by default positioned in the xy-plane, so if we want a ground plane, we need to rotate it by 90 degrees clockwise into the xz-plane:
+ This is represented using the <code>&lt;a-plane&gt;</code> tag:</p>
+<pre><code>&lt;a-plane position='0 0 -1' width='100' height='100' material='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+</code></pre>
+<h3 id="compoundentities">Compound entities</h3>
+<p>So far we have looked at simple, or primitive, shapes. However it is 
+possible to create more complex, or <em>compound</em> entities. You can use
+the <code>&lt;a-entity&gt;</code> tag to define an arbitrary entity and again, give this
+properties such as <code>scale</code>, <code>position</code> or <code>rotation</code>. Within the <code>&lt;a-entity&gt;</code>
+you can then create simple shapes. For instance:</p>
+<pre><code>&lt;a-entity position='2 0 -5'&gt;
+    &lt;a-box position='0 0.5 0' material='color: red' scale='1 2 1'&gt;&lt;/a-box&gt;
+    &lt;a-sphere position='0 2 0' material='color: blue'&gt;&lt;/a-sphere&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>This is defining a compound entity at position x=2, y=0, z=-5 within our 
+world. The entity contains, as <em>child elements</em>, an <code>&lt;a-box&gt;</code> and an
+<code>&lt;a-sphere&gt;</code>. Note the <code>position</code> properties of these child elements. These
+are <strong>relative to the compound entity's position</strong>, not the world. So the
+box will not appear just above the world origin, but at world coordinates x=2+0, y=0+0.5, z=-5+0 (z=2, y=0.5, z=-5). Likewise, the sphere will not appear at the world origin, but at world coordinates x=2+0, y=2+2, z=-5+0 (x=2, y=4, z=-5). This is the exact same concept we looked at with three.js last week (see : scene graph)</p>
+<p>To give another example of a compound entity, here is a shape made up of
+a blue sphere surrounded by four red boxes, making a cross-like shape.</p>
+<pre><code>&lt;a-entity position='2 0 -5'&gt;
+    &lt;a-sphere position='0 2 0' material='color: blue'&gt;&lt;/a-sphere&gt;
+    &lt;a-box position='0 0.5 0' material='color: red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='-1.5 2 0' material='color: red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='1.5 2 0' material='color: red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='0 3.5 0' material='color: red'&gt;&lt;/a-box&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>Again the world position of this entity is at x=2, y=0, z=-5, and the 
+coordinates of the four boxes and the sphere are relative to the world
+position of the entity.</p>
+<p>Furthermore, any rotations and scaling done to the compound entity will
+rotate or scale the <strong>compound entity as a whole</strong>. So if you were to add a rotation as shown below:</p>
+<pre><code>&lt;a-entity position='2 0 -5' rotation='0 0 45'&gt;
+    &lt;a-sphere position='0 2 0' material='color: blue'&gt;&lt;/a-sphere&gt;
+    &lt;a-box position='0 0.5 0' material='color: red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='-1.5 2 0' material='color: red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='1.5 2 0' material='color: red'&gt;&lt;/a-box&gt;
+    &lt;a-box position='0 3.5 0' material='color: red'&gt;&lt;/a-box&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>the entire 'cross' shape would rotate anticlockwise by 45 degrees.</p>
+<h3 id="entitiesandcomponents">Entities and components</h3>
+<p>A-Frame consists of <em>entities</em> and <em>components</em> (along with <em>systems</em>, but we
+will come on to those later). An <strong>entity</strong> is any object within our scene - 
+including shapes, and other things within our scene such as the camera. 
+Entities include not just compound entities, but also simple shapes such as 
+boxes. 
+A <strong>component</strong> is an aspect, or property, of an entity, such as its geometry, 
+its surface material, or its animation. The primitives we have 
+seen so far, such as <code>&lt;a-box&gt;</code> and <code>&lt;a-sphere&gt;</code>, are actually wrappers round 
+entities and components. Components are written in code as attributes of
+entiies. </p>
+<p>For example, an <code>&lt;a-sphere&gt;</code> could be written instead as an 
+<code>&lt;a-entity&gt;</code> with a <code>sphere</code> geometry:</p>
+<pre><code>&lt;a-entity geometry='primitive: sphere' material='color: red' position='0 0 -5'&gt;
+&lt;/a-entity&gt;
+</code></pre>
+<p>What does this code represent? In particular, what are the entities and what are the components?
 <ul>
-<li><p>The <em>Wavefront OBJ</em> format. This is a long-standing format which has been
-around since at least 1992.</p></li>
-<li><p>The <em>glTF</em> format. A more recent format with support for more advanced
-features, such as animations, and, as described in the
-<a href="https://aframe.io/docs/1.0.0/components/gltf-model.html">A-Frame documentation</a>, information about the scene, such as light sources and cameras.</p></li>
+<li>it's a generic <code>&lt;a-entity&gt;</code>, which obviously is the entity;</li>
+<li>it has a <code>geometry</code> component which is
+a <code>sphere</code> primitive (in other words it's a sphere);</li>
+<li>it has a <code>material</code> component with a red colour. An entity's <code>material</code> defines the properties of its surface, which we have already seen in three.js. The default material is <code>THREE.MeshStandardMaterial</code>, which is a highly physically-accurate material with realistic lighting effects, essentially an enhanced version of <code>THREE.MeshLambertMaterial</code>. You can also specify other properties of the material, such as the <code>metalness</code> (how metal-like the material is) or a source texture. See <a href='https://aframe.io/docs/1.2.0/components/material.html'>the documentation</a> for a full list.</li>
+<li>To set multiple properties of a component, separate them with a semicolon, for example:
+<pre>material='color: red; metalness: 9'</pre>
+specifies a red material with a metalness of 9.
+</li>
+<li>it has a <code>position</code> component defining its position. We have seen this already.</li>
 </ul>
-<h3 id="howtoincludeamodelinanaframeapplication">How to include a model in an A-Frame application</h3>
-<p>The first thing to note is that models can be rather large files. If our
-application is creating many instances of entities all using the same model
-(e.g. many monsters in a game) you do not want to load the same model over 
-and over again because this will be very inefficient. Instead, we want to load
-the model <em>once</em>, on startup, and then reference the <em>loaded</em> model when we
-create our entities. Luckily we can do this in A-Frame by making use of 
-A-Frame <em>assets</em> (the <code>&lt;a-assets&gt;</code> tag).</p>
-<p>Here is an example of <code>&lt;a-assets&gt;</code>. Note that the <code>&lt;a-assets&gt;</code> are contained
-within your <code>&lt;a-scene&gt;</code>.</p>
-<pre><code>&lt;a-assets&gt;
-&lt;a-asset-item src='assets/cow.obj' id='cow'&gt;&lt;/a-asset-item&gt;
-&lt;a-asset-item src='assets/pig.obj' id='pig'&gt;&lt;/a-asset-item&gt;
-&lt;a-asset-item src='assets/cow.mtl' id='cow-material'&gt;&lt;/a-asset-item&gt;
-&lt;a-asset-item src='assets/pig.mtl' id='pig-material'&gt;&lt;/a-asset-item&gt;
-&lt;/a-assets&gt;
+So the <code>&lt;a-entity&gt;</code> is the <strong>entity</strong>, and <code>geometry</code>, <code>material</code> and <code>position</code> are its <strong>components</strong>. With A-Frame, everything in a scene is an entity of some kind,
+and each entity has different components attached to it. A-Frame development is all about creating your own components and then attaching them to entities. The idea is to design components to be reusable so that they can be attached to different entities in different applications. You can see this with the <code>geometry</code> and <code>material</code> components in the example above; these components can be attached to any entity to define its geometry and surface material.</p>
+<h3 id="animations">Animations</h3>
+<p>An interesting feature of A-Frame is the ability to create <em>animations</em>
+only using HTML code - no JavaScript is required. This is done by adding an
+<code>animation</code> component to an entity (either a primitive shape or a generic 
+<code>&lt;a-entity&gt;</code>). The animation component has various attributes including
+<code>property</code>, <code>from</code>, <code>to</code> <code>loop</code>, <code>dir</code>, and <code>dur</code>, amongst others,
+and can be used to animate various aspects of the entity including
+its position, scale, rotation and even colour (this is done by transitioning
+from one colour to another).
+The meaning of these are:</p>
+<ul>
+<li><code>property</code>: which property to animate (e.g. position, rotation, color)</li>
+<li><code>from</code>: the initial value of the property.</li>
+<li><code>to</code>: the final value of the property.</li>
+<li><code>loop</code>: whether to continuously loop the animation.</li>
+<li><code>dir</code>: the direction of animation. Can be set to <code>reverse</code> to do the animation in reverse, or <code>alternate</code> (if <code>loop</code> is true) to do the animation forwards,
+then reverse, then forwards, then reverse, and so on.</li>
+<li><code>dur</code>: the duration of the animation (in milliseconds)</li>
+</ul>
+<p>The full list is available <a href="https://aframe.io/docs/1.2.0/components/animation.html">on the A-Frame site</a>.</p>
+<p>Some examples include:</p>
+<pre><code>&lt;a-box animation='property: position; from: 0 0 0; to: 0 0 -10'&gt;
 </code></pre>
-<p>There are four assets here, two OBJ models of a cow and a pig, and two
-accompanying <code>.mtl</code> (material) files. Material files describe the properties of
-the material used for the model, including its colour and its reflective
-properties. The <code>.mtl</code> file will also contain a link to a texture image
-(e.g. a PNG image), if one is provided. Note how generic assets, such as 
-models, are specified using <code>&lt;a-asset-item&gt;</code>.
-Note also how each asset has an ID; this will be used when we
-create an entity using that asset later.</p>
-<h4 id="howwewouldreferenceanassetinourcode">How we would reference an asset in our code</h4>
-<p>Here is how we could reference an asset in our code:</p>
-<pre><code>&lt;a-entity obj-model='obj: #cow'&gt;&lt;/a-entity&gt;
+<p>The box will move from the origin to position x=0, y=0, z=-10.</p>
+<pre><code>&lt;a-box animation='property: rotation; from: 0 0 -90; to: 0 0 90'&gt;
 </code></pre>
-<p>This is creating an entity which will represent an OBJ model, hence the
-<code>obj-model</code> component. The <code>obj-model</code> component contains a property <code>obj</code> 
-whose value is <code>#cow</code>, which references the asset with the ID of <code>cow</code>.</p>
-<p>To link the <code>.mtl</code> (material) asset, we use the <code>mtl</code> property, e.g:</p>
-<pre><code>&lt;a-entity obj-model='obj: #cow; mtl: #cow-material'&gt;&lt;/a-entity&gt;
+<p>The box will rotate, starting from -90 about the z axis to +90 about the
+z-axis.</p>
+<pre><code>&lt;a-box animation='property: color; from: #ff0000; to: #0000ff; dur: 5000'&gt;
 </code></pre>
-<p>As well as OBJ, we can handle GLTF with the <code>gltf-model</code> component, e.g this
-<code>gltf-model</code> is using an asset with an ID of <code>horse</code>:</p>
-<pre><code>&lt;a-entity gltf-model='#horse'&gt;&lt;/a-entity&gt;
+<p>The box will undergo a colour transition from red to blue, through
+the intermediate colour (magenta). The colour transition will take 5 seconds
+to complete. (Note that, as a shortcut, you can specify an entity's colour with the <code>color</code> property, rather than through the material; so you can write <code>color='red'</code> rather than <code>material='color: red'</code>, for example).</p>
+<h2>Using A-Frame with JavaScript</h2>
+<p>Last week we looked at how to create some basic A-Frame scenes with HTML. We
+found we could do quite a bit with plain HTML, for example we could move around
+the scene, apply rotations, and even do animations. However, most of the power
+of A-Frame comes from being able to create <em>scripts</em> in JavaScript to control your scene and produce custom behaviour. In this way, powerful applications such as games and VR/AR applications can be built, particularly if three.js is used in addition to A-Frame.</p>
+<h3 id="itsallaboutbuildingcomponents">It's all about building components!</h3>
+<p>The key approach to developing A-Frame applications is to <em>build your own
+reusable components</em> and attach them to entities. As we have seen, A-Frame
+already comes with a range of components such as <code>position</code>, <code>rotation</code>, <code>scale</code> and <code>animation</code>. However, you can develop your <em>own components</em> and attach them to entities. The idea is to try and make your components <em>reusable</em> so that once you've created a component, you can use it over and over again in different applications. Many developers have built such components, which means, in theory, you can build some sophisticated A-Frame applications using mostly HTML and very little JavaScript if you reuse third-party components. <strong>However, note that this is not an option for the assignment!</strong></p>
+<p>Some examples of reusable components could be:</p>
+<ul>
+<li>a component to allow vertical movement of the camera. By default, we can
+move around the scene using the WASD keys thanks to an inbuilt <code>wasd-controls</code> component, but it would be nice also, particularly in a 3D world, to be able to move vertically using e.g. the Q and Z keys, as we have done already with pure three.js. We could thus create a custom component to allow us to do this.</li>
+<li>a component to download the contents of our 3D world (for example, roads,
+buildings and so on) from a server.</li>
+</ul>
+<h3 id="asimplecomponent">A simple component</h3>
+<p>With that in mind, we'll write a simple component. Consider the following
+HTML:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;A-Frame Component&lt;/title&gt;
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a-scene cursor='origin: mouse'&gt;
+&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-sphere material="color: red" position="0 1 -5" <strong>helloworld</strong>&gt;&lt;/a-sphere&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p>We can of course also dynamically create our entities from JavaScript, for
-example:</p>
-<pre><code>const entity = document.createElement('a-entity');
+<p>Note that the <code>&lt;a-sphere&gt;</code> has, in addition to the <code>color</code> and <code>position</code> components, a <code>helloworld</code> component. This is our own custom component. We create a component with 
+<code>AFRAME.registerComponent()</code>:</p>
+<pre>import 'aframe';
 
-// Add the obj-model component. This will simply reference the ID of the asset
-// as its 'obj' property.
-entity.setAttribute('obj-model', {
-    obj: '#cow',
-    mtl: '#cow-material'
+AFRAME.registerComponent('helloworld', {
+    init: function() {
+        alert('Hello World!');
+    }
+});</pre>
+<p>What is this doing?  We register the component with <code>AFRAME.registerComponent()</code>.  This function takes two arguments: the name of the component (<code>helloworld</code> here), and a list of component <strong>lifecycle methods</strong>. Lifecycle methods are functions which run at different stages of the component's lifecycle. We'll come across more of these later, but for now, we will just consider the <code>init()</code> lifecycle method.  This runs when the component is first created, and is typically used - as you might guess - to initialise the component. So in this example, as soon as the component is created, the "Hello World!" message will appear.</p>
+<p>Note the use of <code>import</code>. This is assuming the use of a bundler such as Webpack and using NPM to install A-Frame. You will need a <code>package.json</code> and <code>webpack.config.js</code> just like last week. In <code>package.json</code> you need to add <code>aframe</code> at version <code>1.2.0</code> as a dependency. You will not need to specify three.js as a further dependency as it's included with A-Frame.</p>
+<p>The lifecycle methods are described
+<a href="https://aframe.io/docs/1.2.0/core/component.html#definition-lifecycle-handler-methods">here</a></p>
+<h3 id="givingpropertiestocomponents">Giving properties to components</h3>
+<p>We can give <em>properties</em> to components. You have seen this already with in-built components such as <code>position</code> (which takes x, y and z coordinates) and <code>animation</code> (which takes various properties including <code>from</code>, <code>to</code>, <code>dir</code>, <code>dur</code> etc). In this simple example, we might want to display a custom greeting, not just "Hello World". The next example shows this.</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;title&gt;A-Frame Component&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a-scene&gt;
+&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-sphere color="red" position="0 1 -5" greeting='message: Hello A-Frame!'&gt;&lt;/a-sphere&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Now, the <code>greeting</code> component contains a <code>message</code> property, which is set
+to "Hello A-Frame!". How can we extract that property and display it?  What we need to do is define a <strong>schema</strong> for our component. The schema 
+defines what properties a component expects, and what data types each
+component will have. For example:</p>
+<pre>import 'aframe';
+
+AFRAME.registerComponent('greeting', {
+    schema: {
+        message: {
+            type: 'string',
+            default: 'Hello World!'
+        }
+    },
+
+    init: function() {
+        alert(this.data.message);
+    }
 });
-</code></pre>
-<h3 id="pointstoconsiderwithmodels">Points to consider with models</h3>
-<p>There are reasons why models might not appear as you expect them to. Note
-that models have their own, local coordinate system; the coordinates of
-each vertex are relative to the local origin of the model. The local origin
-is the point within the model which has coordinates x=0, y=0, z=0 in the 
-model file. When the model is placed within the world at a particular world position, the local origin of the model will be placed at that world position.</p>
-<p>In many cases this is what we want - the base of the model will have the local
-coordinates 0,0,0 - but some models have negative <code>y</code> coordinates for some 
-vertices. This will result in the model being partially buried underground
-if we add it to the world unchanged. So in these cases, if we wish the model
-to rest on our world's surface (e.g. a plane), we may need to place
-the model at a <code>y</code> coordinate above 0 in the world to compensate for the fact
-that some of the model's local <code>y</code> coordinates are negative. In this way we
-will ensure the entire model appears "above ground".</p>
-<p>Also some models, by default, have a very large scale, e.g. the local x, y and
-z coordinates of the model range from, say, 0 to 100. It may be necessary
-to scale then down (by setting the x, y and z <code>scale</code> to values below 1) to
-get the model to appear a sensible size.</p>
-<h2 id="text">Text</h2>
-<p>We can also create text in A-Frame, using 
-an <code>&lt;a-entity&gt;</code> with a <code>text</code> component. The <code>text</code> component has various
-properties, the most important being the <code>value</code> - the actual text. See
-<a href="https://aframe.io/docs/1.0.0/components/text.html">the A-Frame documentation</a>
-for details.  By default, text is rather small, so it needs to be scaled to 
-make it visible (scaling up by 100 gives a usable size).</p>
-<pre><code>entity.setAttribute('text', {
-    value: 'Some text'
+</pre>
+<p>We are now giving our <code>greeting</code> component a <code>schema</code>, and specifying that
+the <code>schema</code> has one property, <code>message</code> which is of data type <code>string</code> and
+has a <code>default</code> value of "Hello World!" In other words, if no <code>message</code>
+property is provided, it will take "Hello World!" as the default value.</p>
+<p>How do we access the property in our code? You can see this in the <code>init()</code>
+method; we use <code>this.data</code> to access the properties of the current 
+component. So to access the <code>message</code> property, we use <code>this.data.message</code>.</p>
+
+<h3 id="usingthedomtoaccessentitiesandcomponentsfromjavascript">Using the DOM to access entities and components from JavaScript</h3>
+<p>In COM518 we saw how we can use the DOM to access elements within a web page.
+Accessing elements within an A-Frame scene is exactly the same; A-Frame
+scenes consist of a hierarchical arrangement of tags, just like an HTML page
+does, and consequently, we can use the DOM to access them.</p>
+<pre>&lt;!DOCTYPE html&gt; 
+&lt;html&gt;
+&lt;head&gt;  
+&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;/head&gt;     
+&lt;body&gt;      
+&lt;a-scene colour-changer&gt;
+&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
+&lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow&gt;&lt;/a-plane&gt;
+&lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='-5 0.5 -5'&gt;&lt;/a-entity&gt;
+&lt;a-entity geometry='primitive: box' id='box2' material='color: red' position='5 0.5 -5'&gt;&lt;/a-entity&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>and this JavaScript:</p>
+<pre>import 'aframe';
+
+AFRAME.registerComponent('colour-changer', {
+    init: function() { 
+        window.addEventListener('keydown', e=&gt; {
+            if(e.code == "Digit1") {
+                document.getElementById('box1').setAttribute("material", {
+                    color: 'green'
+                });
+            } else if (e.code == "Digit2") {
+                document.getElementById('box2').setAttribute("material", {
+                    color: 'green'
+                });
+            }
+        });
+    }
 });
-entity.setAttribute('scale', {
-    x: 100,
-    y: 100,
-    z: 100
+</pre>
+Note how the component is handling <code>keydown</code> events, which we have already seen. We test which key the user pressed (1 or 2) and change the appropriate box's colour from red to green.  Note we use the standard 
+<code>document.getElementById()</code> to obtain our box using its ID.
+We then set the colour of our box (which is 
+the <code>color</code> property of the <code>material</code> component) to the value the user entered. Note how <code>setAttribute()</code> allows us to update a specific component of the entity. It takes as its parameters, the name of the component (<code>material</code> here) plus a JavaScript <em>object</em> containing property/value pairs for the properties of the component we wish to update (here, just the <code>color</code> property of the <code>material</code> component).</p>
+<p>Note also how we add the <code>colour-changer</code> component to the scene, rather than a specific entity, because it applies to the scene as a whole. We are changing the colour of whichever box the user selects, rather than one particular box.</p>
+<p>We can update any component using the DOM in the same way. For example, this would update the <em>position</em> of the box with the ID of <code>box1</code>:
+<pre>
+document.getElementById('box1').setAttribute('position', {
+    x: 10,
+    y: 0,
+    z: -10
 });
-</code></pre>
-<h3 id="lookingatthecamera">Looking at the camera</h3>
-<p>By default, text will look towards positive z however this isn't necessarily
-what we want. We more commonly want the text to <em>look at the camera</em> so that
-it's always visible. To do this we make use of the third-party <code>look-at</code>
-component. To use <code>look-at</code> you need to include it as a link in your HTML:</p>
-<pre><code>&lt;script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"&gt;&lt;/script&gt;
-</code></pre>
-<p>then you can add it to an entity e.g:</p>
-<pre><code>&lt;a-entity text='value: Hello World' scale='100 100 100' look-at='[camera]'&gt;&lt;/a-entity&gt;
-</code></pre>
-<p>Note how in this example the text is looking at the camera. We specify the camera with the square brackets syntax <code>[camera]</code>. (Remember that square brackets
-in CSS select any element with that attribute present. In A-Frame this is equivalent to selecting an entity with the given component present. So here, we are selecting the entity which contains the <code>camera</code> component, i.e. our camera entity). We can, as an alternative, look at any other entity in our scene by specifying an appropriate CSS selector.</p>
-<h3 id="othertextproperties">Other text properties</h3>
-<p>See <a href="https://aframe.io/docs/1.0.0/components/text.html">the A-Frame documentation</a>. Other properties you can set on the <code>text</code> component include:</p>
+</pre>
+The <code>position</code> component contains a <code>vec3</code>: a three-member object containing the x, y and z coordinates of the position. So this example will set the position of the box to coordinates x=10, y=0, z=-10.
+</p>
+<h3 id="mouseevents">Mouse events</h3>
+<p>Mouse events on A-Frame entities are a bit more difficult than you might imagine. You cannot simply add a <code>click</code> event to an entity. This is because they are not HTML elements - they are not part of the HTML hierarchy of the page. What you have to do instead is to add a <code>cursor</code> property to your scene, and specify its <code>rayOrigin</code>. The <code>cursor</code> property represents a mouse cursor, and the <code>rayOrigin</code> is the origin of a line (ray) leading to the clicked position within the 3D world. We most commonly want the origin of this ray to be the mouse position, so that the ray leads from the mouse to the appropriate place within the world. So, we specify <code>rayOrigin: mouse</code>.  Here is an example:</p>
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;  
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;title&gt;A-Frame Component&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a-scene cursor='rayOrigin: mouse'&gt;
+&lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker&gt;&lt;/a-entity&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>
+Note how we add the <code>cursor</code> component to our <code>&lt;a-scene&gt;</code>. Note also how we've
+added a <code>clicker</code> component to our <code>&lt;a-entity&gt;</code> object. Let's look at 
+the code for this component:</p>
+<pre>
+import 'aframe';
+
+AFRAME.registerComponent("clicker", {
+    init: function() {
+        this.el.addEventListener('click', e=&gt; {
+            alert('clicked');
+        });
+    }
+});
+</pre>
+<p>Notice now, how we add a <code>click</code> <em>event listener</em> to the element. Note also how we use <code>this.el</code> to refer to the <strong>parent entity of the component</strong>. So <code>this.el</code> will refer to <strong>whichever element was clicked</strong>.</p>
+<h3 id="controllingthecamera">Controlling the camera</h3>
+<p>We can add components to other kinds of entity, for example the camera.
+Why might we want to do that? We might want to control the camera in a
+different way to the default camera provided by A-Frame. For instance, we might
+want to move the camera up and down using the 'q' and 'z' keys. We could
+create and register a <code>vertical-controls</code> component which allows the camera to be moved vertically, and then add that component to the camera entity.</p> <p>How could this be done? The camera has a <code>position</code> component that we can change. So, in the component, we could setup event handlers for the
+'q' and 'z' keys and move the camera appropriately. For example:</p>
+<pre>import 'aframe';
+AFRAME.registerComponent('vertical-controls', {
+    init: function() {
+        window.addEventListener('keydown', e=&gt; {
+            const curPos = this.el.getAttribute("position");
+            if(e.code == "KeyQ") {
+                this.el.setAttribute("position", {
+                    x: curPos.x,
+                    y: curPos.y + 0.1
+                    z: curPos.z
+                });
+            } 
+        });
+    }
+});
+</pre>
+<p>How is this working?</p>
 <ul>
-<li><code>align</code>: horizontally justifying the text (left, center or right);</li>
-<li><code>baseline</code>: specifying the baseline of the text (top, center or bottom) - 
-i.e. will the top, the centre or the bottom of the text be placed at the
-<code>y</code> coordinate?</li>
+<li>we add a <code>keydown</code> event listener. This will fire when the user presses a key, as we have seen already.</li>
+<li>we obtain the current entity's(<code>this.el</code>), i.e. the camera's, current position, by obtaining the <code>position</code> component of the entity. This is a <code>vec3</code> object (three-member vector) containing <code>x</code>, <code>y</code> and <code>z</code> properties.</li>
+<li>if the user pressed q we reset
+the <code>position</code> component so that its <code>y</code> property is 0.1 more than the current value. <strong>Moving downwards with the z key is left as an exercise for you to do!</strong></p></li>
 </ul>
-<h3 id="positioningtextonaplane">Positioning text on a plane</h3>
-<p>A common use-case is to position text on an existing plane, for example to
-draw a noticeboard or signpost. What you can do here is to create an 
-<code>&lt;a-plane&gt;</code> with a <code>text</code> component. e.g.</p>
-<pre><code>&lt;a-plane text='value: Hello' material='color: red' width=4 height=1 look-at='[camera]'&gt;&lt;/a-plane&gt;
+<p>Note that, because we are adding a custom
+component to the camera, we have to explicitly include the
+<code>&lt;a-camera&gt;</code> entity (the camera); normally it's added for us. </p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Basic A-Frame Scene&lt;/title&gt;
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a-scene&gt;
+&lt;a-camera vertical-controls&gt;&lt;/a-camera&gt;
+&lt;a-sky color="skyblue"&gt;&lt;/a-sky&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' color="#7bcba4" rotation="-90 0 0"&gt;&lt;/a-plane&gt;
+&lt;a-sphere position="0 2 -10" color="red" scale="2 4 2"&gt;&lt;/a-sphere&gt;
+&lt;a-sphere position="-2 2 -5" color="green" radius="2"&gt;&lt;/a-sphere&gt;
+&lt;a-sphere position="2 2 -2" color="blue" radius="2"&gt;&lt;/a-sphere&gt;
+&lt;a-sphere position="0 2 10" color="yellow" scale="3 1 1"&gt;&lt;/a-sphere&gt;
+&lt;a-box position="5 1.5 -10" color="orange" scale="1 3 1"&gt;&lt;/a-box&gt;
+&lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p>Note how the <code>&lt;a-plane&gt;</code> has a material, a width and a height - but also has
-its own <code>text</code> component. This will draw the text directly on the plane.
-The text is automatically scaled to fit on the plane, though by default the
-text will be very small. You can, however, use the <code>wrapCount</code> property of
-the <code>text</code> component to specify approximately how many characters will fit on 
-the plane, for example if you set <code>wrapCount</code> to 20, the text will scale to
-a size where it would exactly fit on the plane if it contained 20 characters.
-Any characters beyond the <code>wrapCount</code> will appear on the next line.</p>
-<h3 id="internationalcharacters">International characters</h3>
-<p>Note that A-Frame text will <em>not</em> by default work with international character sets. Only characters present in a given font will be renderered (drawn) and for the default font used by A-Frame, these are just the standard ASCII characters. The font format used is known as the <em>MSDF</em> format. If you wish to render international characters, you need to use an online font-generator such as <a href="https://msdf-bmfont.donmccurdy.com">Don McCurdy's font generator</a>. To use this, you upload a TrueType (<code>.ttf</code>) font containing your chosen characters to this site, and it will generate a MSDF font for those characters. This consists of two files: </p>
-<ul>
-<li>a JSON file defining the font properties,</li>
-<li>and a PNG image containing the actual characters. </li>
-</ul>
-<p>These can then be used to render text by 
-setting the <code>font</code> and <code>fontImage</code> properties of the <code>text</code> attribute to the
-JSON file and PNG image respectively.</p>
-<h2 id="usingmaterialstotextureobjects">Using materials to texture objects</h2>
-<p>One thing we have not covered yet is that we can use images as <em>textures</em>
-to define the material of an entity. For example:</p>
-<pre><code>&lt;a-plane material='src: grass.png' width='100' height='100' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-</code></pre>
-<p>will texture the plane with the image file found in <code>grass.png</code>. Note how we set the <code>src</code> property of the <code>material</code> component.</p>
-<h2 id="exercise">Exercise</h2>
-<p>The exercise for this week is to extend last week's dynamic scene (loaded from
-AJAX) to use models and text.</p>
+<h4>Smoother control of the camera</h4>
+<p>You will find it works, but it's rather jerky and doesn't give a pleasant, smooth experience.</p>
+<p>What we need instead is to make use of another lifecycle method of 
+a component, <code>tick()</code>. The <code>tick()</code> method runs every time the scene is rendered.  The strategy, a common one for smooth key event handling, is to set a velocity to a non-zero value when the user presses 'q' or 'z', and reset the velocity to 0 when they release either key. In the <code>tick()</code> method, we increase <code>y</code> by the current velocity, so that the camera moves up if the velocity is above 0, or down if the velocity is negative. </p>
+<pre>
+import 'aframe';
+
+AFRAME.registerComponent('vertical-controls', {
+    init: function() {
+        this.velocity = 0;
+        window.addEventListener('keydown', e=&gt; {
+            if(e.code == "KeyQ") {
+                this.velocity = 0.1;
+            } 
+        });
+        window.addEventListener('keyup', e=&gt; {
+            if(e.code == "KeyQ" || e.code == "KeyZ") {
+                this.velocity = 0;
+            }
+        });
+    },
+
+    tick: function() {
+        const curPos = this.el.getAttribute("position");
+        this.el.setAttribute("position", {
+            x: curPos.x,
+            y: curPos.y + this.velocity,
+            z: curPos.z
+        });
+    }
+});
+</pre>
+<p>A further improvement to the smoothness can be made. At the moment, the
+<code>y</code> coordinate of the camera is changing by the same amount each time 
+<code>tick()</code> is called. The problem is that the time difference between successive
+<code>tick()</code> calls will vary depending on what else the computer is doing; if
+it's doing a lot of heavy processing, there will be a larger gap between 
+<code>tick()</code> calls. Luckily, there is an easy solution, the <code>tick()</code> method takes a parameter representing the number of milliseconds passed since the last call. So we can specify our velocity in units per second, rather than some arbitrary value.</p>
+<pre>
+import 'aframe';
+
+AFRAME.registerComponent('vertical-controls', {
+    init: function() {
+        this.velocity = 0;
+        window.addEventListener('keydown', e=&gt; {
+            if(e.code == "KeyQ") {
+                this.velocity = 1;
+            }
+        });
+        window.addEventListener('keyup', e=&gt; {
+            if(e.code == "KeyQ" || e.code == "KeyZ") {
+                this.velocity = 0;
+            }
+        });
+    },
+
+    tick: function(totalTime, timeSinceLastTick) {
+        const curPos = this.el.getAttribute("position");
+        this.el.setAttribute("position", {
+            x: curPos.x,
+            y: curPos.y + timeSinceLastTick * 0.001 * this.velocity,
+            z: curPos.z
+        });
+    }
+});
+</pre>
+<p>Note that the <code>tick()</code> method takes two parameters: <code>totalTime</code>, which is the time in milliseconds since the scene was created, and <code>timeSinceLastTick</code>, the number of milliseconds since the last call to <code>tick()</code>. So, to calculate the change in <code>y</code>, we multiply the <code>timeSinceLastTick</code> by 0.001 (so that we can work in seconds, which
+are easier to understand than milliseconds as most people have a clear idea
+what a second is), specify the velocity in units per second (here, it's 1
+unit per second) and add the time passed (in seconds) multiplied by the velocity
+(in units per second) to the current <code>y</code> coordinate. In this way, we can 
+achieve smooth changes in position which take into account the time differences
+between successive calls to <code>tick()</code>.</p>
+<h2>Exercises</h2>
+<h3>Exercise 1 - HTML only</h3>
 <ol>
-<li><p>Select some appropriate models. A good place to find models is 
-<a href="https://clara.io">Clara.io</a>; note that you will need to sign up first.
-The data includes bars, restaurants and cafes so select things like coffee
-mugs, beer or wine glasses, and food. Make sure you download OBJ format
-(GLTF is generally not available).</p></li>
-<li><p>Unzip the models; they typically come as a <code>zip</code> file. In the <code>zip</code> file you
-should find a <code>.obj</code> model plus, probably, a <code>.mtl</code> material file.</p></li>
-<li><p>Alter your code from last week so that appropriate models are drawn in your
-world, rather than spheres, depending on the point of interest type. You may
-need to experiment with scaling the model, and changing the <code>y</code> coordinate
-(see above).</p></li>
-<li><p>Now try adding the name of the point of interest as text, so that it
-appears above the model. You will need to centre-justify your text with
-the <code>align</code> property of the <code>text</code> component.
-You will need to scale the text for it to appear a sensible size (this is
-often a case of experimentation to see what works). However, you need the
-text scaling to be <em>independent</em> of the model scaling. How would you do this?</p></li>
-<li><p>Alter your answer to question 4 to add the <code>text</code> component to an <code>&lt;a-plane&gt;</code>. Give the <code>&lt;a-plane&gt;</code> a colour and set the <code>wrapCount</code> to be an appropriate value. Experiment with different values of <code>align</code> and <code>baseline</code> on the <code>text</code> component.</p></li>
+<li>Create an A-Frame scene. Add the five shapes from the first week to the scene at exactly the same positions and using the same colours, using A-Frame primitives. 
+    <ul>
+    <li>Hint: you will need an <code>&lt;a-cylinder&gt;</code> and an <code>&lt;a-cone&gt</code>. See the <a href='https://aframe.io/docs/1.2.0/'>documentation</a> and search for these.</li>
+    </ul>
+Also add a ground plane of dimensions 100x100 with a colour of <code>#c0ffc0</code>.</li>
+<li>Using A-Frame, and a compound entity, recreate the example from last week consisting of a large red box and smaller green and blue boxes - at exactly the same position and rotation. <strong>Do this a bit differently from last week. Instead of the green and blue boxes being child entities of the red box, create a compound entity, as shown in this week's notes, and make the red, green and blue boxes child entities of the compound entity.</strong></li>
 </ol>
-<h2 id="moreadvancedexerciseasimplechasegame">More advanced exercise - a simple chase game</h2>
-<p>Go to Clara.io again and find a model of a person, monster, alien etc. It
-should be something that can represent an enemy. Write a simple
-game where this model constantly chases the player (the player position will
-be the camera position). You should be able to work this out based on what
-we've learnt so far. One thing you will need to know is how to access the
-camera from a component attached to another entity. You can use the
-square-brackets CSS selector once again; the code below finds the entity with the <code>camera</code> component attached to it, in other words our camera entity.</p>
-<pre><code>const camera = document.querySelector('[camera]');
-</code></pre>
-<p>The model should always look at the camera; again you should be able to
-work out how to do this.</p>
-<p>When the enemy is within 0.1 units of the camera, the game should end
-(you can use <code>Math.abs()</code> to work this out).</p></body></html>
+<h3>Exercise 2 - Basic JavaScript</h3>
+<p>Create each exercise in its own folder, so you can easily distinguish them. In all cases, save your JavaScript as <code>index.js</code> and
+build with Webpack, as last week. Use this <code>package.json</code>:
+<pre>{
+    "dependencies": {
+        "aframe": "^1.2.0"
+    },
+    "devDependencies": {
+        "webpack": "^5.0.0",
+        "webpack-cli": "^4.7.0"
+    }
+}</pre>
+</p>
+<ol>
+<li>Try out the Hello World component above. 
+<li>Take a copy of the <code>greeting</code> example above and:
+    <ul>
+    <li>Try the example out.</li>
+    <li>Try adding a second property to your schema, name. This should represent the name of a person. The <code>init()</code> method should now display the message plus the name. For example if the message was "Hello" and the name was "Fred", it should display "Hello Fred".</li>
+    </ul>
+</li>
+<li>Take a copy of the <code>colour-changer</code> example above and try it out. Then, change the code so that rather than changing the colour to green, it changes the primitive from box to sphere. Does it work?</li>
+</ol>
+<h3 id="exercise3">Exercise 3 - Mouse Click Events</h3>
+<ol>
+<li>Extend the mouse click example so that the sphere turns blue when you click it.</li>
+<li>Add two more spheres and add the <code>clicker</code> component to each. When you click a sphere, does the correct one turn blue? Why?</li>
+<li>Add a property <code>color</code> to the <code>clicker</code> component. When an entity with the <code>clicker</code> component is clicked, make sure it changes colour to the value of the <code>color</code> property.</li>
+</ol>
+<h3 id="exercise4">Exercise 4 - Camera Controls</h3>
+<ol>
+<li>Take a copy of the first <code>vertical-controls</code> example. Try it out. At the moment it only responds to key <code>q</code> to move the camera up. Enhance the code so that it also responds to key <code>z</code> to move the camera down.</li> 
+<li>Enhance the <code>vertical-controls</code> component so that it has a <code>velocity</code> property (type <code>number</code>; see <a href="https://aframe.io/docs/1.0.0/core/component.html">the A-Frame component page</a> for all the 
+available property types). This should be a number (in units per second) which
+should control the velocity of the camera. Set it to different values in your
+HTML, to make the camera vertical controls faster or slower.</li>
+</ol>
+<h2>More challenging exercises</h2>
+<ul>
+<li>Enhance the <code>colour-changer</code> example so that the keys 1 and 2 change the colour of the appropriate box from red to green <em>and back again</em>.</li>
+<li>See if you can work out how to apply a texture to your plane, as you did in Week 3. You can find out how to do this in the <a href='https://aframe.io/docs/1.2.0/components/material.html'>documentation on materials</a>.
+	<ul>
+	<li><strong>Hint:</strong> To make the texture repeat in a tiled pattern, the property you need will have <code>x</code> and <code>y</code> attributes, that is, it is a <code>vec2</code>. To set a <code>vec2</code> in your HTML you specify a string with two numbers. e.g. if the property has the name <code>propertyname</code> you would use this syntax: <code>material='propertyname: x y'</code>.</li>
+	</ul> 
+<li>
+Implement an application with two separate spheres. Each should be blue by default, but when that sphere is selected, it should turn red. A user should be able to select the current sphere with either the '1' key or the '2' key. When the user presses the arrow keys
+(<code>ArrowLeft</code>, <code>ArrowRight</code>, <code>ArrowUp</code> and <code>ArrowDown</code>), the currently-selected sphere should move (entities have a <code>position</code> property, as already seen with the camera). The up arrow should move towards -z, the down arrow towards +z, the left arrow towards -x and the right arrow towards +x.</li>
+</ul>
+
+<h2>Advanced exercise</h2>
+<p>See if you can implement Sphere of Doom from week 3 using A-Frame. You should be able to work it out based on the examples above!</p>
+</body></html>
