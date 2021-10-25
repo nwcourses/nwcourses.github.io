@@ -91,12 +91,11 @@ about the x, y and z axes in that order. For example:</p>
 <h3 id="addingaplane">Adding a plane</h3>
 <p>Adding a plane is similar to pure three.js. Just like in pure three.js, the plane is by default positioned in the xy-plane, so if we want a ground plane, we need to rotate it by 90 degrees clockwise into the xz-plane:
  This is represented using the <code>&lt;a-plane&gt;</code> tag:</p>
-<pre><code>&lt;a-plane position='0 0 -1' width='100' height='100' material='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+<pre><code>&lt;a-plane position='0 0 -1' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
 </code></pre>
 <h3 id="compoundentities">Compound entities</h3>
 <p>So far we have looked at simple, or primitive, shapes. However it is 
-possible to create more complex, or <em>compound</em> entities. You can use
-the <code>&lt;a-entity&gt;</code> tag to define an arbitrary entity and again, give this
+possible to create more complex, or <em>compound</em> entities. (An entity, as you will see later, is an object within our 3D world such as a mesh, a camera or a light). You can use the <code>&lt;a-entity&gt;</code> tag to define an arbitrary entity and again, give this
 properties such as <code>scale</code>, <code>position</code> or <code>rotation</code>. Within the <code>&lt;a-entity&gt;</code>
 you can then create simple shapes. For instance:</p>
 <pre><code>&lt;a-entity position='2 0 -5'&gt;
@@ -224,7 +223,7 @@ HTML:</p>
 &lt;body&gt;
 &lt;a-scene cursor='origin: mouse'&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
 &lt;a-sphere material="color: red" position="0 1 -5" <strong>helloworld</strong>&gt;&lt;/a-sphere&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
@@ -254,8 +253,8 @@ AFRAME.registerComponent('helloworld', {
 &lt;body&gt;
 &lt;a-scene&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-sphere color="red" position="0 1 -5" greeting='message: Hello A-Frame!'&gt;&lt;/a-sphere&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-sphere material="color: red" position="0 1 -5" greeting='message: Hello A-Frame!'&gt;&lt;/a-sphere&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
@@ -301,7 +300,7 @@ does, and consequently, we can use the DOM to access them.</p>
 &lt;body&gt;      
 &lt;a-scene colour-changer&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" color="#7bcba4" shadow&gt;&lt;/a-plane&gt;
+&lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" material="color: #7bcba4" shadow&gt;&lt;/a-plane&gt;
 &lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='-5 0.5 -5'&gt;&lt;/a-entity&gt;
 &lt;a-entity geometry='primitive: box' id='box2' material='color: red' position='5 0.5 -5'&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
@@ -353,7 +352,7 @@ The <code>position</code> component contains a <code>vec3</code>: a three-member
 &lt;body&gt;
 &lt;a-scene cursor='rayOrigin: mouse'&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color='#7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
 &lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
@@ -418,12 +417,12 @@ component to the camera, we have to explicitly include the
 &lt;a-scene&gt;
 &lt;a-camera vertical-controls&gt;&lt;/a-camera&gt;
 &lt;a-sky color="skyblue"&gt;&lt;/a-sky&gt;
-&lt;a-plane position='0 0 0' width='100' height='100' color="#7bcba4" rotation="-90 0 0"&gt;&lt;/a-plane&gt;
-&lt;a-sphere position="0 2 -10" color="red" scale="2 4 2"&gt;&lt;/a-sphere&gt;
-&lt;a-sphere position="-2 2 -5" color="green" radius="2"&gt;&lt;/a-sphere&gt;
-&lt;a-sphere position="2 2 -2" color="blue" radius="2"&gt;&lt;/a-sphere&gt;
-&lt;a-sphere position="0 2 10" color="yellow" scale="3 1 1"&gt;&lt;/a-sphere&gt;
-&lt;a-box position="5 1.5 -10" color="orange" scale="1 3 1"&gt;&lt;/a-box&gt;
+&lt;a-plane position='0 0 0' width='100' height='100' material="color: #7bcba4" rotation="-90 0 0"&gt;&lt;/a-plane&gt;
+&lt;a-sphere position="0 2 -10" material="color: red" scale="2 4 2"&gt;&lt;/a-sphere&gt;
+&lt;a-sphere position="-2 2 -5" material="color: green" radius="2"&gt;&lt;/a-sphere&gt;
+&lt;a-sphere position="2 2 -2" material="color: blue" radius="2"&gt;&lt;/a-sphere&gt;
+&lt;a-sphere position="0 2 10" material="color: yellow" scale="3 1 1"&gt;&lt;/a-sphere&gt;
+&lt;a-box position="5 1.5 -10" material="color: orange" scale="1 3 1"&gt;&lt;/a-box&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
