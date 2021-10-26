@@ -220,10 +220,11 @@ Secondary hash functions typically involve a modulo calculation for example:
 secondaryHash = sumOfAsciiCodes % N
 ```
 where N is some prime number (the reason for favouring prime numbers in hash
-tables is discussed below). **The secondary hash function must be different
+tables is discussed above). **The secondary hash function must be different
 to the primary hash, in other words two keys with the same primary hash value
 must have different secondary hash values. If they do not, the clustering 
 problem will still occur.**
+
 ## Exercise 1 - Paper
 
 
