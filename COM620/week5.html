@@ -221,15 +221,16 @@ HTML:</p>
 &lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
-&lt;a-scene cursor='origin: mouse'&gt;
+&lt;a-scene <strong>helloworld</strong>&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position='0 0 0' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-sphere material="color: red" position="0 1 -5" <strong>helloworld</strong>&gt;&lt;/a-sphere&gt;
+&lt;a-sphere material="color: red" position="0 1 -5"&gt;&lt;/a-sphere&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
-<p>Note that the <code>&lt;a-sphere&gt;</code> has, in addition to the <code>color</code> and <code>position</code> components, a <code>helloworld</code> component. This is our own custom component. We create a component with 
+<p>Note that the <code>&lt;a-scene&gt;</code> has a <code>helloworld</code> component. This is our own custom component. (Earlier versions of the notes attached the component to the sphere, but it makes more sense to attach it to the scene as a whole). </p>
+<p>In our JavaScript, we create this component with 
 <code>AFRAME.registerComponent()</code>:</p>
 <pre>import 'aframe';
 
@@ -251,10 +252,10 @@ AFRAME.registerComponent('helloworld', {
 &lt;title&gt;A-Frame Component&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
-&lt;a-scene&gt;
+&lt;a-scene <strong>greeting='message: Hello A-Frame!'</strong>&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position='0 0 0' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-sphere material="color: red" position="0 1 -5" greeting='message: Hello A-Frame!'&gt;&lt;/a-sphere&gt;
+&lt;a-sphere material="color: red" position="0 1 -5"&gt;&lt;/a-sphere&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
@@ -298,7 +299,7 @@ does, and consequently, we can use the DOM to access them.</p>
 &lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
 &lt;/head&gt;     
 &lt;body&gt;      
-&lt;a-scene colour-changer&gt;
+&lt;a-scene <strong>colour-changer</strong>&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position="0 0 -1" rotation="-90 0 0" width="100" height="100" material="color: #7bcba4" shadow&gt;&lt;/a-plane&gt;
 &lt;a-entity geometry='primitive: box' id='box1' material='color: red' position='-5 0.5 -5'&gt;&lt;/a-entity&gt;
@@ -353,7 +354,7 @@ The <code>position</code> component contains a <code>vec3</code>: a three-member
 &lt;a-scene cursor='rayOrigin: mouse'&gt;
 &lt;a-sky color='skyblue'&gt;&lt;/a-sky&gt;
 &lt;a-plane position='0 0 0' width='100' height='100' material='color: #7bcba4' rotation='-90 0 0'&gt;&lt;/a-plane&gt;
-&lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" clicker&gt;&lt;/a-entity&gt;
+&lt;a-entity geometry='primitive: sphere'  material='color: red' position="0 1 -5" <strong>clicker</strong>&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
@@ -415,7 +416,7 @@ component to the camera, we have to explicitly include the
 &lt;/head&gt;
 &lt;body&gt;
 &lt;a-scene&gt;
-&lt;a-camera vertical-controls&gt;&lt;/a-camera&gt;
+&lt;a-camera <strong>vertical-controls</strong>&gt;&lt;/a-camera&gt;
 &lt;a-sky color="skyblue"&gt;&lt;/a-sky&gt;
 &lt;a-plane position='0 0 0' width='100' height='100' material="color: #7bcba4" rotation="-90 0 0"&gt;&lt;/a-plane&gt;
 &lt;a-sphere position="0 2 -10" material="color: red" scale="2 4 2"&gt;&lt;/a-sphere&gt;
