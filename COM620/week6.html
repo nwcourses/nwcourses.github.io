@@ -27,7 +27,7 @@ content would not be hard-coded but downloaded from a server. For example,
 points of interest in an AR or VR POI app would be downloaded from a server
 and in Pokemon Go the locations of the Pokemon are also downloaded. So we
 need to know how to dynamically generate content in A-Frame.</p>
-<p>In the DOM notes we looked at <code>document.createElement</code> So,
+<p>In the <a href='https://nwcourses.github.io/COM518/topic6.html'>DOM notes from last year</a> we looked at <code>document.createElement()</code> So,
 we can use <code>document.createElement()</code> here to dynamically create
 our A-Frame content. Here is an example:
 <pre>
@@ -250,7 +250,7 @@ AFRAME.registerGeometry('polygon', {
     schema: {
         vertices: {
             type: 'array',
-            default: [ "0  0", "1  0", "0.5  1" ]
+            default: [ "0 0", "1 0", "0.5 1" ]
         }
     },
     init: function(data) {
@@ -281,7 +281,12 @@ Note how:
 <strong>Exercise question:</strong> Complete this example to produce a <code>polygon</code> geometry which will take any number of vertices as a parameter and create a polygon from them. Using the code given, convert the vertices to an array of <code>THREE.Vector2</code> objects and from that, create a shape and a geometry. Add some polygons with varying numbers of points to your scene.</li>
     </ul>
 <h3>More advanced: Defining the keys of your vertical-controls component</h3>
-<p>Components can also accept schema data with the <code>array</code> type, using similar syntax. Enhance your <code>vertical-controls</code> component so that the up and down keys can be passed into the component as an array property. Use 'q' and 'z' for the defaults. Add a <code>vertical-controls</code> component to the camera with the default keys, and add a <code>vertical-comtrols</code> component to each model with different keys (e.g. i and k for one, p and l for the other).</p>
+<p>Components can also accept schema data with the <code>array</code> type, using similar syntax. 
+	<ul>
+	<li>Enhance your <code>vertical-controls</code> component so that the up and down keys can be passed into the component as an array property. Use 'q' and 'z' for the defaults. Add a <code>vertical-controls</code> component to the camera with the default keys, and add a <code>vertical-comtrols</code> component to each model with different keys (e.g. i and k for one, p and l for the other).</li>
+	<li>Also enhance your <code>colour-changer</code> component from last week (see the <a href='https://github.com/nwcourses/nwcourses.github.io/blob/master/COM620/solutions/week5/javascript/index.js'>solution</a> for one implementation) so that the IDs of the two boxes can be specified as a property of the component. Again, pass them in as an array with two members.</li>
+	</ul>
+</p>
 <h2>Advanced Exercise</h2>
 <p>Rewrite your game from week 4, in which the player is chased by an enemy represented by a 3D model, to use A-Frame.</p>
 </body></html>
