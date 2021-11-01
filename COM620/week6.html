@@ -1,0 +1,287 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><p><!DOCTYPE html>
+<html>
+<head>
+<title>Week 6 - Further A-Frame</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></p>
+<p></head>
+<body></p>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h2>Topic 6: Further A-Frame</h2>
+</div>
+<p>This week we will look at some further A-Frame topics:
+    <ul>
+    <li>Dynamic creation of entities and components</li>
+    <li>Models in A-Frame</li>
+    <li>Using three.js with A-Frame</li>
+    <li>Custom geometries</li>
+    </ul>
+</p>
+<h2>Dynamic Creation of Entities and Components with A-Frame</h2>
+<p>We are now going to look at how we can <em>dynamically create entities and
+components using A-Frame</em> and the DOM. So far, our entities and components 
+have been hard-coded in HTML. However in many cases, we might want to 
+dynamically build a scene based on data sent back, in JSON for example, from
+the web. Most augmented reality apps would work this way: the augmented 
+content would not be hard-coded but downloaded from a server. For example,
+points of interest in an AR or VR POI app would be downloaded from a server
+and in Pokemon Go the locations of the Pokemon are also downloaded. So we
+need to know how to dynamically generate content in A-Frame.</p>
+<p>In the DOM notes we looked at <code>document.createElement</code> So,
+we can use <code>document.createElement()</code> here to dynamically create
+our A-Frame content. Here is an example:
+<pre>
+AFRAME.registerComponent('dynamic-content-loader', {
+    init: function() {
+        // Create an entity with document.createElement()
+        const entity = document.createElement('a-entity');
+
+        // Add a geometry component to it (a sphere primitive)
+        entity.setAttribute('geometry', {
+            primitive: 'sphere'
+        });
+
+        // Add a material component to it (red colour)
+        entity.setAttribute('material', {
+            color: 'red'
+        });
+
+        // Set its position within the 3D world
+        entity.setAttribute('position', {
+            x: 0,
+            y: 1,
+            z: -5
+        });
+
+        // Append the entity to the scene (this.el.sceneEl)
+        this.el.sceneEl.appendChild(entity);
+    }
+});
+</pre>
+which would be used along with an A-Frame scene such as that below:
+<pre>
+&lt;a-scene <strong>dynamic-content-loader</strong>&gt;
+&lt;a-sky color="skyblue"&gt;&lt;/a-sky&gt;
+&lt;a-plane color='green' position='0 0 0' rotation='-90 0 0' width='100' height='100'&gt;&lt;/a-plane&gt;
+&lt;/a-scene&gt;
+</pre>
+What is this doing?
+    <ul>
+    <li>We are definining a component called <code>dynamic-content-loader</code>.
+    </li>
+    <li>Within this component we create an <code>a-entity</code> dynamically using DOM, and set its <code>geometry</code>, <code>material</code> and <code>position</code> components.</li>
+    <li>Then we <em>append</em> the entity we've just created to the A-Frame <em>scene</em>. Note how we can access the A-Frame scene from any entity using <code>this.el.sceneEl</code>. Whereas <code>this.el</code> represents the current entity, <code>this.el.sceneEl</code> represents the scene as a whole. So the entity we've dynamically created will be a child of our <em>scene</em>. (In this case, the component is attached to the scene anyway, but referencing <code>this.el.sceneEl</code> would allow the code to work even if the component was being attached to some other entity)</li>
+    </ul>
+</p>
+<p>This example is just a simple example of creating dynamic content, but
+you could use a component like this to load JSON over AJAX and then create
+content based on parsing the JSON.</p>
+<h2 id="models">Models</h2>
+<p>We are now going to consider how to load models in A-Frame.</p>
+<h3 id="howtoincludeamodelinanaframeapplication">How to include a model in an A-Frame application</h3>
+<p>The first thing to note is that models can be rather large files. If our
+application is creating many instances of entities all using the same model
+(e.g. many monsters in a game) you do not want to load the same model over 
+and over again because this will be very inefficient. Instead, we want to load
+the model <em>once</em>, on startup, and then reference the <em>loaded</em> model when we
+create our entities. Luckily we can do this in A-Frame by making use of 
+A-Frame <em>assets</em> (the <code>&lt;a-assets&gt;</code> tag).</p>
+<p>Here is an example of <code>&lt;a-assets&gt;</code>. Note that the <code>&lt;a-assets&gt;</code> are contained
+within your <code>&lt;a-scene&gt;</code>.</p>
+<pre><code>&lt;a-assets&gt;
+&lt;a-asset-item src='assets/horse/scene.gltf' id='horse'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/cow.obj' id='cow'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/pig.obj' id='pig'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/cow.mtl' id='cow-material'&gt;&lt;/a-asset-item&gt;
+&lt;a-asset-item src='assets/pig.mtl' id='pig-material'&gt;&lt;/a-asset-item&gt;
+&lt;/a-assets&gt;
+</code></pre>
+<p>There are five assets here, a GLTF model of a horse, two OBJ models of a cow and a pig, and two accompanying <code>.mtl</code> (material) files. 
+Note how generic assets, such as 
+models, are specified using <code>&lt;a-asset-item&gt;</code>.
+Note also how each asset has an ID; this will be used when we
+create an entity using that asset later.</p>
+<h4 id="howwewouldreferenceanassetinourcode">How we would reference an asset in our code</h4>
+<p>Here is an example of how we could reference a model asset in our code:</p>
+<pre><code>&lt;a-entity gltf-model='#horse'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>This is creating an entity which will represent a GLTF model, hence the
+<code>gltf-model</code> component. We set the <code>gltf-model</code> component to the ID of the model in the assets.</p>
+<p>We can also load OBJ models in a similar wa using <code>obj-model</code>. The <code>obj-model</code> component contains a property <code>obj</code> whose value is <code>#cow</code>, which references the asset with the ID of <code>cow</code>. To link the <code>.mtl</code> (material) asset, we use the <code>mtl</code> property. Here is a complete example:</p>
+<pre><code>&lt;a-entity obj-model='obj: #cow; mtl: #cow-material'&gt;&lt;/a-entity&gt;
+</code></pre>
+</p>
+<p>We can of course also dynamically create our entities from JavaScript, for
+example:
+<pre>const entity = document.createElement('a-entity');
+
+// set its gltf-model component to reference the ID of the asset 
+entity.setAttribute('gltf-model', '#horse');
+
+const entity2 = document.createElement('a-entity');
+
+// Add the obj-model component. This will simply reference the ID of the asset
+// as its 'obj' property.
+entity2.setAttribute('obj-model', {
+    obj: '#cow',
+    mtl: '#cow-material'
+});
+</pre>
+</p>
+<h2 id="usinginaframe">Using three.js in A-Frame</h2>
+We now going to look at how we can use three.js features within A-Frame. A key point is that all A-Frame entities have an <code>object3D</code> property, which references the underlying three.js <code>Object3D</code> (this could, as we have seen, be - amongst other things - a mesh, a camera or a light… essentially anything with the ability to be positioned, rotated and scaled).</p>
+<p>This allows us to change properties such as position, scale, rotation more efficiently than updating the DOM attributes, as we have done before. As we have seen, the three.js <code>Object3D</code> has various useful methods available which will efficiently translate, rotate or scale the object. So to perform such transformations on A-Frame entities, it is strongly recommended to use the <code>Object3D</code> methods as these are efficient, rather than the DOM manipulations (retrieving and altering the <code>position</code> and <code>rotation</code> properties for example) that we have done up to now. DOM manipulations involve parsing the data and are slower - we have used them up to now because they are simple and do not require any three.js understanding. </p>
+<p>We can also do things like create a new <code>&lt;a-entity&gt;</code>, create an <code>Object3D</code> with three.js (e.g. a mesh, a camera or a light), and attach the  <code>Object3D</code> to the entity using the entity's <code>setObject3D()</code> method.</p>
+<pre>const entity = document.createElement('a-entity'); 
+const geom = new THREE.BoxGeometry(2, 2, 2);
+const mesh = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ color: 0xff0000 } ));
+mesh.position.z = -10;
+entity.setObject3D('mesh', mesh);
+</pre>
+<p>This code should hopefully be fairly obvious. We create an A-Frame entity,
+then a three.js mesh, and attach it to the entity. Note that <code>setObject3D()</code> takes two arguments, an identifier for the <code>Object3D</code> we are attaching, plus the <code>Object3D</code> itself. (It is possible to attach multiple <code>Object3D</code>s to an entity).</p> <p>To access the <code>Object3D</code> associated with an entity, you can use the entity's <code>object3D</code> property. Once you have this, you can use any of the properties
+or methods of three.js's <code>Object3D</code>, see the documentation <a href="https://threejs.org/docs/index.html#api/en/core/Object3D">here</a>. For example, to rotate an entity by 45 degrees around the Y axis:</p>
+<pre>
+// use DOM to get entity
+const entity = document.getElementById('entity1'); 
+
+entity.object3D.rotateY(THREE.MathUtils.deg2rad(45));
+</pre>
+<p>Essentially the <em>whole three.js API</em> is available within an A-Frame application. Once you understand the relationships between A-Frame and three.js (the <code>object3D</code> is perhaps the most important), this allows you to build pure three.js features into an A-Frame application. There are other relationships, regarding the <code>&lt;a-scene&gt;</code> entity, which are useful to know, too: </p>
+<ul>
+<li>the <code>object3D</code> of the <code>&lt;a-scene&gt;</code> gives, perhaps predictably, the <code>THREE.Scene</code>;</li>
+<li>the <code>camera</code> property of the <code>&lt;a-scene&gt;</code> gives you the Three.js camera being used; </li>
+<li>and the <code>renderer</code> property of the <code>&lt;a-scene&gt;</code> gives you the Three.js <code>WebGLRenderer</code> being used.</li>
+</ul>
+<h3>Creating custom geometries</h3>
+<p>By using three.js, you can create custom geometries in A-Frame. For example, you might want to create a pentagon (5-sided shape) or hexagon (6-sided shape). How can you do this?
+    <ul>
+    <li>You create a custom geometry using three.js;</li>
+    <li>You register an A-Frame geometry which makes use of your custom three.js geometry.</li>
+    </ul>
+</p>
+<p>There are various ways to create custom geometries in three.js. For a flat, 2D geometry, such as a polygon, you can create a <code>THREE.Shape</code> containing the points (as <code>THREE.Vector2</code>s representing x and y coordinates) and then a <code>THREE.ShapeGeometry</code> from the shape. For example, in pure three.js:
+<pre>const triangle = new THREE.Shape([
+    new THREE.Vector2(0, 0),
+    new THREE.Vector2(1, 0),
+    new THREE.Vector2(0, 0.5)
+]);
+
+// Make the shape auto-close so we don't have to repeat the first point
+triangle.autoClose = true;
+
+// Create a geometry using the shape
+const triangleGeom = new THREE.ShapeGeometry(shape);
+
+// Create material and mesh
+const material = new THREE.MeshLambertMaterial({color: 0xff0000});
+const mesh = new THREE.Mesh(triangleGeom, material);</pre>
+</pre>
+</p>
+<p>In A-Frame, we can create a custom geometry using <code>AFRAME.registerGeometry()</code>. Here is an example which registers the simple triangle geometry in the pure three.js example above as the geometry type <code>simpleTriangle</code>:
+<pre>
+AFRAME.registerGeometry('simpleTriangle', {
+    init: function() {
+
+        const triangle = new THREE.Shape([
+            new THREE.Vector2(0,   0),
+            new THREE.Vector2(1,   0),
+            new THREE.Vector2(0.5, 1)
+        ]);
+
+        // Make the shape auto-close so we don't have to repeat the first point
+        triangle.autoClose = true;
+
+        // Set the geometry field to a new ShapeGeometry making use of the shape
+        this.geometry = new THREE.ShapeGeometry(shape);
+    }
+});
+</pre>
+We could then use this geometry in A-Frame by setting the <code>primitive</code> property of the <code>geometry</code> component of an entity:
+<pre>&lt;a-entity geometry='primitive: <strong>simpleTriangle</strong>' position='0 4 -2' ... &gt;&lt;/a-entity&gt;</pre>
+</p>
+<h2 id="camerasandlightsinaframe">Cameras and lights in A-Frame</h2>
+<p>It should be noted that the default A-Frame scene comes with a perspective camera and two lights (an ambient light and a directional light) already added.
+See the A-Frame docs <a href="https://aframe.io/docs/1.0.0/components/camera.html#default-camera">here for the default camera</a> and <a href="https://aframe.io/docs/1.0.0/components/light.html">here for default lighting</a>.  If you add your own camera with <code>&lt;a-camera&gt;</code>, or <code>&lt;a-entity camera&gt;</code>, (&lt;a-camera&gt; is basically a short cut for &lt;a-entity camera&gt; i.e. an entity with a camera component) then the default camera is not added.</p>
+<p>Note that there is a slight difference between using an <code>&lt;a-entity&gt;</code> with the <code>camera</code> component added (<code>&lt;a-entity camera&gt;</code>) versus using the <code>&lt;a-camera&gt;</code> primitive. <code>&lt;a-camera&gt;</code> automatically adds some further components to the camera, including <code>look-controls</code> (the ability to look around with the mouse or by moving a mobile device) and <code>wasd-controls</code> (the ability to move the camera with the WASD-keys). See <a href="https://aframe.io/docs/1.0.0/primitives/a-camera.html#sidebar">the documentation</a></p>
+<p>The default lights in A-Frame are:</p>
+<ul>
+<li>an ambient light with a slightly greyish white (hex code #BBB)</li>
+<li>a directional white light with intensity 0.6. This has a position of
+x=0.5, y=1, z=1, which means that (like the three.js lights, which the
+A-Frame lights wrap) the light shines towards the origin from this
+position. So it will shine from behind, and slightly to the right of, the user in the default A-Frame view (remember that by default the camera faces
+negative <code>z</code>).</li>
+</ul>
+<p>You can also easily add additional lights in an A-Frame scene by adding
+<code>light</code> components to entities, e.g:</p>
+<pre><code>&lt;a-entity light='type: directional; position: 0 1 0; color: #ffff00; intensity: 0.5'&gt;&lt;/a-entity&gt;
+&lt;a-entity light='type: directional; position: -1 0.5 0; color: #0000ff; intensity: 1.0'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>As decribed in the documentation, you can turn the default lighting off by 
+setting a <code>light</code> component on the <code>&lt;a-scene&gt;</code> with the property <code>defaultLightsEnabled</code> set to <code>false</code>:</p>
+<pre><code>&lt;a-scene light='defaultLightsEnabled: false'&gt;
+</code></pre>
+<p>Point lights and spotlights are also available in A-Frame. See <a href='https://aframe.io/docs/1.2.0/components/light.html'>the A-Frame lighting documentation</a> for full details.</p>
+<h2>Exercises</h2>
+<ol>
+<li>Create a new A-Frame application, separate to last week. Return to the first exercise from last week - in which you created the five geometries from the first week in A-Frame. Create a <code>dynamic-content</code> component and attach it to the scene. In the <code>init()</code> method of this component, dynamically create the sphere, cylinder and cone entities (but not the boxes), and attach them to the scene.</li>
+<li>Now add the two boxes dynamically, but use pure three.js to create the meshes.<em>Create a mesh using pure three.js for each</em>, then create two entities and set the <code>object3D</code> of each entity to the corresponding mesh.</li>
+<li>Create a new version of the <code>vertical-controls</code> component from last week so that it updates the <code>y</code> coordinate of the camera using <code>Object3D</code>'s <code>translateY()</code> method, rather than updating the <code>position</code> via the DOM. Add the <code>vertical-controls</code> component to your camera, as last week.</li>
+<li>Add your models (from week 4) to the scene, at the same coordinates and facing the same direction as they were in week 4.</li>
+<li>Try removing <code>vertical-controls</code> from the camera, and adding it to one of the models. Does it work? Try removing <code>wasd-controls</code> from the camera (by using <code>&lt;a-entity camera look-controls&gt;</code> rather than <code>&lt;a-camera&gt;</code>; remember that <code>&lt;a-camera&gt;</code> automatically adds certain components to the camera while <code>&lt;a-entity camera&gt;</code> does not) and adding it to the same model. Does that work?</li> 
+<li>Create a custom A-Frame hexagon geometry in the same way as the triangle example above. Use the following coordinates for each vertex:
+<ul>
+<li>Vertex 1: -1, -1</li>
+<li>Vertex 2: 1, -1</li>
+<li>Vertex 3: 2, 0</li>
+<li>Vertex 4: 1, 1</li>
+<li>Vertex 5: -1, 1</li>
+<li>Vertex 6: -2, 0</li>
+</ul>
+Add at least two hexagons to your scene, scale one by a factor of two, and rotate the other by 45 degrees clockwise. Move round the scene so that you can view both sides of each hexagon. Can you see both sides? Look at the <a href='https://aframe.io/docs/1.2.0/components/material.html'>A-Frame documentation on materials</a> to find out how to resolve this problem.
+</li>
+<li>Turn off the default lighting in the scene, and instead add the three lights that you added in week 3, at the exact same positions and angles, but make the directional light yellow and the spotlight blue. You will need to look at the <a href='https://aframe.io/docs/1.2.0/components/light.html'>A-Frame lighting notes</a>.  </li>
+</ol>
+<h3>More advanced: Passing parameters into a geometry</h3>
+<p>We could pass in the vertices to a custom geometry using a schema, with a similar syntax to a component:
+<pre>
+AFRAME.registerGeometry('polygon', {
+    schema: {
+        vertices: {
+            type: 'array',
+            default: [ "0  0", "1  0", "0.5  1" ]
+        }
+    },
+    init: function(data) {
+        const vecs = data.vertices.map (vertex =&gt;  {
+            const coords = vertex.split(" ");
+            return new THREE.Vector2(parseFloat(coords[0]), parseFloat(coords[1]));
+        });
+
+        // for you to complete... create the shape and the geometry
+    }
+});
+</pre>
+Note how:
+    <ul>
+    <li>The geometry has a <code>vertices</code> property of type array. This will be an array of <em>strings</em> representing each coordinate pair. We set up a default value for this.</li>
+    <li>We can then specify them in the HTML as follows. Note how the vertices are specified as a comma-separated list. 
+<pre>&lt;a-entity geometry='primitive: .....; vertices: 1 1, 2 1, 1 2' position='0 4 -2' ... &gt;&lt;/a-entity&gt;</pre>
+    </li>
+    <li>Note how the <code>init()</code> function of the geometry now takes a <code>data</code> parameter representing the data passed in. So <code>data.vertices</code> will be our array of vertices.</li>
+    <li>This will be an array of <em>strings</em> by default, so we have to split each string at the space, and then convert the numbers from string form to float form. The code below does this. The <code>map()</code> method allows us to specify a <em>mapping function</em> to map an input array to an output array. This function will take each member from the input array as a parameter, and return the corresponding member of the output array. In the code below, the mapping function is an arrow function which splits the string into two components, creates a <code>THREE.Vector2</code> from each component, and returns it. So, the output from <code>map()</code> will be an array of <code>THREE.Vector2</code> objects which we can use to create our shape.
+<pre> 
+        const vecs = data.vertices.map (vertex =&gt;  {
+            const coords = vertex.split(" ");
+            return new THREE.Vector2(parseFloat(coords[0]), parseFloat(coords[1]));
+        });
+    </li>
+    </ul>
+<strong>Exercise question:</strong> Complete this example to produce a <code>polygon</code> geometry which will take any number of vertices as a parameter and create a polygon from them. Using the code given, convert the vertices to an array of <code>THREE.Vector2</code> objects and from that, create a shape and a geometry. Add some polygons with varying numbers of points to your scene.</li>
+    </ul>
+<h3>More advanced: Defining the keys of your vertical-controls component</h3>
+<p>Components can also accept schema data with the <code>array</code> type, using similar syntax. Enhance your <code>vertical-controls</code> component so that the up and down keys can be passed into the component as an array property. Use 'q' and 'z' for the defaults. Add a <code>vertical-controls</code> component to the camera with the default keys, and add a <code>vertical-comtrols</code> component to each model with different keys (e.g. i and k for one, p and l for the other).</p>
+<h2>Advanced Exercise</h2>
+<p>Rewrite your game from week 4, in which the player is chased by an enemy represented by a 3D model, to use A-Frame.</p>
+</body></html>
