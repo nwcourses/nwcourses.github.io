@@ -246,7 +246,7 @@ class TreeNode:
 node of the tree) 
 and two methods: insert(), which adds an int value to 
 the tree, and
-printTree(), which prints out the entire contents of the tree.</li>
+print_from(), which prints out the entire contents of the tree.</li>
 <li>Implement an <em>insert()</em> method in BinaryTree. 
 This should take one parameter: the value to insert, 
 and do the following:
@@ -278,16 +278,16 @@ should:
     </li> 
     </ul>
 </li>
-<li>Implement the <em>printTree()</em> method. This should take a 
+<li>Implement the <em>print_from()</em> method. This should take a 
 parameter which represents the node to start printing from,
 initially the root node.
     <ul>
     <li>Declare a variable which represents the 
     current node. Set this initially to the root node.</li>
-    <li>Recursively call <em>printTree()</em> on the left node, if the
+    <li>Recursively call <em>print_from()</em> on the left node, if the
     left node exists (i.e. is not None)</li>
     <li>Print the value in the node.</li>
-    <li>Recursively call <em>printTree()</em> on the right node, if the
+    <li>Recursively call <em>print_from()</em> on the right node, if the
     right node exists (i.e. is not None)</li>
     </ul>
 This will print the whole tree, and nicely illustrates the power of recursion!
