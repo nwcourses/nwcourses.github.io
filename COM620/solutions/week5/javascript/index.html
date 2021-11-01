@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript' src='dist/bundle.js'></script>
+</head>
+<body>
+<a-scene cursor='rayOrigin: mouse' colour-changer greeting='message: Greetings; name: Alex'>
+    <a-entity camera look-controls wasd-controls vertical-controls position='0 2 0' baseVelocity='2'></a-entity>
+    <a-sky color='skyblue'></a-sky>
+    <a-plane rotation="-90 0 0" material='src: texture128.png; repeat: 64 64'  width='100' height='100' shadow></a-plane>
+    <a-box material="color: red" id='box1' position='-5 0.5 -5'></a-box>
+    <a-box material="color: red" id='box2' position='5 0.5 -5'></a-box>
+    <a-sphere position='0 1 -5' material='color: red' radius='1' clicker></a-sphere>
+</a-scene>
+</body>
+</html>

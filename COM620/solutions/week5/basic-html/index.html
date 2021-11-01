@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript' src='https://aframe.io/releases/1.2.0/aframe.min.js'></script>
+</head>
+<body>
+<a-scene>
+    <a-sky color='skyblue'></a-sky>
+    <a-plane rotation="-90 0 0" material='color: #c0ffc0'  width='100' height='100' shadow></a-plane>
+    <a-box position="-0 1 -10" material="color: red"></a-box>
+    <a-box position="5 1 0" material="color: blue"></a-box>
+    <a-sphere position='0 1 -5' material='color: green' radius='1'></a-sphere>
+    <a-cone position='-5 1 0' radius='1' height='2' material='color: yellow'></a-cone>
+    <a-cylinder position='0 1 5' radius-bottom='1' radius-top='1' height="2" material='color: magenta'></a-cylinder>
+
+    <!-- Compound entity -->
+    <a-entity position='0 2.5 -15' rotation='0 45 0'>
+        <a-box scale='5 5 5' material='color: red' position='0 0 0'></a-box>
+        <a-box  material='color: green' position='-2 3 0'></a-box>
+        <a-box  material='color: blue' position='2 3 0'></a-box>
+    </a-entity>
+</a-scene>
+</body>
+</html>
