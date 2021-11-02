@@ -145,7 +145,7 @@ or methods of three.js's <code>Object3D</code>, see the documentation <a href="h
 // use DOM to get entity
 const entity = document.getElementById('entity1'); 
 
-entity.object3D.rotateY(THREE.MathUtils.deg2rad(45));
+entity.object3D.rotateY(THREE.MathUtils.degToRad(45));
 </pre>
 <p>Essentially the <em>whole three.js API</em> is available within an A-Frame application. Once you understand the relationships between A-Frame and three.js (the <code>object3D</code> is perhaps the most important), this allows you to build pure three.js features into an A-Frame application. There are other relationships, regarding the <code>&lt;a-scene&gt;</code> entity, which are useful to know, too: </p>
 <ul>

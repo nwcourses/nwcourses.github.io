@@ -1,7 +1,27 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week7introductiontoarjs">Week 7 : Introduction to AR.js</h1>
-<h2 id="introduction">Introduction</h2>
-<p>This week we will start to look at how we can develop <em>augmented reality</em> applications in JavaScript, using the increasingly-popular <em>AR.js</em> library. Before we do so, we will take a look at the concepts of and <em>latitude and longitude</em>.</p>
-<h2 id="latitudeandlongitude">Latitude and Longitude</h2>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Week 7 - GeoAPIs and A-Frame</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<script type='text/javascript' src='https://aframe.io/releases/1.0.4/aframe.min.js'></script>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h1>Topic 7: Geographical Data and 3D Applications</h1>
+</div>
+<h2>Introduction</h2>
+<p>This week we will:
+<ul>
+<li>Revise geographic concepts first met in COM518</li>
+<li>Look at the Geolocation API</li>
+<li>Look at GeoJSON</li>
+</ul>
+<h2>AJAX revision</h2>
+<p>Last year in COM518 (see <a href='https://nwcourses.github.io/COM518/topic5.html'>here</a>) we looked at <em>AJAX</em> and saw that it was an approach to developing highly interactive web applications which communicate with the server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as <em>JSON</em> (see <a href='https://nwcourses.github.io/COM518/topic3.html'>here</a> for more information about JSON).  The JSON is then <em>parsed</em> and the page dynamically updated with the new data.</p>
+<p>This week we are going to look at AJAX and JSON in combination with A-Frame or three.js. Your A-Frame or three.js application will connect to a web API via AJAX. The web API will send back a specific form of JSON (called <em>GeoJSON</em>) which we will examine later. We can then dynamically create A-Frame entities or three.js meshes using the data contained within the GeoJSON.</p>
+<h2>Revision - Latitude and Longitude</h2>
+<p><em>Please note; this was first covered in COM518 last year.</em></p>
 <p>In order to understand location-based applications, it is important
 to understand the coordinate system used on the earth. The most common
 coordinate system uses <em>latitude and longitude</em>. Latitude is a measure
@@ -14,161 +34,204 @@ By contrast Germany is located
 between approximately 7 degrees and 15 degrees East, while New York is at
 74 degrees West and the west coast of North America at approximately 120
 degrees West.</p>
-<p><img src="../images/latlon.png" alt="Latitude and Longitude" /></p>
+<p><img src="../images/latlon.png" alt="Latitude and longitude" /></p>
 <p>So a given point on the earth can be defined via its latitude and
-longitude. The university is at, approximately, 50.9 North (latitude) and 1.4 West (longitude). By convention, latitudes north of the equator and longitudes
+longitude. We are at, approximately, 50.9 North (latitude) and 1.4 West
+(longitude). By convention, latitudes north of the equator and longitudes
 east of Greenwich are treated as positive, so we can also define our
-position as <strong>longitude -1.4, latitude +50.9</strong></p>
-<h3 id="obtainingyourcurrentpositionfromjavascript">Obtaining your current position from JavaScript</h3>
-<p>It is possible to obtain your current position on the earth from JavaScript, using the Geolocation API. This is a standard JavaScript API which can be called from a browser without any additional libraries being needed. It usually makes use of GPS to get a location to within around 5 to 15 metres; however, if GPS is not available it will attempt to guess your location using either wifi networks or your IP address (but not always get it right). You can read more about this <a href="https://nwcourses.github.io/wad/webmapping2.html">on the WAD notes</a>; we will briefly cover it in class.</p>
-<p>Using the Geolocation API you can, for example, show a map of your current location on a mobile device and use it to navigate. Web maps are again described <a href="https://nwcourses.github.io/wad/webmapping.html">on WAD</a>.</p>
-<p>However, we will not be using the Geolocation API directly. This is because we can use AR.js to obtain our latitude and longitude without having to use the Geolocation API ourselves. The AR.js source code uses the Geolocation API to do this.</p>
-<h2 id="augmentedreality">Augmented reality</h2>
-<p>In the module introduction on SOL I have explained the concept of <em>augmented reality</em> but let's return to that now. Augmented reality is the <em>augmentation</em> of the real world by computer-generated content. A typical augmented reality application will run on a portable device such as a phone or tablet, and overlay the real world - as seen through the device's camera feed - with computer generated content, such as points of interest. Here is a video showing an augmented reality application:</p>
-<video src="https://hikar.org/video/hikarweb.mp4" width='600' height='800' controls></video>
-<p>This application - Hikar (available <a href="https://hikar.org/webapp">here</a> - requires mobile device and may not work on certain browsers, I'd recommend Chrome on Android or Safari on iOS) has been written using AR.js so gives an impression of what can be achieved with web AR.</p>
-<p>The type of AR that Hikar uses is <em>location-based</em> AR, In fact there are four main variants of AR:</p>
-<ul>
-<li><p><em>Location-based</em> AR uses your location on earth (provided by GPS) together with the current orientation of the device (is it facing north, south, east or west, is it tilted and is it landscape or portrait?) to overlay geographical information, such as points of interest or roads and walking trails, on the camera feed. If you look at the Hikar video above, you can see that computer-generated roads and paths, are overlaid (more or less) on their real-world equivalents. Note that it is not a perfect fit - GPS is typically accurate to around 5-15 metres or so, and the device sensors, such as the compass and accelerometer, which are used to calculate the device's orientation, may not be completely accurate.</p></li>
-<li><p><em>Marker-based</em> AR uses computer vision techniques to detect printed markers in the camera feed of the device. A typical example of a marker-based approach is shown in various AR demos in which a pattern is printed on a piece of paper and a computer-generated 3D model - often an animal in many demos - is overlaid accurately on the paper so that when the paper moves, the model also moves.</p></li>
-<li><p><em>Natural feature tracking (NFT)</em>. This is similar to marker-based AR in the sense that it uses computer vision, but works with real-world images rather than markers. You can scan in an image that you later want to detect in AR. An example of this might be a painting, or image that will be used as a street advert. <em>Image descriptors</em> - points representing "interesting" features within the image, for example corners of shapes - will be created. Using these image descriptors you can develop an AR app which will detect that same image in the real world, so that, for example, if you point your phone at the same image that was originally used to create the descriptors, it will be detected and you can display AR content. This could be an augmented street advert in which 3D characters appear, or information about a painting in an art gallery.</p></li>
-<li><p><em>Markerless augmented reality</em>. Markerless AR is the most sophisticated and advanced and can use sophisticated computer vision algorithms to detect flat surfaces within the camera feed. Thus, AR content such as models can be placed accurately and realistically on the ground without the need for markers or pre-scanned images as in marker-based and NFT approaches. A potential use of this approach is to improve the realism of location-based AR so that the augmented content does not appear to "float above the ground", as it does on the video above. Sadly the leading markerless approaches are proprietary, closed-source and often expensive software; there is little or nothing available yet in the open source world. Nonetheless this is an exciting research topic and something I am hoping to investigate personally.  Examples (proprietary) includie <a href="https://developers.google.com/ar/">ARCore</a> on Android, <a href="https://developer.apple.com/augmented-reality/arkit/">ARKit</a> on iOS, <a href="https://8thwall.com">8th Wall</a>, and <a href="https://wikitude.com">Wikitude</a>. </p></li>
-</ul>
-<p>We will primarily be focusing on location-based AR but will take a quick look at marker-based and NFT. AR.js supports all three.</p>
-<p>You can read about AR.js <a href="https://ar-js-org.github.io/AR.js-Docs/">here</a> and its GitHub repository is available <a href="https://github.com/ar-js-org/AR.js">here</a>.</p>
-<h2 id="locationbasedarwitharjs">Location-based AR with AR.js</h2>
-<p>Note that much of this is based on the tutorial on the web <a href="https://ar-js-org.github.io/AR.js-Docs/location-based-tutorial/">here</a>. </p>
-<h3 id="basicexample">Basic example</h3>
-<p>We will start with a basic example, using pure HTML, to display a box close
-to your location. </p>
-<pre><code class="html language-html">&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt;AR.js Basic Projected Camera Example&lt;/title&gt;
-        &lt;script src="https://aframe.io/releases/1.0.4/aframe.min.js"&gt;&lt;/script&gt;
-        &lt;script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"&gt;&lt;/script&gt;
-        &lt;!-- Look-at component. We don't need this now, but we will later. --&gt;
-        &lt;script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"&gt;&lt;/script&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-    &lt;a-scene
-        vr-mode-ui="enabled: false"
-        arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
-        renderer='antialias: true; alpha: true'&gt;
-            &lt;a-camera gps-projected-camera rotation-reader&gt;&lt;/a-camera&gt;
-            &lt;a-box gps-projected-entity-place='latitude: near-your-lat; longitude: near-your-lon' material='color: red' scale='10 10 10'&gt;&lt;/a-box&gt;
-        &lt;/a-scene&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>Note that any application which obtains your GPS location muust be run on a server with HTTPS, or run locally on <code>localhost</code>. Make
-sure you replace <code>near-your-lat</code> and <code>near-your-lon</code> with values close to your
-actual position, or fake location (see below). To see the box clearly, I would recommend an offset of around 0.001 degrees in any direction for both the latitude and longitude. So if your latitude and longitude are 51.049 and -0.723, for example, I would recommend using values such as latitude=51.048, longitude=-0.724.</p>
-<h3 id="howdoesthiswork">How does this work?</h3>
-<ul>
-<li><p>Note that our <code>&lt;a-scene&gt;</code> now has an <code>arjs</code> component (actually, it's not a component, strictly speaking, but a system: see <a href="week2.html">week 2</a>).</p></li>
-<li><p>The <code>arjs</code> system of our <code>a-scene</code> initialises AR.js. Note the properties
-we are setting: we set the <code>sourceType</code> to <code>webcam</code> to specify that our camera feed is coming from the webcam, and also set <code>videoTexture</code> to true. This is vital in an outdoor location-based AR app as it allows distant augmented content - such as mountain places - to be seen. (It does this by using a three.js texture for the camera feed which can be easily combined with our augmented content; if it is missed out, you will only be able to see content up to around 1 kilometre away).</p></li>
-<li><p>Note the <code>gps-projected-camera</code> component on our <code>a-camera</code>. This is the 
-AR.js component which automatically converts latitudes and longitudes into 3D world coordinates, allowing us to use latitude and longitude, rather than world coordinates, when adding places.</p></li>
-<li><p>We then create an <code>a-box</code> primitive. This is the augmented content that we
-want to display. Ordinarily, in A-Frame, you would give this a <code>position</code> in
-world coordinates. However, AR.js, and specifically the <code>gps-projected-entity-place</code> component, allows us to position it using latitude and longitude. 
-We can position <em>any</em> A-Frame entity at a given latitude and longitude using
-<code>gps-projected-entity-place</code>.</p></li>
-</ul>
-<h3 id="fakingyourlocation">Faking your location</h3>
-<p>GPS signals can be unreliable indoors, depending on exactly where you are - if you're near a window in a less-urban area you will be OK, but away from windows and/or in cities you may have difficulty. Also, location can be wildly inaccurate on a desktop or laptop (rather than a mobile device), because it relies on wifi networks or IP addresses to get your location. For example at my home address it gives me a location more than 200 kilometres away. For this reason, if on a desktop/laptop you might want to <strong>fake your location</strong>. How can we do this? </p>
-<p>You can download the <strong>Location Guard</strong> extension for either <a href="https://addons.mozilla.org/en-US/firefox/addon/location-guard/">Firefox</a> or <a href="https://chrome.google.com/webstore/detail/location-guard/cfohepagpmnodfdmjliccbbigdkfcgia">Chrome</a>. This will allow you to set a fake location for your browser, which will be reported when the Geolocation API is used in any application. (This also has the side-effect of hiding your real location from websites which may wish to gather this information for less-than-ethical purposes).</p>
-<p><img src="images/fixedloc1.png" alt="Location Guard - Pick your location" /></p>
-<p>After you install, you will see a screen rather like the above. Select <strong>Fixed Location</strong>. This will give you a map which you can drag. Move to somewhere fairly urban in <strong>Europe or Turkey</strong>, so that places can be found - but not a very big city as there might be so much data (Southampton is OK, London is not) - and ideally, not your real location, for privacy reasons. Note that you should choose somewhere which uses the Roman alphabet (ABCDE etc), rather than Greek or Cyrillic for example - unless you install a custom font, see <a href="week5.html">Week 5</a>.</p>
-<p>Then, once you have chosen a fake location, select Options and then choose "Use fixed location" for "Default level", as shown below.</p>
-<p><img src="images/fixedloc2.png" alt="Location Guard - Levels" /></p>
-<h3 id="exercise1">Exercise 1</h3>
-<p>Start with the example above, changing the specified latitude and longitude to points close to your actual - or faked - location, as described above. Use a phone or tablet if you have your own web hosting space and have a good GPS signal, or a fake location on a desktop or laptop. On a desktop or laptop you will have to emulate moving the phone around by dragging the mouse left or right, in the same way as a regular A-Frame scene.</p>
-<p>Note that Location Guard does not give numerical values for your position. However, I have added some code to this page which gets it as numerical values. Your current position (real or fake) is:</p>
-<div id='position'></div>
-<p>On a desktop or laptop you will need to create a local server with <code>npx ws</code>, as we did in Week 1, or use Apache if you have that installed locally. Do not try to run it without a web server, it will be blocked!</p>
-<p>If you want to use your phone and do not have your own hosting space, you can use GitHub Pages to host static HTML and JavaScript content. See <a href="https://pages.github.com/">here</a> for details on how to set it up. The idea is that you keep your work in a GitHub repository, and then commit changes locally and push to GitHub Pages. The changes will be visible on the web using your GitHub Pages URL.</p>
-<ul>
-<li><p>Change the <code>a-box</code> to some other kind of A-Frame primitive, such as an
-<code>a-sphere</code> or <code>a-cylinder</code>. Does it still work?</p></li>
-<li><p>Try adding multiple objects with different colours at different locations.</p></li>
-<li><p>Try adding a text primitive at a nearby latitude and longitude. Use the
-location-based example on the <a href="index.md">index.page</a> to help you. You will
-need to use the A-Frame <code>look-at</code> component to ensure the text always 
-faces the camera, e.g this code will always look at the entity with a <code>gps-projected-camera</code> component attached to it, in other words the camera.</p></li>
-</ul>
-<pre><code>&lt;a-entity look-at='[gps-projected-camera]' gps-entity-place=....&gt;&lt;/a-entity&gt;
-</code></pre>
-<ul>
-<li><p>Try giving your objects an elevation. This can be done by setting the
-<code>y</code> coordinate of the <code>position</code> property to a given height (in metres), with <code>x</code> and <code>z</code> set to 0. <strong>An important point is that one unit in A-Frame (or three.js) equals one metre in augmented reality. So if you set the <code>y</code> coordinate of an entity to a given value, it will be that number of metres above the ground.</strong></p></li>
-<li><p>Having done that, try giving the <em>camera</em> an elevation by similarly setting the <code>position</code> property, and look at the effect this has on where the objects appear.</p></li>
-</ul>
-<h3 id="introducingjavascriptwitharjs">Introducing JavaScript with AR.js</h3>
-<p>Much of the power of A-Frame, and AR.js, comes from adding scripting to your
-basic applications. You will already know the basics of how
-to create components in A-Frame, but let's start with a refresher. Create
-this file, <code>placefinder.js</code>:</p>
-<pre><code class="javascript language-javascript">AFRAME.registerComponent('placefinder', {
-    init: function() {
-        alert('Place finder component initialising!');
-    }
-});
-</code></pre>
-<p>and link to it from your HTML by adding, in the head section after the
-A-Frame and AR.js scripts:</p>
-<pre><code class="html language-html">&lt;script type='text/javascript' src='placefinder.js'&gt;&lt;/script&gt;
-</code></pre>
-<p>Also add a new entity to your scene and add this component to it:</p>
-<pre><code class="html language-html">&lt;a-entity placefinder&gt;&lt;/a-entity&gt;
-</code></pre>
-<p>Load your page again. You should see the alert box come up. Remember from
-basic A-Frame that to create a component, you need to register it as in the
-example above. Remember also that the <code>init()</code> function runs when the component
-is first initialised, and you add components to entities by making them
-attributes of the <code>&lt;a-entity&gt;</code> tag.</p>
-<h3 id="connectingtoawebapi">Connecting to a web API</h3>
-<p>Now we've got a basic component set up, we are going to make it do something:
-connect to a web API to retrieve the locations of nearby places - with our
-eventual aim of making a placefinder app. There are various APIs which can
-be used, but we will use one which is based on <a href="https://openstreetmap.org">OpenStreetMap</a> data. This API is present on the <a href="https://hikar.org">Hikar</a> web server and delivers the place data as GeoJSON, but only covers Europe, Turkey and Washington State, USA, due to server capacity constraints. (If you are currently not located in these areas, please use a fake location which is).</p>
-<p>Modify your code as follows:</p>
-<pre><code class="javascript language-javascript">AFRAME.registerComponent('placefinder', {
-    init: function() {
-        this.loaded = false;
-        window.addEventListener('gps-camera-update-position', e =&gt; {
-            if(this.loaded === false) {
-                this.loaded = true;
-                alert(`Your initial location is: ${e.detail.position.longitude} ${e.detail.position.latitude}`);
+position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
+<h2>Projections</h2>
+<p>An important consideration when doing web mapping is that
+<em>the earth is not flat</em> (it's more or less a sphere) while
+<em>maps are flat</em>. To display a curved surface on a flat piece
+of paper, or a 3D world via three.js or A-Frame, we need to do a <em>projection</em> and mathematically transform the latitude and longitude to coordinates suitable for representation on a flat surface. Why is this?
+Imagine any printed map of the earth. The map is equal width everywhere, from
+far northern areas such as Greenland or north Norway, to the equator. This does not match reality; since the earth is (more or less) a sphere, the circumference of the earth will be much greater at the equator than those far northern
+areas - indeed, at the poles, the circumference of the earth is zero!</p>
+<p>For this reason, latitude and longitude must be transformed
+to so called <em>projected coordinates</em> if we want to represent them on
+a flat surface, such as the ground of a 3D world. 
+The details of exactly how this projection is done is 
+out of scope of this module, as we will be using a library.</p> 
+<p>The most common projection used with web mapping is 
+referred to as <em>Web Mercator</em> (a type of <em>Spherical Mercator</em>). This is sometimes informally known as the "Google Projection" because Google popularised it with Google Maps.
+</p>
+<p><img src="../images/projection_new.png" 
+alt="Projecting sphere onto flat surface" /></p>
+<h3>Web Mercator and OpenGL</h3>
+<p>When developing a 3D OpenGL application, using three.js or A-Frame, we need to use projected coordinates, not latitude and longitude. One unit (<em>degree</em>) of longitude is not equal in distance to one degree of latitude, and furthermore, as can be seen from the diagram of the Earth above, one degree of longitude covers a different distance depending on where you are on the earth. At the poles, one degree of longitude has a distance of zero, as all the lines of longitude meet there. As you move towards the equator, the circumference of the earth at that latitude increases, to reach a maximum at the equator. So at the equator, one unit of longitude occupies a greater distance than at any other location.</p>
+<p>By contrast, Web Mercator units approximate to metres, at least away from far north or far south latitudes. So we can use Web Mercator units, together with elevation above sea level in metres, as 3D coordinates in a 3D world in three.js or A-Frame. Web Mercator coordinates contain two components: <em>easting</em> (a measure of how far east you are, equivalent to longitude) and <em>northing</em> (a measure of how far north you are, equivalent to latitude).</p>
+<p>There is a common convention for relating OpenGL world coordinates to Web Mercator eastings and northings, which is to map eastings to the x axis, northings to the z axis and elevation above sea level to the y axis. This is shown on the diagram below.
+<br />
+<img src='../images/mercator.png' alt='Relating OpenGL world coordinates to Web Mercator coordinates' />
+<br />
+It can be seen that the OpenGL coordinate system maps nicely onto the Web Mercator system using this convention. However there is one problem. <em>Web Mercator northings increase as we go north, and decrease as we go south, with the equator at northing 0. However, with the OpenGL coordinate system, if we assume +x is east and -x west, then -z will be north and +z will be south, according to the diagram above. So the sign of the z axis is the opposite to the sign of Web Mercator northings. So, when using Web Mercator northings for the z coordinates of our 3D world, we need to remember to reverse the sign.</em></p>
+</p>
+<h3>How to convert between latitude/longitude and Web Mercator</h3>
+<p>Using mathematical formulae, latitude and longitude can be converted to Web Mercator. However, because it is a common operation, various libraries can do it for you. We will use the library <code>jsfreemaplib</code>. Here is an example:
+<pre>
+import { GoogleProjection } from 'jsfreemaplib';
+
+// Create a GoogleProjection object. This object is responsible for conversions
+// between lon/lat and Web Mercator (aka 'Google Projection')
+const merc = new GoogleProjection();
+
+const lon = -0.72;
+const lat = 51.05;
+
+// project the lon and lat into Web Mercator.
+// returns an array with two members, first is easting and second is northing
+const projected = merc.project(lon, lat);
+
+// Output the easting and northing, and corresponding x and z coordinates, 
+// remembering to change sign of the northing before using it for a z coordinate
+console.log(`Easting: ${projected[0]}, x: ${projected[0]}, northing: ${projected[1]}, z: ${-projected[1]}`);
+</pre>
+You should install <code>jsfreemaplib</code> from NPM. In your <code>package.json</code>, specify version 0.4.0 or greater.</p>
+</p>
+<h2>The Geolocation API</h2>
+<h3>Introduction</h3>
+<p>The Geolocation API allows you to obtain the current location of the
+device running the browser from within JavaScript. Even on desktop browsers
+this will give a result if you are using a wireless network, but its real
+use is in the mobile web development world. A mobile browser can talk to the
+GPS chip of the phone and obtain the phone's current location on the earth.
+Alternatively, if the GPS chip is not available, a rough estimate can be
+obtained from cell towers or wireless networks.</p>
+<h4>Using the Geolocation API</h4>
+<p>It is fairly straightforward to use the Geolocation API. Here is an 
+example (<strong>please note - all examples in this topic will show the JavaScript only, not the HTML</strong>):
+<pre>
+if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition (
+            gpspos=&gt; {
+                console.log(`Lat ${gpspos.coords.latitude} Lon ${gpspos.coords.longitude}`); // show on the console
+            },
+
+            err=&gt; {
+                alert(`An error occurred: ${err.code}`);
             }
-        });
-    }
-});
-</code></pre>
-<p>What is this doing? We are listening for the <code>gps-camera-update-position</code> event. This is emitted by <code>gps-projected-camera</code> whenever our GPS location changes. The detail of the event contains a <code>position</code> object with <code>longitude</code> and <code>latitude</code> properties which contain our current position. For the moment, we just display an <code>alert</code> showing our current location, but later we will contact a web API to download the data we're interested in.</p>
-<p>Note also the <code>loaded</code> boolean. This is used to prevent the code being run <em>every time the position changes</em>. which will clearly result in unnecessary network communication. </p>
-<h4 id="addingaplacefromjavascript">Adding a place from JavaScript</h4>
-<p>We've seen how to add our <code>gps-projected-entity-place</code> components from within HTML, but what about from within JavaScript? You can use the same DOM-based techniques that you used with A-Frame without AR.js. For example:</p>
-<pre><code>const entity = document.createElement('a-box');
 
-entity.setAttribute('material', {
-    color: 'red'
-});
+        );
+} else {
+    alert("Sorry, geolocation not supported in this browser");
+}
+</pre>
+</p>
+<p>How is this working?
+    <ul>
+    <li>The code
+    tests whether geolocation is possible in our browser by checking for the
+    existence of the <em>navigator.geolocation</em> variable. If it doesn't
+    exist, we display an error. If it <em>does</em> exist, we tell the
+    geolocation object to obtain the current position with 
+    <em>getCurrentPosition()</em>. This takes two arguments, both functions:
+        <ul>
+        <li>The first argument (an arrow function here)
+        is the function that will run as soon as we get a 
+        location back from the GPS chip (or wireless network, etc)</li>
+        <li>The second (here, another arrow function) will run if there
+        was an error obtaining the location.</li>
+        </ul>
+    </li>
+    <li>
+    Note the <em>asynchronous</em> approach here, just like AJAX. It might
+    take time to obtain a position, so we set up a <em>callback</em>
+    function to run once we have obtained the position, and continue
+    processing in the meantime. So any statements below the 
+    <em>getCurrentPosition()</em> might run before 
+    the first arrow function starts running.
+    </li>
+    <li>Considering each of these two functions in turn, let's look at
+    the first. This is automatically supplied with
+    one parameter, <em>gpspos</em>, which is an object 
+    representing the position returned from the GPS device or other location provider. This object has a property <em>coords</em> representing the
+    coordinates, and <em>coords</em> itself has two properties,
+    <em>latitude</em> and <em>longitude</em>.
+    Therefore, we can obtain the latitude and
+    longitude with <em>gpspos.coords.latitude</em> and 
+    <em>gpspos.coords.longitude</em>. So what this example is doing is
+    displaying the coordinates in the console (you can view the console
+    via More Tools-Developer Tools in Chrome or Web Developer-Web Console
+    in Firefox).</li>
+    <li>Moving onto the second arrow function, which is the function which
+    is run if there is any sort of error in obtaining the position: again, 
+    this is automatically supplied with one parameter, <em>err</em>,
+    an object representing the exact error which occurred. The most meaningful
+    property of <em>err</em> is a numerical code, <em>err.code</em>, which
+    is what we are displaying here. There are several codes
+    (ref <a href='http://www.diveintohtml5.info/geolocation.html'>Dive into 
+    HTML5</a>, Mark Pilgrim):
+        <ul>
+        <li>1 means that the user denied the browser access to the device's
+        location. For security reasons, a user has to agree to the browser
+        accessing the device's GPS chip, and if they deny that access, the
+        error function will run with a code of 1.</li>
+        <li>2 means that the location could not be obtained, e.g the
+        GPS satellites or wireless networks are unavailable;</li>
+        <li>3 means a timeout, i.e. the GPS satellites or network are 
+        available but it has taken too long to contact them.</li>
+        </ul>
+    </li>
+    </ul>
+</p>
+<h3>Watching the position</h3>
+<p>The above code will simply obtain the current position and stop. In a
+typical mobile GPS application, however, the user will want to be informed
+of their location on a regular basis. To do this we use 
+<em>watchPosition()</em> in place of <em>getCurrentPosition()</em>. Here is
+an example:
+<pre>
+if(navigator.geolocation) {
+    navigator.geolocation.watchPosition (
 
-entity.setAttribute('gps-projected-entity-place', {
-    latitude: 51.048,
-    longitude: -0.724
-});
-</code></pre>
-<p>Add this code to your example. Be careful to choose latitude and longitude
-near your location (real or fake)!</p>
-<h4 id="connectingtoawebapi-1">Connecting to a web API</h4>
-<p>Next, we will connect to a web API to download places. The web API is on the server <code>hikar.org</code> and can be downloaded using <code>fetch()</code> e.g.</p>
-<pre><code>const response = await fetch(`https://www.hikar.org/fm/ws/bsvr.php?bbox=${longitude-0.1},${latitude-0.1},${longitude+0.1},${latitude+0.1}&amp;outProj=4326&amp;format=json&amp;poi=place`);
-</code></pre>
-<p>where <code>longitude</code> and <code>latitude</code> are our current longitude and latitude. What we are doing here is downloading data within a box, 0.2 degrees by 0.2 degrees, with our current position in the centre. This will download data a few kilometres around you so that you will be able to see places in AR.</p>
-<h3 id="geojson">GeoJSON</h3>
+        gpspos=&gt; {
+            console.log(`Lat ${gpspos.coords.latitude} Lon ${gpspos.coords.longitude}`); // show on the console
+        },
+
+        err=&gt; {
+            alert(`An error occurred: ${err.code}`);
+        },
+
+        {
+            enableHighAccuracy:true, 
+            maximumAge: 5000 
+        }
+
+    );
+} else {
+    alert("Sorry, geolocation not supported in this browser");
+}
+</pre>
+</p>
+<p>Note that the code is almost the same as the first example, except:
+    <ul>
+    <li>We use <em>watchPosition()</em> rather than 
+    <em>getCurrentPosition()</em>. The result will be that the GPS chip 
+    (or other location provider) will communicate the current location back
+    to the process position arrow 
+    function every time the location changes, rather 
+    than just the once.</li>
+    <li>Note also the additional options passed as a third parameter to
+    <em>watchPosition()</em>. On many mobile devices, if we want to use the
+    GPS chip (rather than cell towers, wireless networks, etc) we have
+    to set the <em>enableHighAccuracy</em> option to <em>true</em>. Also
+    if we want to force the GPS to return a reading every so-many seconds,
+    we have to specify a value for the <em>maximumAge</em> option, in 
+    milliseconds. So the above example will refresh at least every 5 
+    seconds.</li>
+    </ul>
+</p>
+<h3>IMPORTANT - Geolocation API now needs HTTPS server</h3>
+<p>For security reasons (the risk of your location being intercepted by
+packet-sniffers) the Geolocation API now
+requires the use of an HTTPS server (a web server with
+encrypted communication), on both Chrome and Firefox. 
+If you are running on <code>localhost</code> (your own local machine),
+however, HTTPS is not needed.</p>
+<p>See <a href='https://letsencrypt.org'>Let's Encrypt</a> for information on
+setting up an HTTPS server.</p>
+<h2 id="geojson">GeoJSON</h2>
 <p>What format does this API return? It returns a specific JSON format known as <em>GeoJSON</em> (see <a href="https://geojson.org">geojson.org</a>). GeoJSON is designed to represent geographic data in a standard way.</p>
 <p>GeoJSON consists of a series of objects. These are:
     <ul>
@@ -270,81 +333,33 @@ each of which contains three fields:
 <pre>
 const response = await fetch('GeoJSON API');
 const json = await response.json();
-json.features.forEach ( feature => {
+json.features.forEach ( feature =&gt; {
     console.log(`Name: ${feature.properties.name}`);
     if(feature.geometry.type == 'Point') {
         console.log(`Longitude: ${feature.geometry.coordinates[0]}, latitude: ${feature.geometry.coordinates[1]}`);
     }
 });
 </pre>
-<h3 id="exercise2">Exercise 2</h3>
-<p>Now write code to parse the GeoJSON returned from the web API. The approach will be the same as when you parsed the JSON from the simple API in weeks 4 and 5, but the structure of the JSON is different.</p>
-<p>The GeoJSON will have a format such as that below:</p>
-<pre><code>{"features":[
-    {
-        "type":"Feature",
-        "properties":
-            { 
-                "osm_id":"262739",
-                 "name":"Fernhurst",
-                "place":"village"
-            },
-        "geometry":
-            {
-                "type":"Point",
-                "coordinates": [-0.723310099899314,51.0481924947881]
-            },
-    },
+<h2>Exercise</h2>
 
-    {
-         "type":"Feature",
-         "properties":
-            {
-                "osm_id":"262695",
-                 "name":"Marley Common",
-                 "place":"locality"
-            },
-          "geometry":
-            {
-                "type":"Point",
-                 "coordinates": [-0.733907899897839,51.0736049947875]
-            }
-    },
-
-    {    
-        "type":"Feature",
-         "properties":
-            {
-                "osm_id":"262742",
-                 "name":"Kingsley Green",
-                 "place":"hamlet"
-            },
-          "geometry":
-            {
-                "type":"Point",
-                 "coordinates": [-0.723330999899311,51.0675999947876]
-            }
-    }
- ], 
- "type": "FeatureCollection"
-}
-</code></pre>
-<p>For each place returned from the GeoJSON (all will have a <code>Point</code> geometry), create an <code>&lt;a-entity&gt;</code> with:</p>
-<ul>
-<li>a <code>text</code> component containing the place name;</li>
-<li>a <code>look-at</code> component. This should look at <code>[gps-projected-camera]</code> (the element containing a <code>gps-projected-camera</code> component, i.e the camera)</li>
-<li>a <code>scale</code> of 1000, this will make the text appear large enough. If too large (e.g you are very close to a given place) then try reducing the scale.</li>
-<li>a <code>gps-projected-entity-place</code> component containing the latitude and longitude from the GeoJSON.</li>
-</ul>
-<p>*** !!! IMPORTANT !!! """</p>
-<p>You will need to make your event listener an <code>async</code> function so that you can use <code>await</code> within it. For example:</p>
-<pre><code>window.addEventListener('gps-camera-update-position', async (e) =&gt; {
-    // do your code to connect to the web API and generate the augmented content
-});
-</code></pre>
-<h4 id="furtherthingstotry">Further things to try</h4>
-<ul>
-<li><p>Rather than hard-coding the scale at 1000, add it as a property using the component's schema, and experiment with different values by setting the property in your HTML.</p></li>
-<li><p>Create a compound entity for each AR location, containing both a sphere of radius 150 metres and text. The text should appear 300 metres above the sphere. The text itself should be scaled by a factor of 1500.</p></li>
-</ul>
-<script type='text/javascript' src='week7.js'></script></body></html>
+<p>The exercise is to bring this all together and dynamically create a scene
+by contacting a web API to retrieve JSON. At the URL
+<pre>TODO setup an API</pre>
+is a server-side application which returns JSON of various points of interest
+(restaurants, cafes etc). If no 'type' parameter is supplied, <strong>all</strong> points of interest are returned, while if there is a type, e.g:
+<pre>https://www.hikar.org/course/imm/world.php?type=cafe</pre>
+only points of interest of that type are returned.
+</p>
+<ol>
+<li>Build an A-Frame or a three.js application which contacts this
+URL, downloads the data (<strong>all</strong> points of interest)
+from it (using fetch), parses the JSON, and uses the
+data contained in the JSON to create A-Frame entities or three.js meshes for each point of interest at their coordinates.</li>
+<li>Add code so that an alert box with the name of the point of interest
+appears when you click on it. You should be able to work out how to do this from the mouse events section from week 5.</li>
+<li>Change your code to colour the spheres differently depending on point
+of interest type. Cafes should be in brown, restaurants in blue and bars
+in red.</li>
+</ol>
+</body>
+</html>
