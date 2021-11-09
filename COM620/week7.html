@@ -364,6 +364,12 @@ URL, and downloads the data from it (using the fetch API). You will need to use 
 <pre>AFRAME.registerComponent("downloader", {
     init: function() {
         // put your code in here...
+
+        // Note how the geolocation callback function is declared async to
+        // allow us to use await for the fetch call
+        navigator.geolocation.getCurrentPosition(<strong>async</strong>(gpspos) =&gt; {
+        //...
+      });
     }
 });</pre>
 In pure three.js, you can add the download code any time after your scene is loaded.</p>
@@ -388,7 +394,7 @@ Use the fetch API to send the data. The server will send back GeoJSON. To embed 
 <pre>const response = await fetch(`https://hikar.org/webapp/map/peaks?bbox=${west},${south},${east},${north}`);</pre>
 where <code>west</code>, <code>south</code>, <code>east</code> and <code>north</code> are the bounds of the area to download.
 <br />
-You should parse the JSON, and create cones for each feature. Create A-Frame entities or three.js meshes for each point of interest at the appropriate coordinates. You need to convert the latitude and longitude supplied by the JSON into Web Mercator, see above. Remember to reverse the sign of z!</li>
+You should parse the JSON, and create cones for each feature. Create A-Frame entities or three.js meshes for each point of interest at the appropriate coordinates. You need to convert the latitude and longitude supplied by the JSON into Web Mercator, see above. Remember to reverse the sign of z! Also make sure the cone is large (e.g. radius 100m, height 300m)</li>
 <li>Test it. To change the location you'll need to set a new location in Location Guard while your application is running.</li>
 <li>Add code so that an alert box with the name and elevation (<code>ele</code>) of the peak appears when you click on it. You should be able to work out how to do this from the mouse events section from week 5.</li>
 <li>Change your code to colour the cones differently depending on elevation: 
