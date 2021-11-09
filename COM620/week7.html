@@ -380,6 +380,16 @@ In pure three.js, you can add the download code any time after your scene is loa
 To view the JSON nicely formatted I would recommend installing an extension such as <a href='https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh/related'>JSON Viewer for Chrome</a>.</li>
 <li>Use the Geolocation API to obtain your current position, as latitude and longitude. Convert the latitude and longitude into Web Mercator and set the x and z coordinates of the camera appropriately. Remember to reverse the sign of z!
     <ul>
+	<li>To set the camera position, use code such as the below to find the camera entity and update its position:
+	<pre>
+	document.querySelector("[camera]").setAttribute("position", {
+		x: mercatorEasting,
+		y: 0,
+		z: -mercatorNorthing
+	});
+	</pre>
+	Note how in this code we ding the camera with the square brackets syntax <code>[camera]</code>. Square brackets in CSS select any element with that attribute present. In A-Frame this is equivalent to selecting an entity with the given component present. So here, we are selecting the entity which contains the <code>camera</code> component, i.e. our camera entity. 
+	</li>
     <li><strong>Also, please use <code>getCurrentPosition()</code> and not <code>watchPosition()</code>! While in a real app you would probably use <code>watchPosition()</code> I don't want my server being bombarded with requests during the lab session!</strong></li>
     </ul>
 </li>
@@ -394,9 +404,10 @@ Use the fetch API to send the data. The server will send back GeoJSON. To embed 
 <pre>const response = await fetch(`https://hikar.org/webapp/map/peaks?bbox=${west},${south},${east},${north}`);</pre>
 where <code>west</code>, <code>south</code>, <code>east</code> and <code>north</code> are the bounds of the area to download.
 <br />
-You should parse the JSON, and create cones for each feature. Create A-Frame entities or three.js meshes for each point of interest at the appropriate coordinates. You need to convert the latitude and longitude supplied by the JSON into Web Mercator, see above. Remember to reverse the sign of z! Also make sure the cone is large (e.g. radius 100m, height 300m)</li>
+You should parse the JSON, and create cones for each feature. Create A-Frame entities or three.js meshes for each point of interest at the appropriate coordinates. You need to convert the latitude and longitude supplied by the JSON into Web Mercator, see above. Remember to reverse the sign of z! Also make sure the cone is large (e.g. radius 100m, height 300m) otherwise you won't be able to see it from a distance.</li>
 <li>Test it. To change the location you'll need to set a new location in Location Guard while your application is running.</li>
-<li>Add code so that an alert box with the name and elevation (<code>ele</code>) of the peak appears when you click on it. You should be able to work out how to do this from the mouse events section from week 5.</li>
+<li>Add code so that an alert box with the name and elevation (<code>ele</code>) of the peak appears when you click on it. You should be able to work out how to do this from the mouse events section from week 5. Note that you will need an additional <code>raycaster</code> component added to the scene. The <code>raycaster</code> component defines the start (near) and end (far) distance of the ray cast from the mouse position which is used to detect mouse clicks. You should set the end distance to 10000 units to detect peaks up to 10km (10000m) away, e.g.
+<pre>&lt;a-scene cursor='rayOrigin: mouse' <strong>raycaster='near:0.1; far: 10000'</strong>&gt;</li>
 <li>Change your code to colour the cones differently depending on elevation: 
     <ul>
     <li>If there is no elevation provided, use red;</li>
