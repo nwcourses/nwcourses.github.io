@@ -1,42 +1,183 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week8furtherarjsnfttilingelevation">Week 8 - Further AR.js: NFT, Tiling, Elevation</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week7introductiontoarjs">Week 8 : Introduction to AR.js</h1>
 <h2 id="introduction">Introduction</h2>
-<p>This is a relatively "light" week to allow you to catch up with previous weeks if necessary, as Week 6 and Week 7 had a lot of content. We will cover a few additional AR-related topics this week; first of all a taster of NFT (Natural Feature Tracking) and secondly the technique of <em>tiling</em> which allow you to efficiently download data to be used in an AR application. We will also look at how we can account for <em>elevation</em>.</p>
-<p>I would recommend that you finish previous weeks before attempting this week's work.</p>
-<h2 id="naturalfeaturetracking">Natural feature tracking</h2>
-<p>We will just take a quick look this week at Natural Feature Tracking in AR.js.
-As I indicated last week, Natural Feature Tracking allows an image to be scanned with numerical data - known as <em>descriptors</em> - extracted from the image which can be used to later recognise it.</p>
-<p>Natural Feature Tracking allows an image to be scanned with numerical data - known as <em>descriptors</em> - extracted from the image which can be used to later recognise it.</p>
-<p>See the documentation <a href="https://ar-js-org.github.io/AR.js-Docs/image-tracking/">here</a>.</p>
-<p>There are two steps:</p>
+<p>This week we will start to look at how we can develop <em>augmented reality</em> applications in JavaScript, using the increasingly-popular <em>AR.js</em> library. Before we do so, we will take a look at the concepts of and <em>latitude and longitude</em>.</p>
+<h2 id="augmentedreality">Augmented reality</h2>
+<p>Augmented reality is the <em>augmentation</em> of the real world by computer-generated content. A typical augmented reality application will run on a portable device such as a phone or tablet, and overlay the real world - as seen through the device's camera feed - with computer generated content, such as points of interest. Here is a video showing an augmented reality application:</p>
+<video src="https://hikar.org/video/hikarweb.mp4" width='600' height='800' controls></video>
+<p>This application - Hikar (available <a href="https://hikar.org/webapp">here</a> - requires mobile device and may not work on certain browsers, I'd recommend Chrome on Android or Safari on iOS) has been written using AR.js so gives an impression of what can be achieved with web AR.</p>
+<p>The type of AR that Hikar uses is <em>location-based</em> AR, In fact there are four main variants of AR:</p>
 <ul>
-<li>Use a command line tool to extract the descriptors. This is available on <a href="https://github.com/Carnaux/NFT-Marker-Creator">GitHub</a>.</li>
-<li>Use AR.js with NFT to later detect the image by scanning it with your phone camera.</li>
+<li><p><em>Location-based</em> AR uses your location on earth (provided by GPS) together with the current orientation of the device (is it facing north, south, east or west, is it tilted and is it landscape or portrait?) to overlay geographical information, such as points of interest or roads and walking trails, on the camera feed. If you look at the Hikar video above, you can see that computer-generated roads and paths, are overlaid (more or less) on their real-world equivalents. Note that it is not a perfect fit - GPS is typically accurate to around 5-15 metres or so, and the device sensors, such as the compass and accelerometer, which are used to calculate the device's orientation, may not be completely accurate.</p></li>
+<li><p><em>Marker-based</em> AR uses computer vision techniques to detect printed markers in the camera feed of the device. A typical example of a marker-based approach is shown in various AR demos in which a pattern is printed on a piece of paper and a computer-generated 3D model - often an animal in many demos - is overlaid accurately on the paper so that when the paper moves, the model also moves.</p></li>
+<li><p><em>Natural feature tracking (NFT)</em>. This is similar to marker-based AR in the sense that it uses computer vision, but works with real-world images rather than markers. You can scan in an image that you later want to detect in AR. An example of this might be a painting, or image that will be used as a street advert. <em>Image descriptors</em> - points representing "interesting" features within the image, for example corners of shapes - will be created. Using these image descriptors you can develop an AR app which will detect that same image in the real world, so that, for example, if you point your phone at the same image that was originally used to create the descriptors, it will be detected and you can display AR content. This could be an augmented street advert in which 3D characters appear, or information about a painting in an art gallery.</p></li>
+<li><p><em>Markerless augmented reality</em>. Markerless AR is the most sophisticated and advanced and can use sophisticated computer vision algorithms to detect flat surfaces within the camera feed. Thus, AR content such as models can be placed accurately and realistically on the ground without the need for markers or pre-scanned images as in marker-based and NFT approaches. A potential use of this approach is to improve the realism of location-based AR so that the augmented content does not appear to "float above the ground", as it does on the video above. Sadly the leading markerless approaches are proprietary, closed-source and often expensive software; there is little or nothing available yet in the open source world. Nonetheless this is an exciting research topic and something I am hoping to investigate personally.  Examples (proprietary) includie <a href="https://developers.google.com/ar/">ARCore</a> on Android, <a href="https://developer.apple.com/augmented-reality/arkit/">ARKit</a> on iOS, <a href="https://8thwall.com">8th Wall</a>, and <a href="https://wikitude.com">Wikitude</a>. </p></li>
 </ul>
-<p>An image of a T-Rex has been prepared by the AR.js developers and is available <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex-image-big.jpeg">here</a>. Try scanning this image by visiting <a href="https://hikar.org/nft/t-rex.html">this link</a>. You should find - hopefully - that a T-Rex model appears whenever the image is detected by your phone.</p>
-<p>The NFT feature of AR.js is based on the <a href="https://github.com/artoolkitx/jsartoolkit5">jsartoolkit</a> library. This is a port of the C++ based ARToolkit library to the web, and is a lower-level library for performing marker- and NFT-based AR.</p>
-<p>The image has to be high quality and high resolution with many unique features to be successfully detected. See the <a href="https://ar-js-org.github.io/AR.js-Docs/image-tracking/">AR.js docs</a> for details.</p>
-<p>Here is an example of how NFT can be integrated into an A-Frame application. This example has been taken from the example from the <a href="https://ar-js-org.github.io/AR.js-Docs/">AR.js Docs</a>.</p>
-<pre><code> &lt;a-nft
-      type="nft"
-      url="/nft/trex/trex-image/trex"
-      smooth="true"
-      smoothCount="10"
-      smoothTolerance=".01"
-      smoothThreshold="5"
-    &gt;
-    &lt;!--Had to rotate about x-axis to get the T-Rex to appear as intended--&gt;
-      &lt;a-entity
-        gltf-model="/nft/trex/scene.gltf"
-        scale="5 5 5"
-        position="50 150 0"
-        rotation="-90 0 0"
-      &gt;
-      &lt;/a-entity&gt;
-&lt;/a-nft&gt;
+<p>We will primarily be focusing on location-based AR but will take a quick look at markerless in week 11.</p>
+<p>You can read about AR.js <a href="https://ar-js-org.github.io/AR.js-Docs/">here</a> and its GitHub repository is available <a href="https://github.com/ar-js-org/AR.js">here</a>.</p>
+<h2 id="locationbasedarwitharjs">Location-based AR with AR.js</h2>
+<p>Note that much of this is based on the tutorial on the web <a href="https://ar-js-org.github.io/AR.js-Docs/location-based-tutorial/">here</a>. </p>
+<h3 id="basicexample">Basic example</h3>
+<p>We will start with a basic example, using pure HTML, to display a box close
+to your location. </p>
+<pre><code class="html language-html">&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;AR.js Basic Projected Camera Example&lt;/title&gt;
+        &lt;script src="dist/bundle.js"&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+    &lt;a-scene
+        vr-mode-ui="enabled: false"
+        arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
+        renderer='antialias: true; alpha: true'&gt;
+            &lt;a-camera gps-projected-camera rotation-reader&gt;&lt;/a-camera&gt;
+            &lt;a-box gps-projected-entity-place='latitude: near-your-lat; longitude: near-your-lon' material='color: red' scale='10 10 10'&gt;&lt;/a-box&gt;
+        &lt;/a-scene&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<p>Note how we specify an <code>&lt;a-nft&gt;</code> entity to add a Natural Feature Tracking entity to our page. It has a <code>url</code> property which should point to the location of the descriptors created by the command-line tool, above. The URL in the above example is a relative URL, in other words it will be at path <code>/nft/trex/trex-image/trex</code> on the current server. The command-line tool outputs three files, with extensions <code>.fset</code>, <code>.fset3</code> and <code>.iset</code>. They will have a common name with different extensions e.g. <code>trex.fset</code>, <code>trex.fset3</code> and <code>trex.iset</code>; it is this name minus the extensions that you have to specify here, i.e. <code>trex</code>. So here, these three descriptor files will be within the <code>/nft/trex/trex-image</code> directory on the current server. </p>
-<p>Note the "smoothing" parameters to the <code>&lt;a-nft&gt;</code> entity. These prevent the model making sudden "jerky" movements - more details are given in the <a href="https://ar-js-org.github.io/AR.js-Docs/image-tracking/">documentation</a>.</p>
-<p>We then place an <code>&lt;a-entity&gt;</code> within our <code>&lt;a-nft&gt;</code> to represent the model itself. In this example, it's a GLTF model called <code>scene-gltf</code> within the <code>/nft/trex</code> directory on our server; we could alternatively place it within our <code>&lt;a-assets&gt;</code>. We add a <code>scale</code>, a <code>position</code> and a <code>rotation</code> to make it appear where we want it (in my test it appeared on the laptop keyboard when I was scanning the image in using the phone).  (I found that on my device I had to rotate the T-Rex model by 90 degrees clockwise around the X-axis compared to the example given in the documentation).</p>
+You can now install AR.js from npm, use this package.json (this includes some other dependencies we will not need until later):
+<pre>
+{
+    "dependencies": {
+        "@ar-js-org/ar.js": "^3.3.2-es6-beta-01",
+        "aframe": "^1.2.0",
+        "aframe-look-at-component": "^1.0.0",
+        "aframe-osm-3d": "^0.5.1"
+    },
+    "devDependencies": {
+        "webpack": "^5.0.0",
+        "webpack-cli": "^4.7.0"
+    }
+}
+
+</pre>
+</p>
+and to import it, from your JavaSctipt:
+<pre>import '@ar-js-org/ar.js';</pre>
+<p>Note that any application which obtains your GPS location muust be run on a server with HTTPS, or run locally on <code>localhost</code>. Make
+sure you replace <code>near-your-lat</code> and <code>near-your-lon</code> with values close to your actual position, or fake location (use Location Guard, see last week). To see the box clearly, I would recommend an offset of around 0.001 degrees in any direction for both the latitude and longitude. So if your latitude and longitude are 51.049 and -0.723, for example, I would recommend using values such as latitude=51.048, longitude=-0.724.</p>
+<h3 id="howdoesthiswork">How does this work?</h3>
+<ul>
+<li><p>Note that our <code>&lt;a-scene&gt;</code> now has an <code>arjs</code> component (actually, it's not a component, strictly speaking, but a system: see <a href="week2.html">week 2</a>).</p></li>
+<li><p>The <code>arjs</code> system of our <code>a-scene</code> initialises AR.js. Note the properties
+we are setting: we set the <code>sourceType</code> to <code>webcam</code> to specify that our camera feed is coming from the webcam, and also set <code>videoTexture</code> to true. This is vital in an outdoor location-based AR app as it allows distant augmented content - such as mountain places - to be seen. (It does this by using a three.js texture for the camera feed which can be easily combined with our augmented content; if it is missed out, you will only be able to see content up to around 1 kilometre away).</p></li>
+<li><p>Note the <code>gps-projected-camera</code> component on our <code>a-camera</code>. This is the 
+AR.js component which automatically converts latitudes and longitudes into 3D world coordinates, allowing us to use latitude and longitude, rather than world coordinates, when adding places.</p></li>
+<li><p>We then create an <code>a-box</code> primitive. This is the augmented content that we
+want to display. Ordinarily, in A-Frame, you would give this a <code>position</code> in
+world coordinates. However, AR.js, and specifically the <code>gps-projected-entity-place</code> component, allows us to position it using latitude and longitude. 
+We can position <em>any</em> A-Frame entity at a given latitude and longitude using
+<code>gps-projected-entity-place</code>.</p></li>
+</ul>
+<h2 id="text">Text</h2>
+<p>Text is useful for AR applications. We can also create text in A-Frame, using 
+an <code>&lt;a-entity&gt;</code> with a <code>text</code> component. The <code>text</code> component has various
+properties, the most important being the <code>value</code> - the actual text. See
+<a href="https://aframe.io/docs/1.0.0/components/text.html">the A-Frame documentation</a>
+for details.  By default, text is rather small, so it needs to be scaled to 
+make it visible (scaling up by 100 gives a usable size).</p>
+<pre><code>entity.setAttribute('text', {
+    value: 'Some text'
+});
+entity.setAttribute('scale', {
+    x: 100,
+    y: 100,
+    z: 100
+});
+</code></pre>
+<h3 id="lookingatthecamera">Looking at the camera</h3>
+<p>By default, text will look towards positive z however this isn't necessarily
+what we want. We more commonly want the text to <em>look at the camera</em> so that
+it's always visible. To do this we make use of the third-party <code>look-at</code>
+component. To use <code>look-at</code> you need to add it to your package.json, the package is <code>aframe-look-at-component</code> and the version <code>1.0.0</code>. You can import it with
+<pre>import 'aframe-look-at-component';</pre> 
+<p>then you can add it to an entity e.g:</p>
+<pre><code>&lt;a-entity text='value: Hello World' scale='100 100 100' look-at='[camera]'&gt;&lt;/a-entity&gt;
+</code></pre>
+<p>Note how in this example the text is looking at the camera. We specify the camera with the square brackets syntax <code>[camera]</code>. (Remember that square brackets
+in CSS select any element with that attribute present. In A-Frame this is equivalent to selecting an entity with the given component present. So here, we are selecting the entity which contains the <code>camera</code> component, i.e. our camera entity). We can, as an alternative, look at any other entity in our scene by specifying an appropriate CSS selector.</p>
+<h3 id="othertextproperties">Other text properties</h3>
+<p>See <a href="https://aframe.io/docs/1.0.0/components/text.html">the A-Frame documentation</a>. Other properties you can set on the <code>text</code> component include:</p>
+<ul>
+<li><code>align</code>: horizontally justifying the text (left, center or right);</li>
+<li><code>baseline</code>: specifying the baseline of the text (top, center or bottom) - 
+i.e. will the top, the centre or the bottom of the text be placed at the
+<code>y</code> coordinate?</li>
+</ul>
+<h3 id="positioningtextonaplane">Positioning text on a plane</h3>
+<p>A common use-case is to position text on an existing plane, for example to
+draw a noticeboard or signpost. What you can do here is to create an 
+<code>&lt;a-plane&gt;</code> with a <code>text</code> component. e.g.</p>
+<pre><code>&lt;a-plane text='value: Hello' material='color: red' width=4 height=1 look-at='[camera]'&gt;&lt;/a-plane&gt;
+</code></pre>
+<p>Note how the <code>&lt;a-plane&gt;</code> has a material, a width and a height - but also has
+its own <code>text</code> component. This will draw the text directly on the plane.
+The text is automatically scaled to fit on the plane, though by default the
+text will be very small. You can, however, use the <code>wrapCount</code> property of
+the <code>text</code> component to specify approximately how many characters will fit on 
+the plane, for example if you set <code>wrapCount</code> to 20, the text will scale to
+a size where it would exactly fit on the plane if it contained 20 characters.
+Any characters beyond the <code>wrapCount</code> will appear on the next line.</p>
+<h3 id="internationalcharacters">International characters</h3>
+<p>Note that A-Frame text will <em>not</em> by default work with international character sets. Only characters present in a given font will be renderered (drawn) and for the default font used by A-Frame, these are just the standard ASCII characters. The font format used is known as the <em>MSDF</em> format. If you wish to render international characters, you need to use an online font-generator such as <a href="https://msdf-bmfont.donmccurdy.com">Don McCurdy's font generator</a>. To use this, you upload a TrueType (<code>.ttf</code>) font containing your chosen characters to this site, and it will generate a MSDF font for those characters. This consists of two files: </p>
+<ul>
+<li>a JSON file defining the font properties,</li>
+<li>and a PNG image containing the actual characters. </li>
+</ul>
+<p>These can then be used to render text by 
+setting the <code>font</code> and <code>fontImage</code> properties of the <code>text</code> attribute to the
+JSON file and PNG image respectively.</p>
+<h2 id="introducingjavascriptwitharjs">Introducing JavaScript with AR.js</h2>
+<p>Much of the power of A-Frame, and AR.js, comes from adding scripting to your
+basic applications. You will already know the basics of how
+to create components in A-Frame, but let's start with a refresher:
+<pre>
+import '@ar-js-org/ar.js';
+
+<code class="javascript language-javascript">AFRAME.registerComponent('peakfinder', {
+    init: function() {
+        alert('Place finder component initialising!');
+    }
+});
+</code></pre>
+</p>
+<p>When thisis run, the alert box comes up.</p>
+<h3 id="connectingtoawebapi">Connecting to a web API</h3>
+<p>Now we've got a basic component set up, we are going to make it do something:
+connect to a web API to retrieve the locations of nearby places - with our
+eventual aim of making a peakfinder app. There are various APIs which can
+be used, but we will use one which is based on <a href="https://openstreetmap.org">OpenStreetMap</a> data, as last week.</p>
+<pre><code class="javascript language-javascript">AFRAME.registerComponent('peakfinder', {
+    init: function() {
+        this.loaded = false;
+        window.addEventListener('gps-camera-update-position', e =&gt; {
+            if(this.loaded === false) {
+                this.loaded = true;
+                alert(`Your initial location is: ${e.detail.position.longitude} ${e.detail.position.latitude}`);
+            }
+        });
+    }
+});
+</code></pre>
+<p>What is this doing? We are listening for the <code>gps-camera-update-position</code> event. This is emitted by <code>gps-projected-camera</code> whenever our GPS location changes. The detail of the event contains a <code>position</code> object with <code>longitude</code> and <code>latitude</code> properties which contain our current position. For the moment, we just display an <code>alert</code> showing our current location, but later we will contact a web API to download the data we're interested in.</p>
+<p>Note also the <code>loaded</code> boolean. This is used to prevent the code being run <em>every time the position changes</em>. which will clearly result in unnecessary network communication. </p>
+<h4 id="addingaplacefromjavascript">Adding a place from JavaScript</h4>
+<p>We've seen how to add our <code>gps-projected-entity-place</code> components from within HTML, but what about from within JavaScript? You can use the same DOM-based techniques that you used with A-Frame without AR.js. For example:</p>
+<pre><code>const entity = document.createElement('a-box');
+
+entity.setAttribute('material', {
+    color: 'red'
+});
+
+entity.setAttribute('gps-projected-entity-place', {
+    latitude: 51.048,
+    longitude: -0.724
+});
+</code></pre>
+<p>Add this code to your example. Be careful to choose latitude and longitude
+near your location (real or fake)!</p>
+<script type='text/javascript' src='week7.js'></script>
+
 <h2 id="tileddataandelevation">Tiled data and elevation</h2>
 <h3 id="usingtilinginarjsapps">Using tiling in AR.js apps</h3>
 <p>(Please note, most of the following was taken directly from <a href="https://ar-js-org.github.io/AR.js-Docs/location-based-tutorial/">the AR.js peakfinder tutorial</a> and modified slightly. This tutorial was created by myself.)</p>
@@ -46,7 +187,7 @@ would be better if we could <em>continuously</em> download data as we move from 
 to place, so that we get data local to our area if we travel around. So, for example, places within 10km of us are downloaded when we srart the app, and then, as we reach the edge of the already-downloaded area, new places are downloaded.</p>
 <p>This approach is known as <em>tiling</em>. A <em>tile</em> is a rectangular, often square, area of the earth containing geographical data. When we start the application, the local tile - representing our current area - is downloaded, and cached on the device so that next time we visit the area we don't need to download again. Then, when we move to another area, a new tile is downoloaded and again cached. If we return to the original area, we load the data from the cache rather than over the internet.</p>
 <p>This is shown below. Sometimes, to enable us to see points of interest some distance away if we are near the edge of a tile, the current tile <em>and the eight surrounding tiles</em> are downloaded.</p>
-<p><img src="images/tiles.png" alt="Tiling" /></p>
+<p><img src="../images/tiles.png" alt="Tiling" /></p>
 <p>It would be also nice to consider the <em>elevation</em> of points of interest when we show them, so that, for example, a mountain peak is displayed in its correct
 place on the top of the mountain rather than at the base of the mountain.</p>
 <p>These issues provide much of the complexity of a location-based AR app. Luckily, though, a pre-built solution to both problems exists. One of the great things about A-Frame is the fact that there are <em>many pre-built components which can be added to our app</em>, and two pre-built components exist for this precise problem: <code>terrarium-dem</code> and <code>osm3d</code>, both part of the <a href="https://github.com/nickw1/aframe-osm-3d">aframe-osm-3d</a> package.</p>
@@ -57,13 +198,15 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 </ul>
 <p>You can find out how these components work in more detail by visiting their <a href="https://github.com/nickw1/aframe-osm-3d">GitHub repository</a>.</p>
 <h3 id="tilingcoordinatesystems">Tiling coordinate systems</h3>
-<p>The <code>aframe-osm-3d</code> components discussed above both work using a tiling system with <em>coordinates</em>. Regions of the world are split up into <em>tiles</em>, using the "XYZ" or "Google" tiling system, which you can read about in more detail <a href="/course/wad/webmapping.html">on the WAD notes</a> and <a href="https://developers.google.com/maps/documentation/javascript/coordinates">here</a> The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:</p>
+<p>The <code>aframe-osm-3d</code> components discussed above both work using a tiling system with <em>coordinates</em>. Regions of the world are split up into <em>tiles</em>, using the "XYZ" or "Google" tiling system, which you can read about in more detail <a href="/COM518/week7.html">on the WAD notes</a> and <a href="https://developers.google.com/maps/documentation/javascript/coordinates">here</a> The general idea is that each tile is defined by an X, a Y, and a Z coordinate, in which:</p>
 <ul>
 <li>X represents the tile's coordinate on a west-east axis; </li>
 <li>Y represents the tile's coordinate on a north-south axis; </li>
 <li>Z represents the tile's zoom level, discussed in more detail in the link above.</li>
 </ul>
 <p><code>terrarium-dem</code> reads in a given longitude and latitude, and downloads the current XYZ elevation tile at a given zoom level, <em>and</em> the eight surrounding tiles (nine in total). These tiles are internally cached by <code>terrarium-dem</code> so that if a nearby location is requested, and the user hasn't moved to a different tile, the cached data will be used, avoiding unnecessary downloads. Also, when tiles are downloaded, they are emitted within the <code>terrarium-dem-loaded</code> event, which the <code>osm3d</code> component responds to by downloading the corresponding tiles from an OSM web API, calculating the OSM data's elevation using the DEM, and again caching and emitting the result.</p>
+<h3>Using aframe-osm-3d in the assignment</h3>
+<p>Note that the <code>aframe-osm-3d</code> package has various capabilities. In the assignment, you are only permitted to use those shown in this week's notes. Other functionality you must create yourself.</p>
 <h3 id="thecodebuildingapeakfinderapp">The code - building a peakfinder app</h3>
 <p>With that in mind, we will develop a simple peak finder application which makes use of <code>terrarium-dem</code> and <code>osm3d</code>. What is a peak finder? Well, have you ever stood on a hill or mountain and wondered what other mountains you're looking at? A peak finder is an app which allows you to answer that by pointing your phone at mountain peaks and the name of the peak will be displayed in AR. </p>
 <p>The app will download elevation and OSM data to create peaks with elevations. We will start with the HTML:</p>
@@ -72,36 +215,38 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 &lt;head&gt;
 &lt;meta charset="utf-8" /&gt;
 &lt;title&gt;AR.js Peak Finder&lt;/title&gt;
-&lt;script src="https://aframe.io/releases/1.0.4/aframe.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"&gt;&lt;/script&gt;
-&lt;script src="bundle.js"&gt;&lt;/script&gt;
+&lt;script src="dist/bundle.js"&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
     &lt;a-scene
         vr-mode-ui="enabled: false"
         arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'&gt;
     &lt;a-camera gps-projected-camera rotation-reader&gt;&lt;/a-camera&gt;
-    &lt;a-entity terrarium-dem='zoom: 12; url: https://hikar.org/webapp/proxy.php?x={x}&amp;y={y}&amp;z={z}' osm3d='url: https://hikar.org/fm/ws/tsvr.php?x={x}&amp;y={y}&amp;z={z}&amp;amp;poi=natural&amp;amp;outProj=4326' peakfinder&gt;&lt;/a-entity&gt;
+    &lt;a-entity terrarium-dem='zoom: 12; url: https://hikar.org/webapp/dem/{z}/{x}/{y}.png' osm3d='url: https://hikar.org/webapp/map/{z}/{x}/{y}.json?outProj=4326' peakfinder&gt;&lt;/a-entity&gt;
 &lt;/a-scene&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
 <p>What's new here?</p>
 <ul>
-<li>Note that we are linking in our JavaScript (which we will come to shortly) as a <em>bundle</em>. As we saw in week 1, this is a great way of developing code which relies on third-party modules without having to link multiple JS files, and we will expand upon this below. The bundle here is in <code>bundle.js</code>; you can change this to whatever yours is. </li>
-<li>Note how our custom entity now has some additional components: the <code>terrarium-dem</code> and <code>osm3d</code> components which we discussed above. Note how each component has a <code>url</code> property defining the source URL to download the data.</li>
 <li>Note also how we set the <code>zoom</code> to 12 for <code>terrarium-dem</code>. This will use the zoom level of 12 for our tiles, which means that places several kilometres away in every direction will be downloaded on startup.</li>
 </ul>
-<p>You'll notice that the <code>url</code> property for <code>terrarium-dem</code> is not an AWS URL but rather a URL on hikar.org, <code>proxy.php</code>. Why is this? Due to the <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">same-origin-policy</a> we cannot contact AWS directly via AJAX, so we need to create a proxy script to do it for us. </p>
+<p>You'll notice that the <code>url</code> property for <code>terrarium-dem</code> is not an AWS URL but rather a URL on hikar.org. Why is this? Due to the <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">same-origin-policy</a> we cannot contact AWS directly via AJAX, so we need to create a proxy script to do it for us. </p>
 <p>For the OSM URL (on <code>hikar.org</code>), we do not need a proxy as this script has <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a> enabled by default.</p>
-<p>We can now move on to our JavaScript. First of all you need to import the <code>aframe-osm-3d</code> module (see below for installation details). Note that <code>require()</code> is an alternative and slightly older way of importing a module. We have to use it here due to an issue which prevents Webpack working with the PNG reader library used.</p>
-<pre><code>require('aframe-osm-3d');
+<p>We can now move on to our JavaScript. First of all you need to import the <code>aframe-osm-3d</code> module. Add to your package.json: you need version 0.5.1.</p>
+<p> 
+It can then be imported in the normal way:
+<pre><code>import 'aframe-osm-3d';
 </code></pre>
-<p>The <code>init()</code> function in your <code>placefinder</code> component should be altered as follows. Note that we are now writing a <code>peakfinder</code>, not a <code>placefinder</code>. The only difference between the <code>placefinder</code> from last week and the <code>peakfinder</code> from this in terms of data downloaded is that we are asking the web API for peaks, rather than places.</p>
-<pre><code class="javascript language-javascript">AFRAME.registerComponent('peakfinder', {
+<p>The <code>init()</code> function in your <code>peakfinder</code> component should be altered as follows. Note that we are now writing a <code>peakfinder</code>, not a <code>peakfinder</code>. The only difference between the <code>peakfinder</code> from last week and the <code>peakfinder</code> from this in terms of data downloaded is that we are asking the web API for peaks, rather than places.</p>
+<pre>
+// imports (not shown...)
+<code class="javascript language-javascript">AFRAME.registerComponent('peakfinder', {
 
     init: function() {
+
+        // Get the camera using the [camera] CSS selector (see section on text, above)
+        this.camera = document.querySelector('[camera]');
 
         // Handle a GPS update ...
         window.addEventListener('gps-camera-update-position', e =&gt; {
@@ -117,8 +262,7 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 
         // This event will fire when the elevation of our current location is available from the DEM.
         this.el.addEventListener('elevation-available', e =&gt; {
-            // Imagine that 'camera' is our camera (see last week for how to obtain the camera)
-            camera.object3D.position.y = e.detail.elevation + 1.6;
+            thid.camera.object3D.position.y = e.detail.elevation + 1.6;
         });
 
         // This event will fire when the OSM data has been downloaded.
@@ -153,94 +297,72 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 <li>We then create one entity per place, as before. We ensure the entity is looking at the camera, and then create the text as per last week.</li>
 <li>Note how, once we have set the latitude and longitude with <code>gps-projected-entity-place</code>, we <strong>set the elevation</strong> of each peak entity. We do this using the third member of the <code>coordinates</code> array contained within the GeoJSON, which will contain the peak's elevation in metres.</li></ul></li>
 </ul>
-<p>We now need to <em>build</em> the application, as we did in week 1. First 
-install the <code>aframe-osm-3d</code> package with NPM (included with <a href="https://nodejs.org">Node.js</a>).</p>
+<p>You need to insrall the package:
 <pre><code>npm install aframe-osm-3d
 </code></pre>
-<p>Next, we need to create a <em>bundle</em> with <a href="http://browserify.org">Browserify</a>. Browserify is an alternative bundler to Webpack. Unfortunately Webpack has some issues with the library used to read PNG images so we cannot easily use it here; but Browserify does much te same job. You need to install it before using it:</p>
-<pre><code>npm install browserify
-npx browserify peakfinder.js &gt; bundle.js
-</code></pre>
-<p>(assuming that you saved your peakfinder component as <code>peakfinder.js</code>).</p>
-<p>This will output a bundle called <code>bundle.js</code>.</p>
-<p>And that is it! Try it out and see if it works. For a good test, try somewhere
-reasonably mountainous as your fake location. For instance:</p>
+and import it:
+<pre>import 'aframe-osm-3d';</pre>
+<p>And that is it! Try it out and see if it works. For a good test, try somewhere reasonably mountainous as your fake location, as you did last week.</p>
+<h3 id="exercise1">Exercise 1</h3>
+<p>Start with the first, very basic AR.js HTML example above, changing the specified latitude and longitude to points close to your actual - or faked - location. Use a phone or tablet if you have your own web hosting space and have a good GPS signal indoors, or a fake location on a desktop or laptop. On a desktop or laptop you will have to emulate moving the phone around by dragging the mouse left or right, in the same way as a regular A-Frame scene.</p>
+<p>For it to work, you will need to create:
+	<ul>
+	<li>A <code>package.json</code>, similar to the one shown in the introduction to AR.js discussion above;</li>
+	<li>A <code>webpack.config.js</code>, as for previous weeks;</li>
+	<li>A one-line JavaScript file <code>index.js</code> which imports AR.js:
+<pre>import '@ar-js-org/ar.js';</pre>
+	</li>
+	<li>Create a bundle from this <code>index.js</code> using Webpack.</li>
+	</ul>
+<p>Note that Location Guard does not give numerical values for your position. However, I have added some code to this page which gets it as numerical values. Your current position (real or fake) is:</p>
+<div id='position'></div>
 <ul>
-<li>Grasmere, Cumbria, England</li>
-<li>Garmisch-Partenkirchen, Bavaria, Germany</li>
-<li>Mayrhofen, Tirol, Austria</li>
-<li>Somewhere else mountainous that you know of…</li>
+<li><p>Change the <code>a-box</code> to some other kind of A-Frame primitive, such as an
+<code>a-sphere</code> or <code>a-cylinder</code>. Does it still work?</p></li>
+<li><p>Try adding multiple objects with different colours at different locations.</p></li>
+<li><p>Try adding a text primitive at a nearby latitude and longitude. Use the
+location-based example on the <a href="index.md">index.page</a> to help you. You will
+need to use the A-Frame <code>look-at</code> component to ensure the text always 
+faces the camera, e.g this code will always look at the entity with a <code>gps-projected-camera</code> component attached to it, in other words the camera.</p></li>
 </ul>
-<h3 id="exercise">Exercise</h3>
-<p>Implement the peakfinder, using the code above to get you started and the code from last week to parse the GeoJSON and create entities from it.</p>
+<pre><code>&lt;a-entity look-at='[gps-projected-camera]' gps-entity-place=....&gt;&lt;/a-entity&gt;
+</code></pre>
 <ul>
+<li><p>Try giving your objects an elevation. This can be done by setting the
+<code>y</code> coordinate of the <code>position</code> property to a given height (in metres), with <code>x</code> and <code>z</code> set to 0. <strong>An important point is that one unit in A-Frame (or three.js) equals one metre in augmented reality. So if you set the <code>y</code> coordinate of an entity to a given value, it will be that number of metres above the ground.</strong></p></li>
+<li><p>Having done that, try giving the <em>camera</em> an elevation by similarly setting the <code>position</code> property, and look at the effect this has on where the objects appear.</p></li>
+</ul>
+<h3 id="exercise2">Exercise 2</h3>
+<p>Modify your peak finder exercise from last week to use AR.js. 
+For each place returned from the GeoJSON (all will have a <code>Point</code> geometry), create an <code>&lt;a-entity&gt;</code> with:</p>
+<ul>
+<li>a <code>text</code> component containing the place name;</li>
+<li>a <code>look-at</code> component. This should look at <code>[gps-projected-camera]</code> (the element containing a <code>gps-projected-camera</code> component, i.e the camera)</li>
+<li>a <code>scale</code> of 1000, this will make the text appear large enough. If too large (e.g you are very close to a given place) then try reducing the scale.</li>
+<li>a <code>gps-projected-entity-place</code> component containing the latitude and longitude from the GeoJSON.</li>
+</ul>
+<p><strong>!!! IMPORTANT !!! </strong></p>
+<p>You will need to make your event listener an <code>async</code> function so that you can use <code>await</code> within it. For example:</p>
+<pre><code>window.addEventListener('gps-camera-update-position', async (e) =&gt; {
+    // do your code to connect to the web API and generate the augmented content
+});
+</code></pre>
+<h3 id="exercise">Exercise 3</h3>
+<p>Implement a <em>tile-based</em> peakfinder using the <code>aframe-osm-3d</code> components, using the code above to get you started and the code from last week to parse the GeoJSON and create entities from it.</p> <ul>
 <li>Initially just show the peak name as text. Set the text scale to 1500.</li>
 <li>Next, create a compound entity for each peak containing two sub-entities: a text entity for the name and a cone (<code>&lt;a-cone&gt;</code>) for a graphic showing the peak. The compound entity should be placed at the peak's elevation. The text entity should once again have a scale of 1500 and be placed 300 metres above the
 peak's elevation. The cone entity should have a scale of 150, a <code>height</code> of 3, a <code>radiusTop</code> of 0.1 and a <code>magenta</code> material colour.</li>
 </ul>
-<h4 id="furtherthingstotry">Further things to try</h4>
-<p>It would be nice to show users status messages as the places are downloading. You can do this by handling a couple of other events:</p>
+<h2>Further exercises</h2>
+<ul>
+<li>For either Exercise 2 or Exercise 3, create a compound entity for each AR location, containing both a sphere of radius 150 metres and text. The text should appear 300 metres above the sphere. The text itself should be scaled by a factor of 1500.</li>
+<li>It would be nice to show users status messages as the places are downloading. You can do this by handling a couple of other events:
 <ul>
 <li><code>terrarium-start-update</code> is emitted when we start to download new DEM data.</li>
 <li><code>terrarium-dem-loaded</code>, as we have already seen, is emitted when DEM data has finished downloading.</li>
 </ul>
-<p>Adapt your example to include a <code>&lt;div&gt;</code> which displays a status message. (You can make a <code>&lt;div&gt;</code> a child of your <code>&lt;a-scene&gt;</code>). Display "Downloading elevation data…" while it's downloading the DEM data, and then "Downloading OSM data" when the DEM download has finished. Finally, when the OSM data has loaded, set the <code>&lt;div&gt;</code>'s contents to a blank string. </p>
-<h2 id="oneortwootherthings">One or two other things</h2>
-<p>There are one or two other things regarding A-Frame that we have not covered
-yet, but are important - the <em>component lifecycle</em> and <em>emitting events</em>.</p>
-<h3 id="componentlifecycle">Component lifecycle</h3>
-<p>We have considered <code>init()</code> and <code>tick()</code> methods of an A-Frame component, but
-there are also other methods which can be important.</p>
-<p>See <a href="https://aframe.io/docs/1.0.0/core/component.html">the A-Frame documentation</a></p>
-<h4 id="theupdatemethod">The update() method</h4>
-<p>The <code>update()</code> method is a key lifecycle method. It is fired whenever <em>you update the properties of an A-Frame component</em> and also <em>on initialisation, after init()</em>. For example, the code below updates the <code>velocity</code> property of the component <code>my-component</code>.</p>
-<pre><code>this.el.setAttribute('my-component', {
-    velocity: 2
-});
-</code></pre>
-<p>This would trigger the <code>update()</code> method of the <code>my-component</code> component.
-In an <code>update()</code> method of a component, you would handle any changes that
-need to be made as a result of the properties being updated. Note that the <code>update()</code> method has an <code>oldData</code> parameter containing the old values of the component's properties, so that you can compare the old and new data. (The new data will be accessible via <code>this.data</code>). So you can use code such as this:</p>
-<pre><code>AFRAME.registerComponent('my-component', {
-    schema: {
-        velocity: {
-            type: 'int',
-            default: 1
-        },
-    },
-
-    init: function() {
-        // ...
-    },
-
-    update: function(oldData) {
-        // if the new velocity is not the same as the old velocity...    
-        if (this.data.velocity != oldData.velocity) {
-            // add code to handle the velocity changing...
-        }
-    }
-});
-</code></pre>
-<h4 id="othermethods">Other methods</h4>
-<p>Other lifecycle methods include:</p>
-<ul>
-<li><code>pause()</code>: when the component 'pauses' e.g. when the scene is no longer visible. Can be used to stop such things as animations, or an enemy moving towards the player, when the scene is no longer visible. </li>
-<li><code>play()</code>: when the component 'resumes' e.g. when the scene becomes visible again. Can be used to resume animations, or enemy movement, when the scene resumes.</li>
-<li><code>remove()</code>: when the component is removed, for example it's removed from an entity using DOM function calls. Used to clean up resources which are no longer needed when the component is not present.</li>
+Adapt your example to include a <code>&lt;div&gt;</code> which displays a status message. (You can make a <code>&lt;div&gt;</code> a child of your <code>&lt;a-scene&gt;</code>). Display "Downloading elevation data…" while it's downloading the DEM data, and then "Downloading OSM data" when the DEM download has finished. Finally, when the OSM data has loaded, set the <code>&lt;div&gt;</code>'s contents to a blank string. </li>
 </ul>
-<h3 id="events">Events</h3>
-<p>We have seen examples of <em>event handlers</em> to handle different types of event, however how do we generate events in the first place? In fact, A-Frame uses standard DOM techniques for generating events. To generate an event, it's <em>emitted</em> from a specific entity. For example, the <code>elevation-available</code> event is emitted from <code>terrarium-dem</code> whenever the elevation is available. We handled this event in the peakfinder example. the code to generate this event might look like this:</p>
-<pre><code>this.el.emit('elevation-available', {
-    elevation: // ... some elevation value ... 
-}); 
-</code></pre>
-<p>Note how <code>emit()</code> takes two arguments, the <em>event name</em> (<code>elevation-available</code> here) and the <em>data</em> to pass through the event, which is a JavaScript object. In this example, the JavaScript object contains just one property, <code>elevation</code>, but it could potentially contain more. This data can then be retrieved later in the event handler using <code>e.detail</code>, where <code>e</code> is the event object. So in this example we would use <code>e.detail.elevation</code> to retrieve the elevation - as we saw in our peakfinder app, above.</p>
-<p>To handle the event we attach an event listener to the entity which originally
-emitted the event, so that when we handle the event with code such as:</p>
-<pre><code>this.el.addEventListener('elevation-available', e =&gt; {
-    // do something with e.detail.elevation
-});
-</code></pre>
-<p>then <code>this.el</code> would need to be the parent entity of the <code>terrarium-dem</code>
-component, because the event was emitted from within <code>terrarium-dem</code> and therefore when we emit the event <code>this.el</code> would be te parent entity of <code>terrarium-dem</code>. (In our peakfinder, this is easy if the <code>peakfinder</code> component
-is attached to the same entity as <code>terrarium-dem</code>).</p></body></html>
+<script src='week8.js'></script>
+</body>
+</html>
