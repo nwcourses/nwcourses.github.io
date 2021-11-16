@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript' src='dist/bundle.js'></script>
+</head>
+<body>
+<a-scene dynamic-content>
+    <a-entity camera look-controls wasd-controls vertical-controls='keys: KeyP, KeyL' baseVelocity='2' position='0 1.6 0'></a-entity>
+    <a-sky color='skyblue'></a-sky>
+    <a-plane rotation="-90 0 0" material='src: texture128.png; repeat: 64 64'  width='100' height='100' shadow></a-plane>
+    <!-- hexagons -->
+    <a-entity geometry='primitive: hexagon' material='side: double; color: orange' scale='2 2 2' position='0 3 -5' id='hexagon1'></a-entity>
+    <a-entity geometry='primitive: hexagon' material='side: double; color: cyan' rotation='0 -45 0' position='0 3 5'></a-entity>
+</a-scene>
+</body>
+</html>
