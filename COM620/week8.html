@@ -262,7 +262,7 @@ It can then be imported in the normal way:
 
         // This event will fire when the elevation of our current location is available from the DEM.
         this.el.addEventListener('elevation-available', e =&gt; {
-            thid.camera.object3D.position.y = e.detail.elevation + 1.6;
+            this.camera.object3D.position.y = e.detail.elevation + 1.6;
         });
 
         // This event will fire when the OSM data has been downloaded.
@@ -348,6 +348,27 @@ For each place returned from the GeoJSON (all will have a <code>Point</code> geo
 });
 </code></pre>
 <h3 id="exercise">Exercise 3</h3>
+<p>Note that you will need a revised <code>webpack.config.js</code> for this.
+<pre>const path = require('path');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
+module.exports = {
+    mode: 'development',
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    },
+    plugins: [
+        new NodePolyfillPlugin()
+    ]
+};</pre>
+This is due to some dependencies of aframe-osm-3d being Node packages, and Webpack does not include Node packages by default when building client-side applications, unless you install the <code>node-polyfill-webpack-plugin</code> package, to provide replacements for Node.js modules for the browser, and specify its use in <code>webpack.config.js</code>. You also need to install it with: 
+<pre>npm install node-polyfill-webpack-plugin</pre>
+</p>
 <p>Implement a <em>tile-based</em> peakfinder using the <code>aframe-osm-3d</code> components, using the code above to get you started and the code from last week to parse the GeoJSON and create entities from it.</p> <ul>
 <li>Initially just show the peak name as text. Set the text scale to 1500.</li>
 <li>Next, create a compound entity for each peak containing two sub-entities: a text entity for the name and a cone (<code>&lt;a-cone&gt;</code>) for a graphic showing the peak. The compound entity should be placed at the peak's elevation. The text entity should once again have a scale of 1500 and be placed 300 metres above the
