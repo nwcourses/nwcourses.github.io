@@ -190,7 +190,7 @@ As for last week, write out the algorithm in *pseudocode* if you are struggling 
 
 ### Exercise 2
 
-Start with either your own tree from week 5 (if you have completed the week 5 exercise) or the pre-written tree solution at [GitHub](https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py)
+Start with either your own tree from week 6 (if you have completed the week 6 exercise) or the pre-written tree solution at [GitHub](https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py)
 
 1. Implement breadth-first search using the tree.
 2. If you finish question 1, implement a depth-first binary search using the tree.
