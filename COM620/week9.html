@@ -10,7 +10,7 @@
 <h2 id="serviceworkers">Service workers</h2>
 <p>The first topic we will look at is <em>service workers</em>. A service worker acts as an "interface" between the client-side web application and a data source, such as a web API or an offline data source such as IndexedDB. The service worker intercepts HTTP requests to online resources, and loads an offline copy if one is available. The service worker does not perform the actual caching of data - that is done by other technologies such as IndexedDB - but rather it handles the logic of intercepting HTTP requests to load local copies of the data supplied by the URL being requested if there is a local copy available.</p>
 <p>The diagram below shows the general operation of a service worker.</p>
-<p><img src="images/serviceworkers.png" alt="Service workers" /></p>
+<p><img src="../images/serviceworkers.png" alt="Service workers" /></p>
 <h3 id="serviceworkersarewrittenintheirownfile">Service workers are written in their own file</h3>
 <p>Service workers are written in their <em>own file</em>, separate from the main web application. The main web application communicates with the service worker when needed.</p>
 <h3 id="communicatingwiththeserviceworker">Communicating with the service worker</h3>
@@ -126,9 +126,9 @@ specified as the argument to <code>then()</code> will run. Note how we <em>retur
 <p>This return value is then passed to <code>ev.respondWith()</code>, thus overriding the default behaviour of <code>fetch()</code>.</p>
 <h3 id="extendingtheexamplecachingwebapiurls">Extending the example - caching web API URLs</h3>
 <p>The previous example is fine if you just want to cache URLs that do not have query string parameters. However, in many cases, such as downloading points of interest from our AR web API, the exact URL will depend on the query string parameters, such as the <code>x</code>, <code>y</code> and <code>z</code> tile coordinates of our web API. So the URLs</p>
-<pre><code>hikar.org/api.php?x=4079&amp;y=2740&amp;z=13
-hikar.org/api.php?x=4080&amp;y=2740&amp;z=13
-hikar.org/api.php?x=4079&amp;y=2741&amp;z=13
+<pre><code>hikar.org/api?x=4079&amp;y=2740&amp;z=13
+hikar.org/api?x=4080&amp;y=2740&amp;z=13
+hikar.org/api?x=4079&amp;y=2741&amp;z=13
 </code></pre>
 <p>would all be different, and if you cache one, the others would <em>not</em> be cached.
 We cannot perform pattern-matching (e.g. regular expressions) in our list of URLs to cache, so have to do this manually.</p>
@@ -170,7 +170,7 @@ self.addEventListener('fetch', ev=&gt; {
             }
 
             // If it's not in the cache, check the URL
-            if(ev.request.url.indexOf("/api/getdata.php") != -1) {
+            if(ev.request.url.indexOf("/api/getdata") != -1) {
                 // If it's a web API URL, fetch the response AND cache it
                 return fetch(ev.request)
                     .then(res2 =&gt; {
@@ -191,15 +191,15 @@ self.addEventListener('fetch', ev=&gt; {
 </code></pre>
 <p>How is this working?</p>
 <ul>
-<li>If the request is <em>not</em> in the cache, we check whether the request URL contains the string <code>/api/getdata.php</code> (imagine that this is our web API).</li>
+<li>If the request is <em>not</em> in the cache, we check whether the request URL contains the string <code>/api/getdata</code> (imagine that this is our web API).</li>
 <li>If it does, we run a <code>fetch</code> request on the URL, and once we get a response, we open the cache again and add a <em>clone</em> of the response to the cache. It has to be a clone, as we also want to return the response to the user as a normal HTTP response.</li>
 <li>If it does not, we just do a simple <code>fetch</code> request, as before.</li>
 </ul>
 <h2 id="managingserviceworkersfromthebrowser">Managing service workers from the browser</h2>
 <p>In the browser developer tools, you can manage service workers and the Cache API (this can be done in the <em>Application</em> tab in Chrome, for example). For example, the screenshot below shows how you can access your service workers (and unregister an existing service worker - useful if you have made changes to its code) in Chrome.
-<img src="images/svcw_control.png" alt="Service worker control" /></p>
+<img src="../images/svcw_control.png" alt="Service worker control" /></p>
 <p>This shows how you can access the browser cache, again via the Application tab on Chrome. You can inspect and delete entries in the cache.</p>
-<p><img src="images/svcw_cache.png" alt="Service worker cache" /></p>
+<p><img src="../images/svcw_cache.png" alt="Service worker cache" /></p>
 <h2 id="furtherreading">Further reading</h2>
 <p>The following articles contain more information about service workers:</p>
 <ul>
@@ -209,9 +209,12 @@ self.addEventListener('fetch', ev=&gt; {
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Offline_Service_workers">Mozilla: Making PWAs work offline with Service workers</a></li>
 </ul>
 <h2 id="exercise1">Exercise 1</h2>
-<p>At <a href="https://hikar.org/course/imm/songs.php?artist=Oasis">https://hikar.org/course/imm/songs.php</a> is a web API which provides JSON describing all songs by a
-given artist. <strong>You have to supply the artist as an <code>artist</code> query string parameter - the link includes a query string to search for all songs by Oasis but you can change that.</strong>. Write an application which allows users to search for all songs by a given artist, so that the JSON is parsed and displayed within a <code>&lt;div&gt;</code>.
-There should be a simple CSS file as well as the HTML.</p>
+<p>At <code>https://hikar.org/webapp/artist/artistname</code> is a web API which provides JSON describing all songs by a
+given artist (replace <code>artistname</code> by the actual artist). Write an application which allows users to search for all songs by a given artist, so that the JSON is parsed and displayed within a <code>&lt;div&gt;</code>.
+There should be a simple CSS file as well as the HTML.</p>  
+<p>To find all available songs, access:
+<pre>https://hikar.org/webapp/songs/all</pre>
+</p>
 <p>You should use a service worker:</p>
 <ul>
 <li>initially, just cache your HTML and CSS pages</li>
@@ -263,6 +266,6 @@ There should be a simple CSS file as well as the HTML.</p>
 <li>is HTTPS used (or is it running on localhost)?</li>
 </ul>
 <p>Lighthouse will tell you which of these checks pass and which do not. If they do, then it is a standards compliant PWA and will be installable on a PWA-supporting browser. </p>
-<p><img src="images/lighthouse.png" alt="Lighthouse" /></p>
+<p><img src="../images/lighthouse.png" alt="Lighthouse" /></p>
 <h3 id="exercise2">Exercise 2</h3>
 <p>Turn your application from Exercise 1 into a full PWA, installable onto your home screen or desktop. You will need to ensure you create an icon (at sizes 512x512 and 192x192) but this does not have to be particularly artistic.</p></body></html>
