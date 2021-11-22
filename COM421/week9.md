@@ -12,7 +12,7 @@ If you need to catch up with previous weeks, please do this first!
 
 Two weeks ago we covered some basic sorting algorithms, such as bubble sort, selection sort and insertion sort. However, we saw that their efficiency could be better, being `O(n^2)` in the worst case. This week we will look at two improved sorting algorithms, *quicksort* and *merge sort*.
 
-These algorithms use *recursion*. Please see [Week 5](week5.html) for a reminder on recursion.
+These algorithms use *recursion*. Please see [Week 6](week6.html) for a reminder on recursion.
 
 Due to time constraints I will only talk about quicksort, to ensure you have
 enough time in class to do practical work. However, notes about merge sort
