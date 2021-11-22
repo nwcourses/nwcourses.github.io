@@ -125,13 +125,12 @@ for example:</p>
 specified as the argument to <code>then()</code> will run. Note how we <em>return a value</em> (either the response from the cache or the response from <code>fetch()</code>) from this arrow function. The value returned will become the overall return value of the promise chain <code>caches.match(...).then(...)</code>. In other words, the return value of the <code>caches.match(...).then(...)</code> chain will be either the response from the cache or the response from the web.</p>
 <p>This return value is then passed to <code>ev.respondWith()</code>, thus overriding the default behaviour of <code>fetch()</code>.</p>
 <h3 id="extendingtheexamplecachingwebapiurls">Extending the example - caching web API URLs</h3>
-<p>The previous example is fine if you just want to cache URLs that do not have query string parameters. However, in many cases, such as downloading points of interest from our AR web API, the exact URL will depend on the query string parameters, such as the <code>x</code>, <code>y</code> and <code>z</code> tile coordinates of our web API. So the URLs</p>
-<pre><code>hikar.org/api?x=4079&amp;y=2740&amp;z=13
-hikar.org/api?x=4080&amp;y=2740&amp;z=13
-hikar.org/api?x=4079&amp;y=2741&amp;z=13
+<p>The previous example is fine if you just want to cache URLs that do not have parameters. However, in many cases, such as downloading points of interest from our AR web API, the exact URL will depend on the parameters that our API needs, such as the <code>x</code>, <code>y</code> and <code>z</code> tile coordinates of our web API. So the URLs</p>
+<pre><code>hikar.org/api/getdata/13/4078/2740.json
+hikar.org/api/getdata/13/4079/2740.json
+hikar.org/api/getdata/13/4080/2740.json
 </code></pre>
-<p>would all be different, and if you cache one, the others would <em>not</em> be cached.
-We cannot perform pattern-matching (e.g. regular expressions) in our list of URLs to cache, so have to do this manually.</p>
+<p>would all be different, and if you cache one, the others would <em>not</em> be cached.  We cannot perform pattern-matching (e.g. regular expressions) in our list of URLs to cache, so have to do this manually.</p>
 <p>Here is an example of a service worker that will do this:</p>
 <pre><code>const CACHE_NAME = 'cache1';
 const urlsToCache = [
@@ -170,7 +169,7 @@ self.addEventListener('fetch', ev=&gt; {
             }
 
             // If it's not in the cache, check the URL
-            if(ev.request.url.indexOf("/api/getdata") != -1) {
+            if(ev.request.url.indexOf("/api/getdata/") != -1) {
                 // If it's a web API URL, fetch the response AND cache it
                 return fetch(ev.request)
                     .then(res2 =&gt; {
@@ -191,7 +190,7 @@ self.addEventListener('fetch', ev=&gt; {
 </code></pre>
 <p>How is this working?</p>
 <ul>
-<li>If the request is <em>not</em> in the cache, we check whether the request URL contains the string <code>/api/getdata</code> (imagine that this is our web API).</li>
+<li>If the request is <em>not</em> in the cache, we check whether the request URL contains the string <code>/api/getdata/</code> (imagine that this is our web API).</li>
 <li>If it does, we run a <code>fetch</code> request on the URL, and once we get a response, we open the cache again and add a <em>clone</em> of the response to the cache. It has to be a clone, as we also want to return the response to the user as a normal HTTP response.</li>
 <li>If it does not, we just do a simple <code>fetch</code> request, as before.</li>
 </ul>
