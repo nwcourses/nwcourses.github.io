@@ -26,16 +26,34 @@ Furthermore, development of VR and AR applications is increasingly possible usin
 <li><a href='week8.html'>Using augmented reality library AR.js</a></li>
 </ul>
 <h3>Weeks 9-10: Offline web apps</h3>
-<p><em>Note: this may be moved to weeks 9 and 10 to allow more time to incorporate in the assignment.</em></p>
 <ul>
 <li><a href='week9.html'>Week 9: Offline Web Apps: service workers, PWAs</a></li>
 <li><a href='week10.html'>Week 10: Client-side Databases: IndexedDB</a></li>
 </ul>
-<h3>Weeks 11-12</h3>
+<h3>Weeks 11-12: Advanced and Cutting-edge topics</h3>
 <ul>
-<li>Week 11: Further A-Frame and AR</li>
-<li>Week 12: Interesting Future Topics (lecture only); work on assignment in lab</li>
+<li>Week 11: Further A-Frame and AR: using WebXR for markerless AR</li>
+<li>Week 12: Interesting Future Topics, including open-source plane detection (lecture only); work on assignment in lab</li>
 </ul>
+<h2>Assignment URL</h2>
+<p>The URL to use for the assignment, if doing the Points Of Interest scenario,
+is: 
+<pre>https://hikar.org/webapp/map/Z/X/Y.poi.json</pre>
+where Z, X and Y are the coordinates of the data <em>tile</em> to use. (A tile is a rectangular area covering part of the Earth). You can use the <code>aframe-osm-3d</code> components from <a href='week8.html'>Week 8</a> for this. Alternatively, to obtain the tile for a given latitude and longitude, you can use <code>jsfreemaplib</code> again, e.g.:
+<pre>
+import { GoogleProjection } from 'jsfreemaplib';
+
+const merc = new GoogleProjection();
+
+// Use zoom level 13 - this is a good size
+// assume 'longitude' and 'latitude' contain your current longitude/latitude
+const tile = merc.getTileFromLonLat(longitude, latitude, 13);
+
+// <em>tile</em> is an object of class Tile. It has x, y and z properties
+// These can be used to download data from the assignment URL
+console.log(`Tile x: ${tile.x}, y: ${tile.y}, z: ${tile.z}`);
+</pre>
+</p>
 <h2>Solutions (not available for all weeks)</h2>
 <p>See <a href='https://github.com/nwcourses/nwcourses.github.io/tree/master/COM620/solutions'>here</a>.</p>
 <h2>Further reading - WAD</h2>
