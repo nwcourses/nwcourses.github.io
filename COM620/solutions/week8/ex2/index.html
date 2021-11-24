@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AR.js</title>
+<script type='text/javascript' src='dist/bundle.js'></script>
+</head>
+<body>
+
+<a-scene arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+	<a-camera gps-projected-camera rotation-reader></a-camera>
+	<a-entity peakfinder></a-entity>
+</a-scene>
+</body>
+</html>
