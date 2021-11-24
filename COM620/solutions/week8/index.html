@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AR.js</title>
+<script type='text/javascript' src='dist/bundle.js'></script>
+</head>
+<body>
+
+<a-scene arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+	<a-camera gps-projected-camera rotation-reader></a-camera>
+	<a-entity terrarium-dem='zoom: 12; url: https://hikar.org/webapp/dem/{z}/{x}/{y}.png' osm3d='url: https://hikar.org/webapp/map/{z}/{x}/{y}.json?outProj=4326' peakfinder></a-entity>
+</a-scene>
+</body>
+</html>
