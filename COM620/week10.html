@@ -538,7 +538,7 @@ whether to search on artist or on title (do not have two separate forms).</li>
 <li>Allow the user to delete a track, using its ID.</li>
 </ol>
 <h3>Advanced Challenge</h3>
-<div style='border: 5px solid black'><strong>Warning!</strong> 
+<div class='warning'><strong>Warning!</strong> 
 <p>This exercise is highly advanced and you must be
 comfortable with everything we have covered in the module before attempting it;
 you will struggle greatly otherwise. If you are not comfortable I would advise
@@ -551,6 +551,7 @@ the <a href='/wad/promises.html'>promises notes</a> on WAD. You will be
 expected to create your own promises. Feel free to try out the exercises in
 these WAD notes first.</p>
 </div>
+<p>You are going to modify your PWA from last week to cache the results from the server in an IndexedDB. Please use <strong>this new URL</strong>, <code>https://hikar.org/hittastic/getSongs?artist=your_selected_artist</code>. In other words, the artist will now be passed to the API via a <em>query string</em> (an HTTP variable following the <code>?</code> which can be read by the server. This will make the implementation simpler.</p>
 <p>Use IndexedDB in your PWA from last week, so that when the JSON
 is downloaded from the web API in the service worker, each track is stored as an object in your IndexedDB rather than the cache. You will need to do this in your service worker's "fetch" event handler. </p>
 <p>To do this, please use the following guidelines: </p>

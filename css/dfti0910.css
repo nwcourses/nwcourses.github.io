@@ -4,101 +4,101 @@
    one is applied depending on whether we want popups. */
 body
 { 
-	background-color : #ffffe0;
-	font-family : luxi sans,verdana,helvetica,arial,sans-serif; 
-	color : black; 
-	font-weight : normal;
-	font-size: 120%;
+    background-color : #ffffe0;
+    font-family : luxi sans,verdana,helvetica,arial,sans-serif; 
+    color : black; 
+    font-weight : normal;
+    font-size: 120%;
 }
 
 #sidebar 
 { 
-	width : 100px; 
-	vertical-align : top; 
-	background-color : white;	
-	top : 0px; 
-	left: 0px; 	
-	position : fixed;
+    width : 100px; 
+    vertical-align : top; 
+    background-color : white;    
+    top : 0px; 
+    left: 0px;     
+    position : fixed;
 }
 
 #main 
 { 
-	color : black; 
-	vertical-align : top;
-	top : 0px;
-	left : 100px;
-	margin-left : 2%;
-	position: absolute;
+    color : black; 
+    vertical-align : top;
+    top : 0px;
+    left : 100px;
+    margin-left : 2%;
+    position: absolute;
 }
 
 .sidebarentry 
 { 
-	background-color : #c00000;
-	text-align : center;
-	color: white;
-	display: block;
-	height: 30px;
-	margin: 5px;
+    background-color : #c00000;
+    text-align : center;
+    color: white;
+    display: block;
+    height: 30px;
+    margin: 5px;
 }
 
 .sidebarentry:hover
 {
-	background-color: #ff0000;
+    background-color: #ff0000;
 }
 
 .title, .front
 { 
-	text-align : center 
+    text-align : center 
 }
 
 .titlebox
 {
-	text-align: center; 
-	margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
-	background-color : #ffffc0;
-	border-style: outset;
-	border-color: #000080;
-	color:white;
+    text-align: center; 
+    margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
+    background-color : #ffffc0;
+    border-style: outset;
+    border-color: #000080;
+    color:white;
 }
 
 .subtitle
 {
-	text-align: center; 
-	margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
+    text-align: center; 
+    margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
 }
 
-	
+    
 a
 {
-	text-decoration: none ;
+    text-decoration: none ;
 }
 
 
 pre
 {
-	font-size: 120%;
-	border-style: solid;
-	overflow: auto;
-	background-color: white;
+    font-size: 120%;
+    border-style: solid;
+    overflow: auto;
+    background-color: white;
 }
 
 img
 {
-	border-style: none;
-	max-width: 90%;
+    border-style: none;
+    max-width: 90%;
 }
 
 em
 {
-	font-weight: bold;
-	font-style: italic;
-	color: black;
+    font-weight: bold;
+    font-style: italic;
+    color: black;
 }
 
 strong
 {
-	font-weight: bold;
-	font-style: normal;
+    font-weight: bold;
+    font-style: normal;
     color: black; 
 }
 
@@ -107,78 +107,84 @@ strong
 
 .slide
 {
-	font-size: 175%
+    font-size: 175%
 }
 
 #thisweeksstuff
 {
-	font-size: 120%;
-	background-color: #000060;
-	color: white;
+    font-size: 120%;
+    background-color: #000060;
+    color: white;
 }
-	
+    
 .zzz
 {
 }
 
 .slide li
 {
-	margin: 10px;
+    margin: 10px;
 }
 
 table
 {
-	border-width: 2px; 
-	border-style: solid;
-	margin: 5px;
-	
+    border-width: 2px; 
+    border-style: solid;
+    margin: 5px;
+    
 }
 
 th
 {
-	font-weight: solid;
-	border-style: solid;
-	border-width: 2px;
+    font-weight: solid;
+    border-style: solid;
+    border-width: 2px;
 }
 td
 {
-	font-weight:normal; 
-	border-style: solid;
-	border-width: 2px;
-	padding: 5px;
+    font-weight:normal; 
+    border-style: solid;
+    border-width: 2px;
+    padding: 5px;
 }
 
 .comment
 {
-	color:  green;
-	font-style: italic;
-	font-weight: bold
+    color:  green;
+    font-style: italic;
+    font-weight: bold
 }
 
 em.black
 {
-	color: black;
+    color: black;
 }
 
 h1,h2,h3,h4,h5
 {
-	color: #c00000;
+    color: #c00000;
 }
 
 pre em
 {
-	color: blue;
-	background-color: yellow;
+    color: blue;
+    background-color: yellow;
 }
 
 pre strong 
 {
-	color: red;
-	font-weight: bold;
+    color: red;
+    font-weight: bold;
 }
 
 .php
 {
-	font-weight: bold;
-	color: blue;
+    font-weight: bold;
+    color: blue;
+}
+
+.warning {
+    background-color: white;
+    color: red;
+    font-weight: bold;
 }
