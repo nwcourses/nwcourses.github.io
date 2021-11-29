@@ -594,19 +594,24 @@ const artist = parts[1].replace("artist=","");
 <li>If the search promise resolves, and there are results, then return a <em>Response</em> object containing them. The <em>Response</em> object is part of the fetch API and
 allows you to construct your own custom HTTP response. Essentially what we are
 doing is overriding the default response from the <code>fetch</code> API with a response
-created from the contents of the database. See the code snippet below:</li>
+created from the contents of the database. See the code snippet below, which 
+contains the <code>respondWith()</code> call you should recognise from week 9:
+</li>
 </ul>
-<pre><code>// If there are results...
-if(results) {
-    // Create a JSON string with the results, we are assuming the "records"
-    // field contains a set of all results for that artist
-    const str = JSON.stringify(results.records);
+<pre>ev.respondWith(
+    dbsearch(artist).then(results =&gt; { 
+        // If there are results...
+        if(results) {
+            // Create a JSON string with the results, we are assuming the "records"
+            // field contains a set of all results for that artist
+            const str = JSON.stringify(results.records);
 
-    // Create a new Response object containing the data, and with a JSON
-    // content-type. Response is an inbuilt JavaScript object.
-    return new Response(str, { headers: {"Content-Type": "application/json"}});
-}
-</code></pre>
+            // Create a new Response object containing the data, and with a JSON
+            // content-type. Response is an inbuilt JavaScript object.
+            return new Response(str, { headers: {"Content-Type": "application/json"}});
+        } else {
+            // fetch the data from the API, see below...
+</pre>
 <p>If, on the other hand, there are no results in the database, then fetch using the <code>fetch</code> API as normal, add the results to the database. Create an object with an "artist" field for the artist, and a "records" field for the array of results, and create a new <code>Response</code> object containing the JSON data. Use this logic:</p>
 <pre><code>    // Fetch from the API 
     return fetch(ev.request)
