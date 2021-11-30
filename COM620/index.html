@@ -36,8 +36,9 @@ Furthermore, development of VR and AR applications is increasingly possible usin
 <li>Week 12: Interesting Future Topics, including open-source plane detection (lecture only); work on assignment in lab</li>
 </ul>
 <h2>Assignment URL</h2>
+<h3>Tiled option</h3>
 <p>The URL to use for the assignment, if doing the Points Of Interest scenario,
-is: 
+is (if you want to use tiling): 
 <pre>https://hikar.org/webapp/map/Z/X/Y.poi.json</pre>
 where Z, X and Y are the coordinates of the data <em>tile</em> to use. (A tile is a rectangular area covering part of the Earth). You can use the <code>aframe-osm-3d</code> components from <a href='week8.html'>Week 8</a> for this. Alternatively, to obtain the tile for a given latitude and longitude, you can use <code>jsfreemaplib</code> again, e.g.:
 <pre>
@@ -53,6 +54,10 @@ const tile = merc.getTileFromLonLat(longitude, latitude, 13);
 // These can be used to download data from the assignment URL
 console.log(`Tile x: ${tile.x}, y: ${tile.y}, z: ${tile.z}`);
 </pre>
+</p>
+<h3>Non-tiled option</h3>
+<p>If you do <em>not</em> want to use tiling, use this bounding-box based URL:
+<pre>https://hikar.org/webapp/map/all?bbox=west,south,east,north</pre>
 </p>
 <h2>Solutions (not available for all weeks)</h2>
 <p>See <a href='https://github.com/nwcourses/nwcourses.github.io/tree/master/COM620/solutions'>here</a>.</p>
