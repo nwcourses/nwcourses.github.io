@@ -410,9 +410,9 @@ but then we obtain an <em>index</em> in our object store with:
 <pre>const index = objectStore.index("course");</pre>
 This gives us access to the specified index within the object store, i.e. the course. We then obtain a cursor
 <em>from the index, rather than from the object store as a whole</em> with:
-<pre>const request = index.openCursor(IDBKeyRange.only(enteredCourse));</pre>
-The <em>IDBKeyRange.only(enteredCourse)</em> specifies that the cursor will only iterate through those records for which the 
-value of the <em>course</em> index matches the course entered by the user (i.e. enteredCourse).</p>
+<pre>const request = index.openCursor(IDBKeyRange.only(course));</pre>
+The <em>IDBKeyRange.only(course)</em> specifies that the cursor will only iterate through those records for which the 
+value of the <em>course</em> index matches the course entered by the user (i.e. course).</p>
 <p>The code to advance the cursor through the set of matching objects then works in exactly the same way as the previous example which
 showed all objects in the current object store. The only difference is that
 the cursor key is now the index - the course - and not the username.</p>
