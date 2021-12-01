@@ -58,6 +58,13 @@ const tile = merc.getTileFromLonLat(longitude, latitude, 13);
 console.log(`Tile x: ${tile.x}, y: ${tile.y}, z: ${tile.z}`);
 </pre>
 </p>
+<p><strong>If you want to return roads, and paths, as well as POIs you need to do a bit extra.</strong>
+You ALSO need to set the emitRawData option to true when you set up your osm3d component, i.e.
+<pre>&lt;a-entity terrarium-dem='...' osm3d='url: https://hikar.org/webapp/map/{z}/{x}/{y}.json?outProj=4326; emitRawData:true' /&gt;</pre>
+If you do this, you can then access the roads and footpaths from the web API via <code>e.detail.rawData.ways</code> in the osm-data-loaded event. This gives you a GeoJSON array: you can see the contents of this by displaying it on the console, i.e.
+<pre>console.log(e.detail.rawData.ways);</pre>
+If you do this I would recommend using 13 for the zoom level in the terrarium-dem component, not 12.
+</p>
 <h3>Non-tiled option</h3>
 <p>If you do <em>not</em> want to use tiling, use this bounding-box based URL:
 <pre>https://hikar.org/webapp/map/all?bbox=west,south,east,north</pre>
