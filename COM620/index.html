@@ -39,7 +39,10 @@ Furthermore, development of VR and AR applications is increasingly possible usin
 <h3>Tiled option</h3>
 <p>The URL to use for the assignment, if doing the Points Of Interest scenario,
 is (if you want to use tiling): 
-<pre>https://hikar.org/webapp/map/Z/X/Y.poi.json</pre>
+<pre>https://hikar.org/webapp/map/Z/X/Y.poi.json?outProj=4326</pre>
+(POIs only) or
+<pre>https://hikar.org/webapp/map/Z/X/Y.json?outProj=4326</pre>
+(including roads, paths etc)
 where Z, X and Y are the coordinates of the data <em>tile</em> to use. (A tile is a rectangular area covering part of the Earth). You can use the <code>aframe-osm-3d</code> components from <a href='week8.html'>Week 8</a> for this. Alternatively, to obtain the tile for a given latitude and longitude, you can use <code>jsfreemaplib</code> again, e.g.:
 <pre>
 import { GoogleProjection } from 'jsfreemaplib';
