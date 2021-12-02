@@ -1,0 +1,469 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<title>Week 11 - Markerless AR - WebXR and A-Frame</title>
+</head><body>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h1>Topic 11: Markerless AR: WebXR and A-Frame</h1>
+</div>
+<h2 id="introduction">Introduction</h2>
+<p>In this topic we will introduce the emerging <a href="https://immersiveweb.dev">WebXR</a> standard. XR stands for Extended Reality and is a general term for both VR and AR. WebXR has succeeded an earlier standard, WebVR, which was purely aimed at VR environments such as headsets.</p>
+<p>We will also look at one or two general A-Frame concepts we have not had time to look at yet: <em>systems</em> and <em>event handling</em>.</p>
+<h2 id="thestateofwebxr">The state of WebXR</h2>
+<p>WebXR is a very new API which is still very much in development, and 
+consequently, it is rather difficult to find well-documented examples. 
+Nonetheless there is (rather technical and low level) API documentation available at the <a href="https://www.w3.org/TR/webxr/">W3C</a> which describes the various objects needed to work with WebXR. <a href='https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API'>Mozilla</a> and <a href='https://immersiveweb.dev'>immersiveweb.dev</a> (maintained by the W3C) also provide some useful and more accessible documentation.</p>
+<h3 id="whatcambedonewithwebxr">What cam be done with WebXR?</h3>
+<p>WebXR will allow several advanced markerless AR features, such as:</p>
+<ul>
+<li>Ground plane and surface detection. Computer vision is used to detect ground planes - flat surfaces in the world - which objects can be placed on to give a realistic AR effect.</li>
+<li>Hit testing. A user can tap on a real-world position, as viewed through the camera, in order to add an AR image. A ray (vector line) will be cast from the screen to the real world, and the point of intersection with a real-world surface will be detected. At this point of intersection, you can then add a model. Furthermore, hit testing using a ray drawn from an arbitrary point in the scene can also be implemented.</li>
+</ul>
+<h3 id="howisthisdone">How is this done?</h3>
+<p>WebXR is designed to be a generic specification, which can potentially use any underlying AR library. Currently, it is only supported by Chrome, Edge and Samsung Internet (see <a href='https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API'>the Mozilla docs</a>). On Chrome on an Android device, it wraps Google's underlying <a href='https://developers.google.com/ar'>ARCore</a> library. ARCore is the official Google library for Android markerless augmented reality; as well as having a client-side, on-phone component, it uses Google servers to do part of the surface detection. So if you write a WebXR application, you are using ARCore under the hood. </p>
+<p>Furthermore, at the moment, only certain Android devices support ARCore (see <a href="https://developers.google.com/ar/discover/supported-devices">here</a>), though nowadays it is quite a large range of devices. There is no official support on iOS, though Mozilla have been developing a <a href='https://labs.mozilla.org/projects/webxr-viewer/'>WebXR viewer for iOS</a> which wraps ARKit, Apple's equivalent to ARCore.</p>
+<p>On the other hand, there is nothing in the WebXR specification that says that you must use ARCore. It would be possible for developers of web browsers to implement WebXR so that another underlying, lower-level API entirely is used if ARCore is not available. Even if it is, one issue with ARCore is that it partly uses Google services - server-side code - to implement the AR, and this code is closed-source; so a complete open-source implementation might be preferred.</p>
+<h2 id="developingwebxrapplications">Developing WebXR applications</h2>
+<p>As explained earlier, the WebXR specification has gone rapid changes recently though the W3C documentation above will be accurate and the Mozilla docs also appear to be accurate. However, full tutorials are rather hard to find.
+For that reason, it might be preferred to use a library which already provides WebXR support and luckily, recent versions of A-Frame do.</p>
+<h3>Building a map of the world</h3>
+<p>WebXR (through ARCore) works by building a <em>map of the world</em> containing <em>detected planes</em> (surfaces, such as floors or table tops). Using computer vision, it tracks the scene, detecting planes. Each plane is given coordinates, representing its position within the world. Thus, this map, and the planes within it, can be referenced by a 3D coordinate system. Typically, negative z in this 3D coordinate system will correspond to the direction the camera is facing when the application starts up.</p>
+<h3>Fundamental WebXR objects</h3>
+<p>When developing a WebXR application, you need to use various objects which are part of the WebXR API. These include:
+    <ul>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/XRSession">XRSession</a>, represents the XR session as a whole</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace">XRReferenceSpace</a> - represents a particular 3D space, which coordinates are measured. There are various 3D spaces, including the <em>viewer space</em> (relative to our current view of the world, basically equivalent to eye coordinates) and <em>floor space</em> (relative to the map of the world which is built using AR as described above; basically equivalent to world coordinates).</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/XRHitTestSource">XRHitTestSource</a> - the source of the ray used for a hit test. This might be for example when the user is moving the device; a ray is cast from the centre of the device to the generated map to detect planes. We have to specify an XRReferenceSpace when creating an XRHitTestSource, which will be the space the hit test source is relative to. For casting rays from a specific place on the screen, such as the centre of the screen, this will be the <code>viewer</code> space because the ray is positioned relative to the user's current view of the world.</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/XRHitTestResults">XRHitTestResults</a> - an object representing the results from a hit test. A hit test involves casting a ray from a particular point in the scene and detecting where that ray hits detected planes, such as floors, table tops etc. We can then query the hit test results to obtain the coordinates of the hit position in a given XRReferenceSpace (e.g. viewer space or floor space)</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/XRPose">XRPose</a> - a <em>pose</em>, i.e. the position and orientation of a particular point (such as a hit position) relative to a given reference space (e.g. the <code>local-floor</code> reference space). So for a hit position, the pose would contain the coordinates where the ray meets the detected plane, and also the angle (orientation) at which the ray intersects the plane.</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Wen/API/XRGreame">XRFrame</a> - represents the current rendering frame. We obtain the hit test results from the current frame using the current <code>XRHitTestSource</code>.</li>
+    </ul>
+</p>
+<h3>Developing a WebXR application with user interaction</h3>
+<p>We will now go through an absolute basic web application which features user interaction. This code, available on <a href='https://github.com/nickw1/webxr-expts/tree/master/1'>GitHub</a>, is based on the example on GitHub by <a href="https://github.com/stspanho/aframe-hit-test/">user stsphanho</a>, which itself is based on the <a href="https://xr-spinosaurus.glitch.me/">Spinosaurus</a> example developed by Klaus Weidner. It displays a dinosaur model on the plane detected at the centre of the screen, when the user taps the screen.
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;meta charset="utf-8" /&gt;
+&lt;title&gt;A-Frame WebXR test&lt;/title&gt;
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;a-scene webxr='referenceSpaceType: local-floor; requiredFeatures:hit-test,local-floor;' ar-hit-test&gt;
+     &lt;a-assets timeout="30000"&gt;
+        &lt;!-- Model source: https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7
+             Model author: https://sketchfab.com/VapTor
+             Model license: CC Attribution --&gt;
+        &lt;a-asset-item id="spinosaurus" src="https://cdn.glitch.com/324a5290-5aa7-4efc-92d6-ae0736433b12%2Fspinosaurus.glb" response-type="arraybuffer"&gt;&lt;/a-asset-item&gt;
+      &lt;/a-assets&gt;
+      &lt;a-entity id="dino" position="-1 0 -2" scale="0.25 0.25 0.25"&gt;
+            &lt;a-entity position="0 2.15 0" rotation="0 55 0"
+            gltf-model="#spinosaurus"&gt;&lt;/a-entity&gt;
+      &lt;/a-entity&gt;
+      &lt;a-light type="directional"
+             id="light"
+             target="dino"
+             position="-2 4 2"&gt;
+      &lt;/a-light&gt;
+    &lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>Note how we add <code>webxr</code> to the &lt;a-scene&gt;. This enables WebXR. Note also how we specify the required features of <code>hit-test</code> (we want hit testing) and <code>local-floor</code> (we want a floor-based coordinate system, as discussed above). <code>ar-hit-test</code> is our custom component, shown below.</p>
+<p>You'll note the model is the <code>&lt;a-entity&gt;</code> with an id of <code>dino</code> (a Spinosaurus dinosaur model). Note how this is scaled to a quarter of the normal size (to avoid the dinosaur being too big) and placed at a certain initial position in the world. You'll note that the model does not have
+any special AR components attached to it; it's just specified as a model
+entity as we normally would in an A-Frame application.</p>
+<p>Note also how a light source is added which is shining on the 
+dinosaur (<code>target="dino"</code>) and it is this light source which is casting the shadows.</p>
+<h3>The ar-hit-test component</h3>
+<p>We create a component named <code>ar-hit-test</code>
+and give our component an <code>init()</code> function, containing code to run on startup:
+<pre>
+// Credit: 
+// 
+// based on https://github.com/stspanho/aframe-hit-test/ but simplified
+// this was in turn based on Klaus Weidner's Spinosaurus example: see
+// https://xr-spinosaurus.glitch.me/
+
+import 'aframe';
+
+AFRAME.registerComponent('ar-hit-test', {
+    init: function() {
+        // Initialise the WebXR objects we need to null
+        this.resetVariables();
+
+        // when session ends, set everything to null
+        this.el.sceneEl.renderer.xr.addEventListener('sessionend', this.resetVariables.bind(this));
+
+        // remaining code will go here...
+    },
+
+    // Initialise variables to null on startup and re-nullify on shutdown
+    resetVariables: function() {
+        this.xrHitTestSource = null;
+        this.viewerSpace = null;
+        this.floorSpace = null;
+    }
+});
+</pre>
+This code initialises three variables, the <code>XRHitTestSource</code> and two <code>XRReferenceSpace</code>s, the viewer space and the floor space (see above), to <code>null</code> when the application starts up. Furthermore, these 
+variables are reset to <code>null</code> when the XR session ends, as the 
+variables are no longer needed.
+</p>
+<p>
+We then handle the <em>XR session starting</em>. When this happens, a <code>sessionstart</code> event will be emitted. In an A-Frame application, this occurs when the user presses the "AR" button on the UI. This switches to AR mode and initialises the XR session. This code would go inside your <code>init()</code>:
+<pre>
+// Handle the XR session starting...
+this.el.sceneEl.renderer.xr.addEventListener('sessionstart', e=&gt; {
+</pre>
+First thing we do in the <code>sessionstart</code> event handler is obtain the <code>XRSession</code> object:
+<pre>let xrSession = this.el.sceneEl.renderer.xr.getSession();</pre>
+We then request the viewer reference space (the space relative to the
+user's current view of the world). We need this to cast a ray from the centre
+(origin) of the screen. Having obtained the viewer reference space, we 
+create a hit test source using it. This hit test source will, by default,
+cast a ray from the origin of the viewer reference space (the centre of the
+screen) towards negative z (into the screen). Thus, we will test intersections
+between this ray and any planes visible at the centre of our screen. Note this
+code is asynchronous and promise-based.
+<pre>xrSession.requestReferenceSpace('viewer').then( space =&gt; {
+    this.viewerSpace = space;
+    // Once we have the viewer space, request an XRHitTestSource
+    // using it (used to generate rays from the centre of the screen)
+    xrSession.requestHitTestSource({space: this.viewerSpace})
+        .then(hitTestSource =&gt; {
+            this.xrHitTestSource = hitTestSource;
+        });
+    });
+</pre>
+Now, still in the <code>sessionstart</code> event handler, we request floor 
+(<code>local-floor</code>) reference space. Hit test result coordinates will
+be obtained in floor space coordinates, which we need to place the dino on 
+the plane detected at the centre of the screen. 
+<pre>xrSession.requestReferenceSpace('local-floor').then( space =&gt; {
+        this.floorSpace = space;
+});</pre>
+Next thing in the <code>sessionstart</code> event handler is to handle
+<code>select</code> events on the <code>xrSession</code>. These will occur
+when the user presses the screen and selects a detected plane. In the 
+<code>select</code> handler, we
+obtain hit test results using the hit test source we obtained earlier, i.e.
+a ray extending into the screen from the centre of the screen. There's quite
+a lot going on here, so please refer to the comments for detail.
+<pre>xrSession.addEventListener('select', xrInputSourceEvent =&gt; {
+    // Get the current frame
+    const frame = xrInputSourceEvent.frame;
+
+    // Get the hit test results. To get the hit test results, we
+    // need an XRHitTestSource, which was initialised above 
+    const hitTestResults = frame.getHitTestResults(this.xrHitTestSource);
+    console.log(`hit test results length: ${hitTestResults.length}`);
+
+    // We need the hit test result coordinates relative to a given 
+    // XRReferenceSpace see above)
+    // The floor space is relative to our mapped world (-z will
+    // be in front of the camera at the point the world started
+    // being mapped)  while the viewer space is relative to our 
+    // current view of it. We want to place the dino in floor
+    // (world) space.
+    // Both spaces were initialised above. 
+    // The origin of the ray will be the centre of the screen,
+    // not the press position. This is because we are using
+    // viewer space for the XRHitTestSource, and the ray, by default, is cast
+    // from the centre of our chosen space.
+
+    // Make sure there are hit test results and the local-floor space has been
+    // initialised
+    if(hitTestResults.length &gt; 0 &amp;&amp; this.floorSpace) {
+
+        // get the pose of the hit (position and orientation
+        // relative to a given space). We want the floor space here,
+        // not the viewer space, as we want to place the dino at
+        // an absolute position within the mapped world, not
+        // relative to the current view.
+        const pose = hitTestResults[0].getPose(this.floorSpace);
+                    
+        // the pose contains orientation, however here, we are
+        // only interested in its position
+        const pos = pose.transform.position;
+
+        // place dino at this position
+        document.getElementById('dino').setAttribute('position' , {
+            x: pos.x,
+            y: pos.y,
+            z: pos.z
+        });
+
+        // Shine light on dino at its new position
+        document.getElementById('light').setAttribute('position',{
+            x: pos.x-2,
+            y: pos.y+4,
+            z: pos.z+2
+        });
+    }
+});
+</pre>
+Now finally, the <code>sessionstart</code> event handler is closed.
+<pre>});</pre>
+</p>
+<p>To summarise:
+    <ul>
+    <li>We request the two reference spaces we need, the <code>viewer</code> reference space (relative to the current view) and the <code>local-floor</code> reference space (relative to the map of our world that ARCore has built). From the <code>viewer</code> reference space, we initialise an <code>XRHitTestSource</code>.</li>
+    <li>We handle a <code>select</code> event handler generated from the <em>XRSession</em>. This will occur when the user taps the screen. In here, we get the <code>XRHitTestResults</code> using the <code>XRHitTestSource</code> we set up. Note that the ray will be cast from the origin of the <code>XRReferenceSpace</code> used to setup the <code>XRHitTestSource</code>; as we used <code>viewer</code> space, the ray will be cast from the <strong>centre of the screen</strong> - not the position of the press.  If we have results, we take the first result (it's possible the ray from the centre of the screen might intersect more than one plane). We obtain its pose relative to floor (world) space and from the pose, obtain the position in floor (world) space coordinates. We then set the dino's position to these coordinates and change the light's position to ensure it keeps shining on the dino. So, as a result, the dino will appear <strong>on the plane found at the centre of the screen</strong>.</li>
+    </ul>
+</p>
+<h3>Second example - using a reticle to select a position</h3>
+<p>A common pattern in AR applications is to show a graphical indicator - a
+<em>reticle</em> - to indicate the position that a ray beginning at the
+centre of the screen hits a detected plane. The reticle will, as a result,
+appear at the centre of the screen overlaid on a detected plane. A user can 
+then press the reticle to create a model at that position. The reticle will
+thus enhance the user experience by showing them exactly where the model
+will be placed. The example below does precisely this; once again it's
+available on <a href='https://github.com/nickw1/webxr-expts/tree/master/2'>GitHub</a>, and is again based on the example on GitHub by <a href="https://github.com/stspanho/aframe-hit-test/">user stsphanho</a>, which is based on the
+<a href="https://xr-spinosaurus.glitch.me/">Spinosaurus</a> example developed by Klaus Weidner.</p>
+<p>Here is the HTML:
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;meta charset="utf-8" /&gt;
+&lt;title&gt;A-Frame WebXR test&lt;/title&gt;
+&lt;script type='text/javascript' src='dist/bundle.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;a-scene webxr='referenceSpaceType: local-floor; requiredFeatures:hit-test,local-floor;'&gt;
+     &lt;a-assets timeout="30000"&gt;
+        &lt;!-- Model source: https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7
+             Model author: https://sketchfab.com/VapTor
+             Model license: CC Attribution --&gt;
+        &lt;a-asset-item id="spinosaurus" src="https://cdn.glitch.com/324a5290-5aa7-4efc-92d6-ae0736433b12%2Fspinosaurus.glb" response-type="arraybuffer"&gt;&lt;/a-asset-item&gt;
+         &lt;a-asset-item id="reticle"
+                      src="reticle.gltf"
+                      response-type="arraybuffer"&gt;&lt;/a-asset-item&gt;
+      &lt;/a-assets&gt;
+      &lt;a-entity id="dino" position="-1 0 -2" scale="0.1 0.1 0.1"&gt;
+            &lt;a-entity position="0 2.15 0" rotation="0 55 0"
+            gltf-model="#spinosaurus"&gt;&lt;/a-entity&gt;
+      &lt;/a-entity&gt;
+      &lt;a-light type="directional"
+             id="light"
+             target="dino"
+             position="-2 4 2"&gt;
+       &lt;/a-light&gt;
+       &lt;a-entity ar-hit-test-reticle gltf-model="#reticle"&gt;&lt;/a-entity&gt;
+    &lt;/a-scene&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+and the JavaScript:
+<pre>
+// Credit: 
+// 
+// based on https://github.com/stspanho/aframe-hit-test/ but simplified
+// this was in turn based on Klaus Weidner's Spinosaurus example: see
+// https://xr-spinosaurus.glitch.me/
+
+import 'aframe';
+
+AFRAME.registerComponent('ar-hit-test-reticle', {
+    init: function() {
+        this.resetVariables();
+
+        // when session ends set everything to null
+        this.el.sceneEl.renderer.xr.addEventListener('sessionend', this.resetVariables.bind(this));
+
+        // Handle the stession starting... 
+        this.el.sceneEl.renderer.xr.addEventListener('sessionstart', e=&gt; {
+            // Get the XRSession
+            this.xrSession = this.el.sceneEl.renderer.xr.getSession();
+
+            // Obtain the viewer reference space and hit test source,
+            // and the local-floor space. This code is not shown, but will be 
+            // more or less the same as the equivalent code in the first 
+            // example, above.
+
+            // When a user selects something (a detected plane) the select
+            // event will fire
+            this.xrSession.addEventListener('select', xrInputSourceEvent =&gt; {
+                // Set 'pos' to the RETICLE position (this component is 
+                // attached to the reticle so this.el will represent the
+                // reticle). The reticle position is determined in tick(), 
+                // below
+                const pos = this.el.getAttribute('position');
+            
+                // Set dino to the RETICLE position
+                document.getElementById('dino').setAttribute('position' , {
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z
+                    });
+
+                // Shine light on dino (same code as before, not shown...)
+            });
+        })
+    },
+
+    // tick() function
+    // Remember this runs every time the screen redraws itself. 
+    tick: function() {
+        // If we are not in 'AR' mode, return.
+        if(!this.el.sceneEl.is('ar-mode')) return;
+
+        // If the session, the frame, the floor space and the hit test source
+        // have all been setup...
+        if(this.xrSession &amp;&amp; this.el.sceneEl.frame &amp;&amp; this.floorSpace &amp;&amp; this.xrHitTestSource) {
+            // Get the current frame
+            const frame = this.el.sceneEl.frame;
+
+            // Get hit test results from a ray projected from the centre of the screen
+            const hitTestResults = frame.getHitTestResults(this.xrHitTestSource);
+
+            // If we have any...
+            if(hitTestResults.length &gt; 0) {
+                // Get pose and position of the hit, as the first example
+                const pose = hitTestResults[0].getPose(this.floorSpace);
+                const position = {
+                    x: pose.transform.position.x,
+                    y: pose.transform.position.y,
+                    z: pose.transform.position.z
+                };
+                // Set the reticle's position to the hit position
+                // We use this in the "select" event handler, above
+                this.el.setAttribute('position', position);
+            }
+        }
+    },
+                        
+    resetVariables: function() {
+        this.xrHitTestSource = null;
+        this.viewerSpace = null;
+        this.floorSpace = null;
+        this.xrSession = null;
+    }
+});
+</pre>
+This example is a little more complex than the first example, but not much.
+The key points to note are:
+    <ul>
+    <li>The <code>ar-hit-test-reticle</code> component is now attached to the reticle entity. Thus, the reticle can be accessed within the component using <code>this.el</code>.</li>
+    <li>Note how there is now a <code>tick()</code> method, which runs every time the screen needs to redraw itself, as we have seen already. In the <code>tick()</code> method, we obtain the hit test results from a ray starting at the centre of the screen, in order to draw the reticle superimposed on a plane detected at the centre of the screen. If there are results, we take the first result, as before, and then calculate the pose and the position. We update the reticle's position to the hit position; thus, the reticle will appear projected onto a plane at the centre of the screen.</li>
+    <li>When the user interacts with the screen, the dino is placed at the reticle position, rather than the current centre of the screen.</li>
+    </ul>
+</p>
+<h3>Example WebXR applications</h3>
+<p>As said above, WebXR tutorials are rather hard to find but here are three
+example applications, two of which have already been referenced above.</p>
+<ul>
+<li><a href='https://xr-spinosaurus.glitch.me/'>Klaus Weidner: Spinosaurus</a></li>
+<li><a href='https://github.com/stspanho/aframe-hit-test/ '>stspanho: Hit Test</a></li>
+<li><a href='https://medium.com/samsung-internet-dev/making-an-ar-game-with-aframe-529e03ae90cb'>Ada Rose Cannon: Making an AR Game</a></li>
+</ul>
+
+<h2>Further A-Frame topics</h2>
+<p>We will now consider one or two further general A-Frame topics (not specific
+to WebXR) which we have not had the chance to look at yet.</p>
+<h3>Entity-component-system</h3>
+<p>A-Frame adopts what is called an <em>entity-component-system</em> architecture.  We have already seen the roles of entities and components. What are systems?
+A <code>system</code> is an object which contains the detailed logic of a component.  The idea is to keep the component itself lightweight, so that it mostly just contains lifecycle methods - and then add the detailed logic to the system.  If you register a system with <code>AFRAME.registerSystem()</code> and that system has the same name as a component, it will be accessible from the component via <code>this.system</code>. For example:</p>
+<pre>AFRAME.registerComponent("mycomponent", {
+    init: function() {
+        // the system can be accessed from the component as this.system 
+        // e.g. this.system.doSomething() will call the doSomething() method 
+        // (function) of the system
+    }
+});
+
+// System contains methods (functions) which do the detailed logic
+AFRAME.registerSystem("mycomponent", {
+    doSomething: function() {
+    },
+
+    doSomethingElse: function() {
+    }
+});
+</pre>
+<p>Our components so far are not complex enough to need systems, but as you
+build more complex components you'll find your code becomes more modular if
+you separate out the detailed logic into a system.</p>
+<p>See <a href="https://aframe.io/docs/1.0.0/introduction/entity-component-system.html">here</a> for more detail.</p>
+<p>Real examples of systems you have come across include <code>arjs</code> (the system which initialises AR.js, see week 8) and <code>webxr</code> which we looked at this week, which initialises WebXR.</p>
+<h3>Event generation and handling in A-Frame</h3>
+<p>Another feature of A-Frame is the ability to <em>generate custom events</em> which can then be handled elsewhere in our code. For example, one component can generate an event, and another component can handle it. The advantage of this approach is it allows for development of reusable components, which do not depend on other components: we can simply generate an event from a given component and then, if another component needs to handle that event, it can implement an event handler for it, rather than explicitly containing a reference to the first component. We want to make each component <em>independent</em> and <em>reusable</em>, and components containing dependencies on other components makes this more difficult. Event handling, by contrast, reduces the need of these kinds of dependencies.</p>
+<h4>Emitting an event</h4>
+<p>To generate an event, we <em>emit</em> it from a given entity:
+<pre>this.el.emit('data-loaded', {
+    pois: poisDownloadedFromWeb
+});</pre>
+This example is emitting an event named <code>data-loaded</code>. The second
+parameter to <code>emit()</code> represents the actual data we want to emit,
+which here is an object containing a <code>pois</code> property. This property contains points of interest downloaded from the web.</p>
+<h4>Handling an event</h4>
+<p>To handle an event, we use the standard DOM <code>addEventListener()</code>
+method. For example, in another component attached to the same entity, we 
+could do:
+<pre>this.el.addEventListener('data-loaded', e =&gt; {
+    this.drawPOIs(e.detail.pois);
+}</pre>
+Note how (as usual) the event handler takes an event object as a parameter,
+and this contains a <code>detail</code> property which contains the original
+data emitted with the event, i.e. an object with a <code>pois</code> property
+here.</p>
+<p>Note also that if you emit an event, you can handle the event not only on
+the entity which originally emitted the event, but any of that entity's 
+parents (such as, for example, the scene). This is called <em>event bubbling</em>; the event "bubbles up" from the entity which emitted it to that entity's parent entities. So if you need to handle the event on a component not attached to the entity which emitted it, you can handle it on the scene entity <code>this.el.sceneEl</code>. For example:
+<pre>this.el.sceneEl.addEventListener('data-loaded', e =&gt; {
+    this.drawPOIs(e.detail.pois);
+}</pre>
+</p>
+<h2>Exercise</h2>
+<p><strong>You will need an ARCore-supporting Android phone for this exercise. Please check the list linked to above.</strong></p>
+<ol>
+<li>Create both examples above, the basic example (in which the dino is placed
+on a plane at the centre of the screen when the user taps the screen) and the
+reticle example (in which the dino is placed on the reticle). As I have given
+code snippets, you will need to piece these together to create a full working application.</li>
+<li>You will notice that if a <em>vertical</em> wall is detected, the reticle does not appear correctly. It will still appear horizontal. Therefore, you need to use the <code>rotation</code> component of the pose of the hit location to rotate it correctly. The rotation is expressed as a mathematical construct known as a <em>quaternion</em>. Quaternions are a complex concept but are somewhat simpler in the context of 3D graphics: essentially they represent the amount of rotation around some arbitrary axis, not necessarily the x, y or z axes. What do we mean by an arbitrary axis? Imagine an axis passing through the origin and then passing through x=2, y=3, z=4. The x, y and z components of the axis would be x=2, y=3, z=4.  A quaternion is a 4-member data structure containing four variables:
+    <ul>
+    <li><code>w</code>, the amount of rotation around a given axis;</li>
+    <li><code>x</code>, representing the x component of the axis;</li>
+    <li><code>y</code>, representing the y component of the axis;</li>
+    <li><code>z</code>, representing the z component of the axis.</li>
+    </ul>
+In fact for a rotation of given angle &theta; about an arbitrary axis passing through the origin and some other point <code>(x1,y1,z1)</code>, then the quaternion is made up of
+:
+    <ul>
+    <li><code>w</code> = <code>cos (&theta;/2)</code></li> 
+    <li><code>x</code> = <code>sin (&theta;/2) * x1</code></li> 
+    <li><code>y</code> = <code>sin (&theta;/2) * y1</code></li> 
+    <li><code>z</code> = <code>sin (&theta;/2) * z1</code></li> 
+    </ul>
+See <a href='https://www.cprogramming.com/tutorial/3d/quaternions.html'>this article</a> for an accessible, programmer-oriented introduction to quaternions for 3D rotations.</p>
+<p>
+The orientation of the hit point is expressed as a quaternion and can be accessed via <code>pose.transform.orientation</code>. To apply this quaternion to the reticle and the model (so that the model appears to be standing on a surface, even if the surface is vertical), we can use:
+<pre>
+// sourced originally from https://ada.is/basketball-demo/ar-components.js
+// Get the Three.js object3D of the A-Frame entity. This has a 'quaternion'
+// property, and we can copy the pose orientation into this quaternion to set
+// the entity (the reticle)'s orientation.
+this.el.object3D.quaternion.copy(pose.transform.orientation); 
+
+// Do the same for the dino (up to you to do..)
+</pre>
+</li>
+<li>A-Frame provides the <code>enter-vr</code> and <code>exit-vr</code> event handlers, when the user presses the 'AR' button and when they leave AR mode. These event handlers can be used to hide, or show, VR content - such as a plane - which you do not want to appear in AR mode. Create a ground plane in your application, hide it in the <code>enter-vr</code> event handler and show it again in the <code>exit-vr</code> event handler. For example we could use code such as:
+<pre>
+this.el.sceneEl.addEventListener('enter-vr', e =&gt; {
+    // hide any entities we don't want to show - set the 'visible' attribute to false
+});
+this.el.sceneEl.addEventListener('exit-vr', e =&gt; {
+    // show any entities previously hidden - set the 'visible' attribute to true
+});
+</pre>
+</li>
+</ol>
+</body></html>
