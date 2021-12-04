@@ -76,7 +76,7 @@ For that reason, it might be preferred to use a library which already provides W
 any special AR components attached to it; it's just specified as a model
 entity as we normally would in an A-Frame application.</p>
 <p>Note also how a light source is added which is shining on the 
-dinosaur (<code>target="dino"</code>) and it is this light source which is casting the shadows.</p>
+dinosaur (<code>target="dino"</code>).</p>
 <h3>The ar-hit-test component</h3>
 <p>We create a component named <code>ar-hit-test</code>
 and give our component an <code>init()</code> function, containing code to run on startup:
@@ -164,8 +164,8 @@ a lot going on here, so please refer to the comments for detail.
     // We need the hit test result coordinates relative to a given 
     // XRReferenceSpace see above)
     // The floor space is relative to our mapped world (-z will
-    // be in front of the camera at the point the world started
-    // being mapped)  while the viewer space is relative to our 
+    // be in front of the camera on startup) 
+    // while the viewer space is relative to our 
     // current view of it. We want to place the dino in floor
     // (world) space.
     // Both spaces were initialised above. 
