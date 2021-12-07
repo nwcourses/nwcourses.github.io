@@ -47,7 +47,7 @@ You can now install AR.js from npm, use this package.json (this includes some ot
         "@ar-js-org/ar.js": "^3.3.2-es6-beta-01",
         "aframe": "^1.2.0",
         "aframe-look-at-component": "^1.0.0",
-        "aframe-osm-3d": "^0.5.1"
+        "aframe-osm-3d": "^0.5.2"
     },
     "devDependencies": {
         "webpack": "^5.0.0",
@@ -238,7 +238,7 @@ place on the top of the mountain rather than at the base of the mountain.</p>
 </ul>
 <p>You'll notice that the <code>url</code> property for <code>terrarium-dem</code> is not an AWS URL but rather a URL on hikar.org. Why is this? Due to the <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">same-origin-policy</a> we cannot contact AWS directly via AJAX, so we need to create a proxy script to do it for us. </p>
 <p>For the OSM URL (on <code>hikar.org</code>), we do not need a proxy as this script has <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a> enabled by default.</p>
-<p>We can now move on to our JavaScript. First of all you need to import the <code>aframe-osm-3d</code> module. Add to your package.json: you need version 0.5.1.</p>
+<p>We can now move on to our JavaScript. First of all you need to import the <code>aframe-osm-3d</code> module. Add to your package.json: you need version <strong>0.5.2</strong>.</p>
 <p> 
 It can then be imported in the normal way:
 <pre><code>import 'aframe-osm-3d';
