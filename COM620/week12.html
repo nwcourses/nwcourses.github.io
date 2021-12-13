@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<title>Week 12 - Possible Future Trends in AR</title>
+</head><body>
+<div class='titlebox'>
+<h1>Immersive Technologies</h1>
+<h1>Topic 12: Possible Future Trends in AR</h1>
+</div>
+<h2 id="introduction">Introduction</h2>
+<p>In this <em>unassessed</em> topic we will take a look at some possible future developments, in my view, in markerless AR.</p>
+<h2>The limitations of WebXR at the moment</h2>
+<p>Last week we looked at the <em>WebXR</em> specification for performing markerless AR in the browser, involving detection of flat surfaces such as planes within our world. However, we also found some disadvantages:
+	<ul>
+	<li>WebXR is not supported on all browsers (Chrome on Android is recommended);</li>
+	<li>Currently, it wraps Google's ARCore system, which includes closed-source  server side components so is not a fully 100% open source stack.</li>
+	</ul>
+Thus there are various on-going efforts to attempt to implement an open source AR system.</p>
+<h2>Details on how open source AR could work</h2>
+<p>We need some way of detecting real-world features, and then some way of positioning those real-world in our 3D world by assigning them 3D coordinates. The general approach is known as <em>Simultaneous Localisation and Mapping</em> (SLAM) - because the approach simultaneously locates the camera within our 3D world by keeping track of how features move as the camera moves (below) and constructs a map of the world by assigning 3D world coordinates to key features. This is essentially the approach taken by WebXR via ARCore. To implement SLAM we need to use the field of <em>computer vision</em>: using algorithms to detect real world features in the camera feed of our device. The essential steps are:
+	<ul>
+	<li>Detect what are called <em>key points</em> in the real world. A key point is a well-defined point, typically the corner of an object such as table, a picture on the wall, or a light. An example of an algorithm for detecting key points is <em>FAST</em> (Features from Accelerated Segment Test; <a href='#fast'>Rosten and Drummond, 2006</a>).</li>
+	<li><em>Track</em> these key points. Once we have a key point, we need to <em>recognise</em> it as a <em>specific</em> feature so that it can be tracked in successive frames. Computer vision can recognise a specific key point by the pattern of how colour intensity varies around it, giving a unique imprint for that key point. So, for example, a <em>specific</em> corner of a table is recognised in that way. We describe it using a so called <em>feature descriptor</em>, a unique binary string representing that specific feature, computed from its intensity pattern. A key algorithm for this step is <em>BRIEF</em> (Binary Robust Independent Elementary features; <a href='#brief'>Calonder et al. 2010</a>). A feature descriptor is a unique ID representing a specific key point; the idea is that the computer vision system <em>recognises key points in each frame</em> which can then be used to estimate movement and so track the world. So in the first frame, the system might recognise a specific corner of a table and give it a descriptor. By assigning a feature descriptor, the system has "learnt" this specific corner, and can then "recognise" the corner in the next frame.</li>
+<li>Then, if there are multiple features with specific descriptors which are recognised (e.g. multiple corners of the table), the system can find correspondences between these features between subsequent frames, and start <em>tracking</em> the camera. The camera's <em>pose</em> (position and orientation in the world) can be estimated. Note that the detected features initially only have 2D (screen) coordinates. To obtain a camera pose we need 3D coordinates, which is a challenging problem because one 2D screen point can map to an infinite number of 3D world points - imagine a ray projecting from a particular 2D point on the screen into the distance, it will intersect an infinite number of real-world points. To deal with this, a calibration step - involving placing a pre-defined pattern such as a chess board at a known distance from the camera - needs to be used. Documented algorithms can be used to solve this problem, called <em>Perspective-N-Point</em> (algorithms are often known as <em>solvePnP</em>)).</li>
+<li>Once we have a camera pose, we can assign 3D world coordinates to our detected features.</li>
+	<li>Once we have a collection of feature points, further algorithms, such as RANSAC (Random Sample Consensus), can be done to detect planes by detecting clusters of points (<a href='#ransac'>Yang and Förstner, 2010</a>)</li>
+	</ul>
+This process can be done with the help of <a href='https://opencv.org'>OpenCV</a>, probably the leading open-source computer vision library. OpenCV is written in C++; however there is a JavaScript wrapper available, see below. There are also less powerful, but more specialised (at key point detection and tracking) pure-JavaScript libraries such as <a href='https://trackingjs.com'>tracking.js</a>.
+</p>
+
+<h3>Specific implementations of the above algorithms</h3>
+
+<p>There are various approaches to SLAM. A leading approach is <em>ORB-SLAM</em> (<a href='#orbslam'>Mur-Artal et al, 2015</a>) which is an <a href='https://github.com/UZ-SLAMLab/ORB_SLAM3'>open source</a> implementation of SLAM making use of ORB (Oriented FAST and Rotated BRIEF), an improved version of FAST and BRIEF which accounts for the possibility of the key points being in different orientations in successive frames (<a href='#orb'>Rublee et al, 2011</a>). It's written in C++ for desktop systems, but could theoretically be ported to the web, though no working web implementation exists just yet. Nonetheless this is something which I am personally investigating, see <a href='https://github.com/nickw1/orb-slam-expts'>here</a>. This brings us on to the next topic - how to make code written in a compiled language such as C++ available on the web?</p>
+
+<h2>WASM and Emscripten - porting C++ code to the web</h2>
+
+<p>Many computer vision algorithms are written in C++, because it's compiled to native machine code, and therefore fast and the complex algorithms will run quickly and efficiently. How, though, can we use C++ on the web, where JavaScript is the typical language? </p>
+<p>This used to be difficult, however recent years have seen the advent of <em>WebAssembly</em> - a fast, compact, binary format with some similarity to assembly language, which can be run efficiently on the browser. The approach is to compile the algorithm's C++ code to WebAssembly, and then use some JavaScript "glue" to link the WebAssembly to our regular client-side HTML and JavaScript code. How can we do this? We need a special <em>compiler</em> which will produce WebAssembly and JavaScript glue code from C++ source code. (More generally, as you might know, a compiler is a piece of software which will convert human-readable source code into a binary format - often native machine code - which can be run rapidly by a machine. Java, for instance, uses a compiler to produce bytecode, a more optimised format which is run by the Java Virtual Machine). One of the leading systems available is <a href='https://emscripten.org'>Emscripten</a>.</p>
+<p>Emscripten is a complete toolkit for compiling C and C++ source code to WASM. As well as the WASM, JavaScript glue code is produced (as described above) which can be called from your regular JavaScript code and which calls the WASM code. It would be possible for you to write this glue code yourself, but it's quite complex so for this reason, Emscripten produces it for you.</p>
+
+<p>OpenCV itself, also written in C++, is already accessible from JavaScript via <a href='https://docs.opencv.org/3.4/d5/d10/tutorial_js_root.html'>opencv.js</a>, however the more specialised AR algorithms, such as ORB-SLAM, are not. So to port ORB-SLAM to the web, it will be necessary to develop an interface with JavaScript using Emscripten and compile ORB-SLAM to WASM. Other steps will be needed (which OpenCV can help with) such as reading data from the device's camera and passing it on to ORB-SLAM.</p>
+
+<h2>References</h2>
+
+<p>Here are some key references for the algorithms outlined here.
+
+<ul>
+<li id='fast'>
+<em>FAST</em>: Edward Rosten and Tom Drummond, “Machine learning for high speed corner detection” . 9th European Conference on Computer Vision, vol. 1, 2006, pp. 430–443.</li>
+
+<li id='brief'><em>BRIEF</em>: Michael Calonder, Vincent Lepetit, Christoph Strecha, and Pascal Fua, "BRIEF: Binary Robust Independent Elementary Features". 11th European Conference on Computer Vision (ECCV), Heraklion, Crete. LNCS Springer, September 2010</li>
+
+<li id='orb'><em>ORB</em>: Ethan Rublee, Vincent Rabaud, Kurt Konolige and Gary Bradski. "ORB: an efficient alternative to SIFT or SURF". IEEE International Conference on Computer Vision (ICCV), 2011.</li>
+
+
+<li id='orbslam'><em>ORB-SLAM</em>: 
+Raúl Mur-Artal, J. M. M. Montiel and Juan D. Tardós. "ORB-SLAM: A Versatile and Accurate Monocular SLAM System". IEEE Transactions on Robotics, vol. 31, no. 5, pp. 1147-1163, 2015.
+
+</li>
+
+<li id='ransac'><em>RANSAC for plane detection</em>: M. Y. Yang and W. Förstner."Plane Detection in Point Cloud Data". (pp. 1-16). (IGG : Technical Report ; Vol. 1, 2010). University of Bonn.</li>
+
+</ul>
+
+</p>
+
+</body>
+</html>
