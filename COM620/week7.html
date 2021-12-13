@@ -419,23 +419,7 @@ You should parse the JSON, and create cones for each feature. Create A-Frame ent
     </ul>
 </li>
 </ol>
-<h2>Assignment URL - preview</h2>
-<p>Next week, week 8, we will look at <em>tiling</em> which is the most efficient way of downloading the data from the server. However here is a quick preview, to allow you to start looking at the assignment if you are doing the Points of Interest scenario. The URL to use will be
-<pre>https://hikar.org/webapp/map/Z/X/Y.poi.json</pre>
-where Z, X and Y are the coordinates of the data <em>tile</em> to use. (A tile is a rectangular area covering part of the Earth). To obtain the tile for a given latitude and longitude, you can use <code>jsfreemaplib</code> again, e.g.:
-<pre>
-import { GoogleProjection } from 'jsfreemaplib';
-
-const merc = new GoogleProjection();
-
-// Use zoom level 13 - this is a good size
-// assume 'longitude' and 'latitude' contain your current longitude/latitude
-const tile = merc.getTileFromLonLat(longitude, latitude, 13);
-
-// <em>tile</em> is an object of class Tile. It has x, y and z properties
-// These can be used to download data from the assignment URL
-console.log(`Tile x: ${tile.x}, y: ${tile.y}, z: ${tile.z}`);
-</pre>
-</p>
+<h2>Assignment URL</h2>
+<p>Please see the <a href='index.html'>index page</a>.</p>
 </body>
 </html>
