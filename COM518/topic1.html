@@ -1,353 +1,401 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>COM518 - Topic 1 - JavaScript Fundamentals</title>
+<meta charset="UTF-8" />
+<title>Topic 1: JSON Web APIs</title>
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head>
 <body>
+<div class="titlebox"><h1>Topic 1: JSON Web APIs</h1>
+</div>
 
-<h1>Topic 1. JavaScript Fundamentals</h1>
-<p>This first topic should hopefully be mostly revision, but it is possible that some of it will be new to you. As you are all on different courses, your JavaScript knowledge will be at different levels. Therefore, before we start to move on to new material, I need to be sure that you are comfortable with the fundamentals of JavaScript.</p>
+<h2>Introduction</h2>
 
-<h2>JavaScript Basics</h2>
-<p>You should know already that JavaScript is used to provide <em>interactivity</em> to HTML pages. However you can do far more than simple form validation, colour changes and animations: you can build <em>complete web applications</em>, equivalent in functionality to desktop applications, using JavaScript. You can also write <em>server-side JavaScript code</em> with <em>Node.js</em> which we will meet later in the module. (Some of you have done some Node.js already, but some of you have not, so I will need to introduce it from first principles).</p>
-<h3>JavaScript Simple Example</h3>
-<p>
-Here is a basic JavaScript example. Remember that the JavaScript goes in its own <code>.js</code> file, e.g. <code>hello.js</code>:
-<pre>
-function hello() 
-{
-    alert('Hello from JavaScript!');
-}
-</pre>
-and we can link it from an HTML page as follows:
-<pre>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;Basic JavaScript Example&lt;/title&gt;
-&lt;script type='text/javascript' src='hello.js'&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;h1&gt;Test JavaScript Event Handling Page&lt;/h1&gt;
-&lt;input type='button' id='btn1' value='Click!' onclick='hello()' /&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</pre>
-</p>
-<p>
-JavaScript typically is linked from the <em>head</em> section of the page, and is placed in its own <code>.js</code> file, which typically consists of a series of <em>functions</em>: self-contained pieces of code which perform a particular task. The JavaScript within this page contains one function, called <code>hello()</code> , which brings up an alert box reading "Hello from JavaScript!"</p>
-<h3>Better event Handling with Unobtrusive JavaScript and addEventListener()</h3>
-<p>The first example illustrates <em>event handling</em>: the ability to respond to user interactions - or <em>events</em> - on a page, such as the user clicking a button. The above example was rather "dirty" because the event handling was set up in the HTML. It is better to write what we call <em>unobtrusive JavaScript</em> in which the HTML and JavaScript are kept entirely separate, for better maintainability.</p>
-<p>We can achieve this by attaching an <em>event handler</em> to a user interface element using the <em>addEventListener()</em> function. addEventListener() expects two pieces of information (<em>arguments</em>):
-<ul>
-<li>the event type (e.g. <code>click</code>),</li>
-<li> and the function which will run when the event occurs: the <em>event handler function</em>.</li>
-</ul>
-<p>If you look at the example below, you can see that the event type is <code>click</code> and the event handler function, or callback, is <code>clickHandler</code>. Note how we attach the event handler to the element with the ID of <code>btn1</code>:  
-<pre>
-// JavaScript file, example2.js
+<p>In this week's topic you will be introduced to the concept of
+<strong>web APIs</strong>. You will get an initial idea of why they are useful, and will start to write a simple web API using Node.js and Express. You will also be introduced to <em>goormIDE</em>, a cloud-based environment which you can use to develop Node applications.</p>
 
-// Find the element with the ID 'btn1' and attach the click event handler to it
-document.getElementById("btn1").addEventListener("click", clickHandler);
-    
-function clickHandler() {
-    alert("You clicked me!");
-}
-</pre>
-This event handler function is an example of a <em>callback</em> function. Callback functions are supplied as arguments to other functions, and are known as callbacks because they do not run immediately: instead it will be "called back" at some point in the future. In this example, the callback will run when the user clicks the button.</p>
-<p>The accompanying HTML might look like this:
-<pre>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;h1&gt;Test JavaScript Event Handling Page&lt;/h1&gt;
-&lt;input type='button' id='btn1' value='Click!' /&gt;
-&lt;script type='text/javascript' src='example2.js'&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</pre>
-</p>
-Note how we now link in the JavaScript at the end of the &lt;body&gt;, <em>not</em> the &lt;head&gt;. This is to ensure that it is loaded <em>after the page has completed loading</em> and therefore we will know that all page elements have been loaded into memory and are ready to be used.</p>
-<h2>A word on Data Types</h2>
-<p>Before we begin on some of the new JavaScript features we will look at in EWT,
-particularly <em>objects</em>, it helps to have
-some understanding of <em>data types</em> in JavaScript. Unlike other languages such as Java or C++, but similar to PHP and Python, JavaScript is a <em>loosely-typed</em> language. This means that when creating a variable,
-you do not have to declare the data type. So while in Java you would have to do:
-<pre>int a = 3;</pre>
-to set up an integer (whole number) variable <em>a</em>, in JavaScript you simply do:
-<pre>let a = 3;</pre>
-in other words, you do not have to specify the type of data (number, boolean[true/false], string etc) that the variable will hold. In fact, you can even reuse the same variable to hold a different data type. You declare the variable with <code>let</code>, which declares the variable as existing in the current <code>scope</code>. The following is perfectly valid JavaScript:
-<pre>
-// Initially "a" holds a number
-let a = 3;
-alert(a);
-
-// Now it holds a string
-a = "Hello!";
-alert(a);
-
-// Now it holds a boolean 
-a = true;
-alert(a);
-</pre>
-When you try to do something with a variable in JavaScript, such as adding two variables together, the JavaScript environment works out what sort of variable is by examining it. This is known as "duck typing" ("if it walks like a duck and quacks like a duck, it is a duck"). For example, if you do:
-<pre>
-let c = a + b;
-</pre>
-JavaScript will examine the contents of <em>a</em> and <em>b</em>. If they are numbers, it will do an arithmetic addition. If at least one of them is a string, it will concatenate <em>a</em> and <em>b</em> (e.g. "Hello " + "World" = "Hello World", or 3 + " bears" = "3 bears").
-</p>
-<h3>JavaScript Data Types</h3>
-<p>JavaScript has six fundamental data types:
-<ul>
-    <li>Number: note that it doesn't distinguish between integers and floating-point numbers.</li>
-    <li>String</li>
-    <li>Boolean (true/false)</li>
-    <li>Object (<em>arrays</em>, below, are a type of object)</li>
-    <li>Undefined: if we try to use a variable we haven't defined yet, e.g. we do <em>alert(a)</em> without 
-    setting <em>a</em> equal to anything, then <em>a</em> will be an <em>undefined</em> variable.</li>
-    <li>Null: typically used for setting up "blank" variables which don't contain anything yet. It is often
-    used to explicitly initialise a variable to a "blank" value, so that we can test for null
-    later. This is different
-    to undefined. An undefined variable is one we haven't set up yet, whereas a <em>null</em> variable is one which
-    has been explicitly set to <em>null</em>. For example, in:
-    <pre>
-let a;
-alert(a);
-a = null;
-alert(a);
-    </pre>
-    a is initially <em>undefined</em> but then it becomes <em>null</em>.
-    </li>
+<h2>Is HTML always the best output format?</h2>
+<p>Think about the work you did last year in Web Technologies, in which you wrote a simple Node/Express server to search a database table and display the results using EJS. You generated <em>HTML</em> as the output format, so that the results look good in a browser.</p>
+<p>The problem with HTML, however, is that it is a format <em>specific to a browser</em>. This is fine if we are simply writing a website to be viewed by an end-user in a browser. But the end-user is not the only potential user of the data. <em>Other applications</em> might want to make use of the content, for example a weather app running on Android or iOS might want to access weather forecasts from a weather website. Apps do not typically use HTML, they use their own user interface, so it would be better if our server delivered the data as <em>raw data</em>, without any presentation or formatting. An example of a raw data format is <em>JSON</em>, which you saw last year in COM419. Raw data could then be easily processed by <em>any front end</em>, for example:
+    <ul>
+    <li>An AJAX application. As you saw last year, AJAX applications send requests to servers, and in many cases, the server sends back raw data, such as JSON, which can then be <em>parsed</em> and integrated into the AJAX front-end.</li>
+    <li>A smartphone app, as we have seen.</li>
+    <li>A third-party website, which might want to use data provided by our server. For example, a tourist website for a particular city might want to display a weather forecast for that city, using a server which provides weather information. This would be easier if the weather server sent back raw data, rather than HTML. With HTML, the relevant data (the weather forecast) would have to be extracted from an HTML page (containing formatting, styling etc) which would be difficult to parse compared to concise, well-structured raw data such as JSON.</li>
     </ul>
 </p>
-<h2>JavaScript Arrays</h2>
+<h2>Web APIs - Introduction</h2>
 <p>
-You should be familiar with the concept of an <em>array</em>. Arrays are similar in concept to <em>lists</em> in Python.  Arrays are a special type of variable used to collect like items together, such as a set of months or student marks.</p>
-<p>To set up an array containing the months of the year, we would do the following:
-<pre>
-const months = ["January","February","March", 
-        "April","May","June",
-        "July","August","September","October",
-        "November","December"];
-</pre>
+A <em>web API</em> is an application running on a web server which provides <em>raw data</em> (such as JSON) to other applications (<em>client applications</em>), as we saw above. Web APIs receive HTTP requests from clients, process the request, and deliver the response back as an HTTP response - but unlike the simple servers you saw last year, the response is delivered as raw data, rather than HTML. Here are a few examples of web APIs and their clients:
+
 </p>
-<p>Note the use of <code>const</code> rather than <code>let</code>. A <code>const</code> variable is an <em>immutable</em> variable, in other words, it can't be changed, whereas a variable declared with <code>let</code> can.</p>
-<p>
-To access each member of the array we index it. An index is a numerical value pointing to a particular member of an array. The index starts with 0 for the first member of the array, then 1 for the second member of the array, and so on. For example:
-<pre>
-alert (`The first month of the year is ${months[0]}`);
-alert (`The third month of the year is ${months[2]}`);
-</pre>
-would show:
-<pre>
-The first month of the year is January
-The third month of the year is March
-</pre>
-</p>
-<p>Note that this example introduces a syntax which might also be new to you: the <em>backtick syntax</em>. Backticks (``) allow you to embed variables - and more complex expressions - directly inside strings without having to use string concatenation. Note how the variable or expression is placed inside curly brackets { } and the curly brackets are preceded with a dollar sign $.</p>
-<h3>Arrays and Loops</h3>
-<p>
-Often loops are used in conjunction with arrays to operate on a set of data at once.  The following code will loop through the months in the previous array.  <pre>
-for (let count=0; count&lt;12; count++)
-{
-    alert(months[count]);
-}
-</pre>
-The variable <em>count</em> is used to index each member of the array in turn on each go of the loop, it increases by one. So on the first go of the loop, it will reference member 0 (the first member), on the second go of the loop, it will reference member 1 (the second member) and so on.  </p>
-<p>We can obtain the length of an array with the <code>length</code> property. So we could rewrite the previous example to use <code>length</code> rather than the hard-coded value <code>12</code>:
-<pre>
-for (let count=0; count&lt;months.length; count++)
-{
-    alert(months[count]);
-}
-</pre>
-<p>
-
-Here is a complete example which sets up an array containing 12 average temperatures for each month and loops through them: 
-<pre>
-displayTemps(); // call the function
-
-function displayTemps()
-{
-    const months = ["January","February","March", 
-        "April","May","June",
-        "July","August","September","October",
-        "November","December"];
-
-    const temps = [4,7,12,15,18,21,24,23,20,15,11,6];
-    
-    for(let count=0; count&lt;months.length; count++)
-    {
-        alert (`${months[count]} has an average maximum temperature of ${temps[count]} degrees C`);
-    }
-}
-</pre>
-</p>
-<h2>More on JavaScript Functions</h2>
-<p>We have already seen <em>functions</em> as self-contained pieces of JavaScript code which run on response to user interaction with a web page. More generally, however, functions are <em>reusable sections of code which accomplish a particular task</em>. They may be called at any time, including from other functions. To give an example:
-<pre>
-console.log("Calling counter the first time");
-counter();
-console.log("Calling counter the second time");
-counter();
-
-function counter()
-{
-    for(let i=1; i&lt;=10; i++)
-    {
-        console.log(i);
-    }
-}
-</pre>
-Here, the initial JavaScript code calls the  
-<em>counter()</em> function which counts from 1 to 10 by displaying console.log boxes. Note how <em>counter()</em> is called
-twice, to show you how you can re-use functions.</p>
-<h3>Output to the Console - Developer Tools</h3>
-<p>Note also how we are now outputting the messages with <code>console.log</code>. Rather than using perhaps-annoying repeated alert boxes, we are testing our code by writing a message to the <em>console</em>. This can be viewed in the <em>Developer Tools</em> of your web browser, specifically:
-	<ul>
-	<li>Web Developer-Web Console in Firefox;</li>
-	<li>More tools-Developer Tools in Chrome.</li>
-	</ul>
-Under the Developer Tools there is a 'Console' tab, where anything output with <em>console.log</em> will be displayed.</p>
-<p><strong>Another important use of the console is for debugging.</strong> If there are errors in your JavaScript code, they will appear in the console in red. <em>This is very useful for debugging your code</em>, so, before you do anything else, <em>check the console</em> when your code is not working.</p>
-<h3>Function Parameters and Return Values</h3>
-<p>Functions can also take <em>parameters</em>. A parameter is a variable representing a 
-piece of information passed into the function, which
-tells the function how to do its job. The information itself 
-being passed into the function is known as an <em>argument</em>; the parameter is the variable
-in the function representing that information.
-For example, we might want to adapt the <em>counter()</em> function above so that
-it can count up to <em>any</em> number. The example below shows how we can use a parameter to do this:
-<pre>
-console.log("Calling counter the first time");
-counter(3);
-console.log("Calling counter the second time");
-counter(5);
-
-function counter(ntimes)
-{
-    for(let i=1; i&lt;=ntimes; i++)
-    {
-        console.log(i);
-    }
-}
-</pre>
-In this example note how the counter function is written with a parameter <em>ntimes</em> which tells the function how
-far to count:
-<pre>function counter(<em>ntimes</em>)</pre>
-and when we call the function, we specify the number of times we wish to count to as an <em>argument</em>:
-<pre>counter(3);
-...
-counter(5);</pre>
-The parameter <em>ntimes</em> will take on the value passed in, in other words the argument
-(3 or 5 in this case) and the function will count up to the
-given number. So the output from this program (as console.log boxes) will be:
-<pre>Calling counter the first time
-1
-2
-3
-Calling counter the second time
-1
-2
-3
-4
-5</pre>
-</p>
-<h3>Multiple parameters</h3>
-<p>Often we might want to pass <em>more than one</em> argument to a function. For example we might want to
-display a user-defined message a particular number of times. The following example shows this:
-<pre>
-displayMessage("hello", 3);
-displayMessage("goodbye", 2);
-
-function displayMessage(message, ntimes)
-{
-    for(let i=1; i&lt;=ntimes; i++)
-    {
-        console.log(message);
-    }
-}
-</pre>
-The <em>displayMessage()</em> function now takes <em>two</em> parameters, <em>message</em> and <em>ntimes</em>. It uses
-them to display the specified message the specified number of times, using a loop. Note when we call the function
-we have to therefore supply these <em>two</em> arguments.</p>
-<h3>Return values</h3>
-<p>Finally, functions can <em>return</em> a value. This is particularly useful if we write a function to do some sort of
-mathematical calculation: we will want to return the calculated value. Here is an example:
-<pre>
-const a = cube(3);
-console.log(a);
-console.log(cube(4));
-
-function cube(number)
-{
-    return number * number * number;
-}
-</pre>
-Note how we write a function called <em>cube()</em> which takes a number and calculates its cube. The result is 
-<em>returned</em> from the function, using the <em>return</em> keyword. We call the <em>cube()</em> function, pass a value to it, and assign the return value to a variable <em>a</em> which we then display.
-Note also how we can directly display (or do anything else with) the return value of the function without having to assign
-it to a variable, as in the second call:
-<pre>console.log(cube(4));</pre>
-which calls the cube function and console.logs the result of it.
-</p>
-<h2>JavaScript and the Document Object Model (DOM)</h2>
-<p>
-The <em>Document Object Model (DOM)</em>
-is an addressing system for web pages or XML documents.
-The DOM represents the elements of a web page or XML document as a series
-of hierarchically-nested <em>objects</em> (see above), in which 
-objects representing child tags are contained within objects representing the
-parent. Using the DOM, we can access and manipulate properties of a web page 
-using 
-JavaScript. 
-This allows us to dynamically update the state of the page, for example change the colour 
-of a <em>div</em> or the text within 
-it. Each page element is treated as a JavaScript object. Each object then has a series of 
-attributes which we can manipulate.</p>
 
 <p>
-Probably the most important feature of the DOM is the getElementById() 
-<em>method</em> of the 
-<em>document</em> object (an object representing the entire web page). This 
-method takes 
-the ID of a page element, and gives us back
-a JavaScript object representing that page element. 
-For example:
-<pre>
-document.getElementById('div1').style.backgroundColor='red';
-document.getElementById('div1').style.color='white';
-</pre>
-</p>
-<p>The JavaScript uses <em>document.getElementById()</em> to get hold of that element, and then changes the <code>backgroundColor</code> (background colour) and <code>color</code> (text colour) properties of its style to red and white respectively. </p>
-
-<h3>Changing the contents of a page element</h3>
-<p>Another feature (not an official DOM feature, but an unofficial extension supported by
-most browsers) is the ability to change the contents of a page element using
-<em>innerHTML</em>. This is quite simple to use, for example:
-<pre>document.getElementById("mydiv").innerHTML = "Some new text!";</pre>
-</p>
-<h3>Reading text from a form field</h3>
-<p>Use the <code>value</code> property of the form field to get the text, e.g.
-<pre>const emailAddress = document.getElementById('email').value;</pre>
-</p>
-<h3>Exercise</h3>
-<ol>
-<li>Write a web page which contains a &lt;div&gt;, together with a form field
-(with an ID) and a button. When the user clicks the button, a JavaScript function should run which reads in 
-a colour (e.g "red") from the input box and sets the div's background colour to that colour. 
-<br />
-<strong>Use the "unobtrusive" JavaScript method that I introduced in the second code example</strong>. To do this, write an external JavaScript file, and in your JavaScript file use <code>addEventListener()</code> to add an event handler function to the button. Then, write this event handler function to change the <code>div</code>'s background colour.</li>
-<li>Extend your answer to add a second form field, allowing the user to enter the div's text colour. Also extend your event handler function so that it reads in the contents of this second text field, and set's the <code>div</code>'s text colour appropriately, as well as background colour.</li>
-<li>Add another button to the page and, in the <em>same JavaScript file</em>, connect it to a <em>second</em> JavaScript function, again using <em>addEventListener()</em>. This function should create two arrays, containing the English (spring, summer, autumn, winter) and German (Fruehling, Sommer, Herbst, Winter) names for the seasons. Write a loop which displays both names in a series of alert boxes, e.g.:
-<pre>The German for spring is Fruehling</pre>
+<ul>
+<li>
+<em>Flights:</em>
+An airline provides flight times and a booking service available on its own website. However, other organisations might wish to make use of this. Third-party sites such as Skyscanner (which can search all airlines for the cheapest flight on a given date) or travel agents may wish to use the information provided by the airline, and display it to the end-user. In these cases, code on the Skyscanner web server, or a standalone booking application at a travel agent (which might be written in Java, for example) might connect to the airline's web API, and receive flight information back. The clients (Skyscanner and the travel agent application) could also contact the web API to perform bookings.
 </li>
-<li>Add a third function to change the properties of the div (so you have three functions in total) This new function should be called <em>setDivColour()</em> and should take three parameters representing the div ID, the background colour, and the text colour. It should set the background and text colour of the element with that ID to the parameters passed in.
-<br />
-Then, change your answer to Question 2 so that it sets the <code>div</code>'s colour by <em>calling this new function, passing the div ID and contents of the text fields to it as arguments</em>, rather than setting the <code>div</code>'s properties directly.</li>
-</ol>
+<li>
+<em>Weather:</em> We mentioned this example above, briefly. A weather web API might make available current conditions in various cities around the world. Then, a tourism website (e.g. for London or Paris) could connect to the weather web API and display the current conditions in that city, retrieved from the web API, integrated seamlessly into the layout of its own site. Furthermore, a smartphone app could connect to the web API and show the weather for the user's current location within the app's interface.
+</li>
+
+<li>
+<em>Mapping:</em>
+electronic maps are typically stored in a database, which contains information about the roads (name, number, type) plus the road's route as a series of coordinates (representing points on the Earth's surface).  A mapping web API could make available this mapping information as raw data, so that client websites could use this raw data to draw a map in their own style and colour scheme. OpenStreetMap (<a href='http://www.openstreetmap.org'>openstreetmap.org</a>) is an example of such a mapping web API.
+</li>
+</ul>
+
 </p>
 
-<p>If you finish this, please read ahead to <a href='topic2.html'>Topic 2</a>.</p>
+
+<h3>Raw data is easier to parse</h3>
+
+<p>
+Web APIs obviously send back information to their clients, but as we have seen, a raw data format such as JSON is preferred to HTML. Why is this? HTML is not considered a good idea because it contains not only data, but also page structure information (headings, paragraphs, tables etc). A client website using the web API, or an app, might wish to arrange the information in a different way. </p>
+<p>So what we want is a format which represents the data, and the data alone. There are a number of formats we can use, including JSON (JavaScript Object Notation), and also <em>XML</em> (eXtensible Markup Language). In this module we will focus on JSON, because it's the leading format, it is easy to generate on the server and to parse (interpret) on the client, and you have met it already.</p>
+<h3>JSON - JavaScript Object Notation - Revision</h3>
+<p>JSON uses JavaScript syntax (hence the name) to represent data as it gets sent across the web. As you saw last year, JavaScript uses curly brackets {} to represent objects (similar to Python dictionaries in the sense that they consist of key/value pairs, though you can also add <em>methods</em> to objects) and square brackets [] to represent arrays. So with JSON we reuse this syntax to represent data, using curly brackets {} to represent a single entity (such as a person, a song or a film) and square brackets [] to represent a collection of entities (i.e. an <em>array</em> of entities).</p>
+<p>Here is an example of a JSON object representing a single student.
+<pre>
+{ 
+    "name": "Tim Smith",
+    "username": "2smitt82",
+    "course": "Computer Studies"
+}
+</pre>
+Note how the JSON object representing the student is defined by curly brackets { and }, and inside the curly bracket, we specify each property of the student (name, username and course) and the corresponding value ("Tim Smith", "2smitt82", and "Computer Studies", respectively). A colon (:) 
+separates the property and the value, and a comma separates each property/value pair.</p>
+<p>The next example shows a <em>collection (array) of students</em>. Note how we use the JSON array syntax [ and ] to
+define the collection, how each individual student object is represented by curly brackets { and }, and
+how each student object within the array is separated by a comma.
+<pre>
+[
+    { 
+      "name": "Tim Smith",
+      "username": "2smitt82",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Jamie Bailey",
+      "username": "1bailj39",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Deep Patel",
+      "username": "0pated61",
+      "course": "Networks and Web Design"
+    }
+]
+</pre>
+</p>
+<h2>Node and Express - Revision</h2>
+<p>In other modules you have looked at <em>Node.js</em> and <em>Express</em>. This section is provided for revision. Node.js can be downloaded from <a href="http://www.nodejs.org">the website</a>.</p>
+
+<h3>npm</h3>
+
+<p>As you have seen, Node also comes with a <em>package manager</em> called <em>npm</em>. This allows you to use add-ons to Node (<em>packages</em>) which perform additional tasks, not part of the core Node.js distribution, such as communicating with a database. To use npm to install new packages, you enter:
+ <pre>npm install &lt;packagename&gt;</pre>
+ at the command-line (e.g. DOS or Linux shell prompt).</p>
+<h3>API documentation</h3>
+<p>See <a href="https://nodejs.org/api/">here</a> for full Node API
+documentation.</p>
+<h3>Creating a Node web server Using Express</h3>
+<p>It is possible to create a webserver from first principles in Node, using the HTTP module. However, as you have seen in previous modules, it's easier to use a pre-existing web server framework, and <em>Express</em> is perhaps the most widely used. The <code>npm</code> command below will install it: 
+<pre>npm install express</pre>
+This will install it locally to your current project. Or to install it globally
+so that it's accessible anywhere on your machine, for all projects and all 
+users:
+<pre>npm install -g express</pre>
+On Linux and other Unix-based systems, this requires 'sudo' rights (admin privileges).</p>
+<h3>Hello World with Express</h3>
+<p>The example below is the Hello World with Express. 
+<pre>
+const express = require('express');
+const app = express();
+
+app.get('/', (req,res)=&gt; {
+    res.send('Hello World from Express!');
+});
+
+app.listen(3000);
+</pre>
+We require the <code>express</code> module, then create an Express
+app object with <code>express()</code>.</p>
+<p>With Express, we set up <em>routes</em>. A route is a combination of a particular URL and a handler function for that URL. The URLs for a particular API are called <em>API endpoints</em>. So a route can be described as a handler for a particular endpoint, or set of endpoints (we can set up a single route to handle multiple URLs). In this example we are simply handling the top level, 'root' endpoint, so to request it from a browser, we would enter: 
+<pre>http://localhost:3000/</pre>
+without any parameters supplied.</p>
+<p>The handler for the endpoint is a function which takes two parameters,
+<code>req</code> representing the HTTP request and <code>res</code> representing the
+HTTP response. In this example we call the <code>send()</code> method of the
+response object to send back <em>Hello World from Express!</em> to the 
+client.</p>
+<h3>Running the server</h3>
+<p>Remember that you use the <code>node</code> command to run a Node application. So if the above basic Express app is saved as <code>app.js</code>, you would run it with:
+<pre>node app.js</pre>
+This will run the server continuously in the background. To stop the server, you need to press <code>Control-C</code>. You must do this if you change the server code as the server will not automatically reload if you change it!
+</p>
+<h3 id='basicroutes'>Multiple routes - example</h3>
+<p>Here is an example which sets up two separate routes:
+<pre>
+const express = require('express');
+const app = express();
+
+
+app.get('/hello', (req,res)=&gt; {
+    res.send('Hello World!');
+});
+
+
+app.get('/time', (req,res)=&gt; {
+    res.send(`There have been ${Date.now()} milliseconds since 1/1/70.`);
+});
+app.listen(3000);
+</pre>
+This example sets up two routes <code>/hello</code> and <code>/time</code>, to handle the corresponding endpoints. The first will send back 'Hello World!' and the second will send back the number of milliseconds since January 1st 1970. 
+</p>
+<p>Note that the <code>/time</code> route uses the <em>backtick syntax</em>, which may be new to you. If we use backticks (`) for strings, we can <em>embed expressions directly in the string by surrounding the expression with curly brackets { } and preceding the curly brackets with a dollar sign $</em>. This avoids us having to use string concatenation with the + operator and leads to more concise syntax. So note how we embed the expression <code>Date.now()</code>, which gets the current time in milliseconds, in the string by surrounding it with curly brackets and preceding it with a dollar sign:
+<pre>`There have been ${Date.now()} milliseconds since 1/1/70.`</pre>
+</p>
+
+<h3>URL parameters</h3>
+<p>Express allows us to easily specify URL parameters. A parameter is a value within a URL which the server will process. So for example we might have an <code>/artist</code> route which takes an artist as a parameter. This route would match both of the endpoints below; <code>Oasis</code> and <code>Madonna</code> are the parameters to the same <code>/artist</code> route.
+<pre>
+http://localhost:3000/artist/Oasis
+http://localhost:3000/artist/Madonna
+</pre>
+You set up the route to contain named parameters and
+then you can use these named parameters in your JavaScript. This example 
+greets a user, with the name supplied as a parameter:
+<pre>
+const express = require('express');
+const app = express();
+
+
+app.get('/greet/:personName', (req,res)=&gt; {
+    res.send(`Hello ${req.params.personName}!`);
+});
+
+
+app.listen(3000);
+</pre>
+Note how this will setup the route <code>/greet</code> followed
+by a parameter <code>:personName</code>
+representing a person name. So URLs such as
+<pre>
+http://localhost:3000/greet/John
+http://localhost:3000/greet/Jane
+</pre>
+will be matched, and the greeting with the specified name will be sent back. These two examples will respond with:
+<pre>Hello John!
+Hello Jane!</pre>
+respectively.
+</p>
+<p>
+To access the named parameter from the JavaScript code, use the <code>req.params</code> object with the name of the parameter.
+So in this example <code>req.params.personName</code>
+will reference the <code>:personName</code> parameter and the server will send back a response containing "Hello" plus the person name supplied as a parameter.</p>
+<h2>Outputting JSON from an Express server</h2>
+<p>Having covered some basic Node/Express revision, we will now look at how we can <em>generate JSON</em> from an Express server.</p>
+<p>
+Here is an example to generate JSON from a JavaScript array. To send back JSON to the client, we use <code>res.json()</code> rather than <code>res.send()</code>. Remember that in JavaScript we use the square brackets [ and ] to define arrays.
+<pre>
+const express = require('express');
+const app = express();
+
+app.get('/jsonExample', (req, res) =&gt; {
+    const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    res.json(monthLengths);
+});
+
+app.listen(3000);
+</pre>
+This will produce the JSON below when the <code>jsonExample</code> endpoint is requested:
+<pre>
+[ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
+</pre>
+</p>
+<p>Here is an example showing an <em>object</em>: 
+<pre>
+const express = require('express');
+const app = express();
+
+app.get('/jsonExample2', (req, res) =&gt; {
+    const obama = {"name" : "Barack Obama",
+                    "age" : 56,
+                    "nationality" : "US",
+                    "job" : "US President 2008-16" };
+    res.json(obama);
+});
+
+app.listen(3000);
+</pre>
+This would give the JSON below when the <code>jsonExample2</code> endpoint is requested:
+<pre>
+{"name" : "Barack Obama", "age" : 56, "nationality" : "US", "job": "US President 2008-16"}
+</pre>
+and finally here is an example showing an array of objects: 
+<pre>
+const express = require('express');
+const app = express();
+
+const politicians = [
+
+       {
+        "name" : "Barack Obama",
+        "age" : 56,
+        "nationality" : "US",
+        "job" : "US President 2008-16" 
+       },
+
+       {
+        "name" : "Donald Trump",
+        "age" : 75,
+        "nationality" : "US",
+        "job" : "US President 2016-20" 
+       },
+            
+       {
+        "name" : "Joe Biden",
+        "age" : 79,
+        "nationality" : "US",
+        "job" : "US President 2020-" 
+       }
+                     
+];
+
+app.get('/jsonExample3', (req, res) =&gt; {
+    res.json(politicians);
+});
+
+app.listen(3000);
+</pre>
+This will produce this JSON when the <code>jsonExample3</code> endpoint is requested:
+<pre>
+[
+    {
+        "name" : "Barack Obama", 
+        "age" : 56, 
+        "nationality" : "US", 
+        "job": "US President 2008-16"
+    },
+    {
+        "name" : "Donald Trump", 
+        "age" : 75, 
+        "nationality" : "US",  
+        "job": "US President 2016-20" 
+    },
+    {
+        "name" : "Joe Biden", 
+        "age" : 79, 
+        "nationality" : "US",  
+        "job": "US President 2020-" 
+    }
+]
+</pre>
+The simple rule is that JavaScript arrays will map to JSON arrays, and JavaScript objects will map to JSON objects.</p>
+<h3>Setting the correct content type</h3>
+<p>A server should let clients know that JSON is coming back from the server, so that the client knows that they need to process the response as JSON, rather than something else.  For example, web browsers will format the JSON nicely to make it easier to test and debug a web API. To do this the <code>Content-Type</code> HTTP header must be set to <code>application/json</code>. <em>The great thing if you are using Express, however, is that <code>res.json()</code> will set the content type correctly for you.</em></p>
+<h2>Exercise 1</h2>
+<p><strong>NOTE the following</strong>:
+	<ul>
+	<li>To test, you may need to install the JSONViewer plugin, from <a href="https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh?hl=en"> the Chrome web store</a>. This will format the JSON nicely so it's easy to see the output.</li>
+	<li>Some of these may be very easy if you have done the database module last term. So feel free to skip Questions 1, 2 and 4 if you are confident with them: they are mostly intended for revision for those of you who have not done any Node since your first-year module. (You will need question 3 for later exercises, so please complete it even if you consider it very easy).</li>
+	</ul>
+</p>
+<h3>Questions</h3>
+<ol>
+<li>On your local machine, create the simple Hello World Express example above. Run it, and request it from your browser to show that it works.</li>
+<li>Add the <code>/time</code> route from the second example, and again request it from your browser. Refresh your browser to prove that the number of milliseconds increases as time passes.</li>
+<li>Add an <em>artist</em> route to your server.
+The <em>artist</em> route should take parameter for the artist
+name and the application should respond to the request with a message displaying the artist the user requested. So, if the user requested:
+<pre>http://localhost:3000/artist/Oasis</pre> 
+it should send back the message 
+<pre>You are searching for songs by Oasis</pre>
+</li>
+<li>Make the application also respond to URLs of this form:
+<pre>http://localhost:3000/artist/(the artist)/song/(the song)</pre>
+by specifying parameters for both artist and song. So, for example, if the user requested:
+<pre>http://localhost:3000/artist/Oasis/song/Wonderwall</pre>
+it would send back: 
+<pre>You are searching for Wonderwall by Oasis</pre>
+</li>
+<li>You are now going to create a route which <em>generates JSON</em>. In your Express application, at the start of the script (<em>before</em> any routes), create a JavaScript array of objects containing an array of songs. Each song should have fields for title, artist, year and chart position. If you need some inspiration, look at <a href='https://en.wikipedia.org/wiki/List_of_best-selling_singles_in_the_United_Kingdom'>this Wikipedia page</a> which lists the biggest selling UK singles of all time (look at "Best-selling singles based on paid-for purchases" to see the songs). You need only include about 5 songs, but try and include two by the same artist. Then, create a <code>topSongs</code> route, which returns the songs to the client as JSON. Again, test it in your browser.</li>
+<li><em>More advanced:</em> Modify your <code>artist</code> route to filter the array of songs by the <code>artist</code> parameter passed in, and return the filtered results as JSON, so only songs by that artist are returned to the client.
+To do this efficiently in JavaScript, you can use the <code>filter()</code> method which filters an array based on a certain condition. The example below would specifically find all songs called 'Crazy' (note how we convert the requested title to lower case, so we can handle requests containing the word 'Crazy' in either lower case, upper case or a mixture of both): 
+<pre>const matchingSongs = allSongs.filter ( song =&gt; song.title.toLowerCase() == 'crazy' );</pre>
+</li>
+<li>Add an additional route to find all songs in a given date range: 
+<pre>/from/:year1/to/:year2</pre>
+The route should filter the array to show only those songs released between 
+the given years, and again return the results as JSON.
+</li>
+</ol>
+
+
+<h2>Deploying a Node application</h2>
+<p><strong>We will do this in the lab session, in the final hour.</strong></p>
+<p>So far we have just run Node servers locally on our own machine. However for a Node application to be accessible to other people, it needs to be deployed on a publicly-accessible <em>server environment</em> of some kind. There are two main classes of server environment:
+	<ul>
+	<li>"Classic" web hosting. A classic hosting environment consists of a server machine, which can have software installed on it (such as Node.js or a database) to allow the machine to serve web applications, but has no integrated web-based tools for the end-user to manage the server or the database or write code. You write your code on your local desktop or laptop, and upload it to the server using protocols such as FTP and SSH. Or, alternatively, a developer can log into the server and access a command prompt and work directly on the server machine. In this environment, the developer typically has to manage the server themselves, performing actions such as security updates and server configuration from the server console. The university servers <em>Edward2</em> and <em>Neptune</em> are examples of this type of server environment and are available for use should you wish to use them (please ask me for details).</li>
+	<li>A <em>cloud-based</em> environment. A cloud environment is a complete software environment running on the web. A typical cloud server is a server environment which contains not just the storage space and software (such as Node or a database), but also a fully integrated, user-friendly, web-based environment allowing the user to develop code, control databases, install software, manage storage space and RAM, and so on. Many cloud environments can also dynamically increase server capacity (memory, storage space) on demand - though typically at a cost. Unlike "classic" hosting, the user typically does not have to worry about managing and upgrading the server software or database as this is all done automatically as part of the cloud environment.</li>
+	</ul>
+In this module, both options are available to us. As seen above, there are "classic" servers provided by the university available to you. However, by default, we will use a cloud-based Integrated Development Environment called <em>goormIDE</em>, available at <a href='https://ide.goorm.io'>ide.goorm.io</a>, which contains hosted tools to write code and run and deploy servers. Each server you create is packaged in a <em>container</em> (a pre-packaged environment with software installed and configured ready to go, capable of being installed on any suitable machine), using <a href='https://docker.com'>Docker</a>, which many of you may have come across.</p>
+
+<h3>Using goormIDE</h3>
+<p>VIsit goormIDE <a href='https://ide.goorm.io'>here</a> and log in. You can either signup for an account or use a third-party provider such as Google. Once logged in, you will see a main control panel such as this:
+</p>
+<p>
+<img src="../images/goorm1.png" alt="Main goormIDE control panel" />
+</p>
+<p>
+In the control panel you can view all your containers. Each container is an independent virtual server, with its own IP address and domain. In the example above, a container called <code>node-mysql-test</code> has already been created.</p>
+<p>Create a new container with <em>New container</em>. This will bring you to a series of configuration options for the container:
+<p>
+<img src="../images/goorm2.png" alt="goormIDE container configuration options" />
+</p>
+<p>
+Give your container a name. The other early options can be left as they are, make sure the visibility is <em>Private</em> so that other people cannot access your container. You will then be asked which development stack to use. Choose Node.js as shown below (do <em>not</em> choose Express, as that auto-generates quite a bit of code for you and we want to start from scratch):
+</p>
+<p>
+<img src="../images/goorm3.png" alt="goormIDE container - choose development stack" />
+</p>
+<p>
+Lower down you can choose software to install to your container, as shown below:
+</p>
+<p>
+<img src="../images/goorm4.png" alt="goormIDE container - additional software to install" />
+</p>
+<p>
+Select the options shown above. Next week you will need MySQL, while <code>mysql-ctl</code> allows you to start up MySQL as a service. Also select "Upgrade Node.js to version 16.x" so that you are working with the latest long-term-support version. Then click <em>Create</em>.
+</p>
+<p>Once created you will see a screen like that below, indicating your container has been created. Select <em>Run Container</em>.
+</p>
+<p>
+<img src="../images/goorm5.png" alt="goormIDE container - created" />
+</p>
+<p>
+This will run your container and will load up the main IDE workspace screen as seen below. 
+</p>
+<p>
+<img src="../images/goorm6.png" alt="goormIDE container - IDE workspace" />
+</p>
+<p>
+Note the key features which are labelled.
+	<ul>
+	<li>On the left hand side is a file explorer;</li>
+	<li>Occupying most of the screen is the code editor;</li>
+	<li>At the bottom of the screen is the console (Linux shell prompt); from here you can run commands such as <code>node</code> and <code>npm</code> (in the example, we have started our server by running the <code>node</code> command) as well as common shell and Linux commands.</li>
+	<li>Also note the <em>Preview</em> dropdown list. As seen, this allows you to view your application running on the web via <em>Open Preview in New Tab</em>. It also allows you to view and edit the application's public URL via <em>Set Running URL and Port</em>.</li>
+	</ul>
+If you select <em>Set Running URL and Port</em>, you can view your application's public URL and port as shown below.
+</p>
+<p>
+<img src="../images/goorm7.png" alt="goormIDE container - Application URL" />
+</p>
+<h2>Exercise 2</h2>
+<p>Run your Node server from Exercise 1 in the goormIDE environment.</p>
 </body>
-</html>
+</html
