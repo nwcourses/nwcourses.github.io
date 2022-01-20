@@ -30,7 +30,7 @@ At this point it is worth elaborating on the various <em>versions of Android</em
 <br />
 <img src="../images/android_versions.png" alt="Percentages of devices running different versions" />
 <br />
-The most recent version deployed on actual mobile devices is 11, however, as can be seen above, many devices are running 6.0 (Marshmallow), 7.0 and 7.1 (Nougat), 8.x (Oreo), 9 (Pie) and 10.  A few devices are still running Lollipop (5.x) and around 6% version 4.4 (KitKat) or lower; therefore, targeting 4.4 upwards, or 5.0 upwards, is a sensible approach. The <em>Jetpack</em> support loibrary (which will be covered later) makes this easier.</p>
+The most recent version deployed on actual mobile devices is 12, however, as can be seen above, few devices have Android 12 at the present time (this chart is from Android Studio and may be a little out-of-date). Many devices are running 7.1 (Nougat), 8.x (Oreo), 9 (Pie), 10 and 11.  A few devices are still running Marshmallow (6.x) and around 3% version 5.1 (Lollipop) or lower; therefore, targeting 6.0 upwards, or even 5.0 upwards is a sensible approach. The <em>Jetpack</em> support loibrary (which will be covered later) makes this easier.</p>
 <p>Another concept that you need to understand is the <em>API level</em>. The <em>Android API</em> is the set of classes which are used to program Android apps with. The API level denotes revisions to the Android API, in a sequence of positive integers starting from 1. Thus, the numbers used for the API levels are not the same as those used for the Android versions, but each API level corresponds to a particular version. The idea is that each time Android itself is updated, the API is updated too. For example: 
 <ul>
     <li>API level 15 corresponds to Android 4.0.3; </li>
@@ -39,6 +39,7 @@ The most recent version deployed on actual mobile devices is 11, however, as can
     <li>API level 26 corresponds to Android 8.0;</li>
     <li>API level 28 corresponds to Android 9</li>
     <li>API level 30 corresponds to Android 11</li>
+    <li>API level 31 corresponds to Android 12</li>
     </ul>
 When developing an Android app, you have to specify the minimum API level on
 which your app will run. Thus an app with minimum API level 19, for example,
@@ -49,9 +50,7 @@ API level 19 as a minimum you will be targeting the majority of devices.
 <h2>Runtime Environment</h2>
 <p>With standard Kotlin or Java, you compile to bytecode which is then run using the Java Virtual Machine (JVM). Android is similar but rather than using the standard JVM, it uses its own virtual machine and corresponding bytecode format, producing executable files known as DEX files. So "regular" Java bytecode will not run on Android and Android apps will not run on a regular JVM.
 </p>
-<p><em>Dalvik</em> was the original virtual machine, which versions of Android up to 4.4 used. 
-With Android 5.0, a new virtual machine (<em>ART : Android Runtime</em>)
-(see <a href="https://source.android.com/devices/tech/dalvik/configure.html">here</a>) is used instead.
+<p><em>Dalvik</em> was the original virtual machine, which versions of Android up to 4.4 used.  With Android 5.0, a new virtual machine (<em>ART : Android Runtime</em>) (see <a href="https://source.android.com/devices/tech/dalvik/configure.html">here</a>) is used instead.
 See <a href="https://source.android.com/devices/tech/dalvik/">here</a> for more details on Android
 virtual machines.</p>
 <h2>General nature of Android development</h2>
@@ -81,7 +80,7 @@ Java Development Kit. As well as the Kotlin standard library, many standard Java
 
 <h4>Creating a project</h4>
 <p>
-Select "Create New roject". You will then see this screen.  This allows you to create a new project.  You will then see a screen like this:
+Select "Create New project". You will then see this screen.  This allows you to create a new project.  You will then see a screen like this:
 <br />
 <img src="../images/studio2.png" alt="Project details" />
 <br />
