@@ -301,10 +301,10 @@ The simple rule is that JavaScript arrays will map to JSON arrays, and JavaScrip
 <p>A server should let clients know that JSON is coming back from the server, so that the client knows that they need to process the response as JSON, rather than something else.  For example, web browsers will format the JSON nicely to make it easier to test and debug a web API. To do this the <code>Content-Type</code> HTTP header must be set to <code>application/json</code>. <em>The great thing if you are using Express, however, is that <code>res.json()</code> will set the content type correctly for you.</em></p>
 <h2>Exercise 1</h2>
 <p><strong>NOTE the following</strong>:
-	<ul>
-	<li>To test, you may need to install the JSONViewer plugin, from <a href="https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh?hl=en"> the Chrome web store</a>. This will format the JSON nicely so it's easy to see the output.</li>
-	<li>Some of these may be very easy if you have done the database module last term. So feel free to skip Questions 1, 2 and 4 if you are confident with them: they are mostly intended for revision for those of you who have not done any Node since your first-year module. (You will need question 3 for later exercises, so please complete it even if you consider it very easy).</li>
-	</ul>
+    <ul>
+    <li>To test, you may need to install the JSONViewer plugin, from <a href="https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh?hl=en"> the Chrome web store</a>. This will format the JSON nicely so it's easy to see the output.</li>
+    <li>Some of these may be very easy if you have done the database module last term. So feel free to skip Questions 1, 2 and 4 if you are confident with them: they are mostly intended for revision for those of you who have not done any Node since your first-year module. (You will need question 3 for later exercises, so please complete it even if you consider it very easy).</li>
+    </ul>
 </p>
 <h3>Questions</h3>
 <ol>
@@ -340,10 +340,10 @@ the given years, and again return the results as JSON.
 <h2>Deploying a Node application</h2>
 <p><strong>We will do this in the lab session, in the final hour.</strong></p>
 <p>So far we have just run Node servers locally on our own machine. However for a Node application to be accessible to other people, it needs to be deployed on a publicly-accessible <em>server environment</em> of some kind. There are two main classes of server environment:
-	<ul>
-	<li>"Classic" web hosting. A classic hosting environment consists of a server machine, which can have software installed on it (such as Node.js or a database) to allow the machine to serve web applications, but has no integrated web-based tools for the end-user to manage the server or the database or write code. You write your code on your local desktop or laptop, and upload it to the server using protocols such as FTP and SSH. Or, alternatively, a developer can log into the server and access a command prompt and work directly on the server machine. In this environment, the developer typically has to manage the server themselves, performing actions such as security updates and server configuration from the server console. The university servers <em>Edward2</em> and <em>Neptune</em> are examples of this type of server environment and are available for use should you wish to use them (please ask me for details).</li>
-	<li>A <em>cloud-based</em> environment. A cloud environment is a complete software environment running on the web. A typical cloud server is a server environment which contains not just the storage space and software (such as Node or a database), but also a fully integrated, user-friendly, web-based environment allowing the user to develop code, control databases, install software, manage storage space and RAM, and so on. Many cloud environments can also dynamically increase server capacity (memory, storage space) on demand - though typically at a cost. Unlike "classic" hosting, the user typically does not have to worry about managing and upgrading the server software or database as this is all done automatically as part of the cloud environment.</li>
-	</ul>
+    <ul>
+    <li>"Classic" web hosting. A classic hosting environment consists of a server machine, which can have software installed on it (such as Node.js or a database) to allow the machine to serve web applications, but has no integrated web-based tools for the end-user to manage the server or the database or write code. You write your code on your local desktop or laptop, and upload it to the server using protocols such as FTP and SSH. Or, alternatively, a developer can log into the server and access a command prompt and work directly on the server machine. In this environment, the developer typically has to manage the server themselves, performing actions such as security updates and server configuration from the server console. The university servers <em>Edward2</em> and <em>Neptune</em> are examples of this type of server environment and are available for use should you wish to use them (please ask me for details).</li>
+    <li>A <em>cloud-based</em> environment. A cloud environment is a complete software environment running on the web. A typical cloud server is a server environment which contains not just the storage space and software (such as Node or a database), but also a fully integrated, user-friendly, web-based environment allowing the user to develop code, control databases, install software, manage storage space and RAM, and so on. Many cloud environments can also dynamically increase server capacity (memory, storage space) on demand - though typically at a cost. Unlike "classic" hosting, the user typically does not have to worry about managing and upgrading the server software or database as this is all done automatically as part of the cloud environment.</li>
+    </ul>
 In this module, both options are available to us. As seen above, there are "classic" servers provided by the university available to you. However, by default, we will use a cloud-based Integrated Development Environment called <em>goormIDE</em>, available at <a href='https://ide.goorm.io'>ide.goorm.io</a>, which contains hosted tools to write code and run and deploy servers. Each server you create is packaged in a <em>container</em> (a pre-packaged environment with software installed and configured ready to go, capable of being installed on any suitable machine), using <a href='https://docker.com'>Docker</a>, which many of you may have come across.</p>
 
 <h3>Using goormIDE</h3>
@@ -386,12 +386,15 @@ This will run your container and will load up the main IDE workspace screen as s
 </p>
 <p>
 Note the key features which are labelled.
-	<ul>
-	<li>On the left hand side is a file explorer;</li>
-	<li>Occupying most of the screen is the code editor;</li>
-	<li>At the bottom of the screen is the console (Linux shell prompt); from here you can run commands such as <code>node</code> and <code>npm</code> (in the example, we have started our server by running the <code>node</code> command) as well as common shell and Linux commands.</li>
-	<li>Also note the <em>Preview</em> dropdown list. As seen, this allows you to view your application running on the web via <em>Open Preview in New Tab</em>. It also allows you to view and edit the application's public URL via <em>Set Running URL and Port</em>.</li>
-	</ul>
+    <ul>
+    <li>On the left hand side is a file explorer;</li>
+    <li>Occupying most of the screen is the code editor;</li>
+    <li>At the bottom of the screen is the console (Linux shell prompt); from here you can run commands such as <code>node</code> and <code>npm</code> (in the example, we have started our server by running the <code>node</code> command) as well as common shell and Linux commands. <strong>You need to install Express and run your Node server from here</strong>, e.g.:
+<pre>npm install express
+node app.js</pre>
+    </li>
+    <li>Also note the <em>Preview</em> dropdown list. As seen, this allows you to view your application running on the web via <em>Open Preview in New Tab</em>. It also allows you to view and edit the application's public URL via <em>Set Running URL and Port</em>.</li>
+    </ul>
 If you select <em>Set Running URL and Port</em>, you can view your application's public URL and port as shown below.
 </p>
 <p>
