@@ -140,7 +140,7 @@ Kotlin:
 <pre>fun main (args: Array&lt;String&gt;) {
     println("Enter your name:")
     val n = readLine()
-    if (n == "Linus Torvalds")
+    if (n == "Linus Torvalds") {
         println("You invented Linux")
     } else {
         println("You didn't invent Linux")
@@ -680,7 +680,7 @@ hidden away</li>
 the collection</li>
 <li>The simplest is <em>forEach()</em>, which applies a lambda to all members of a collection:
 <pre>fun main(args: Array&lt;String&gt;) {
-    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Kevin Walsh", "Mark Udall", "Margaret Jones")
+    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
     peopleList.forEach { person -&gt; println(person) }
 }
 </pre>
@@ -698,6 +698,14 @@ the lambda as the <em>person</em> parameter</li>
 more concise?</li>
 <li>Answer will be given out in class!</li>
 </ul>
+<hr /><h2>Mappings: performing the same operation on all members of a list</h2>
+<p>Another common use of lambdas is to perform a <em>mapping</em>. A mapping transforms each member of an input list by a specified function, and returns a new list containing the transformed data. This example will convert each string in the input list to lower case:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
+    val lowerCaseList = peopleList.map { person -&gt; person.lowercase() }
+    println(lowerCaseList)    
+}</pre>
+Note how we use the <code>map()</code> function to transform each member of <code>peopleList</code> by a specified lambda. The lambda here will take each member of the input list in turn (<code>person</code>) and return that member converted to lower case (i.e. <code>person.lowercase()</code>). The resulting lower case string will be placed at the corresponding position in a new list, returned by the <code>map()</code> function. So, in this example, <code>lowerCaseList</code> will be a list of all the lower-case names.</p>
 <h2>Further reading</h2>
 <p>I have prepared some notes on additional basic Kotlin topics, including inheritance and map data structures. There is unfortunately no time in the lecture to cover these, but <a href='topic1a.html'>please read the notes here</a>.</p>
 </body></html>
