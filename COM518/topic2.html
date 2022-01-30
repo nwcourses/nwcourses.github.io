@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 2: Node.js and databases</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Topic 2: Node.js and databases</h1></div>
+<h2>Databases - revision</h2>
+<p>You have already worked with SQL databases in your first year. As you
+should remember from your databases module, data is stored in <em>tables</em> with <em>columns</em>, and we get data out of the database using <em>queries</em> . These queries are written in <em>Structured Query Language (SQL)</em>.</p>
+<h2>Databases as a client-server system</h2>
+<p>Database systems consist of two components, the <em>server</em> and
+the <em>client</em>:
+<br/>
+<img src="../images/db1.png" alt="Database as client/server system"/></li>
+<br />
+<h3>The database server</h3>
+<p>A database <em>server</em> is what we refer to when we informally use the term "database software". It is a continuously-running program which <em>listens</em> to SQL queries from clients, processes them and sends back a <em>response</em>; in this respect, a database server is just like any other server, including a web server.</p>
+<p>Examples of database servers include:
+    <ul>
+    <li><strong>Free, open source</strong>: MySQL, PostgreSQL, MariaDB</li>
+    <li><strong>Commercial</strong>: Microsoft SQL Server, Oracle</li>
+    </ul>
+</p>
+<h3>The database client</h3>
+<p>Users do not typically interact directly with the database server. Instead, they interact with a <em>database client</em> - a piece of software which communicates with the database server by connecting to it, sending SQL queries, and processing the response. When developing web applications, your software (for example, your Node.js server, or an Apache server running a language such as PHP) would act as the database client. Additionally, a wide range of administration software for database servers is available, allowing developers to control the database via a user-friendly interface. These include:
+    <ul>
+    <li>PHPMyAdmin (web-based interface to MySQL)</li>
+    <li><code>mysql</code> command line tool (command-prompt-based interface to MySQL)</li>
+    </ul>
+</p>
+<h3>Three-tier architecture</h3>
+<p>Database-driven web applications adopt a <em>three-tier architecture</em>. This is because there are three layers: web browser (which the user interacts with), web server (e.g. Node.js or Apache/PHP), and database server.
+The web server acts as the <em>server</em> with respect to the 
+user's web browser, but the <em>client</em> with respect to the database server:
+<br/>
+<img src="../images/db2_language_independent.png" alt="Clients, servers, scripts and databases"/>
+<br/>
+</p>
+<p>The general steps made by a web server application when connecting to a database server are:
+<ol>
+<li>Connect to the database</li>
+<li>Send a query to the database</li>
+<li>Receive the results from the database</li>
+<li>Send the results, formatted in HTML, back to the browser</li>
+</ol>
+</p>
+<h2>Installing and using a database server</h2>
+<p>We are primarily going to use gooruIDE to host our database, which has the advantage that you can access it from your own personal machine as well as the university machines. Please see <a href='Configuring_Goorm_for_MySQL.pdf'>here</a> for a guide describing how to do this.</p>
+<p>If you wish to install a database to your own personal machine, these are your options:
+    <ul>
+    <li>Install a package such as <a href='https://apachefriends.org'>XAMPP</a>, which contains not just a database (MariaDB, based on MySQL) but also the Apache web server, PHP and the database administration tool PHPMyAdmin. XAMPP generally works but a small number of users have reported problems starting Apache. An alternative is <a href='https://www.wampserver.com/en/download-wampserver-64bits'>WAMP</a> which you may find works if XAMPP does not work for you.</li>
+    <li>Install a database directly, as a standalone application, for example <a href='https://mysql.com/products/community'>MySQL Community Edition</a> or <a href='https://mariadb.org/download/'>MariaDB</a>. Please ensure you follow the installation instructions carefully, for example <a href='https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html'>these for MySQL on Windows</a>.</li>
+    </ul>
+</p>
+<h3>Using PHPMyAdmin</h3>
+<p>You can use a graphical interface to manage your database, such as <a href='https://phpmyadmin.net'>PHPMyAdmin</a> which we installed to goormIDE above. This is a web-based front-end to a MySQL or MariaDB database, written in the PHP server-side scripting language. Once installed, you should be able to access it via the URL you set up in goormIDE.
+You will see a login screen like this, as long as you setup your user with a password:
+</p>
+<p>
+<img src='../images/phpmyadmin1.png' alt='PHPMyAdmin login screen' />
+</p>
+<p>
+If you do not have a password set up, it should take you straight to the main
+screen:
+</p> <p>
+<img src='../images/phpmyadmin2.png' alt='PHPMyAdmin main screen' />
+</p> <p>
+You can see your database name on the left; in my example <code>ephp001</code>. If you expand your database you will see a list of tables:
+</p> <p>
+<img src='../images/phpmyadmin3.png' alt='PHPMyAdmin tables' />
+</p> <p>
+and then if you select a specific table (<code>wadsongs</code> in my case)
+you will see its contents:
+</p> <p>
+<img src='../images/phpmyadmin4.png' alt='PHPMyAdmin tables' />
+</p> <p>
+If you now click the 'SQL' tab, you will be able to enter SQL commands to send to the database server.
+</p>
+<h2>Node and MySQL</h2>
+<p>We are going to look now at how you can connect to a MySQL or MariaDB 
+database from Node.js. As you might guess from last week, there are various
+modules available to do the job, including <code>mysql2</code> (for MySQL) or <code>mariadb</code> for MariaDB. Documentation for these is available at:
+    <ul>
+    <li><a href='https://npmjs.com/package/mysql2'>mysql2 module</a></li>
+    <li>The original <a href='https://npmjs.com/package/mysql'>mysql module</a>: the predecessor to <code>mysql2</code>; <code>mysql2</code> improves upon this. However the documentation for the original <code>mysql</code> module is more extensive, so I have linked it here.</li>
+    <li><a href='https://npmjs.com/package/mariadb'>mariadb module</a>, and specifically the <a href='https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/documentation/callback-api.md'>Callback API</a> of the <code>mariadb</code> module, which is compatible with <code>mysql</code> and <code>mysql2</code></li>
+    </ul>
+To install any of these, use <code>npm</code> as for last week from the command prompt (such as the goormIDE command prompt), e.g. one of:
+<pre>
+npm install mysql2
+npm install mariadb
+</pre>
+</p>
+
+<p>All three of these modules can be used in the same way with basic
+queries. Here is a simple example with the <code>mysql2</code> module:
+<pre>
+// mysql2 will also work with MariaDB, alternatively use
+// const mysql = require('mariadb/callback')
+const mysql = require('mysql2');
+
+const con = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'songsdb'
+});
+
+con.connect( err=&gt; {
+    if(err) {
+           console.log(`Error connecting to mysql: ${err}`);
+    } else { 
+        console.log('connected to mysql ok');
+        //  now we have a successful connection, query the database..
+    }
+});
+</pre>
+<p>Note the <em>callback</em> based approach. Node database APIs use callback-based approaches, as database connection and querying are both operations that might take some time, and we do not want the Node server to become unresponsive, so we specify a callback to run when the appropriate operation (connecting to the database in this example) has completed. The callback here is an arrow function, which takes one parameter <code>err</code> which will contain an error if there was an error connecting, or null otherwise. So we check for the error and if there was no error, we can perform queries. <strong>Note that this pattern, with an error as the first parameter of a callback, which contains a non-null value if there was an error, is a common one in Node.js.</strong></p>
+<h4>Connecting to MySQL from an Express application</h4>
+<p>How can we connect from an Express application? As seen above, connection to a MySQL database is <em>asynchronous</em>. In an Express application, we 
+probably want to prevent the application starting up if we cannot connect
+to the database. Therefore, we can <em>set up our routes so that the API
+endpoints are only handled if a successful connection to the database was
+made</em>, and if no successful connection was made, quit the Express server.
+Here is an example:
+<pre>
+const express = require('express');
+const app = express();
+// mysql2 will also work with MariaDB, alternatively use
+// const mysql = require('mariadb/callback')
+const mysql = require('mysql2');
+
+const con = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'songsdb'
+});
+
+con.connect( err=&gt; {
+    if(err) {
+        console.log(`Error connecting to mysql: ${err}`);
+        process.exit(1); // Quit the Express server with an error code of 1
+    } else { 
+        // Once we have successfully connected to MySQL, we can setup our
+        // routes, and start the server.
+        console.log('connected to mysql ok');
+
+        // now set up the routes...
+        app.get('/students/:lastname', (req, res) =&gt; {
+            // ...
+        });
+
+        // listen on port 3000
+        app.listen(3000);
+    }
+});
+</pre>
+</p>
+<h3>REST - Representational State Transfer - An introduction</h3>
+<p>It is a very common pattern in web development to develop a web API with
+a series of endpoints which manipulate the database in various ways, using
+HTTP methods appropriately for different operations. For example, if we
+are <em>searching</em> the database with a SELECT query, we use a <em>GET</em>
+method. If we are <em>updating</em> or <em>inserting</em> data, we use a
+<em>POST</em> method and if we are <em>deleting</em> data, we use a 
+<em>DELETE</em> method. We can set these methods up in Express easily:
+<pre>
+app.get('/endpoint1', ....);    // GET request
+app.post('/endpoint2', ....);   // POST request
+app.delete('/endpoint3', ....); // DELETE request
+</pre>
+We can also use various HTTP methods <em>from within our Express server</em> 
+to signal different types of error, e.g.
+    <ul>
+    <li>404 Not Found - if we are trying to search for something which could
+    not be found in the database;</li>
+    <li>400 Bad Request - if the format of the HTTP request was invalid in
+    some way;</li> 
+    <li>500 Internal Server Error - if an internal error on the server
+    occurs, for example the database server is not running.
+    </ul>
+We can send back different HTTP status codes from Express with the
+<code>status()</code> method, eg.:
+<pre>res.status(404);</pre>
+This pattern, of:
+    <ul>    
+    <li>using API endpoints which logically represent the data we are trying
+    to retrieve (e.g <code>/songs/Oasis</code> to represent all songs by
+    Oasis);</li>
+    <li>using HTTP methods appropriately depending on what operation is
+    being performed;</li>    
+    <li>and sending back appropriate HTTP status codes to indicate different
+    types of error;</li>
+    </ul>
+is a key feature of the <em>REST</em> (Representational State Transfer)
+pattern for developing web APIs. An API which follows these principles
+(plus some others) is known as a REST API. (There is more to REST, the former Level 6 WAD module <a href='https://nwcourses.github.io/wad/wad2.html'>gives some information here</a>).</p>
+<h3>Performing SQL queries with the mysql2 module</h3>
+<h4>SELECT</h4>
+<p>Performing a SELECT statement is as follows. Note how it's callback-based
+again: the callback will run when the database sends back the results. The
+three arguments to <code>con.query</code> are as follows:
+<ul>
+<li>The SQL query we want to send. Note the presence of question marks
+<code>?</code>. This is called a <em>parameterised SQL query</em> and the
+question marks are <em>placeholders</em> and will be replaced by
+input data, specified in the second argument within an array. This approach avoids a security exploit known as <em>SQL injection</em> which we will cover 
+later.</li>
+<li>An array of input data. Each <code>?</code> placeholder will be
+replaced, in order, by an item of input data in the array. In this example
+there is only one item in the array, <code>req.params.lastname</code> (the
+last name parameter in the route), so the one and only question mark in the
+parameterised query will be replaced by this.</li>
+<li>The third argument is the <em>callback</em> which runs when the query has returned results.  This callback has three parameters: an error (if there is one); the results (an array of objects, one object for each record) and the database fields.</li>
+</ul>
+</p>
+<p>The code below is a <em>snippet</em> of code showing a
+route handler as part of an Express application. It performs an SQL 
+statement to find all students with the last name matching the
+<code>lastname</code> parameter to the Express route, so that for example:
+<pre>https://url-of-your-server.example.com/students/Smith</pre>
+would find all students with the last name Smith.
+<pre>
+app.get('/students/:lastname', (req, res) =&gt; {
+    con.query(`SELECT * FROM students WHERE lastname=?`,
+        [req.params.lastname], (error,results,fields) =&gt; { 
+        if(error) {
+            res.status(500).json({ error: error });
+        } else {
+            res.json(results);
+        }
+    });
+});
+</pre>
+Note how we send back <em>JSON</em> to the client, whether there was an 
+error or the operation was successful. If there was an error, we send
+back a JSON object containing an <em>error</em> property with a value of
+the error that occurred, and also send back an HTTP status code of 500
+(Internal Server Error) which, by convention, is used if the server
+encountered an internal error which was not caused by a user mistake. 
+</p>
+<p>If, on the other hand, the operation was successful, the callback
+parameter <em>results</em> will contain the results (as we saw above) and
+we can convert it straight to JSON and send it back to the client.</p>
+<p>This version returns <em>all</em> students. Note that in this case, we don't need to specify a parameter for the query, so <code>con.query()</code> takes just two arguments, the SQL query and the callback.
+<pre>app.get('/students/:lastname', (req, res) =&gt; {
+    con.query('SELECT * FROM students',(error,results,fields) =&gt; { 
+        if(error) {
+            res.status(500).json({ error: error });
+        } else {
+            res.json(results);
+        }
+    });
+});
+</pre></p>
+<h4>UPDATE</h4>
+<p>Performing an UPDATE statement uses the same approach. Here is a route which could be used to <em>buy a product with a given ID</em> by reducing its quantity in stock by one. <strong>Note how this route has a method of POST, following the REST principles discussed above.</strong>
+<pre>
+app.post('/products/:id/buy', (req, res) =&gt; {
+    con.query('UPDATE products SET quantity=quantity-1 WHERE id=?', [req.params.id], (error,results,fields)=&gt; {
+        if(error) {
+            res.status(500).json({error: error});
+        } else if(results.affectedRows==1) {
+            res.json({'message': 'Successfully bought.'});
+        } else {
+            res.status(404).json({error: 'No rows updated, could not find a record matching that ID'});
+        }
+    } );
+});
+</pre>
+We first test whether there was an error, as for the <em>SELECT</em> example. If there ws no error, we then check the <em>affectedRows</em> property of the results object to determine whether any results were updated. If there were, we send back a JSON success message. If not, the reason will be that there is no product with that ID. By convention, following the principles of REST, if we cannot find what we are looking for in a route, we send back the HTTP status code 404 (Not Found).</p>
+<h4>DELETE</h4>
+<p>DELETE is similar to UPDATE. As we saw above, a route which results in the deletion of data makes use of the HTTP <em>DELETE</em> method.
+<pre>
+app.delete('/products/:id', (req, res) =&gt; {
+    con.query('DELETE FROM products WHERE id=?', [req.params.id], (error,results,fields)=&gt; {
+        if(error) {
+            res.status(500).json({error: error});
+        } else if(results.affectedRows==1) {
+            res.json({'message': 'Successfully deleted.'});
+        } else {
+            res.status(404).json({error: 'Could not delete: could not find a record matching that ID'});
+        }
+    } );
+});
+</pre>
+Note how again we check the <code>affectedRows</code> property of the results
+to check whether it found the record to delete.</p>
+<h4>INSERT</h4>
+<p>Insertion is discussed below, as there is something else we need to 
+consider first: <em>the nature of POST requests</em> and <em>how to send POST data to the server.</em></p>
+<h3>POST requests</h3>
+<p>With POST requests, we often need to <em>send data to the server</em>, for example when creating a new product in a products database for a shop, we might need to send the name, manufacturer and price. This is done by <em>embedding the data in the request body</em>, often as JSON, but also as key-value pairs. Last week we considered HTTP requests. Let's see
+an example of an HTTP POST request with embedded data:
+<pre>
+POST /product/create HTTP/1.1
+Host: www.solent-e-stores.com
+Content-Type: application/json
+
+{"name":"Corn Flakes","manufacturer":"Smith Emporium","price":1.29}  
+</pre>
+Note how we are sending <em>POST</em> data to <code>/product/create</code> and note how the HTTP <em>request</em> has a <code>Content-Type</code> of <code>application/json</code> (we covered MIME types last week). This is now telling the <em>server</em> (not the client) that what is being sent is JSON.</p>
+<p>Note also how the <em>request body</em> begins after the headers, with a gap
+of one line. Note here, how the request body contains a JSON object containing
+details of a product.</p>
+<p>How can we read the request body from an Express application? 
+When you wish to access the request body in your routes, you use
+the <code>req.body</code> object. Here is an example of a 
+<code>/product/create</code> route which reads JSON from the request body
+and performs an SQL INSERT statement with it:
+<pre>
+app.post('/product/create', (req, res) =&gt; {
+    con.query('INSERT INTO products(name, manufacturer, price) VALUES (?,?,?)',
+        [req.body.name, req.body.manufacturer, req.body.price],
+        (error, results, fields) =&gt; {
+            if(error) {
+                res.status(500).json({error: error});
+            } else {
+                res.json({success: 1});
+            } 
+    );
+});
+</pre>
+</p>
+<h3>Testing HTTP request methods other than GET</h3>
+<p>One question remains. How can you <em>test out</em> these methods?
+With GET methods, it's simple (we did it last week); you simply request
+the desired API endpoint in your browser and the appropriate route will
+be executed. However, with other methods, such as POST and DELETE, it's more
+difficult, as browsers always send GET requests when you type in a URL.</p>
+<h4>Enter RESTer</h4>
+<p>There are various third-party tools which can be used to test out APIs.
+A particularly useful one, which those of you on Craig's OODD will have 
+already been introduced to, is <em>RESTer</em>. This is a browser extension
+which allows you to simulate HTTP requests and is available for
+<a href='https://chrome.google.com/webstore/detail/rester/eejfoncpjfgmeleakejdcanedmefagga'>Chrome</a> and <a href='https://addons.mozilla.org/en-US/firefox/addon/rester/'>Firefox</a>. To install RESTer, visit either of these links and follow the instructions, and RESTer will be installed to your browser.</p>
+<p>RESTer has an interface as shown below:
+<br />
+<img src="../images/rester1.png" alt="RESTer interface" />
+<br />
+Note how RESTer allows you to specify, amongst other things:
+    <ul>
+    <li>the HTTP method to use;</li>
+    <li>the URL to request;</li>
+    <li>the <em>headers</em> and <em>body</em> of the request.
+    </ul>
+In the example above, a GET request is being made to the URL <code>https://url_of_your_server.example.com/artist/Oasis</code>. Note how the response is shown below the controls, showing the status code, the response headers and the response body.</p>
+<p>The screenshot below shows how you can add headers to the HTTP request by selecting the <em>Headers</em> tab. Here we have specified the <code>Content-Type</code> as <code>application/json</code>:
+<br />
+<img src="../images/rester2.png" alt="Setting content type in RESTer" />
+<br />
+You can also add data to the request body. This is shown below, note how we have added JSON describing a song. (Prize to anyone who can guess why I have chosen this particular song...)
+<br />
+<img src="../images/rester3.png" alt="Setting request body in RESTer" />
+<br />
+RESTer also allows you to test error conditions: if you supply invalid 
+request data and your web API checks for this, then you will get a non-200
+status code returned.</p>
+<h2>Exercises</h2>
+<ol>
+<li>Launch your database (see the instructions above) Use this <a href='wadsongs.sql'>SQL file</a> to create a <code>wadsongs</code> table and populate it with around 1000-1500 songs. In PHPMyAdmin, you can use the Import tab to import them:
+<br />
+<br />
+<img src='../images/phpmyadmin_import.png' alt='PHPMyAdmin import' />
+<br />
+<br />
+If using the command prompt, you can use a shell command (enter in your command prompt or shell, NOT in the MySQL or MariaDB client), e.g.
+<pre>mysql -u root &lt; wadsongs.sql</pre>
+</li>
+<li>Once your database is populated, develop a simple REST API in Node and Express with endpoints to: 
+    <ul>
+    <li>GET: search for all songs by a given artist;</li>
+    <li>GET: search for all songs with a given title;</li>
+    <li>GET: search for songs by artist AND title (i.e. both must match);</li>
+    <li>GET: find a song with a given ID</li>
+    <li>POST: buy a physical copy of song (decrease its quantity by 1)</li>
+    <li>DELETE: delete a song with a given ID</li>
+    <li>POST: add a new song; specify all columns in the database except the ID which is auto-created.</li>
+    </ul>
+</li>
+<li>Test the GET endpoints in the browser, and the others in RESTer.</li>
+<li><strong>More advanced</strong>: In the <code>public</code> folder (see last week), create a static HTML page containing a field for the artist and a button. When the user clicks a button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. Use <code>window.location</code> to redirect the browser, e.g.
+<pre>window.location = `https://url-of-your-server.example.com/.....`; // for you to complete!</pre>
+Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>Use Express to serve the static page, as discussed at the end of last week's notes, and access it via <code>https://url-of-your-server.example.com/filename.html</code>.</li>
+</ol>
+</body>
+</html>
+
