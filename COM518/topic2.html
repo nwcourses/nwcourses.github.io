@@ -55,6 +55,7 @@ user's web browser, but the <em>client</em> with respect to the database server:
     </ul>
 </p>
 <h3>Using PHPMyAdmin</h3>
+<p><strong>Note that you may encounter problems with using PHPMyAdmin on a Mac - if you encounter problems, please use the command prompt instead.</strong></p>
 <p>You can use a graphical interface to manage your database, such as <a href='https://phpmyadmin.net'>PHPMyAdmin</a> which we installed to goormIDE above. This is a web-based front-end to a MySQL or MariaDB database, written in the PHP server-side scripting language. Once installed, you should be able to access it via the URL you set up in goormIDE.
 You will see a login screen like this, as long as you setup your user with a password:
 </p>
@@ -77,6 +78,26 @@ you will see its contents:
 <img src='../images/phpmyadmin4.png' alt='PHPMyAdmin tables' />
 </p> <p>
 If you now click the 'SQL' tab, you will be able to enter SQL commands to send to the database server.
+</p>
+<h3>Using the command-line client</h3>
+<p>As an alternative you will be able to use the command line database client from your command prompt. This will be either <code>mysql</code> or <code>mariadb</code>.
+For example, to launch the MySQL client you would enter, at the command
+line (<code>myuser</code> is your database username):
+<pre>mysql -u myuser -p</pre>
+and the enter the password. The screenshot below shows this.
+<br />
+<img src='../images/mysql1.png' alt='Launching MySQL client' />
+<br />
+You will then be in the console-based MySQL, or MariaDB, client. Next you
+need to select your database with the <code>USE</code> command. The example below selects a database called <code>ephp001</code> however if using the defaults for your database, it's likely to be called <code>mysql</code>.
+<br />
+<img src='../images/mysql2.png' alt='Selecting a database with USE' />
+<br />
+Once you've done this, you can enter SQL commands which will be sent to the
+database server, e.g:
+<br />
+<img src='../images/mysql3.png' alt='Sending a SELECT statement to the database server with the MySQL client' />
+<br />
 </p>
 <h2>Node and MySQL</h2>
 <p>We are going to look now at how you can connect to a MySQL or MariaDB 
@@ -103,7 +124,8 @@ const mysql = require('mysql2');
 
 const con = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
+    user: 'myuser',
+    password: 'mypass',
     database: 'songsdb'
 });
 
@@ -133,7 +155,8 @@ const mysql = require('mysql2');
 
 const con = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
+    user: 'myuser',
+    password: 'mypass',
     database: 'songsdb'
 });
 
@@ -366,7 +389,7 @@ status code returned.</p>
 <br />
 <br />
 If using the command prompt, you can use a shell command (enter in your command prompt or shell, NOT in the MySQL or MariaDB client), e.g.
-<pre>mysql -u root &lt; wadsongs.sql</pre>
+<pre>mysql -u myuser -p &lt; wadsongs.sql</pre>
 </li>
 <li>Once your database is populated, develop a simple REST API in Node and Express with endpoints to: 
     <ul>
