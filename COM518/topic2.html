@@ -380,9 +380,11 @@ If using the command prompt, you can use a shell command (enter in your command 
     </ul>
 </li>
 <li>Test the GET endpoints in the browser, and the others in RESTer.</li>
-<li><strong>More advanced</strong>: In the <code>public</code> folder (see last week), create a static HTML page containing a field for the artist and a button. When the user clicks a button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. Use <code>window.location</code> to redirect the browser, e.g.
+<li><strong>More advanced</strong>: Create a <code>public</code> folder, and in it, create a static HTML page containing a field for the artist and a button. When the user clicks the button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. In this client-side code, <code>window.location</code> to redirect the browser, e.g.
 <pre>window.location = `https://url-of-your-server.example.com/.....`; // for you to complete!</pre>
-Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>Use Express to serve the static page, as discussed at the end of last week's notes, and access it via <code>https://url-of-your-server.example.com/filename.html</code>.</li>
+Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>For both questions, use Express to serve the static page. You can do this by adding the line:</strong>
+<pre>app.use(express.static('public'));</pre>
+This will tell Express to serve all content in the <code>public</code> folder as static pages. So to access the file <code>file.html</code> inside the <code>public</code> folder from the browser, you can access it via <code>https://url-of-your-server.example.com/file.html</code>.</li>
 </ol>
 </body>
 </html>
