@@ -333,6 +333,8 @@ the <code>req.body</code> object. Here is an example of a
 <code>/product/create</code> route which reads JSON from the request body
 and performs an SQL INSERT statement with it:
 <pre>
+app.use(express.json()); // necessary to read JSON data from the request body
+
 app.post('/product/create', (req, res) =&gt; {
     con.query('INSERT INTO products(name, manufacturer, price) VALUES (?,?,?)',
         [req.body.name, req.body.manufacturer, req.body.price],
