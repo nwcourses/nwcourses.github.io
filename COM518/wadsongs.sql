@@ -1,4 +1,4 @@
-USE mysql;
+USE mysql; -- YOU NEED TO CHANGE THIS TO THE NAME OF YOUR DATABASE
 DROP TABLE IF EXISTS `wadsongs`;
 CREATE TABLE `wadsongs` (
   `title` varchar(255) DEFAULT NULL,
