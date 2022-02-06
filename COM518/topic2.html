@@ -401,10 +401,10 @@ If using the command prompt, you can use a shell command (enter in your command 
     <li>GET: find a song with a given ID</li>
     <li>POST: buy a physical copy of song (decrease its quantity by 1)</li>
     <li>DELETE: delete a song with a given ID</li>
-    <li>POST: add a new song; specify all columns in the database except the ID which is auto-created. <strong>You will need RESTer for this; see above.</strong></li>
+    <li>POST: add a new song; specify all columns in the database except the ID which is auto-created.</li> 
     </ul>
 </li>
-<li>Test the GET endpoints in the browser, and the others in RESTer.</li>
+<li>Test the GET endpoints in the browser, <strong>and the POST and DELETE endpoints in RESTer. In particular, for "add a new song", you will need to specify the song as JSON in the request body in RESTer, and set the content type to <code>application/json</code></strong>; see above.</li>
 <li><strong>More advanced</strong>: Create a <code>public</code> folder, and in it, create a static HTML page containing a field for the artist and a button. When the user clicks the button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. In this client-side code, <code>window.location</code> to redirect the browser, e.g.
 <pre>window.location = `https://url-of-your-server.example.com/.....`; // for you to complete!</pre>
 Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>For both questions, use Express to serve the static page. You can do this by adding the line:</strong>
