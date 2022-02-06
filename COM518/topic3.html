@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Topic 3: Promises and AJAX</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Topic 3: Promises and AJAX</h1></div>
+<p>Today we will cover the following topics:</p>
+<ul>
+<li>AJAX - revision</li>
+<li>Introduction to promises and async/await</li>
+<li>Using JSON in AJAX applications</li>
+<li>Using promises with the <code>mysql2</code> API</li>
+</ul>
+<h2>AJAX - revision</h2>
+
+<p>Last year you covered <em>AJAX</em> (<em>A</em>synchronous <em>J</em>avaScript <em>A</em>nd <em>X</em>ML). You saw that it is an approach to developing highly interactive web applications in which the front-end (JavaScript running client-side in the browser) communicates with a web server <strong>in the background, without the page being reloaded.</strong> So, with AJAX we can create interactive, instant searches (such as that seen on Google) for example. Your client-side JavaScript code sends a request, and the server sends data back, typically in a pure-data format such as XML or JSON (even though AJAX stands for Asynchronous JavaScript and <em>XML</em>, JSON can also be used). The JSON or XML is then <em>parsed</em> (interpreted) by a second client-side JavaScript function, and the page dynamically updated with the new data.</p>
+<p><img src="../images/ajax2.png" alt="AJAX applications"/></p>
+<p>For example, we could have an AJAX application to search for all products of a given type (e.g cornflakes). Our client-side, front-end JavaScript could send a product type input by the user, such as "Cornflakes", to a Node server, and the Node server could send back JSON containing all the cornflakes manufactured by different manufacturers. Then, a second block of JavaScript wouuld receive the JSON from the server, parse (interpret it) and update the HTML front-end with the data provided in the JSON (all brands of cornflakes available).</p>
+<p> How might a user interact with an AJAX application? They might enter a search term in a form and click Go, and then the search results would be sent back from the server as JSON in the background, and <em>one small part of the page only</em> (as opposed to the entire page) updated is with the search results. 
+Furthermore,as  requests to the server are sent, and responses received, <em>in the background</em>. So the user can <em>continue to interact with the page</em> while waiting for the response to come back.</p>
+
+<p>
+AJAX is not an actual language, but a combination of technologies used to produce the effect above. An AJAX application typically consists of three components:
+<ul>
+<li>
+the client side application, usually JavaScript running in the browser which sends HTTP requests to a server and processes the response;</li>
+<li>
+a web server which receives the HTTP request sent from the JavaScript, above, and delivers the response;</li>
+<li>
+the data sent back from the server to the client, which is typically in a data description format such as JSON or XML.
+</li>
+</ul>
+</p>
+
+<h3 id='cors'>The same-origin policy</h3>
+
+<p>AJAX applications are normally subject to the <em>same-origin policy</em>. This means that the back-end (the server application that the JavaScript talks to) must be delivered from the same exact domain as the front-end. The reason for this is security: the ability for an AJAX front end to talk to a third-party server opens up the possibility of exploits by a malicious AJAX-based website while the user is logged onto a legitimate website. Without the same-origin policy, the malicious AJAX front end could potentially make an AJAX connection to the legitimate website (social media, email, banking, etc) and steal personal data.  See the W3C <a href='http://www.w3.org/Security/wiki/Same_Origin_Policy'> same origin policy document</a> for more detail.</p> 
+
+<h3>Circumventing the same-origin policy with CORS</h3>
+<p>There is, however, a way in which server-side developers can circumvent the same origin policy in certain cases. This is done by explicitly allowing, on the server side, certain, trusted AJAX clients to connect.  A common case is where one person owns two domains, and would like the two domains to communicate with each other over AJAX. For example, Solent Holidays might have two domains (note that subdomains are treated as separate domains): <code>hotels.solentholidays.com</code> and <code>booking.solentholidays.com</code>. They might wish to be able to send users' booking details from <code>booking.solentholidays.com</code> to a hotels web API on <code>hotels.solentholidays.com</code>. To do this, they would have to add code to the server on <code>hotels.solentholidays.com</code> to <em>allow <code>booking.solentholidays.com</code> to connect</em>.
+</p>
+
+<p>This is done by using the technique of <em>Cross-Origin Resource Sharing (CORS)</em>.  An <em>Access-Control-Allow-Origin</em> headere is added to the HTTP response from the server the <em>header()</em> function, e.g. an HTTP response
+might contain the header:
+<pre>Access-Control-Allow-Origin: booking.solentholidays.com</pre>
+which would allow the client at <em>booking.solentholidays.com</em> to connect
+to the script.
+</p>
+<p>To add a CORS header to a Node/Express server, it's easy if you install the <code>cors</code> package:
+<pre>npm install cors</pre>
+You just use:
+<pre>const cors = require('cors');
+app.use(cors());</pre>
+</p>
+
+<h2>AJAX requests using promises with the fetch API</h2>
+<p>The first few examples will all use this HTML page. They will read in the product type that the user enters, and then use AJAX to request JSON containing details (name, price, manufacturer etc) of that product.
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type='module' src='index.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Solent E-Stores: search for products&lt;/h1&gt;
+Product type: &lt;input id='productType' /&gt;
+&lt;input type='button' id='ajaxButton' value='Search!' /&gt;
+&lt;br /&gt;
+&lt;div id='results'&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p>
+<p>Note the use of 
+<pre>&lt;script <em>type='module'</em> src='index.js'...</pre>
+This loads the script <code>index.js</code> (see below), and specifies that our JavaScript will be treated as an <em>ECMAScript 6 module</em>. Modules are a recent JavaScript feature which allows development of reusable client-side JavaScript code. From the point of view of this application, <strong>making the script a module ensures it is loaded after the page has loaded, which means that <code>document.getElementById()</code> will be able to find the specified elements.</strong></p>
+<p>Now we will move on to our client-side JavaScript, <code>index.js</code>. The easiest way to communicate with a server using AJAX is the <em>fetch API</em>. Here is an example of the use of the fetch API. 
+<pre>
+// index.js - CLIENT SIDE code, runs in the browser
+
+function ajaxSearch(productType) {
+    fetch(`https://store.example.com/api/product/${productType}`)
+        .then(response =&gt; response.text())
+        .then(text =&gt; {
+            document.getElementById('results').innerHTML = text;
+        });
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+How is this working?
+<ul>
+<li>We fetch a response from the given URL. Here we are contacting a 
+server application which searches for all products of a given type.</li>
+<li><em>then</em>, when we get the response, we obtain the content (in text format) with <code>response.text()</code>.</li>
+<li><em>then</em>, when we have the response in text format (the response is JSON, but we are treating it simply as plain text), we run an arrow function to place the response directly inside a &lt;div&gt;. This obviously will not be very friendly for the user: the user does not want to see the results in raw JSON format! Later we will examine how to <em>parse</em> the JSON to present the data in a more user-friendly way..</li>
+</ul>
+<h3>Promises</h3>
+<p>We'll now look in a bit more detail at what is going on with our fetch API
+request, and in particular look at the concept of a <em>promise</em>. The
+<code>fetch</code> call, above, returns a <em>promise</em> object.
+A promise is an object which "promises" to do a particular (typically)
+asynchronous, background task which will complete at some point in the future,
+such as an AJAX request. The <code>fetch()</code> function will return 
+immediately, but will not do the AJAX request immediately. Instead, it returns
+a <em>promise object</em> which will, at some point in the future, be either
+<em>fulfilled</em> or <em>rejected</em>. These outcomes are as follows;
+    <ul>
+    <li>A promise is <em>fulfilled</em> or <em>resolved</em> as soon as the 
+    background task completes successfully, for example when a response is
+    received from an AJAX call;</li>
+    <li>or it is <em>rejected</em> if it fails with an error, for example
+    there is a network timeout on an AJAX call.</li>
+    </ul>
+We handle each of those two outcomes using the <code>then()</code> and
+<code>catch()</code> functions. The function supplied as an argument to
+<code>then</code> (the <strong>resolve</strong> function)
+will run <strong>as soon as the promise is fulfilled</strong>
+while the function supplied as an argument to <code>catch</code> will run 
+<strong>as soon as the promise is rejected</strong>.
+</p>
+<p>
+So, promises allow you to write code with intuitive, clean syntax in
+this form:
+<pre>promise.then(resolveFunction).catch(rejectFunction);</pre>
+where "promise" is the promise object, and <code>resolveFunction</code> and
+<code>rejectFunction</code> are the functions which run on fulfilment and
+rejection, respectively.</p>
+<p>Note that this topic does not include how to write your own promises from
+scratch, only how to use promises returned from APIs written by others, for
+example the fetch API. You can read about how to create your own promises in
+the <a href='#implementingpromises'>advanced notes below</a>.</p> 
+<h4>Relating promises to the fetch API</h4>
+<p>So, returning to our fetch API example, what is happening with this code in
+terms of promises? (Note, I have now added a <code>catch()</code>).
+<pre>
+fetch(`https://store.example.com/api/product/${productType}`)
+    .then(response =&gt; response.text())
+    .then(text =&gt; {
+        document.getElementById('results').innerHTML = text;
+    })
+    .catch(e =&gt; { alert(`An error occurred: ${e}`); } );
+</pre>
+<ul>
+<li>We make our <code>fetch()</code> request. This returns a promise, which
+will resolve when we get a response back from the server.</li>
+<li>We supply the arrow function <pre>response =&gt; response.text()</pre>
+as the resolve function. This takes the response and obtains text from it.
+Note that this is shorthand for:
+<pre>.then(response =&gt; { return response.text(); } );</pre>
+in other words, if an arrow function only returns a value and does not do
+anything else, we can omit the curly brackets and the <code>return</code>.
+</li>
+<li>Note that <code>response.text()</code> does not return the text directly. Perhaps surprisingly, <code>response.text()</code> <strong>itself returns a promise</strong>, which will fulfil as soon as text is obtained from the response. So, we need <strong>yet another <code>then()</code></strong> with a <strong>second resolve function</strong> (which runs once the text is obtained from the response) passed as an argument, i.e:
+<pre>
+.then(text =&gt; {
+    document.getElementById('results').innerHTML = text;
+});
+</pre>
+This second resolve function gets the text as a parameter, and
+simply places this text inside a &lt;div&gt;.</li>
+<li>Finally, any errors that might occur during the whole process are handled
+with the <code>catch()</code>.</li>
+</ul>
+<h3>Parsing the JSON</h3>
+<p>The next example will show how we can <em>parse</em> (interpret) the JSON, to make the output more user-friendly.
+<pre>
+// index.js - CLIENT SIDE code, runs in the browser
+
+function ajaxSearch(productType) {
+    // Send a request to our remote URL
+    const response = fetch(`https://store.example.com/api/product/${productType}`)
+        .then(response =&gt; response.json())
+        .then(products =&gt; {
+                // Loop through the array of JSON objects and add the results to a &lt;div&gt;
+                let html = "";
+                products.forEach ( product =&gt; {
+                    html += `Product Name: ${product.name} Manufacturer: ${product.manufacturer} Price: ${product.price}&lt;br /&gt;`;
+                });
+                document.getElementById('results').innerHTML = html;
+        });
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+This code is very similar to the text-based example. The main difference is
+we use <code>response.json()</code> rather than <code>response.text()</code>.
+This returns a promise which resolves when the JSON in the response has
+been parsed (compare <code>response.text()</code>, which returns a promise
+which resolves when we have extracted text from the response).</p>
+<p>The other diference is that we need to loop through our array of JSON
+objects returned from the server. The JSON might look like this:
+<pre>
+[
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Organic Products Ltd.",
+        "price": 2.49 
+    },
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Cockadoodle Cereal Co.",
+        "price": 1.79 
+    },
+    {
+        "name":"Cornflakes",
+        "manufacturer":"Smith Emporium",
+        "price": 0.79 
+    },
+]
+</pre>
+Hopefully you can see how we loop through each product object within the JSON,
+and extract the name, manufacturer and price fields from the current object. Notice also how <code>forEach()</code> allows us to loop through each member of an array without needing a <code>for</code> loop with an index. 
+<code>forEach()</code> is a function which performs a second function on each member of an array. Each member of the array in turn is passed into this second function as a parameter.</p>
+<h3>async/await</h3>
+<p>ECMAScript 8 (aka ECMAScript 2017) introduces <em><code>async</code>/<code>await</code></em>.
+This allows you to write promise-based,
+asynchronous code in a sequential manner. Here is how we would rewrite our
+<em>fetch</em> API code using async/await:
+<pre>
+// index.js - CLIENT SIDE code, runs in the browser
+
+<em>async</em> function ajaxSearch(productType) {
+    // Send a request to our remote URL
+    const response = <em>await</em> fetch(`https://store.example.com/api/product/${productType}`);
+
+    // Parse the JSON.
+    const products = <em>await</em> response.json();
+
+    // Loop through the array of JSON objects and add the results to a &lt;div&gt;
+    let html = "";
+    products.forEach ( product =&gt; {
+        html += `Product Name: ${product.name} Manufacturer: ${product.manufacturer} Price: ${product.price}&lt;br /&gt;`;
+    });
+    document.getElementById('results').innerHTML = html;
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+Note how we're doing a whole AJAX procedure using sequential
+code, even though AJAX is an asynchronous process. The key things are:
+    <ul>
+    <li>The function <code>ajaxSearch()</code> is declared as <code>async</code>, which makes it a special kind of function (an <code>AsyncFunction</code>)
+    allowing us to do async/await;</li>
+    <li><code>fetch()</code> (which if you remember returns a promise to do an
+    AJAX call) is preceded by <code>await</code>. What <code>await()</code> does is suspend execution of the rest of the <code>async</code> function until the
+    promise concerned has been fulfilled.  The argument to the resolve function of the promise is then <em>returned</em> from the <code>await</code> call.
+    </li>
+    <li><code>await</code> calls <em>must</em> be placed in an <code>async</code> function.</li>
+    </ul>
+Note also that <code>await</code> will only work with a promise. It's
+<em>awaiting the successful resolution of that promise</em>. Trying to use
+<code>await</code> without a promise will not work!</li>
+</p>
+<p>To make the code more robust we need to handle errors. Here is how to
+do this with async/await:
+<pre>
+// index.js - CLIENT SIDE code, runs in the browser
+
+<em>async</em> function ajaxSearch(productType) {
+    try {
+        // Send a request to our remote URL
+        const response = <em>await</em> fetch(`https://store.example.com/api/product/${productType}`);
+
+        // Parse the JSON.
+        const products = <em>await</em> response.json();
+
+        // Loop through the array of JSON objects and add the results to a &lt;div&gt;
+        let html = "";
+        products.forEach ( product =&gt; {
+            html += `Product Name: ${product.name} Manufacturer: ${product.manufacturer} Price: ${product.price}&lt;br /&gt;`;
+        });
+        document.getElementById('results').innerHTML = html;
+    } catch (e) {
+        alert(`There was an error: ${e}`);
+    }
+}
+
+// Make the AJAX run when we click a button
+document.getElementById('ajaxButton').addEventListener('click', ()=&gt; {
+    // Read the product type from a text field
+    const product = document.getElementById('productType').value;
+    ajaxSearch(product);
+});
+</pre>
+Note how we <code>try</code> to do the promise based, asynchronous code and
+<code>catch</code> any promise rejections in the <code>catch</code> block. The catch block gets passed the error message accompanying the promise rejection.</p>
+<h3>Serving static web pages with Express</h3>
+<p>These AJAX examples have involved front-end, client-side content, i.e. an HTML page and client-side JavaScript code. How can we get an Express application to serve this content?</p>
+<p>You can make Express serve any such <em>static web content</em> (e.g. HTML
+pages, images, etc) through the use of the <code>express.static()</code> method, which takes a folder containing the static resources as an argument. A common convention is to place static resources inside a folder called <code>public</code>. So, to make the static resources available via the Express application, you would include the call:
+<pre>app.use(express.static('public'));</pre>
+after initialising your Express app. Once you have done this, you can place any static content inside the <code>public</code> folder and the Express server will send it back if it is requested. For example if you have a <code>index.html</code> page inside <code>public</code>, you will be able to request it with (on your local machine)
+<pre>http://localhost:3000/index.html</pre>
+or on a server on the web, such as your Goorm container, something like:
+<pre>http://my-goorm-node-app.example.com/index.html</pre>
+</p>
+<h3>node-fetch</h3>
+<p>You can also send HTTP requests from a Node application to a remote server with the <code>node-fetch</code> package (install with <code>npm install node-fetch</code>). This might be useful, for example, if you need to communicate with a remote web API from your own web application (such as the tourist website communicating with the weather API, which we looked at in Week 1). Here is an example:
+<pre>
+// Node.js code
+
+const fetch = require('node-fetch');
+const city = 'London';
+fetch(`https://api.weather.example.com/city/${city}`)
+    .then(response =&gt; response.json())
+    .then(json =&gt; {
+        console.log(`The forecast for ${city} is ${json.weather} with max temp ${json.maxtemp} C`);
+    });
+</pre>
+</p>
+<h2>Using the promise-based mysql2 API</h2>
+<p>We can also use promises and <code>async</code>/<code>await</code> with the <code>mysql2</code> API, which can make our code a little easier to understand as it appears more sequential (even though it is still asynchronous!) and we do not use callbacks. Here is an example of using the promise-based version of <code>mysql2</code>:
+<pre>const express = require('express');
+const app = express();
+const mysql = require('mysql2/promise'); 
+
+async function startApp() {
+    try {
+        var con = await mysql.createConnection({
+            host: 'localhost',
+            user: 'myuser',
+            password: 'mypass',
+            database: 'mydb'
+        });
+
+        const conn = await con.connect();
+        console.log('connected to mysql ok');
+
+        app.get('/student/:studentid', async(req, res) =&gt; {
+            try {
+                const [results,fields] = await con.query(`SELECT * FROM students WHERE studentid=?`, [req.params.studentid]);
+                res.json(results);
+            } catch(e) {
+                res.status(500).json(e);
+            }
+        });
+        app.listen(3000);
+    } catch(e) {
+        console.error(`ERROR connecting to database: ${e}`);
+    }
+}
+
+startApp();</pre>
+Note how:
+    <ul>
+    <li>We use the promises-based version of <code>mysql2</code> by requiring <code>mysql2/promise</code>.</li>requiring <code>mysql2/promise</code>.</li>
+    <li>Our entire code needs to be placed into an <code>async</code> function, <code>startApp()</code>. As we have seen, <code>await</code> calls can only be done within an <code>async</code> function. So we place all our code in this function and then call it when the application starts.</li>
+    <li>With the promises API, <code>mysql.createConnection()</code> returns a promise which resolves as soon as a successful connection has been made. So we <code>await</code> the resolution of that promise; the promise will resolve with the connection object.</li>
+    <li>We then setup our Express route. Note that inside the route, we again <code>await</code> the resolution of <code>con.query()</code>; this again returns a promise which will resolve once we get results from the query. This promise resolves with an <em>array</em> containing two members: an array of matching rows, and an array of fields. Note the use here of <strong>JavaScript destructuring syntax</strong>:
+    <pre>const [results, fields] = await con.query(...);</pre>
+    This is a very powerful JavaScript feature which allows you to "unpack" individual members from an array into individual variables. In this case, we are saying "set <code>results</code> equal to the first member of the array which the promise resolves with, and set <code>fields</code> equal to the second member of that array".
+    </li>
+    <li>Note also the use of <code>try</code>/<code>catch</code>, as before, to handle promise rejections. We have two <code>try</code>/<code>catch</code> blocks, one to handle the database connection and one to handle the query taking place in the route.</li>
+    </ul>
+</p>
+<h2>Exercises</h2>
+<p><strong>IMPORTANT! Please ensure that you complete last week's exercises up to question 3 first.</strong></p> 
+<p>Your aim is to develop <em>HitTastic!</em>, a website allowing users to
+search for, and buy, music. You are going to develop a front-end for 
+HitTastic! and connect it to your Node server that you wrote last week.</p>
+<ol>
+<li>Develop an HTML front end for HitTastic!, a site which allows you to search for, and buy, music online. If you are doing this in advance of the session, feel free to use a bit of creativity here and create an appealing front-end (though this is not compulsory!) Ensure that your HitTastic! page includes:
+    <ul>
+    <li>a form field to allow the user to enter an artist;</li>
+    <li>a button, which when clicked, will connect, via AJAX, to your server;</li>
+    <li>and a &lt;div&gt; to display the results.</li>
+    </ul>
+<strong>Place this page in a <code>public</code> folder, and use <code>express.static()</code> - see above - so that you can access it via your Node server</strong>. So, for example, if your file is <code>hittastic.html</code> you would access it with a URL similar to: 
+<pre>https://your-goorm-server.example.com/hittastic.html</pre>
+</li>
+<li>In a separate JavaScript file on the front-end (client side, i.e. save it in <code>public</code>), write an AJAX request function which connects to your <code>/artist</code> API endpoint from topic 2. You should <em>parse</em> the JSON returned.  Place the results within the &lt;div&gt;. Remember that you can use <em>innerHTML</em> to fill a page element, e.g:
+<pre>document.getElementById("div1").innerHTML = "New content!";</pre></li>
+<li>Display the results in a table.</li>
+<li>Add an additional column to the table. If the song was released before the
+year 2000 (you can tell this from the <code>year</code> property in the JSON, based on the <code>year</code> column in the database) then display "CLASSIC HIT!" in this column.</li>
+<li><strong>More advanced:</strong> Rewrite your Express server completely to use the <code>mysql2</code> promise-based API throughout.</li>
+<li><strong>More advanced:</strong> Add an additional <code>&lt;select&gt;</code> box to the front-end. This should contain the options Title, Artist or Year, allowing the user to search on either title, artist or year.
+<pre>
+&lt;select id='searchType'&gt;
+&lt;option&gt;title&lt;/option&gt;
+&lt;option&gt;artist&lt;/option&gt;
+&lt;option&gt;year&lt;/option&gt;
+&lt;/select&gt;
+</pre>
+Next to this <code>&lt;select&gt;</code>, add another text field, and a button labelled "Search by Type" and connect this to a new JavaScript function. This should read the search type from the select box (you can just use <code>document.getElementById(....).value</code> here, the same as for input boxes) and the search term from the text field, and then make a request to the appropriate API endpoint. You will need to add a new endpoint to your REST API to find all songs released in a given year, as you will not have done this last week.</li>
+</ol> 
+<hr />
+<h2 id='implementingpromises'>Advanced - how to implement your own promises</h2>
+<p><strong>This section gives more information on implementing your own promises. It is provided for your own interest but is not required for the assessment.</strong></p>
+<p>To implement your own promise, you need to create a <code>Promise</code> object. A Promise object has an associated <em>task</em>, which is a background
+task which may either succeed (fulfilling the promise) or fail (rejecting the promise). This task is implemented as a <em>function</em> which <em>must be passed into the Promise constructor as a parameter</em>. This task function <em>must</em> take two parameters, each of which is themselves a callback function, and each of which was described above:
+    <ul>
+    <li>the <code>resolve</code> function (called if the promise is fulfilled)</li>
+    <li>the <code>reject</code> function (called if the promise cannot be fulfilled)</li>
+    </ul>
+Each of these is specified by the code calling the promise; the
+argument to <code>then()</code> ends up as the <code>resolve</code> function
+and the argument to <code>catch()</code> ends up as the <code>reject</code>
+function.
+</p>
+<p>
+The task function must then call these two functions as appropriate,
+i.e. if the task succeeds, it must call the <code>resolve</code> function
+and if it fails, it must call the <code>reject</code> function.
+</p>
+
+<h3>Simple example</h3>
+<p>We are going to illustrate the concept by writing some promises to perform simple mathematical operations.</p>
+
+<p>Here is an example of a promise to perform a division of two numbers.
+The promise is fulfilled with the result of the division, or rejects if the
+denominator is zero (remember that division by zero is not allowed).
+You can write this as Node.js code, or in the browser.</p>
+<pre>
+function divide(a,b) {
+    return new Promise ( (resolve, reject) =&gt; {
+        if(b == 0) {
+            reject("Cannot divide by zero!");
+        } else {
+            resolve(a/b);
+        }
+    });
+}
+</pre>
+Note what we are doing here is writing a function called <code>divide()</code>
+which divides two numbers and returns a Promise to do the division.
+Note how the Promise constructor 
+takes, as an argument, a task function which attempts to
+carry out the promise. This task function gets passed two parameters, a 
+resolve function and a reject function, as we saw above. The task function then tests
+if the denominator (b)is zero, and if it is, the promise is rejected with
+a message "Cannot divide by zero!". Otherwise, the promise is fulfilled and
+the resolve function is called, with the result of the division.
+</p>
+<h4>Calling the promise</h4>
+<p>To call the promise, we call the function which returns the promise
+and chain it with a <code>then()</code> call. <code>then()</code> takes a 
+function as an argument; this function will run as soon as the promise is
+fulfilled. This function corresponds to the <code>resolve</code> parameter to
+the Promise constructor. So whatever is passed to <code>then()</code> will
+become the <code>resolve</code> parameter of the Promise.
+<pre>divide(18, 2).then( result =&gt; { console.log(result); } );</pre>
+</p>
+<h4>Handling promise rejections</h4>
+<p>As we have seen, to handle a promise rejection (e.g. division by zero in the example above), we chain a <code>catch()</code> to our promise call, e.g:
+<pre>divide(18, 0).then( result =&gt; { console.log(result); } ).<code>catch(err =&gt; { console.log(err); } );</code></pre>
+Note how <code>catch()</code> also takes a function as an argument; this function
+corresponds to the <code>reject</code> parameter of the Promise constructor. So
+whatever is passed to <code>catch()</code> will become the <code>reject</code>
+parameter of the promise.</p>
+
+<h3>Chaining promises</h3>
+<p>Promises are frequently <em>chained</em> together. We perform one operation
+which returns a promise, and then if the promise fulfils, we can call
+another function, using this form of code:
+<pre>function1.then(function2).then(function3).catch(e =&gt; {
+    console.log(`Error: ${e}`);
+}););</pre>
+</p>
+<p>What's this doing? We're calling function 1, which returns a promise.
+If the promise fulfils, then we call function2, which also returns a
+promise. If <em>that</em> promise fulfils, we call function 3. But if
+<em>any</em> of the promises reject, then the <code>catch</code> function will
+run and report the error associated with the rejection.</p>
+<p>A key, important point about promise chaining is that <em>the value
+associated with a promise is passed as an argument to the resolve
+function</em>. For example
+<pre>
+function divide(a,b) {
+    return new Promise ( (resolve, reject) =&gt; {
+        if(b == 0) {
+            reject("Cannot divide by zero!");
+        } else {
+            resolve(a/b);
+        }
+    });
+}
+
+function squareroot(n) {
+    return new Promise( (resolve, reject) =&gt; {
+        if(n &lt; 0) {
+            reject("Cannot square-root a negative number!");
+        } else {
+            resolve(Math.sqrt(n));
+        }
+    });
+}
+
+function countTo(n) {
+    return new Promise( (resolve, reject) =&gt; {
+        if(n &lt;= 0) {
+            reject("Cannot count to a number less than 1!");
+        } else {
+            for(let i=1; i&lt;=n; i++) {
+                console.log(i);
+            }
+        }
+    });
+</pre>
+We can chain these as follows:
+<pre>divide(100,4).then(squareroot).then(countTo).catch(e =&gt; {
+    console.log(e);
+});</pre>
+What happens here, exactly?
+    <ul>
+    <li>We divide 100 by 4. The <code>divide()</code> function returns a 
+    promise, which will be fulfilled with a/b if the denominator is not zero,
+    and with reject with a "Cannot divide by zero!" message if it is.
+    </li>
+    <li>This promise is returned by <code>divide()</code>. If the promise
+    succeeds, we run the argument to its <code>then()</code>, which is its
+    resolve function; here, this will be the <code>squareroot()</code> 
+    function.</li>
+    <li>The <code>squareroot()</code> then itself returns a promise, with a
+    resolve function which receives the square root of the number.
+    This promise will reject if the number is negative (as we cannot 
+    square root negative numbers... unless we are dealing with imaginary 
+    numbers, which is well out of scope for this subject!)</li>
+    <li><em>This</em> promise then takes <code>countTo</code> as its argument
+    to <code>then()</code>, which means that <code>countTo()</code> will be called
+    if the <code>squareroot</code> promise succeeds.</li> 
+    </ul>
+</p>
+</body>
+</html>
