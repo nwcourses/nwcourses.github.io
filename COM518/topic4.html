@@ -20,7 +20,23 @@ dynamically manipulate the page.</p>
     <li>The Document Object Model (DOM)</li> 
     </ul>
 </p>
-<h3>How to test the HTTP status code from an AJAX client</h3>
+<h3>More on the HTTP Response</h3>
+<p>Remember in week 2 we discussed the concept of <em>HTTP status codes</em> and saw that REST APIs use these codes to communicate the success, or otherwise, of the operation to the client. For example 200 OK indicates the operation was successful, 404 Not Found might indicate that the item with the specified ID does not exist, or 400 Bad Request might indicate that the data sent to the server is fundamentally invalid. Here is the structure of an HTTP response:
+<pre>HTTP/1.1 200 OK
+Date: Fri, 31 Dec 1999 23:59:59
+Content-Type: application/json 
+Content-Length: 59
+
+{"song":"Life on Mars","artist":"David Bowie","year": 1973}
+</pre>
+Note how the HTTP response contains:
+    <ul>
+    <li>The status code, 200 here;</li>
+    <li>The HTTP <em>headers</em>, including the content type, telling the client what type of data is being sent back, and the content length, telling the client how much data to expect.</li>
+    <li>A blank line, followed by the actual requested content (here, some JSON representing Life On Mars by David Bowie).</li>
+    </ul>
+Here the content type is <code>application/json</code>; other types include <code>text/html</code> (for HTML) or <code>image/jpeg</code> for a JPEG image, to give two examples.</p>
+<h3>Testing the HTTP status code from AJAX</h3>
 <p>It is easy to test the HTTP status code from a web service client. If you are using AJAX you can simply use
 the <em>status</em> property of the <em>response</em> object. For example, this
 code will test for a 404: 
@@ -32,7 +48,7 @@ if(response.status == 404) {
     // etc...
 }</pre>
 </p>
-<h3>POST requests from AJAX</h3>
+<h3>Sending POST requests from AJAX</h3>
 <p>To send POST requests from AJAX, you need to create a POST request from
 the fetch API and specify the data you want to send and the <code>Content-Type</code> header, much like you do in RESTer. Here is a code snippet which will send
 a POST request to a <code>/newproduct</code> endpoint:
@@ -57,6 +73,14 @@ time, we have to specify a number of options in a JavaScript object as a second 
     <li>The request body. This is a JSON string representing the data we want to send. Note that here, we create the JSON by specifying a JavaScript object <code>product</code>, containing product details, and then convert it to a JSON string with <code>JSON.stringify()</code>.
     </li>
     </ul>
+In this example, the HTTP request sent by the code will look something like this:
+<pre>POST /products/newproduct HTTP/1.1
+Host: example.com
+Content-Type: application.json
+
+{"name":"Cornflakes","manufacturer":"Organic Products Ltd","price":2.79}
+</pre>
+Note how we specify the <code>Content-Type</code> in the <em>request</em> as an HTTP header, just like in the response. Also note how the JSON data is embedded within the request body, with a blank line separating the headers and the body, just as for the request. The <code>Content-Type</code> tells the <em>server</em> to expect JSON.</p>
 <h2>Querying and Manipulating HTML documents using the DOM</h2>
 <p>
 Previously you've seen the <em>innerHTML</em> property which can be used to read, or change, the text within an HTML element. You've also looked at simple use of the <em>Document Object Model (DOM)</em> to access elements on a web page -
@@ -246,7 +270,7 @@ However, this code would be <em>wrong</em>. This code will call <code>likeProduc
 When a function is specified with parentheses, e.g. <code>likeProduct(productID)</code>, it is <strong>immediately called</strong>. By contrast, <code>likeProduct</code> <em>without</em> parentheses merely supplies the function as an argument, without calling it. It will be called at some future point in time, i.e. when the button is clicked.</li>
 <li>So how can we pass arguments to a callback?  We can do this by using <em>binding</em>. Binding allows us to bind specified arguments to a callback which will automatically be received when the function runs. This is easy to do, using JavaScript's <code>bind()</code> function. Here is an example:
 <pre>document.getElementById('likeButton').addEventListener(likeProduct<strong>.bind(this, productID)</strong>);</pre>
-Note how we call <code>bind()</code> on the callback function and pass across <code>this</code> followed by a list of parameters to be bound. The first parameter, <code>this</code> here, allows us to specify the context of <code>this</code> in the callback, which is mostly of use in object-oriented programming: in this example we don't need to change the context of <code>this</code>, so we just pass across the current object which <code>this</code> refers to, to indicate the context will not change. See the <a href='#advanced'>advanced material below</a> for more on this.</p>
+Note how we call <code>bind()</code> on the callback function and pass across <code>this</code> followed by a list of arguments to be bound. <code>bind()</code> returns a new version of the callback, with the appropriate arguments bound. The first argument, <code>this</code> here, allows us to specify the context of <code>this</code> in the callback, which is mostly of use in object-oriented programming. See the <a href='#advanced'>advanced material below</a> for more detail.</p>
 <h2>Exercise</h2>
 <p><strong>Ensure you have completed questions 1 and 2 from last week first.</strong></p>
 <p>The main exercise is to add "Buy" functionality to your AJAX front-end
@@ -279,9 +303,9 @@ buttonElement.addEventListener ("click", e =&gt;
 <h3>More advanced questions</h3>
 <ol>
 <li>In your Express server, modify your <code>buy</code> route from week 1 to allow the client to buy more than one copy of the song.  The quantity to buy should be passed to the server as JSON POST data within the request body. You'll need to change the UPDATE statement to reduce the quantity by the specified amount.</li>
-<li>On the AJAX front end, using the DOM, add a <code>quantity</code> text field for each song. This should allow the user to specify the quantity to buy. Give each text field an ID containing the song ID, e.g. <code>song445</code> for the song with the ID 445. Then, in the function which sends the AJAX POST request to the server, add code to read the quantity from this text field and send it as JSON POST data to the server.</li>
+<li>On the AJAX front end, using the DOM, add a <code>quantity</code> text field for each song, allowing the user to specify the quantity to buy. Give each text field an ID containing the song ID, e.g. <code>song445</code> for the song with the ID 445. Then, in the function which sends the AJAX POST request to the server, add code to read the quantity from the text field and send it as JSON POST data to the server.</li>
 <li>Further modify your <code>buy</code> route so that it rejects the request with a 400 (Bad Request) error if the quantity requested from the client is 0 or less. Handle this error on the client with an <code>alert()</code> box.</li>
-<li>Rewrite your code to use a separate <code>buySong()</code> function, using <code>bind()</code>, as described above.
+<li>Rewrite your code to use a separate <code>buySong()</code> function, called when the user presses the Buy button, using <code>bind()</code>.</li>
 </ol>
 <hr /> 
 <h2 id='advanced'>Advanced material - "this" and callbacks</h2>
