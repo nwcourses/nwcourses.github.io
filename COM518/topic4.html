@@ -2,11 +2,11 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Topic 6: Further AJAX: POST requests, DOM</title>
+<title>Topic 4: Further AJAX: POST requests, DOM</title>
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head>
 <body>
-<h1>Topic 6: Further AJAX</h1>
+<h1>Topic 4: Further AJAX: POST requests, DOM</h1>
 <h2>Introduction</h2>
 <p>Last week we looked at AJAX and saw how to develop an AJAX front-end to
 a web API which sends GET requests to the API and parses the JSON returned.
@@ -230,32 +230,61 @@ See <a href="examples/dom/selector.html">Example</a></p>
 <p>The <em>inspect</em> functionality in the browser will help you see
 what's going on - try it as you do the exercise for this week - right click on an element. Inspecting helps you to see the actual current DOM structure of the
 page - including any dynamically-created elements.</p>
-<h2>Exercise</h2>
-<p>The main exercise is to add "Buy" functionality to your AJAX front-end
-fron last week, so that a user can buy a given song. Songs will be bought by sending an AJAX POST request to the "buy" route of your web API.</p>
-<p>Modify your AJAX front-end so that there is a "Buy" button for each search result. When the user clicks on the "Buy" button, you should call another function which sends an AJAX POST request to your "buy" route from week 3. You can do this by:
-<ul>
-<li>Creating a button using the DOM;</li>
-<li>Using <code>addEventListener()</code> to add an event handler to the button;</li>
-<li>In the event handler, send a POST request to the server including the song id</li>
-</ul>
-
-Initially, do this by adding the button to the HTML string and setting an <code>onclick</code> property on the button which calls a new <code>buy()</code> function, for example:
-<pre>html += `&lt;input type='button' value='Buy!' onclick='buy(${the song ID from the JSON})' /&gt;`;</pre>
-Then, write a <code>buy()</code> function in your client-side JavaScript, which takes the song ID as a parameter and sends an AJAX POST request to your Buy route on your web API:
+<h2>Binding</h2>
+<p>So far, we have been mostly using anonymous arrow functions as our 
+event handlers, such as for button clicks. However, it's possible you might want to write a library of reusable JavaScript functions to perform certain tasks, and in this case, you would use named rather than anonymous functions. So you could have a function to like a product from a store, such as:
 <pre>
-async function buy(songID) {
-    // ... AJAX POST request - for you to complete
+function likeProduct(productID) {
+    // send a request to the server to like the product with that ID
 }
 </pre>
-</p>
-<p> 
-<h2>Binding</h2>
-<p><strong>Put something on binding here.</strong></p>
-<h2>Named callback functions</h2>
-<p>So far, we have been mostly using anonymous arrow functions as our 
-callbacks. </p>
-<h3>Subtleties with "this"</h3>
+You could then supply this function to a button's <code>addEventListener()</code> as a callback function, e.g.:
+<pre>document.getElementById('likeButton').addEventListener(likeProduct);</pre>
+This would indicate that <code>likeProduct()</code> would be called <strong>when the button is pressed, at some future point in time</strong>. However, how might you pass across the product ID? You might possibly think you could do something like this:
+<pre>document.getElementById('likeButton').addEventListener(likeProduct(productID));</pre>
+However, this code would be <em>wrong</em>. This code will call <code>likeProduct()</code> <strong>immediately</strong>, not when the button is pressed. Why?
+When a function is specified with parentheses, e.g. <code>likeProduct(productID)</code>, it is <strong>immediately called</strong>. By contrast, <code>likeProduct</code> <em>without</em> parentheses merely supplies the function as an argument, without calling it. It will be called at some future point in time, i.e. when the button is clicked.</li>
+<li>So how can we pass arguments to a callback?  We can do this by using <em>binding</em>. Binding allows us to bind specified arguments to a callback which will automatically be received when the function runs. This is easy to do, using JavaScript's <code>bind()</code> function. Here is an example:
+<pre>document.getElementById('likeButton').addEventListener(likeProduct<strong>.bind(this, productID)</strong>);</pre>
+Note how we call <code>bind()</code> on the callback function and pass across <code>this</code> followed by a list of parameters to be bound. The first parameter, <code>this</code> here, allows us to specify the context of <code>this</code> in the callback, which is mostly of use in object-oriented programming: in this example we don't need to change the context of <code>this</code>, so we just pass across the current object which <code>this</code> refers to, to indicate the context will not change. See the <a href='#advanced'>advanced material below</a> for more on this.</p>
+<h2>Exercise</h2>
+<p><strong>Ensure you have completed questions 1 and 2 from last week first.</strong></p>
+<p>The main exercise is to add "Buy" functionality to your AJAX front-end
+fron last week, so that a user can buy a given song. Songs will be bought by sending an AJAX POST request to the "buy" route of your web API.</p>
+<p>Modify your AJAX front-end so that there is a "Buy" button for each search result. When the user clicks on the "Buy" button, you send an AJAX POST request to your "buy" route from week 1. To do this:
+<h3>Standard Questions</h3>
+<ol>
+<li>For each song (i.e. within the <code>forEach</code>), create a paragraph using <code>document.createElement()</code>, and set its <code>innerHTML</code> to the details of that song, taken from the JSON.</li>
+<li>Using <code>appendChild()</code>, append that paragraph to the results <code>&lt;div&gt;</code>.</li>
+<li>Create a button using the DOM, specifically <code>document.createElement()</code> (see above). You should create an <code>input</code> element and set its <code>type</code> to <code>button</code> using <code>setAttribute()</code>, e.g:
+<pre>
+buttonElement.setAttribute("type", "button");
+</pre>
+</li>
+<li>Specify the text on the button by setting its <code>value</code> with <code>setAttribute()</code>, in the same way thar you set the <code>type</code> to <code>button</code>.</li>
+<li>Using <code>addEventListener()</code> to add an event handler to the button. The event handler should be an arrow function. We did this last week with AJAX. For example:
+<pre>
+buttonElement.addEventListener ("click", e =&gt; 
+    { 
+        // fill in your arrow function here.
+        // It should call your "buy" web API route, passing in the ID of the current song.
+    } 
+);
+</pre>
+</li>
+<li>In the button's event handler, send a POST request to the <code>buy</code> route on your server. Obtain the ID from the JSON returned from the search. <strong>For now, you do not need to pass any POST data as JSON to the route, just add the ID to the URL.</strong></li>
+<li>Add the button you have created to your results &lt;div&gt; using <code>appendChild()</code> to append it.</li>
+<li>Add code to the AJAX front end to handle HTTP status codes other than 200. If they occur, display an appropriate message to the user with <code>alert()</code>.</li>
+</ol>
+<h3>More advanced questions</h3>
+<ol>
+<li>In your Express server, modify your <code>buy</code> route from week 1 to allow the client to buy more than one copy of the song.  The quantity to buy should be passed to the server as JSON POST data within the request body. You'll need to change the UPDATE statement to reduce the quantity by the specified amount.</li>
+<li>On the AJAX front end, using the DOM, add a <code>quantity</code> text field for each song. This should allow the user to specify the quantity to buy. Give each text field an ID containing the song ID, e.g. <code>song445</code> for the song with the ID 445. Then, in the function which sends the AJAX POST request to the server, add code to read the quantity from this text field and send it as JSON POST data to the server.</li>
+<li>Further modify your <code>buy</code> route so that it rejects the request with a 400 (Bad Request) error if the quantity requested from the client is 0 or less. Handle this error on the client with an <code>alert()</code> box.</li>
+<li>Rewrite your code to use a separate <code>buySong()</code> function, using <code>bind()</code>, as described above.
+</ol>
+<hr /> 
+<h2 id='advanced'>Advanced material - "this" and callbacks</h2>
 <p>There are a number of subtleties with JavaScript <em>this</em> which you need to understand to work
 effectively with objects, and which make its use
 less straightforward than the use of <em>this</em> in other languages such as Java and C++. <strong>These subtleties are particularly important when it
@@ -356,7 +385,7 @@ the "context of this" problem and ensure that <em>this</em> refers to
 the correct object in the callback.</li>
 </ul>
 </p>
-<h2>Dealing with "this" issues in callbacks with bind()</h2>
+<h3>Dealing with "this" issues in callbacks with bind()</h3>
 <p>Luckily, the issue is easy to deal with.
 You can simply use the <em>bind()</em> method.
 <em>bind()</em> does what it says on the tin: it binds the callback function to the specified
@@ -393,125 +422,5 @@ const tom = new Cat("Tom", 7);
 object <em>tom</em>. This means that <em>this</em> will refer to the correct
 object, <em>tom</em>, when <em>tom.meow()</em> is called as a callback on
 response to a button click, or indeed any other event.</p>
-
-<h3>bind() and arguments</h3>
-<p>You can specify arguments to be sent to a bound function. 
-For example, imagine we wanted to make the cat walk a certain distance
-when the user clicks a button. We need to make the <em>walk()</em> method 
-a callback (and therefore, use <em>bind()</em>) but we also need to
-pass in the distance to walk. How can we do this?
-<pre>
-class Cat 
-{
-
-    constructor(n,a,w)
-    {
-        this.theName=n;
-        this.age=a;
-        this.weight=w;
-    }
-
-    meow()
-    {
-        alert(`${this.theName} says meow!`);
-    }
-
-    walk(d) 
-    {
-        this.weight -= d;
-    }    
-}
-
-
-// Create the cat
-const tom = new Cat("Tom", 7, 50);
-
-// When the user clicks the button, the walk() method will run
-// and will take an argument of 5
-document.getElementById("walkbtn").addEventListener("click", <em>tom.walk.bind(tom, 5)</em>);
-
-</pre>
-Note here that when we call the <em>walk()</em> function as a callback whenever
-the user clicks the 'walk' button, <em>walk() automatically receives an argument
-of 5</em>; the parameter <em>d</em> will be set equal to 5, so the cat will
-walk 5 units of distance. The rule is that <em>arguments to bind() following the
-context of "this" will become parameters to the specified callback function</em>.
-</p>
-<h2>Exercises</h2>
-<p><strong>Write these using CommonJS modules. Use one module per class and write an
-index.js file to act as the entry point for your application, which requires the module(s)
-you need.</strong>
-See <a href='modules.html'>here</a>.</p>
-<p>Revisit your car scenario from Topics 8 and 9. Ensure you write your Car as a class.
-Add additional methods to start and stop the engine (similar to the example
-above) and ensure that <em>accelerate()</em> will only run if the engine is
-running, otherwise display an error. Add buttons on your page to start and stop
-the engine and accelerate and decelerate the car, and to display the current
-car details. Connect these buttons to the appropriate methods of Car, ensuring
-that you use <em>bind()</em> to preserve the context of <em>this</em>.</p>
-<li><strong>This will require you to read up on key events, which is in the
-further notes for Topic 10</strong> (see <a href='furtherevents.html'>here</a>).
-Create a class representing a Hero in a game. It should have x and y coordinates,
-and also an Image object, as properties. Give it a <em>display()</em> method.
-The display() method should take a canvas <em>context</em> as a parameter and,
-using the canvas context,
-should draw the Hero at its current x and y coordinates. Also give the Hero
-methods to move left, right, up and down, which should change x and y
-appropriately. Connect this to a web page with a 
-canvas, and using key events, move and display the hero in response to the arrow keys by calling the 
-appopriate methods of the Hero.</p>
-<h2>More advanced exercise - writing the Buy functionality using the DOM</h2>
-<p>The first exercise was a simple approach to linking your search results to the Buy functionality. However the approach taken, of embedding the <code>buy()</code> call in your HTML, is rather messy as it mixes HTML and JavaScript and is not unobtrusive JavaScript. So this exercise allows you to rewrite it in a cleaner way using the DOM.</p>
-
-<p>Make a copy, in a new file, of your existing HitTastic!  AJAX page. Delete all the existing code in the <em>forEach</em> arrow function and and replace it with the code below:</p>
-<ol>
-<li>Add code to <em>create a DOM paragraph (p) element</em>
-for each song returned.</li>
-<li>Within this <em>p</em>, create:
-    <ul>
-    <li>a text node containing the details of the song, and </li>
-    <li>a button node (i.e. an 
-    "input" with a type of "button") allowing the user to buy 
-    the song. Add both to the paragraph node using <em>appendChild()</em>. 
-    </li>
-    </ul>
-To make sure that the button is an input with a type of "button", you 
-need to set the "type" property to "button", i.e. if <em>btn</em> is your 
-button, then you can use: <pre>btn.type = "button";</pre>
-</li>
-<li>Specify the text on the button by setting the "value" property:
-<pre>btn.value="Buy!";</pre>
-</li>
-<li>Set up a "click" event handler for the button. as an arrow function, e.g: 
-<pre>
-btn.addEventListener ("click", e =&gt; 
-    { 
-        // fill in your arrow function here.
-        // It should call your "buy" web API route, passing in the ID of the current song.
-    } 
-);
-</pre>
-This will set the "click" handler of the button to be an arrow function.</li>
-<li>Add each paragraph to the results div using <em>appendChild()</em>.</li>
-<li>You can now complete the arrow function which runs when the user clicks
-the button. Use AJAX to call the "buy" route of your web API.
-You will need to call the web API using a method of POST (see above),
-though in this case you will not need to send any FormData.
-</li>
-<li>
-The callback to the AJAX buy request should 
-display a "Successfully bought" message, e.g. in an alert box.</li>
-<li>Add error handling to the "buy" route of your web API so that if the required song is out of stock (quantity is 0), a 404 is returned. You will need to add an additional SELECT statement for this to work.</li>
-<li>Alter your AJAX front end to check for a 404 from the "buy" 
-route of your web API. In the callback, display a different message
-depending on whether the song was bought successfully or not.</li> 
-<li><strong>More advanced:</strong> Alter your "buy" route to be able
-to buy more than one copy of the song (receive the quantity as POST
-data). Update your AJAX front end to allow the user to enter the quantity,
-and send the entered quantity to the web service.
-<strong>As this is an advanced question, I am leaving it up to you to figure
-out how to do this</strong> but if you are really stuck, I will give you some
-<em>hints</em>. However, as it's advanced I will not write it for you!</li>
-</ol>
 </body>
 </html>
