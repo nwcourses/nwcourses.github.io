@@ -76,7 +76,7 @@ time, we have to specify a number of options in a JavaScript object as a second 
 In this example, the HTTP request sent by the code will look something like this:
 <pre>POST /products/newproduct HTTP/1.1
 Host: example.com
-Content-Type: application.json
+Content-Type: application/json
 
 {"name":"Cornflakes","manufacturer":"Organic Products Ltd","price":2.79}
 </pre>
@@ -263,13 +263,13 @@ function likeProduct(productID) {
 }
 </pre>
 You could then supply this function to a button's <code>addEventListener()</code> as a callback function, e.g.:
-<pre>document.getElementById('likeButton').addEventListener(likeProduct);</pre>
+<pre>document.getElementById('likeButton').addEventListener("click", likeProduct);</pre>
 This would indicate that <code>likeProduct()</code> would be called <strong>when the button is pressed, at some future point in time</strong>. However, how might you pass across the product ID? You might possibly think you could do something like this:
-<pre>document.getElementById('likeButton').addEventListener(likeProduct(productID));</pre>
+<pre>document.getElementById('likeButton').addEventListener("click", likeProduct(productID));</pre>
 However, this code would be <em>wrong</em>. This code will call <code>likeProduct()</code> <strong>immediately</strong>, not when the button is pressed. Why?
 When a function is specified with parentheses, e.g. <code>likeProduct(productID)</code>, it is <strong>immediately called</strong>. By contrast, <code>likeProduct</code> <em>without</em> parentheses merely supplies the function as an argument, without calling it. It will be called at some future point in time, i.e. when the button is clicked.</li>
 <li>So how can we pass arguments to a callback?  We can do this by using <em>binding</em>. Binding allows us to bind specified arguments to a callback which will automatically be received when the function runs. This is easy to do, using JavaScript's <code>bind()</code> function. Here is an example:
-<pre>document.getElementById('likeButton').addEventListener(likeProduct<strong>.bind(this, productID)</strong>);</pre>
+<pre>document.getElementById('likeButton').addEventListener("click", likeProduct<strong>.bind(this, productID)</strong>);</pre>
 Note how we call <code>bind()</code> on the callback function and pass across <code>this</code> followed by a list of arguments to be bound. <code>bind()</code> returns a new version of the callback, with the appropriate arguments bound. The first argument, <code>this</code> here, allows us to specify the context of <code>this</code> in the callback, which is mostly of use in object-oriented programming. See the <a href='#advanced'>advanced material below</a> for more detail.</p>
 <h2>Exercise</h2>
 <p><strong>Ensure you have completed questions 1 and 2 from last week first.</strong></p>
