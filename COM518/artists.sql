@@ -17,6 +17,8 @@
 -- Table structure for table `artists`
 --
 
+USE waddb; -- CHANGE TO YOUR DATABASE
+
 CREATE TABLE `artists` (
   `id` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,

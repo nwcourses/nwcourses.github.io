@@ -288,7 +288,8 @@ buttonElement.setAttribute("type", "button");
 <li>Specify the text on the button by setting its <code>value</code> with <code>setAttribute()</code>, in the same way thar you set the <code>type</code> to <code>button</code>.</li>
 <li>Using <code>addEventListener()</code> to add an event handler to the button. The event handler should be an arrow function. We did this last week with AJAX. For example:
 <pre>
-buttonElement.addEventListener ("click", e =&gt; 
+//<strong>Note the arrow function needs to be async if we are using await</strong>
+buttonElement.addEventListener ("click", async(e) =&gt; 
     { 
         // fill in your arrow function here.
         // It should call your "buy" web API route, passing in the ID of the current song.
