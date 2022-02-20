@@ -169,15 +169,6 @@ Then the HTML:
     </li>
     </ul>
 </p>
-<h4>Exercise 1</h4>
-<ol>
-<li>New York is at longitude 74 West, latitude 40.75 North (more or less).
-Change the example above so that it's centred on New York, at zoom level 
-13.</li>
-<li>Find the latitude and longitude of your home town 
-(e.g. google it) and change the example
-so it's centred on your home town.</li>
-</ol>
 <h3>Adding features</h3>
 <p>Most web maps have some kind of <em>overlay</em> on the base map,
 for example a series of markers plotting the locations of pubs, cafes or
@@ -361,6 +352,24 @@ routeToStation.bindPopup("Route to station");
 <p>
 In this example, we have set the circle's fill colour (interior colour) to
 blue, its outline colour to red, and the opacity to 0.5.</p>
+<h2>Displaying markers from a web API</h2>
+<p>A common use of web mapping is to show data from a web API on a 
+map. For example, we might want to show the location of restaurants in a 
+particular city on a web map. This is quite easy - you simply need to make an
+AJAX request to a web API, parse the JSON (or XML) returned and create
+markers using the data. The following exercise will allow you to explore
+this.</p>
+<hr />
+<h2>Exercises</h2>
+<h3>Exercise 1</h3>
+<ol>
+<li>New York is at longitude 74 West, latitude 40.75 North (more or less).
+Change the example above so that it's centred on New York, at zoom level 
+13.</li>
+<li>Find the latitude and longitude of your home town 
+(e.g. google it) and change the example
+so it's centred on your home town.</li>
+</ol>
 <h3>Exercise 2</h3>
 <ol>
 <li>Add a marker on your map from Exercise 1 on your home town.</li>
@@ -369,13 +378,6 @@ so that by clicking on the
 map, you add a marker to the map at that position.
 </li>
 </ol>
-<h2>Displaying markers from a web API</h2>
-<p>A common use of web mapping is to show data from a web API on a 
-map. For example, we might want to show the location of restaurants in a 
-particular city on a web map. This is quite easy - you simply need to make an
-AJAX request to a web API, parse the JSON (or XML) returned and create
-markers using the data. The following exercise will allow you to explore
-this.</p>
 <h3>Exercise 3 - Connecting to a web API and displaying markers</h3>
 <p>This <a href='artists.sql'>SQL file</a> creates and populates a table called
 <em>artists</em> which gives the latitude and longitude of the home towns
