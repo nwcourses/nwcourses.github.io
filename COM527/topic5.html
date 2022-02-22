@@ -230,6 +230,9 @@ domain name reversed (such as <em>com.example</em> here), hence <em>com.example.
 Having created the Bundle, we then add it to the intent and then call <em>setResult</em> to send a <em>result</em> back to the parent activity. You can think of a <em>result</em> as a little like a return code for a function. Here, we send back the result <em>RESULT_OK</em> to indicate to the calling activity (the app's main activity) that the secondary activity completed successfully. (You can also send back <em>RESULT_CANCELED</em> to indicate that the user cancelled the action in the second activity). Finally we call <em>finish()</em> to forcibly finish the activity.</p>
 <h3>Reading the data from the first activity</h3>
 <p>Slightly more complex is the process of <em>reading the data sent from the second activity in the first activity</em>. This involves creating an object known as a <em>launcher</em>. A launcher allows you to launch a second activity and receive data from it. When creating a launcher, we specify a lambda function which will run when we receive the data from the second activity. In this lambda function, the data sent back from the second activity is processed.</p>
+<p>To use a launcher we have to add an extra dependency in <code>build.gradle</code>:
+<pre>implementation 'androidx.fragment:fragment-ktx:1.3.5'</pre>
+If on your own computer, you should be able to use the most up-to-date version (1.4.1) instead, but this version will not work on the university computers as it requires API level 31 which is not installed.</p>
 <!--
 <p>We declare the launcher this way, as an attribute of our main activity class:
 <pre>private lateinit var mapChooseLauncher: ActivityResultLauncher<Intent></pre>
