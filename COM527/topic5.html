@@ -12,13 +12,11 @@ Menus and Multiple-Activity Applications</title>
 <h1>Menus and Multiple Activities</h1>
 </div>
 
-<h2>IMPORTANT!</h2>
-<p><strong>If you are reading this ahead of the scheduled class, please note that this topic is liable to be revised. This is because there is now a new recommended method to launch activities, from Android 11 upwards.</strong></p>
-
 <p>In this section we will:
     <ul>
     <li>Look at menus</li>
     <li>Look at how to create a multiple-activity application</li>
+    <li>Look at how to pass data between activities</li>
     </ul>
 </p>
 <h2>Menus and Multiple Activities</h2>
@@ -195,11 +193,8 @@ Run your app now. You should find that if you select the menu option, the second
 Note that you can then press the phone's Back button
 to return to your original activity.</p>
 <h3>Sending data back to the original activity</h3>
-<p>OK, we have a second activity created but we don't yet send the user's chosen option
-back to the original activity. How is this done? Basically we have to create another Intent in
-the second activity and send it back to the first.</p>
-<p>You'll need to add some code to the onCreate() inside <em>the second
-activity</em> to handle the button press. Here is some example code: 
+<p>OK, we have a second activity created but we don't yet send the user's chosen option back to the original activity. How is this done? Basically we have to create another Intent in the second activity and send it back to the first.</p>
+<p>The first, and easiest, step is to <em>send the data back to the main activity from the second activity</em>. The slightly harder second step is to <em>set up the original activity to receive data from the second</em>. So let's being with sending the user's choice back from the second activity to the first. You'll need to add some code to the <em>the second activity</em> to handle the button press. Here is some example code, which should go inside the second activity's <code>onCreate()</code>:
 <pre>
 val regular = findViewById&lt;Button&gt;(R.id.btnRegular)
 regular.setOnClickListener {
@@ -234,50 +229,61 @@ domain name reversed (such as <em>com.example</em> here), hence <em>com.example.
 <p>
 Having created the Bundle, we then add it to the intent and then call <em>setResult</em> to send a <em>result</em> back to the parent activity. You can think of a <em>result</em> as a little like a return code for a function. Here, we send back the result <em>RESULT_OK</em> to indicate to the calling activity (the app's main activity) that the secondary activity completed successfully. (You can also send back <em>RESULT_CANCELED</em> to indicate that the user cancelled the action in the second activity). Finally we call <em>finish()</em> to forcibly finish the activity.</p>
 <h3>Reading the data from the first activity</h3>
-<p>The final part of the equation is to read the data sent back from the second activity in the original activity. There are two steps to this.
-First, when launching the second activity from the first, we have to specify that we are expecting a result to be sent back. To do this, change the line:
-    <pre>
-    startActivity(intent)
-    </pre>
-    to
-    <pre>
-    startActivityForResult(intent,0)
-    </pre>
-    This launches the second activity and states that we are expecting a result to be
-    sent back. The 0 is an ID that we use to determine which child activity produced
-    the result (a parent activity could launch several child activities, so when we 
-    get a result, we need to identify which child activity produced the result).</p>
-    <p>This brings us straight on to the result-handling code, which runs in
-    the first activity when we get a result from the second. 
-    This takes place in 
-    a method called <em>onActivityResult()</em>. Add this method to your main
-    activity as follows:
-    <pre>
-    override fun onActivityResult(requestCode : Int,resultCode : Int, intent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, intent)
-        if (resultCode==RESULT_OK) {
-            when(requestCode) {
-                0 -&gt; { 
-                    intent?.apply {
-                        val opentopomap = this.getBooleanExtra("com.example.opentopomap", false) // false is a default value
-                        mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
-                    }
-                }
+<p>Slightly more complex is the process of <em>reading the data sent from the second activity in the first activity</em>. This involves creating an object known as a <em>launcher</em>. A launcher allows you to launch a second activity and receive data from it. When creating a launcher, we specify a lambda function which will run when we receive the data from the second activity. In this lambda function, the data sent back from the second activity is processed.</p>
+<!--
+<p>We declare the launcher this way, as an attribute of our main activity class:
+<pre>private lateinit var mapChooseLauncher: ActivityResultLauncher<Intent></pre>
+Before we continue, we need to explain <code>lateinit</code>. In some cases, such as this, we may need to use a variable which <strong>we know will never be null</strong> (so we don't make it nullable) but <strong>we cannot initialise it when the class is first created</strong>. This is common in Android development, where frequently, we can only create objects in <code>onCreate()</code>, once the activity is fully initialised. So in these cases, we declare the variables <code>lateinit</code> to indicate that they will be initialised later, after the class is first created.</p>
+-->
+<p>So we initialise the launcher in our activity, this can be done directly inside the class, outside any of its methods:
+<pre>
+val mapChooseLauncher =
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // The lambda function starts here
+        // Check that we get an OK (success) result from the second activity
+        if (it.resultCode == RESULT_OK) {
+            it.data?.apply {
+                val opentopomap = this.getBooleanExtra("com.example.opentopomap", false) // false is a default value
+                mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
             }
         }
+        // The lambda function ends here
     }
+</pre>
+Unfortunately, the API for creating the launcher is rather wordy (a common feature - some might say fault - of the Android API) but the concept is actually quite simple. <code>registerForActivityResult()</code> is a function which creates and returns a launcher. It takes two arguments, the first (<code>ActivityResultContracts.StartActivityForResult()</code>) describes the behaviour of the launcher (which only needs to change in specialised cases), and the second (the lambda) is the function which processes the result sent back from our second activity. So in summary, we are <strong>creating a launcher object</strong> and then <strong>specifying a lambda function to run when we get a result sent back from the second activity</strong>. Also note how <strong>when a lambda is supplied as the last argument to a function, it can be moved out of the parentheses</strong>.</p>
+<p>Let's now look in more detail at the lambda which runs when we receive the result from the second activity. Firstly, it will receive one parameter: an <code>ActivityResult</code> object representing the result from the second activity. As there is only one parameter, we can refer to it using <code>it</code>, as we saw in week 2.</p
+<p>If the <code>ActivityResult</code>'s <code>resultCode</code> was <code>RESULT_OK</code>, this means that the user successfully chose a map type from the second activity. (Alternatively, the <code>resultCode</code> will be <code>RESULT_CANCELED</code> if the user pressed the Back button from the second activity without making a choice). So, if the user did make a map choice, we then obtain the <code>Intent</code> returned from the second activity with <code>it.data</code> (the <code>data</code> attribute of the <code>ActivityResult</code>). We then extract the bundle data that we originally sent from the second Activity within the Bundle (see above) and set the map tile source to either <code>OpenTopo</code> (OpenTopoMap) or <code>MAPNIK</code> (the default map) depending on what was sent back from the second activity.</p>
+<p><em>Note the use of <code>apply()</code></em> on the <code>Intent</code> returned. This is a nice technique to avoid having to use an <code>if</code> statement to check whether <code>it.data</code> (the <code>Intent</code>) is null. Instead, we use <code>apply()</code> with the safe-access operator <code>?.</code> and specify a lambda. Inside the lambda specified with <code>apply()</code>, the <code>this</code> keyword will refer to the object which <code>apply()</code> is called on, i.e. <code>it.data</code> here. The nice thing about this approach is that the lambda will never be called if <code>it.data</code> is null (due to the safe-access operator), resulting in arguably more elegant and concise code compared to using an <code>if</code> statement.</p>
+
+<p>The final part of the equation is to change our code to launch the second activity so that it uses the launcher. To do this, change the line:
+    <pre>startActivity(intent)</pre>
+    to
+    <pre>mapChooseLauncher.launch(intent)</pre>
+    This launches the second activity using the launcher we have provided.</p>
     </pre>
-    Note that you need the following additional import:
-    <pre>
-    import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-    </pre>
-    Note how the <em>onActivityResult()</em> is working. It takes three parameters, including the <em>requestCode</em> (the ID of 0 that we used to identify our activity launch, see above), the <em>resultCode</em> (the code that the second
-    Activity sent back - RESULT_OK in our case to indicate all was OK) and the
-    Intent used to send the result back to the first activity. So our 
-    <em>onActivityResult()</em> checks that a successful result was returned, and then checks that the result was sent back from a request with an ID of 0 (see above). </p>
-    <p>If so, we then extract the bundle data that we originally sent from the second Activity within the Bundle (see above) and set the map tile source to either <code>OpenTopo</code> (OpenTopoMap) or <code>MAPNIK</code> (the default map) 
-    depending on what was sent back from the second activity.</p>
-    <p><em>Note the use of <code>apply()</code></em> on the <code>Intent</code> returned. This is a nice technique to avoid having to use an <code>if</code> statement to check whether <code>intent</code> is null. Instead, we use <code>apply()</code> with the safe-access operator <code>?.</code> and specify a lambda. Inside the lambda specified with <code>apply()</code>, the <code>this</code> keyword will refer to the object which <code>apply()</code> is called on, i.e. <code>intent</code> here. The nice thing about this approach is that the lambda will never be called if <code>intent</code> is null (due to the safe-access operator), resulting in arguably more elegant and concise code compared to using an <code>if</code> statement.</p>
+</p>
+<h3>Using an interface rather than a lambda to process the result</h3>
+<p>In Week 2 we mentioned the use of <em>SAM conversions</em> to allow us to use a lambda in place of implementing an interface with one method. We have done this here. However, it's possible in some cases that you may wish to use an interface directly instead. The lambda is wrapping the <code>ActivityResultCallback</code> interface, which specifies one method, <code>onActivityResult()</code>. So we could instead make our activity implement this interface e.g.
+<pre>
+class MyActivity: AppCompatActivity, <em>ActivityResultCallback&lt;ActivityResult&gt;</em>
+</pre>
+and then provide an <code>onActivityResult()</code> method in our activity, to process the result from the second activity:
+<pre>
+override fun onActivityResult(result: ActivityResult) {
+    // Check that we get an OK (success) result from the second activity
+    if (result.resultCode == RESULT_OK) {
+        result.data?.apply {
+            val opentopomap = this.getBooleanExtra("com.example.opentopomap", false) // false is a default value
+            mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
+        }
+    }
+}
+</pre>
+We'd then need to pass in a reference to our <code>Activity</code> (as it is implementing <code>ActivityResultCallback</code>) as the second argument when creating the launcher:
+<pre>mapChooseLauncher =
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult(), <em>this</em>)
+</pre>
+</p> 
 <h2>Exercises</h2>
 <ol>
 <li>Create a <em>new</em> mapping project in Android Studio. This should be
@@ -291,10 +297,7 @@ To do this:
     <li>Create a third activity to allow the user to enter a latitude and
     longitude. Give it an XML layout file with two EditTexts, one for latitude and one for longitude, and a button.  When the button is clicked, the latitude and longitude should be read from the EditTexts and sent back to the main activity in a Bundle in an Intent. <strong>Hint:</strong> you can store more than one item in a bundle using code such as: 
 <pre>val bundle = bundleOf("key1" to value1, "key2" to value2)</pre></li>
-    <li>In your <em>onOptionsItemSelected()</em> method, launch the third activity, with a request code of 1, if the "Set Location" menu option is selected.</li>
-    <li>In your <em>onActivityResult()</em> method, set the latitude and
-    longitude of the map to the contents of the Bundle from the Intent if the
-    request code is 1.</li>
+    <li>Create a new launcher object to handle receiving the result from the third activity, and use this launcher to launch the third activity when the user selects the "Set Location" menu option. In the launcher's lambda, set the latitude and longitude of the map to the contents of the Bundle from the Intent.</li>
     </ul>
 </li>
 </ol>

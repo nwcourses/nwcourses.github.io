@@ -370,22 +370,20 @@ element, and then reads the feet from it with
 Note that unlike the equivalent in Swing, the <em>getText()</em> method of EditText does not directly return a String, but returns an object of type <em>Editable</em>. We then need to call <em>toString()</em> on the Editable to get the actual text out of the text field, and finally convert it to a <em>double</em> using <em>Double.parseDouble()</em>.</p>
 <p>Then we convert the feet to metres and place the result in the TextView.</p>
 <h3>SAM conversions</h3>
- In classic versions of Java, you could not use a lambda here. You would
-have tto use code such as:
+An alternative way of writing the above code would be as follows. You could make your <code>Activity</code> implement the <code>View.OnClickListener</code> interface. This indicates that the class the interface is being implemented by is capable of listening for click events. The interface defines an <code>onClick()</code> method, which therefore needs to be included in our Activity. For example: 
 <pre>
-// This code would be needed to add a listener to the button...
-b.setOnClickListener (new View.OnClickListener() {
-    public void onClick(View v) {
-        // handle the click
+class MyActivity: AppCompatActivity(), <code>View.OnClickListener</code> {
+    override fun onClick(v: View) {
+        // the View parameter represents the UI element which was clicked
     } 
-});
+}
 </pre>
-The <em>setOnClickListener()</em> method takes a parameter of type
-<em>OnClickListener</em>, which is a Java interface. We have to pass in an
-<em>anonymous class</em> implementing this interface as our argument to
-<em>setOnClickListener</em>, and then implenent the single method of this
-interface, <code>onClick()</code>, to handle the click.</p>
-<p>However in Kotlin (and recent Java) we can use so-called <em>SAM conversions</em>. SAM stands for <em>Single Abstract Method</em> and describes an interface with only <em>one</em> method defined - as <em>OnClickListener</em> does here.</p>
+We could then add the listener object to the appropriate button, e.g.:
+<pre>val b = findViewById&lt;Button&gt; (R.id.btn1)
+b.setOnClickListener(this)</pre>
+We use <code>this</code> for the listener, because we have defined our Activity (the current object, i.e. <code>this</code>) to act as our <code>OnClickListener</code>. So the activity's <code>onClick()</code> method will run when the button is pressed.</p>
+<p>So why can we replace this with a lambda?
+This is due to <em>SAM conversions</em>. SAM stands for <em>Single Abstract Method</em> and describes an interface with only <em>one</em> method defined - as <em>OnClickListener</em> does here.</p>
 <p>The idea of SAM is that <em>method calls which expect an interface with only one method defined</em> can be written instead as a lambda, as has been done
 here.  So, Using SAM conversions, the code aboe which sets up the on click
 listener could be rewritten (in Kotlin) as:
