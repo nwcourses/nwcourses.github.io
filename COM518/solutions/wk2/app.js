@@ -18,7 +18,7 @@ const con = mysql.createConnection({
     database: 'ephp001'}
 );
 
-// Try to connect to the server
+// Try to connect to the MySQL server
 con.connect(err => {
     // If it fails, display an error
     if(err) {
