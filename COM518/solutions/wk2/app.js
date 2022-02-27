@@ -27,6 +27,15 @@ con.connect(err => {
     } else {
         // If successful, set up the routes
 
+		app.use('/artist/*', (req, res, next) => {
+			console.log('artist');
+			next();
+		},
+		(req,res,next) => {
+			console.log('artist2');
+			next();
+		});
+
         // Search by artist
         app.get('/artist/:artist', (req, res) => {
             con.query('SELECT * FROM wadsongs WHERE artist=?',

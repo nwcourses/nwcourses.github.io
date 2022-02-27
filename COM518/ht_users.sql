@@ -8,6 +8,8 @@
 -- Table structure for table `ht_users`
 --
 
+USE waddb; -- Change to use your database
+
 DROP TABLE IF EXISTS `ht_users`;
 CREATE TABLE `ht_users` (
   `username` varchar(255) DEFAULT NULL,
@@ -20,7 +22,7 @@ CREATE TABLE `ht_users` (
   `isadmin` int(11) DEFAULT '0',
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=123534 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `ht_users`

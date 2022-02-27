@@ -1,327 +1,359 @@
 <!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
-<title>Topic 6: Further AJAX: POST requests, DOM</title>
+<title>Topic 6: Further Node and Express: Routers and Middleware</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
-</head>
-<body>
-<h1>Topic 6: Further AJAX</h1>
-<h2>Introduction</h2>
-<p>Last week we looked at AJAX and saw how to develop an AJAX front-end to
-a web API which sends GET requests to the API and parses the JSON returned.
-This week we will extend upon that by looking at how we can send <em>POST</em>
-requests to a web API and use the <em>Document Object Model (DOM)</em> to
-dynamically manipulate the page.</p>
-<p>Specifically, we will look at:
-    <ul>
-    <li>How to retrieve an HTTP status code from an AJAX client;</li>
-    <li>How to send POST requests from an AJAX client</li>
-    <li>The Document Object Model (DOM)</li> 
-    </ul>
-</p>
-<h3>How to test the HTTP status code from an AJAX client</h3>
-<p>It is easy to test the HTTP status code from a web service client. If you are using AJAX you can simply use
-the <em>status</em> property of the <em>response</em> object. For example, this
-code will test for a 404: 
-<pre>const response = await fetch('https://example.com/product/223');
-if(response.status == 404) {
-    alert("The product was not found!");
-} else {
-    const data = await response.json();
-    // etc...
-}</pre>
-</p>
-<h3>POST requests from AJAX</h3>
-<p>To send POST requests from AJAX, you need to create a POST request from
-the fetch API and specify the data you want to send and the <code>Content-Type</code> header, much like you do in RESTer. Here is a code snippet which will send
-a POST request to a <code>/newproduct</code> endpoint:
-<pre>const product = {
-    name: "Cornflakes",
-    manufacturer: "Organic Products Ltd",
-    price: 2.79
-};
-
-const response = await fetch('https://example.com/products/newproduct', {
-    method: 'POST',
-    headers: {
-        'Content-Type' : 'application/json'
-    },
-    body: JSON.stringify(product)
-});</pre>
-Note how we send a <code>fetch()</code> request to the given URL, but this
-time, we have to specify a number of options in a JavaScript object as a second argument to the <code>fetch()</code> function. These are:
-    <ul>
-    <li>the HTTP method (POST here);</li>
-    <li>the HTTP headers we want to add to the request. This is itself a JavaScript object containing a series of property/value pairs, the properties being the header name and the value, its value. So here, we are setting the <code>Content-Type</code> header to <code>application/json</code>.</li>
-    <li>The request body. This is a JSON string representing the data we want to send. Note that here, we create the JSON by specifying a JavaScript object <code>product</code>, containing product details, and then convert it to a JSON string with <code>JSON.stringify()</code>.
-    </li>
-    </ul>
-<h2>Querying and Manipulating HTML documents using the DOM</h2>
-<p>
-Previously you've seen the <em>innerHTML</em> property which can be used to read, or change, the text within an HTML element. You've also looked at simple use of the <em>Document Object Model (DOM)</em> to access elements on a web page -
-specifically the use of <em>getElementById()</em> to access a specific 
-page element using its ID.</p>
-<p> However that's just the start: the DOM offers a whole range of ways to read and manipulate HTML pages or XML data. To understand how you can use DOM for document manipulation, you must understand the concept of <em>nodes</em>, which we will discuss below.  The examples below use the DOM to manipulate HTML documents, however, more generally, the DOM is used for accessing and manipulating XML documents. An HTML web page is a particular, specific type of XML document. So, as well as using the DOM to query and manipulate web pages, we can use it in a more general sense to query and manipulate XML. In AJAX, this latter use of the DOM is used extensively.</p> 
-
-<h3>The Concept of Nodes</h3>
+</head><body>
+<div class='titlebox'>
+<h1>Topic 6: Further Node and Express: Routers and Middleware</h1>
+</div>
+This week we will look at
 <ul>
-<li>Part of the W3C Document Object Model (DOM)</li>
-<li>A systematic way to navigate and manipulate the content of an HTML or XML document, not
-only the <em>elements</em>, but also the <em>text within them</em></li>
-<li>An HTML or XML document consists of a series of hierarchical <em>nodes</em></li>
-<li>Each <em>element</em> (e.g <em>p</em>, <em>div</em>, or <em>em</em>
-in HTML; or a custom tag in XML) is treated as a <em>node</em>
-</li>
-<li>However it's not just the elements themselves:
-the <em>text</em> within each element is also treated as a special kind of node, a <em>text node</em></li>
-<li>The nodes are a <em>nested</em>, <em>hierarchical</em> structure</li>
-
-    <ul class="subpoint">
-    <li>An element within an element is a <em>child node</em> of that element
-    </li>
-    </ul>
-
-</ul>
-<h3>Example of Nodes Terminology</h3>
-<pre>&lt;body&gt;
-
-&lt;p&gt; Welcome to the <em>&lt;em&gt;wonderful!&lt;/em&gt;</em> world of dynamic text!&lt;/p&gt;
-&lt;/body&gt;
-</pre>
-
-<li>The paragraph is a <em>child node</em> of the <em>body</em></li>
-
-<li>The paragraph contains <strong>three</strong> of its own <em>child nodes</em>:</li>
-    <ul>    
-    <li>The <strong>text</strong>: <em>"Welcome to the"</em></li>
-    <li>The <strong>em</strong> element</li>
-
-    <li>The <strong>text</strong>: <em>"world of dynamic text!"</em></li>
-    </ul>
-
-<li>The <strong>em</strong> <em>itself</em> contains one child node:
-    <ul>
-    <li>The <strong>text</strong>: <em>"wonderful!"</em></li>
-
-    <li>This is a child of the <strong>em</strong> not the 
-    <strong>p</strong></li>
-    </ul>
-</li>
-
-<!--
-<h3>Nodes Hierarchy Diagram: Nested view</h3>
-<pre>&lt;body&gt;
-&lt;p&gt; Welcome to the <em>&lt;em&gt;wonderful!&lt;/em&gt;</em> world of dynamic text!&lt;/p&gt;
-
-&lt;/body&gt;
-</pre>
-<img src="../images/nodes.png" alt="Nodes" /> <br />
--->
-<h3>Nodes Hierarchy Diagram: Tree view</h3>
-<pre>&lt;body&gt;
-&lt;p&gt; Welcome to the <em>&lt;em&gt;wonderful!&lt;/em&gt;</em> world of dynamic text!&lt;/p&gt;
-
-&lt;/body&gt;
-</pre>
-<img src="../images/nodes2.png" alt="Nodes" /> <br />
-<h3>Querying the Node Structure of a Document</h3>
-<ul>
-<li>document.body.<em>childNodes</em> is an <em>array</em> of all
-child nodes of the body
-    <ul class="subpoint">
-
-    <li>i.e. all elements and text within the page</li>
-    </ul>
-</li>
-<li>node.<em>childNodes</em> is an array of all child nodes of
-a given node (i.e. element)</li>
-<li>node.<em>nodeName</em> gives the <em>name</em> of a node
-    <ul class="subpoint">
-
-    <li>i.e.  em, p, song, artist, etc; or <em>#text</em> for text nodes</li>
-    </ul>
-</li>
-<li>node.<em>nodeValue</em> gives the <em>text within a text node
-<strong>(only)</strong></em>
-    <ul class="subpoint">
-
-    <li>It has no meaning for page elements</li>
-    </ul>
-</li>
-</ul>
-<p>
-<a href="examples/dom/node_query.html">Example</a>
-</p>
-<h3>Adding a new node</h3>
-<ul>
-<li>One of the keys to dynamic text</li>
-<li><em>document.createElement()</em> allows us to <em>create a brand
-new element!</em></li>
-
-<li><em>document.createTextNode()</em> allows us to create a brand new
-text node</li>
-<li>Having created an element we can then populate it with text nodes
-and child elements</li>
-<li>... and finally add it to either:
-    <ul>
-    <li>The body</li>
-    <li>Another element, which will act as its parent</li>
-    </ul>
-</li>
-
-</ul>
-<p>
-<a href="examples/dom/node_add.html">Example</a>
-</p>
-<h3>Replacing an existing node</h3>
-<ul>
-<li>The other key to dynamic text</li>
-<li>We can <em>replace a whole paragraph of text with another!!!</em></li>
-<li>Steps:
-    <ul>
-    <li>Find the element to replace</li>
-    <li>Create a new element (as per the previous example)</li>
-
-    <li>Call <em>replaceChild()</em> to replace the old
-    node with the new</li>
-    </ul>
-</li>
-</ul>
-<p><a href="examples/dom/node_replace.html">Example</a></p>
-<h3>Getting all elements of a particular type</h3>
-<ul>
-<li>It can make it easier to find a page element if we can collect
-together all elements of a particular type (e.g. all paragraphs)</li>
-
-<li><em>document.getElementsByTagName()</em> allows us to do this
-</li>
-<li>This gives us an <em>array</em> of all elements of a particular
-type, which we can then index</li>
-
+<li>Using Node <em>modules</em> from an Express application;</li>
+<li>Using the Express <em>router</em> to organise and group routes;</li>
+<li>Using <em>middleware</em> to intercept requests before they are processed by routes, and therefore perform <em>pre-processing tasks</em>.</li>
 </ul>
 
-<p><a href="examples/dom/bytagname.html">Example</a></p>
-<h3>Removing nodes</h3>
-<ul>
+<h2>Modules</h2>
+<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes.</p>
+<p>To do this, you need to be familiar with the concept of <em>modules</em>, so we will cover this first.</p>
 
-<li>The final key concept of dynamic text is <em>removing</em> a particular
-node</li>
-<li>Use 
-<pre>parentElement.removeChild(childElement)
-</pre>
-</li>
-<li>Use IDs or <em>getElementByTagName()</em> once again to find
-the element to remove</li>
-</ul>
+<h3>Writing a custom module to easily connect to MySQL</h3>
 
-<h3>Other useful features of the DOM</h3>
-<p>(Source:
-<a href='http://www.quirksmode.org/dom/w3c_core.html'>Quirksmode</a>, a very useful reference site for JavaScript
-and the DOM)</p>
-
-<ul>
-<li><em>childNodes</em> property - an array of all the child nodes of a given node.e.g.:
+<p>The examples from <a href='topic2.html'>topic 2</a>  show a potential issue with using the Node MySQL module: it's callback based (if you do not use the promise based version), so the code ends up relatively complex.  This means that, to integrate MySQL into an Express application, you'd need to connect to MySQL first and then put your Express code in the MySQL connection callback. This makes your code perhaps rather messy and convoluted. A better approach is to <em>create your own Node module</em> and put the connection code in that. Here is an example:
 <pre>
-parent.childNodes.forEach ( childNode =&gt; {
-        alert(childNode.nodeName); // show name of the node
+// File - mysqlconn.js
+const mysql = require('mysql2');
+
+const con = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        database: 'mysql'});
+
+con.connect( err=&gt; {
+    if(err) {
+        console.log(err);
+        process.exit(1); // exit the server
+    } else { 
+        console.log('connected to mysql ok');
+    }
 });
+    
+<em>module.exports = con;</em>
 </pre>
-</li>
-<li><em>firstChild</em> and <em>lastChild</em> properties - the first and last 
-child node of a given node. e.g.
+Note how we have created a file <em>mysqlconn.js</em> which connects to
+the database. Note the final line as this is key:
+<pre>module.exports=con;</pre>
+This <em>exports</em> the variable <em>con</em> (representing the connection)
+to the outside world. This is how we can define a Node module; write some
+code and then <em>export</em> an object to the outside world.</p>
+<p>To use our custom module in our Express application, we use 
+<em>require()</em> in the same way that we imported third-party modules:
+<pre>const con = <em>require('./mysqlconn');</em></pre>
+The variable <em>con</em> will represent our MySQL connection. Note how
+it's set equal to the return value of <em>require()</em>; this will be
+whatever was exported from our module. Also note the module name
+<em>./mysqlconn</em> and how this corresponds to the module filename
+<em>mysqlconn.js</em>; the <em>./</em> means the current folder.</p>
+<p>You might be thinking that a problem with that approach is: if the database connection is asynchronous, what if a user tries to do a query before the connection has succeeded? You need to remember, though, that the Express server is running <em>continuously</em>, and the connection will be made <em>as soon as the Express server starts up</em> (which will only happen if the server admin needs to shut down and restart the server for any reason). So a user would literally have to make a request in the first two or three seconds of the server running for this error to occur.</p>
+
+<h3>Using a module to define your routes</h3>
+<p>In a larger application, you will quickly find that your main Express file (often <code>app.js</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.js</em>) which we would save in our <em>routes</em> folder:
 <pre>
+const express = require('express');
+// song.js
+const productRouter = express.Router();
 
-// create a child node of the parent, assume that 'parent' has no children yet
-var p = document.createElement("p");
-parent.appendChild(p);
+productRouter.get('/all', (req,res)=&gt; {
+    // code to return all products
+});
 
-// create a text node
-var textNode = document.createTextNode("some text");
+productRouter.get('/id/:id', (req,res)=&gt; {
+    // code to find the product with the given ID
+});
 
-// append it to the first child of the node 'parent', which will be the
-// paragraph we created above. In other words 'p' and 'parent.firstChild'
-// are the same in this case.
-parent.firstChild.appendChild(textNode);
+module.exports = productRouter; // export the module for external use
 </pre>
-</li>
-<li> <em>document.querySelector()</em> 
-and <em>document.querySelectorAll()</em> give the first
-element, and all elements, which match a CSS selector respectively, eg
-<pre>document.querySelectorAll(".important")</pre>
-will give an array of all elements with a class of <em>important</em>.
-See <a href="examples/dom/selector.html">Example</a></p>
-</li>
-</ul>
-<h3>Inspecting elements</h3>
-<p>The <em>inspect</em> functionality in the browser will help you see
-what's going on - try it as you do the exercise for this week - right click on an element. Inspecting helps you to see the actual current DOM structure of the
-page - including any dynamically-created elements.</p>
-<h2>Exercise</h2>
-<p>The main exercise is to add "Buy" functionality to your AJAX front-end
-fron last week, so that a user can buy a given song. Songs will be bought by sending an AJAX POST request to the "buy" route of your web API.</p>
-<p>Modify your AJAX front-end so that there is a "Buy" button for each search result. When the user clicks on the "Buy" button, you should call another function which sends an AJAX POST request to your "buy" route from week 3. Initially, do this by adding the button to the HTML string and setting an <code>onclick</code> property on the button which calls a new <code>buy()</code> function, for example:
-<pre>html += `&lt;input type='button' value='Buy!' onclick='buy(${the song ID from the JSON})' /&gt;`;</pre>
-Then, write a <code>buy()</code> function in your client-side JavaScript, which takes the song ID as a parameter and sends an AJAX POST request to your Buy route on your web API:
+Then, in your main Express app, you could <em>use</em> the router as
+follows:
 <pre>
-async function buy(songID) {
-    // ... AJAX POST request - for you to complete
+const express = require('express');
+const app = express();
+
+// Import our product router module which we created above
+const productRouter = require('./routes/product');
+
+// Tell the app to use productRouter for all routes beginning with /products
+// As we are using "use()", the router is acting as a middleware - see below
+app.use('/products', productRouter);
+app.listen(3000);
+</pre>
+So the song router is imported from the <em>routes/product</em> module
+(corresponding to routes/product.js) and then we call <em>use()</em> 
+with two arguments:
+    <ul>
+    <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
+    <li>The router object itself.</li>
+    </ul>
+So, the route <code>/products/all</code> will be handled via the product 
+router (as the route begins with <code>/products</code>) and then via the <code>/all</code> route within the <code>products</code> router.</p>
+
+<h2>Middleware</h2>
+
+<p>Express uses the concept of <em>middleware</em>. Middleware in 
+the context of web APIs consists of code which runs before a request is handled,
+which can modify the <em>req</em> and <em>res</em> objects. It is typically
+used to prepare the request before it's handled, or intercept requests to perform operations such as logging. <code>express.json()</code>, which you have already seen, is actually middleware. It parses JSON from the body of the incoming HTTP request and adds a <em>body</em> property to the <em>req</em> object allowing you to easily access POST data. Without the middleware, the <em>body</em> property of <em>req</em> would not exist.</p>
+<p>Middleware is included with the <code>use()</code> method of your <code>app
+</code> object, or with <code>get()</code> and <code>post()</code> if you only want a certain piece of middleware to run with GET and POST requests, respectively. Revisiting the use of <code>express.json()</code>, note how it is included with <code>use()</code>:
+<pre>app.use(express.json());</pre>
+<code>express.json()</code> is a function that returns middleware to parse JSON in the request body.
+</p>
+<h3>Writing our own middleware</h3>
+<p>You will frequently want to write <em>your own middleware</em>. A piece of middleware is simply a function which takes three parameters - described below - and can examine the request or modify the request and/or the response. The three parameters taken by a middleware function are:
+    <ul>
+    <li>the request object (typically called <code>req</code>);</li>
+    <li>the response object (typically called <code>res</code>);</li>
+    <li>the next function in the middleware chain (see below; typically called <code>next</code>).</li>
+    </ul>
+We write our middleware function and then <code>use()</code> it from our Express application object.</p>
+<p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request.
+<pre>
+const express = require('express');
+const app = express();
+
+app.use( (req,res,next) =&gt; {
+    console.log(`Received a request at ${Date.now()} milliseconds.`);
+    next();
+});
+
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+app.listen(3000);
+</pre>
+Note how <em>use()</em> expects a function which takes request and response
+as parameters, the same as the route handlers, as well as <code>next</code>. This example writes a message to the console informing the user of the time of the request.</p>
+<p>Notice the call to the <em>next();</em> function (also passed as a
+parameter to use()). This calls the next function in the middleware chain.
+What do we mean by this? It is important to note that we can <em>specify multiple items of middleware via multiple <code>use()</code> calls</em>. Each item of middleware is called in the order it is specified, as long as <code>next()</code> is called from the previous item. So, if another middleware function is specified after this one, it will be called with <code>next()</code>. If there is no middleware after this one, the route handler itself will be called with <code>next()</code>.</p>
+<p>The diagram below shows how the request can pass through multiple items of
+middleware before reaching the route handler:
+<br />
+<img src="../images/middleware.png" alt="Multiple items of middleware" />
+</p>
+<h3>Another example - CORS</h3>
+<p>Here is a second example (snippet only, not the whole server) which adds a <a href='topic3.html#cors'>CORS</a> header to all responses to allow clients from any domain to connect. In this example, the middleware will be added as a custom function which will allow any client to connect to this server.
+<pre>
+app.use((req, res, next) =&gt; {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
 }
+</pre> 
+Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
+<h3>Writing middleware as a separate function in a module</h3>
+<p>Furthermore, we can write the middleware as a separate function, rather than an arrow function, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. The advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
+<pre>
+// corsMiddleware.js
+function corsMiddleware(req, res, next) {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+}
+
+module.exports = corsMiddleware;
+</pre>
+We could then <code>require()</code> this from our main server, and <code>use()</code> it, as follows:
+<pre>const express = require('express');
+const app = express();
+
+// Require the middleware module
+const corsMiddleware = require('./corsMiddleware');
+
+// use() it
+app.use(corsMiddleware);
+
+// Routes
+app.get('/', ...);
+
+// etc
+
+app.listen(3000);</pre>
+</p>
+
+
+<h3>Middleware with specific routes</h3>
+<p>We can use routes to specify that a given middleware will only
+run before handling <em>a particular route</em>. This can be useful as,
+we might want certain middleware to only run in response to certain
+requests.  We do this by supplying an optional first argument to <em>use()</em> to specify which routes will run this middleware. For example,
+the middleware below (showing the time of the request once again)
+will only run with a route of <em>search</em> followed by a search term:
+<pre>
+const express = require('express');
+const app = express();
+
+// Note that middleware only runs with /search/:query route
+app.use( '/search/:query', (req,res,next) =&gt; {
+    console.log(`Received a request for /search at ${Date.now()} milliseconds.`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called
+app.get('/search/:query', (req,res) =&gt; {
+    res.send(`Searching for ${req.params.query}...`);
+});
+
+app.listen(3000);
 </pre>
 </p>
-<p> 
-<h2>More advanced exercise - writing the Buy functionality using the DOM</h2>
-<p>The first exercise was a simple approach to linking your search results to the Buy functionality. However the approach taken, of embedding the <code>buy()</code> call in your HTML, is rather messy as it mixes HTML and JavaScript and is not unobtrusive JavaScript. So this exercise allows you to rewrite it in a cleaner way using the DOM.</p>
-
-<p>Make a copy, in a new file, of your existing HitTastic!  AJAX page. Delete all the existing code in the <em>forEach</em> arrow function and and replace it with the code below:</p>
-<ol>
-<li>Add code to <em>create a DOM paragraph (p) element</em>
-for each song returned.</li>
-<li>Within this <em>p</em>, create:
-    <ul>
-    <li>a text node containing the details of the song, and </li>
-    <li>a button node (i.e. an 
-    "input" with a type of "button") allowing the user to buy 
-    the song. Add both to the paragraph node using <em>appendChild()</em>. 
-    </li>
-    </ul>
-To make sure that the button is an input with a type of "button", you 
-need to set the "type" property to "button", i.e. if <em>btn</em> is your 
-button, then you can use: <pre>btn.type = "button";</pre>
-</li>
-<li>Specify the text on the button by setting the "value" property:
-<pre>btn.value="Buy!";</pre>
-</li>
-<li>Set up a "click" event handler for the button. as an arrow function, e.g: 
+<h3>Middleware with specific HTTP methods</h3>
+<p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
 <pre>
-btn.addEventListener ("click", e =&gt; 
-    { 
-        // fill in your arrow function here.
-        // It should call your "buy" web API route, passing in the ID of the current song.
-    } 
+const express = require('express');
+const app = express();
+
+// This middleware will only run with POST requests, due to the use of
+// app.post() rather than app.use()
+// * means 'match all', so this middleware will run with all POST requests
+app.post( '*', (req,res,next) =&gt; {
+    console.log(`Received a POST request at ${Date.now()} milliseconds.`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called, because it uses post()
+app.post('/product/new', (req,res) =&gt; {
+    // Code to add a product to the database
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h3>Using multiple middleware with one statement</h3>
+<p>You can use multiple items of middleware in <em>one</em> <code>use()</code>, <code>get()</code> or <code>post()</code> call. You specify each middleware function as a successive parameter, so that the syntax is:
+<pre>
+app.use('/route', middleware1, middleware2, middleware3...);
+</pre>
+So, for example:
+<pre>
+app.use( '/testroute', (req, res, next) =&gt; {
+            console.log('Running middleware 1')
+            next();
+        },
+         (req, res, next) =&gt; {
+            console.log('Running middleware 2')
+            next();
+        } 
 );
 </pre>
-This will set the "click" handler of the button to be an arrow function.</li>
-<li>Add each paragraph to the results div using <em>appendChild()</em>.</li>
-<li>You can now complete the arrow function which runs when the user clicks
-the button. Use AJAX to call the "buy" route of your web API.
-You will need to call the web API using a method of POST (see above),
-though in this case you will not need to send any FormData.
+In this example, all requests to <code>/testroute</code> will be intercepted by <em>both</em> specified middleware functions, and both messages will be displayed on the console, in order (the first specified function will run first).</p>
+<h3>Using middleware to prevent access to a route under certain conditions</h3>
+<p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. In the example below, the middleware handling the <code>/christmasSurprise</code> route tests whether it's December. If it is, then the <code>/christmasSurprise</code> route is called with <code>next()</code>. if not, the user is told to come back when it's Christmas!
+<pre>
+const express = require('express');
+const app = express();
+
+// Christmas checker middleware: is it December?
+app.use('/christmasSurprise', (req, res, next) =&gt; {
+    // Create an object representing today's date
+    const d = new Date();
+
+    // Get the current month, note that d.getMonth() gives a month in the range
+    // 0-11 so we have to add one to get the normal numbering (1-12)
+    const month = d.getMonth() + 1;
+
+    // If it's December, let the client access the route
+    if (month == 12) {
+        next();
+    // If not, tell them to come back later!
+    } else {
+        res.send(`It's not Christmas yet, come back in ${12 - month} months!`); 
+    }
+});
+
+// Christmas surprise route, "guarded" by the middleware above
+app.get('/christmasSurprise', (req, res) =&gt; {
+    const html = "&lt;h1&gt;HERE IS YOUR CHRISTMAS SURPRISE!&lt;/h1&gt; ... etc ...";
+    res.send(html);
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h2>dotenv - Environment variables</h2>
+<p>Finally this week we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. Examples of such variables might include database name, username and password. This also has a security advantage: by adding private data to your <code>.env</code> it means that you can keep information such as passwords outside your source code, and publish your code to GitHub or another repository without giving away such information.</p>
+<p><code>dotenv</code> is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
+<pre>npm install dotenv</pre>
+You then <code>require()</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
+<pre>
+const express = require('express');
+const app = express();
+<em>require('dotenv').config();</em>
+</pre>
+Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
+<pre>
+DB_HOST=localhost
+DB_USER=root
+DB_DBASE=mysql
+</pre>
+We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example:
+<pre>
+const con = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_DBASE
+});
+</pre>
+It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
+<hr />
+<h2>Exercise</h2>
+<p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
+<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-5 before attempting it. Please ensure that you have completed last week (Week 5) first, and also the standard exercises for Weeks 1-4.</p>
+<ol>
+<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference. As shown in the first example, create a separate module to connect to your MySQL database, and <code>require()</code> it from the new <em>copy</em> of your server.</li>
+<li>Available <a href='ht_users.sql'>here</a> is an SQL file to create and populate a <code>ht_users</code> table with data about users. Download it and import it into your database.</li>
+<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.js</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
+    <ul>
+    <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
+    <li>a <code>/user/:username</code> route which returns details of a specific user, identified by username.</li>
+    </ul>
 </li>
-<li>
-The callback to the AJAX buy request should 
-display a "Successfully bought" message, e.g. in an alert box.</li>
-<li>Add error handling to the "buy" route of your web API so that if the required song is out of stock (quantity is 0), a 404 is returned. You will need to add an additional SELECT statement for this to work.</li>
-<li>Alter your AJAX front end to check for a 404 from the "buy" 
-route of your web API. In the callback, display a different message
-depending on whether the song was bought successfully or not.</li> 
-<li><strong>More advanced:</strong> Alter your "buy" route to be able
-to buy more than one copy of the song (receive the quantity as POST
-data). Update your AJAX front end to allow the user to enter the quantity,
-and send the entered quantity to the web service.
-<strong>As this is an advanced question, I am leaving it up to you to figure
-out how to do this</strong> but if you are really stuck, I will give you some
-<em>hints</em>. However, as it's advanced I will not write it for you!</li>
+<li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
+<li>Test it out by trying out the following in your browser (type in the URL directly, do not access from AJAX):
+    <ul>
+    <li>List all users;</li>
+    <li>Look up a user by username.</li>
+    </ul>
+</li>
+<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.js</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
+<li>Install <code>dotenv</code> and <code>require()</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
+<pre>
+if(process.env.APP_USER === undefined) {
+    // process.env.APP_USER does not exist (it's undefined)
+    // Return a 401 (Unauthorized) HTTP code, with a JSON error message
+    res.status(401).json({error: "You're not logged in. Go away!"});
+} else {
+    // username exists, carry on...
+}
+</pre>
+Test this out by first trying to access a <code>POST</code> route without creating a <code>.env</code> file. Test this out in RESTer; you should get a 401 error and the "Go away" message as a response. Then, create a <code>.env</code> file with a <code>username</code> environment variable. The username can be anything, for example:
+<pre>APP_USER=AdamAdams</pre>
+You should now be able to access your POST route.
+</li>
+<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>require()</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
+<li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists in <code>.env</code>. Use the same middleware for this.</li>
+<li><strong>Advanced question:</strong> Modify your answer to the previous question so that, if the <code>/users</code> group of routes is requested, the middleware checks that the <code>APP_USER</code> username is <em>actually in the database</em> (use a SELECT statement to do this) and that the value of the <code>isadmin</code> column of this user is 1. In this way, only admin users can access the <code>/users</code> routes which, for data protection reasons, is probably a good idea!</li>
 </ol>
 </body>
 </html>
