@@ -61,8 +61,9 @@ whatever was exported from our module. Also note the module name
 <h3>Using a module to define your routes</h3>
 <p>In a larger application, you will quickly find that your main Express file (often <code>app.js</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.js</em>) which we would save in our <em>routes</em> folder:
 <pre>
+// routes/product.js 
+
 const express = require('express');
-// song.js
 const productRouter = express.Router();
 
 productRouter.get('/all', (req,res)=&gt; {
