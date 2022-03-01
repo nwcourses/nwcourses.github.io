@@ -278,15 +278,18 @@ This code will also return the username as JSON back to the client if the login 
 <li>Modify the "buy" functionality (week 6) so that if a 401 is returned from the <code>buy</code> route, an error message telling the user they're not logged in should appear as an alert box. Test it by trying to buy music before the user is logged in (it should not work) and then after they've logged in (it should work).</li>
 </ol>
 <h3>More advanced questions</h3>
-<p>Enhance your login system so that you have "Logout" functionality, and also modify your code so that if the user reloads the page, the "Logged in as ..." message remains present. To do this: 
-    <ol>
+<ol>
+<li>Enhance your login system so that you have "Logout" functionality, and also modify your code so that if the user reloads the page, the "Logged in as ..." message remains present. To do this: 
+    <ul>
     <li>When a user has logged in, add a button to the "Logged in as..." message which appears in the &lt;div&gt;. You can do this simply by adding the button HTML to the <code>innerHTML</code> text (or, if you are feeling ambitious, use the DOM). Ensure this button has an ID, so that you can attach an event listener to it. For example:
 <pre>document.getElementById(...).innerHTML = `Logged in as ... &lt;input type='button' value='Logout' id='logoutBtn' /&gt;`</pre>
 </li>
     <li>On the next line of code, use <code>document.getElementById()</code> and <code>addEventListener()</code> to add a "click" event to this button so that the user is logged out by calling the <code>/logout</code> route. Once logged out, your should re-fill the login &lt;div&gt; with the original login form (use <code>innerHTML</code> for this, similar to the example in the previous question; note you will need to connect the 'Login' button to an event listener to handle login).</li>
     <li><strong>If the user reloads the page, you want the "Logged in as ..." message to remain present. This question allows you to do this.</strong> At the start of your client-side JavaScript, call the <code>/login</code> GET route of your web server to determine if the user is logged in or not. If they are, the <code>username</code> field of the JSON returned will be non-null. If the username is non-null, display the "Logged in as... " message with the Logout button, and add the event listener to the Logout button, as in the earlier question. If not, display the login form, ensuring you continue to add an event listener to the Login button.</li>
-    </ol>
-</p>
+    </ul>
+</li>
+<li>Add a signup route to your server, allowing the user to sign up. Use <code>bcrypt</code> to encode the password. Then, change your login route to use <code>bcrypt</code>. Test by using RESTer, or, alternatively, add an AJAX-based signup facility to your HTML page.</li>
+</ol>
 <h3>Other things to try</h3>
 <ul>
     <li>Modify your <code>buy</code> route so that the balance of the currently logged-in user is reduced by 0.79 when they buy a song.</li>
