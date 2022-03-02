@@ -292,11 +292,11 @@ With these sorts of additional preferences not controlled via a preference scree
 <ol>
 <li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, and <code>onResume()</code> to your <em>main map activity from last week</em>. In each method, as well as in <code>onCreate()</code>,
 display an <code>AlertDialog</code> with a message saying which method has
-been called. <em>All these methods should call the superclass version of the method</em>. You can avoid duplicating code by creating a <code>showDialog()</code> method which shows the alert dialog, and calling it from each of these lifecycle methods.
+been called. <em>All these methods should call the superclass version of the method</em>. You can avoid duplicating code by creating a <code>showTheDialog()</code> method which shows the alert dialog, and calling it from each of these lifecycle methods.
 For example: 
 <pre>
 // Generic function to show a dialog, to avoid code duplication
-fun showDialog(message) {
+fun showTheDialog(message : String) {
     AlertDialog.Builder(this)
         .setPositiveButton("OK", null)
         .setMessage(message)
@@ -307,7 +307,7 @@ fun showDialog(message) {
 // You should also add the other lifecycle methods onCreate() and onStart(), as explained above
 override fun onResume() {
     super.onResume()
-    showDialog("onResume() called") // call our generic dialog function
+    showTheDialog("onResume() called") // call our generic dialog function
 }
 </pre>
 Test by launching your app, changing the mapping provider using the second activity, returning to the main activity, and then pressing the Back button to 
@@ -325,7 +325,7 @@ add the following further preference:
     <ul>
     <li>Map style - Regular or OpenTopoMap(use a ListPreference)</li>
     </ul>
-Make sure the preferences are read when the main activity is started, so that the app immediately changes when the preference activity containing a PreferenceFragment is dismissed. Also save the selected mapping provider when the app is destroyed, so that when the user starts the app again, the same mapping provider will be used as last time.
+Make sure the preferences are read when the main activity is started, so that the app immediately changes when the preference activity containing a PreferenceFragment is dismissed. 
 </li>
 </ol>
 <hr />
