@@ -129,7 +129,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName="students")
 
-data class Student(@PrimaryKey(autoGenerate = true) val id: Long, val name: String, var course: String, var mark: Int)
+data class Student(
+    @PrimaryKey(autoGenerate = true) val id: Long, 
+    val name: String, 
+    var course: String, var mark: Int
+)
 </pre>
 </li>
 <li>This is a simple data class, but has two <em>Room annotations</em>:
@@ -144,6 +148,19 @@ data class Student(@PrimaryKey(autoGenerate = true) val id: Long, val name: Stri
 </li>
 <li>The columns in the table will have the same names as the properties
 (i.e. id, name, course and mark)</li>
+<li>We can name the columns differently to the property names in the data class using the annotation <code>@ColumnInfo</code>, e.g:
+<pre> import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName="students")
+
+data class Student(
+    @PrimaryKey(autoGenerate = true) val id: Long, 
+    @ColumnInfo(name="the_name") val name: String, 
+    @ColumnInfo(name="the_course") var course: String, var mark: Int
+)
+</pre>
+In this example the columns used in the actual database will be <code>the_name</code> and <code>the_course</code>.</li>
 </ul>
 <h3>The DAO (Data Access Object)</h3>
 <ul>
@@ -429,8 +446,9 @@ kapt 'androidx.room:room-compiler:2.2.3'
 </pre>
 Also, add this line to the top of the app build.gradle:
 <pre>apply plugin: 'kotlin-kapt'</pre>
-The Activity should have a layout with four fields: ID, Title, Artist and Year,
-with four buttons (Search by ID, Add, Update, Delete). These buttons should
+</p>
+<p>Use <strong>a device running at least API level 26</strong> so you can use the Database Inspector to visualise your database.</p>
+<p>The Activity should have a layout with four fields: ID, Title, Artist and Year, with four buttons (Search by ID, Add, Update, Delete). These buttons should
 have the following effects. Each should call an appropriate method in your
 DAO. These buttons should perform the following operations:
 <ul>
