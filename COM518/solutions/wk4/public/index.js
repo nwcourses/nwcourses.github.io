@@ -25,6 +25,9 @@ async function ajaxSearch(artist) {
     // Parse the JSON
     const songs = await ajaxResponse.json();
 
+    // Blank out the results div, to remove the previous search
+    document.getElementById("ht_results").innerHTML = "";
+
     songs.forEach( song => {
 
         // Create a paragraph using the DOM
@@ -32,7 +35,6 @@ async function ajaxSearch(artist) {
 
         // Create a text node, containing the text to include in the paragraph
         // (the song details)
-        // Format the HTML output, using the fields from the current song
         const text = document.createTextNode(`${song.title} by ${song.artist}, year ${song.year}, chart ${song.chart}`);
 
         // Append the text node to the paragraph
@@ -48,9 +50,14 @@ async function ajaxSearch(artist) {
         // Add event handler to the button, so that the song is bought when
         // we click on it
         btn.addEventListener("click", async(e) => {
+            // Send an AJAX post request to the buy route, passing in the 
+            // song ID as a parameter
             const ajaxResponse2 = await fetch(`/song/${song.ID}/buy`, {
                 method: 'POST'
             });
+
+            // If the HTTP code is 200, the operation was successful, if not
+            // display the error sent back from the server within the JSON
             if(ajaxResponse2.status == 200) {
                 alert('Song bought successfully');
             } else {
