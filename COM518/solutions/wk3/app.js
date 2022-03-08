@@ -1,4 +1,10 @@
-// Solution to the standard exercises for week 2
+/*
+ * PLEASE NOTE:
+ *
+ * You can use this to compare with your lab exercise answer.
+ *
+ * However this code, or code derived from it, MUST NOT be used in the assignment.
+ */
 
 // Require dependencies
 const express = require('express');
@@ -9,6 +15,9 @@ const app = express();
 
 // Enable reading JSON from the request body of POST requests
 app.use(express.json());
+
+// Allow access to static content in the 'public' folder
+app.use(express.static('public'));
 
 // Create a database connection to the server - please edit to use your details
 const con = mysql.createConnection({
