@@ -270,7 +270,7 @@ However, this code would be <em>wrong</em>. This code will call <code>likeProduc
 When a function is specified with parentheses, e.g. <code>likeProduct(productID)</code>, it is <strong>immediately called</strong>. By contrast, <code>likeProduct</code> <em>without</em> parentheses merely supplies the function as an argument, without calling it. It will be called at some future point in time, i.e. when the button is clicked.</li>
 <li>So how can we pass arguments to a callback?  We can do this by using <em>binding</em>. Binding allows us to bind specified arguments to a callback which will automatically be received when the function runs. This is easy to do, using JavaScript's <code>bind()</code> function. Here is an example:
 <pre>document.getElementById('likeButton').addEventListener("click", likeProduct<strong>.bind(this, productID)</strong>);</pre>
-Note how we call <code>bind()</code> on the callback function and pass across <code>this</code> followed by a list of arguments to be bound. <code>bind()</code> returns a new version of the callback, with the appropriate arguments bound. The first argument, <code>this</code> here, allows us to specify the context of <code>this</code> in the callback, which is mostly of use in object-oriented programming. See the <a href='#advanced'>advanced material below</a> for more detail.</p>
+Note how we call <code>bind()</code> on the callback function and pass across <code>this</code> followed by a list of arguments to be bound. <code>bind()</code> returns a new version of the callback, with the appropriate arguments bound. The first argument, <code>this</code> here, allows us to specify the context of <code>this</code> in the callback, which is mostly of use in object-oriented programming. See the <a href='#thisAndCallbacks'>advanced material below</a> for more detail.</p>
 <h2>Exercise</h2>
 <p><strong>Ensure you have completed questions 1 and 2 from last week first.</strong></p>
 <p>The main exercise is to add "Buy" functionality to your AJAX front-end
@@ -309,7 +309,7 @@ buttonElement.addEventListener ("click", async(e) =&gt;
 <li>Rewrite your code to use a separate <code>buySong()</code> function, called when the user presses the Buy button, using <code>bind()</code>.</li>
 </ol>
 <hr /> 
-<h2 id='advanced'>Advanced material - "this" and callbacks</h2>
+<h2 id='thisAndCallbacks'>Advanced material - "this" and callbacks</h2>
 <p>There are a number of subtleties with JavaScript <em>this</em> which you need to understand to work
 effectively with objects, and which make its use
 less straightforward than the use of <em>this</em> in other languages such as Java and C++. <strong>These subtleties are particularly important when it
