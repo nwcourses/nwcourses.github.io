@@ -18,10 +18,11 @@
 </p>
 
 <h2>JSON</h2>
-
+<h3>Introduction to JSON</h3>
+<p><strong>All of you will be aware of JSON via WAD, OODD or both, so the information provided here will hopefully be just for revision.</strong></p>
 <p><em>JSON - JavaScript Object Notation</em> is a data format which is used
 to transfer data across the web between server-side scripts (written in
-languages such as PHP or node.js) and clients (such as Android apps).
+technologies such as Node.js or JSP) and clients (such as Android apps).
 It uses JavaScript syntax to represent data. </p>
 <p>In JSON, data is transferred as objects and arrays of objects. We use square brackets [] to represent arrays and curly brackets {} to represent 
 objects. For example, if we had a server side script to look up details of famous people, we might get a result such as:
@@ -108,8 +109,8 @@ Note the following:
 </p>
 <h2>Network communication</h2>
 <p>We will now examine how to perform communication across a network, with a web API, in Android and Kotlin. The first example will involve sending a basic
-GET request. (Almost all of you should be familiar with HTTP requests, either via OODD or WAD; if not, please see <a href='../COM518/topic3.html'>here</a> and <a href='../COM518/topic4.html'>here</a>).</p>
-<h3>sending a GET request</h3>
+GET request. (All of you should be familiar with HTTP requests, either via OODD or WAD; if not, please see <a href='../COM518/topic1.html'>here</a> and <a href='../COM518/topic2.html'>here</a>).</p>
+<h3>Sending a GET request</h3>
 <pre>import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
@@ -160,7 +161,7 @@ The first dependency is Fuel itself. The second is the Android module for Fuel, 
 <h4>Example 1 - simple case - get a string response</h4>
 <pre>
 // URL which returns JSON describing points of interest
-var url = "https://hikar.org/fm/ws/tsvr.php?x=4079&amp;y=2740&amp;z=13&amp;poi=all"
+var url = "https://hikar.org/webapp/tile?x=4079&amp;y=2740&amp;z=13&amp;poi=all"
 url.httpGet().response { request, response, result -&gt;
 
         when(result) {
@@ -303,13 +304,13 @@ url.httpPost(postData).response { request, response, result -&gt;
 <a href="https://github.com/kittinunf/Fuel">the website</a>.</p>
 <h2>Exercise</h2>
 <h3>Preparation</h3>
-<p>This exercise will allow you to write an Android client to a web API which looks up all songs by a particular artist and sends them back to the client as JSON. To avoid having to use third-party servers, <strong>this web API will run on your own local machine</strong>. If you are doing COM518 (Web Application Development) you can use the web server you have been developing in that module. If not, you will need to do a little bit of preparation work to set up a server on your own machine:
+<p>This exercise will allow you to write an Android client to a web API which looks up all songs by a particular artist and sends them back to the client as JSON. If you are doing COM518 (Web Application Development) you can use the web API you have been developing in that module. If not, you will need to do a little bit of preparation work to set up a server on your own machine:
     <ul>
-    <li>Download and install <a href='https://nodejs.org'>node.js</a>. If you are not aware, node.js is an environment for writing JavaScript applications outside a browser, and it is frequently used for creating servers.</li>
-    <li>Install two third-party Node <em>modules</em> (libraries) which you will need: <em>Express</em> and <em>body-parser</em>. You should use the package management tool <code>npm</code> for this. At the command prompt, enter:
+    <li>Download and install <a href='https://nodejs.org'>Node.js</a>. If you are not aware, Node.js is an environment for writing JavaScript applications outside a browser, and it is frequently used for creating servers.</li>
+    <li>Install a third-party Node <em>module</em> (library) which you will need: <em>Express</em>. Express is a module to easily create web servers in Node.js. You should use the package management tool <code>npm</code> for this. At the command prompt, enter:
 <pre>npm install express body-parser</pre>
     </li>
-    <li>Download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple node.js server together with a JSON file containing songs. This server will allow you to do the exercise without needing a database, as it loads in the songs from the file into an array and then filters the array by the requested artist when an HTTP request is received.</li>
+    <li>Download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple Node.js server together with a JSON file containing songs. This server will allow you to do the exercise without needing a database, as it loads in the songs from the file into an array and then filters the array by the requested artist when an HTTP request is received.</li>
     <li>Before doing the exercise, run the server:
 <pre>node madsongserver.js</pre>
     </li>
@@ -333,17 +334,17 @@ import com.github.kittinunf.result.Result
 </p>
 <ol>
 <li>Create a <em>new Android project</em>, and create a main activity containing an <code>EditText</code> (allowing the user to enter an artist to search for), a button (which when clicked will send a request to the server) and a TextView (to show the results).</li>
-<li>Write code to send a request, using Fuel, to your server, so that it looks up all songs by the user's chosen artist. Note that on the emulator, you can use the special IP address <code>10.0.2.2</code> to access the host machine, i.e. your desktop or laptop. Your Node server will be running on port 3000, unless you changed the port, so you can access your server via a URL such as:
+<li>Write code to send a request, using Fuel, to your server, so that it looks up all songs by the user's chosen artist. Note that on the emulator, if you are running the server on your own local machine, you can use the special IP address <code>10.0.2.2</code> to access it. Your Node server will be running on port 3000, unless you changed the port, so you can access your server via a URL such as:
 <pre>http://10.0.2.2:3000/artist/the artist you are looking for</pre>
 Initially, do not parse the JSON, but just show the JSON unparsed in your text view.</li>
 <li>Next, parse the JSON so the results are shown in user-friendly way on your interface. You can use either the standard JSON parser or GSON for this (see the second or third Fuel example, respectively).</li>
-<li>Add a <em>second activity</em> to your project, to allow the user to <em>add a new song</em>. As you did in earlier topics, create a menu for your activity, and launch this second activity when the one and only menu item is selected. The second activity should contain edit texts for title, artist, and year, and a button. When the button is clicked, send a POST request to your server containing the data. If you are using the <code>madsongserver.js</code> the URL will be:
+<li>Add a <em>second activity</em> to your project, to allow the user to <em>add a new song</em>. As you did in earlier topics, create a menu for your activity, and launch this second activity when the one and only menu item is selected. The second activity should contain edit texts for title, artist, and year, and a button. When the button is clicked, send a POST request to your server containing the data. If you are using the <code>madsongserver.js</code>, or running your web server on localhost, the URL will be:
 <pre>http://10.0.2.2:3000/song/create</pre>
 If you are using your own server from COM518, you will need to add this additional line to your server:
-<pre>app.use(bodyParser.urlencoded({extended: false}));</pre>
+<pre>app.use(express.urlencoded({extended: false}));</pre>
 This is because with Fuel, the POST data is sent to the server a different way. It is not sent as JSON within the request body, but as a series of key-value pairs e.g.
 <pre>title=Wonderwall&amp;artist=Oasis&amp;year=1995</pre>
-The line above specifies a different version of the <code>body-parser</code> middleware which can parse POST data in this format (urlencoded).<br />
+The line above specifies a different piece of middleware which can parse POST data in this format (urlencoded).<br />
 If you are using <code>madsongserver.js</code> you will not need to do this, as it is already built-in.</li>
 <li>Check that your POST request works. You can do this by searching for songs by the artist you used for the new song. Alternatively, 
 if you add the logging line:
