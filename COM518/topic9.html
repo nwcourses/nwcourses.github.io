@@ -31,6 +31,10 @@ will use the local strategy. This middleware will then call the appropriate stra
     <li>Then you <em>implement</em> your strategy. To do this, you create an appropriate Strategy object. You must pass the Strategy object a function which performs the authentication, and if the authentication succeeds, returns an object containing the user details.</li>
     </ul>
 </p>
+<p>The diagram below shows the general mechanism of operation of Passport:
+<br />
+<img src="../images/passport.png" alt="Passport" />
+</p>
 <h3>The login route</h3>
 <p>We will illustrate this with a <code>/login</code> route, as this is the natural place to start in order to understand Passport. However, note that <em>this will not come first in your code</em>. It must come <em>after</em> you have setup a strategy, as it will use your strategy to perform the authentication.  A commented <code>/login</code> route is provided below. <code>passport</code> is the Passport object, imported as shown above.
 <pre>
@@ -89,7 +93,6 @@ LocalStrategy. What do we do inside the strategy?
     to generate a 500 (Internal Server Error) response to send back to the 
     client.</li>
 	</ul>
-This code must come <em>before</em> your <code>/login</code> route; it is only presented after it in these notes as it helps understanding of Passport if the <code>/login</code> route is explained before the strategy (because the <code>/login</code> will run first).
 <pre>
 // Note that the local strategy will AUTOMATICALLY read fields named 'username'
 // and 'password' from req.body, and will supply them as parameters to the
@@ -139,6 +142,10 @@ Passport with sessions (see "Serialisation and deserialisation", below).
 already, but should also come BEFORE any other Passport code.</strong></p>
 <h3>Serialisation and deserialisation - persisting the user across multiple requests</h3>
 <p>We have implemented authentication with a local strategy, which results in the user details being saved in <code>req.user</code> if authentication was successful. However, how can we preserve information across multiple HTTP requests, as a user interacts with the website? <code>req.user</code>, being a property of the request object, only has a lifetime <em>within the current request</em>. To preserve the user across multiple requests, we need to make use of sessions, together with <em>serialisation</em>/<em>deserialisation</em>.  We need to define <em>serialisation</em> and <em>deserialisation</em> functions which saves user information to, and restores it from, <code>req.session</code> across requests. Specifically the serialised data is saved to <code>req.session.passport.user</code> within the session.</p>
+<p>The diagram below shows the general mechanism of serialisation: 
+<br />
+<img src="../images/passport_serialisation.png" alt="Passport serialisation" />
+</p>
 <p>We perform this with the <code>serializeUser()</code> and <code>deserializeUser()</code> methods, which persist user information to the session, and restore it from the session, respectively. Typically we do not need to preserve <em>all</em> the user information in the session, just enough to identify the user - so the user ID will be fine. Each of these methods takes a callback function
 (an arrow function here) which actually does the processing, and like the
 strategy code above, this is supplied with a <code>done</code> callback which you need to call to complete the serialisation or deserialisation. 

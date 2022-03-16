@@ -342,7 +342,24 @@ This is because by default, Android disallows access to insecure (HTTP) servers 
 <li>Write code to send a request, using Fuel, to your server, so that it looks up all songs by the user's chosen artist. Note that on the emulator, if you are running the server on your own local machine, you can use the special IP address <code>10.0.2.2</code> to access it. Your Node server will be running on port 3000, unless you changed the port, so you can access your server via a URL such as:
 <pre>http://10.0.2.2:3000/artist/the artist you are looking for</pre>
 Initially, do not parse the JSON, but just show the JSON unparsed in your text view.</li>
-<li>Next, parse the JSON so the results are shown in user-friendly way on your interface. You can use either the standard JSON parser or GSON for this (see the second or third Fuel example, respectively).</li>
+<li>Next, parse the JSON so the results are shown in user-friendly way on your interface. You can use either the standard JSON parser or GSON for this (see the second or third Fuel example, respectively). <strong>You may encounter problems with GSON; the cause is still unresolved but may be related to version compatibility issues. These dependencies in build.gradle are known to work:</strong>
+<pre>
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
+    implementation 'com.github.kittinunf.fuel:fuel-android:2.3.1'
+    implementation 'com.github.kittinunf.fuel:fuel-json:2.3.1'
+    implementation 'com.github.kittinunf.fuel:fuel-gson:2.3.1'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}
+</pre>
+</li>
 <li>Add a <em>second activity</em> to your project, to allow the user to <em>add a new song</em>. As you did in earlier topics, create a menu for your activity, and launch this second activity when the one and only menu item is selected. The second activity should contain edit texts for title, artist, and year, and a button. When the button is clicked, send a POST request to your server containing the data. If you are using the <code>madsongserver.js</code>, or running your web server on localhost, the URL will be:
 <pre>http://10.0.2.2:3000/song/create</pre>
 If you are using your own server from COM518, you will need to add this additional line to your server:
