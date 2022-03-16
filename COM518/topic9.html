@@ -11,10 +11,10 @@
 
 <h2>Introduction</h2>
 Passport is a Node module which can provide seamless authentication with a range of login providers, including Google, Facebook and the like, as well as local login with the usernames and passwords stored in your own database, as covered in Topic 6. The goal of Passport is to allow the use of common code to authenticate with many different providers.</p>  
-<p>Passport is based around <em>strategies</em>. Each strategy represents a method of logging in with a different provider. So you have strategies for third-party login providers such as Google and Facebook, and you have the <em>local strategy</em> for managing local logins.</p>
-<h2>Using Passport</h2>
+<p>Passport is based around <em>strategies</em>. Each strategy represents a method of logging in with a different provider. So you have strategies for third-party login providers such as Google and Facebook, and you have the <em>local strategy</em> for managing local logins. When developing with Passport you need to specify one, or more strategies to use. In the strategy you then implement code to check the login details.</p>
 <p>We will only cover the local strategy here in any detail, but the others
 are described at the <a href='http://passportjs.org'>Passport website</a></p>
+<h2>Using Passport</h2>
 <p>To use Passport, you need to install it (you need to install a specific strategy as well as Passport itself):
 <pre>npm install passport passport-local</pre>
 In your code, first <code>require()</code> it, as usual for a third-party 
@@ -22,21 +22,30 @@ module:
 <pre>const passport = require('passport');</pre>
 You then import the specific strategy you want to use. For example, to use the local strategy, you would need to install <code>passport-local</code> and use it:
 <pre>const LocalStrategy = require('passport-local').Strategy;</pre>
-You then add each strategy you want to use to Passport as an item of middleware, using Passport's <code>use()</code> method. Each strategy defines how the login information is processed. We will examine code for a local strategy shortly.</p>
-<p>How do you perform authentication with Passport?
-    <ul>
-    <li>Firstly, from your login route, you use the <code>passport.authenticate()</code> middleware, passing in a specific strategy as an argument. For example:
-<pre>passport.authenticate('local');</pre>
-will use the local strategy. This middleware will then call the appropriate strategy to actually perform the authentication.</li>
-    <li>Then you <em>implement</em> your strategy. To do this, you create an appropriate Strategy object. You must pass the Strategy object a function which performs the authentication, and if the authentication succeeds, returns an object containing the user details.</li>
-    </ul>
 </p>
-<p>The diagram below shows the general mechanism of operation of Passport:
+<p>You must also link Passport to your Express application as middleware. 
+You need to add the following lines to your main app.js:
+<pre>app.use(passport.initialize());
+app.use(passport.session());</pre>
+The first middleware is for initialising Passport, the second for using 
+Passport with sessions (see "Serialisation and deserialisation", below).
+<strong>The <code>app.use(passport.session())</code> must come AFTER initialising <code>express.session</code>, as it relies on sessions having been setup 
+already, but should also come BEFORE any other Passport code.</strong></p>
+<h3>General mechanism of operation</h3>
+<p>The diagram below shows the general mechanism of operation of Passport.
+Note how we call our strategy from our login route. The strategy then
+checks the username and password, and if they are correct, we return to the
+route and run the main route handler (which might send back the login details
+to the client as JSON). On the other hand, if the login details are correct
+or we cannot connect to the database or other data source containing the 
+user details, we tell Passport to return a 401 or 500 respectively. The 
+details on how this is done is discussed below.
 <br />
 <img src="../images/passport.png" alt="Passport" />
 </p>
-<h3>The login route</h3>
-<p>We will illustrate this with a <code>/login</code> route, as this is the natural place to start in order to understand Passport. However, note that <em>this will not come first in your code</em>. It must come <em>after</em> you have setup a strategy, as it will use your strategy to perform the authentication.  A commented <code>/login</code> route is provided below. <code>passport</code> is the Passport object, imported as shown above.
+<h3>Implementation detail</h3>
+<h4>The login route</h4>
+<p>We will start discussing the detailed implenentation by looking at the <code>/login</code> route, as this is the natural place to start in order to understand Passport. A commented <code>/login</code> route is provided below. Note how it calls the appropriate strategy. <code>passport</code> is the Passport object, imported as shown above.
 <pre>
 app.post('/login',
     // call passport's authenticate() method (which is actually middleware)
@@ -65,7 +74,7 @@ the request when we call <code>passport.authenticate()</code>? Passport
 assumes that these are present within <code>req.body</code> as 
 <code>req.body.username</code> and <code>req.body.password</code>, and are
 forwarded to the strategy.</p>
-<h3>The LocalStrategy</h3>
+<h4>The LocalStrategy</h4>
 <p>So we will now look at an example of a strategy, specifically a 
 LocalStrategy. What do we do inside the strategy?
     <ul>
@@ -131,15 +140,6 @@ passport.use(new LocalStrategy(async(username, password, done)=&gt; {
 }));
 </pre>
 </p>
-<h3>Linking Passport to our application</h3>
-<p>We must link Passport to our application as middleware. You need to add
-the following lines to your main app.js:
-<pre>app.use(passport.initialize());
-app.use(passport.session());</pre>
-The first middleware is for initialising Passport, the second for using 
-Passport with sessions (see "Serialisation and deserialisation", below).
-<strong>The <code>app.use(passport.session())</code> must come AFTER initialising <code>express.session</code>, as it relies on sessions having been setup 
-already, but should also come BEFORE any other Passport code.</strong></p>
 <h3>Serialisation and deserialisation - persisting the user across multiple requests</h3>
 <p>We have implemented authentication with a local strategy, which results in the user details being saved in <code>req.user</code> if authentication was successful. However, how can we preserve information across multiple HTTP requests, as a user interacts with the website? <code>req.user</code>, being a property of the request object, only has a lifetime <em>within the current request</em>. To preserve the user across multiple requests, we need to make use of sessions, together with <em>serialisation</em>/<em>deserialisation</em>.  We need to define <em>serialisation</em> and <em>deserialisation</em> functions which saves user information to, and restores it from, <code>req.session</code> across requests. Specifically the serialised data is saved to <code>req.session.passport.user</code> within the session.</p>
 <p>The diagram below shows the general mechanism of serialisation: 
