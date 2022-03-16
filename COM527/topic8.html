@@ -332,6 +332,11 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 </pre>
 </p>
+<p>If using a server on your local machine, you will have to add <code>android:usesCleartextTraffic="true"</code> to your <code>application</code> tag in the manifest, e.g.:
+<pre>
+&lt;application <strong>android:usesCleartextTraffic="true"</strong>...
+</pre>
+This is because by default, Android disallows access to insecure (HTTP) servers (not using HTTPS) and your <code>localhost</code> server is a plain HTTP server, not HTTPS. This parameter disables the HTTPS restriction allowing your app to communicate with your local server.</p>
 <ol>
 <li>Create a <em>new Android project</em>, and create a main activity containing an <code>EditText</code> (allowing the user to enter an artist to search for), a button (which when clicked will send a request to the server) and a TextView (to show the results).</li>
 <li>Write code to send a request, using Fuel, to your server, so that it looks up all songs by the user's chosen artist. Note that on the emulator, if you are running the server on your own local machine, you can use the special IP address <code>10.0.2.2</code> to access it. Your Node server will be running on port 3000, unless you changed the port, so you can access your server via a URL such as:
