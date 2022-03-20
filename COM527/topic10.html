@@ -102,15 +102,23 @@ same as the toolbar or an entirely different menu.</li>
 <li>To handle the user selecting items in the navigation view, you have to use different code to regular menu handling with onOptionsItemSelected().</li>
 <li>You have to set up a <em>NavigationItemSelectedListener</em> and override
 <em>onNavigationItemSelected()</em>, though due to SAM conversions you can use a lambda:
-<pre> nv.setNavigationItemSelectedListener {
-            when(it.itemId) {
-                R.id.item1 -&gt; { ... }
-                R.id.item2 -&gt; { ... }
-                else -&gt;  { ... }
-            }
-            true // can omit "return" in lambdas
+<pre> 
+nv.setNavigationItemSelectedListener {
+    val returnValue = true
+    when(it.itemId) {
+        R.id.item1 -&gt; { 
+            ... 
         }
-           </pre>
+        R.id.item2 -&gt; {
+            ...
+        }
+        else -&gt;  { 
+            returnValue = false    
+        }
+    }
+    returnValue // can omit "return" in lambdas
+}
+</pre>
 </li>
 </ul>
 <h4>NavigationDrawer and Fragments</h4>
@@ -162,48 +170,34 @@ of <em>fragment transactions</em>, described below. Before we do this, we
 will discuss how to code a simple Fragment. The Fragment would be in a separate
 class, entirely separate to the main activity.</p>
 <h3>Coding a fragment</h3> 
-<p>Here is a simple example of code for a Fragment; note that the <em>onCreateView()</em> method is used to set the UI of a fragment by inflating a layout (<em>frag1.xml</em> here). So whatever is in <em>frag1.xml</em> would become the fragment's layout.
+<p>Here is a simple example of code for a Fragment; note how we call the superclass constructor (<code>Fragment(R.layout.frag1)</code>) passing in a layout ID (<code>R.layout.frag1</code>, referencing <code>frag1.xml</code>). This specifies the layout of the fragment.
 <pre>
 import androidx.fragment.app.Fragment
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 
-class Frag1 : Fragment() {
+class Frag1 : Fragment(R.layout.frag1) {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater?.inflate(R.layout.frag1, container, false)
-    }
 }</pre>
-</li>
-<p>Note how we use a <code>LayoutInflater</code> to inflate the XML layout described in <em>frag1.xml</em> into a <em>View</em> object, which becomes the fragment's View. Note also the "false" passed in as the third parameter to inflate().  This indicates that we should not automatically attach the fragment to its parent.  In this example, we will attach fragments programmatically when the user selects navigation drawer items, so we do not want to attach the fragment to its parent.</p>
+</p>
 <h3>Fragment transactions</h3>
 <p>We will now return to replacing the fragment inside the FrameLayout with
-another. We use a <em>fragment transaction</em> for this.  The code below shows how you can replace the contents of the FrameLayout using a fragment transaction. Imagine we have two fragment classes, <code>Frag1</code> and <code>Frag2</code>, and we want to swap between these two fragments when the user selects the appropriate menu items in the navigation drawer:
+another. We use a <em>fragment transaction</em> for this. To perform fragment transactions, we need to use a <em>fragment manager</em>, which is a general class for managing fragments (for example adding a fragment to an activity's UI, or replacing a fragment with another). The code below shows how you can replace the contents of the FrameLayout using a fragment transaction. Imagine we have two fragment classes, <code>Frag1</code> and <code>Frag2</code>, and we want to swap between these two fragments when the user selects the appropriate menu items in the navigation drawer:
 <pre>val frag1 = Frag1() // create instance of fragment 1
 val frag2 = Frag2() // create instance of fragment 2
 nv.setNavigationItemSelectedListener {
-            try {
-                val frag = if (it.itemId == R.id.item1) frag1 else frag2 
-                drawerLayout.closeDrawers()
-                supportFragmentManager.beginTransaction().replace(R.id.frameLayout1, frag).commit()
-
-                true
-            } catch(e: Exception) {
-                e.printStackTrace()
-                false
-            }
-        }</pre>
+    val frag = if (it.itemId == R.id.item1) frag1 else frag2 
+    drawerLayout.closeDrawers()
+    supportFragmentManager.commit {
+        replace(R.id.frameLayout1, frag)
+    }
+    true
+}</pre>
 </li>
 <li>Note how we create instances of both fragment classes, <code>Frag1</code> and <code>Frag2</code>, and use the fragment manager to replace the contents of the frame layout with the selected fragment.</li>
 <li>Also note how we close the drawer with <em>drawerLayout.closeDrawers()</em></li>
-<li>Note also that, when the activity <em>first runs</em>, you need to perform
-a fragment transaction to fill the initial empty FrameLayout with
-whichever fragment you want to appear by default</li>
-<li>This is shown on the full example on the next page</li>
 </ul>
 <h3>Full navigation drawer layout example with fragment transactions</h3>
+<p>Note from this example that, when the activity <em>first runs</em>, 
+we need to perform a fragment transaction to fill the initial empty FrameLayout with whichever fragment you want to appear by default.
 <pre>package com.example.navdrawerapp
 
 import androidx.appcompat.app.AppCompatActivity
@@ -225,47 +219,104 @@ class MainActivity : AppCompatActivity() {
         val frag2 = Frag2()
 
         nv.setNavigationItemSelectedListener {
-            try {
-                val frag = if (it.itemId == R.id.item1) frag1 else frag2 
-                drawerLayout.closeDrawers()
-                supportFragmentManager.beginTransaction().replace(R.id.frameLayout1, frag).commit()
-
-                true
-            } catch(e: Exception) {
-                e.printStackTrace()
-                false
+            val frag = if (it.itemId == R.id.item1) frag1 else frag2 
+            drawerLayout.closeDrawers()
+            supportFragmentManager.commit {
+                replace(R.id.frameLayout1, frag)
             }
+            true
         }
         // Fill the FrameLayout with fragment 1 by default
-        try {
-            supportFragmentManager.beginTransaction().replace(R.id.frameLayout1, frag1).commit()
-        } catch(e: Exception) {
-            e.printStackTrace()
+        supportFragmentManager.commit {
+            replace(R.id.frameLayout1, frag)
         }
     }
 }</pre>
-
 </p>
 <h3>Which dependencies should be included?</h3>
 <p>To work with the above example you need to include the following dependency, which includes the Material Design components:
 <pre>implementation 'com.google.android.material:material:1.3.0'</pre>
 </p>
 <h3>Accessing elements within the fragment layout</h3>
-<p><em>The next section has been <strong>updated</strong> to reflect very recent (February 21) changes in the Android API. In particular, the use of <code>onActivityCreated()</code> has been replaced by <code>onViewCreated()</code>.</em></p>
 <p>To access elements of a fragment layout, you need to use <code>findViewById()</code> on the fragment's <code>view</code> property; this is because the elements are part of the <em>fragment</em>'s layout, not part of the layout of the activity. </p>
-<p>The code to setup event handling the elements of the fragment's layout should go <strong>inside the onViewCreated() method of your fragment.</strong> Only in <code>onViewCreated()</code> will the fragment and activity be fully initialised; before this the fragment's view may be null which means you cannot access the UI elements. <code>onViewCreated()</code> takes the fragment's View as an argument, so you can use this to access the View inside this method.</p>
+<p>The code to setup event handling the elements of the fragment's layout should go <strong>inside the onViewCreated() method of your fragment.</strong> Only in <code>onViewCreated()</code> will the View object contained within the fragment be fully initialised. Before this the fragment's view may be null which means you cannot access the UI elements. <code>onViewCreated()</code> takes the fragment's View as an argument, so you can use this to access the View inside this method.</p>
 <p>Here is an example, which sets up an event handler for the button in <code>onViewCreated()</code>: 
-<pre>// In your fragment
-override fun onViewCreated(fragmentView: View, b: Bundle?) {
-    val btn1 = fragmentView.findViewById&lt;EditText&gt;(R.id.btn1)
-    btn1.setOnClickListener {
-        val et1 = fragmentView.findViewById&lt;EditText&gt;(R.id.et1)
-        // ... do something with the contents of the edit text
+<pre>// Your fragment
+class Frag1 : Fragment(R.layout.frag1) {
+    override fun onViewCreated(fragmentView: View, b: Bundle?) {
+        val btn1 = fragmentView.findViewById&lt;Button&gt;(R.id.btn1)
+        btn1.setOnClickListener {
+            val et1 = fragmentView.findViewById&lt;EditText&gt;(R.id.et1)
+            // ... do something with the contents of the edit text
+        }
     }
 }</pre>
 </p>
 <h3>Accessing the activity within the fragment</h3>
 <p>A fragment may use functionality that needs an activity passed in as an argument, e.g. it may need to create an AlertDialog or a Toast, or interact with a database. This is easily obtained: inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
+<h3>Saving the state of the fragment - a hint for the assignment</h3>
+<p>When a fragment transaction replaces a fragment, its XML layout will be read again and <em>inflated</em> into memory as a hierarchy of View objects. This can cause a problem in some circumstances, such as a mapping application, in which you want to save the map's state as you navigate between fragments. Imagine you implement a fragment-based mapping activity in which you have a map fragment, and a fragment to allow the user to change the map's position (via latitude and longitude <code>EditText</code>s). To navigate from the map fragment to the set-position fragment, a fragment transaction will take place. And when the user then returns to the map fragment, another fragment transaction will take place to replace the set-posiiton fragment with the map fragment again. At this point, <strong>the <code>MapView</code> object will be reset and re-initialised</strong> as it is re-inflated from the XML. So, for example, if at some previous point the user changed the map style to the OpenTopoMap style, this change will be forgotten as the map is re-initialised as if from scratch. So you need to implement some logic to <em>save the state of the map</em> when the fragment is replaced, and <em>restore it</em> when the fragment becomes visible again. The former (saving the map's state) can be done in the fragment's <code>onDestroy()</code> method, e.g:
+<pre>
+override fun onDestroy() {
+    // isOpenTopo is a boolean, which is true if the current tile source of 
+    // the map is OpenTopoMap.
+    isOpenTopo = map1?.tileProvider?.tileSource == TileSourceFactory.OpenTopo
+    super.onDestroy()
+}
+</pre>
+and the latter would be done in <code>onViewCreated()</code>:
+<pre>
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    val map = view.findViewById(R.id.map1)
+    map?.apply {
+        this.tileProvider.tileSource = if(isOpenTopo) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK
+    }
+}
+</pre>
+Note how we find the map using its ID and then set its tile source (i.e. style) to the style that was saved when the fragment was previously destroyed.
+</p>
+<h4>Setting properties before replacing the fragment</h4>
+<p>What do we do if we want to update the properties of fragment before we
+make it appear via a transaction? For example, a user might enter a latitude and longitude in one fragment, which is used to update the map in another fragment.
+You might think that you could:
+    <ul>
+    <li>Replace the 'set location' fragment with the map fragment, and then</li>
+    <li>Set the map position on the map fragment to the latitude and longitude
+    entered by the user on the 'set location' fragment.</li>
+    </ul>
+However, the issue here is that the fragment transaction process is 
+<em>asynchronous</em> and might take some time to complete. So the second
+step, updating the map position to the latitude and longitude entered by the
+user, might complete <em>before</em> the fragment transaction is complete,
+as the transaction is running simulatenously. Remember we said above that
+the map is <em>reset</em> by inflating the XML layout in the fragment
+transaction. So the likely result is that the map position would be updated
+to the new position, but then, as the fragment transaction completes afterwards, reset to the default position!</p>
+<p>One way of dealing with this is to set <em>pending properties</em> on
+the fragment before performing the transaction. Then, after inflating the
+layout, i.e. in <code>onViewCreated()</code>, we can set the map's properties
+to the pending properties if they exist. For example, in the fragment:
+<pre>
+fun setPendingLocation(pendingLat: Double, pendingLon: Double) {
+    this.pendingLon = pendingLon
+    this.pendingLat = pendingLat
+    this.pendingLocationUpdate = true // indicates there's a pending location update
+}
+</pre>
+and in <code>onViewCreated()</code>:
+<pre>
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    val map = view.findViewById(R.id.map1)
+    map?.apply {
+        this.tileProvider.tileSource = if(isOpenTopo) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK
+        if(pendingLocationUpdate) {
+            this.controller.setCenter(GeoPoint(pendingLat, pendingLon))
+            pendingLocationUpdate = false // no pending update now
+        }
+    }
+}
+</pre>
+</p>
 <h2>Exercise</h2>
 <p>Return to your Room database application (week 7) and modify to use fragments. Change your activity to use a DrawerLayout and a navigation drawer. There
 should be two fragments, of which only one should be visible at a time. Each
