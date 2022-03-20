@@ -222,10 +222,17 @@ authenticated with OpenStreetMap. The <code>profile</code> object contains an
 user's name, which can be placed in an object and passed to
 <code>done()</code> in the same way as the local strategy. This object will
 then be stored in <code>req.user</code>, as before.</p>
-<p>Then, you could setup an OpenStreetMap login route to use the strategy:
+<p>Then, you could setup an OpenStreetMap login route to use the strategy, alongside a regular login route, and both routes, provided they are coded correctly, would end up attaching the user information to <code>req.user</code>.
 <pre>
+// Your normal login route
+app.post('/login',
+    passport.authenticate('local'),
+    (req, res) =&gt; { ... }
+);
+
+// Your OpenStreetMap login route
 app.post('/osm/login',
-    passport.authenticate('openstreetmap'); // use OpenStreetMap strategy
+    passport.authenticate('openstreetmap') // use OpenStreetMap strategy
 });
 </pre>
 </p>
