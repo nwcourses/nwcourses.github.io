@@ -215,11 +215,11 @@ class MyAdapter(val titles: List&lt;String&gt;,
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
         val myViewHolder = holder as MyViewHolder
-        holder.tvName.text = titles[index]
-        holder.tvDescription.text = descriptions[index]
+        myViewHolder.tvName.text = titles[index]
+        myViewHolder.tvDescription.text = descriptions[index]
         
         // Run our callback when the holder's itemView is clicked
-        holder.itemView.setOnClickListener { callback(index) }
+        myViewHolder.itemView.setOnClickListener { callback(index) }
     }
 
     override fun getItemCount(): Int {
