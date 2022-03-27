@@ -41,7 +41,7 @@ async function fileTest() {
 fileTest();
 </pre>
 <p>This example reads in 10 bytes from file and stores them in a <code>Buffer</code>. A Buffer is a Node.js data structure used to represent bytes in memory. The first thing we need to do is <em>open</em> the file: 
-<code>const fp = await fs.open('bytes.bin', 'r');</code>
+<pre>const fp = await fs.open('bytes.bin', 'r');</pre>
 This opens the file in <em>read</em> mode (hence <code>'r'</code>), and resolves with a <code>FileHandle</code> (the variable <code>fp</code> in the example above). A <code>FileHandle</code> is a 'pointer' to an open file which can be used to perform operations on it; when opened it 'points' to the start of the file but as the file is read, it moves through the file.</p>
 <p>Note how we then allocate memory for a buffer with capacity 10 bytes. We then call the <code>read()</code> method of the <code>FileHandle</code> to read the bytes into the buffer from the file. This will return an object containing two properties:
     <ul>
@@ -184,7 +184,7 @@ app.get('/map/:z/:x/:y.png', async(req, res) =&gt; {
     mapsResponse.body.pipe(res);
 });
 </pre>
-Note how this is working. We use the <code>node-fetch</code> API to perform a fetch request to the <code>megamaps.example.com</code> remote map server, forwarding on the requested x,y and z tile coordinates to it and adding an API key stored in <code>.env</code> We await the response and then take the <code>body</code> of the response (a stream containing the content, i.e the requested tile). This will be a stream of the bytes making up the tile. So this is <em>piped</em> into the response from our own route (i.e. <code>res</code>), which will result in the map tile being forwarded directly to the ultimate client - the browser - without being processed by our own server.</p>
+Note how this is working. We use the <code>node-fetch</code> API (<strong>you should install version 2 - <code>npm install node-fetch@2</code> - for this to work as version 3 uses ES6 modules which we have not covered yet</strong>) to perform a fetch request to the <code>megamaps.example.com</code> remote map server, forwarding on the requested x,y and z tile coordinates to it and adding an API key stored in <code>.env</code> We await the response and then take the <code>body</code> of the response (a stream containing the content, i.e the requested tile). This will be a stream of the bytes making up the tile. So this is <em>piped</em> into the response from our own route (i.e. <code>res</code>), which will result in the map tile being forwarded directly to the ultimate client - the browser - without being processed by our own server.</p>
 <p>Another use of proxy routes is to allow access to remote APIs which do not have CORS set up from an AJAX front end on our own server. The same-origin policy prohibits AJAX requests to third-party servers, but we can circumvent this by using a proxy. Our AJAX front end communicates with the proxy on our own server, and the proxy forwards the request on to the remote API. Again, we can setup a pipe on our proxy route which forwards the response stream on to our AJAX front end. Here is a real example, used to access the OpenStreetMap <em>Nominatim</em> API, which provides search services:
 <pre>
 app.get('/nominatimSearch/:query', async(req, res) =&gt; {     
