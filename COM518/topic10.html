@@ -1,258 +1,348 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 10: More Modular Applications: DAOs and Controllers</title>
+<title>Topic 10: File I/O, Streams, File Upload</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 10: More Modular Applications: DAOs and Controllers</h1>
+<h1>Topic 10: File I/O, Streams, File Upload</h1>
 </div>
-<hr />
-<h2>Firstly - one or two hints for the assignment</h2>
-<p>Here are one or two hints about the assignment which relate to questions some of you have been asking.</p>
-<h3>How do I add a form to a popup?</h3>
-<p>This may help you for task 13. <code>bindPopup()</code> can take a DOM node as well as plain text or HTML. So you can create a DOM structure containing your form and pass it in as an argument to <code>bindPopup()</code>, e.g.:
-<pre>
-const domDiv = document.createElement('div');
-// ... other code to create a form ...
-marker.bindPopup(domDiv); // add the DOM-created div to a marker
-</pre>
-</p>
-<h3>How do I show and hide an element?</h3>
-<p>You may wish to do this for task 9, in which you want to use a &lt;div&gt; with some form fields to enter the POI details, but you do not want the &lt;div&gt; to show all the time. First, set its <code>display</code> property to <code>none</code> in the CSS:
-<pre>
-#myDiv {
-    display: none;
-}
-</pre>
-Then, at the point you want to show it, change the <code>display</code> property from JavaScript to <code>block</code>, e.g.:
-<pre>document.getElementById('myDiv').style.display = 'block';</pre>
-Then, when you want to hide it again, change <code>display</code> back to <code>none</code>:
-<pre>document.getElementById('myDiv').style.display = 'none';</pre>
-</p>
-<hr />
-<h2>The main material</h2>
-<p>Now onto the main topic for this week. Today we will look at using a more modular, easier-to-maintain structure for our Node/Express applications by making use of <em>Data Access Objects (DAOs)</em> and <em>controllers</em>.</p>
-<p><strong>Note that this is a more advanced topic, which can help you get a mid-high A, so if you are aiming for a lower grade in the assignment, you might prefer to work on the assignment or catch up with previous topics during class this week.</strong></p>
-<h2>Data Access Objects</h2>
-<ul>
-<li>We have already seen how to interact with a MySQL database from node.js</li>
-<li>However, we can make our code more structured and object-oriented (remember we did classes and objects in Week 2)</li>
-<li>When writing object-oriented code to interact with a database, we 
-typically deal with <em>data access objects (DAOs)</em>.</li>
-<li>A <em>DAO</em> provides an interface to your table as a whole, and
-might contain methods such as <em>findStudentById()</em> or
-<em>findStudentsByName()</em></li>
-</ul>
-<h3>Example of a DAO for the students table</h3>
-<pre>
 
-class StudentDao {
-    // conn is our mysql database connection
-    // table is the table storing the students
-    constructor(conn, table) {
-        this.conn = conn;
-        this.table = table;
-    }
+<p>Today we will look at how to perform <em>file input/output (file I/O)</em> in Node.js.  This will allow you to create new files, or open existing files, that exist on your server. We will also look at how to <em>upload files to a server</em> in Node.js.</p>
 
 
-    // find a student with a given ID
 
-    findStudentById(id) {
-        return new Promise ( (resolve, reject) =&gt; {
-            this.conn.query(`SELECT * FROM ${this.table} WHERE ID=?`, [id],
-                (err, results, fields) =&gt; {
-                    if(err) {
-                        reject(err);
-                    } else if (results.length == 0) {
-                        // resolve with null if no results - this is not considered an error, so we do not reject
-                        resolve(null); 
-                    } else {
-                        // only one student will be found but "results" will still be an array with one member. 
-                        // To simplify code which makes use of the DAO, extract the one and only row from the array 
-                        // and resolve with that.
-                        resolve(results[0]);
-                    }
-                });
-        });
-    }
-                            
+<h2>The Node.js fs module</h2>
 
-    // find all students on a given course
-    findStudentsByCourse(course) {
-        return new Promise ( (resolve, reject) =&gt; {
-            this.conn.query(`SELECT * FROM ${this.table} WHERE course=?`, [course],
-                (err, results, fields) =&gt; {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(results);
-                    }
-                });
-        });
-    }
+<p>Node.js comes with an inbuilt module <code>fs</code> to handle basic file I/O (see the <a href='https://nodejs.org/dist/latest-v16.x/docs/api/fs.html'>documentation</a>). You can open an existing file and loop through each line, open an existing file at once, or write to a new file. There are two versions of <code>fs</code>: the non-promise (callback-based) version and the promise-based version. We will use the promise-based version as it allows simpler code with <code>async</code>/<code>await</code>. Here are some examples:</p>
 
-    // add a new student 
+<pre class="codebox">
 
-    addStudent(name, course) {
-        return new Promise ( (resolve, reject) =&gt; {
-            this.conn.query(`INSERT INTO ${this.table} (name,course) VALUES (?,?)`, [name, course],
-                (err, results, fields) =&gt; {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(results.insertId); // resolve with the record's allocated ID
-                    }
-                });
-        });
-    }
+const fs = require('fs').promises; // use promise-based version
 
-    // update a student - takes student ID, name, and course as parameters and 
-    // updates the name and the course of the record with that ID
-    // For you to complete!
-
-    updateStudent(id, name, course) {
-    }
-
-
-    // delete a student - takes a student ID as a parameter
-    // and deletes the record with that ID.
-    // For you to complete!
-
-    deleteStudent(id) {
+async function fileTest() {
+    try {
+        const fp = await fs.open('bytes.bin', 'r');
+        const buffer = Buffer.alloc(10);
+        const { bytesRead } = await fp.read({buffer: buffer});
+        console.log(buffer);
+        if(bytesRead != 10) {
+            console.error("Less than 10 bytes read. File corrupted");
+            process.exit(1);
+        }
+        fp.close();
+    } catch(e) {
+        console.error(e);
+        process.exit(1);
     }
 }
 
-module.exports = StudentDao; // so that other code can use it</pre>
-<h3>DAO - Explanation</h3>
-<ul>
-<li>Note how the DAO contains a series of methods which perform various
-database operations</li>
-<li>The rest of our code would interface with the DAO, rather than
-the database directly, keeping it clean and keeping all the 'messy' SQL
-statements in one place</li>
-<li>Each method in the DAO performs a particular database operation (find a student by ID, find all students on a given course, add a student, update a student's details, and delete a student)</li>
-<li>Finally, note how each method <em>returns a Promise object</em>. This is
-to make coding using the DAO easier, as we no longer have to worry about
-callbacks and can instead write sequential code with <code>async</code>/<code>await</code> (remember from Topic 5 that we can use <code>await</code> with any method which returns a promise). This allows you to use simpler code such as:
-<pre>const dao = new StudentDao(dbconn, "students");
-const student = <em>await</em> dao.findStudentById(req.params.id);</pre>
-</li>
-</ul>
-</p>
-<p>Note how we create our own custom <em>Promise</em>, which will either resolve or reject depending on whether the query succeeded or not:
-<ul>
-<li> When you create your own custom Promise object, you must supply <em>a function which will carry out the promise</em>. This function will typically be an arrow function, and takes two parameters: <code>resolve</code> (a function which will run when the promise resolves), and <code>reject</code> (a function which will run when the promise rejects). These functions will be supplied by the code which uses the promise (in this example, the code which calls the DAO method).</li>
-<li>For example if you are using "plain promises" rather than async/await, the <code>resolve</code> function corresponds to the argument to <code>then()</code> and the <code>reject</code> function corresponds to the argument to <code>catch()</code>. If using async/await, the argument to <code>resolve()</code> will become the return value of the <code>await</code> call and the argument to <code>reject()</code> will become the parameter of the <code>catch</code> block.</li>
-<li> Note how the code to query the database is placed inside this arrow function, and note how we call either <code>resolve</code> or <code>reject</code> depending on whether the operation succeeded or not.</li>
-<li>Please see the notes <a href='https://nwcourses.github.io/wad/promises.html'>here</a> for more details on creating your own custom promises, specifically the section entitled <strong>"How to implement a promise"</strong>.</li>
-</ul>
-</p>
-<h2>Controllers</h2>
-<p>We can further enhance the modularity of our code through the use of <em>controllers</em>. Controllers are part of the <em>model/view/controller</em> (MVC) architecture, in which we divide the code into three components:
+fileTest();
+</pre>
+<p>This example reads in 10 bytes from file and stores them in a <code>Buffer</code>. A Buffer is a Node.js data structure used to represent bytes in memory. The first thing we need to do is <em>open</em> the file: 
+<code>const fp = await fs.open('bytes.bin', 'r');</code>
+This opens the file in <em>read</em> mode (hence <code>'r'</code>), and resolves with a <code>FileHandle</code> (the variable <code>fp</code> in the example above). A <code>FileHandle</code> is a 'pointer' to an open file which can be used to perform operations on it; when opened it 'points' to the start of the file but as the file is read, it moves through the file.</p>
+<p>Note how we then allocate memory for a buffer with capacity 10 bytes. We then call the <code>read()</code> method of the <code>FileHandle</code> to read the bytes into the buffer from the file. This will return an object containing two properties:
     <ul>
-    <li>the <em>model</em> - those components which directly interact with the database, i.e. the DAO</li>
-    <li>the <em>view</em> - those components used to <em>present</em> the data (i.e. output the data as JSON or as HTML)</li>
-    <li>the <em>controller</em> - which manages the interaction between the model and the view.</li>
+    <li><code>bytesRead</code> - the number of bytes read from the file;</li>
+    <li><code>buffer</code> - the buffer that the bytes have been read into. If we supplied a buffer within the options passed in as an argument to <code>read()</code> it will be the same buffer; if not, a new buffer will be created and returned.</li>
     </ul>
-<br />
-<img src="../images/mvc.png" alt="MVC architecture" /><br />
-The typical role of a controller would be to communicate with the model (the DAO) to get database results, and then format those results to be presented to the client. Or, alternatively, the controller could gather information from the client and then forward it on to the model (DAO) to insert it into the database.</p>
-<p>Hopefully, from this you may be able to figure out that the <em>router</em> takes the role of the controller. To improve the modularity of your code, however, you can create separate <em>controller objects</em> to represent the controller, and add methods to these objects to carry out the functionality of your router. Then, in your router, you create a controller object and call these methods from each route in the router.</p>
-<p>A good way to organise your project is to have sub-folders within the main folder of your project for routes, controllers and DAOs. These folders could simply be named:
-	<ul>
-	<li><code>routes</code> containing all your route files;</li>
-	<li><code>controllers</code> containing all your controllers;</li>
-	<li><code>dao</code> containing all your DAOs.
-	</ul>
+Note the line:
+<pre>const { bytesRead } = await fp.read({buffer: buffer});</pre>
+What is this doing? <code>fp.read()</code> resolves with a an object containg a <code>bytesRead</code> property representing the bytes read. So we could equally well do:
+<pre>
+const obj = await fp.read({buffer: buffer});
+if(obj.bytesRead != 10) { 
+    // ...
+</pre>
+However, the destructuring operator <code>{ }</code> allows us to "unpack" the object into variables with names corresponding to the property names of the object. So if we wanted to use the <code>buffer</code> property of the object returned from <code>read()</code> (which we might do if we didn't create a <code>Buffer</code> ourselves, as a <code>Buffer</code> (of 16384 bytes) is created for us if we don't supply one) then we could also obtain it using destructuring:
+<pre>const { buffer, bytesRead } = await fp.read({});</pre>
+Note here that we do not pass in a buffer to <code>read()</code>, and instead give it an empty options object; in this case <code>read()</code> will allocate a buffer for us.</p>
+
+<h3>Writing to file</h3>
+<p>The next example will illustrate <em>writing</em> to file.
+<pre>
+const fs = require('fs').promises;
+
+async function fileWriteTest() {
+    try {
+        const array = [ 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 ];
+        const buffer = Buffer.from(array);
+        const fp = await fs.open('outbytes.bin', 'w');
+        const { bytesWritten } = await fp.write(buffer);
+        console.log(`Number of bytes written: ${bytesWritten}`);
+        fp.close();
+    } catch(e) {
+        console.error(e);
+        process.exit(1);
+    }
+}
+
+fileWriteTest();
+</pre>
+Note how we:
+    <ul>
+    <li>Create an array containing 10 numbers;</li>
+    <li>Create a buffer from the array;</li>
+    <li>Open a file for writing (<code>'w'</code> indicates we wish to open the file for writing);</li>
+    <li>Actually write the buffer to file. This will again resolve with a promise containing an object with two fields, <code>buffer</code> (the buffer written) and <code>bytesWritten</code> (the number of bytes successfully written). Again we use destructuring to extract the latter value into a variable.</li>
+    </ul>
 </p>
-<p>So, if we imagine a student router, within the <code>routes</code> folder:
+<p>Note that the <code>write()</code> method of the <code>FileHandle</code> will also accept a string, rather than a buffer. This allows us to easily write text to file. The following example shows this:
+<pre>
+const fs = require('fs').promises;
+
+async function textFileWriteTest() {
+    try {
+        const array = [ "C++", "Java", "JavaScript", "PHP", "Python", "Kotlin" ];
+        const fp = await fs.open('languages.txt', 'w');
+        for(let language of array) {
+            await fp.write(`${language}\n`);
+        }
+        fp.close();
+    } catch(e) {
+        console.error(e);
+        process.exit(1);
+    }
+}
+
+textFileWriteTest();
+</pre>
+This example creates an array of strings and then loops through them with a <code>for</code>/<code>of</code> loop. We write each line in turn: note how we need to add a new line character (<code>\n</code>).</p>
+<h3>Higher-level operations</h3>
+<p>We can also perform some commonly-used higher-level operations with the <code>fs</code> package with minimal code. For example we can read in the entire contents of a file with <code>fs.readFile()</code>:
+<pre>
+const fs = require('fs');
+
+async readWholeFile() {
+    const wholeFile = await fs.readFile("data.txt").toString();
+    const lines = wholeFile.split("\n");
+    console.log(lines);
+}
+
+readWholeFile();
+</pre>
+Note how <code>readFile()</code> resolves with a buffer containing the entire contents of the file (which is then converted to a string with <code>toString</code>). We then split the string into an array representing each line; note how we can use the <code>split()</code> method, with a given delimiter string, to split a string into an array at a certain character. (We could use the same technique to split a line at the commas in a CSV file).</p>
+
+<h2>Streams</h2>
+
+<p>To understand some features of Node file I/O it is useful to understand the meaning of the term <em>stream</em>. A <em>stream</em> represents the flow of data from one device to another. Examples of streams include:
+    <ul>
+    <li>Keyboard input (keyboard to memory) - this is known as <em>standard input</em> and can be accessed in Node.js as <code>process.stdin</code></li>
+    <li>Screen output (memory to screen) - this is known as <em>standard output</em> and can be accessed in Node.js as <code>process.stdout</code></li>
+    <li>File input and output (memory to and from file), which we have seen abovee</li>
+    <li>Network input and output (memory to and from another machine on the
+    network), e.g. the use of the <code>node-fetch</code> API</li>
+    </ul>
+
+</p>
+
+<p>Streams divide into <em>input</em> and <em>output</em> streams. An <em>input stream</em> represents
+<em>input</em> to the program (from file, keyboard, network, etc), while
+an <em>output stream</em> represents <em>output</em> from the program (to
+file, screen, network etc). In Node parlance, input streams are known as <em>readable</em> streams and output streams as <em>writable</em> streams.</p>
+<p>The diagram below shows examples of streams:
+<br />
+<img src="../images/streams.png" alt="Streams" />
+</p>
+<h3>Pipes</h3>
+
+<p>A nice feature of the Node.js file I/O functionality is the ability to <em>pipe streams</em>. What does this mean? Remember, from above, that a stream is a flow of bytes from one entity to another. We can connect one stream to another, to transfer information from an input source to an output destination.
+</p>
+<p>Here is the simplest possible use of a pipe. We pipe standard input (<code>process.stdin</code>) to standard output (<code>process.stdout</code>). What will this do? It will read in input from the keyboard and echo it to the screen. The stream of information into the program from the keyboard is piped straight out to the screen (standard output).
+<pre>process.stdin.pipe(process.stdout);</pre>
+This example will continue until the user terminates the input stream with Control-D.</p>
+<p>
+Here is an example which will pipe standard input to a file:
+<pre>const fs = require('fs');
+const outStream = fs.createWriteStream('output.txt');
+process.stdin.pipe(outStream);</pre>
+Again this will continue until the user terminates standard input with Control-D. Here is an example which will create an input stream from a file, and stream it to standard output (i.e. the file contents will appear on screen):
+<pre>const fs = require('fs');
+const inStream = fs.createReadStream('file.txt');
+inStream.pipe(process.stdout);</pre>
+and finally here is an example which will copy one file to another by opening an input stream from the first file, an output stream to the second file, and pipe the input stream to the output stream:
+<pre>const fs = require('fs');
+const inStream = fs.createReadStream('file1.txt');
+const outStream = fs.createWriteStream('file2.txt');
+inStream.pipe(outStream);</pre>
+You can also do more complex piping operations by creating a <em>pipeline</em> with multiple stream operations , such a technique can be used for example to zip files using a zip stream from the <code>zlib</code> module.</p>
+<h3>Pipes and the web</h3>
+<p>So for example if we connect to a remote web API from our own server, we receive a stream of bytes from the remote API. Now, let's say we want our server to act as a proxy, or middle-person, between the remote API and the user, so that the user requests a resource from our own server but it is ultimately sourced from a remote third-party API (an example of when you want to do this is given below). In this case, there is no reason to save the response from the remote API in the Node server's memory; you can instead just forward - or <em>pipe</em> - the stream on to the ultimate client, i.e. the web browser.</p>
+<br />
+<img src="../images/proxy.png" alt="Proxies" />
+</p>
+<p>A good example of where this might be useful is where a remote API requires an <em>API key</em>. An API key is a code, unique to a given registered user, which is used to access certain APIs which may have usage limits, or require payment for heavy use. Use of an API key ensures that users of the remote API do not overload the API's servers, or allows charging for APIs if a client exceeds a certain number of requests, e.g. per month. Many mapping providers use API keys. API keys, however, need to be secret, so you will not want to include them in your client-side JavaScript code as otherwise people might 'steal' them. So a better pattern is for your client-side JavaScript to access the remote API via a proxy route on your own server. The proxy route can forward the request on to the remote API and add the API key. So the API key can, for example, be stored in a <code>.env</code> file.</p>
+<p>So here is an example of a proxy route which forwards a request on to a remote API, adding an API key, and using piping:
+<pre>
+app.get('/map/:z/:x/:y.png', async(req, res) =&gt; {
+    const mapsResponse = await fetch(`https://megamaps.example.com/map/${req.params.z}/${req.params.x}/${req.params.y}.png?apiKey=${process.env.API_KEY}`);
+`
+    // When piping we need to set the correct content type on our headers
+    res.set({'Content-Type': 'image/png'});
+    mapsResponse.body.pipe(res);
+});
+</pre>
+Note how this is working. We use the <code>node-fetch</code> API to perform a fetch request to the <code>megamaps.example.com</code> remote map server, forwarding on the requested x,y and z tile coordinates to it and adding an API key stored in <code>.env</code> We await the response and then take the <code>body</code> of the response (a stream containing the content, i.e the requested tile). This will be a stream of the bytes making up the tile. So this is <em>piped</em> into the response from our own route (i.e. <code>res</code>), which will result in the map tile being forwarded directly to the ultimate client - the browser - without being processed by our own server.</p>
+<p>Another use of proxy routes is to allow access to remote APIs which do not have CORS set up from an AJAX front end on our own server. The same-origin policy prohibits AJAX requests to third-party servers, but we can circumvent this by using a proxy. Our AJAX front end communicates with the proxy on our own server, and the proxy forwards the request on to the remote API. Again, we can setup a pipe on our proxy route which forwards the response stream on to our AJAX front end. Here is a real example, used to access the OpenStreetMap <em>Nominatim</em> API, which provides search services:
+<pre>
+app.get('/nominatimSearch/:query', async(req, res) =&gt; {     
+    const nominatimResponse = await fetch(`https://nominatim.openstreetmap.org/search?format=json&amp;q=${req.params.query}`, {         
+        headers: {             
+            'User-Agent': 'OpenTrailView 4',             
+            'Referer': 'https://opentrailview.org'         
+        }     
+    });     
+
+    // When piping we need to set the correct content type on our headers
+    res.set({'Content-Type': 'application/json'});     
+    nominatimResponse.body.pipe(res); 
+});
+</pre>
+</p>
+<h3>Stream events</h3>
+<p>It is possible to handle certain <em>events</em> emitted through the use of streams. For example the <code>error</code> event to indicate an error (e.g. opening a non-existing file), the <code>end</code> event for readable (input) streams when all data has been read, and the <code>finish</code> event for writable (output) streams when all data has been written. For example:
+<pre>
+const instrm =  fs.createReadStream('file1.txt');
+instrm.on("error", e =&gt; { console.error(`Input stream: ERROR ${e}`); } );
+instrm.on("end", () =&gt; console.log("READ...") );
+
+const outstrm = fs.createWriteStream('file2.txt');
+outstrm.on("error", e =&gt; { console.error(`Output stream: ERROR ${e}`); } );
+outstrm.on("finish", () =&gt; console.log("WRITTEN...") );
+
+instrm.pipe(outstrm);
+</pre>
+More information on streams can be found on the <a href="https://nodejs.org/dist/latest-v16.x/docs/api/stream.html">API documentation</a>.
+</p>
+<h2>File upload</h2>
+
+<p>Having looked at file I/O in general, we will now consider how to <em>upload</em> files to a server. When a file is uploaded, it is sent in <code>multipart/form-data</code> format. An example of this is shown below; here we are uploading a file called <code>cats_small.jpg</code> via an item of POST data called <code>userPhoto</code>. 
+<pre>
+POST /photos/upload HTTP/1.1
+Host: example.com
+Content-Type: multipart/form-data; boundary=-----------------------------36350044621708912132908698620
+
+-----------------------------36350044621708912132908698620
+Content-Disposition: form-data; name="userPhoto"; filename="cats_small.jpg"
+Content-Type: image/jpeg
+
+
+[JPEG bytes follow here]
+-----------------------------36350044621708912132908698620--
+</pre>
+As can be seen, the post data begins an ends with a <em>delimiter</em> (the 
+<code>-----------------------------36350044621708912132908698620</code> here; the end delimiter has two additional dashes) and is followed by a <code>Content-Disposition</code> header describing the data, including its identifier (<code>userPhoto</code> here) and the filename of the file we're uploading (<code>cats_small.jpg</code> here).</p>
+<p>If a form is sent with <code>multipart/form-data</code>, then any non-file POST data will be sent in the same way too. Here is an example in which we are sending an item of POST data called <em>message</em> with the photo:
+<pre>
+POST /photos/upload HTTP/1.1
+Host: example.com
+Content-Type: multipart/form-data; boundary=-----------------------------36350044621708912132908698620
+
+-----------------------------36350044621708912132908698620
+Content-Disposition: form-data; name="userPhoto"; filename="cats_small.jpg"
+Content-Type: image/jpeg
+
+[JPEG bytes follow here]
+-----------------------------36350044621708912132908698620
+Content-Disposition: form-data; name="message"
+
+A photo of two street cats, Binnie and Clyde.
+-----------------------------36350044621708912132908698620--
+</pre>
+See the <a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST'>Mozilla documentation</a>. Note how the same delimiter is used to separate each piece of data.</p>
+<p>
+As should be apparent,it is trickier to parse on the server side than straightforward POST data, and for that reason, you probably want to use a third-party library to handle file uploads.</p>
+
+<h3>Specifying the form on the client-side</h3>
+
+<p>Before we look at how to handle file uploads on the server, we need to look at how we can handle <code>multipart/form-data</code> forms on the client side.
+You must specify the <code>enctype</code> (encoding type) of the form to <code>multipart/form-data</code> and specify a form field to upload the file with a <code>type</code> of <code>file</code>:
+<pre>
+&lt;form method='post' enctype='multipart/form-data'&gt;
+Select your file: &lt;input type='file' id='userPhoto' /&gt;
+&lt;input type='button' id='uploadBtn' value='Upload!' /&gt;
+&lt;/form&gt;
+</pre>
+Here is some JavaScript code which could then be used to upload the files:
+<pre>
+const photoFiles = document.getElementById("userPhoto").files;
+if (photoFiles.length == 0) {
+    alert('No files selected!');
+} else {
+    const formData = new FormData();
+    formData.append("userPhoto", photoFiles[0]);
+    const response = await fetch('/photos/upload', {
+        method: 'POST',
+        body: formData
+    });
+    // ... continue ...
+}
+</pre>
+Note how this works:
+    <ul>
+    <li>Firstly we access the file upload element in the form (<code>userPhoto</code>) and then access its <code>files</code> property (an array of all files selected, we can potentially upload more than one at once)</li>
+    <li>Then we create a <code>FormData</code> object. <code>FormData</code> is an object used to represent POST data which we need to use when doing <code>multipart/form-data</code> uploads.</li>
+    <li>We then make our <code>fetch</code> request and specify the <code>FormData</code> as the request body. This will automatically take care of formatting the multipart request.</li>
+    </ul>
+</p>
+<h3>The server side</h3>
+<p>Having looked at how we upload files on the client side, how do we then process them on the server? As said above we can make the job easier by relying on a third-party Node module, and we are going to use <code>express-fileupload</code>. First of all we have to add this as middleware to our Express app:
 <pre>
 const express = require('express');
-const studentRouter = express.Router();
+const app = express();
+const fileUpload = require('express-fileupload');
+require('dotenv').config();
 
-// include our database connection, note that .. means "go up a folder" so the 
-// mysqlconn.js is in the parent folder to the routes folder
-const db = require('../mysqlconn'); 
-
-// assume the StudentController is inside a 'student.js' file within the 
-// 'controllers' folder of the project, as described above
-const StudentController = require('../controllers/student'); 
-
-
-// Create the controller object, and pass in the database connection as an argument
-const sController = new StudentController(db);
-
-// handle get requests to route /id/:id using the controller's findStudentById() method
-studentRouter.get('/id/:id', sController.findStudentById.bind(sController));
-
-// handle get requests to route /course/:course using the controller's findStudentByCourse() method
-studentRouter.get('/course/:course', sController.findStudentByCourse.bind(sController));
-
-// handle post requests to /create using the controller's addStudent() method
-studentRouter.post('/create', sController.addStudent.bind(sController));
-
-module.exports = studentRouter; // so that main application can use it</pre>
-Note how the router creates a StudentController object, passing the database connection to it (which will be needed by the DAO) and note also how we handle each route with <em>methods of the controller object</em>. One thing you might be asking yourself is: what is the meaning of the "<code>bind()</code>" function? <code>bind()</code> is necessary here to <strong>preserve the context of the <code>this</code> object in callbacks</strong>. By default, the context of <code>this</code> (the current object) is lost in a callback function, and to preserve the context of <code>this</code>, you have to <em>bind</em> the callback to the object you wish to use as <code>this</code> (which will be the controller here). You can read about <code>bind()</code> in more detail <a href='https://nwcourses.github.io/wad/bind.html'>here</a>.</p>
-<p>So, let's look at the Controller object, which would be in the <code>controllers</code> folder:
-<pre>// assume the DAO is in a 'student.js' file within the 
-//'dao' folder of the project, as described above
-const StudentDao = require('../dao/student'); 
-
-class StudentController {
-    constructor(db) {
-        // Create a DAO for communicating with the database
-        this.dao = new StudentDao(db, "students");
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: process.env.TMPDIR,
+    limits: { fileSize: process.env.UPLOAD_LIMIT_IN_MB * 1024 * 1024 }
+}));
+</pre>
+Note how we use the <code>express-fileupload</code> module and then add it to our app as middleware. We configure it with various settings:
+    <ul>
+    <li><code>useTempFiles</code> means to upload the files to a temporary location, rather than keeping them in memory. Our code can then perform checks on the files and if they are valid, they can be moved to a permanent location on the server.</li>
+    <li><code>tempFileDir</code> is the location of the temporary directory.</li>
+    <li><code>limits</code> allows you to configure various limits on what will be accepted. Here, we are using the <code>fileSize</code> limit which specifies the limit on upload file size in bytes. We calculate this from a value in <code>.env</code>, <code>UPLOAD_LIMIT_IN_MB</code>, specified in megabytes, by multiplying by 1024*1024.</li>
+    </ul>
+</p>
+<p>Once this middleware is added, the uploaded files can be accessed via <code>req.files</code>. You would probably set up an <code>/upload</code> route, e.g:
+<pre>
+app.post('/photos/upload', async(req, res) =&gt; {
+    try {
+        const fileName = req.files.userPhoto.name;
+        await req.files.userPhoto.mv(`${process.env.PERMANENT_UPLOAD_DIR}/${fileName}`);
+        res.json({success: 1});
+    } catch(e) {
+        res.status(500).json({error: e});
     }
-
-    // findStudentById()
-    // calls the DAO's findStudentById() method, passing the ID parameter to
-    // it, and formats the JSON returned.
-    async findStudentById(req, res) {
-        try {
-            const student = await this.dao.findStudentById(req.params.id);
-            // Remember from the DAO that the promise resolves with null if there are no results
-            if(student == null) {
-                res.status(404).json({error: "No student with that ID"});
-            } else {
-                res.json(student);    
-            }
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-
-    // findStudentByCourse()
-    // calls the DAO's findStudentByCourse() method, passing the course parameter to
-    // it, and formats the JSON returned.
-    async findStudentByCourse(req, res) {
-        try {
-             const students = await this.dao.findStudentByCourse(req.params.course);
-            res.json(students);    
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-
-    // addStudent()
-    // calls the DAO's addStudent() method, passing in the 'name' and 'course'
-    // POST data to it, and formats the allocated ID as JSON to send back to the client.
-    async addStudent(req, res) {
-        try {
-            const studentId = await this.dao.addStudent(req.body.name, req.body.course);
-            res.json({id: studentId});
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-}
-
-module.exports = StudentController; // so that the router can use it</pre>
-Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
-
+});
+</pre>
+In this example we simply move the file (using the <code>mv()</code> method) to its permanent location. Note how we use <code>req.files</code> to access the file; this is a dictionary-like object with properties corresponding to the POST data name(s) for each file uploaded. In our case, the POST data name was <code>userPhoto</code> so we use it here. In more sophisticated applications we might want to add checks, for example to prevent non-logged-in users being able to upload files, or store a record of which user uploaded which file.</p>
+<p>Note also how <code>mv()</code> returns a promise, which resolves if the file could be moved to the requested location, or rejects otherwise - so to handle this, we <code>await</code> the resolution of the promise and catch a rejection with the <code>catch</code> block.</p>
 <h2>Exercise</h2>
-<p>Rewrite questions 1 to 6 from Topic 8 to use appropriate DAOs and controllers as well as routes. If you do not have topic 8 on its own, and only have topics 8 and 9 together, you may find it helpful to make a copy of topic 9 with the session/login code removed, as that will minimise the chance of complications.</p>
 
+<ol>
+<li>Available <a href='restaurants.csv'>here</a> is a CSV file describing restaurants in the local area. Create a Node application which reads in this CSV file into a string, and splits it into an array. Display the array directly with <code>console.log()</code>.</li>
+<li>Now try splitting each <em>line</em> into a sub-array, by splitting at the commas. Output the data in this format:
+<pre>
+Name: restaurant name
+Address: restaurant address (without town) 
+Town: restaurant town
+Cuisine: restaurant cuisine
+Latitude: restaurant latitude
+Longitude: restaurant longitude
+--------
+Name: next restaurant name
+... etc ...
+</pre>
+</li>
+<li>Add functionality to your mapping application to add a Nominatim search via a proxy. There should be a "search" box with a button, and when this is pressed, you should call a proxy route on your server to forward the search string to Nominatim. <strong>Ensure you supply the <code>User-Agent</code> and <code>Referer</code> properties, as shown in the example, these are required to use Nominatim otherwise you are breaching its terms and conditions otherwise you are breaching its terms and conditions. The <code>User-Agent</code> can just be something like "Student test app", while the <code>Referer</code> should be the URL of your Goorm app.</strong>. Pipe the JSON returned from Nominatim to your browser. By examining the JSON returned from Nominatim, work out how to set the map position to that of the found location (if more than one result, use the first).</li>
+<li>Write a simple test file-upload application. It should just contain a form to allow the user to upload a file, plus some client side code to upload the file and Node.js code to handle receiving the file.</li>
+<li>Return to question 1 and try to add a route to your Express application to send back JSON of all the restaurants to the client. You need to parse the CSV file into an array of objects, the array being an array of the restaurants and each object representing a restaurant (use appropriate keys). Then, connect the route to your map front end, so that the locations of all restaurants are shown.</li>
+<li>Modify your Nominatim search to handle multiple results by creating a &lt;div&gt; for the results, and list each result in the &lt;div&gt;. Add a button to each result, and move the map to that location when the user clicks the button.</li>
+</ul>
 </body>
 </html>
