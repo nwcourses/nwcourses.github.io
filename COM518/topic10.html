@@ -167,7 +167,14 @@ and finally here is an example which will copy one file to another by opening an
 const inStream = fs.createReadStream('file1.txt');
 const outStream = fs.createWriteStream('file2.txt');
 inStream.pipe(outStream);</pre>
-You can also do more complex piping operations by creating a <em>pipeline</em> with multiple stream operations , such a technique can be used for example to zip files using a zip stream from the <code>zlib</code> module.</p>
+You can also do more complex piping operations by executing multiple stream operations , such a technique can be used for example to zip files using a zip stream from the <code>zlib</code> module. For example (from the documentation <a href='https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#readablepipe'>here</a>, this reads one file, creates a zip stream to compress the file to gz (gzip) format, and then outputs the zip file. The data is piped through all three.
+<pre>
+const instrm = fs.createReadStream('file2.txt');
+const outstrm = fs.createWriteStream('file2.txt.gz');
+const z = zlib.createGzip();
+instrm.pipe(z).pipe(outstrm);
+</pre>
+</p>
 <h3>Pipes and the web</h3>
 <p>So for example if we connect to a remote web API from our own server, we receive a stream of bytes from the remote API. Now, let's say we want our server to act as a proxy, or middle-person, between the remote API and the user, so that the user requests a resource from our own server but it is ultimately sourced from a remote third-party API (an example of when you want to do this is given below). In this case, there is no reason to save the response from the remote API in the Node server's memory; you can instead just forward - or <em>pipe</em> - the stream on to the ultimate client, i.e. the web browser.</p>
 <br />
