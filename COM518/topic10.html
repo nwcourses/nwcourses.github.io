@@ -113,7 +113,7 @@ This example creates an array of strings and then loops through them with a <cod
 <h3>Higher-level operations</h3>
 <p>We can also perform some commonly-used higher-level operations with the <code>fs</code> package with minimal code. For example we can read in the entire contents of a file with <code>fs.readFile()</code>:
 <pre>
-const fs = require('fs');
+const fs = require('fs').promises;
 
 async readWholeFile() {
     const wholeFile = await fs.readFile("data.txt").toString();
