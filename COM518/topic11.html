@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 11: Building and Deploying Node apps</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 11: Building and Deploying Node apps</h1>
+</div>
+<p>Today we will look at how we can <strong>deploy a Node app to a live server</strong> and also look at tools for <strong>simplifying building and running Node apps</strong>. There is also some information provided on <strong>dates and times</strong> for your own reading.</p>
+<h2>Deploying a live Node app</h2>
+<h3>Keeping a Node app running - PM2 - Node process manager</h3>
+<p>The first thing we are going to look at is <em>how to keep a Node app running</em> when it has been started. This is obviously important on a live server, where we will want to restart the app if it crashes for any reason. So far, you have just started Node apps from the command-line, e.g:
+<pre>node app.js</pre>
+and then stopped then with Control-C. Obviously though, this is not 
+satisfactory for a production app, which needs to be running all the time.
+</p>
+<p>So we need some kind of software to keep our Node server running 
+continuously. There are various options available, including <a href=''>Nodemon</a>, together with the software we will examine, <em><code>pm2</code></em> (see <a href='http://pm2.keymetrics.io'>here</a>). <code>pm2</code>
+is a process manager typically used with Node applications, though it
+can also be used to manage other background processes.
+With <code>pm2</code>, you can launch a Node process in the background, stop it, start it and monitor how it is running. Furthermore if the process crashes, <code>pm2</code> will restart it, which is again essential on a production server.</p>
+<p>It can be installed with npm. Unlike the other NPM packages we have looked at so far, you will want to install it <em>globally</em> so that it is available to all applications and all users on your system. For example this command will 
+install it globally for all users if you are logged in as a user with admin 
+privileges on a Linux system (<code>sudo</code> means "run with root, or admin privileges", and <code>-g</code> indicates to install it globally):
+<pre>sudo npm install -g pm2</pre>
+Or, if you do not have admin privileges, you can make <code>pm2</code> available
+to all applications owned by your user by omitting the <code>sudo</code>:
+<pre>npm install -g pm2</pre>
+</p>
+<h4>Using pm2</h4>
+<p>To start a given Node server with <code>pm2</code> you use this command:
+<pre>pm2 start name_of_file.js</pre>
+Here is an example. Note the <code>cat</code> command on a Linux system
+shows the contents of the file, this has been done to show the source code
+of ths server:
+<br />
+<img src='../images/pm2_1.png' alt='Starting a process with pm2' />
+<br />
+As can hopefully be seen, this server runs on port 3000, and we have started
+it. Note that it has been allocated a process ID of 0, which we can use later
+to stop the process.</p>
+<p>The screenshot below shows starting a second process. Note that the second server runs on a different port, 3001, which allows both processes to run at the same time.
+<br />
+<img src='../images/pm2_2.png' alt='Starting a second process with pm2' />
+<br />
+Once we've started a process, we can then stop it using 
+<pre>pm2 stop process_name_or_process_ID</pre>
+So in the example below, we stop the second process, using its process ID (1):
+<br />
+<img src='../images/pm2_3.png' alt='Stopping a process using its ID' />
+<br />
+We can then restart the process. In the example below, we restart the second server using its process <em>name</em>, rather than its ID:
+<br />
+<img src='../images/pm2_4.png' alt='Restarting a process using its name' />
+<br />
+We can completely remove a process from the list with <code>pm2 delete</code>. So the example below stops, and completely removes from the list, the second server.
+<br />
+<img src='../images/pm2_5.png' alt='Deleting a process' />
+<br />
+The next example shows how to start a process with a custom name (<code>SecondServer</code>). This is done using the <code>--name</code> option to <code>pm2.</code>
+<br />
+<img src='../images/pm2_6.png' alt='Starting a process with a custom name' />
+<br />
+Note how the second server has an ID of 2. This is because it is a <em>brand new process</em>: process 1 was deleted and removed from the list.
+</p>
+<h4>Watch mode</h4>
+<p>The above example also shows how to start a process in <strong>watch mode</strong>. Wtch mode will <strong>automatically restart the server if changes are made</strong>, which is very useful during development, as you do not have to keep stopping and restarting your server if you make changes. As can be seen in the example, the <code>--watch</code> option is used to add the process in watch mode:
+<pre>pm2 start server2.js <strong>--watch</strong> --name SecondServer</pre>
+</p>
+<h4>Listing all processes</h4>
+<p>You can also list all processes managed with <code>pm2</code> without having to perform another operation. Just use <code>pm2 list</code>, e.g.: 
+<br />
+<img src='../images/pm2_7.png' alt='Listing all processes' />
+<br />
+</p>
+<h3>Using a reverse proxy to access your app</h3>
+<p><strong>Note that this is not necessary if using Goorm, because Goorm provides external access to your app. However, if running on another server you will need to do this.</strong></p>
+<p>There is another issue to consider when running a Node application on a production server. Node applications typically run on a custom port, such as 3000. However, typical servers on a website (such as Apache) normally run on port 80, or port 443 if secure (HTTPS). However, it is not recommended to open non-standard ports to the wider internet, for security reasons - as it makes them vulnerable to exploits. </p>
+<p>So you need to provide a 'backdoor' means for the outside world to
+access your server via a server running on the publicly available ports of 80 or 443, such as Apache. A common approach is to use Apache or a similar server
+as a <a href='https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/'>reverse proxy</a>. A reverse proxy is an intermediate, publicly-visible server which provides access to other private servers run by the same organisation. These private servers might be on different machines, or the same machine (as one machine can run both Apache and a Node server).</p>
+<p>The diagram below shows a reverse proxy:
+<br />
+<img src='../images/reverseproxy.png' alt='Reverse proxy' />
+</p>
+<p>A reverse proxy is different to a "normal" proxy. A "normal" proxy provides access to the wider internet from a particular network. Proxies are often used by organisations to perform security checks on data being sent back from remote servers, so that machines on the organisational network are kept safer. They can also be used to provide caching services, so that for example if many people in an organisation request content from the internet, that content can be cached on the proxy meaning that next time it's requested, it will be requested from the proxy. The university provides a caching proxy, which likely caches your OpenStreetMap map tiles for example, meaning that if you request the same tiles again, they will be served from the proxy rather than from the OpenStreetMap tile server, reducing the load on the OpenStreetMap servers.</p>
+<p>The diagram below shows a regular proxy:
+<br />
+<img src='../images/regularproxy.png' alt='Regular proxy' />
+</p>
+<h4>Serting up a reverse proxy</h4>
+<p>A common server used as a reverse proxy with Node applications
+is <a href='https://nginx.com'>Nginx</a>. DigitalOcean have an article on this: <a href='https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04'>here</a>. Nginx is a lightweight server which is relatively easy to configure, which is why it is often used with Node applications.</p>
+<p>With Apache you can set up a proxy using the <em>mod_proxy</em> Apache module (plugin). The steps to do this are as follows. Firstly (from the Linux command line):
+<pre>
+sudo a2enmod proxy
+sudo a2enmod proxy-http
+</pre>
+enables it. You then need to add some configuration commands to the Apache site configuration file (<code>/etc/apache2/sites-enabled/000-default.conf</code>) on an Ubuntu Linux system.
+<pre>
+ProxyPass /mynodeapp/ http://localhost:3000/
+ProxyPassReverse /mynodeapp/ http://localhost:3000/
+ProxyPassReverseCookieDomain http://localhost:3000/ http://localhost/
+ProxyPassReverseCookiePath / /
+</pre>
+These four lines should be added to the &lt;VirtualHost&gt; tag within the <code>000-default.conf</code> site configuration file. What these commands are doing, essentially, are allowing the Apache server to act as a reverse proxy, e.g. if Apache and your Node server are running on <code>myserver.example.com</code>, then a request for <code>http://myserver.example.com/mynodeapp/</code> will be forwarded to the server running on Port 3000 on that machine.</p>
+<p>The last two commands set up cookies correctly, to allow cookies to be shared between the Node server and Apache server.</p>
+<p>Once you've done this, you need to restart Apache to reload the configuration file:
+<pre>service apache2 restart</pre>
+</p>
+<h2>Using npm for client-side JavaScript</h2>
+<p>We have been using <a href="https://npmjs.com">npm</a>. <code>npm</code> or Node Package Manager to install dependencies for Node.js applications. However, you can also use <code>npm</code> to install <em>client-side JavaScript code</em>. For example, we can install Leaflet via npm with: <pre>npm install leaflet</pre>
+</p>
+<p>Just like a Node application, client-side modules are placed in  <code>node_modules</code>.</p>
+<p>How do we import a third-party module? You can include <code>require</code> statements in your client-side JavaScript, e.g this uses the <code>validator</code> NPM package, which performs various kinds of validation (including email validation):
+<pre>
+// Client-side JavaScript code
+const validator = require('validator');
+const email = document.getElementById('email').value;
+if(validator.isEmail(email)) {
+    // .. continue processing the form ..
+} else {
+    alert("Not a valid email!");
+}
+</pre>
+However it is important to realise that <strong>this code will not run as it is in the browser</strong>. Browsers do not recognise the <code>require()</code> statement (however they do recognise the similar <code>import</code> statement in some circumstances - though not to load Node modules -  which we will not have time to cover but is discussed <a href='/COM620/week4.html'>here</a>). To process <code>require()</code> (and also <code>import</code> for Node modules) you need a <em>bundler</em>.</p>
+<h3>Bundlers</h3>
+<p>A <em>bundler</em> is a piece of software which will take JavaScript code written in 'Node.js' style (i.e. directly referencing package names in import statements) and convert it to a form which is understandable by a browser. In fact, it will take <em>many</em> source JavaScript files and generate a single <em>bundle</em> (typically named bundle.js) as the output. The bundle can then be included into a web browser in the normal way (without <code>type=module</code>).
+</p>
+<p> One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>, and another, which we will consider here (as it's the simplest) is <a href='https://browserify.org'><strong>Browserify</strong></a>. Browserify can be installed with npm.  As Browserify is a <em>development</em> tool, you want to install it <em>globally</em>, so that it is accessible to all applications on your system and all users. The <code>-g</code> option does this. (Normally, NPM packages are only installed locally into the project that needs them, within the project's <code>node_modules</code> folder).</p>
+<pre>npm install -g browserify</pre>
+<p>Here is the most simple usage:</p>
+<pre>browserify index.js -o dist/bundle.js</pre>
+This will take the file <code>index.js</code>, and any modules it uses (along with any modules used by those modules) and prepare a single output file - a <em>bundle</em>. This is written to the file specified after <code>-o</code>; here, te file <code>bundle.js</code> within the <code>dist</code> folder.
+This can then be used directly in the browser e.g:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/bundle.js' defer&gt;&lt;/script&gt;
+</code></pre>
+<p>(<strong>Note the <code>defer</code> prevents the bundle loading until the page has been loaded.  If you do not do this, the bundle will be loaded before the page, which means if you try to access HTML elements from your JavaScript, you will get errors.</strong>). As a (slightly messier, perhaps) alternative, you can link <code>bundle.js</code> at the end of the <code>body</code> of your page.</p>
+<h3>The package.json file</h3>
+<p>So far we have been installing Node dependencies manually using <code>npm install</code>. However if your application has many dependencies this can quicky become tedious. So instead you can create a <code>package.json</code> file which lists all your dependencies for easy install. As the name suggests, it uses JSON as its format. Here is an example which uses Express and mysql2. Note the JSON syntax and that dependencies are listed in the <code>dependencies</code> section:
+<pre>
+{
+    "dependencies": {
+        "express" : "^4.17.3",
+        "mysql2": "^2.3.3",
+        "validator": "^13.7.0"
+    }
+}
+</pre>
+This specifies that this application needs:
+    <ul>
+    <li>Express at least version <code>4.17.3</code>, and compatible with 4.17.3 (so any 4.x would be matched, but not version 5; this is what the ^ indicates)</li>
+    <li>mysql2 similarly at least version <code>2.3.3</code> (and any more recent 2.x)</li>
+    <li>validator similarly at least version <code>13.7.0</code></li>
+    </ul>
+With a <code>package.json</code> you can install all listed dependencies with simply:
+<pre>npm install</pre>
+</p>
+<p>A very nice point is that <strong>in a single Node application, you can specify both server-side (Node) and client-side (browser-based JS) dependencies in the same <code>package.json</code>, so that they can be installed with the same <code>npm install</code> command</strong> - as long as you use a bundler to create a runnable bundle.</p>
+<p>Therefore, you should also include <code>browserify</code> itself as a dependency. However this is listed under a separate section, <code>devDependencies</code>, to indicate that it is needed for the build process rather than the application itself. For example:
+<pre>
+{
+    "dependencies": {
+        "express" : "^4.17.3",
+        "mysql2": "^2.3.3",
+        "validator": "^13.7.0"
+    },
+    "devDependencies": {
+        "browserify: "^17.0.0"
+    }
+}
+</pre>
+</p>
+<h4>Build scripts</h4>
+<p>You can automate the build process still further by specifying various scripts to either build the bundle, or perform other operations such as testing. This is done using the <code>scripts</code> section in package.json, e.g:
+<pre>
+{
+    "dependencies": {
+        "express" : "^4.17.3",
+        "mysql2": "^2.3.3",
+        "validator": "^13.7.0"
+    },
+    "devDependencies": {
+        "browserify: "^17.0.0"
+    },
+    "scripts": {
+        "build": "browserify index.js -o dist/bundle.js"
+    }
+}
+</pre>
+Now you can build the bundle with:
+<pre>npm run build</pre>
+This will run the script under the <code>build</code> entry within the <code>scripts</code> section.</p>
+<h2>Exercise</h2>
+<ol>
+<li>Install <code>pm2</code> and run one of your apps in <em>watch</em> mode. Make changes to it (e.g. introduce a deliberate syntax error) and then request it again from your browser, to prove that the changes take place immediately.</li>
+<li>Try setting up a reverse proxy on Apache (you can do this whether on Goorm or on your local machine, though if on a Windows machine the location of the configuration file will be different to that described above, try looking in the <code>apache</code> folder within <code>xampp</code>). Set up a reverse proxy so that requests to <code>https://(URL of your Apache server on Goorm)/mynodeapp/</code> redirect to your Node app. Ensure you use the <em>Apache</em> URL, not the Node app URL. Test it out.</li>
+<li>Create a <code>package.json</code> for your HitTastic! Node application. If you are not sure of which versions to specify, try searching for the packages at <a href='https://npmjs.com'>NPM</a>. Install them using a single <code>npm install</code> (remove your existing <code>node_modules</code> folder to prove that this works, e.g. 
+<pre>rm -r node_modules</pre>
+on a Linux system).<br />Also, add <code>validator</code> as an additional dependency, and add signup functionality to your app. For this, include a signup route <em>and also some client-side JavaScript to validate the form, using validator</em>. Add an <code>email</code> column to your table, e.g:
+<pre>ALTER TABLE ht_users ADD email VARCHAR(255);</pre>
+and include an email in the signup form. Validate the email using <code>validator</code> and reject the signup attempt if not a valid email. Create a bundle from the client-side code and include it in your HTML.</li>
+<li>Similarly add Leaflet to your <code>package.json</code> and install it with NPM (version: 1.7.1). Build your bundle to include Leaflet. Show it works by removing the Leaflet JavaScript link from your HTML (<strong>note you will need to keep the Leaflet CSS link in your HTML though!</strong>)</li>
+</ol>
+
+<hr />
+<h2>Dates and times</h2>
+<p>This relatively simple topic may help you in the assignment. To manage dates in JavaScript (both Node.js and client-side) you use the <code>Date</code> object. Here is a simple program making use of it.
+<pre>
+// Array to convert the day number to the day name
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// No arguments means the date represents now
+const now = new Date();
+// Display details about today's date
+console.log(`Today is ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}. It is a ${daysOfWeek[now.getDay()]}`);
+
+// Repeat for the day the web was invented
+const webDay = new Date('1989-03-12 12:00:00');
+console.log(`The web was invented on ${webDay.getDate()}/${webDay.getMonth()+1}/${webDay.getFullYear()}. This was a ${daysOfWeek[webDay.getDay()]}`);
+
+// Repeat for the day Mosaic (the first browser) was released
+const mosaicDay = new Date('1993-01-23 12:00:00');
+console.log(`The first browser, Mosaic, was released on ${mosaicDay.getDate()}/${mosaicDay.getMonth()+1}/${mosaicDay.getFullYear()}. This was a ${daysOfWeek[mosaicDay.getDay()]}`);
+
+// Repeat for the day Firefox was released
+const firefoxDay = new Date('2002-09-23 12:00:00');
+console.log(`Firefox was released on ${firefoxDay.getDate()}/${firefoxDay.getMonth()+1}/${firefoxDay.getFullYear()}. This was a ${daysOfWeek[firefoxDay.getDay()]}`);
+
+// For converting milliseconds to years 
+const millisecsInYear = 1000 * 60 * 60 * 24 * 365.25;
+
+// Use date subtraction to find out how old the Web was when Mosaic and Firefox were released
+const mosaicAge = (mosaicDay - webDay) / millisecsInYear, firefoxAge = (firefoxDay - webDay) / millisecsInYear;
+
+console.log(`Mosaic was released when the web was ${mosaicAge} years old, and Firefox was released when it was ${firefoxAge} years old.`);
+</pre>
+Note how we represent dates with a <code>Date</code> object. If no arguments are passed into the <code>Date</code> object, it will represent the current time. If we pass in arguments, such as a date string in the format <code>DDDD-MM-YY hh:mm:ss</code>, the <code>Date</code> object will represent a different day. The <code>Date</code> object has various methods such as:
+    <ul>
+    <li><code>getDay()</code> - the day of the week from 0 (Sunday) to 6 (Saturday)</li>
+    <li><code>getDate()</code> - the day of the month</li>
+    <li><code>getMonth()</code> - the month, <em>with January 0 and December 11, so you have to add one to give the number most people will be familiar with.</em></li>
+    <li><code>getFullYear()</code> - the full year</li>
+    </ul>
+The code also shows how you can subtract one <code>Date</code> from another, to get the difference between them (in milliseconds). More information on dates can be found <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date'>the Mozilla site</a>.</p>
+    
+</body>
+</html>
