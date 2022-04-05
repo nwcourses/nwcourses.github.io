@@ -9,9 +9,73 @@
 <h1>Mobile Application Development - Part 11</h1>
 <h1>Further Fragments</h1>
 </div>
-<p>The notes on fragments will be updated slightly for this year and will be available when this is done.</p>
-<!--
 <p>This week we will cover some further topics relating to fragments.</p>
+
+<h2>The Back Stack</h2>
+<p>Last week we looked at how to develop a simple fragment-based application using fragment transactions and a navigation drawer. However what might be nice is to allow <strong>navigation using the back button</strong>, so that as the user navigates through the app using the navigation drawer, they can revisit a previous fragment. Thus we end up with a <strong>stack of fragments</strong> rather like the normal stack of activities. In fact, it's the same stack, which can contain a mixture of activities and fragments.</p>
+<p>To do this, we can add fragments to this stack - the <strong>back stack</strong>. This is performed in the fragment transaction. Here is an example:
+<pre>
+supportFragmentManager.commit {
+    replace(R.id.fragContainer, MapStyleFragment())
+    <strong>addToBackStack(null)</strong>
+}
+</pre>
+This performs a fragment transaction to replace the contents of the element with the ID of <code>fragContainer</code> with a new instance of <code>MapStyleFragment</code> and then <strong>adds it to the back stack, to allow navigation</strong>. Note the <code>null</code> argument is an optional name for this fragment on the back stack, it should be unique if specified.</p>
+<p>Note that when fragments are added to the back stack, they are <strong>unique instances of the fragment</strong> (contrasted to last week, in which we were navigating between single instances of <code>Frag1</code> and <code>Frag2</code>.). So in a mapping activity, we might have <strong>multiple instances of <code>MapFragment</code></strong> on the back stack</strong>, all with different settings (e.g. different location, different map style).</p>
+<p>Adding a fragment to the back stack changes the behaviour when it is replaced with a new fragment. It is no longer destroyed, but instead merely <em>stopped</em> (and <em>started</em> again when it becomes visible once more). Thus a good place to save the state of the fragment is in <code>onStop()</code> and a good place to restore the fragment's state (when we navigate back to it) is in <code>onStart()</code>. For example, here is an (incomplete) <code>MapFragment</code> which saves the map position in <code>lastPoint</code>, the zoom in <code>lastZoom</code> and the map style (is OpenTopoMap displayed?) in <code>isOpenTopo</code>. All these are saved in <code>onStop()</code> and restored in <code>onStart()</code>.
+<pre>
+// MapFragment (incomplete)
+class MapFragment: Fragment(R.layout.layout_map_frag) {
+    var map1: MapView? = null
+    var lastPoint: GeoPoint? = null
+    var lastZoom = 14.0
+    var isOpenTopo = false
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Configuration.getInstance()
+            .load(activity, PreferenceManager.getDefaultSharedPreferences(activity));
+
+        map1 = view.findViewById(R.id.map1)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // Deal with pending properties here..
+
+        setPosition(lastPoint?.longitude ?: -0.72, lastPoint?.latitude ?: 51.05, lastZoom)
+        setStyle(isOpenTopo)
+    }
+
+    override fun onStop() {
+        lastPoint = map1?.mapCenter as GeoPoint?
+        lastZoom = map1?.zoomLevelDouble ?: 14.0
+        isOpenTopo = map1?.tileProvider?.tileSource == TileSourceFactory.OpenTopo
+        super.onStop()
+
+    }
+
+     fun setPosition(lon: Double, lat: Double, zoom: Double = 14.0) {
+        map1?.controller?.setCenter(GeoPoint(lat, lon))
+        map1?.controller?.setZoom(zoom)
+    }
+
+    fun setStyle(topo: Boolean) {
+        map1?.tileProvider?.tileSource = if(topo) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK
+    }
+
+    fun setPendingStyle(pendingOpenTopo: Boolean) {
+        // set pending properties as discussed last week
+        
+    }
+
+    fun setPendingLocation(pendingLat: Double, pendingLon: Double) {
+        // set pending properties as discussed last week
+    }
+}
+</pre>
+</p>
+<p>The example would still need to implement <em>pending properties</em> as per last week, as the fragment transactions are still asynchronous: for example if we had a fragment to update the map's latitude and longitude, we should set the latitude and longitude the user entered as pending properties so that they can be updated when the transaction completes. See the end of last week's notes for more details.</p>
 
 <h2>The Fragment lifecycle</h2>
 
@@ -34,13 +98,13 @@ being called
     </ul>
 </p>
 
-<h2>Developing activities with multiple fragments</h2>
+<h2>Developing activities with multiple fragments using FragmentContainerView</h2>
 
-<p>Last week we looked at how we can use fragment transactions within a FrameLayout to replace one fragment with another. This week we will look at how we can develop fragment-based applications from scratch by embedding &lt;FragmentContainerView&gt; tags in the XML layout of activities.</p>
+<p>Last week we looked at how we can use fragment transactions within a FrameLayout to replace one fragment with another. This week we will look at how we can develop fragment-based applications from scratch by embedding &lt;FragmentContainerView&gt; tags in the XML layout of activities, which explicitly contain a specific fragment (defined in the XML)</p>
 
 <h3>Simple example - one activity, one fragment</h3>
 
-<p>To keep things simple, the first example will involve <em>one</em> fragment inside <em>one</em> activity.
+<p>To keep things simple, the first FragmentContainerView example will involve <em>one</em> fragment inside <em>one</em> activity.
 First we will look at the Activity. Because all the work (in this simple example) is now going on inside the
 Fragment, the activity simply has an empty onCreate() method which just calls the superclass version of onCreate():
 <pre>class FragActivity : AppCompatActivity() {
@@ -103,6 +167,7 @@ The layout is simple, containing a text view and nothing else.
 Luckily this is easy to obtain via the <code>activity</code> property of Fragment. Alternatively, the <em>onAttach()</em> method, which runs when the 
 Fragment is attached to the Activity, contains the Activity as a parameter.
 </p>
+<p>The only problem with this approach is that it makes the fragment <strong>tightly coupled</strong> to the activity, which means it introduces a <strong>dependency</strong> on the activity and code within it - and thus the fragment is less <strong>reusable</strong> in other applications. A better, more loosely-coupled approach is to specify a <em>callback function</em> in the constructor of the fragment, which can be user-defined and contain any code. This callback would contain code to update the activity and other fragments based on how the user interacts with the current fragment; an example is given later on.</p>
 <h4>Fragment from Activity</h4>
 <p>We might also want to access a Fragment from the parent Activity. For example, an app's menu is associated with the Activity, rather than a
 Fragment, so the code to handle menu items would have to go into the Activity - but we might want to update the contents of a Fragment
@@ -163,7 +228,12 @@ transaction will take place to fill the <code>FragmentContainerView</code> with 
     <li>one fragment containing an EditText allowing the user to enter a famous person;</li>
     <li>a second fragment containing a TextView, which will display details of the chosen famous person.</li>
     </ul>
- The person-entry fragment will be on the left and the person details on the right.  When the user enters a person, information on that person will appear in the second fragment. How do we do this? The first step is to look at the layout XML file for the activity:
+ The person-entry fragment will be on the left and the person details on the right.  When the user enters a person, information on that person will appear in the second fragment. So the application will look something like the diagram
+below:
+<br />
+<img src='../images/twofrag.png' alt='Example two-fragment activity' />
+<br />
+How do we do this? The first step is to look at the layout XML file for the activity:
 <pre>
 &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -199,6 +269,10 @@ There are two fragments, one an instance of the <em>PersonEntryFragment</em> cla
     android:layout_height="match_parent"
     android:orientation="vertical"&gt;
 
+&lt;TextView android:text="@string/person"
+android:layout_width="match_parent"
+android:layout_height="wrap_content" /&gt;
+
 &lt;EditText android:id="@+id/etPersonName"
 android:layout_width="match_parent"
 android:layout_height="wrap_content" /&gt;
@@ -227,7 +301,7 @@ android:layout_height="match_parent"
 </pre>
 </p>
 <h3>Transferring data from PersonEntryFragment to PersonDetailsFragment</h3>
-<p>We must now ask: how can we update the main fragment when an item in the list fragment is clicked? We can use a <em>callback-based</em> approach, to reduce coupling in our system. The PersonEntryFragment has, as a property, a callback method which is called when the user enters a person. This callback can be specified by whichever activity is hosting the fragment, and would forward the person onto the other fragment. Here is an example: see the comments for explanation.
+<p>We must now ask: how can we update the main fragment when an item in the list fragment is clicked? We can use a <em>callback-based</em> approach, to reduce coupling in our system, as we discussed above. The PersonEntryFragment has, as a property, a callback method which is called when the user enters a person. This callback can be specified by whichever activity is hosting the fragment, and would forward the person onto the other fragment. Here is an example: see the comments for explanation.
 <pre>
 class MainActivity: AppCompatActivity() {
     override fun onCreate (savedInstanceState: Bundle?) {
@@ -320,9 +394,17 @@ Note the use of <code>pendingText</code> again, as in the Hello World example ab
 <ol>
 <li>Build a complete application using the code snippets above, so that you have an activity with two fragments, the first allowing the user to enter a famous person, and the second displaying the details of that person.</li>
 <li>Using the same principles, build a similar application in which the first fragment allows the user to enter a latitude and longitude, and the second displays a map. When the user enters the latitude and longitude, the map should be centred on that location.</li>
-<li>Modify question 1 to use a RecyclerView and list in the PersonEntryFragment to pick the famous person.</li>
+<li><strong>More advanced:</strong> Have a go at building a mapping app which uses the navigation drawer and fragment transactions, as per last week, but also uses the back stack. This app should work like the back stack demo app I showed you in the lecture. Create two fragments: a <code>MapFragment</code> which displays a map, and a <code>MapStyleFragment</code> which allows the user to choose the map style (either regular or OpenTopoMap) using either buttons or a RecyclerView (up to you, buttons will be easier to implement). Add a navigation drawer with two entries for the <code>MapFragment</code> and the <code>MapStyleFragment</code>. When the user chooses either, create a <em>new instance</em> of that fragment and <em>add it to the back stack</em>. Also, when the user clicks one of the two buttons on the <code>MapStyleFragment</code>, a callback should run. The callback should <em>perform a further fragment transaction to replace the <code>MapStyleFragment</code> with a new instance of the <code>MapFragment</code>, and add it to the back stack once again</em>.
+<br />
+<br />
+You will need to save the map fragment's state in <code>onStop()</code> and restore in <code>onStart()</code>, and add methods to set the latitude, longitude and map style as pending properties, as shown above.
+<br />
+<br />
+Test out your application by moving the map, changing style, moving the map again, changing style again, and then pressing the Back button a few times to prove that you can navigate backwards through the previous fragment instances and view the previous locations of the map.
+</li>
 </ol>
-<h2>Making the app compatible with both landscape and portrait modes</h2>
+<hr />
+<h2>Further reading: Making the app compatible with both landscape and portrait modes</h2>
 <p>Note this section is <strong>not required for the assignment</strong>, even for a high A. It is provided for general interest. It details an approach in which you can use one activity with two fragments in landscape mode, and two activities, each with one fragment, in portrait mode.</p>
 <h3>Separate layouts for the main activity</h3> 
 <p>The first thing we must do is to create <em>two separate layouts for the main activity</em>, one for landscape and one for portrait. How can we do this? You choose your default layout (eithr landscape or portrait) and store all the XML files for that layout, as well as any which apply in either landscape or portrait, in your main <code>layout</code> directory. With the non-default layout, you create a separate directory inside <code>res</code> called <code>layout-port</code> (for portrait) and <code>layout-land</code> (for landscape) and put the XML which only relates to that layout in there.</p>
@@ -457,6 +539,5 @@ finish the second activity, which will mean the main activity will re-appear (as
 <li>Enhance your answer to Question 3 from Exercise 1 so that it remains the same (2 fragments in the main activity) in landscape mode, but uses two separate activities, each containing one fragment (the main activity should contain the RecyclerView, and the second activity should contain the person details) in portrait mode.</li>
 <li>Do the same for the map exercise (Question 2 from Exercise 1), with the latitude/longitude fragment in the main activity in portrait mode, and the map fragment in the second activity.</li>
 </ol>
--->
 </body>
 </html>
