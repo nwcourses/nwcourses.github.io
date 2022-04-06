@@ -123,12 +123,12 @@ Next the main layout file for the activity, activity_main.xml:
     android:layout_height="match_parent"
     android:orientation="vertical"&gt;
 
-&lt;FragmentContainerView android:name="com.example.fragments.HelloWorldFragment"
+&lt;androidx.fragment.app.FragmentContainerView android:name="com.example.fragments.HelloWorldFragment"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:id="@+id/helloWorldFrag"&gt;
 
-&lt;/FragmentContainerView&gt;
+&lt;/androidx.fragment.app.FragmentContainerView&gt;
  
 &lt;/LinearLayout&gt;
 </pre>
@@ -197,7 +197,7 @@ class HelloWorldFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         tv = view.findViewById(R.id.tv1)
         if(pendingText != "") {
-            tv?.text = text
+            tv?.text = pendingText
             pendingText = ""
         }
     }
@@ -240,19 +240,19 @@ How do we do this? The first step is to look at the layout XML file for the acti
     android:layout_height="match_parent"
     android:orientation="horizontal"&gt;
 
-&lt;FragmentContainerView android:name="com.example.fragments.PersonEntryFragment"
+&lt;androidx.fragment.app.FragmentContainerView android:name="com.example.fragments.PersonEntryFragment"
 android:layout_height="match_parent"
 android:layout_width="wrap_content"
 android:id="@+id/personEntryFrag"&gt;
 
-&lt;/FragmentContainerView&gt;
+&lt;/androidx.fragment.app.FragmentContainerView&gt;
 
-&lt;FragmentContainerView android:name="com.example.fragments.PersonDetailsFragment"
+&lt;androidx.fragment.app.FragmentContainerView android:name="com.example.fragments.PersonDetailsFragment"
 android:layout_height="match_parent"
 android:layout_width="wrap_content"
 android:id="@+id/personDetailsFrag"&gt;
 
-&lt;/FragmentContainerView&gt;
+&lt;/androidx.fragment.app.FragmentContainerView&gt;
 
 
 &lt;/LinearLayout&gt;
@@ -295,7 +295,9 @@ android:text="@string/go" /&gt;
 
 &lt;TextView android:id="@+id/tvPersonDetails"
 android:layout_width="match_parent"
-android:layout_height="match_parent"
+android:layout_height="match_parent"&gt;
+
+&lt;/TextView&gt;
 
 &lt;/LinearLayout&gt;
 </pre>
@@ -325,12 +327,8 @@ class MainActivity: AppCompatActivity() {
 </pre>
 <pre>
 // in PersonEntryFragment
-class PersonEntryFragment : Fragment() {
+class PersonEntryFragment : Fragment(R.layout.personentryfrag) {
     var callback: ((String) -&gt; Unit)? = null
-
-    override fun onCreateView (inflater: LayoutInflater,  parent: ViewGroup?, savedInstanceState: Bundle?): View?  {
-        return inflater.inflate(R.layout.personentryfrag, parent)
-    }
 
     // when the view has been created, add the event listener to the button, so
     // the callback is called when it's clicked
@@ -425,8 +423,8 @@ and a secondary activity to show the details of the person. For the main screen,
     android:orientation="vertical"&gt;
     
 
-&lt;FragmentContainerView android:id="@+id/personEntryFrag"  android:layout_width="wrap_content" android:layout_height="wrap_content" 
-    android:name="com.example.fragments.PersonEntryFragment"&gt;&lt;/FragmentContainerView&gt;
+&lt;androidx.fragment.app.FragmentContainerView android:id="@+id/personEntryFrag"  android:layout_width="wrap_content" android:layout_height="wrap_content" 
+    android:name="com.example.fragments.PersonEntryFragment"&gt;&lt;/androidx.fragment.app.FragmentContainerView&gt;
     
 &lt;/LinearLayout&gt;
 </body>
@@ -441,12 +439,12 @@ would look like this:
     android:layout_height="match_parent"
     android:orientation="vertical"&gt;
     
-    &lt;FragmentContainerView android:id="@+id/personDetailsFrag" android:layout_height="wrap_content"
+    &lt;androidx.fragment.app.FragmentContainerView android:id="@+id/personDetailsFrag" android:layout_height="wrap_content"
     android:layout_width="wrap_content" android:name="com.example.fragments.PersonDetailsFragment"&gt;
     
     
    
-    &lt;/FragmentContainerView&gt;
+    &lt;/androidx.fragment.app.FragmentContainerView&gt;
     
 &lt;/LinearLayout&gt;</pre>
 These should be easy to understand, as they are simple layouts with one fragment
