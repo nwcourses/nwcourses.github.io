@@ -235,7 +235,7 @@ What do these routes do?
     </li>
     </ul>
 </p>
-<h2>Password hashing</h2>
+<h2 id='hashing'>Password hashing</h2>
 <p>For additional security, ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this. For example, to hash (encode) a password when signing up:
 <pre>const encPass = await bcrypt.hash(pass, 10);</pre>
 The 10 is the number of rounds of encoding to use; 10 is a good compromise between security and performance as each round improves the security of the encoding but takes some time to execute. <br />

