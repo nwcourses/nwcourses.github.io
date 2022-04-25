@@ -4,7 +4,7 @@ const con = mysql.createConnection({
         host: 'localhost',
         user: 'ephp001',
         database: 'ephp001',
-        password: 'password'});
+        password: 'huneecoh'});
 
         con.connect( err=> {
             if(err) {

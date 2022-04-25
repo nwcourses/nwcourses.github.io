@@ -197,6 +197,13 @@ would be sent back to the client, and the browser would execute the JavaScript i
 <pre>&amp;lt;script&amp;gt;alert('666 I am evil!');&amp;lt;/script&amp;gt;</pre>
 and the browser will not interpret &amp;lt;script&amp;gt; as a script tag, so the attack will not take place.</p>
 <p>It's also of note that if you use EJS, this sanitisation takes place automatically when you render (without the need for the <code>xss</code> module), as long as you use &lt;%= rather than &lt;%- to render data.</p>
+<h3>Using regular expressions in routes</h3>
+<p>Another way of guarding against XSS attacks is to restrict the characters allowed in a route. This can be done through the use of <em>regular expressions</em>, e.g.:
+<pre>
+app.post('/song/buy/:ID(\\d+)', (req, res) ...
+</pre>
+The <code>\\d+</code> is a regular expression specifying one or more digits, so if the ID contains anything other than digits it will not match the route.
+See <a href='https://expressjs.com/en/guide/routing.html'>the documentation</a> for more.</p>
 <h2>Other issues</h2>
 <p>There are also other security issues which we will not have time to cover, for example Cross-Site Request Forgery (XSRF). I would recommend reading about these topics in your own time.</p>
 
