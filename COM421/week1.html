@@ -211,8 +211,6 @@ item in a linked list using its index, starting at the beginning. </p>
 do this? Draw out how you think it could be done on paper, and ask yourself:
 <strong>how efficient is this</strong>, particularly compared to doing the same thing with an array. </p></li>
 </ol>
-<!--
-<h4 id="solution">Solution</h4>
 <p><img src="images/linked_list_index.png" alt="Linked list indexing" /></p>
 <p>Note how, to find a particular index within a linked list, we have to start at the beginning and follow the links until we arrive at the element we wish to access. This is slow compared to the simple address calculation from an index in an array.</p>
 <ol start="2">
@@ -224,14 +222,11 @@ same thing with a linked list. On paper, draw a linked list containing the eleme
 - Windows
 - Mac OS X
 </code></pre>
--->
 <p>Now try and add new element "Android" to the end of the linked list. What do you have to do? Draw out what happens on paper.</p></li>
 </ol>
-<!--
 <h4 id="solution-1">Solution</h4>
 <p><img src="images/linked_list_append.png" alt="Linked list append" /></p>
 <p>Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.</p>
--->
 <h3 id="exercise5stacks">Exercise 5: Stacks</h3>
 <p>We are now going to perform another paper-based exercise with stacks, to help
 you understand them and their operations.</p>
@@ -240,7 +235,7 @@ below, and explain what, if anything is returned from each operation and
 any errors that might occur.</p>
 <p><code>push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().</code></p>
 <h3 id="exercise6linkedlistinsertion">Exercise 6: Linked list insertion</h3>
-<p>Return to your linked list exercise (exercise 4, above). Think about adding a member into the middle of the list. Remember the ordered list of names:</p>
+<p>Imagine a linked list with these members:</p>
 <ul>
 <li>Alex Acland</li>
 <li>Bonnie Black</li>
