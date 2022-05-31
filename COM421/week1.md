@@ -311,7 +311,6 @@ Note how, to find a particular index within a linked list, we have to start at t
 
 #### Solution
 
-![Linked list append](images/linked_list_append.png)
 
 Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.
 
@@ -340,7 +339,6 @@ On paper draw these as a linked list. Now try to add "Danielle Dawson" at the ap
 
 #### Solution
 
-![Linked list insertion](images/linked_list_insertion.png)
 
 Note the mixed efficiency when inserting into the middle of the linked list:
 

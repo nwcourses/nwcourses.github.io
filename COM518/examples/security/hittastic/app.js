@@ -34,11 +34,17 @@ app.get('/', (req, res) => {
 });
 
 app.post('/buy', (req, res) => {
-    res.render('main', { msg : `You are buying the song with ID ${req.body.id}`});
+    res.render('main', { msg : xss(`You are buying the song with ID ${req.body.id}`)});
 });
 
 app.post('/login', (req, res) => {
     db.query(`SELECT * FROM ht_users WHERE password='${req.body.password}' AND username='${req.body.username}'`, (err, results, fields) => {
+
+// password = 'password'
+// username = Fred' OR '1=1
+
+// SELECT * FROM ht_users WHERE password='password' AND username='Fred' OR '1=1'
+/// SELECT * FROM ht_users WHERE 1=1 (because there is no user with Fred/password)
         let msg;
         if(err) {
             msg = "db connection error";
