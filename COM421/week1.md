@@ -327,7 +327,7 @@ any errors that might occur.
 
 ### Exercise 6: Linked list insertion 
 
-Return to your linked list exercise (exercise 4, above). Think about adding a member into the middle of the list. Remember the ordered list of names:
+Think about adding a new item of data into the middle of a linked list. Consider this ordered list of names:
 
 - Alex Acland
 - Bonnie Black
