@@ -12,14 +12,14 @@ list.</p></li>
 </ul>
 <h3 id="exercise1createanodeclass">Exercise 1: Create a Node class</h3>
 <ol>
-<li>Create a <em>new</em> Repl project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init()__</code> method which looks like this:</li>
+<li>Create a <em>new</em> Repl project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init__()</code> method which looks like this:</li>
 </ol>
 <pre><code class="python language-python">def __init__(self, data):
        self.data = data
        self.prev = None
        self.next = None
 </code></pre>
-<p>What does this do? Remember we use <code>__init()__</code> to initialise an object of the class. A node needs to contain data. So this <code>__init__()</code> method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using <code>self.data = data</code>.</p>
+<p>What does this do? Remember we use <code>__init__()</code> to initialise an object of the class. A node needs to contain data. So this <code>__init__()</code> method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using <code>self.data = data</code>.</p>
 <p>Note how we initialise the <code>prev</code> and <code>next</code> attributes to <code>None</code>. These attributes represent the previous and next node. <code>None</code> is a special data type indicating that nothing exists yet; it will be appropriate here as we haven't linked this node to any others yet.</p>
 <ol start="2">
 <li>Add a <code>link()</code> method to your Node. This should link another node to the current node. Using the code examples you have seen so far, try to figure out how to pass the new node into the method. Then, link the new node with the current node using this code. Note how it sets the <code>next</code> attribute of the current node to the new node, and the <code>prev</code> attribute of the new node to the current node.</li>
@@ -28,7 +28,7 @@ list.</p></li>
 newNode.prev = self
 </code></pre>
 <ol start="3">
-<li><p>Add a <code>__str()__</code> method to Node which returns a string containing the value associated with the node.</p></li>
+<li><p>Add a <code>__str__()</code> method to Node which returns a string containing the value associated with the node.</p></li>
 <li><p>Create some test code which creates two nodes, <code>n1</code> and <code>n2</code>, for example;</p></li>
 </ol>
 <pre><code class="python language-python">n1 = Node("Fred")
@@ -46,7 +46,7 @@ n2.next
 </code></pre>
 <h3 id="exercise2creatingthelinkedlistitself">Exercise 2: Creating the linked list itself</h3>
 <p>We have now created our <code>Node</code> class. We are now going to use it in a complete <code>LinkedList</code> class which will allow you to add nodes to a linked list, and access the linked list's first and last members.</p>
-<p><em>You can do this exercise in the same file as Exercise 2.</em> </p>
+<p><em>You can do this exercise in the same file as Exercise 1.</em> </p>
 <ol>
 <li><p>Create a LinkedList class. Its <code>__init__()</code> method should initialise two attributes, <code>self.first</code> and <code>self.last</code> to <code>None</code>. (These are the references to the first and last node in the list).</p></li>
 <li><p>Add an <code>add()</code> method to your linked list. This should add a <code>Node</code> to your linked list. To accomplish this, ask yourself:</p>

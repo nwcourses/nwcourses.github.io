@@ -43,7 +43,7 @@
 <li><p>We define the class with the keyword <code>class</code> followed by the name of the class (<code>Cat</code> here). Note the colon and the indentation. The colon defines what is called a <em>code block</em>  - here, the definition of the class. Note how everything within that block is indented (This can be with a tab, or a given number of spaces - typically 4). The block ends as soon as the indentation ends. You should be learning about this in COM411 this week.</p></li>
 <li><p>Note how we list each <em>method</em>. We use the keyword <code>def</code> to define a method. (You will do functions in COM411 next week; a method is essentially a function within a class).</p></li>
 <li><p>Note how each method is itself a code block, so we use a colon and indent the code within the method.</p></li>
-<li><p>Note how we define two methods. We have <code>eat()</code> to define one of the most fundamental actions of a cat. However we also have a second method, <code>__init()__</code>. What is this? It is a special <strong>initialisation method</strong>. It runs whenever an object of the class is first created, and can be used to initialise the object. Here, we are using it to initialise the three <em>attributes</em> of the cat, the <code>name</code>, the <code>age</code> and the <code>weight</code> (see below for more detail).</p></li>
+<li><p>Note how we define two methods. We have <code>eat()</code> to define one of the most fundamental actions of a cat. However we also have a second method, <code>__init__()</code>. What is this? It is a special <strong>initialisation method</strong>. It runs whenever an object of the class is first created, and can be used to initialise the object. Here, we are using it to initialise the three <em>attributes</em> of the cat, the <code>name</code>, the <code>age</code> and the <code>weight</code> (see below for more detail).</p></li>
 <li><p>Note how each method contains, as a parameter, the keyword <code>self</code>. What is this? It is a <em>reference to the current object that we're working with</em>. Remember from the discussion on objects, above, that we might have <em>multiple objects of a given class</em>, for example, multiple cats. <code>self</code> refers to <em>whichever object we are dealing with right now</em>.</p></li>
 <li><p>Going back to the <code>eat()</code> method, note that it contains the code:</p></li>
 </ul>
@@ -104,15 +104,15 @@ notice how it contains an array and <code>push()</code> and <code>pop()</code> m
 </code></pre>
 <p>How is this working?</p>
 <ul>
-<li><p>Note how we define three methods again. We have <code>push()</code> and <code>pop()</code> to define the most fundamental operations of a stack. The <code>__init()__</code> method for a stack will, like the cat equivalent, run when the stack is first created. We are using it to create the underlying array associated with the stack (see below for more detail).</p></li>
-<li><p>So, going back to <code>__init()__</code>, note how we are attaching an attribute <code>array</code> to the current object, with this code:</p></li>
+<li><p>Note how we define three methods again. We have <code>push()</code> and <code>pop()</code> to define the most fundamental operations of a stack. The <code>__init__()</code> method for a stack will, like the cat equivalent, run when the stack is first created. We are using it to create the underlying array associated with the stack (see below for more detail).</p></li>
+<li><p>So, going back to <code>__init__()</code>, note how we are attaching an attribute <code>array</code> to the current object, with this code:</p></li>
 </ul>
 <pre><code class="python language-python">self.internalArray = []
 </code></pre>
 <p>Note the <code>[]</code> syntax. This creates an empty array. (Well actually, it doesn't; it creates an empty Python <em>list</em>, as we saw last week, but we are treating the list as an array.).</p>
 <ul>
 <li><p>Note how the <code>push()</code> method contains not just <code>self</code> but also another parameter, <code>item</code>. This is the item we want to add to the internal array.</p></li>
-<li><p>Note the fourth method, <code>__str()__</code>. This is another special method, rather like <code>__init()__</code>. This is a method which defines <em>how objects of a class are printed</em>. We might want to print our stack with:</p></li>
+<li><p>Note the fourth method, <code>__str__()</code>. This is another special method, rather like <code>__init__()</code>. This is a method which defines <em>how objects of a class are printed</em>. We might want to print our stack with:</p></li>
 </ul>
 <pre><code class="python language-python">print(stack)
 </code></pre>

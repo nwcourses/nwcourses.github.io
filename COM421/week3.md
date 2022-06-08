@@ -16,7 +16,7 @@ list.
 
 ### Exercise 1: Create a Node class
 
-1. Create a *new* Repl project. Inside a new file, create a `Node` class. It should contain an `__init()__` method which looks like this:
+1. Create a *new* Repl project. Inside a new file, create a `Node` class. It should contain an `__init__()` method which looks like this:
 ```python
 def __init__(self, data):
        self.data = data
@@ -24,7 +24,7 @@ def __init__(self, data):
        self.next = None
 ```
 
-   What does this do? Remember we use `__init()__` to initialise an object of the class. A node needs to contain data. So this `__init__()` method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using `self.data = data`.
+   What does this do? Remember we use `__init__()` to initialise an object of the class. A node needs to contain data. So this `__init__()` method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using `self.data = data`.
 
    Note how we initialise the `prev` and `next` attributes to `None`. These attributes represent the previous and next node. `None` is a special data type indicating that nothing exists yet; it will be appropriate here as we haven't linked this node to any others yet.
 
@@ -34,7 +34,7 @@ self.next = newNode
 newNode.prev = self
 ```
 
-3. Add a `__str()__` method to Node which returns a string containing the value associated with the node.
+3. Add a `__str__()` method to Node which returns a string containing the value associated with the node.
 
 
 4. Create some test code which creates two nodes, `n1` and `n2`, for example;
@@ -58,7 +58,7 @@ n2.next
 
 We have now created our `Node` class. We are now going to use it in a complete `LinkedList` class which will allow you to add nodes to a linked list, and access the linked list's first and last members.
 
-*You can do this exercise in the same file as Exercise 2.* 
+*You can do this exercise in the same file as Exercise 1.* 
 
 1. Create a LinkedList class. Its `__init__()` method should initialise two attributes, `self.first` and `self.last` to `None`. (These are the references to the first and last node in the list).
 

@@ -64,7 +64,7 @@ This code does not *create any actual cats*. It just creates a *class*, or a *bl
 
 - Note how each method is itself a code block, so we use a colon and indent the code within the method.
 
-- Note how we define two methods. We have `eat()` to define one of the most fundamental actions of a cat. However we also have a second method, `__init()__`. What is this? It is a special **initialisation method**. It runs whenever an object of the class is first created, and can be used to initialise the object. Here, we are using it to initialise the three *attributes* of the cat, the `name`, the `age` and the `weight` (see below for more detail).
+- Note how we define two methods. We have `eat()` to define one of the most fundamental actions of a cat. However we also have a second method, `__init__()`. What is this? It is a special **initialisation method**. It runs whenever an object of the class is first created, and can be used to initialise the object. Here, we are using it to initialise the three *attributes* of the cat, the `name`, the `age` and the `weight` (see below for more detail).
 
 - Note how each method contains, as a parameter, the keyword `self`. What is this? It is a *reference to the current object that we're working with*. Remember from the discussion on objects, above, that we might have *multiple objects of a given class*, for example, multiple cats. `self` refers to *whichever object we are dealing with right now*.
 
@@ -139,9 +139,9 @@ class Stack:
 
 How is this working?
 
-- Note how we define three methods again. We have `push()` and `pop()` to define the most fundamental operations of a stack. The `__init()__` method for a stack will, like the cat equivalent, run when the stack is first created. We are using it to create the underlying array associated with the stack (see below for more detail).
+- Note how we define three methods again. We have `push()` and `pop()` to define the most fundamental operations of a stack. The `__init__()` method for a stack will, like the cat equivalent, run when the stack is first created. We are using it to create the underlying array associated with the stack (see below for more detail).
 
-- So, going back to `__init()__`, note how we are attaching an attribute `array` to the current object, with this code:
+- So, going back to `__init__()`, note how we are attaching an attribute `array` to the current object, with this code:
 ```python
 self.internalArray = []
 ```
@@ -149,7 +149,7 @@ Note the `[]` syntax. This creates an empty array. (Well actually, it doesn't; i
 
 - Note how the `push()` method contains not just `self` but also another parameter, `item`. This is the item we want to add to the internal array.
 
-- Note the fourth method, `__str()__`. This is another special method, rather like `__init()__`. This is a method which defines *how objects of a class are printed*. We might want to print our stack with:
+- Note the fourth method, `__str__()`. This is another special method, rather like `__init__()`. This is a method which defines *how objects of a class are printed*. We might want to print our stack with:
 ```python
 print(stack)
 ```
