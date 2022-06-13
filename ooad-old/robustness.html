@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0067)http://localhost/course/resources.php?unit=ooad&file=robustness.xml -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div id="main">
+
+<div class="subtitle"><h1>Robustness Diagrams</h1></div><hr><p>Page 1</p><h1>Robustness Diagrams</h1>
+<ul>
+<li>What are robustness diagrams?</li>
+<li>Why are they used?</li>
+<li>Robustness diagram notation</li> 
+</ul>
+<hr><p>Page 2</p><h1>Bridging the gap between Analysis and Design</h1>
+<ul>
+<li>Use case texts analyse the application from a user interaction point
+of view</li>
+<li>We can also bring in classes from the domain model in a more detailed
+use case text</li>
+<li>However they still do not quite contain enough information to move
+to full design of the system
+	<ul>
+	<li>This is because they are orientated towards user-system interaction,
+	not design of code constructs such as classes and objects, methods and
+	attributes</li>
+	</ul>
+</li>
+</ul>
+<hr><p>Page 3</p><h1>Robustness Diagrams</h1>
+<ul>
+<li>An alternative, graphical way to depict the use cases</li>
+<li>Helps you think about how the steps of the use case will interact with
+the domain model classes</li>
+<li>It also enables you to discover new classes in the system</li>
+</ul>
+<hr><p>Page 4</p><h1>Robustness Diagram Notation</h1>
+<p><img src="../images/robustness2.png" alt="Robustness Diagram Notation"></p>
+<ul>
+<li><em>Boundary Objects</em>: Represent interaction between the user and
+the system, e.g. GUI elements, web forms</li>
+<li><em>Entity Objects</em>: Represent classes within the system, e.g.
+DVDLibrary or Member</li>
+<li><em>Controllers</em>: Represent system actions within the program </li>
+</ul>
+<hr><p>Page 5</p><h1>Robustness Diagram Rules</h1>
+<ul>
+<li><em>Boundary objects</em> can only talk to controllers</li>
+<li><em>Entity objects</em> can only talk to controllers</li>
+<li><em>Controllers</em> can talk to boundary objects, entity objects and
+other controllers</li>
+</ul>
+<hr><p>Page 6</p><h1>Requirements-level use-case text: Add member</h1>
+<h2>(repeated from last week;
+for reference when understanding robustness diagram, below)</h2>
+
+
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+add a new member.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the member details (name, address, date of
+birth)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks validity of details, e.g. date of birth is sensible</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System checks that member does not exist already (same name,
+same address)</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>System allocates membership ID for new member</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System enrols member on system</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>System displays membership ID for DVD shop staff to see. </td>
+</tr>
+
+</tbody></table>
+
+<hr><p>Page 7</p><h1>Example of a Robustness Diagram</h1>
+<h2>DVD Library: Add Member</h2>
+<p><img src="../images/robustness1.png" alt="Robustness Diagram: DVD Library: Add Member"></p>
+<p>See use case text below for reference</p>
+<hr><p>Page 8</p><h1>Add Member - Controller/Entity Object Interactions</h1>
+<ul>
+<li><em>Check member doesn't exist already</em> interacts with
+DVDLibrary
+	<ul>
+	<li>This controller needs a list of all the members</li>
+	<li>So, it needs to interact with some sort of class which contains a 
+	list of all the members</li>
+	<li>A "manager" class, e.g. the DVDLibrary, fits the bill here
+	</li>
+	</ul>
+</li>
+<li><em>Create member</em> interacts with Member
+	<ul>
+	<li>... because it has to create a new Member object!</li>
+	</ul>
+</li>
+<li><em>Allocate ID</em> interacts with DVDLibrary
+	<ul>
+	<li>To allocate a new ID, we need to have a record of all existing IDs</li>
+	<li>Again, a manager class which has a record of all members fits the bill
+	here</li>
+	</ul>
+</li>
+<li><em>Add member to DVD library</em> interacts with DVDLibrary
+	<ul>
+	<li>...as we need to add the new member to the DVD library!</li>
+	</ul>
+</li>
+</ul>
+<hr><p>Page 9</p><h1>View Member Use Case Text</h1>
+<h2>(repeated from last week;
+for reference when understanding robustness diagram, below)</h2>
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+search for a member.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the member ID</td> 
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System searches for the member with that ID.</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System displays details of that member</td>
+</tr>
+
+</tbody></table>
+<hr><p>Page 10</p><h1>Another Example of a Robustness Diagram</h1>
+<h2>DVD Library: View Member</h2>
+<p><img src="../images/robustness3.png" alt="Robustness Diagram: DVD Library: View Member"></p>
+<p>See use case text below for reference</p>
+<hr><p>Page 11</p><h1>View Member: Controller/Entity Object Interactions</h1>
+<ul>
+<li><em>Search for member</em> needs to interact with DVDLibrary
+	<ul>
+	<li>A search for a member needs to go through a list of existing 
+	members... so again a class to manage members fits the bill here</li>
+	</ul>
+</li>
+<li><em>Retrieve member details</em> needs to interact with Member
+	<ul>
+	<li>Once Search (the previous controller) has found a member, we then
+	need to query the member to find its details</li>
+	</ul>
+</li>
+</ul>
+<hr><p>Page 12</p><h1>How to Create a Robustness Diagram</h1>
+<ul>
+<li>Go through your use-case text one step at a time</li>
+<li>Each system response in the use-case text typically becomes a controller
+in the robustness diagram</li>
+<li>For each controller, you need to <em>consider what entity objects might
+be required</em> to carry out that action</li>
+<li>These may be entity objects from the domain model, but you may also
+discover <em>new entity objects</em> by performing the robustness analysis</li>
+<li>Thus, one of the effects of robustness analysis is to increase the number
+of objects in the domain model</li>
+</ul>
+<hr><p>Page 13</p><h1>Discovering Attributes</h1>
+<ul>
+<li>Robustness diagrams also allow us to <em>discover attributes</em> which
+we can add to the classes in the domain model</li>
+<li>For example, in the robustness diagram above, we can figure out that
+a DVDLibrary needs to contain a collection of Members</li>
+<li>... or that Member needs name, date of birth and address as attributes</li>
+<li>A frequent way to do this is by considering what the user needs to enter in
+the boundary objects and "tracing back " the information to the
+appropriate entity object  
+(Rosenberg/Scott, Applying Use-Case Driven Object Modelling with UML, p82)
+</li>
+</ul>
+<hr><p>Page 14</p><h1>Summary of the Aims of Robustness Diagrams</h1>
+<ul>
+<li><em>Discovery of new domain model classes</em>. We can discover further
+classes by thinking about what sort of classes each controller needs to talk 
+to. 
+	<ul>
+	<li>For example, in the "add member" use case, we could decide that a
+	<em>DateValidator</em> class is necessary to check the date of
+	birth</li>
+	<li>Checking the date of birth is a relatively complex process
+	(differing month lengths, leap years etc) so it might make sense to put
+	it in its own class</li>
+	</ul>
+</li>
+<li><em>Discovery of attributes to add to the domain model</em></li>
+<li><em>Clarification of the role of existing domain model classes</em>. By 
+writing the use 
+case text in an alternative, graphical form, we can clarify the interaction
+between domain classes and user/system actions - 
+<em>this can help us draw up methods in the next stage</em></li>
+<li><em>Provides a check on use cases</em> Drawing use cases in an
+alternative graphical form can check that the use case text is sensible and
+we have not missed anything out - particularly alternative courses. 
+Frequently robustness diagrams allow us to
+think of other alternative courses which we missed out earlier.</li>
+</ul>
+<p>(derived in part
+from Rosenberg/Scott, "Applying Use-Case Driven Object Modelling
+with UML", page 61)</p>
+<hr><p>Page 15</p><h1>Updating Use Case Texts</h1>
+<ul>
+<li>We have already seen that robustness analysis can help us add more detail
+to the domain model</li>
+<li>We can also use it to <em>add more detail to the use case text</em></li>
+<li>New steps, or new alternative courses discovered through robustness
+analysis should be added to the corresponding use-case text</li>
+<li>We also reference the domain model objects through the use-case text,
+not just the user-system interaction</li>
+<li>This gives us the <em>design-level use case text</em></li>
+<li>Sometimes this is also done before the robustness
+diagram (the use-case is rewritten referencing objects from the domain model)
+</li>
+</ul>
+<hr><p>Page 16</p><h1>Robustness diagrams are throwaway, use case texts are not!</h1>
+<ul>
+<li><em>Robustness analysis is a "throwaway" technique to make
+the move from analysis to design easier, but the robustness diagrams are not
+kept</em></li>
+<li>By contrast, use case texts must be kept as they are part of the primary
+analysis and design 
+documentation and needed for reference</li>
+<li>If we perform further analysis and design iterations, we will need to
+update the use case texts again later</li>
+</ul>
+<hr><p>Page 17</p><h1>Example design-level use case text: Add Member</h1>
+
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+add a new member. </td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>The system prompts the user for the member details (name, address, date of
+birth)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>Validity of details checked, e.g. date of birth is sensible,
+all details were entered</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>The DVDLibrary object checks that the 
+member does not exist already (same name, same address)</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>DVDLibrary allocates membership ID for new member</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>A new Member object is created using the ID, name, address and date of 
+birth, and added to the DVDLibrary.</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>Membership ID displayed by system for DVD shop staff to see. </td>
+</tr>
+
+</tbody></table>
+
+<hr><p>Page 18</p><h1>View Member Design Level Use Case Text</h1>
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+search for a member.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the member ID</td> 
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>The DVDLibrary retreves the Member with that ID.</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>Attributes of Member loaded into GUI</td>
+</tr>
+
+</tbody></table>
+
+
+</div></body></html>

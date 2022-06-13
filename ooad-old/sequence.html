@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0065)http://localhost/course/resources.php?unit=ooad&file=sequence.xml -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div id="main">
+
+<div class="subtitle"><h1>Sequence diagrams and Class diagrams</h1></div><hr><p>Page 1</p><h1>Sequence diagrams</h1>
+<ul>
+<li>Allow us to design the system in detail</li>
+<li>This is the step in the analysis and design where we work out
+interactions between classes in the system, in the form of methods</li>
+<li>They also help us work out the <em>sequence</em> in which methods are called
+- hence the name!</li>
+<li>Once we're done with sequence diagrams, we can fill in our class diagrams 
+in full and begin coding</li>
+<li>Thus it is important to get them right!</li>
+</ul>
+<hr><p>Page 2</p><h1>How to do a sequence diagram</h1>
+<ul>
+<li>The use case text and robustness diagram are both used</li>
+<li>When we did the robustness diagram, we worked out what classes from the
+domain model are required for each step in the use case</li>
+<li>Each interaction between a use case step (or controller object in the
+robustness diagram) and a domain model object roughly translates to a 
+method call</li>
+<li>Because we worked out the classes needed for each step of the use case in 
+the robustness diagram, the robustness diagram makes the process much easier
+</li>
+<li>Typically, a controller on the robustness diagram translates to one (or 
+maybe more) method(s) on the sequence diagram</li>
+<li>This should be done for alternative courses as well as the normal course 
+of events - though often, it may be trivial for alternative courses of
+action</li>
+</ul>
+<hr><p>Page 3</p><h1>Notation</h1>
+<ul>
+<li>Sequence diagrams show the interaction between classes in the 
+system</li>
+<li>We say that one class (class A) sends another class (class B) a 
+<em>message</em></li>
+<li>In code, this translates to class A calling a method of class B</li>
+<li>The arrow on the line connecting the two classes shows the direction of 
+the message</li>
+<li>Sometimes one class sends itself a message (e.g see checkDetailsEntered()
+in the first example, below)</li>
+</ul>
+<hr><p>Page 4</p><h1>Example 1 - Add Member</h1>
+<p><img src="../images/sequence1_new.png" alt="DVD library - add member  - sequence diagram"></p>
+<ul>
+<li>The first two things that need to be done are to check that details
+were entered in the GUI and to check that the date of birth was valid
+	<ul>
+	<li>The GUI does not need to communicate with any other classes to 
+	do this, so we have a "circular" arrow to show that the
+	GUI class is <em>sending a message to itself</em></li>
+	<li>Each check can be done by a GUI method, 
+	<em>checkDetailsEntered()</em> and <em>checkDOB()</em></li>
+	</ul>
+</li>
+<li>The GUI then needs to check if the member exists already; it sends a
+message to the DVDLibrary, passing it the name and address
+(the <em>checkMemberExists</em> method) 
+	<ul>
+	<li>We worked out in the robustness diagram that DVDLibrary should be
+	responsible for checking if a member exists, which makes it easier to
+	draw up the sequence diagram</li>
+	</ul>
+</li>
+<li>The GUI then sends the DVDLibrary a message to allocate a new ID
+	<ul>
+	<li>The DVDLibrary is the class that will know what the highest ID
+	so far is, so therefore GUI needs to talk to DVDLibrary to do this</li>
+	</ul>
+</li>
+<li>The GUI then sends the Member class a message to create a new Member object with
+the allocated ID and supplied details
+	<ul>
+	<li>The GUI sends a <em>create</em> message to Member</li>
+	<li>A <em>create</em> message is a special type of message which creates
+	a new instance of a specified class</li>
+	<li>Translates to a constructor in code</li>
+	</ul>
+</li>
+<li>Finally the GUI sends the DVDLibrary a message to add the new
+Member</li>
+</ul>
+<hr><p>Page 5</p><h1>Design-level use case text: Add Member (for reference)</h1>
+
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+add a new member. </td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>The system prompts the user for the member details (name, address, date of
+birth)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>Validity of details checked, e.g. date of birth is sensible</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>The DVDLibrary object checks that the 
+member does not exist already (same name, same address)</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>DVDLibrary allocates membership ID for new member</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>A new Member object is created using the ID, name, address and date of 
+birth, and added to the DVDLibrary.</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>Membership ID displayed by system for DVD shop staff to see. </td>
+</tr>
+
+</tbody></table>
+
+<hr><p>Page 6</p><h1>Example 2 - View Member by ID</h1>
+<p>
+<img src="../images/sequence2_new.png" alt="Search for member sequence diagram">
+</p>
+<ul>
+<li>First the GUI communicates with the DVDLibrary to retrieve a member
+with a given ID
+	<ul>
+	<li>The GUI needs to send a message to DVDLibrary, because
+	DVDLibrary is responsible for retrieving a member by ID (we would work
+	this out on the robustness diagram)</li>
+	</ul>
+</li>
+<li>Once we've retrieved the member, m, we then need to retrieve its details
+to display on the GUI 
+	<ul> 
+	<li>This is shown on the sequence diagram by the GUI sending a
+	<em>getDetails()</em> message to a <em>specific</em> Member, m</li>
+	<li>Note how <em>m:Member</em> is separate to plain <em>Member</em> in
+	the sequence diagram, this is to show we are communicating with a
+	<em>specific Member</em>,identified by the variable m in the previous
+	step</li>
+	</ul>
+</li>
+</ul>
+<hr><p>Page 7</p><h1>View Member Design Level Use Case Text (for reference)</h1>
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+search for a member.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the member ID</td> 
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>The DVDLibrary retreves the Member with that ID.</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>Attributes of Member loaded into GUI</td>
+</tr>
+
+</tbody></table>
+
+<hr><p>Page 8</p><h1>Further improvement of sequence diagrams</h1>
+<ul>
+<li>Sometimes, the initial design on the sequence diagram can be improved</li>
+<li>For instance, in the Add Member use case, the GUI is communicating with 
+the DVDLibrary three times: firstly to check if a member exists,
+secondly to allocate an ID, and thirdly to create a new member</li>
+<li>It would be better if the whole process of adding a member
+could be packaged in the DVDLibrary class</li>
+<li>That way, the DVDLibrary could perform the whole process of
+adding a member without depending on other classes (i.e. the GUI)</li>
+<li>...thus making the DVDLibrary more <em>reusable</em> in
+other applications</li>
+<li>This alternative design, in which a single
+<em>addMember()</em> method in DVDLibrary manages the whole
+process, is shown below</li>
+<li>So in summary, <em>do not blindly adopt the first design you
+make in the sequence diagram! Look again at the sequence diagram
+and see if your design can be improved!</em></li>
+</ul>
+<p>
+<img src="../images/sequence5_new.png" alt="Enrol student sequence diagram v2">
+</p>
+<hr><p>Page 9</p><h1>Sequence diagram with DateValidator class</h1>
+<ul>
+<li>Remember last week it was mentioned that when 
+drawing up robustness diagrams, we can sometimes work out new classes to
+add to the domain model</li>
+<li>For example, we might decide to add a DateValidator class to be 
+responsible for validating the date
+	<ul>
+	<li>Validating a date is a relatively tricky process, and any relatively
+	tricky, involved processes typically have their own class to handle them
+	</li>
+	</ul>
+</li>
+<li>The version of the sequence diagram below includes a DateValidator class:
+the GUI sends it a message when validating the date</li>
+</ul>
+<p>
+<img src="../images/sequence6.png" alt="Enrol student sequence diagram v3">
+</p>
+<hr><p>Page 10</p><h1>Class diagrams - revision</h1>
+
+<ul>
+<li>The final stage before coding</li>
+<li>Class diagrams show the classes in the system,
+their inter-relationships, and the attributes and methods of each class</li>
+</ul>
+
+<hr><p>Page 11</p><h1>How to derive the class diagram</h1>
+<ul>
+<li>Classes and their interrelationships come from the domain model, which
+may have had classes added to it at the robustness diagram stage</li>
+<li>Attributes are typically added at the robustness stage, by analysing the
+robustness diagram and use case texts to figure out possible attributes for
+each class (largely common-sense!)</li>
+<li>Methods are identified when doing the sequence diagrams</li>
+<li>So having done robustness and sequence diagrams, you should have enough
+information to complete a class diagram</li>
+</ul>
+<hr><p>Page 12</p><h1>Class diagram syntax</h1>
+<ul>
+<li><em>+</em> : public - accessible from anywhere</li>
+<li><em>-</em> : private - accessible only from instances of the current
+class</li>
+<li><em>#</em> : protected - accessible from instances of both the current
+class and subclasses</li>
+<li>Parameter and return types are also shown</li>
+</ul>
+<hr><p>Page 13</p><h1>Class diagram example</h1>
+<p><img src="../images/classdiagram.png" alt="DVD library class diagram"></p>
+<ul>
+<li>This class diagram is derived from the two sequence diagrams 
+above, by adding the methods from the sequence diagram to the domain
+model classes</li>
+<li>In Member, <em>- id: int</em> means that id is a private attribute of
+the Member class, of type int</li>
+<li>In DVDLibrary, <em>+ checkMemberExists(name:String, addr:String):boolean</em> 
+means that checkMemberExists is a public method and takes two
+Strings (name and address) as parameters, and returns boolean (true/false)
+according to whether the member exists or not</li> 
+<li>In DVDLibrary, <em>+ findMember(id: int): Member</em> means 
+that findMember is a public method and an int parameter, representing the
+member ID, and <em>returns</em> a Member</li> 
+</ul>
+<hr><p>Page 14</p><h1>Converting to code</h1>
+<ul>
+<li>We can easily convert our class diagram to code, as the class diagram is a 
+specification of the attributes and methods of each class</li>
+<li>We can also use the <em>sequence</em> diagrams to help us write code
+	<ul>
+	<li>Sequence diagrams show the sequence in which code is called, so they help us
+	write our methods in the correct order</li>
+	<li>The order of method calls in the sequence diagram is the order that they
+	get called in code</li>
+	</ul>
+</li>
+</ul>
+</div></body></html>

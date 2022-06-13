@@ -1,0 +1,410 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0065)http://localhost/course/resources.php?unit=ooad&file=usecases.xml -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div id="main">
+
+<div class="subtitle"><h1>Intro to ICONIX, Use Cases</h1></div><hr><p>Page 1</p><h1>UML and ICONIX</h1>
+<ul>
+<li>What is Analysis and Design?</li>
+<li>What is UML?</li>
+<li>What is ICONIX?</li>
+<li>Domain Models and Use Cases</li>
+</ul>
+<hr><p>Page 2</p><h1>What is Analysis and Design?</h1>
+<ul>
+<li>We first <em>analyse</em> the problem by breaking it down to get an
+idea of such things as:
+    <ul>
+    <li>How a user will interact with the system</li>
+    <li>How the system will respond</li>
+    <li>How the system will react to errors</li>
+    </ul>
+</li>
+<li>From the analysis, we then <em>design</em> the classes in our system by
+working out their attributes and methods and how they interact</li> 
+</ul>
+<hr><p>Page 3</p><h1>UML: Unified Modelling Language</h1>
+<ul>
+<li>A set of diagrammatic tools to enable developers to
+analyse a problem and design an object-oriented solution to the problem 
+before coding it</li>
+<li>These diagrammatic tools include (but are not restricted to):
+    <ul>
+    <li>Class diagrams</li>
+    <li>Sequence diagrams</li>
+    </ul>
+</li>
+<li>UML is <em>not</em> an analysis and design process; rather it is a set of
+tools which can aid us in that process</li>
+<li>It can be used in various different analysis and design techniques</li>
+</ul>
+<hr><p>Page 4</p><h1>The ICONIX process</h1>
+<ul>
+<li>A formal method to move from an initial description of a problem
+to code</li>
+<li>Uses <em>certain</em> (but not all) features of UML</li>
+<li>
+<img src="../images/iconix.png" alt="The ICONIX process">
+</li>
+<li>Ref: Rosenberg/Scott</li>
+</ul>
+<hr><p>Page 5</p><h1>The ICONIX process - the static and dynamic model</h1>
+<ul>
+<li>We move from the problem statement to code by looking at the analysis and
+design from <em>two angles</em>:
+	<ul>
+	<li>The <em>static model</em> looks at the classes in the system and their
+	attributes</li>
+	<li>The <em>dynamic model</em> considers things from the point of view of 
+	<em>user interaction</em> with the application</li>
+	</ul>
+</li>
+<li>We develop both in parallel; information from the dynamic model can be
+used to develop the static model</li>
+</ul>
+<hr><p>Page 6</p><h1>The problem statement</h1>
+<ul>
+<li>The ICONIX process starts with a <em>problem statement</em>
+</li>
+<li>This is a written description of what is required of the application</li>
+<li>Example problem statement:
+<pre> There is a requirement for a software application to allow a DVD shop to manage
+its stock and handle rentals. Each member is identified by 
+member ID. When members join, the DVD shop needs a record of their
+name, address and date of birth. Members can rent out up to 5 DVDs and return
+them, and may wish to later cancel their membership or inform the 
+DVD shop of changes to their details. </pre>
+</li>
+</ul>
+<hr><p>Page 7</p><h1>What do we do with the problem statement?</h1>
+<ul>
+<li>We need to derive two artefacts from it (see diagram above):
+    <ol>
+    <li>The <em>domain model</em> - the initial static model</li>
+    <li>The <em>use case diagram</em> - the initial dynamic model</li>
+    </ol>
+</li>
+</ul>
+<hr><p>Page 8</p><h1>1. The domain model</h1>
+<ul>
+<li>A diagram showing possible classes in the system, and their interaction</li>
+<li>We derive it by:
+    <ol>
+    <li> <em>analysing the problem statement</em>, and looking for
+    <em>nouns</em> and their interactions - these are our first guess at
+    classes in the system</li>
+    <li>Having derived a list of possible objects, we then connect them 
+    together to illustrate the <em>relationship between them</em></li>
+    </ol>
+</li>
+<li>e.g. for the DVD library application, specified in the problem statement
+above:<img src="../images/domainmodel1.png" alt="Initial domain model -  DVD Library">
+</li>
+<li>This shows three possible classes in the system, and the relationship
+between them (DVDLibrary contains DVDs, Member rents DVDs etc)</li>
+</ul>
+<hr><p>Page 9</p><h1>Multiplicity</h1>
+<ul>
+<li>Having drawn an initial domain model, we annotate it further with the
+<em>multiplicity</em></li>
+<li>This shows <em>how many objects</em> of each class are interacting
+with each other</li>
+<li>e.g. in the DVD library:
+<img src="../images/domainmodel2.png" alt="Initial domain model -  DVD Library; multiplicity shown ">
+</li>
+<li>This diagram is indicating that:
+    <ul>
+    <li>A DVDLibrary may contain one or more (1...n) DVDs</li>
+    <li>A DVDLibrary may contain one or more (1...n) Members</li>
+    <li>A Member may rent zero to five (0...5) DVDs</li>
+    </ul>
+</li>
+</ul>
+<hr><p>Page 10</p><h1>2. The use case diagram</h1>
+<ul>
+<li>The other initial analysis and design artefact is the <em>use case
+diagram</em></li>
+<li>This takes a different approach to the problem compared to the
+domain model:
+    <ul>
+    <li>The domain model looks at the problem from the point of view of the
+    <em>classes in the system</em> (data driven)</li>
+    <li>The use case diagram considers things from the perspective of the
+    <em>users</em> (Who are the users? How are they able to interact with the
+    system?)</li>
+    </ul>
+</li>
+</ul>
+<hr><p>Page 11</p><h1>A use case diagram</h1>
+<p>A use case diagram shows:</p>
+<ul>
+<li>The <em>actor(s)</em>
+    <ul>
+    <li>These will be the people using the system, e.g. DVD shop staff</li>
+    <li>Represented by matchstick figures</li>
+    </ul>
+</li>
+<li>The <em>use cases</em> themselves
+    <ul>
+    <li>These are the <em>tasks</em> which the actors need to perform with
+    the system</li>
+    <li>e.g. for the DVD rental application, these could be:
+        <ul>
+        <li>Add member</li>
+        <li>View member details</li>
+        <li>etc. (see below)</li>
+        </ul>
+    </li>
+    </ul>
+</li>
+</ul>
+<p><img src="../images/BasicUseCase.png" alt="A use-case diagram"></p>
+<hr><p>Page 12</p><h1>Including other use cases</h1>
+<ul>
+<li>A use case can also <em>include</em> another</li>
+<li>If a use case includes another, it means that the
+included use case <em>must</em> be executed as part of the original use case</li>
+<li>An example would be a <em>login</em> use case which is included by many others, eg:
+<br>
+<img src="../images/Include.png" alt="Use case diagram showing include">
+</li>
+<li>Here, the <em>add member</em>, <em>rent DVD</em>, <em>return DVD</em>,
+<em>delete member</em> and <em>add DVD</em> use cases all include the <em>login</em> use case</li>
+
+<li>According to Booch, Rumbaugh and Jacobson ("The Unified Modeling Language, User Guide" 1999, p227),
+the included use case "never stands alone" - it is intended to be executed as part of another
+use case</li>
+
+<li>In our login example, this applies: a user never logs in just for the sake of doing it, but
+in order to do something else</li>
+</ul>
+<hr><p>Page 13</p><h1>Including other use cases - example 2</h1>
+<ul>
+<li>Another example of the use of <em>include</em> is shown below</li>
+<li>In this example, <em>rent DVD</em>, <em>return DVD</em>, <em>view member details</em> and
+<em>delete member</em> all include the <em>search for member by ID</em> use case</li>
+<li>This means that all those use cases must include the search
+process as well as their own specific behaviour
+
+<br>
+<img src="../images/IncludeSearchMember.png" alt="Use case diagram showing include - Example 2">
+</li>
+</ul>
+<hr><p>Page 14</p><h1>Extending other use cases</h1>
+<ul>
+<li><em>Extending</em> a use case means to specify <em>optional additional behaviour</em> which
+applies in <em>some cases only</em></li>
+<li>extend differs from include: extend indicates an optional extension</li>
+<li>Imagine there is an application to manage library 
+membership</li>
+<li>In the example below, <em>borrow a book</em> 
+is an extension of <em>join the library</em></li>
+<li>Why is this? 
+	<ul>
+	<li>When a person borrows a book, they have to be a member of the
+	library first</li>
+	<li>So "join the library" is an optional extension to 
+	"borrow a book"
+	</li>
+	</ul>
+</li>
+<li>Example:
+<br>
+<img src="../images/library_extend.png" alt="Use case diagram showing extend">
+<br>
+</li>
+</ul>
+<hr><p>Page 15</p><h1>Generalised and specialised actors</h1>
+<ul>
+<li>A use-case diagram can have more than one actor, as different use cases might be performed
+by different actors</li>
+<li>Through use of the <em>generalisation</em> symbol in UML (an arrow with an unfilled arrow-head),
+we can distinguish between <em>generalised</em> actors and more <em>specialised</em> actors</li>
+<li>An example would be a DVD shop manager, which is a more specialised (more specific) type
+of DVD shop staff</li>
+<li>The example below shows this:
+	<ul>
+	<li>The DVD shop manager is a more specialised version of a DVD shop staff, so conversely, the
+	DVD shop staff is a more generalised version of a manager. We indicate this generalisation
+	relationship with an unfilled arrow</li>
+	<li>Because the DVD shop manager is a type of DVD shop staff, the manager can do all the use cases that
+	an ordinary member of staff can do, plus add a new member of staff</li>
+	</ul>
+<br>
+<img src="../images/SpecialisedActor.png" alt="Use case diagram showing specialised actor">
+</li>
+</ul>
+<hr><p>Page 16</p><h1>Use-case texts</h1>
+<ul>
+<li>The next step is to break down each use case into a series of steps
+describing how a user will interact with the system in order to complete the
+use case</li>
+<li>A use-case text has two columns:
+    <ul>
+    <li><em>Actor action</em>, describing how the actor will interact with
+    the system</li>
+    <li><em>System response</em>, describing how the system will respond.</li>
+    </ul>
+</li>
+</ul>
+<hr><p>Page 17</p><h1>Example use-case text: Add member</h1>
+
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+add a new member.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the member details (name, address, date of
+birth)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks validity of details, e.g. date of birth is sensible</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System checks that member does not exist already (same name,
+same address)</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>System allocates membership ID for new member</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System enrols member on system</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>System displays membership ID for DVD shop staff to see. </td>
+</tr>
+
+</tbody></table>
+
+<hr><p>Page 18</p><h1>Alternative courses of action</h1>
+<ul>
+<li>Our use-case text must also include <em>alternative courses of action</em>
+</li>
+<li>These describe how the system should react to <em>errors</em></li>
+<li>This can help us design robust systems</li>
+<li>They go below the main use-case text</li>
+<li>e.g. in the previous use-case text:
+<pre>At step 4: Date of birth is not sensible.
+    Staff informed that date of birth is not sensible.
+    Staff re-prompted for details (go back to step 3)
+
+At step 5: Member already exists.
+    Staff informed that member already exists.
+    Return to main menu (go back to step 1)
+</pre>
+</li>
+</ul>
+<hr><p>Page 19</p><h1>Example use-case text: Rent DVD</h1>
+<p>Not perfect by the way - maybe you can come up with something better!</p>
+<table>
+
+<tbody><tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the DVD shop staff selects to
+rent a DVD out to a member</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the membership ID</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The DVD shop staff enters the membership ID.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks that the membership ID is valid</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System displays details of that member</td> 
+</tr>
+
+<tr>
+<td>6</td>
+<td>The DVD shop staff enters the name of the DVD that the member wishes
+to rent.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System checks that the DVD name is valid</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>System checks that the DVD is in stock</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>-</td>
+<td>System checks that the member has not exceeded the limit on the number
+of DVDs they may rent</td>
+</tr>
+
+<tr>
+<td>10</td>
+<td>-</td>
+<td>System rents DVD out to member.</td> 
+</tr>
+
+</tbody></table>
+
+</div></body></html>
