@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Switch statement</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Object Oriented Programming: Topic 2 Additional Material</h1>
+<h1>The switch statement</h1>
+
+<p>In this topic we will
+examine the <em>switch</em> statement. We will also look at
+prefix and postfix operators in more detail.</p>
+    
+
+<h2>The switch statement</h2>
+
+<p>Java, in common with most C-based languages, includes an alternative conditional
+statement to the <em>if</em> statement, namely the <em>switch</em> statement.
+Often we find ourselves having to write very long winded <em>if/else</em> statements
+to cover a wide range of possibilities, e.g:
+<pre>public class IfCallingCodesApp
+{
+    public static void main (String[] args)
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the international dialling code :");
+        String codeAsString = scanner.nextLine();
+        int code = Integer.parseInt(codeAsString);
+        
+    
+        
+        if(code == 44)
+        {
+            System.out.println("UK");
+        }
+        else if (code == 33)
+        {
+            System.out.println("France");
+        }
+        else if (code == 1)
+        {
+            System.out.println("USA or Canada");
+        }
+        else if (code == 49)
+        {
+            System.out.println("Germany");
+        }
+        else
+        {
+            System.out.println("Don't know");
+        }
+    }
+}</pre>
+This works, but arguably the code is a bit long-winded and hard to read. An alternative is to use the <em>switch</em> statement, shown below:
+<pre>public class SwitchCallingCodesApp
+{
+    public static void main (String[] args)
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the international dialling code :");
+        String codeAsString = scanner.nextLine();
+        int code = Integer.parseInt(codeAsString);
+        
+    
+        switch(code)
+        {
+            case 44:
+                System.out.println("UK");
+                break;
+                
+            case 33:
+                System.out.println("France");
+                break;    
+                
+            case 1:
+                System.out.println("USA or Canada");
+                break;
+                
+            case 49:
+                System.out.println("Germany");
+                break;
+                
+            default:
+                System.out.println("Don't know");
+                
+        }
+    }
+}</pre>
+This shows the use of a <em>switch</em> statement. We <em>switch</em> on the variable we want to test
+(<em>code</em> here) and consider the <em>case</em> of each of the values we want to test for.
+In each <em>case</em> statement we write all the code relating to that case (e.g. 44 for UK) and
+then <em>break</em> out of the switch statement. Note that the <em>break</em> is compulsory in this
+example. If we miss the <em>break</em> out, it will continue running the next case.
+(Why is this? The next example, below, will explain).</p>
+<p>Also note the <em>default</em> case. This will trap anything not covered by the specified cases.
+So if the user enters something other than 44, 33, 1 or 49, then "Don't know" will be printed.</p>
+<h4>Exercise 1</h4>
+<p>Try the switch example above. Remove the <em>break</em> statements from each <em>case</em> and try running
+it again, testing out each recognised dialling code. What happens?</p>
+<h3>Multiple cases, one effect</h3>
+<p>There are many cases where we want a <em>group</em> of cases to have the same effect. For example imagine
+a program which displays which season a month is in. This might look like this:
+<pre>public class SeasonsSwitchApp
+{
+    public static void main (String[] args)
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the month :");
+        String month = scanner.nextLine();
+    
+        
+    
+        switch(month)
+        {
+            case "December":
+            case "January":
+            case "February":
+                System.out.println("Winter");
+                break;
+                
+            case "March":
+            case "April":
+            case "May":
+                System.out.println("Spring");
+                break;    
+                
+            case "June":
+            case "July":
+            case "August":
+                System.out.println("Summer");
+                break;
+                
+            case "September":
+            case "October":
+            case "November":
+                System.out.println("Autumn");
+                break;
+                
+            default:
+                System.out.println("Not a real month");
+                
+        }
+    }
+}</pre>
+In this example, note how we group cases together. So if <em>month</em>
+is either December, January or February, Winter will be printed.
+This is why cases "fall through" to the next case if the <em>break</em>
+is missing. This example also shows that
+<em>you can use strings in switch statements, as well as integers</em>.
+This has not always been the case, but has been since Java 7.</p>
+<h4>Exercise 2</h4>
+<ol>
+<li>Using a switch statement, write a program which reads in a grade (A, B, C, D or F) and
+displays the equivalent degree classification. Use the following guidelines:
+    <ul>
+    <li>A = First;</li>
+    <li>B or C = Second;</li>
+    <li>D = Third;</li>
+    <li>F = Fail.</li>
+    </ul>
+</li>
+<li>Using a switch statement, write a program which reads in two numbers and an operator (+, -, / or *) and performs the appropriate mathematical calculation.</li>
+</ol>
+<h2>Prefix and postfix operators</h2>
+
+<p>You have already seen statements such as:
+<pre>a++;</pre>
+to increase a variable by one. This is called a <em>postfix</em> operator because the "++" comes <em>after</em> 
+the variable. However, we can also have the related <em>prefix</em> operator:
+<pre>++a;</pre>
+which does the same thing. What, then, is the difference between them? They have different meanings when the
+variable is <em>assigned to another</em>. For example we can have statements such as:
+<pre>int b = a++;</pre>
+or
+<pre>int c = ++a;</pre>
+What do these two statements do and what is the difference between them?
+    <ul>
+    <li>The postfix operator does the assignment <em>and then</em> increases the variable by one. So
+    <pre>int b=a++;</pre>
+    is equivalent to:
+    <pre>int b=a;
+a++;</pre>
+    </li>
+    <li>The prefix operator <em>increases the variable first</em> and then assigns 
+    <em>the new value of the variable</em> to the other variable. So
+    <pre>int c=++a;</pre>
+    is equivalent to:
+    <pre>++a;
+int c=a;</pre>
+    </li>
+    </ul>
+</p>
+<p>
+This can have consequences for loops. For instance:
+<pre>while(++i &lt; 10)
+{
+    System.out.println(i);
+}</pre>
+will count from 1 to 9, but
+<pre>while(i++ &lt; 10)
+{
+    System.out.println(i);
+}</pre>
+will count from 1 to 10.
+</p>
+<p> 
+This is because the statement:
+<pre>while(++i &lt; 10)</pre>
+increases i <em>first</em> and <em>then</em> compares it with the value 10. So if <em>i</em> is 9, 
+<em>i</em> will be increased by one first and then compared to 10. Since it will now be 10, the
+loop will not run.</p>
+<p>By contrast:
+<pre>while(i++ &lt; 10)</pre>
+compares i with the value 10 <em>first</em> and then increases it by one. So if <em>i</em> is 9,
+<em>i</em> will be compared with 10; it will be less than 10 so the loop will run. <em>After</em> comparing
+<em>i</em> with 10, <em>i</em> will be increased by one - but by that time the test will already have been
+passed. So the result will be that the loop will run another
+time with <em>i</em> having the value 10.</p>
+
+
+</body>
+</html>

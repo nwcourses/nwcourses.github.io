@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Extra Material: Inheritance</h1>
+<h2>Introduction</h2>
+<p>
+<em>Inheritance</em> allows us to use an existing class as a basis for a new,
+related class.
+Imagine we wanted to write classes representing different types of
+vehicle, e.g. Car, Bus, Motorbike. If we were to write the three classes entirely 
+separately, we'd be <em>repeating</em> a
+good deal of code - e.g. the code for starting and stopping the engine is common to all three
+classes.</p>
+<p>So what we could do in this case is create a <em>Vehicle</em> class,
+containing common functionality for all types of vehicle, and then
+<em>inherit</em> various <em>subclasses</em> of Vehicle (such as Car, Bus, and
+Motorbike) which provide additional functionality specific to that type
+of Vehicle. We can say that:
+    <ul>
+    <li>The Car <em>inherits</em> from or  is a <em>subclass</em> of Vehicle</li>
+    <li>Vehicle is a <em>superclass</em> of Car</li>
+    </ul>
+</p>
+
+<h2>How is inheritance achieved in Java?</h2>
+<p>In Java, we use the keyword <em>extends</em>, e.g.
+<pre>
+public class Car extends Vehicle
+{
+.... Car attributes and methods
+}
+</pre>
+This means that the <em>Car</em> class inherits from Vehicle. All attributes and methods in Vehicle
+will be <em>inherited</em> by Car, so when you create a Car, all the Vehicle methods and attributes
+will be available.</p>
+
+<h3>Java Inheritance Example</h3>
+
+<p>Below is a <em>Vehicle</em> superclass with <em>Bike</em> and <em>Car</em>
+subclasses.</p>
+<h4>Vehicle class (Vehicle.java):</h4>
+<pre>
+<em>// Generic Vehicle superclass</em>
+public class Vehicle 
+{
+    <em>// Attributes common to all vehicles</em>
+    protected int topSpeed, nWheels; 
+    protected String make;
+
+    public Vehicle (String makeIn, int topSpeedIn, int nWheelsIn)
+    {
+        this.make=makeIn;
+        this.topSpeed=topSpeedIn;
+        this.nWheels=nWheelsIn;
+    }
+
+    public void move()
+    {
+        System.out.println(&quot;Moving along...&quot;);
+    }
+
+    public void print()
+    {
+        System.out.println( &quot;Make : &quot; + make + &quot;\nTop speed: &quot; + 
+            topSpeed + &quot;\nno. wheels: &quot; + nWheels);
+    }
+}
+</pre>
+<h4>Car class (Car.java):</h4>
+<pre>
+public class Car extends Vehicle 
+{
+    <em>// Car-specific data</em>
+    private int engineCapacity; 
+    private boolean engineRunning;
+
+    public Car(String makeIn, int topSpeedIn, int engineCapacityIn)
+    {
+        <em>// Call the superclass (Vehicle) constructor to construct the Vehicle </em>
+        <em>// component of the Car. We will pass in the top speed, make, and</em>
+        <em>// number of wheels (which we know will be 4)</em>
+        super(makeIn, topSpeedIn, 4);
+
+        <em>// Set up the Car-specific attributes (engine capacity)</em>
+        this.engineCapacity = engineCapacityIn;
+    }
+
+    <em>// Overridden move() for cars</em>
+    public void move()
+    {
+        if (engineRunning)
+        {
+            System.out.println(&quot;Driving along...&quot;);
+        }
+        else
+        {
+            System.out.println
+                (&quot;Can't drive the car if the engine's stopped!!!&quot;);
+        }
+    }
+
+    <em>// Car-specific methods</em>
+    public void start()
+    {
+        engineRunning=true;
+    }
+
+    public void stop()
+    {
+        engineRunning = false;
+    }
+
+    <em>// Convert the car to a String. Note the use of super.toString() to</em>
+    <em>// call the superclass (Vehicle) version of toString() to get the</em>
+    <em>// make, top speed and number of wheels.</em>
+    public void print()
+    {
+        super.print();
+        System.out.println(&quot; Engine running? 
+                    &quot; + engineRunning + &quot;\nEngine capacity: &quot; +
+                            engineCapacity);
+    }
+}
+</pre>
+<h4>Bike class (Bike.java):</h4>
+<pre>
+public class Bike extends Vehicle 
+{
+    <em>// Bike-specific data</em>
+    private boolean isOffRoad;
+    private int nGears; 
+
+    public Bike(String makeIn,int topSpeedIn,boolean isOffRoadIn,int nGearsIn)
+    {
+        <em>//Call the superclass (Vehicle) constructor to construct the Vehicle</em>
+        <em>// component of the Bike. We will pass in the top speed, make, and</em>
+        <em>// number of wheels (which we know will be 2)</em>
+        super(makeIn,topSpeedIn,2);
+
+        <em>// Set up the Bike-specific attributes (off-road status and gears)</em>
+        this.isOffRoad = isOffRoadIn;
+        this.nGears = nGearsIn;
+    }
+
+    public void print()
+    {
+       super.print();
+       System.out.println(&quot; Off road? &quot; + 
+                            isOffRoad + &quot;\nNo. Gears: &quot; +
+                            nGears);
+    }
+}
+
+public class InheritanceTestApp 
+{
+    public static void main (String args[])
+    {
+        Car c= new Car(&quot;Ford&quot;,120,2000);
+        Bike b = new Bike(&quot;Raleigh&quot;,30,true,27);
+
+        c.print();
+        b.print();
+
+        c.move();
+        c.start();
+        c.move();
+        c.stop();
+
+        b.move();
+    }
+}
+</pre>
+</p>
+<p>How is this working?
+    <ul>
+    <li>First, note that in the <em>Vehicle</em> class the attributes are not private,
+    but <em>protected</em>. <em>protected</em> means that attributes are accessible from
+    <em>subclasses</em> (e.g. Car, Bike) whereas <em>private</em> indicates that, while the attributes
+    are still there in memory, they are hidden from the subclasses and cannot be used from them.</li>
+    <li>Note how the constructor for Car calls the Vehicle constructor 
+    to initialise the Vehicle aspects of the Car. This is done with the line
+    <pre>super(make, topSpeed, 4)</pre>
+    The <em>super</em> keyword represents the <em>super</em>class. When used in this way, it means
+    "call the superclass constructor". So when the Car constructor is called, it in turn calls the
+    Vehicle constructor to initialise the Vehicle aspects of the car (make, top speed, and number of 
+    wheels). The Vehicle constructor will initialise the corresponding attributes to the values
+	passed to <em>super()</em>: because we always pass 4 for the number of wheels, the
+	<em>nWheels</em> attribute will always be initialised to 4 for Cars.</li>
+	<li>We do something similar in Bike, but in this case, we always pass 2 for the number of wheels.</li>
+    <li>Notice also how we call the superclass version of print() in the
+    subclass version using <em>super.print()</em></li>
+    </ul>
+</p>
+
+<h3>Overriding Methods</h3>
+<p>In the example, Vehicle and Car both have a method called 
+<em>move()</em>. We have 
+<em>overridden</em> the original version in Vehicle with the version in Car -
+in other words, replaced the original Vehicle version of move() with a new 
+version in Car.
+This will mean that:
+    <ul>
+    <li>If we call <em>move()</em> on a Vehicle, then the Vehicle 
+    <em>move()</em> will be called;</li>
+    <li>If we call <em>move()</em> on a Car, then the Car <em>move()</em> 
+    will be called;</li>
+    <li>If we call <em>move()</em> on a Bike, then the Vehicle <em>move()</em> 
+    will be called, because we did not override it in Bike</li>
+    </ul>
+</p>
+<p>In the same way, <em>print()</em> is overridden in both Car and Bike. However, unlike for 
+<em>move()</em>, the overridden version of <em>print()</em> calls the original, Vehicle version of
+<em>print()</em> using the super keyword: <em>super.print();</em>.</p>
+
+<h2>Exercise</h2>
+
+<p>Return to your chase game. You will notice that there is a lot of code repeated in the
+<em>Hero</em> and <em>Monster</em> classes. Create a new class, <em>Creature</em>, that contains all
+the attributes and methods common to both Hero and Monster. Make Hero and Monster inherit from 
+Creature.</p>
+
+</body>
+</html>

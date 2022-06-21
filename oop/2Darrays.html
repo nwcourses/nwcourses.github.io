@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Extra Material: 2D Arrays</h1>
+
+<p>We have already covered one-dimensional arrays. However, arrays are not restricted to one dimension:
+there are many cases in which a <em>2D array</em> would be useful. We can even have multi-dimensional
+arrays above 2D: 3D, 4D and so on.</p>
+
+<h2>An example</h2>
+
+<p>Imagine that you are studying a multi-year Java course at an adult education department in a college.
+The Java course takes place over three years, and each year has five assessments.
+To store the marks for each assessment in code, you could use a <em>2D array</em> with three rows
+(one for each year). Each row would itself be an array with five members, representing the individual
+mark for each assessment. The diagram below is a simple representation of a 2D array, and shows how
+you reference the individual values. <br />
+<img src="images/2Darray.png" alt="Simple representation of a 2D array" />
+</p>
+<p>Here is a program which uses a 2D array to store the marks. The program reads in the marks and then
+displays them.</p>
+
+<pre>
+import java.util.Scanner;
+
+public class TwoDArrayApp
+{
+    public static void main (String[] args)
+    {
+        int[][] marks = new int[3][5];
+        String input;
+        Scanner scanner = new Scanner(System.in);
+        
+        <em>//Read in the marks</em>
+        for(int i=0; i&lt;marks.length; i++)
+        {
+            System.out.println("Entering marks for year " + i);
+            for(int j=0; j&lt;marks[i].length; j++)
+            {
+                System.out.println("Enter mark for assessment " + j + " for year " + i);
+                input = scanner.nextLine();
+                
+                marks[i][j] = Integer.parseInt (input);
+            }
+        }
+        
+        <em>//Display the marks that were read in</em>
+        for(int i=0; i&lt;marks.length; i++)
+        {
+            System.out.print("Marks for year " + i + ": ");
+            for(int j=0; j&lt;marks[i].length; j++)
+            {
+                System.out.print (marks[i][j] + " ");
+            }
+            System.out.print("\n");
+        }
+    }
+}
+</pre>
+
+<p>Note the following:
+    <ul>
+    <li>The data type of the 2D array is <em>int[][]</em>. This is similar in syntax to a 1D array
+    in which the data type is <em>int[]</em> (assuming it's an int array).</li>
+    <li>When creating the 2D array, we need to specify the number of rows and columns. So:
+    <pre>int[][] marks = new int[3][5];</pre>
+    will create a 2D array with 3 rows and 5 columns.</li>
+    <li>The 2D array is actually an <em>array of arrays.</em> 
+    <em>marks</em> is an array of three integer arrays, one for each year.
+    Each row is an integer array with five members, one for each assessment. 
+    Generalising this: when we initialise a 2D array with code such as:
+    <pre>int[][] array = new int[nrows][ncolumns];</pre>
+    then <em>nrows</em>, the number of "rows", is actually the number of 1D arrays within the
+    2D array. <em>ncols</em>, the number of "columns", is then the number of elements within
+    each 1D array. So a more accurate representation of a 2D array is actually as follows: <br />
+	<img src="images/2Darray_2.png" alt="2D array as an array of arrays" /></li>
+    <li>Therefore, in this case:
+        <ul>
+        <li>marks[0] is an array containing the marks for year 1;</li>
+        <li>marks[1] is an array containing the marks for year 2;</li>
+        <li>marks[2] is an array containing the marks for year 3.</li>
+        <li>In the loops, <em>marks[i]</em> is an array representing the current year.
+        Remember that we can obtain the capacity of an array, i.e. the maximum number of elements
+        that the array will hold, using <em>.length</em>. So, in the inner loop, we are looping
+        from 0 up to the number of elements in marks[i], i.e. the number of assessments per year.</li>
+        </ul>
+    </li>
+	<li>This is the first time you have seen a <em>loop within a loop</em>. There is an 
+	<em>outer</em> loop in which we count from 0 to <em>marks.length</em>
+	(why <em>marks.length</em> and not 3?
+	It allows us to change the dimensions of the array without having to change the loop, as the loop
+	will always count to however many elements are in the array). This outer
+	loop goes through each year, the variable <em>i</em> containing the values 0, 1 and 2 in turn.
+	Then, <em>each time</em> the outer loop runs, we start an <em>inner</em> loop using the variable
+	<em>j</em>. The variable <em>j</em> represents each assessment. We loop from 0 to
+	<em>marks[i].length</em> (the length of the array of marks for year <em>i</em>) within the inner loop,
+	and read each value into <em>marks[i][j]</em> (i.e. assessment <em>j</em> for year <em>i</em>).</li>
+    </ul>
+</p>
+
+<h3>2D Arrays with variable-length sub-arrays</h3>
+
+<p>The above example showed a 2D array where all the individual rows (sub-arrays) had the same 
+length (5). However, this does not actually need to be the case. We can have 2D arrays with 
+<em>variable length rows</em>. Imagine a modified version of the above scenario where in year 1, 
+there are only 3 assessments, in year 2 there are 5, and in year 3 there are 7. We could use code
+like this:
+<pre>
+import java.util.Scanner;
+
+public class TwoDArrayApp2
+{
+    public static void main (String[] args)
+    {
+        <em> //Second dimension of the 2D array unspecified</em>
+        int[][] marks = new int[3][];
+        String input;
+        Scanner scanner = new Scanner(System.in);
+        
+        <em>// Initialise the individual rows</em>
+        marks[0] = new int[3];
+        marks[1] = new int[5];
+        marks[2] = new int[7];
+        
+        <em>//Read in the marks</em>
+        for(int i=0; i&lt;marks.length; i++)
+        {
+            System.out.println("Entering marks for year " + i);
+            for(int j=0; j&lt;marks[i].length; j++)
+            {
+                System.out.println("Enter mark for assessment " + j + " for year " + i);
+                input = scanner.nextLine();
+                
+                marks[i][j] = Integer.parseInt (input);
+            }
+        }
+        
+        <em>//Display the marks that were read in</em>
+        for(int i=0; i&lt;3; i++)
+        {
+            System.out.print("Marks for year " + i + ": ");
+            for(int j=0; j&lt;marks[i].length; j++)
+            {
+                System.out.print (marks[i][j] + " ");
+            }
+            System.out.print("\n");
+        }
+    }
+}
+</pre>
+</p>
+<p>In this example, we initialise the 2D array slightly differently:
+<pre>int[][] marks = new int[3][];</pre>
+Note the missing second dimension, with the empty square brackets <em>[]</em>. 
+Rather than creating an array of three arrays, as before, this creates an array of three
+<em>null</em> arrays. Each member of <em>marks</em> will contain the value <em>null</em> at this
+point. So we have to explicitly create a new array for each member of <em>marks</em>:
+<pre>
+marks[0] = new int[3];
+marks[1] = new int[5];
+marks[2] = new int[7];
+</pre>
+Once we have done that, our loops to read in the marks and display them are exactly as they were before.
+Because we are using <em>marks[i].length</em> in the inner loop, rather than a constant value
+(e.g. 5), it will count from 0 to whatever the length of the current year's array is (3, 5 or 7).</p>
+<p>A diagram of a variable-length 2D array is shown below. <br />
+<img src="images/2Darray_3.png" alt="Variable-length 2D array as an array of arrays" />
+</p>
+<h3>Pre-initialising a 2D array</h3>
+<p>As for 1D arrays, we can pre-initialise an entire 2D array in one statement, using the braces
+syntax. The following example does this with the marks scenario:
+<pre>
+public class TwoDArrayApp3 
+{
+    public static void main (String[] args)
+    {
+        int[][] marks = 
+            {
+                { 32, 45, 56 },
+                { 67, 78, 78, 56, 81 },
+                { 80, 78, 81, 84, 66, 67, 93 }
+            };
+        
+        for(int i=0; i&lt;marks.length; i++)
+        {    
+            for (int j=0; j&lt;marks[i].length; j++)
+            {
+                System.out.print(marks[i][j]+" ");            
+            }
+            System.out.print("\n");
+        }
+    }
+}
+</pre>
+</p>
+<h2>Exercise</h2>
+<ul>
+<li>Return to your chase game. Have a go at creating a <em>maze</em> using a 2D array, such as the maze
+used in Pacman games. It should be a 2D array of <em>char</em>s. Use any character you like for the
+wall (e.g. 'X').
+Draw the maze in your <em>render()</em> method by using an outer loop for rows
+and an inner loop for columns, using <em>fillRect()</em>
+to draw a block of, say, 32x32 in a given colour at the appropriate
+position on screen when an 'X' is encountered in your array.</li>
+<li>If you really want a challenge, modify the movement of the player and the monsters so that they cannot
+move through walls! Then, you are halfway to writing your own Pacman game!</li>
+</ul>
+</body>
+</html>

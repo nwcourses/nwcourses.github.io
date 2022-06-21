@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Object Oriented Programming</h1>
+<h1>Week 2: Conditional statements and loops</h1>
+
+<h2>Introduction</h2>
+
+<p>This week we will look at conditional statements (if statements) and loops (while,
+do/while and for loops). You have already seen examples of each in Python but this Topic will show you how
+to write them in Java.</p>
+
+<h2>The if statement in Java</h2>
+
+<p>This example shows how to do an <em>if</em> statement in Java:
+<pre>
+import java.util.Scanner;
+
+public class GuessTheYearApp
+{
+    public static void main (String[] args)
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println ("Which year was the most recent London Olympics?");
+        String yearAsString = scanner.nextLine();
+        int year = Integer.parseInt(yearAsString);
+        
+        if(year==2012)
+        {
+            System.out.println("Correct!");
+        }
+        else
+        {
+            System.out.println("Wrong!");
+        }
+    }
+}
+</pre>
+Hopefully you can recognise the <em>if</em> / <em>else</em> structure that you have seen
+already in Python. The main things to note here are:
+    <ul>
+    <li>Note the test that we are doing in the <em>if</em> statement:
+    <pre>if(year==2012)</pre>
+    Note how we use <em>==</em> (double equals) to test whether a variable is equal to a value.
+    A single equals (<em>=</em>) is used to assign a value to a variable.</li>
+    <li>Note the use of the braces (curly brackets) { and } to begin and end the <em>code block</em>
+    associated with the <em>if</em> and <em>else</em> keywords. Last time, when we were looking at the
+    Hello World application, we looked at the concept of code blocks as sections of code beginning and
+    ending with braces. Everything within the code blocks here relates
+    to the "if" or the "else", as appropriate. So the System.out.println statement:
+    <pre>System.out.println("Correct!");</pre>
+    will run if the user entered the correct year, while the statement:
+    <pre>System.out.println("Wrong!");</pre>
+    will run if the user entered the wrong year.</li>
+    </ul>
+</p>
+<p>In addition to simply having an <em>if</em> block and an <em>else</em> block,
+we can also have one or more <em>else if</em> blocks to handle multiple conditions.
+The example below shows this (the previous London Olympics before 2012 was in 1948):
+<pre>
+import java.util.Scanner;
+
+public class GuessTheYearApp2
+{
+    public static void main (String[] args)
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println ("Which year was the most recent London Olympics?");
+        String yearAsString = scanner.nextLine();
+        int year = Integer.parseInt(yearAsString);
+        
+        if(year==2012)
+        {
+            System.out.println("Correct!");
+        }
+        else if (year==1948)
+        {
+            System.out.println("I said the *most recent* London Olympics!");
+        }
+        else
+        {
+            System.out.println("Wrong!");
+        }
+    }
+}
+</pre>
+</p>
+<h2>Comparison and logical operators in Java</h2>
+<p>Like other languages, Java has comparison and logical operators. Here is a list of the most common
+comparison operators:
+        <ul>
+        <li><em>==</em>: is equal to (note the double equals!)</li>
+        <li><em>&lt;</em> : less than</li>
+        <li><em>&gt;</em> : greater than</li>
+        <li><em>&lt;=</em> : less than or equal to</li>
+        <li><em>&gt;=</em> : greater than or equal to</li>
+        <li><em>!=</em> : not equal to</em>
+        <li><em>!</em> (in front of an expression) : <em>not</em> (negates the expression)</li>
+        </ul>
+</p>
+<p>and here are the two most common logical operators:
+    <ul>
+    <li><em>&amp;&amp;</em> : and</li>
+    <li><em>||</em>: or</li>
+    </ul>
+</p>
+<h3>Exercise 1</h3>
+<ol>
+<li>Modify the second example above so that the <em>"I said the most recent..."</em>
+message appears if the user entered 1908 as well as 1948. (There was also a London
+Olympics in 1908).</li>
+<li>Modify the second example above so that it displays <em>"Earlier!"</em> if the year was after 2012 or
+<em>"Later!"</em> if the year was before 2012.</li>
+<li>Write a program to calculate a train fare dependent on your age. Imagine that train fares are half price
+if you are under 18 or over 65. The program should allow the user to enter the full-price train fare (a double) and the
+user's age, and then display the train fare that the user has to pay dependent on their age. 
+<em>There is a Double.parseDouble() which is equivalent to Integer.parseInt() for converting Strings to doubles.</em></li>
+<li>Enhance this program so that invalid ages (an age less than 0, or an age of 128 or more) are rejected. The program should
+just end (you can use <em>System.exit(0);</em> to quit the program)</li>
+</ol>
+
+<h2>Loops in Java</h2>
+
+<p>In common with other languages, you can write <em>loops</em> in Java. You should remember from 
+Introduction to Programming and Problem Solving that a <em>loop</em> involves repeating the same
+section of code over and over again until some condition is met. Java has four types of loops:
+    <ul>
+    <li>The while loop;</li>
+    <li>The do/while loop;</li>
+    <li>The for loop;</li>
+    <li>The foreach loop.</li>
+    </ul>
+We will look at the first three for now, and come back to the foreach loop later.</p>
+
+<h3>The "while" loop in Java</h3>
+
+<p>The <em>while</em> loop is probably the simplest loop in Java. It simply loops until a particular 
+condition is met. For example:
+<pre>
+public class WhileLoopApp
+{
+    public static void main (String[] args)
+    {
+        int i = 1;
+        
+        while(i &lt;= 10)
+        {
+            System.out.println("Number = " + i);
+            System.out.println("Square of number = " + i*i);
+            i++;
+        }
+    }
+}
+</pre>
+This example initialises an integer variable <em>i</em> to 1 and then loops while the variable <em>i</em>
+is less than or equal to 10. Of note is:
+    <ul>
+    <li>the use of a <em>code block</em> again, beginning with the
+    bracket <em>{</em> and ending with <em>}</em>. This defines the code which is associated with the loop. So the
+    two System.out.println statements will be printed 10 times.</li>
+    <li>Also note the use of <em>i++</em>. This is what is called the <em>postfix</em> operator. It is a 
+    shorthand way of writing <em>i=i+1;</em>, in other words it increases the variable <em>i</em> by one.
+    You can also do <em>i--</em> too to reduce <em>i</em> by one.</li>
+    </ul>
+</p>
+<h4>Exercise 2</h4>
+<ol>
+<li>Change the program above to count <em>down</em> from 20 to 2 in steps of 2.</li>
+<li>Rewrite the basic "Guess the Olympics year" program to use a while loop rather than an if statement, so that if
+the user gets the year wrong, they should be given another chance. (This
+should be the basic version of the program, do not worry about previous
+Olympic years; just say "Correct" or "Wrong" depending on whether it's
+2012 or not.  Also, initially, do not distinguish between pre-2012 
+and post-2012 years).</li>
+<li>Enhance question 2 so that the program distinguishes between pre-2012 and post-2012 years, by having an
+<em>if</em> statement <em>inside</em> your <em>while</em> loop.</li>
+</ol>
+<h3>The "do/while" loop in Java</h3>
+
+<p>The <em>do/while</em> loop is similar to the while loop, but performs the check at the
+<em>end of the loop</em> rather than the beginning. For example:
+<pre>
+public class DoWhileLoopApp
+{
+    public static void main (String[] args)
+    {
+        int i = 1;
+        
+        do
+        {
+            System.out.println("Number = " + i);
+            System.out.println("Square of number = " + i*i);
+            i++;
+        }while(i &lt;= 10);
+    }
+}
+</pre>
+Sometimes the logic of a loop means that it's better to put the check at the end of the loop rather than the
+beginning, and the do/while loop allows us to do that. Note also how we need to put a semicolon after the
+<em>while</em> condition; this is because the statement ends here, whereas for a <em>while</em> loop the
+condition is at the beginning of the loop. A common mistake is to add a semicolon to
+an ordinary <em>while</em> loop:
+<pre>
+public class InfiniteWhileLoopApp
+{
+    public static void main (String[] args)
+    {
+        int i = 1;
+        
+        while(i &lt;= 10)<em>;</em>
+        {
+            System.out.println("Number = " + i);
+            System.out.println("Square of number = " + i*i);
+            i++;
+        }
+    }
+}
+</pre>
+This is a logical error because a semicolon always terminates a statement, and in this example will therefore
+terminate the <em>while</em> statement and separate it from its code block. 
+<em>while(i &lt;= 10);</em> is basically equivalent 
+to writing the while loop with an empty code block, i.e.:<pre>
+while(i &lt;= 10)
+{
+}</pre>
+The result is that the <em>while</em> statement will 
+loop infinitely, because it is testing for <em>i</em> being less than or equal to 10, and <em>i</em> is
+never increased beyond 1 within the loop.</p>
+<h3>The for loop</h3>
+<p>Java also has a <em>for</em> loop, in common with many other languages. The for loop might take some
+getting used to if you have not programmed in any other "C like" language such as C or C++. The syntax is:
+<pre>for(initialisation; continue condition; change)</pre>
+where:
+    <ul>
+    <li><em>initialisation</em> is the start condition - typically the initialisation of a loop variable;</li>
+    <li><em>continue condition</em> is the condition which must be true for the loop to continue;</li>
+    <li><em>change</em> is the change each time the loop runs: typically we change the value of a loop variable here.</li>
+    </ul>
+An example:
+<pre>for(int i=1; i&lt;=10; i++)</pre>
+Here:
+    <ul>
+    <li>the <em>initialisation</em> is <em>i=1</em>, i.e. when we first enter the loop, the variable <em>i</em> will be initialised to 1.
+    Note that <em>we declare i at the same time as initialising it</em> with <em>int</em> i=1;. This prevents us having to 
+    declare <em>i</em> outside the loop.</li>
+    <li>the <em>continue condition</em> is <em>i&lt;=10</em>, i.e. the loop will continue running while the variable <em>i</em> is less than 
+    or equal to 10;</li>
+    <li>the <em>change</em> is <em>i++</em>, i.e. each time the loop runs, we increase the value of <em>i</em> by one.</li>
+    </ul>
+Here is a full example:
+<pre>
+public class ForLoopApp
+{
+    public static void main (String[] args)
+    {    
+        for(int i=1; i &lt;= 10; i++)
+        {
+            System.out.println("Number = " + i);
+            System.out.println("Square of number = " + i*i);
+        }
+    }
+}
+</pre>
+Compare this to the <em>while</em> loop example. While it may be a little harder to understand the
+syntax of the for loop if you are new to it, it is more concise. When we used a while loop, we needed
+to initialise <em>i</em> and increase <em>i</em> by one on separate lines; with a for loop, we put
+both those lines inside the <em>for</em> statement.
+</p>
+<h4>Exercise 3</h4>
+<ol>
+<li>Using a <em>for</em> loop, write a program to display a given character a certain number of times.
+Ask the user for the character and the number of times from the keyboard. For example if they entered "#" and
+8, it should display:
+<pre>########</pre>
+<strong>Hint:</strong> Use System.out.print(), rather than System.out.println(), to display a string without starting a new line.
+</li>
+<li>Using a <em>for</em> loop within another <em>for</em> loop, write a program to display an ASCII-art triangle
+with a certain number of lines. Each line should have one character more than the previous. The user should be able to enter the character (as a string)
+and the number of lines.
+For example if the user
+entered "*" and 4, it should display:
+<pre>*
+**
+***
+****</pre>
+<strong>Hint:</strong> Use System.out.print("\n"); to start a new line. <em>\n</em> is one of several <em>escape codes</em> in Java: it is 
+a special code to indicate a new line.
+</li>
+</ol>
+<h2>Additional Material: The switch statement</h2>
+<p>If you finish this topic early, look at this
+<a href='switch.html'>additional material</a> on the switch statement.</p>
+</body>
+</html>

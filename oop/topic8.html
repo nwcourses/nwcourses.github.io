@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Topic 8: ArrayLists</h1>
+
+<p>In Topic 6 we covered <em>arrays</em>. We saw that an array was a variable which could be used to
+hold more than one item. However, there is a problem with the use of arrays. We have to give them
+a <em>fixed capacity</em> (<em>capacity</em>=number of members the array will hold)
+which cannot change. For example, this program (there is also an Employee
+class, but this is not shown) will read in employee 
+records from the keyboard, but the array has a fixed initial size of 10 which cannot be changed:
+<pre>
+import java.util.Scanner;
+
+public class FixedArraysApp1
+{
+    public static void main (String[] args)
+    {
+        Employee[] employees = new Employee[10];
+        String name, jobTitle;
+        Scanner scanner = new Scanner(System.in);
+        
+        for(int count=0; count&lt;10; count++)
+        {
+            System.out.println("Enter employee name:");
+            name = scanner.nextLine();
+            System.out.println("Enter employee job title:");
+            jobTitle = scanner.nextLine();
+
+            employees[count] = new Employee( name, jobTitle );
+        }
+
+        for(int count=0; count&lt;10</em>; count++)
+        {
+            employees[count].display();
+        }
+        
+    }
+}
+</pre>
+A slight enhancement of this can be made by specifying a <em>variable</em> for the array capacity
+when we create it, e.g.:
+<pre>
+import java.util.Scanner;
+
+public class FixedArraysApp2
+{
+    public static void main (String[] args)
+    {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("How many employees");
+        String numString = scanner.nextLine();
+        int <em>numEmployees</em> = Integer.parseInt(numString);
+        
+        Employee[] employees = new Employee[<em>numEmployees</em>];
+        String name, jobTitle;
+        
+        
+        for(int count=0; count&lt;<em>numEmployees</em>; count++)
+        {
+            System.out.println("Enter employee name:");
+            name = scanner.nextLine();
+            System.out.println("Enter employee job title:");
+            jobTitle = scanner.nextLine();
+        
+            Employee e = new Employee( name, jobTitle );
+            employees[count] = e;    
+        }
+
+        for(int count=0; count&lt;<em>numEmployees</em>; count++)
+        {
+            employees[count].display();
+        }
+    }
+}
+</pre>
+In this example, we are reading in the number of employees from the keyboard and creating the array
+using this value. This is a bit more flexible than the first example, but still has the problem that
+<em>once we have specified an initial size for the array, we cannot change it</em>. If the user enters
+20, for example, the array's capacity will be 20, and we will not be able to add more than 20 
+employees. But what if the user then realised that there were more than 20?</p>
+<h2>Introducing the ArrayList</h2>
+
+<p>This is where the <em>ArrayList</em> can come in useful. An ArrayList is a built-in Java class which
+can <em>vary in capacity</em>. We can create an ArrayList and then keep adding objects to it until
+the JVM's memory runs out. This makes the ArrayList much more flexible than a plain array.
+Here is an example of code which uses an ArrayList:
+<pre>
+// Product class
+public class Product
+{
+    private String name;
+    private double price;
+    private int quantityInStock;
+    
+    public Product (String nameIn, double priceIn, int quantityIn)
+    {
+        name = nameIn;
+        price = priceIn;
+        quantityInStock = quantityIn;
+    }
+    
+    public void print()
+    {
+        System.out.println("Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock);
+    }
+}
+</pre>
+<pre>
+// Main class
+import java.util.ArrayList;
+
+public class ArrayListExample1
+{
+    public static void main (String[] args)
+    {
+        ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();
+        
+        Product product1 = new Product("Smartphone", 299.99, 5);
+        Product product2 = new Product("Tablet", 199.99, 3);
+        Product product3 = new Product("SD Card", 9.99, 100);
+        
+        products.add(product1);
+        products.add(product2);
+        products.add(product3);
+        
+        for(int count=0; count&lt;products.size(); count++)
+        {
+            Product currentProduct = products.get(count);
+            currentProduct.print();
+        }
+    }
+}
+</pre>
+<ul>
+<li>As an aside, note how I no longer include <em>this</em> when referring to the
+attributes of Product. I have included <em>this</em> so far for clarity, to help
+distinguish between attributes and parameters, but most real Java programs would not
+include it. Now you are (hopefully) used to using attributes, I have now removed
+it.</li>
+<li>Note how we must <em>import</em> the ArrayList from <em>java.util</em> before we use it:
+<pre>import java.util.ArrayList;</pre>
+</li>
+<li>
+The first line in the <em>main()</em> creates the ArrayList:
+<pre>ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();</pre>
+Note that <em>ArrayList</em>s are objects, so we use <em>new</em> to create them, just like any other
+object. Note that the data type includes <em>what type of data the ArrayList is holding</em>, so
+here the data type is <em>ArrayList&lt;Product&gt;</em> because it is an ArrayList holding Product
+objects.
+</li>
+<li>We then create three Product objects.</li>
+<li>We then add the three Product objects to the ArrayList with the <em>add()</em> method of
+ArrayList.</li>
+<li>We then loop through the ArrayList. The <em>size()</em> method of ArrayList gives us the number of
+elements in (members of) the ArrayList.</li>
+<li>Inside the loop, we obtain the current Product using the <em>get()</em> method of ArrayList. The
+get() method is how we <em>index</em> an ArrayList: 
+<pre>Product currentProduct = products.get(count);</pre>
+This line is creating a variable called <em>currentProduct</em> and setting it equal to the current
+member of the ArrayList.</li>
+<li>Finally, we print this Product.</li>
+</ul>
+
+<h3>A more efficient version of the above code</h3>
+
+<p>The code above was written in a way to try and make it as clear as possible what is going on.
+However, we could write the code more efficiently (less lines of code) as follows:
+<pre>
+import java.util.ArrayList;
+
+public class ArrayListExample1
+{
+    public static void main (String[] args)
+    {
+        ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();
+        
+        products.add(new Product("Smartphone", 299.99, 5));
+        products.add(new Product("Tablet", 199.99, 3));
+        products.add(new Product("SD Card", 9.99, 100));
+        
+        for(int count=0; count&lt;products.size(); count++)
+        {
+            products.get(count).print();
+        }
+    }
+}
+</pre>
+Note how, rather than creating three variables <em>product1</em>, <em>product2</em> and 
+<em>product3</em>, we <em>create the product objects and add them to the array list in one 
+statement</em>. This is perfectly acceptable as the <em>add()</em> method of the ArrayList is
+expecting a <em>Product</em> object as a parameter - and we are giving it one.</p>
+<p>Note also how we combine two statements into one in the for loop. Rather than storing the current
+member of the ArrayList in a variable called <em>currentProduct</em> and then calling the 
+<em>print()</em> method on <em>currentProduct</em>, we call the <em>print()</em> method directly on
+the return value of <em>products.get(count)</em>. Since <em>products.get(count)</em> gives us a Product
+object, this is, again, acceptable.</p>
+<h2>Exercises</h2>
+<ul>
+<li>Create an Employee class with attributes for name and job title,
+a constructor which initialises the name and job title, and a 
+<em>display()</em> method which displays the employee's details.</li>
+<li>Write a program which adds three employees to an ArrayList and loops
+through and displays them.</li>
+<li>Rewrite the second Employee example above (<em>FixedArraysApp2</em>) so that it uses an ArrayList
+rather than a regular array. 
+</li>
+<li>After reading in the employees from the keyboard, modify the second loop to
+display them all, so that it uses ArrayLists.</li>
+<li>Modify your code so that, rather than the user entering the number of employees, the program
+keeps adding employees until the user enters "quit" for the employee name.</li>
+<li>Return to your chase game. Store the three monsters in an ArrayList rather than a regular array.</li>
+</ul>
+
+</body>
+</html>

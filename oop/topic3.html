@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1> Topic 3: Introduction to Object-Oriented Programming in Java</h1>
+
+<h2>What is object-oriented programming?</h2>
+
+<p>So far, you have met <em>procedural</em> programming. Procedural programming involves
+statements sequentially executing one after the other, with common tasks (such as, for example,
+calculating the cube of a number or printing a character a certain number of times) placed in
+<em>functions</em>.</p>
+
+<p>However, once programs become larger, our programs can become harder to read and maintain, even if we
+use functions to accomplish common tasks. Therefore, another approach is needed and this is where
+<em>object-oriented programming</em> comes in. Object-oriented programming involves creating code to
+represent <em>real world entities</em>, such as cats, employees, students or graphical user interface
+elements. An object-oriented program will then contain several <em>objects</em> - code representations of
+these real-world entities - all communicating with each other.</p>
+
+<h2>Classes and Objects</h2>
+
+<p>When doing object-oriented programming, we need to distinguish between <em>classes</em> and
+<em>objects</em>. What is the difference between a class and an object?
+    <ul>
+    <li>A <em>class</em> is a specification or a blueprint for how a real-world entity, such as a cat, an
+    employee, a student or a GUI element operates. It is not a <em>specific</em> entity, but something which
+    describes how <em>all</em> entities of that type work. Examples of classes would be <em>Cat</em>,
+    <em>Employee</em>, <em>Student</em> or <em>Button</em> (as in clickable button on a GUI).</li>
+    <li>An <em>object</em> is a <em>specific example</em> of a class. We say that <em>objects</em>
+    are <em>members of a particular class</em>. For example: 
+        <ul>
+        <li>Tom, Tigger and Felix might
+        be individual examples of the Cat class, or Cat <em>objects</em></li>
+        <li>Madonna and Michael Jackson might be <em>objects</em> of the Popstar 
+        class.</li>
+        <li>Russell Crowe and Tom Cruise might be <em>objects</em> of the Actor class. </li>
+        <li>Barack Obama might be an <em>object</em> of the Politician class.</li>
+        <li>The four ghosts in a Pacman game might each be <em>objects</em> of the <em>Ghost</em> class.</li>
+        </ul>
+    and so on.</li>
+    </ul>
+</p>
+
+<h3>Attributes and methods</h3>
+
+<p>Classes contain two components: <em>attributes</em> and <em>methods</em>.
+<ul>
+<li> An <em>attribute</em> is something
+which <em>describes</em> objects of that class. For example:
+    <ul>a Cat class might contain attributes for name,
+    age, weight, breed, and so on.</li>
+    <li>An Employee class might contain attributes for name, job title and salary.</li>
+    <li>and a Student class might contain attributes for name, course, and mark.</li>
+    </ul>
+</li>
+<li>A <em>method</em> is an <em>action</em> or <em>something that objects of the class can
+do</em>. For example:
+    <ul>
+    <li>a Cat class might have <em>walk</em>, <em>eat</em> and <em>meow</em>
+    methods.</li>
+    <li>a Car class might have <em>start</em>, <em>drive</em> and <em>stop</em> methods.</li>
+    <li>The Pacman in a Pacman game might have <em>move</em>, <em>eatPill</em> and <em>eatPowerPill</em>
+        methods</li>
+    <li>And the Ghost class (representing ghosts in a Pacman game) might have <em>chase</em>
+    and <em>retreat</em> methods (the latter when the Pacman has eaten a power pill).</li>
+    </ul>
+</li>
+</ul>
+</p>
+
+<h2>Example</h2>
+<h3>A Cat class</h3>
+<p>Here is an example of a Java class representing a Cat:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        this.weight--;
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+So what does this code mean?
+<pre>public class Cat</pre>
+This line states that we are creating a class called <em>Cat</em>. Remember that a class is a <em>blueprint</em>
+or <em>specification</em> for all objects of that type. So the class will not actually create an 
+individual, specific Cat, but instead, describes what Cats are and how they operate.</p>
+
+<p>
+<pre>private String name;</pre>
+This line is defining an <em>attribute</em> called <em>name</em>. The line is saying that each Cat object
+created using this class will have their own <em>name</em> attribute, representing their name. 
+We will come on to the meaning of the keyword <em>private</em> a bit later.
+</p>
+<p>
+<pre>private int age, weight;</pre>
+This line does the same for the age and the weight, which are both integers.
+</p>
+<p>
+<pre>
+public Cat (String nameIn, int ageIn, int weightIn)
+{
+    this.name = nameIn;
+    this.age = ageIn;
+    this.weight = weightIn;
+}
+</pre>
+This piece of code is called a <strong>CONSTRUCTOR</strong>. A <em>constructor</em> is a special 
+<em>method</em> (see above)
+which is used to <em>initialise</em> objects of the current class. <em>A constructor has the same name as the 
+class</em>, so this one is called "<em>Cat</em>". (We will see the meaning of <em>public</em> later).
+When we create an object (and you will see how to do this below) the <em>constructor is called</em>.
+This constructor takes three parameters from outside the class
+(<em>nameIn</em>, <em>ageIn</em> and <em>weightIn</em>) and <em>sets the attributes to the parameters
+passed in</em>. Note the difference between attributes and parameters:
+    <ul>
+    <li>Parameters represent the information <em>coming in</em> from outside, such as from the main().
+    This is why I have named them name<em>In</em>, etc. You can think of them as <em>temporary</em>: a
+    parameter is just there to get the information into objects of the class from outside.</li>
+    <li>Attributes are <em>contained within the class</em>. Once an object of the class is created,
+    it contains a series of attributes which are <em>permanent</em>: they last until the object is
+    destroyed.</li>
+    </ul>
+Note also the use of the keyword <em>this</em> to represent the attributes. <em>this</em> represents 
+<em>the current object we are working with</em>. So the code will set the attributes of whichever object
+we're initialising to the parameters passed in.</p>
+<p>(<em>this</em> is actually optional here, but I have included it for clarity).</p>
+<p>
+<pre>    
+public void walk()
+{
+    this.weight--;
+}
+</pre>
+This is a <em>method</em>, which, as we saw above, is an <em>action</em> or something that 
+objects of a class can <em>do</em>. The method is called <em>walk()</em>. The effect of this method is
+to walk a cat by reducing the cat's weight (<em>this.weight</em>) by one.
+This type of code probably looks familiar to you from Introduction to Programming and Problem Solving as a
+<em>function</em>. However, it is a bit different to a normal function. It lives inside our <em>class</em>
+(i.e. the Cat class). This basically means that it will <em>operate on objects belonging to the
+Cat class</em>. So, a method can be defined as a function which belongs to a class.</p>
+<p>
+<pre>public void display()
+{
+    System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight)
+}</pre>
+This code defines another method called <em>display()</em> which displays the details of the cat.</p>
+
+<h3>Creating objects of the Cat class</h3>
+<p>I cannot emphasise strongly enough that the above code <em>does not actually create any specific Cat
+objects</em>. It merely <em>defines a Cat class, which is a blueprint or specification for what Cats are and
+what they do.</em> We need, in addition, to create <em>specific Cat objects</em> in our <em>main()</em> (or
+elsewhere outside the Cat class). Here is a <em>main()</em> which creates two Cat objects and does things with
+them:
+<pre>
+public class CatApp
+{
+    public static void main (String[] args)
+    {
+        Cat tom = new Cat ("Tom", 5, 15);
+        Cat tigger =new Cat ("Tigger", 10, 5);
+        
+        tom.display();
+        tigger.display();
+        
+        tom.walk();
+        tigger.walk();
+        
+        tom.display();
+        tigger.display();
+        
+        tom.walk();
+        tom.display();
+    }
+}
+</pre>
+How is this code working?
+<pre>Cat tom = new Cat ("Tom", 5, 15);
+Cat tigger =new Cat ("Tigger", 10, 5);</pre>
+These two lines create <em>two specific Cat objects</em>, <em>tom</em> and <em>tigger</em>. Note the keyword
+<em>new</em>. This means that we are creating a <em>new</em> object of the specified class (<em>Cat</em> here).
+Note also how we <em>pass into the object</em> three pieces of information: the <em>name</em> (e.g.
+"Tom"), the <em>age</em> (e.g. 5), and the <em>weight</em> (e.g. 15). These three pieces of information
+become the <em>parameters</em> in the constructor. So if we revisit the constructor:
+<pre>
+public Cat (String nameIn, int ageIn, int weightIn)
+{
+    this.name = nameIn;
+    this.age = ageIn;
+    this.weight = weightIn;
+}    
+</pre>
+When we create our first Cat,
+<em>nameIn</em> takes the value "Tom", <em>ageIn</em> takes the value 5, and <em>weightIn</em> takes the
+value 15. Since the constructor then sets the attributes to these three parameters, the 
+<em>name</em>, <em>age</em> and <em>weight</em> attributes of the object <em>tom</em> will be "Tom", 5, and
+15 respectively. So when we display the object <em>tom</em>:
+<pre>tom.display();</pre>
+then the <em>display()</em> method will be called, which, if you remember, is as follows:
+<pre>public void display()
+{
+    System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight)
+}</pre>
+Since the <em>display()</em> method displays the name, age and weight attributes, which we set in the
+constructor, the <em>display()</em> method will output:
+<pre>Name: Tom Age: 5 Weight: 15</pre>
+</p>
+<p>
+Likewise for the second cat, we will set up a cat with a <em>name</em> attribute of "Tigger", an
+<em>age</em> attribute of 10 and a <em>weight</em> attribute of 15, so that when we display Tigger we end up
+with:
+<pre>Name: Tigger Age: 10 Weight 5</pre>
+</p>
+<p>Having displayed the cats, we then <em>walk()</em> them:
+<pre>tom.walk();
+tigger.walk();
+</pre>
+These two lines will call the <em>walk()</em> method on <em>tom</em> and <em>tigger</em>. Since the effect of
+the <em>walk()</em> method is to reduce the <em>weight</em> attribute of the current cat by one, when we
+<em>display()</em> the two cats again, their weight will be reduced by one. We then <em>walk()</em> Tom again
+so Tom's weight will be reduced by a further unit. </p>
+<p>So the overall output of the program will be:
+<pre>
+Name: Tom Age: 5 Weight: 15
+Name: Tigger Age: 10 Weight 5
+Name: Tom Age: 5 Weight: 14
+Name: Tigger Age: 10 Weight 4
+Name: Tom Age: 5 Weight: 13
+</pre>
+</p>
+
+
+<h2>Exercise</h2>
+<ol>
+<li>Add an additional method called <em>eat()</em> to the Cat class. The <em>eat()</em> method should add one
+to the weight of the cat.</li>
+<li>Create a new <em>main()</em> with two Cats with these attributes:
+<pre>Name: Felix Age:2 Weight:7
+Name: Sylvester Age:7 Weight:10</pre>
+Make Felix eat twice, and display Felix's details. Make Sylvester walk four times, and display Sylvester's details.
+</li>
+<li>Create a completely new class called <em>Hero</em> to represent a hero in a 2D game. Give it the following
+attributes:
+	<ul>
+	<li><em>name</em>, representing the character's name.</li>
+	<li><em>score</em>, representing the Hero's score.</li>
+	<li><em>lives</em>, the number of remaining lives.</li>
+	</ul>
+Also give it the following methods.
+	<ul>
+	<li>A constructor, which initialises the hero's name and lives. The score should always be initialised
+	to 0.</li>
+	<li><em>loseLife()</em> should reduce the hero's lives by one.</li>
+	<li><em>increaseScore()</em> should increase the hero's score by 10 points.</li>
+	<li><em>printDetails()</em> should print the details of the hero (name, score and lives).
+	</ul>
+</li>
+<li>Create a main() which creates a Hero object, calls the methods a few times, and prints the hero's
+details after each method to prove that the Hero's properties have changed. (Later on, you will actually create a simple chase game making use of this Hero class!)</li>
+</ol>
+</body>
+</html>

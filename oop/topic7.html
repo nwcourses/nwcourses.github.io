@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Topic 7: Another Graphical Break!</h1>
+
+<p>As in Topic 5, this Topic will not introduce any new topics but will allow you to use the
+GTGE graphical environment to get more practice with arrays. Today you are going to enhance your "move the
+hero" application by introducing first one, then two monsters.</li>
+
+<h2>Object-Oriented Chase Game</h2>
+<h3>Simple case: one monster</h3>
+<ul>
+<li>Copy your Topic 5 project to a new project.</li>
+<li>Create a new class called Monster. This should be similar to Hero but should <em>not</em> contain score or lives attributes, or methods such as getScore(), getLives() etc. For an image you can use
+<a href="/course/images/monster.png">this</a>.</li>
+<li>Add <em>getX()</em> and <em>getY()</em> methods to Hero to return the x
+and y coordinates.</li>
+<li>Add a new method to Monster called <em>chase()</em>. This method should take a parameter of data type
+<em>Hero</em> and chase the hero. It should do this by comparing its own x and y coordinates with that of the
+hero, so that:
+	<ul>
+	<li>if the monster is to the right of the hero, it should move left;</li>
+	<li>if the monster is to the left of the hero, it should move left;</li>
+	<li>if the monster is above the hero, it should move down;</li>
+	<li>if the monster is below the hero, it should move up.</li>
+	</ul>
+</li>
+<li>Add a method called <em>eaten()</em> to Monster. This should take a parameter of type Hero and should return true if the x and y coordinates of the monster and hero are the same, or false otherwise.</li>
+<li>Add a monster object to your <em>main()</em> from Topic 5 (the program where the user could move the
+hero around). 
+</li>
+<li>Add code to your Game's <em>update()</em> method
+so that if the monster has eaten the hero the game quits 
+(<em>System.exit(0);</em>)</li>
+
+<li>Add code to the update()
+ to make the monster chase the hero, and display the monster. 
+<li>Test it out.</li>
+</ul>
+<h3>Intermediate exercise: Array of monsters</h3>
+<p>Now enhance your game so that there are <em>three</em> monsters, and not just one. Put the monsters in an
+<em>array</em> and loop through the array to make all three monsters chase the hero. Initialise the monsters to
+the following positions:
+	<ul>
+	<li>First monster:  x=getWidth(), y=getHeight()</li>
+	<li>Second monster: x=getWidth(), y=0</li>
+	<li>Third monster:  x=0, y=getHeight()</li>
+	</ul>
+</p>
+
+</body>
+</html>

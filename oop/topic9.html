@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Topic 9: Aggregation - Objects within Objects</h1>
+
+<p>So far we have considered single objects, or objects within arrays or ArrayLists. However, real
+object-oriented systems typically have <em>many objects interacting with one another</em>. A common
+scenario is to have <em>objects within other objects</em> and this is called <em>aggregation</em>. </p>
+
+<h2>Why is aggregation useful?</h2>
+
+<p>Imagine we wanted to write a program to manage stock for a shop. We could write a main() which 
+creates an ArrayList of Product objects (as in the example last week) and implement functionality within
+the main() to search for products, sells products, adds new products and so on. 
+However a more object-oriented approach would be to create a class which represents the shop as a
+whole. This class could be called Shop. It could contain methods to add a new
+product, search for a product, or sell a product, and could contain, within it, an ArrayList
+of Product objects (this would be the <em>aggregation</em>). The advantage of creating a Shop class
+is that it could be <em>reusable</em>: we could create a Shop class which
+represents a shop, and then reuse it in many different programs.</p>
+
+<h2>Example</h2>
+
+<p>This example shows the use of a Shop class, as well as a Product class and a test main.
+<em>Note how, as for 
+last week, I have removed the <strong>this.</strong> when referring to attributes.</em>
+</p>
+<pre>
+// Product class
+public class Product
+{
+    private String name;
+    private double price;
+    private int quantityInStock;
+    
+    public Product (String nameIn, double priceIn, int quantityIn)
+    {
+        name = nameIn;
+        price = priceIn;
+        quantityInStock = quantityIn;
+    }
+    
+    public void print()
+    {
+        System.out.println("Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock);
+    }
+    
+    public void sell()
+    {
+        if(quantityInStock &gt; 0)
+        {
+            quantityInStock--;
+        }
+        else
+        {
+            System.out.println("Insufficient quantity in stock");
+        }
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+}
+</pre>
+<pre>
+// Shop class
+import java.util.ArrayList;
+
+public class Shop
+{
+    private String name;
+    private ArrayList&lt;Product&gt; products;
+    
+    public Shop(String nameIn)
+    {
+        name = nameIn;
+        products = new ArrayList&lt;Product&gt; ();
+    }
+    
+    public void addProduct (Product p)
+    {
+        products.add(p);
+    }
+
+    // Search for a product by name 
+    public Product searchForProduct (String searchName)
+    {
+        for(int count=0; count &lt; products.size(); count++)
+        {
+            Product currentProduct = products.get(count);
+            if(currentProduct.getName().equals(searchName))
+            {
+                return currentProduct;
+            }
+        }
+        return null;
+    }
+    
+    public void sellProduct (String productName)
+    {
+        Product p = this.searchForProduct (productName);
+        if (p != null)
+        {
+            p.sell();
+            p.print();
+        }
+        else
+        {
+            System.out.println("No product with that name");
+        }
+    }
+}
+</pre>
+<pre>
+// Test main
+public class ShopTestApp
+{
+    public static void main (String[] args)
+    {
+        Shop shop = new Shop("Cottage Stores");
+        
+        shop.addProduct
+            (new Product ("Cheese", 1.99, 10));
+        shop.addProduct
+            (new Product("Milk", 0.50, 20));
+        shop.addProduct
+            (new Product("Bread", 1.19, 15));
+        
+        shop.sellProduct("Cheese");
+        shop.sellProduct("Spam");
+    }
+}
+</pre>
+How is this working?
+    <ul>
+    <li>We have a Shop class which <em>contains an ArrayList of Products within it</em>. 
+    This is <em>aggregation</em>.</li>
+    <li>The ArrayList of Products is <em>private</em>. This is <em>encapsulation</em> again.
+    The outside world (e.g. the main() ) cannot access the ArrayList directly. Access to the
+    ArrayList is <em>controlled</em> by the Shop. The only way the outside world can manipulate the
+    array list is via the methods of Shop. You can think of each method of Shop as a "portal" or
+    "gateway" through which the inner workings of Shop exchange information from the outside world. 
+    Each "portal" (method) would typically include some validation, to check that the outside world isn't
+    doing anything unrealistic. The diagram below shows this. <br />
+    <img src="images/aggregation.png" alt="Aggregation - methods as 'portals'" /></li>
+    <li>For example, <em>searchForProduct()</em> will return 
+<em>null</em> if the product cannot be found.
+<em>Note the use of .equals() to compare strings in searchForProduct().</em> When comparing strings,
+    we do not use <em>==</em>. We instead, use the .equals() method of the String class, passing in the
+    string to compare to as a parameter.</li>
+    <li>The <em>sellProduct()</em> method contains error checking: it will attempt to sell a given product and if it
+    cannot be found, it will display an error. It calls <em>searchForProduct()</em> to try
+    and find the product with that name. If it can be found, a Product object is returned, and
+    the product is sold by calling its <em>sell()</em> method. If it cannot be found,
+    <em>null</em> is returned and we display an error.</li>
+    <li>Therefore, we have a Shop class which models how a shop works in Java 
+    code - with inbuilt error checking. This Shop class, with its error checks, could thus be
+    <em>reused</em> in any Java program, and the error checks wouldn't have to be written again.
+    </li>
+    </ul>
+</p>
+
+<h2>Exercise - Address Book </h2>
+
+<p>The exercise involves writing a simple address book system. There are two classes: Contact (representing a contact in the
+address book) and AddressBook (representing the address book as a whole).</p>
+
+<ul>
+<li>Write a <em>Contact</em> class. It should have attributes for name, address and phone number 
+(all Strings), and a constructor which
+initialises these three attributes to the parameters passed in.</li>
+<li>Write a method of <em>Contact</em> called <em>updateDetails()</em>. 
+It should take two parameters (new address, and new phone number) and
+set the address and phone number attributes appropriately. Before doing so, the parameters should be validated to check that
+they are not equal to the blank string, "".</li>
+<li>Write an <em>AddressBook</em>
+ class. It should contain an ArrayList of Contacts. The constructor should initialise this ArrayList
+appropriately.</li>
+<li>Write an <em>addContact()</em> method in AddressBook. 
+This should take, as a parameter, a Contact object, 
+and add it to the ArrayList.</li>
+<li>Write a <em>search()</em> method in AddressBook. This should take a name as a parameter and search for, and return,
+the Contact with that name. <em>null</em> should be returned if no contact with that name exists. Assume that there will not
+be two contacts with the same name!</li>
+<li>Write a method of AddressBook called <em>updateContactDetails()</em>. It should take, as parameters, the name of the
+contact and the new address and new phone number. It should work by making use of the <em>search()</em> and
+<em>updateDetails()</em> methods above.</li>
+<li>Write a test class with a <em>main()</em> in which you create an AddressBook, add a few Contacts to it and
+test out all your methods. Include error cases 
+ to check the errors are detected!</li>
+</ul>
+
+</body>
+</html>

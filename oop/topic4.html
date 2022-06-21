@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Topic 4: More on Classes and Objects</h1>
+
+<h2>Encapsulation</h2>
+
+<p>Object-oriented programming makes use of a technique called <em>encapsulation</em>. If we revise last week's
+Cat class:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        this.weight--;
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+you can see the use of the keywords <em>private</em> and <em>public</em> throughout the code. What do these
+mean?
+    <ul>
+    <li>Any attribute or method preceded by the keyword <em>private</em> can only be used <em>inside the
+    current class</em>.</li>
+    <li>Any attribute or method preceded by the keyword <em>public</em> can be used <em>both inside and 
+    outside the class</em>.</li>
+    </ul>
+So you can see that in this example, <em>the methods can be used outside the class</em> but 
+<em>the attributes can only be used inside the class</em>. The main() called the two <em>methods</em>,
+walk() and display(), and all references to the <em>attributes</em> are within the methods inside the
+class.</p>
+<p>This is common practice and is known as <em>encapsulation</em>. Encapsulation means to
+keep the inner workings of the class hidden from the outside world, and control access to those inner workings
+by means of the methods, which act as "gateways" between the outside world and the interior of the class.
+</p>
+<p>Why is encapsulation performed? Consider this new version of the Cat class:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        if(this.weight &lt;= 5)
+        {
+            System.out.println("Can't walk any further... poor cat will be starved!");
+        }
+        else
+        {
+            this.weight--;
+        }
+        
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+This new version includes an <em>if</em> statement inside the <em>walk()</em> method, which prevents the cat
+from walking if the weight is 5 or less. Thus we are <em>controlling how the cat's weight can be altered</em>
+using the walk() method. So if we tried the following in the main():
+<pre>
+public class EncapsulationApp
+{
+    public static void main (String[] args)
+    {
+        Cat tigger = new Cat ("Tigger", 5 , 7);
+        
+        tigger.walk();
+        tigger.walk();
+        
+        tigger.walk();
+    }
+}
+</pre>
+The first two calls to <em>walk()</em> would succeed, as the weight would be reduced from 7 to 6 and then from
+6 to 5. However the third call to <em>walk()</em> would fail, as the weight would now be 5 and cannot be reduced
+any further.</p>
+<p>Note how we have <em>used encapsulation to prevent unrealistic things happening</em>. The following code will
+<em>not compile</em> but <em>only because weight is private</em>:
+<pre>
+public class NoEncapsulationApp
+{
+    public static void main (String[] args)
+    {
+        Cat tigger = new Cat ("Tigger", 5 , 7);
+    
+        tigger.weight = -1;
+    }
+}
+</pre>
+If the weight was not <em>private</em>, you would legitimately be able to set it to -1 from the main() as in the
+above example. This illustrates the whole concept of encapsulation: <em>to keep the inner workings of a class
+private and control access from the outside world, to prevent the outside world doing unrealistic things.</em>
+</p>
+<h3>Exercise 1</h3>
+<ul>
+<li>Modify the Cat's <em>eat()</em> method so that the weight can never go above 50. Print a suitable error
+message if an attempt is made to increase the weight beyond that amount.</li>
+</ul>
+<h3>Accessor and mutator methods</h3>
+<p>It is fairly common in object-oriented programming that we wish to access a <em>single attribute</em>, such
+as, for example, the name of the cat. We wish to keep this attribute <em>private</em>, so that the outside world
+cannot arbitarily change it, but we still wish the outside world to <em>access</em> it. How can we do this?
+We can use an <em>accessor method</em>, also referred to as a "getter". Here is a version of the Cat class with
+accessor methods for the three attributes:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        if(this.weight &lt;= 5)
+        {
+            System.out.println("Can't walk any further... poor cat will be starved!");
+        }
+        else
+        {
+            this.weight--;
+        }
+        
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+    
+    <em>
+    public String getName()
+    {
+        return this.name;
+    }
+    
+    public int getAge()
+    {
+        return this.age;
+    }
+    
+    public int getWeight()
+    {
+        return this.weight;
+    }
+    </em>
+}
+</pre>
+</p>
+<h4>Specifying the return types of methods</h4>
+<p>Note how these three methods, <em>getName()</em>, <em>getAge()</em> and <em>getWeight()</em>, are 
+<em>returning</em> the corresponding attribute. Note also how we <em>specify the return type</em> when
+writing the method:
+<pre>public <em>String</em> getName()</pre>
+When writing methods, <em>the return type always immediately precedes the method name.</em> So we are saying that
+the <em>getName()</em> method <em>returns</em> a String. Likewise, getAge() and getWeight() both
+<em>return</em> an int.</p>
+<h4>Using the accessor methods from the main()</h4>
+<p>The example below shows how we can use the accessor methods in the main() to get individual pieces of 
+information about the cat object:
+<pre>
+public class AccessorsApp
+{
+    public static void main (String[] args)
+    {
+        Cat tigger = new Cat ("Tigger", 5 , 7);
+        Cat tom = new Cat ("Tom", 10, 10);
+    
+        System.out.println (tigger.getName());
+        System.out.println (tigger.getAge());
+        System.out.println (tom.getWeight());
+    }
+}
+</pre>
+Note how we use commands such as:
+<pre>System.out.println (tigger.getName());</pre>
+What this line is doing is <em>printing the return value of the getName() method</em>, which,
+as we can see above, is the <em>name</em> attribute of the Cat object. </p>
+<p>This example illustrates how we can use getter methods <em>to provide "read" access to an attribute but
+to prevent "write" access.</em> We can obtain the value of the attribute by using the getter method, but we
+cannot change its attribute. This is a further example of encapsulation: we allow the outside world to access
+the attributes but we do not allow the outside world to arbitrarily change them.</p>
+</p>
+<h4>Mutator methods</h4>
+<p>As well as accessor methods, we can also add <em>mutator</em> methods to <em>update</em> attributes. These
+are also called <em>setter</em> methods because we use them to <em>set</em> data. However, unlike accessors,
+they typically have some sort of controls to prevent the data being set to unrealistic values. For example,
+a setWeight() method for a Cat would probably prevent the weight being set to less than 0. An example of
+such a method is shown below.
+<pre>public class Cat
+{
+    private int weight;
+    
+    // ...other code omitted...
+    
+    public void setWeight (int newWeight)
+    {
+        if(newWeight &gt; 0)
+        {
+            this.weight = newWeight;
+        }
+        else
+        {
+            System.out.println("Cannot set weight to 0 or less.");
+        }
+    }
+}</pre>
+</p>
+
+
+
+<h2>Passing Parameters to Methods</h2>
+
+<p>
+You have already seen the concept of passing parameters to a constructor. In Introduction to Programming and
+Problem Solving, you also passed parameters to functions. Hopefully it should not then be too much of a 
+surprise that you can also pass parameters to regular Java methods. If we take a look at another version of
+our Cat class:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk (int distance)
+    {
+        this.weight -= distance;
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+Note how the <em>walk</em> method now takes one parameter, representing the distance walked. We also
+reduce the weight by the distance. (Note that <em>this.weight -= distance;</em> is a shorter
+way of writing <em>this.weight = this.weight - distance;</em>; the <em>-=</em> operator reduces a variable
+by a given value). This could be called in a <em>main()</em> as follows:
+<pre>
+public class CatAppWithParameters
+{
+    public static void main (String[] args)
+    {
+        Cat tigger = new Cat ("Tigger", 10, 10);
+        
+        tigger.walk (5);
+        tigger.display();
+        tigger.walk (3);
+        tigger.display();
+    }
+}
+</pre>
+Note how we are passing the distance to the walk method. Note the difference between
+<em>arguments</em> and <em>parameters</em>.
+The <em>value passed into a method</em> is called an <em>argument</em>, whereas the <em>parameter</em> is the <em>variable</em> in the method representing that
+value. So, here, 5 and 3 are the <em>arguments</em> whereas <em>distance</em> is the <em>parameter</em>.
+</p>
+<h3>Multiple parameters</h3>
+<p>A method can have more than one parameter. This version of the Cat class has a modified <em>walk()</em>
+method which makes the cat lose more weight if they walk faster (the weight is reduced by the distance multiplied
+by the speed):
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk (int distance, int speed)
+    {
+        this.weight -= distance*speed;
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+This could then be called in the <em>main()</em> as follows:
+<pre>
+public class CatAppWithMultipleParameters
+{
+    public static void main (String[] args)
+    {
+        Cat tigger = new Cat ("Tigger", 10, 15);
+        
+        tigger.walk (5, 1);
+        tigger.display();
+        tigger.walk (3, 2);
+        tigger.display();
+    }
+}
+</pre>
+The cat initially walks a distance of 5 units with a speed of 1, and then walks a distance of 3 units with
+a speed of 2. So for the first walk() the cat will lose 5 units of weight and for the second walk the cat
+will lose 6 units of weight.</p>
+<h2>Exercise 2</h2>
+<ol>
+
+<li>Modify your Cat's <em>eat()</em> method further, so that it now takes a parameter of <em>amount</em>.
+The weight should increase by the specified amount.</li>
+<li>Go back to your Hero class from last week. 
+Make the attributes <em>public</em> and try setting the lives to an unreasonable value, such as -1.
+Does it work?
+Now make the attribute <em>private</em> again. Does it still work or does the compiler give an error?
+</li>
+<li>Add accessor methods to the Hero class to read the score and the number of lives.</li>
+<li>Modify the <em>loseLife()</em> method inside Hero to prevent the lives ever going below zero.</li>
+<li>Add a boolean <em>isAlive()</em> method which returns true or false depending on whether the lives are zero, or more than zero.</li>
+</ol>
+
+<h3>More advanced questions</h3>
+<ol>
+<li>(More advanced) Write a Clock class to represent a clock. It should have:
+    <ul>
+    <li>hours, minutes and seconds attributes;</li>
+    <li>a constructor with <em>no</em> parameters, which sets hours, minutes and seconds to zero;</li>
+    <li>a <em>setTime()</em> method. This should take three parameters (hours, minutes and seconds) and
+    set the hours, minutes and seconds attributes of the clock appropriately, but 
+    <em>validate them first</em>. If any are out of range (assume we are dealing with a 24-hour clock)
+    then reject the values and display an appropriate error message.</li>
+    <li>a <em>tick()</em> method. This should move the seconds on by one. It should also advance minutes and
+    hours appropriately, e.g: 09:59:59 should become 10:00:00 and 23:59:59 should become 00:00:00!</li>
+    <li>a <em>display()</em> method which displays the time. If the current time is on the hour then try doing
+    a loop to display "BONG" the appropriate number of times!</li>
+    </ul>
+</li>
+<li>Return to your Hero class and:
+	<ul>
+	<li>Add attributes for <em>x</em> and <em>y</em> coordinates to the Hero. These will represent the hero's position on the screen.
+	Also add <em>getX()</em> and <em>getY()</em> accessor methods.</li>
+	<li>Modify the Hero's <em>printDetails()</em> to display the current x and y coordinates. </li>
+	<li>Write a Monster class to represent a monster. It should also have x and y coordinates, and 
+	a <em>chase()</em> method to chase the hero. This should take a Hero object as a parameter, and
+	should move the monster towards the hero by comparing the x and y coordinates of the 
+	monster with that of the hero.</li>
+	<li>Add a boolean <em>eaten()</em> method to the Monster. This should also take a Hero as a parameter and test if the x and y coordinates of the hero and
+	monster are equal.</li>
+	<li>Add <em>getX()</em> and <em>getY()</em> methods to the Monster class.</li>
+	<li>Try creating a hero and a monster in a <em>main()</em> method. Using a while loop, make the monster "chase" the hero until the hero has
+	been eaten. On each go of the loop, display the hero and monster's current X and Y coordinates.
+	(Next time, you will actually do this in a graphical environment!)</li>
+	</ul>
+</li>
+</ol>
+</body>
+</html>

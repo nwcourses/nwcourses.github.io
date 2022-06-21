@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Topic 6: Arrays</h1>
+<p>An <em>array</em> is a variable that can hold <em>more than one value</em>. Why might this be useful?
+Try the following exercise: this will help you see where arrays could come in useful.</p>
+<h2>Exercise 1 - Why Arrays?</h2>
+<p>Imagine you wanted to write a program to display the number of days in each month
+(in a non-leap year). For example:
+<pre>
+January has 31 days
+February has 28 days
+March has 31 days
+April has 30 days
+May has 31 days
+June has 30 days
+July has 31 days
+August has 31 days
+September has 30 days
+October has 31 days
+November has 30 days
+December has 31 days
+</pre>
+and so on. Try writing such a program. What do you have to do? Can you think of any way in which a loop could
+make it more efficient.... or does this not work?</p>
+<h2>Using Arrays</h2>
+<p>Situations like this, in which we want to deal with <em>multiple values of the same general type of
+data</em> (e.g multiple month names)  is where <em>arrays</em> come in useful. Rather than having to write 12 System.out.println statements to print out the details of each month, we could create an array holding all
+the month names, and another array holding all the month lengths, and loop through them. The example below
+shows how this could be done, using a different scenario.</p>
+<h3>An example: pre-filled arrays</h3>
+Here is a program to display the names and marks of 10 students. It uses two arrays, one for student names, and
+another for student marks. The arrays are pre-filled with values. Try it out:
+<pre>
+
+public class ArrayApp1
+{
+    public static void main (String[] args)
+    {
+        String[] students = { "John Fox", "Mark Smith", "Helen Mills", "Tom Curtis", "Kate Brown" };
+        int[] marks = { 30, 65, 60, 70, 80 };
+        
+        System.out.println("The first student has a name of: "  + students[0]);
+        System.out.println("The third student has a name of: "  + students[2]);
+        
+        for (int counter=0; counter&lt; 5; counter++)
+        {
+            System.out.println (students[counter] + " has got " +  marks[counter] + "%.");
+        }
+    }
+}
+</pre>
+How is this working? 
+<ul>
+<li>We set up two <em>arrays</em>, one to store student names and another to store 
+student marks:
+<pre>String[] students = { "John Fox", "Mark Smith", "Helen Mills", "Tom Curtis", "Kate Brown" };</pre>
+The variable is called <em>students</em> and the <em>data type</em> is <em>String[]</em>, which means
+<em>"string array"</em>. In other words, <em>students</em> is a variable which can hold
+<em>multiple string values</em>. Likewise <em>marks</em> can hold <em>multiple integer values</em>.
+</li>
+<li>The list of values in each array begins with an opening brace { and ends with a closing brace } . </li>
+<li>The <em>System.out.println()</em> statements show how to reference individual members of
+an array. This is called <em>indexing</em> an array. 
+<pre>System.out.println("The first student has a name of " : + students[0]);
+System.out.println("The third student has a name of " : + students[2]);</pre>
+We use the square brackets [] with an <em>index</em> number to reference individual members of an array.
+The <em>index</em> begins with <em>zero, not one.</em>. So <em>students[0]</em> refers to the
+<em>first</em> member of the array, and <em>students[2]</em> refers to the <em>third</em> member of the
+array. Therefore, the output of these two statements will be
+<pre>
+The first student has a name of John Fox
+The third student has a name of Helen Mills
+</pre>
+The diagram below shows the two arrays and the use of indexing.
+<br />
+<img src="images/arrays.png" alt="Arrays and indexing" />
+</li>
+<li>We then <em>loop through the arrays</em> to display all the students and their marks.
+Note how we use a loop variable called <em>counter</em>, initialise it to zero, and keep looping while
+<em>counter</em> is less than 5. Inside the loop we display the <em>current</em> student details:
+<pre>System.out.println (students[counter] + " has got " +  marks[counter] + "%.");</pre>
+This statement will print out the details of whatever student corresponds to the current value of the
+variable <em>counter</em>:
+    <ul>
+    <li>The first time the loop runs, <em>counter</em> will be 0. So the statement that will be run is:
+    <pre>System.out.println (students[0] + " has got " +  marks[0] + "%.");</pre>
+    with the result:
+    <pre>John Fox has got 30%.</pre>
+	<br />
+	<img src="images/array_loop_0.png" alt="Loops and arrays, index 0" />
+    </li>
+    <li>The second time the loop runs, <em>counter</em> will be 1. So the statement that will be run is:
+    <pre>System.out.println (students[1] + " has got " +  marks[1] + "%.");</pre>
+    with the result:
+    <pre>Mark Smith has got 65%.</pre>
+	<br />
+	<img src="images/array_loop_1.png" alt="Loops and arrays, index 1" />
+    </li>
+    <li>... and so on until we get to the end of the array.
+	<br />
+	<img src="images/array_loop_2.png" alt="Loops and arrays, index 2" />
+	</li>
+    </ul>
+</li>
+</ul>
+    
+</p>
+<h3>Creating and filling in empty arrays</h3>
+<p>The code above works when we know in advance what is going to be in each array. However,
+in many cases, we might not know that. We might want to read in the contents of the array from the
+keyboard or from a file. In these cases, we need to create <em>empty arrays</em> and then fill them in with
+input from the user or from a file. Here is an example in which the user inputs the student names and marks from the keyboard:
+<pre>
+import java.util.Scanner;
+
+public class ArrayApp2
+{
+    public static void main (String[] args)
+    {
+        String[] students = new String[5];
+        int[] marks = new int[5];
+        
+        String markAsString;
+        
+        Scanner scanner = new Scanner(System.in);
+        
+        // Loop for reading in student details
+        for (int counter=0; counter&lt; 5; counter++)
+        {
+            System.out.println("Enter name for student " + counter);
+            students[counter] = scanner.nextLine();
+            System.out.println("Enter mark for student " + counter);
+            markAsString = scanner.nextLine();
+            marks[counter] = Integer.parseInt (markAsString);
+        }
+        
+        // Loop for displaying student details
+        for (int counter=0; counter&lt; 5; counter++)
+        {
+            System.out.println (students[counter] + " has got " +  marks[counter] + "%.");
+        }
+    }
+}
+</pre>
+Note how we don't immediately fill in the array with pre-determined values, but instead create two
+<em>empty</em> arrays:
+<pre>String[] students = new String[5];
+int[] marks = new int[5];</pre>
+The number in the brackets is the array <em>capacity</em>: the number of values each array can hold. So in this
+case, both <em>students</em> and <em>marks</em> can hold 5 values.</p>
+<p>What values will the empty arrays actually contain? It will be the <em>default</em> value for that data type.
+For numeric data types, such as <em>int</em>, this will be zero. If it is an array of <em>objects</em>
+(and Strings are actually built-in objects) 
+it will be the special value <em>null</em>, which basically indicates an
+object which has not been initialised yet. This is shown below:
+<br />
+<img src="images/emptyarray.png" alt="Empty arrays" /></p>
+<p>Note how then we use a loop to read in the individual values from the keyboard and set the appropriate
+member of the array to the value read in. The line:
+<pre>students[counter] = scanner.nextLine();</pre>
+will set the member of the <em>students</em> array at index <em>counter</em> to the text read in from the
+keyboard (i.e. <em>scanner.nextLine()</em>). So, as before, if <em>counter</em> is 0, it will read in the name
+of the first student, and so on. <br />
+<img src="images/fillemptyarray.png" alt="Filling an empty array" />
+</p>
+<h3>Exercise 2</h3>
+<ul>
+<li>Change the first of the two examples (the one with pre-filled arrays) so that the second and fifth 
+students are printed out, rather than the first and third.</li>
+<li>Rewrite Exercise 1 so that you use two arrays, one for month names and another for month lengths, to 
+print out the names and lengths of each month (in a non-leap year).</li>
+</ul>
+
+<h2>Arrays of Objects</h2>
+
+<p>In object-oriented programming, we often need to store <em>arrays of objects</em>. For example, 
+in the student records system, rather than storing <em>two separate arrays</em> for student names and
+student marks, it would be better to create a <em>Student</em> class to represent a student. 
+The <em>Student</em> class could contain attributes for name and mark (as well as other information such as
+course and phone number). In our program, we could then store an array of Student objects rather than 
+separate arrays for names and marks (and courses and phone numbers).
+You will explore this with the exercise below.</p>
+<p>Here is an example of creating an array of objects:
+<pre>
+Cat[] cats = new Cat[5];
+</pre>
+This will create an array to hold 5 Cat objects, and initialise each member to
+<em>null</em>.
+</p>
+<p>We can then fill in the array of Cats with actual Cat objects:
+<pre>
+cats[0] = new Cat("Felix", 5);
+cats[1] = new Cat("Tigger", 3);
+</pre>
+and loop through the array:
+<pre>
+for(int counter=0; counter&lt;5; counter++)
+{
+    System.out.println(cats[counter].getName());
+}
+</pre>
+</p>
+<h3>Exercise 3</h3>
+
+<ul>
+<li>Create a <em>Student</em> class. It should have four attributes: name, mark, course and phone
+number. It should also have a constructor which initialises those four attributes to the parameters
+passed in, and a <em>print()</em> method which displays the details of the Student.</li>
+<li>Take a copy of the "creating and filling an empty array" example above (<em>ArrayApp2</em>), 
+and modify it so that the
+<em>main()</em> declares an empty array of 5 <em>Student</em> objects, rather than two arrays for names and 
+marks.</li>
+<li>Modify the loop to read in the student details so that it reads in course and phone number as well
+as name and mark. Read each value into a variable.</li>
+<li><em>Create a Student object at the current position of the array using
+these variables.</em></li>
+<li>Modify the display
+loop to display each student, so that it calls the <em>print()</em> method of 
+each Student
+in the array.</li>
+</ul>
+
+<h3>Advanced Exercise</h3>
+
+<p>Using <em>Scanner</em>, develop your student records system into a program in which the user can
+select two options: one to add a student and one to print all students in the array.
+If the user selects the first option, they should be able to enter the details of a new student.
+If the user selects the second option, they should be able to print all existing students.
+See if you can figure out how to keep track of how many students have been added so far, and ensure
+that you do not add more students than there are room for in the array!</p>
+
+
+</body>
+</html>
