@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 3: ArrayLists, and Aggregation - Objects within Objects</h1>
+
+<h2>ArrayLists</h2>
+<p>In Python you covered <em>lists</em>. We saw that a list was a variable which could be used to hold more than one item, and could be extended to hold new data.</p>
+
+<p>In Java, the <em>ArrayList</em> provides similar functionality to the Python list.  We can create an ArrayList and then keep adding objects to it until
+the JVM's memory runs out. This makes the ArrayList much more flexible than a plain array.
+Here is an example of code which uses an ArrayList:
+<pre>
+// Product class
+public class Product
+{
+    private String name;
+    private double price;
+    private int quantityInStock;
+    
+    public Product (String nameIn, double priceIn, int quantityIn)
+    {
+        name = nameIn;
+        price = priceIn;
+        quantityInStock = quantityIn;
+    }
+    
+    public void print()
+    {
+        System.out.println("Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock);
+    }
+}
+</pre>
+<pre>
+// Main class
+import java.util.ArrayList;
+
+public class ArrayListApp
+{
+    public static void main (String[] args)
+    {
+        ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();
+        
+        Product product1 = new Product("Smartphone", 299.99, 5);
+        Product product2 = new Product("Tablet", 199.99, 3);
+        Product product3 = new Product("SD Card", 9.99, 100);
+        
+        products.add(product1);
+        products.add(product2);
+        products.add(product3);
+        
+        for(int count=0; count&lt;products.size(); count++)
+        {
+            Product currentProduct = products.get(count);
+            currentProduct.print();
+        }
+    }
+}
+</pre>
+<ul>
+<li>As an aside, note how I no longer include <em>this</em> when referring to the attributes of Product. I have included <em>this</em> so far for clarity, to help distinguish between attributes and parameters, but most real Java programs would not include it. Now you are (hopefully) used to using attributes, I have now removed it.</li>
+<li>Note how we must <code>import</code> the ArrayList from <code>java.util</code> before we use it:
+<pre>import java.util.ArrayList;</pre>
+</li>
+<li>
+The first line in the <code>main()</code> creates the ArrayList:
+<pre>ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();</pre>
+Note that <em>ArrayList</em>s are objects, so we use <em>new</em> to create them, just like any other
+object. Note that the data type includes <em>what type of data the ArrayList is holding</em>, so
+here the data type is <em>ArrayList&lt;Product&gt;</em> because it is an ArrayList holding Product objects. This is a Java feature known as <em>generics</em>: ArrayList is a <em>generic</em> type, i.e. it can hold objects of any specified data type, and we need to specify which type we want it to hold:. <code>ArrayList&lt;Product&gt;</code> by contrast is a specific type of <code>ArrayList</code> that can hold only <code>Product</code>s.
+</li>
+<li>We then create three Product objects.</li>
+<li>We then add the three Product objects to the ArrayList with the <code>add()</code> method of
+ArrayList.</li>
+<li>We then loop through the ArrayList. The <em>size()</em> method of ArrayList gives us the number of
+elements in (members of) the ArrayList.</li>
+<li>Inside the loop, we obtain the current Product using the <em>get()</em> method of ArrayList. The
+get() method is how we <em>index</em> an ArrayList: 
+<pre>Product currentProduct = products.get(count);</pre>
+This line is creating a variable called <em>currentProduct</em> and setting it equal to the current
+member of the ArrayList.</li>
+<li>Finally, we print this Product.</li>
+</ul>
+
+<h3>A more efficient version of the above code</h3>
+
+<p>The code above was written in a way to try and make it as clear as possible what is going on.
+However, we could write the code more efficiently (less lines of code) as follows:
+<pre>
+import java.util.ArrayList;
+
+public class ArrayListExample1
+{
+    public static void main (String[] args)
+    {
+        ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();
+        
+        products.add(new Product("Smartphone", 299.99, 5));
+        products.add(new Product("Tablet", 199.99, 3));
+        products.add(new Product("SD Card", 9.99, 100));
+        
+        for(int count=0; count&lt;products.size(); count++)
+        {
+            products.get(count).print();
+        }
+    }
+}
+</pre>
+Note how, rather than creating three variables <code>product1</code>, <code>product2</code> and <code>product3</code>, we <em>create the product objects and add them to the array list in one statement</em>. This is perfectly acceptable as the <code>add()</code> method of the ArrayList is expecting a <code>Product</code> object as a parameter - and we are giving it one.</p>
+<p>Note also how we combine two statements into one in the for loop. Rather than storing the current member of the ArrayList in a variable called <code>currentProduct</code> and then calling the <code>print()</code> method on <code>currentProduct</code>, we call the <code>print()</code> method directly on the return value of <code>products.get(count)</code>. Since <code>products.get(count)</code> gives us a Product object, this is, again, acceptable.</p>
+<h2>Aggregation</h2>
+
+<p>So far we have considered single objects, or objects within arrays or ArrayLists. However, real object-oriented systems typically have <em>many objects interacting with one another</em>. A common scenario is to have <em>objects within other objects</em> and this is called <em>aggregation</em>. </p>
+
+<h3>Why is aggregation useful?</h3>
+
+<p>Imagine we wanted to write a program to manage stock for a shop. We could write a main() which creates an ArrayList of Product objects (as in the example above) and implement functionality within the main() to search for products, sells products, adds new products and so on.  However a more object-oriented approach would be to create a class which represents the shop as a whole. This class could be called Shop. It could contain methods to add a new product, search for a product, or sell a product, and could contain, within it, an ArrayList of Product objects (this would be the <em>aggregation</em>). The advantage of creating a Shop class is that it could be <em>reusable</em>: we could create a Shop class which represents a shop, and then reuse it in many different programs. Also it allows another level of encapsulation: the outside world can use the <code>Shop</code> via its method, without knowing its inner workings.</p>
+
+<h3>Example</h3>
+
+<p>This example shows the use of a Shop class, as well as a Product class and a test <code>main()</code>.</p>
+<pre>
+// Product class
+public class Product
+{
+    private String name;
+    private double price;
+    private int quantityInStock;
+    
+    public Product (String nameIn, double priceIn, int quantityIn)
+    {
+        name = nameIn;
+        price = priceIn;
+        quantityInStock = quantityIn;
+    }
+    
+    public void print()
+    {
+        System.out.println("Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock);
+    }
+    
+    public void sell()
+    {
+        if(quantityInStock &gt; 0)
+        {
+            quantityInStock--;
+        }
+        else
+        {
+            System.out.println("Insufficient quantity in stock");
+        }
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+}
+</pre>
+<pre>
+// Shop class
+import java.util.ArrayList;
+
+public class Shop
+{
+    private String name;
+    private ArrayList&lt;Product&gt; products;
+    
+    public Shop(String nameIn)
+    {
+        name = nameIn;
+        products = new ArrayList&lt;Product&gt; ();
+    }
+    
+    public void addProduct (Product p)
+    {
+        products.add(p);
+    }
+
+    // Search for a product by name 
+    public Product searchForProduct (String searchName)
+    {
+        for(int count=0; count &lt; products.size(); count++)
+        {
+            Product currentProduct = products.get(count);
+            if(currentProduct.getName().equals(searchName))
+            {
+                return currentProduct;
+            }
+        }
+        return null;
+    }
+    
+    public void sellProduct (String productName)
+    {
+        Product p = this.searchForProduct (productName);
+        if (p != null)
+        {
+            p.sell();
+            p.print();
+        }
+        else
+        {
+            System.out.println("No product with that name");
+        }
+    }
+}
+</pre>
+<pre>
+// Test main
+public class ShopTestApp
+{
+    public static void main (String[] args)
+    {
+        Shop shop = new Shop("Cottage Stores");
+        
+        shop.addProduct (new Product ("Cheese", 1.99, 10));
+        shop.addProduct (new Product("Milk", 0.50, 20));
+        shop.addProduct (new Product("Bread", 1.19, 15));
+        
+        shop.sellProduct("Cheese");
+        shop.sellProduct("Spam");
+    }
+}
+</pre>
+How is this working?
+    <ul>
+    <li>We have a Shop class which <em>contains an ArrayList of Products within it</em>. 
+    This is <em>aggregation</em>.</li>
+    <li>The ArrayList of Products is <em>private</em>. This is <em>encapsulation</em> again.
+    The outside world (e.g. the main() ) cannot access the ArrayList directly. Access to the
+    ArrayList is <em>controlled</em> by the Shop. The only way the outside world can manipulate the
+    array list is via the methods of Shop. You can think of each method of Shop as a "portal" or
+    "gateway" through which the inner workings of Shop exchange information from the outside world. 
+    Each "portal" (method) would typically include some validation, to check that the outside world isn't
+    doing anything unrealistic. The diagram below shows this. <br />
+    <img src="../oop/images/aggregation.png" alt="Aggregation - methods as 'portals'" /></li>
+    <li>For example, <em>searchForProduct()</em> will return 
+<em>null</em> if the product cannot be found.
+<em>Note the use of .equals() to compare strings in searchForProduct().</em> When comparing strings,
+    we do not use <code>==</code>. We instead, use the .equals() method of the String class, passing in the
+    string to compare to as a parameter.</li>
+    <li>The <code>sellProduct()</code> method contains error checking: it will attempt to sell a given product and if it
+    cannot be found, it will display an error. It calls <code>searchForProduct()</code> to try
+    and find the product with that name. If it can be found, a Product object is returned, and
+    the product is sold by calling its <code>sell()</code> method. If it cannot be found,
+    <em>null</em> is returned and we display an error.</li>
+    <li>Therefore, we have a Shop class which models how a shop works in Java 
+    code - with inbuilt error checking. This Shop class, with its error checks, could thus be
+    <em>reused</em> in any Java program, and the error checks wouldn't have to be written again.
+    </li>
+    </ul>
+</p>
+<h2>Exercises</h2>
+<ol>
+<li><em>ArrayLists:</em> Return to your <code>Student</code> example from previous weeks. In your <code>main()</code>, create a <code>ArrayList</code> of students, and in the loop, add each <code>Student</code> objects to the <code>ArrayList</code> as soon as you create it. Then, when all students have been entered, write a second loop to loop through the array list and display each student in turn.</li>
+<li><em>Aggregation:</em> Create a completely new project (<code>AggregationApp</code>), and add your <code>Student</code> class to it, as well as a main class. Rather like the <code>Shop</code> in the example, create a <code>University</code> class. The <code>University</code> should contain, as an attribute, an <code>ArrayList</code> of <code>Student</code>s. The <code>University</code> should include these methods:
+	<ul>
+	<li><code>enrolStudent()</code> - this should add a new student to the university by adding it to the array list.</li>
+	<li><code>findStudentById()</code> - this should find a single student by student ID. If no student with that ID can be found, it should return <code>null</code>.</li>
+	<li><code>findStudentsByName()</code> - this should find <em>all</em> students that have a particular name. It should return an <code>ArrayList</code> of all matching students. To do this, you will need to declare an <code>ArrayList</code> in the method, loop through all students, and add any students with that name to the <code>ArrayList</code> before returning it at the end.</li>
+	</ul>
+In your <code>main()</code>, create a <code>University</code> object. Then, develop a simple menu-driven application to add and search for students. The menu should look like this:
+<pre>
+1. Add a student
+2. Search for student by ID
+3. Search for students by name
+4. Quit
+</pre>
+You will need a <code>String</code> variable to read in the user's menu choice. Add a <code>while</code> loop which keeps looping until this variable has the value "4". Inside the loop, test which option the user entered, and either:
+	<ul>
+	<li> add a student (by reading in the student details, creating a <code>Student</code> object and adding it to the <code>University</code>),</li>
+	<li>search for a student using their ID (printing out the found student), or</li>
+	<li>search for all students with a given name, printing out the results.</li>
+	</ul>
+</li>
+</ol>
+
+</body>
+</html>

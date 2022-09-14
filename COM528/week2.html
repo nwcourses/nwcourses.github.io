@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 2: Encapsulation and Inheritance</h1>
+
+<h2>Encapsulation</h2>
+
+<p>Object-oriented programming makes use of a technique called <em>encapsulation</em> to control operations on the attributes of a class and prevent unintended errors and data corruption occurring. If we revise last week's Cat class:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        this.weight--;
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+you can see the use of the keywords <code>private</code> and <code>public</code> throughout the code. What do these
+mean?
+    <ul>
+    <li>Any attribute or method preceded by the keyword <code>private</code> can only be used <em>inside the current class</em>.</li>
+    <li>Any attribute or method preceded by the keyword <code>public</code> can be used <em>both inside and outside the class</em>.</li>
+    </ul>
+So you can see that in this example, <em>the methods can be used outside the class</em> but <em>the attributes can only be used inside it.</em>. The <code>main()</code> - repeated below - calls the two <em>methods</em>, <code>walk()</code> and <code>display()</code>, and all references to the <em>attributes</em> are within the methods inside the class.
+<pre>
+public class CatApp
+{
+    public static void main (String[] args)
+    {
+        Cat clyde = new Cat ("Clyde", 2, 5);
+        Cat binnie = new Cat ("Binnie", 5, 4);
+        
+        clyde.display();
+        binnie.display();
+        
+        clyde.walk();
+        binnie.walk();
+        
+        clyde.display();
+        binnie.display();
+        
+        clyde.walk();
+        clyde.display();
+    }
+}
+</pre>
+</p>
+<p>This is common practice and is known as <em>encapsulation</em>. Encapsulation means to keep the inner workings of the class hidden from the outside world, and control access to those inner workings
+by means of the methods, which act as "gateways" between the outside world and the interior of the class.
+</p>
+<p>Why is encapsulation performed? Consider this new version of the Cat class:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        if(this.weight &lt;= 5)
+        {
+            System.out.println("Can't walk any further... the poor cat will be starved!");
+        }
+        else
+        {
+            this.weight--;
+        }
+        
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+This new version includes an <code>if</code> statement inside the <code>walk()</code> method, which prevents the cat
+from walking if the weight is 5 or less. Thus we are <em>controlling how the cat's weight can be altered</em> using the walk() method. So if we tried the following in the main():
+<pre>
+public class EncapsulationApp
+{
+    public static void main (String[] args)
+    {
+        Cat sniffy = new Cat ("Sniffy", 5 , 7);
+        
+        sniffy.walk();
+        sniffy.walk();
+        
+        sniffy.walk();
+    }
+}
+</pre>
+The first two calls to <code>walk()</code> would succeed, as the weight would be reduced from 7 to 6 and then from
+6 to 5. However the third call to <code>walk()</code> would fail, as the weight would now be 5 and cannot be reduced
+any further.</p>
+<p>Note how we have <em>used encapsulation to prevent unrealistic things happening</em>. The following code will <em>not compile</em> but <em>only because weight is private</em>:
+<pre>
+public class NoEncapsulationApp
+{
+    public static void main (String[] args)
+    {
+        Cat sniffy = new Cat ("Sniffy", 5 , 7);
+    
+        sniffy.weight = -1;
+    }
+}
+</pre>
+If the weight was not <code>private</code>, you would legitimately be able to set it to -1 from the main() as in the above example. This illustrates the whole concept of encapsulation: <em>to keep the inner workings of a class private and control access from the outside world, to prevent the outside world corrupting it.</em>
+</p>
+<h3>Accessor and mutator methods</h3>
+<p>It is fairly common in object-oriented programming that we wish to access a <em>single attribute</em>, such
+as, for example, the name of the cat. We wish to keep this attribute <code>private</code>, so that the outside world
+cannot arbitarily change it, but we still wish the outside world to <em>access</em> it. How can we do this?  We can use an <em>accessor method</em>, also referred to as a "getter". Here is a version of the Cat class with
+accessor methods for the three attributes:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk()
+    {
+        if(this.weight &lt;= 5)
+        {
+            System.out.println("Can't walk any further... poor cat will be starved!");
+        }
+        else
+        {
+            this.weight--;
+        }
+        
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+    
+    <em>
+    public String getName()
+    {
+        return this.name;
+    }
+    
+    public int getAge()
+    {
+        return this.age;
+    }
+    
+    public int getWeight()
+    {
+        return this.weight;
+    }
+    </em>
+}
+</pre>
+</p>
+<h4>Specifying the return types of methods</h4>
+<p>Note how these three methods, <code>getName()</code>, <code>getAge()</code> and <code>getWeight()</code>, are 
+<em>returning</em> the corresponding attribute. Note also how we <em>specify the return type</em> when writing the method:
+<pre>public <em>String</em> getName()</pre>
+When writing methods, <em>the return type always immediately precedes the method name.</em> So we are saying that
+the <code>getName()</code> method <em>returns</em> a String. Likewise, getAge() and getWeight() both <em>return</em> an int.</p>
+<h4>Using the accessor methods from the main()</h4>
+<p>The example below shows how we can use the accessor methods in the main() to get individual pieces of 
+information about the cat object:
+<pre>
+public class AccessorsApp
+{
+    public static void main (String[] args)
+    {
+        Cat sniffy = new Cat ("Sniffy", 5 , 7);
+        Cat tom = new Cat ("Old Tom", 10, 10);
+    
+        System.out.println (sniffy.getName());
+        System.out.println (sniffy.getAge());
+        System.out.println (tom.getWeight());
+    }
+}
+</pre>
+Note how we use commands such as:
+<pre>System.out.println (sniffy.getName());</pre>
+What this line is doing is <em>printing the return value of the getName() method</em>, which,
+as we can see above, is the <code>name</code> attribute of the Cat object. </p>
+<p>This example illustrates how we can use getter methods <em>to provide "read" access to an attribute but
+to prevent "write" access.</em> We can obtain the value of the attribute by using the getter method, but we
+cannot change its attribute. This is a further example of encapsulation: we allow the outside world to access
+the attributes but we do not allow the outside world to arbitrarily change them.</p>
+<h4>Mutator methods</h4>
+<p>As well as accessor methods, we can also add <em>mutator</em> methods to <em>update</em> attributes. These are also called <em>setter</em> methods because we use them to <em>set</em> data. However, unlike accessors,
+they typically have some sort of controls to prevent the data being set to unrealistic values. For example,
+a setWeight() method for a Cat would probably prevent the weight being set to less than 0. An example of
+such a method is shown below.
+<pre>public class Cat
+{
+    private int weight;
+    
+    // ...other code omitted...
+    
+    public void setWeight (int newWeight)
+    {
+        if(newWeight &gt; 0)
+        {
+            this.weight = newWeight;
+        }
+        else
+        {
+            System.out.println("Cannot set weight to 0 or less.");
+        }
+    }
+}</pre>
+</p>
+
+
+
+<h2>Passing Parameters to Methods</h2>
+
+<p>
+You have already seen the concept of passing parameters to a constructor. In COM411, you also passed parameters to functions. Hopefully it should not then be too much of a surprise that you can also pass parameters to regular Java methods. If we take a look at another version of our Cat class:
+<pre>
+public class Cat
+{
+    private String name;
+    private int age, weight;
+    
+    public Cat (String nameIn, int ageIn, int weightIn)
+    {
+        this.name = nameIn;
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+    
+    public void walk (int distance)
+    {
+        // Check the weight will be 5 or more after walking that distance
+        if(this.weight - distance &lt; 5) 
+        {
+            System.out.println("The poor cat will be starved if they walk that far!");
+        } 
+        // If it is, reduce the weight by the distance.
+        else 
+        {
+            this.weight -= distance;
+        }
+    }
+
+    public void display()
+    {
+        System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
+    }
+}
+</pre>
+Note how the <code>walk()</code> method now takes one parameter, representing the distance walked. We also
+reduce the weight by the distance. (Note that <code>this.weight -= distance;</code> is a shorter
+way of writing <code>this.weight = this.weight - distance;</code>; the <code>-=</code> operator reduces a variable
+by a given value. There are similar <code>+=</code>, <code>*=</code> and <code>/=</code> operators). This could be called in a <code>main()</code> as follows:
+<pre>
+public class CatAppWithParameters
+{
+    public static void main (String[] args)
+    {
+        Cat sniffy = new Cat ("Sniffy", 10, 10);
+        
+        sniffy.walk (5);
+        sniffy.display();
+        sniffy.walk (3);
+        sniffy.display();
+    }
+}
+</pre>
+Note how we are passing the distance to the walk method. Note the difference between
+<em>arguments</em> and <em>parameters</em>.
+The <em>value passed into a method</em> is called an <em>argument</em>, whereas the <em>parameter</em> is the <em>variable</em> in the method representing that
+value. So, here, 5 and 3 are the <em>arguments</em> whereas <code>distance</code> is the <em>parameter</em>.
+</p>
+<h3>Multiple parameters</h3>
+<p>A method can have more than one parameter. Here is a modified <code>walk()</code> method which makes the cat lose more weight if they walk faster (the weight is reduced by the distance multiplied
+by the speed):
+<pre>
+public void walk (int distance, int speed)
+{
+    this.weight -= distance*speed;
+}
+</pre>
+This could then be called in the <code>main()</code> as follows:
+<pre>
+public class CatAppWithMultipleParameters
+{
+    public static void main (String[] args)
+    {
+        Cat sniffy = new Cat ("Sniffy", 10, 15);
+        
+        sniffy.walk (5, 1);
+        sniffy.display();
+        sniffy.walk (3, 2);
+        sniffy.display();
+    }
+}
+</pre>
+The cat initially walks a distance of 5 units with a speed of 1, and then walks a distance of 3 units with a speed of 2. So for the first walk() the cat will lose 5 units of weight and for the second walk the cat will lose 6 units of weight.</p>
+
+<h2>Inheritance</h2>
+<p>As you saw last year in COM411, <code>inheritance</code> allows us to use an existing class as a basis for a new, related class.  Imagine we wanted to write classes representing different types of vehicle, e.g. Car, Bus, Motorbike. If we were to write the three classes entirely separately, we'd be <em>repeating</em> a good deal of code - e.g. the code for starting and stopping the engine is common to all three classes.</p>
+<p>So what we could do in this case is create a <code>Vehicle</code> class,
+containing common functionality for all types of vehicle, and then <em>inherit</em> various <em>subclasses</em> of Vehicle (such as Car, Bus, and
+Motorbike) which provide additional functionality specific to that type
+of Vehicle. We can say that:
+    <ul>
+    <li>The Car <code>inherits</code> from or  is a <code>subclass</code> of Vehicle</li>
+    <li>Vehicle is a <code>superclass</code> of Car</li>
+    </ul>
+</p>
+
+<h3>How is inheritance achieved in Java?</h3>
+<p>In Java, we use the keyword <code>extends</code>, e.g.
+<pre>
+public class Car extends Vehicle
+{
+.... Car attributes and methods
+}
+</pre>
+This means that the <code>Car</code> class inherits from Vehicle. All attributes and methods in Vehicle
+will be <em>inherited</em> by Car, so when you create a Car, all the Vehicle methods and attributes
+will be available.</p>
+
+<h3>Java Inheritance Example</h3>
+
+<p>Below is a <code>Vehicle</code> superclass with <code>Bike</code> and <code>Car</code>
+subclasses.</p>
+<h4>Vehicle class (Vehicle.java):</h4>
+<pre>
+<em>// Generic Vehicle superclass</em>
+public class Vehicle 
+{
+    <em>// Attributes common to all vehicles</em>
+    protected int topSpeed, nWheels; 
+    protected String make;
+
+    public Vehicle (String makeIn, int topSpeedIn, int nWheelsIn)
+    {
+        this.make=makeIn;
+        this.topSpeed=topSpeedIn;
+        this.nWheels=nWheelsIn;
+    }
+
+    public void move()
+    {
+        System.out.println(&quot;Moving along...&quot;);
+    }
+
+    public void print()
+    {
+        System.out.println( &quot;Make : &quot; + make + &quot;\nTop speed: &quot; + 
+            topSpeed + &quot;\nno. wheels: &quot; + nWheels);
+    }
+}
+</pre>
+<h4>Car class (Car.java):</h4>
+<pre>
+public class Car extends Vehicle 
+{
+    <em>// Car-specific data</em>
+    private int engineCapacity; 
+    private boolean engineRunning;
+
+    public Car(String makeIn, int topSpeedIn, int engineCapacityIn)
+    {
+        <em>// Call the superclass (Vehicle) constructor to construct the Vehicle </em>
+        <em>// component of the Car. We will pass in the top speed, make, and</em>
+        <em>// number of wheels (which we know will be 4)</em>
+        super(makeIn, topSpeedIn, 4);
+
+        <em>// Set up the Car-specific attributes (engine capacity)</em>
+        this.engineCapacity = engineCapacityIn;
+    }
+
+    <em>// Overridden move() for cars</em>
+    public void move()
+    {
+        if (engineRunning)
+        {
+            System.out.println(&quot;Driving along...&quot;);
+        }
+        else
+        {
+            System.out.println
+                (&quot;Can't drive the car if the engine's stopped!!!&quot;);
+        }
+    }
+
+    <em>// Car-specific methods</em>
+    public void start()
+    {
+        engineRunning=true;
+    }
+
+    public void stop()
+    {
+        engineRunning = false;
+    }
+
+    <em>// Convert the car to a String. Note the use of super.toString() to</em>
+    <em>// call the superclass (Vehicle) version of toString() to get the</em>
+    <em>// make, top speed and number of wheels.</em>
+    public void print()
+    {
+        super.print();
+        System.out.println(&quot; Engine running? 
+                    &quot; + engineRunning + &quot;\nEngine capacity: &quot; +
+                            engineCapacity);
+    }
+}
+</pre>
+<h4>Bike class (Bike.java):</h4>
+<pre>
+public class Bike extends Vehicle 
+{
+    <em>// Bike-specific data</em>
+    private boolean isOffRoad;
+    private int nGears; 
+
+    public Bike(String makeIn,int topSpeedIn,boolean isOffRoadIn,int nGearsIn)
+    {
+        <em>//Call the superclass (Vehicle) constructor to construct the Vehicle</em>
+        <em>// component of the Bike. We will pass in the top speed, make, and</em>
+        <em>// number of wheels (which we know will be 2)</em>
+        super(makeIn,topSpeedIn,2);
+
+        <em>// Set up the Bike-specific attributes (off-road status and gears)</em>
+        this.isOffRoad = isOffRoadIn;
+        this.nGears = nGearsIn;
+    }
+
+    public void print()
+    {
+       super.print();
+       System.out.println(&quot; Off road? &quot; + 
+                            isOffRoad + &quot;\nNo. Gears: &quot; +
+                            nGears);
+    }
+}
+
+public class InheritanceTestApp 
+{
+    public static void main (String args[])
+    {
+        Car c= new Car(&quot;Ford&quot;,120,2000);
+        Bike b = new Bike(&quot;Raleigh&quot;,30,true,27);
+
+        c.print();
+        b.print();
+
+        c.move();
+        c.start();
+        c.move();
+        c.stop();
+
+        b.move();
+    }
+}
+</pre>
+</p>
+<p>How is this working?
+    <ul>
+    <li>First, note that in the <code>Vehicle</code> class the attributes are not private,
+    but <em>protected</em>. <em>protected</em> means that attributes are accessible from
+    <em>subclasses</em> (e.g. Car, Bike) whereas <code>private</code> indicates that, while the attributes
+    are still there in memory, they are hidden from the subclasses and cannot be used from them.</li>
+    <li>Note how the constructor for Car calls the Vehicle constructor 
+    to initialise the Vehicle aspects of the Car. This is done with the line
+    <pre>super(make, topSpeed, 4)</pre>
+    The <code>super</code> keyword represents the <em>super</em>class. When used in this way, it means
+    "call the superclass constructor". So when the Car constructor is called, it in turn calls the
+    Vehicle constructor to initialise the Vehicle aspects of the car (make, top speed, and number of 
+    wheels). The Vehicle constructor will initialise the corresponding attributes to the values
+    passed to <code>super()</code>: because we always pass 4 for the number of wheels, the
+    <code>nWheels</code> attribute will always be initialised to 4 for Cars.</li>
+    <li>We do something similar in Bike, but in this case, we always pass 2 for the number of wheels.</li>
+    <li>Notice also how we call the superclass version of print() in the
+    subclass version using <code>super.print()</code></li>
+    </ul>
+</p>
+
+<h3>Overriding Methods</h3>
+<p>In the example, Vehicle and Car both have a method called 
+<code>move()</code>. We have 
+<em>overridden</em> the original version in Vehicle with the version in Car -
+in other words, replaced the original Vehicle version of move() with a new 
+version in Car.
+This will mean that:
+    <ul>
+    <li>If we call <code>move()</code> on a Vehicle, then the Vehicle 
+    <code>move()</code> will be called;</li>
+    <li>If we call <code>move()</code> on a Car, then the Car <code>move()</code> 
+    will be called;</li>
+    <li>If we call <code>move()</code> on a Bike, then the Vehicle <code>move()</code> 
+    will be called, because we did not override it in Bike</li>
+    </ul>
+</p>
+<p>In the same way, <code>print()</code> is overridden in both Car and Bike. However, unlike for 
+<code>move()</code>, the overridden version of <code>print()</code> calls the original, Vehicle version of
+<code>print()</code> using the super keyword: <code>super.print();</code>.</p>
+<h3>Abstract classes</h3>
+<p>You also met <em>abstract classes</em> in COM411. An abstract class is a class that will never be instantiated; it serves only to be the superclass of inherited classes, and to provide common data and methods. Abstract classes typically contain <em>abstract methods</em>, which are methods containing no code; they will be overridden in subclasses. For example we could have an <code>Animal</code> abstract class with a <code>makeNoise()</code> abstract method (as there is no default noise made by a generic Animal!):
+<pre>
+public <em>abstract</em> class Animal
+{
+    protected int age, weight;
+
+    public Animal(int ageIn, int weightIn)
+    {
+        this.age = ageIn;
+        this.weight = weightIn;
+    }
+
+    public <em>abstract</em> void makeNoise();
+}
+</pre>
+and then inherit <code>Cat</code> and <code>Dog</code> from it, overriding <code>makeNoise()</code> appropriately. <code>Cat</code> and <code>Dog</code> are <em>concrete</em> classes: classes you can create instances of.
+<pre>
+public class Cat extends Animal
+{
+    public Cat(int ageIn, int weightIn)
+    {
+        super(ageIn, weightIn);
+    }
+
+    public void makeNoise()
+    {
+        System.out.println("Meow!");
+    }
+}
+</pre>
+<pre>
+public class Dog extends Animal
+{
+    public Dog(int ageIn, int weightIn)
+    {
+        super(ageIn, weightIn);
+    }
+
+    public void makeNoise()
+    {
+        System.out.println("Woof!");
+    }
+}
+</pre>
+</p>
+<h2>Exercises</h2>
+<ol>
+<li>Update your Cat project from last week to use the "Passing parameters to methods" example, above. Also add your <code>eat()</code> method, from last week, to it. Modify the Cat's <code>eat()</code> method so that the weight can never go above 20. Print a suitable error
+message if an attempt is made to increase the weight beyond that amount.</li>
+
+<li>Modify your Cat's <code>eat()</code> method further, so that it now takes a parameter of <code>amount</code>.
+The weight should increase by the specified amount.</li>
+
+<li>Return to your Student project from last week. Add three simple getter methods, <code>getName()</code>, <code>getCourse()</code> and  <code>getMark()</code> method to your <code>Student</code> class. These should simply return the appropriate attribute.</li>
+
+<li>Add a <code>setMark()</code> method to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid.</li>
+
+<li>Add a <code>getGrade()</code> method to <code>Student</code>. This should return the student's grade as a <code>String</code> based on the mark, according to this scheme :
+    <ul>
+    <li>70+ : First</li>
+    <li>60-69 : 2/1</li>
+    <li>50-59 : 2/2</li>
+    <li>40-49 : Third</li>
+    <li>0-39 : Fail</li>
+    </ul>
+</li>
+
+<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
+
+<li>Change the <code>Student</code> constructor so that the mark is no longer passed in as a parameter, and instead, set to 0. The idea is that <code>setMark()</code> will be used instead to set the mark.</li>
+
+<li>Test out the above methods by modifying the <code>main()</code> method of your existing program so that:
+
+    <ul>
+    <li>After creating each student in the loop, the name and course are printed by calling the <code>getName()</code> and <code>getCourse()</code> methods.</li>
+    <li>Then, prompt the user for the mark and read it in from the user with the <code>Scanner</code>. Set the mark using <code>setMark()</code>. Print the student's status (mark, grade, and whether they passed or not) by calling the <code>getMark()</code>, <code>getGrade()</code>, and the <code>didPass()</code> methods, and printing the return value of each.</li>
+    </ul>
+</li>
+
+<li>Create an inheritance hierarchy to represent different types of student. The classes <code>Undergraduate</code> and <code>Masters</code> should extend from <code>Student</code>. Make <code>Student</code> an abstract class and change the <code>getGrade()</code> method of <code>Student</code> to be abstract, and provide overridden versions of <code>getGrade()</code> for <code>Undergraduate</code> and <code>Masters</code>. The undergraduate version should work exactly the same as the version above. The masters version should instead return the following grades:
+    <ul>
+    <li>70+ : Distinction</li>
+    <li>60-69 : Merit</li>
+    <li>40-59 : Pass</li>
+    <li>0-39 : Fail</li>
+    </ul>
+Test it by creating a few undergraduate and masters' students in your <code>main()</code>, and printing their grades. You do not need to read them in from the keyboard; you can just hard-code them.
+</li>
+</ol>
+
+</body>
+</html>
