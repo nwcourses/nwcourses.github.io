@@ -254,7 +254,7 @@ such a method is shown below.
 <h2>Passing Parameters to Methods</h2>
 
 <p>
-You have already seen the concept of passing parameters to a constructor. In COM411, you also passed parameters to functions. Hopefully it should not then be too much of a surprise that you can also pass parameters to regular Java methods. If we take a look at another version of our Cat class:
+You have already seen in COM411 that you can pass parameters to methods. Here is an enhanced version of <code>Cat</code> showing how you can do this in Java:
 <pre>
 public class Cat
 {
@@ -288,10 +288,7 @@ public class Cat
     }
 }
 </pre>
-Note how the <code>walk()</code> method now takes one parameter, representing the distance walked. We also
-reduce the weight by the distance. (Note that <code>this.weight -= distance;</code> is a shorter
-way of writing <code>this.weight = this.weight - distance;</code>; the <code>-=</code> operator reduces a variable
-by a given value. There are similar <code>+=</code>, <code>*=</code> and <code>/=</code> operators). This could be called in a <code>main()</code> as follows:
+Note how the <code>walk()</code> method now takes one parameter, representing the distance walked. Note how, unlike Python, the <em>data type</em> (<code>int</code>) must be declared. We also reduce the weight by the distance. (Note that <code>this.weight -= distance;</code> is a shorter way of writing <code>this.weight = this.weight - distance;</code>; the <code>-=</code> operator reduces a variable by a given value. There are similar <code>+=</code>, <code>*=</code> and <code>/=</code> operators). This could be called in a <code>main()</code> as follows:
 <pre>
 public class CatAppWithParameters
 {
@@ -306,46 +303,18 @@ public class CatAppWithParameters
     }
 }
 </pre>
-Note how we are passing the distance to the walk method. Note the difference between
-<em>arguments</em> and <em>parameters</em>.
-The <em>value passed into a method</em> is called an <em>argument</em>, whereas the <em>parameter</em> is the <em>variable</em> in the method representing that
+Note how we are passing the distance to the walk method. Note the difference between <em>arguments</em> and <em>parameters</em>.  The <em>value passed into a method</em> is called an <em>argument</em>, whereas the <em>parameter</em> is the <em>variable</em> in the method representing that
 value. So, here, 5 and 3 are the <em>arguments</em> whereas <code>distance</code> is the <em>parameter</em>.
 </p>
-<h3>Multiple parameters</h3>
-<p>A method can have more than one parameter. Here is a modified <code>walk()</code> method which makes the cat lose more weight if they walk faster (the weight is reduced by the distance multiplied
-by the speed):
-<pre>
-public void walk (int distance, int speed)
-{
-    this.weight -= distance*speed;
-}
-</pre>
-This could then be called in the <code>main()</code> as follows:
-<pre>
-public class CatAppWithMultipleParameters
-{
-    public static void main (String[] args)
-    {
-        Cat sniffy = new Cat ("Sniffy", 10, 15);
-        
-        sniffy.walk (5, 1);
-        sniffy.display();
-        sniffy.walk (3, 2);
-        sniffy.display();
-    }
-}
-</pre>
-The cat initially walks a distance of 5 units with a speed of 1, and then walks a distance of 3 units with a speed of 2. So for the first walk() the cat will lose 5 units of weight and for the second walk the cat will lose 6 units of weight.</p>
-
 <h2>Inheritance</h2>
-<p>As you saw last year in COM411, <code>inheritance</code> allows us to use an existing class as a basis for a new, related class.  Imagine we wanted to write classes representing different types of vehicle, e.g. Car, Bus, Motorbike. If we were to write the three classes entirely separately, we'd be <em>repeating</em> a good deal of code - e.g. the code for starting and stopping the engine is common to all three classes.</p>
+<p>As you saw last year in COM411, <em>inheritance</em> allows us to use an existing class as a basis for a new, related class.  Imagine we wanted to write classes representing different types of vehicle, e.g. Car, Bus, Motorbike. If we were to write the three classes entirely separately, we'd be <em>repeating</em> a good deal of code - e.g. the code for starting and stopping the engine is common to all three classes.</p>
 <p>So what we could do in this case is create a <code>Vehicle</code> class,
 containing common functionality for all types of vehicle, and then <em>inherit</em> various <em>subclasses</em> of Vehicle (such as Car, Bus, and
 Motorbike) which provide additional functionality specific to that type
 of Vehicle. We can say that:
     <ul>
-    <li>The Car <code>inherits</code> from or  is a <code>subclass</code> of Vehicle</li>
-    <li>Vehicle is a <code>superclass</code> of Car</li>
+    <li>The Car <em>inherits</em> from or  is a <em>subclass</em> of Vehicle</li>
+    <li>Vehicle is a <em>superclass</em> of Car</li>
     </ul>
 </p>
 
@@ -437,8 +406,8 @@ public class Car extends Vehicle
         engineRunning = false;
     }
 
-    <em>// Convert the car to a String. Note the use of super.toString() to</em>
-    <em>// call the superclass (Vehicle) version of toString() to get the</em>
+    <em>// Print the car. Note the use of super.print() to</em>
+    <em>// call the superclass (Vehicle) version of print() to print the</em>
     <em>// make, top speed and number of wheels.</em>
     public void print()
     {

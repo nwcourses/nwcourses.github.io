@@ -321,36 +321,23 @@ already in Python.  Note the use of the braces (curly brackets) { and } to begin
 <p>In addition,
 we can also have one or more <code>else if</code> blocks to handle multiple conditions. These are the equivalent of <code>elif</code> in Python.</p>
 <h3>Comparison and logical operators in Java</h3>
-<p>Like other languages, Java has comparison and logical operators. Here is a list of the most common comparison operators:
-        <ul>
-        <li><code>==</code>: is equal to (note the double equals!)</li>
-        <li><code>&lt;</code> : less than</li>
-        <li><code>&gt;</code> : greater than</li>
-        <li><code>&lt;=</code> : less than or equal to</li>
-        <li><code>&gt;=</code> : greater than or equal to</li>
-        <li><code>!=</code> : not equal to</code>
-        </ul>
-</p>
-<p>and here are the two most common logical operators:
+<p>Like other languages, Java has comparison and logical operators. The comparision operators you have met in Python also apply in Java, e.g. <code>==</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, and <code>!=</code>.</p>
+<p>The logical operators are a bit different to Python. Rather than the words <code>and</code>, <code>or</code> and <code>not</code>, symbols are used:
     <ul>
     <li><code>&amp;&amp;</code> : and</li>
     <li><code>||</em>: or</code>
-	<li><code>!</code> (in front of an expression) : <em>not</em> (negates the expression)</li>
+	<li><code>!</code> (in front of an expression) : <em>not</em> e.g. <code>if(!b)</code> is equivalent to <code>if(b == false)</code></li>
     </ul>
 </p>
-
 <h3>Loops in Java</h3>
-
-<p>In common with other languages, you can write <em>loops</em> in Java. You should remember from 
-Introduction to Programming and Problem Solving that a <em>loop</em> involves repeating the same
-section of code over and over again until some condition is met. Java has four types of loops:
+<p>In common with other languages, you can write <em>loops</em> in Java. You should remember from COM411 that a <em>loop</em> involves <em>iteration</em>: repeating the same section of code over and over again until some condition is met. Java has four types of loops:
     <ul>
     <li>The while loop;</li>
     <li>The do/while loop;</li>
     <li>The for loop;</li>
     <li>The foreach loop.</li>
     </ul>
-We will look at the first three for now, and come back to the foreach loop later.</p>
+We will look at the first three for now.</p>
 
 <h4>The "while" loop in Java</h4>
 
@@ -471,18 +458,14 @@ public Cat (String nameIn, int ageIn, int weightIn)
     this.weight = weightIn;
 }
 </pre>
-This piece of code is called a <strong>CONSTRUCTOR</strong>. A <em>constructor</em> is a special <em>method</em> (see below)
-which is used to <em>initialise</em> objects of the current class. It is the equivalent of <code>__init__()</code> in Python.  <em>A constructor has the same name as the class</em>, so this one is called "<code>Cat</code>". (We will see the meaning of <code>public</code> later).
+This piece of code is called a <strong>CONSTRUCTOR</strong>. A <em>constructor</em> is a special <em>method</em> (see below) which is used to <em>initialise</em> objects of the current class. It is the equivalent of the initialisation method <code>__init__()</code> in Python.  <em>A constructor has the same name as the class</em>. (We will see the meaning of <code>public</code> later).
 When we create an object (and you will see how to do this below) the <em>constructor is called</em>. It takes parameters It takes parameters
-(<code>nameIn</code>, <code>ageIn</code> and <code>weightIn</code>) and <em>sets the attributes to the parameters
-passed in</em>. Remember the difference between attributes and parameters:
+(<code>nameIn</code>, <code>ageIn</code> and <code>weightIn</code>) and <em>sets the attributes to the parameters passed in</em>. Remember the difference between attributes and parameters:
     <ul>
     <li>Parameters represent the information <em>coming in</em> from outside, such as from the <code>main()</code>.
     This is why I have named them name<em>In</em>, etc. You can think of them as <em>temporary</em>: a
     parameter is just there to get the information into objects of the class from outside.</li>
-    <li>Attributes are <em>contained within the class</em>. Once an object of the class is created,
-    it contains a series of attributes which are <em>permanent</em>: they last until the object is
-    destroyed.</li>
+    <li>Attributes are <em>contained within the class</em>. Once an object of the class is created, it contains a series of attributes which are <em>permanent</em>: they last until the object is destroyed.</li>
     </ul>
 Note also the use of the keyword <code>this</code> to represent the attributes. <code>this</code> represents 
 <em>the current object we are working with</em>. It's the equivalent of <code>self</code> in Python, but does not need to be specified as a parameter. So the code will set the attributes of whichever object we're initialising to the parameters passed in.</p>
@@ -504,13 +487,8 @@ to walk a cat by reducing the cat's weight (<code>this.weight</code>) by one.
     System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight)
 }</pre>
 This code defines another method called <code>display()</code> which displays the details of the cat.</p>
-
 <h3>Creating objects of the Cat class</h3>
-<p>I cannot emphasise strongly enough that the above code <em>does not actually create any specific Cat
-objects</em>. It merely <em>defines a Cat class, which is a blueprint or specification for what Cats are and
-what they do.</em> We need, in addition, to create <em>specific Cat objects</em> in our <code>main()</code> (or
-elsewhere outside the Cat class). Here is a <code>main()</code> which creates two Cat objects and does things with
-them:
+<p>I cannot emphasise strongly enough that the above code <em>does not actually create any specific Cat objects</em>. It merely <em>defines a Cat class, which is a blueprint or specification for what Cats are and what they do.</em> We need, in addition, to create <em>specific Cat objects</em> in our <code>main()</code> (or elsewhere outside the Cat class). Here is a <code>main()</code> which creates two Cat objects and calls methods of them:
 <pre>
 public class CatApp
 {

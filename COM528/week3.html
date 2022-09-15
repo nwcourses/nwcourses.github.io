@@ -17,7 +17,7 @@ img { margin: 10px; border: 1px solid black; }
 
 <p>In Java, the <em>ArrayList</em> provides similar functionality to the Python list.  We can create an ArrayList and then keep adding objects to it until
 the JVM's memory runs out. This makes the ArrayList much more flexible than a plain array.
-Here is an example of code which uses an ArrayList:
+Here is an example of code which uses an ArrayList. Imagine we have a <code>Product</code> class:
 <pre>
 // Product class
 public class Product
@@ -39,6 +39,7 @@ public class Product
     }
 }
 </pre>
+we could then create an <code>ArrayList</code> of <code>Product</code>s as follows:
 <pre>
 // Main class
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ The first line in the <code>main()</code> creates the ArrayList:
 <pre>ArrayList&lt;Product&gt; products = new ArrayList&lt;Product&gt; ();</pre>
 Note that <em>ArrayList</em>s are objects, so we use <em>new</em> to create them, just like any other
 object. Note that the data type includes <em>what type of data the ArrayList is holding</em>, so
-here the data type is <em>ArrayList&lt;Product&gt;</em> because it is an ArrayList holding Product objects. This is a Java feature known as <em>generics</em>: ArrayList is a <em>generic</em> type, i.e. it can hold objects of any specified data type, and we need to specify which type we want it to hold:. <code>ArrayList&lt;Product&gt;</code> by contrast is a specific type of <code>ArrayList</code> that can hold only <code>Product</code>s.
+here the data type is <em>ArrayList&lt;Product&gt;</em> because it is an ArrayList holding Product objects. This is a Java feature known as <em>generics</em>: ArrayList is a <em>generic</em> type, i.e. it can hold objects of any specified data type, and we need to specify which type we want it to hold. <code>ArrayList&lt;Product&gt;</code> by contrast is a specific type of <code>ArrayList</code> that can hold only <code>Product</code>s.
 </li>
 <li>We then create three Product objects.</li>
 <li>We then add the three Product objects to the ArrayList with the <code>add()</code> method of
@@ -243,8 +244,8 @@ How is this working?
     Each "portal" (method) would typically include some validation, to check that the outside world isn't
     doing anything unrealistic. The diagram below shows this. <br />
     <img src="../oop/images/aggregation.png" alt="Aggregation - methods as 'portals'" /></li>
-    <li>For example, <em>searchForProduct()</em> will return 
-<em>null</em> if the product cannot be found.
+    <li>For example, <code>searchForProduct()</code> will return 
+<code>null</code> if the product cannot be found.
 <em>Note the use of .equals() to compare strings in searchForProduct().</em> When comparing strings,
     we do not use <code>==</code>. We instead, use the .equals() method of the String class, passing in the
     string to compare to as a parameter.</li>
