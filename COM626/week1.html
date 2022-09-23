@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title>COM626 Week 1</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/android.css">
+</head><body>
+
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 1</h1>
+<h1>ViewModel and LiveData</h1>
+</div>
+<p>Today we will look at the Android components <code>ViewModel</code> and <code>LiveData</code> and how they can lead to cleaner, more maintainable code and easier synchronisation of the underlying data of the application with the UI.</p>
+<h2>A quick revision on SQLite</h2>
+<p>The concepts we are learning this week are particularly useful for apps using on-board databases. Last year on COM527 we looked at including on-board databases within an Android app using <em>SQLite</em>, and specifically the <em>Room</em> API. We saw that a Room application consisted of:
+    <ul>
+    <li>A <em>data entity</em> class, representing a single record in a table;</li>
+    <li>A <em>DAO</em> (Data Access Object) to control access to the database, containing methods for searching, inserting, updating and deleting;</li>
+    <li>A <em>database</em> object to manage the database as a whole.</li>
+    </ul>
+If you need to revise this topic, please see <a href='../COM527/topic7.html'>here</a>.</p>
+<h2>The concept of LiveData</h2>
+<p>It would be nice if the UI could <em>automatically update</em> whenever the underlying data in the database changes. Imagine for example a simple application to search for, and add, music. The application might have a form to add new songs, and show a list of songs currently in the database, as below:
+<br />
+<img src="../images/livedata1.png" alt="Database app using LiveData" />
+<br />
+As can be seen the user can add songs via the UI. Also, the list of songs in the <code>TextView</code> below the form updates when a new song is added (you can see that we've just added Oasis and the song has appeared on the <code>TextView</code>). We could do this manually if we wanted, but it's much easier to automatically update the list of songs using <code>LiveData</code> instead. <code>LiveData</code> is data which can be <em>observed</em> every time it changes. We observe <code>LiveData</code> with an <code>Observer</code> object. The <code>Observer</code> runs a specified lambda function each time the data changes; this lambda receives the updated data as a parameter. So, in the <code>Observer</code>'s lambda, we can take the updated data and use it to update the UI appropriately.</p>
+
+<h3>Example</h3>
+<p>It's easy to update a DAO to return <code>LiveData</code>.We simply update our DAO so that the search methods return <code>LiveData</code> of the appropriate type. So, in a student records app, we might change:
+<pre>
+@Query("SELECT * FROM students")
+fun getAllStudents(): List&lt;Student&gt;
+</pre>
+to:
+<pre>
+@Query("SELECT * FROM students")
+fun getAllStudents(): LiveData&lt;List&lt;Student&gt;&gt;
+</pre>
+In other words, the <code>getAllStudents()</code> method is now returning <code>LiveData</code> consisting of a list of students.</p>
+<h3>The observer</h3>
+<p>We can then <em>observe</em> the data to watch for changes, for example from our activity. For
+example, we could add this code to our <code>MainActivity</code>'s <code>onCreate()</code> just after initialising the database:
+<pre>
+db.studentDao().getAllStudents().observe(this, Observer {
+    findViewById&lt;TextView&gt;(R.id.tvResults).text = it.joinToString("\n");
+});
+</pre>
+As you can hopefully see, <code>db.studentDao().getAllStudents()</code> calls the DAO method <code>getAllStudents()</code> we referenced above, which returns the <code>LiveData</code>. <code>LiveData</code> has an <code>observe()</code> method which is used to attach an <code>Observer</code> to it, to watch for changes. Note how when we are creating the <code>Observer</code>, we specify a lambda function. This runs whenever the data updates, and receives the updated data as a single parameter (so it can be referenced using <code>it</code>). We convert the received list to a string using the <code>joinToString()</code> method, which will combine each member of the list into one string using the given separator (a new line, i.e. <code>\n</code>, here). This string will then be used to update the given text view.</p>
+
+<h2>The ViewModel</h2>
+
+<p>A common aim in object-oriented programming is to make all classes as concise, and focused on one thing, as possible. This makes the classes smaller and easier to understand, and thus maintain. A small, tightly-focused class (focused on one particular thing) has high <em>cohesion</em>. Achieving high cohesion is well-known good software engineering practice.</p>
+<p>However, in Android development, if we are not careful our activities can quickly become very large and "bloated", and end up containing a lot of variables hoding the application's data and methods to manipulate that data. Thus they have low cohesion, as they are trying to do too many things. It would be better to try and <em>separate out the activity from its data</em> so that the activity only manages core operations (such as lifecycle events - <code>onCreate()</code>, <code>onResume()</code> etc) and have another class which stores the data.</p>
+<p>Luckily we can do this quite easily with Android thanks to the use of a <code>ViewModel</code> (see <a href="https://developer.android.com/topic/libraries/arcstudentecture/viewmodel">the Android documentation</a>). What is a <code>ViewModel</code>? It's an object which holds <em>the data which needs to be displayed by the application</em>, and is responsible for "preparing data for the UI" (<a href="https://developer.android.com/topic/libraries/arcstudentecture/viewmodel#implement">Android docs</a>), as part of the Model-View-ViewModel (MVVM) arcstudentecture. In this arcstudentecture:
+	<ul>
+	<li>the <em>Model</em> represents the classes directly communicating with the database, such as the DAO;</li>
+	<li>the <em>View</em> represents the UI classes of your application, for example activities, fragments, etc.</li>
+	</ul>
+In other words, a <code>ViewModel</code> holds raw data from a data source (the <em>Model</em>) and processes it into a form suitable for display, at which point it is sent to the UI (<em>View</em>).</p>
+<p>As well as enabling higher cohesion, using a <code>ViewModel</code> in Android has the advantage that it is <em>persistent throughout the lifetime of the application</em>, even if other components such as activities are destroyed. Remember from last year that an activity is destroyed and re-created when it's rotated. This can cause difficulties if you want to preserve data; by default, all data stored in an activity will be destroyed when it's rotated, as it belongs to a particular instance of the activity. If you use a <code>ViewModel</code> instead, the data will be preserved and will be accessible by the activity when it is re-created.</p>
+
+<h3>Creating a ViewModel</h3>
+
+<p>Creating a <code>ViewModel</code> is quite easy. We need to include the <code>lifecycle</code> Jetpack component into our project, and create a class inheriting from <code>androidx.lifecycle.ViewModel</code>.
+<pre>
+package com.example.viewmodel1
+
+import androidx.lifecycle.ViewModel
+
+class TestViewModel : ViewModel() {
+    var firstName = ""
+    var lastName = ""
+}
+</pre>
+This is creating a simple <code>ViewModel</code> to store someone's first and last name.</p>
+
+<h3>Using the ViewModel from an Activity</h3>
+
+<p>We then need to initialise the <code>ViewModel</code> from an <code>Activity</code>. The example below shows how to do this:
+
+<pre>
+class MainActivity :AppCompatActivity() {
+
+    val viewModel : TestViewModel by viewModels()
+
+    // ... class continues ...
+</pre>
+
+Note how we declare a variable <code>viewModel</code> within our activity, of class <code>TestViewModel</code> (our <code>ViewModel</code> class shown above).</p>
+<h4>Property delegates</h4>
+<p>Note the slightly unusual way of initialising the <code>ViewModel</code>, using <pre>by viewModels()</pre>This initialises a ViewModel object using what is called a <em>property delegate</em> (here, the method <code>viewModels()</code> returns a delegate). A property delegate is an object which allows the process of reading and writing properties of another object (the <code>TestViewModel</code> object in this case) to be customised. See <a href='https://kotlinlang.org/docs/delegated-properties.html'>here</a> for more details.</p>
+<h4>Updating the ViewModel and the UI</h4>
+<p>Later on, at any point, we can update the <code>ViewModel</code>'s data, e.g.
+<pre>
+viewModel.apply {
+    firstName = "Fred"
+    lastName = "Jones"
+}
+</pre>
+and we can also update the UI with the contents of the <code>ViewModel</code>, e.g.:
+<pre>
+findViewById&lt;TextView&gt;(R.id.info).text = "${viewModel.firstName} ${viewModel.lastName}"
+</pre>
+</p>
+<p>Clearly this is a very simple example, but for more complex apps, which need to store and display large amounts of data, a <code>ViewModel</code> makes sense. Furthermore, even in this simple example, a <code>ViewModel</code> can be advantageous, as the data remains in memory even when the device is rotated. If we simply stored the first name and last name in the activity, it would be lost when the device is rotated, as the activity (and all its data) is destroyed and re-created. The <code>ViewModel</code> by contrast is stored independently to the activity in memory.</p>
+
+<h3>ViewModel dependencies</h3>
+<p>Ensure these dependencies are added to your <code>build.gradle</code>:
+<pre>
+implementation "androidx.activity:activity-ktx:1.5.1"
+</pre>
+This needed for the delegate-based initialisation of the <code>ViewModel</code>.</p> 
+<h2>Using LiveData with ViewModel</h2>
+
+<p>Commonly, <code>LiveData</code> and <code>ViewModel</code> are used together. A <code>ViewModel</code> can hold <code>LiveData</code> which is observed by an <code>Observer</code>. When the data changes, the <code>Observer</code> callback receives the altered data and uses it to update the UI.</p>
+
+<p>Here is an example of an application which does this</p>
+
+<pre>
+package com.example.viewmodel2
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+
+class MainActivity : AppCompatActivity() {
+
+    val viewModel: TestViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // When the button is clicked, create a song object and add it to
+        // the ViewModel.
+
+        findViewById&lt;Button&gt;(R.id.btn1).setOnClickListener {
+            viewModel.apply {
+                val s = Student(
+                    findViewById&lt;EditText&gt;(R.id.etId.text.toString().toInt(),
+                    findViewById&lt;EditText&gt;(R.id.etName).text.toString(),
+                    findViewById&lt;EditText&gt;(R.id.etCourse).text.toString()
+                )
+                viewModel.addStudent(s)
+            }
+        }
+
+        // Observe changes in the LiveData within the ViewModel. When the 
+        // LiveData changes, update the TextView with the new data.
+        viewModel.songsLive.observe(this, Observer {
+            findViewById&lt;TextView&gt;(R.id.tv1).text = it.map { it.toString() }.joinToString("\n")
+        })
+    }
+}
+
+</pre>
+
+and the <code>ViewModel</code>:
+
+<pre>
+package com.example.viewmodel2
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+data class Student(val id:Int = 0, val name: String = "", val course: String = "") {
+    override fun toString(): String {
+        return "Student ID $id: name $name, course $course"
+    }
+}
+
+class TestViewModel : ViewModel() {
+    val students = mutableListOf&lt;Student&gt;()
+    val studentsLive = MutableLiveData&lt;MutableList&lt;Student&gt;&gt;()
+
+    fun addStudent(s: Student) {
+        students.add(s)
+
+        // must reset the live data after changing the underlying data, you can't link the live data with underlying data on startup and expect it to "just work"
+        studentsLive.value = students
+    }
+}
+
+</pre>
+
+Note how the <code>ViewModel</code> contains both a student list (<code>students</code>) and some <code>LiveData</code> associated with that list (<code>studentsLive</code>). Here we need to create the <code>LiveData</code> ourselves: note that it is <code>MutableLiveData</code> (<code>LiveData</code> that can be updated). In the addStudent()</code> method of the <code>ViewModel</code>, we add the student to the regular list (<code>students</code>) and then <em>update the <code>value</code> of the live data (<code>studentsLive</code>) to the list</em> so that the live data continuously "tracks" the list.</p>
+
+<p>In the main activity, we add the student details to the <code>ViewModel</code> when a button is clicked, and set up an <code>Observer</code> to track changes in the <code>LiveData</code> so that the UI is updated with the current list of students whenever the list changes.</p>
+
+<h2>Using LiveData and a ViewModel with Room</h2>
+
+<p>The other thing we can do is to use both <code>LiveData</code> and a <code>ViewModel</code> together with Room. To do this you would return <code>LiveData</code> from the DAO (as above) and <em>store a reference to it in your <code>ViewModel</code></em>. Then, you can observe the data in the <code>ViewModel</code> with an <code>Observer</code>, as before.</p>
+<p>Here is an example of a <code>ViewModel</code> set up to store <code>LiveData</code> from a Room database containing student records:
+<pre>
+
+package com.example.roomapp
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+
+// We need to pass in the Application object
+class StudentViewModel(app: Application): AndroidViewModel(app)  {
+    // Get a reference to the database, using the Application object
+    var db = StudentDatabase.getDatabase(app)
+    var students : LiveData&lt;List&lt;Student&gt;&gt;
+
+    // When we initialise the ViewModel, get the LiveData from the DAO
+    // The variable 'students' will always contain the latest LiveData.
+    init {
+        students = db.studentDao().getAllStudents()
+    }
+
+    // Return the LiveData, so it can be observed, e.g. from the MainActivity
+    fun getAllStudents(): LiveData&lt;List&lt;Student&gt;&gt; {
+        return students
+    }
+}
+</pre>
+The <code>ViewModel</code> would then be setup from the <code>MainActivity</code> in the normal way:
+<pre>
+val viewModel : StudentViewModel by viewModels
+</pre>
+and observed in the normal way by observing the <code>getAllStudents()</code> method of the <code>ViewModel</code>:
+<pre>
+viewModel.getAllStudents().observe(this, Observer {
+    tvResults.text = it.joinToString("\n") // display data in 'tvResults', a TextView
+})
+</pre>
+</p>
+<h2>ViewModel and Fragments</h2>
+<p>Using a <code>ViewModel</code> and <code>LiveData</code> can also significantly ease the process of sharing data between fragments. You may remember from <a href='../COM527/topic11.html'>last year</a> that to share data between fragments we had to setup a callback in the first fragment, which would send the data back to the main activity, which would then forward the data onto the second fragment. By using <code>ViewModel</code>, we can instead access the data directly from both fragments, as we can update a <code>ViewModel</code> from one fragment, and then, using <code>LiveData</code> and an <code>Observer</code>, observe it from a second.</p>
+<p>Here is a simple example containing two fragments: 
+	<ul>
+	<li>one fragment containing an <code>EditText</code> (allowing the user to enter a name) and <code>Button</code>,</li>
+	<li> and another containing a <code>TextView</code> which will greet the user.</li>
+	</ul>
+The interface will look something like this:
+<br />
+<img src="../images/viewModelFrags.png" alt="ViewModel Fragments app" />
+<br />
+When the button, on the first fragment, is clicked, the second fragment is updated with the text in the <code>EditText</code>. To use <code>ViewModel</code> with fragments, you will need the <code>fragment-ktx</code> dependency in your <code>build.gradle</code>:
+<pre>implementation 'androidx.fragment:fragment-ktx:1.5.2'</pre>
+</p>
+<p>We'll now look at the code. First, the layout for the main activity, with the two fragments arranged vertically:
+<pre>
+<?xml version="1.0" encoding="utf-8"?>
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"&gt;
+
+    &lt;androidx.fragment.app.FragmentContainerView
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/frag1"
+        android:name="com.example.viewmodelfrags.Frag1"
+        app:layout_constraintBottom_toTopOf="@id/frag2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" /&gt;
+
+    &lt;androidx.fragment.app.FragmentContainerView
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/frag2"
+        android:name="com.example.viewmodelfrags.Frag2"
+        app:layout_constraintTop_toBottomOf="@id/frag1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+Secondly, the layout for the first fragment, which contains an <code>EditText</code> and <code>Button</code> arranged vertically:
+<pre>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
+
+    &lt;EditText
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/etName" /&gt;
+    &lt;Button
+        app:layout_constraintTop_toBottomOf="@id/etName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/go"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/btn1" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+Thirdly, the layout for the second fragment:
+<pre>
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
+
+    &lt;TextView
+        android:text="@string/defaultText"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/tvName" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+Fourthly, the <code>ViewModel</code>. 
+<pre>
+package com.example.viewmodelfrags
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+class TestViewModel : ViewModel() {
+    var currentName = ""
+        set(newValue) {
+            field = newValue
+            liveName.value = newValue
+        }
+    var liveName =  MutableLiveData<String>()
+}
+</pre>
+Note how the <code>ViewModel</code> contains an attribute <code>currentName</code>. This represents the name the user entered. It also contains an attribute <code>liveName</code> which is <code>LiveData</code> referencing the name (which can be observed by the second fragment, as we will see).</p>
+<h4>Custom setters</h4>
+<p>Note also that this example introduces a new Kotlin language feature, <em>custom setters</em>.
+<pre>
+    var currentName = ""
+        set(newValue) {
+            field = newValue
+            liveName.value = newValue
+        }
+</pre>
+In Kotlin, you can define <em>custom setters</em> which run when we set an attribute in a class, using a statement such as:
+<pre>viewModel.currentName = "John";</pre>
+Custom setters are used to make custom behaviour occur when we set an attribute. We define a custom setter by declaring the attribute (<code>currentName</code> here), and following it (indented by one tab) with a special method which must be named <code>set()</code>. This method takes the new value as a parameter. The first thing we must do is set the attribute itself, using the special keyword <code>field</code>. However, we can also add further statements to the <code>set()</code> method, to define custom setter behaviour. In this example, we are updating the value of the <code>LiveData</code> to be the attribute's value, with the statement <pre>liveName.value = newValue</pre></p>
+<h4>Fragment code</h4>
+<p>We now move on to the code inside the two fragments. First, <code>Frag1</code> (the first fragment, allowing us to enter a name):
+<pre>
+package com.example.viewmodelfrags
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import androidx.fragment.app.activityViewModels
+
+class Frag1 : androidx.fragment.app.Fragment(R.layout.frag1) {
+    val viewModel : TestViewModel by activityViewModels()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val etName = view.findViewById&lt;EditText&gt;(R.id.etName)
+        view.findViewById&lt;Button&gt;(R.id.btn1).setOnClickListener {
+            viewModel.currentName = etName.text.toString()
+        }
+    }
+}
+</pre>
+This code is mostly straightforward. We obtain a <code>ViewModel</code> in much the same way as before (the only difference is that we use <code>activityViewModels()</code> rather than <code>viewModels()</code> to initialise the <code>ViewModel</code>, because the view model is associated with the activity but we are inside the fragment). Then, in our <code>onViewCreated()</code> (see fragments notes from last year) we handle a click event on the button by updating the <code>currentName</code> attribute to the current value inside the edit text. This will call our custom <code>set()</code> method, discussed above, and therefore the <code>LiveData</code> will be updated also.</p>
+<p>Moving onto the second fragment:
+<pre>
+package com.example.viewmodelfrags
+
+import android.os.Bundle
+import android.view.View
+import android.widget.TextView
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+
+class Frag2 : androidx.fragment.app.Fragment(R.layout.frag2) {
+    val viewModel : TestViewModel by activityViewModels()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val tv = view.findViewById&lt;TextView&gt;(R.id.tvName)
+        viewModel.liveName.observe(this.viewLifecycleOwner, Observer {
+            tv.text = "Hello $it!"
+        })
+    }
+}
+</pre>
+This is very simple, and should not be difficult to understand. In our <code>onViewCreated()</code> we setup an <code>Observer</code> to observe the <code>LiveData</code> and update the <code>TextView</code> within the fragment when it changes.</p>
+<p>Finally the main activity is very simple, as all the logic is in the fragments and ViewModel:
+<pre>
+package com.example.viewmodelfrags
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}
+</pre>
+</p>
+<h2>Exercises</h2>
+<p>Before doing these exercises you will need to ensure that <em>Auto-rotate screen</em> is turned on in the Settings, to make sure that rotating the device triggers a destroy/recreation of the activity. To do this:
+	<ul>
+	<li>Obtain the settings by "dragging up" the phone's screen;</li>
+	<li>Select "Settings";</li>
+	<li>Select "Display";</li>
+	<li>Ensure "Auto-rotate screen" is on.</li>
+	</ul>
+</p>
+<h3>Questions</h3>
+<ol>
+<li><em>Basic LiveData:</em> Clone this project from GitHub:
+<pre>https://github.com/nwcourses/RoomAppBasic.git</pre>
+It's a very simple Room app which allows you to add songs to a database, similar to what you did last year. Modify the app so that the <code>getAllHits()</code> method of the DAO returns <code>LiveData</code> of a <code>List</code> of <code>Hit</code>s. In the main activity, add some code to observe changes in the <code>LiveData</code> and show the results in the <code>TextView</code> with an ID of <code>tvResults</code>, as shown in the example</li>
+<li><em>Exploring ViewModel</em>: Clone this project from GitHub:
+<pre>https://github.com/nwcourses/ViewModelStarter.git</pre>
+This is a simple application which allows the user to enter a name. When the button is clicked the name is displayed in a <code>TextView</code> <em>and also saved in the <code>currentName</code> attribute of the <code>Activity</code>.</em>
+	<ul>	
+	<li>First enter a name in the <code>EditText</code> and note how it appears in the <code>TextView</code>.</li>
+	<li>When you rotate the device, what happens?</li>
+	<li>Try using <code>ViewModel</code> to preserve the name when the device rotates, following the example above. When the user enters the name, you need to save it in a <code>ViewModel</code>. Also, when the activity is first created (i.e. in <code>onCreate()</code>, you will need to read the name from the <code>ViewModel</code> and update the <code>TextView</code>, so that the text in the <code>TextView</code> is maintained when the device is rotated.</li>
+	<li>Change the application so that the <code>ViewModel</code> holds a list of songs and <code>LiveData</code> of this list of songs, as in the "Using LiveData with ViewModel" example, above. Use an <code>Observer</code> in your <code>MainActivity</code> to observe changes in the <code>ViewModel</code>, updating the <code>TextView</code> when it updates so that it contains a list of songs so far.</li>
+	</ul>
+</li>
+<li><em>ViewModel and LiveData in a Room application</em>: change your answer to Question 1 so that the <code>LiveData</code> from the database is stored in a <code>ViewModel</code>. Look at the "Using LiveData and a ViewModel with Room" section.</li>
+<li><em>ViewModel and fragments</em>:
+	<ul>
+	<li>First try out the fragments example in the notes, to get used to how <code>ViewModel</code> can be used to share data between fragments.</li>
+	<li>Create a mapping application using fragments, a <code>ViewModel</code> and <code>LiveData</code> If you have an application from last year with:
+	<ul>
+	<li>One fragment to allow the user to enter a latitude and longitude;</li>
+	<li>One fragment to hold the map. The map fragment should update to the latitude and longitude the user entered when the button on the first fragment is clicked.</li>
+	</ul>
+then you can use that as a starting point. If you don't, you can clone this repository to get started: 
+<pre>https://github.com/nwcourses/TwoFragMaps.git</pre>
+Change the app so that when the button is clicked, store the latitude and longitude in a <code>ViewModel</code>, using a data class called <code>LatLon</code> (which you need to create) containing fields for latitude and longitude. The <code>ViewModel</code> should also store <code>LiveData</code> referencing the <code>LatLon</code>. Make the map fragment observe this <code>LiveData</code> from the <code>ViewModel</code> and update the map's position when the <code>LiveData</code> changes.</li>
+<li><em>Advanced:</em> using <code>ViewModel</code> and <code>LiveData</code>, add a marker to the map when the user enters a latitude and longitude. Your <code>ViewModel</code> should hold a list of markers (<code>OverlayItem</code>s; see <a href='../COM527/topic4.html'>last year</A>), and you need to create an <code>OverlayItem</code> and add it to this list when the user clicks the button. The <code>ViewModel</code> should also hold <code>LiveData</code> of this list, just as for the "Using LiveData with ViewModel" example, above. Add a method in your <code>ViewModel</code> to return it, and observe the list of <code>OverlayItem</code>s from your map fragment so that when it's changed, the map updates with the new list, so the map keeps track of the current list of markers.</li>
+</ul>
+</li>
+<li><em>Further advanced question:</em> Adapt the final part of Question 2 so that the list of songs is placed within a <code>RecyclerView</code>. You may need to revise <a href='../COM527/topic9.html'>last year's notes</a> for this.</li>
+</ol>
+</body>
+</html>
