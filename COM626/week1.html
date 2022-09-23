@@ -61,7 +61,8 @@ In other words, a <code>ViewModel</code> holds raw data from a data source (the 
 
 <h3>Creating a ViewModel</h3>
 
-<p>Creating a <code>ViewModel</code> is quite easy. We need to include the <code>lifecycle</code> Jetpack component into our project, and create a class inheriting from <code>androidx.lifecycle.ViewModel</code>.
+<p>Creating a <code>ViewModel</code> is quite easy. We need to ensure the <code>lifecycle-runtime-ktx</code> Jetpack library into our <code>build.gradle</code> dependencies, e.g: <pre>implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'</pre>
+and create a class inheriting from <code>androidx.lifecycle.ViewModel</code>.
 <pre>
 package com.example.viewmodel1
 
@@ -343,7 +344,7 @@ Note how the <code>ViewModel</code> contains an attribute <code>currentName</cod
         }
 </pre>
 In Kotlin, you can define <em>custom setters</em> which run when we set an attribute in a class, using a statement such as:
-<pre>viewModel.currentName = "John";</pre>
+<pre>viewModel.currentName = "John"</pre>
 Custom setters are used to make custom behaviour occur when we set an attribute. We define a custom setter by declaring the attribute (<code>currentName</code> here), and following it (indented by one tab) with a special method which must be named <code>set()</code>. This method takes the new value as a parameter. The first thing we must do is set the attribute itself, using the special keyword <code>field</code>. However, we can also add further statements to the <code>set()</code> method, to define custom setter behaviour. In this example, we are updating the value of the <code>LiveData</code> to be the attribute's value, with the statement <pre>liveName.value = newValue</pre></p>
 <h4>Fragment code</h4>
 <p>We now move on to the code inside the two fragments. First, <code>Frag1</code> (the first fragment, allowing us to enter a name):
