@@ -62,40 +62,53 @@ we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
 numerical index</strong>.</p>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
-<p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, but we're going to treat it as an array). We are creating an array called <code>operating_systems</code> which contains <em>three values</em>: "Linux", "Windows" and "Mac OS X".</p>
-<pre><code class="python language-python">operating_systems = ["Linux", "Windows", "Mac OS X"]
-print(operating_systems[0])
+<p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to soon, but for simplicity we're going to assume it's an array). We are creating an array called <code>people</code> to hold the names of members of a team. 
+<pre><code class="python language-python">
+print("Please enter the three people in your team");
+people = [None] * 3
+people[0] = input("Please enter the first person:")
+people[1] = input("Please enter the second person:")
+people[2] = input("Please enter the third person:")
+
+print("The first person is " + people[0])
+print("The second person is " + people[1])
+print("The third person is " + people[2])
+
 </code></pre>
+</p>
 <p>Note a couple of things:</p>
 <ul>
-<li>We define the array using square brackets <code>[]</code> and pass in a <em>sequence</em> of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.</li>
-<li>Note the code: <code>operating_systems[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
+<li>We define the array using the statement:
+<pre>people = [None] * 3</pre>
+This will create an array with three blank members (<code>None</code> basically means "nothing here yet"). There are other ways of creating an array, but for now we will focus on this method.</li>
+<li>Note the code: <code>people[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
 </ul>
 <p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
-<p>Once you have done so, extend your code so that "Mac OS X" is displayed (<em>by indexing the array</em>).</p>
 <h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
 <p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
-<pre><code class="python language-python">operating_systems[3] = "Android"
-operating_systems[4] = "iOS"
+<pre><code class="python language-python">people[3] = input("Please enter the fourth person:") 
+people[4] = input("Please enter the fifth person:")
 </code></pre>
 <p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are <em>not resizable</em>.</p>
-<h4>Another example</h4>
-<p>Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
+<h4>Not enough space, or too much space!</h4>
+<p>Imagine we have a larger array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
 <p><img src="images/employee_array.png" alt="Employee array" /></p>
 <p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
 <p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
 <p><img src="images/array_problems.png" alt="Adding to an array" /></p>
 <ul>
-<li>We could <em>make the array bigger when we create it</em>. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. <em>Can you see the problem</em>? The <em>storage is inefficient</em> as the array has 30 spaces but only 11 are needed.</li>
+<li>As shown in the diagram above, we could <em>make the array bigger when we create it</em>. So we could create an array with 30 spaces, and add our 10 original employees to it. Then, there would be room for the 11th employee (and quite a few more, too). <em>Can you see the problem with this, though</em>? The <em>storage is inefficient</em> as the array has many more spaces than we are likely to need and therefore it is <em>wasteful of memory</em>.</li>
 </ul>
 <h4 id="processneededtoextendanarray">Process needed to extend an array</h4>
-<p>We could, potentially, extend the space available to us in memory to allow more room for storage, however arrays cannot be simply resized. We'd have to <em>create a new array with more space</em>. Specifically, if we wanted to add additional members onto an array, we would have to:</p>
+<p>So what can we do? One solution is to <em>create a new array with more space</em> when the old one runs out of space. If we wanted to to do this, we would need to:
 <ul>
-<li>Create an array of the new, larger, size;</li>
+<li>Create an array of the new, larger, size (large enough to hold all the new members we're trying to add);</li>
 <li>Copy all the existing members into the new array;</li>
 <li>Add the new members onto the end of the array.</li>
 </ul>
-<p>This is shown in the diagram below, which returns to the original example with the array of operating systems. We are trying to add "Android" (A) and "iOS" (I) to an array currently containing "Linux" (L), "Windows" (W) and "Mac" (M). Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
-<p><img src="images/array_extension.png" alt="Array extension" /></p>
+<p>This is shown in the diagram below, which returns to the original Python code example, in which team members were added to an array. Imagine we have an array with three team members, and we want to add two more members to the team. Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
+<p><img src="images/array_extension_1.png" alt="Array extension" /></p>
+<h2>That's all for this week!</h2>
+<p>As you may not have had any COM411 classes yet, we are keeping it short this week. Next week you will look in more detail at simple data structures, and will have your first three-hour lab session.</p>
 </body>
 </html>
