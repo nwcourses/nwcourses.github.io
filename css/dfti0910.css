@@ -80,6 +80,7 @@ pre
     border-style: solid;
     overflow: auto;
     background-color: white;
+	padding: 5px;
 }
 
 img

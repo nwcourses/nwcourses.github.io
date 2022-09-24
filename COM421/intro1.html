@@ -1,0 +1,101 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 (lecture only) - Introduction</h1>
+<p>This week there is only a lecture, as you may not have had your class in COM411 (the main programming module) yet, and therefore may not have had any exposure to programming. In the lecture we will look at some very basic Python programs and introduce the general concept of <em>data structures</em>. We will also look at a simple data structure, the <em>array</em>.</p>
+<h2 id="usingrepl">Using Repl</h2>
+<p>We will start with a demo of some very, very basic Python programming as it's possible you have not had your first practical COM411 class yet.  We will be using the <em>Repl</em> online development environment. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
+<p>You can login to Repl using either a Repl account or your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
+<p>Once you have created a Repl account or GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
+<p><img src="images/repl1.png" alt="Repl interface" /></p>
+<p>If you select the menu icon on the top left, you can select "New Repl". A Repl is a project - essentially, a single program. The idea is that you create a new Repl for each program you are going to write. You can then go back and view your previous Repls to load the code.</p>
+<p><img src="images/repl2.png" alt="New Repl" /></p>
+<p>Once you have done this, just enter the following Python code:</p>
+<pre><code class="python language-python">print("Hello World!")
+</code></pre>
+<p>Run the code and you should see the output appear in the console to the right:</p>
+<pre><code>Hello World!
+</code></pre>
+</p>
+<p><img src="images/repl3.png" alt="Repl Console Output" /></p>
+<h3>Variables</h3>
+<p>An important concept in programming is that of <em>variables</em>. A variable is a "box" which can be used to hold information for later use. For example here is a simple Python program which asks the user for their name and then greets them:
+<pre>
+first_name = input("Please enter your name:")
+print("Hello " + first_name)
+</pre>
+The program prompts the user for their name, with the <code>input()</code> statement. The name is read into a <em>variable</em> called <code>first_name</code>. The variable is a "pointer" to an area of computer memory where the name is stored. Later on in the program, if we want to reference the name the user entered, we use this variable <code>first_name</code> outside quotes. So the statement:
+<pre>print("Hello " + first_name)</pre>
+will print the text "Hello" plus the value of the variable <code>first_name</code>. Note how the variable is <em>outside quotes</em>. Any text <em>inside quotes</em> is displayed literally (e.g the text "Hello") but any text <em>outside quotes</em> is interpreted as a variable.</p>
+<p>The next example uses two variables, for the first name and the last name.
+<pre>
+first_name = input("Please enter your first name:")
+last_name = input("Please enter your last name:")
+print("Hello " + first_name +" " + last_name)
+</pre>
+The <code>print()</code> statement now displays the text "Hello", plus the <code>first_name</code> variable, plus a space, plus the <code>last_name</code> variable.</p>
+<h2 id="theimportanceofdatastructures">The importance of data structures</h2>
+<p>Having covered some very basic programming, we will now look at <em>data structures</em>. First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>, rather than a single item of data. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
+<p>To store multiple items in a computer program, we need to choose an appropriate <em>data structure</em>. A data structure is a programming construct which allows us to store multiple items. When dealing with data structures, an important thing to consider is <em>which is the most appropriate data structure for the problem we are trying to solve</em>? Certain data structures are more suited to specific types of problem, and we will be looking at this through the module.</p>
+<h2 id="abasicdatastructurethearray">A basic data structure - the array</h2>
+<p>Let's start with the most basic data structure of all, the <em>array</em>. An array is a data structure which can hold more than one item of data, and can be thought of as a series of "boxes" which can hold data. With an array, the key thing is that <em>each box is adjacent to its neighbours in memory</em> which has some consequences in terms of efficiency which we will consider as we go on</p>
+<p>The diagram below shows an example of an array which holds the names of five items of fruit. </p>
+<p><img src="images/arrays.png" alt="An array" /></p>
+<p>The things to note here are:</p>
+<ul>
+<li><p>Arrays have <em>indices</em>. An <em>index</em> is a number which represents the <em>position</em> of an item in an array. In most programming languages, including Python, indices begin with <em>zero</em>. So the first item in the array has the index zero.</p></li>
+<li><p>The items in an array are stored <em>continuously in the computer's memory</em> and <em>each item in the array uses the same amount of memory</em>. Here we assume that each item uses 64 bytes, so that the first item is stored at memory address 512, the second at memory address 576 and so on. This has some important consequences for performance of arrays versus other data structures, to be considered later.</p></li>
+</ul>
+<p>Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. </p>
+<h2 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h2>
+<h3 id="advantagefastlookup">Advantage: Fast lookup</h3>
+<p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.</p>
+<p>When indexing an array, the computer is able to work out where in memory the
+data is stored, <strong>because each member of an array uses up the same number of bytes</strong>. The equation is simply:</p>
+<pre><code>Address = Start Address + Index * Size Of One Member
+</code></pre>
+<p>So imagine, for example, that each member of an array uses up 32 bytes, and the start of the array is at memory location 24576. It's an easy
+calculation to work out where the member with the index of 3 is located. If
+we substitute the values into the equation we get:</p>
+<pre><code>Address = 24576 + 3 * 32
+</code></pre>
+<p>which is <code>24576 + 96</code>, which is <code>24672</code>.</p>
+<p>We ourselves do <em>not</em> need to do this calculation. The <em>computer</em> does it. But
+we can see, because it's simple arithmetic, the computer is able to do it
+very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
+numerical index</strong>.</p>
+<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
+<p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, but we're going to treat it as an array). We are creating an array called <code>operating_systems</code> which contains <em>three values</em>: "Linux", "Windows" and "Mac OS X".</p>
+<pre><code class="python language-python">operating_systems = ["Linux", "Windows", "Mac OS X"]
+print(operating_systems[0])
+</code></pre>
+<p>Note a couple of things:</p>
+<ul>
+<li>We define the array using square brackets <code>[]</code> and pass in a <em>sequence</em> of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.</li>
+<li>Note the code: <code>operating_systems[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
+<p>Once you have done so, extend your code so that "Mac OS X" is displayed (<em>by indexing the array</em>).</p>
+<h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
+<p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
+<pre><code class="python language-python">operating_systems[3] = "Android"
+operating_systems[4] = "iOS"
+</code></pre>
+<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are <em>not resizable</em>.</p>
+<h4>Another example</h4>
+<p>Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
+<p><img src="images/employee_array.png" alt="Employee array" /></p>
+<p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
+<p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
+<p><img src="images/array_problems.png" alt="Adding to an array" /></p>
+<ul>
+<li>We could <em>make the array bigger when we create it</em>. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. <em>Can you see the problem</em>? The <em>storage is inefficient</em> as the array has 30 spaces but only 11 are needed.</li>
+</ul>
+<h4 id="processneededtoextendanarray">Process needed to extend an array</h4>
+<p>We could, potentially, extend the space available to us in memory to allow more room for storage, however arrays cannot be simply resized. We'd have to <em>create a new array with more space</em>. Specifically, if we wanted to add additional members onto an array, we would have to:</p>
+<ul>
+<li>Create an array of the new, larger, size;</li>
+<li>Copy all the existing members into the new array;</li>
+<li>Add the new members onto the end of the array.</li>
+</ul>
+<p>This is shown in the diagram below, which returns to the original example with the array of operating systems. We are trying to add "Android" (A) and "iOS" (I) to an array currently containing "Linux" (L), "Windows" (W) and "Mac" (M). Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
+<p><img src="images/array_extension.png" alt="Array extension" /></p>
+</body>
+</html>
