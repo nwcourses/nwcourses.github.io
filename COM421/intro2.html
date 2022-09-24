@@ -22,12 +22,14 @@ Frances Freeman
 <p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
 <h2 id="moreflexibledatastructures">More flexible data structures</h2>
 <p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
-<p>In fact Python uses one such data structure, the <em>list</em>. A list can act, amongst other things, as an extensible array, which does not have a fixed initial size; you can add additional items of data to the end of the list, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, this may, in many cases, require creation of a new array with additional space to hold the new elements, followed by copying the data across from the old array to the new array - as we saw last week.</p>
+<p>In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, the <code>append</code> operation may require the inefficient process we saw last week, in which  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array.</p>
+<p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing from last week, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
+<p><img src="images/list.png" alt="Appending to a list" /></p>
 <p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
 <p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
 <h2 id="thelinkedlist">The linked list</h2>
-<p>We will start with a look at <em>linked lists</em>. Linked lists are unlike arrays
-in that they are <em>not</em> stored continuously in memory Instead, data is stored
+<p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
+in that they are <em>not</em> stored continuously in memory. Instead, data is stored
 as a series of linked <em>nodes</em>. Each node contains one item of data, and links
 to the memory locations of the previous and the next item of data in the 
 linked list.</p>
@@ -102,26 +104,7 @@ Mark Ramsey
 <li><p>If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing <code>Kate Stevenson</code>?</p></li>
 </ul>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Exercise 2: Arrays (code): Creating a simple program making use of an array</h3>
-<p><strong>You may have done this last week if you brought your laptop to the lecture. Feel free to skip if so.</strong></p>
-<p>Here is a program which makes use of an array (it's actually a Python <em>list</em>, but we're going to treat it as an array). </p>
-<pre><code class="python language-python">operating_systems = ["Linux", "Windows", "Mac OS X"]
-print(operating_systems[0])
-</code></pre>
-<p>Note a couple of things:</p>
-<ul>
-<li>We define the array using square brackets <code>[]</code> and pass in a <em>sequence</em> of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.</li>
-<li>Note the code: <code>operating_systems[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
-</ul>
-<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
-<p>Once you have done so, extend your code so that "Mac OS X" is displayed (<em>by indexing the array</em>).</p>
-<p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
-<pre><code class="python language-python">operating_systems[3] = "Android"
-operating_systems[4] = "iOS"
-</code></pre>
-<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are not resizable.</p>
-<ol start="2">
-<li>Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.</li>
-</ol>
+<p>Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.</p>
 <h3 id="exercise3addingnewdatatoanarraypaper">Exercise 3: Adding new data to an array (paper)</h3>
 <p>Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.</p>
 <ul>
