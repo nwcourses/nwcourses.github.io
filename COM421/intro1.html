@@ -46,7 +46,7 @@ The <code>print()</code> statement now displays the text "Hello", plus the <code
 <p>Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. </p>
 <h2 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h2>
 <h3 id="advantagefastlookup">Advantage: Fast lookup</h3>
-<p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.</p>
+<p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "apple", "orange", "pear", "grape" and "cherry" will be stored adjacent to each other in memory.</p>
 <p>When indexing an array, the computer is able to work out where in memory the
 data is stored, <strong>because each member of an array uses up the same number of bytes</strong>. The equation is simply:</p>
 <pre><code>Address = Start Address + Index * Size Of One Member
@@ -64,7 +64,7 @@ numerical index</strong>.</p>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
 <p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to soon, but for simplicity we're going to assume it's an array). We are creating an array called <code>people</code> to hold the names of members of a team. 
 <pre><code class="python language-python">
-print("Please enter the three people in your team");
+print("Please enter the three people in your team")
 people = [None] * 3
 people[0] = input("Please enter the first person:")
 people[1] = input("Please enter the second person:")
@@ -80,7 +80,7 @@ print("The third person is " + people[2])
 <ul>
 <li>We define the array using the statement:
 <pre>people = [None] * 3</pre>
-This will create an array with three blank members (<code>None</code> basically means "nothing here yet"). There are other ways of creating an array, but for now we will focus on this method.</li>
+<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create an array with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet"). There are other ways of creating an array, but for now we will focus on this method.</li>
 <li>Note the code: <code>people[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
 </ul>
 <p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
@@ -97,7 +97,7 @@ people[4] = input("Please enter the fifth person:")
 <p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
 <p><img src="images/array_problems.png" alt="Adding to an array" /></p>
 <ul>
-<li>As shown in the diagram above, we could <em>make the array bigger when we create it</em>. So we could create an array with 30 spaces, and add our 10 original employees to it. Then, there would be room for the 11th employee (and quite a few more, too). <em>Can you see the problem with this, though</em>? The <em>storage is inefficient</em> as the array has many more spaces than we are likely to need and therefore it is <em>wasteful of memory</em>.</li>
+<li>As shown in the diagram above, we could <em>make the array bigger than we are likely to ever need</em>, so we can add new employees. So we could create an array with 30 spaces, and add our 10 original employees to it. Then, there would be room for the 11th employee (and quite a few more, too). <em>Can you see the problem with this, though</em>? The <em>storage is inefficient</em> as the array has many more spaces than we are likely to need and therefore it is <em>wasteful of memory</em>.</li>
 </ul>
 <h4 id="processneededtoextendanarray">Process needed to extend an array</h4>
 <p>So what can we do? One solution is to <em>create a new array with more space</em> when the old one runs out of space. If we wanted to to do this, we would need to:
