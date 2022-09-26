@@ -58,7 +58,7 @@ As you can hopefully see, <code>db.studentDao().getAllStudents()</code> calls th
 	</ul>
 In other words, a <code>ViewModel</code> holds raw data from a data source (the <em>Model</em>) and processes it into a form suitable for display, at which point it is sent to the UI (<em>View</em>).</p>
 <p>As well as enabling higher cohesion, using a <code>ViewModel</code> in Android has the advantage that it is <em>persistent throughout the lifetime of the application</em>, even if other components such as activities are destroyed. Remember from last year that an activity is destroyed and re-created when it's rotated. This can cause difficulties if you want to preserve data; by default, all data stored in an activity will be destroyed when it's rotated, as it belongs to a particular instance of the activity. If you use a <code>ViewModel</code> instead, the data will be preserved and will be accessible by the activity when it is re-created.</p>
-
+<p><img src="../images/viewmodel.png" alt="ViewModel" /></p>
 <h3>Creating a ViewModel</h3>
 
 <p>Creating a <code>ViewModel</code> is quite easy. We need to ensure the <code>lifecycle-runtime-ktx</code> Jetpack library into our <code>build.gradle</code> dependencies, e.g: <pre>implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'</pre>
