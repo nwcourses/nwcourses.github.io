@@ -330,7 +330,7 @@ class TestViewModel : ViewModel() {
             field = newValue
             liveName.value = newValue
         }
-    var liveName =  MutableLiveData<String>()
+    var liveName =  MutableLiveData&lt;String&gt;()
 }
 </pre>
 Note how the <code>ViewModel</code> contains an attribute <code>currentName</code>. This represents the name the user entered. It also contains an attribute <code>liveName</code> which is <code>LiveData</code> referencing the name (which can be observed by the second fragment, as we will see).</p>
