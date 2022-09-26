@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // When the button is clicked, create a song object and add it to
+        // When the button is clicked, create a student object and add it to
         // the ViewModel.
 
         findViewById&lt;Button&gt;(R.id.btn1).setOnClickListener {
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
         // Observe changes in the LiveData within the ViewModel. When the 
         // LiveData changes, update the TextView with the new data.
-        viewModel.songsLive.observe(this, Observer {
+        viewModel.studentsLive.observe(this, Observer {
             findViewById&lt;TextView&gt;(R.id.tv1).text = it.map { it.toString() }.joinToString("\n")
         })
     }
@@ -421,11 +421,11 @@ class MainActivity : AppCompatActivity() {
 It's a very simple Room app which allows you to add songs to a database, similar to what you did last year. Modify the app so that the <code>getAllHits()</code> method of the DAO returns <code>LiveData</code> of a <code>List</code> of <code>Hit</code>s. In the main activity, add some code to observe changes in the <code>LiveData</code> and show the results in the <code>TextView</code> with an ID of <code>tvResults</code>, as shown in the example</li>
 <li><em>Exploring ViewModel</em>: Clone this project from GitHub:
 <pre>https://github.com/nwcourses/ViewModelStarter.git</pre>
-This is a simple application which allows the user to enter a name. When the button is clicked the name is displayed in a <code>TextView</code> <em>and also saved in the <code>currentName</code> attribute of the <code>Activity</code>.</em>
+This is a simple application which allows the user to enter a song and artist. When the button is clicked the song and artist is displayed in a <code>TextView</code> <em>and also saved in the <code>currentSong</code> attribute of the <code>Activity</code>.</em>
 	<ul>	
-	<li>First enter a name in the <code>EditText</code> and note how it appears in the <code>TextView</code>.</li>
+	<li>First enter a song and artist in the <code>EditText</code> and note how it appears in the <code>TextView</code>.</li>
 	<li>When you rotate the device, what happens?</li>
-	<li>Try using <code>ViewModel</code> to preserve the name when the device rotates, following the example above. When the user enters the name, you need to save it in a <code>ViewModel</code>. Also, when the activity is first created (i.e. in <code>onCreate()</code>, you will need to read the name from the <code>ViewModel</code> and update the <code>TextView</code>, so that the text in the <code>TextView</code> is maintained when the device is rotated.</li>
+	<li>Try using <code>ViewModel</code> to preserve the details when the device rotates, following the example above. When the user enters the details, you need to save it in a <code>ViewModel</code>. Also, when the activity is first created (i.e. in <code>onCreate()</code>, you will need to read the details from the <code>ViewModel</code> and update the <code>TextView</code>, so that the text in the <code>TextView</code> is maintained when the device is rotated.</li>
 	<li>Change the application so that the <code>ViewModel</code> holds a list of songs and <code>LiveData</code> of this list of songs, as in the "Using LiveData with ViewModel" example, above. Use an <code>Observer</code> in your <code>MainActivity</code> to observe changes in the <code>ViewModel</code>, updating the <code>TextView</code> when it updates so that it contains a list of songs so far.</li>
 	</ul>
 </li>
@@ -441,7 +441,15 @@ This is a simple application which allows the user to enter a name. When the but
 then you can use that as a starting point. If you don't, you can clone this repository to get started: 
 <pre>https://github.com/nwcourses/TwoFragMaps.git</pre>
 Change the app so that when the button is clicked, store the latitude and longitude in a <code>ViewModel</code>, using a data class called <code>LatLon</code> (which you need to create) containing fields for latitude and longitude. The <code>ViewModel</code> should also store <code>LiveData</code> referencing the <code>LatLon</code>. Make the map fragment observe this <code>LiveData</code> from the <code>ViewModel</code> and update the map's position when the <code>LiveData</code> changes.</li>
-<li><em>Advanced:</em> using <code>ViewModel</code> and <code>LiveData</code>, add a marker to the map when the user enters a latitude and longitude. Your <code>ViewModel</code> should hold a list of markers (<code>OverlayItem</code>s; see <a href='../COM527/topic4.html'>last year</A>), and you need to create an <code>OverlayItem</code> and add it to this list when the user clicks the button. The <code>ViewModel</code> should also hold <code>LiveData</code> of this list, just as for the "Using LiveData with ViewModel" example, above. Add a method in your <code>ViewModel</code> to return it, and observe the list of <code>OverlayItem</code>s from your map fragment so that when it's changed, the map updates with the new list, so the map keeps track of the current list of markers.</li>
+<li><em>Advanced:</em> using <code>ViewModel</code> and <code>LiveData</code>, add a marker to the map when the user enters a latitude and longitude. Your <code>ViewModel</code> should hold a list of markers (<code>OverlayItem</code>s; see <a href='../COM527/topic4.html'>last year</A>), and you need to create an <code>OverlayItem</code> and add it to this list when the user clicks the button. The <code>ViewModel</code> should also hold <code>LiveData</code> of this list, just as for the "Using LiveData with ViewModel" example, above. Add a method in your <code>ViewModel</code> to return it, and observe the list of <code>OverlayItem</code>s from your map fragment so that when it's changed, the map updates with the new list, so the map keeps track of the current list of markers.
+<br />
+<br />
+To update the map with new markers you will need to so something like this:
+<pre>
+overlay.removeAllItems() // clear the old markers
+overlay.addItems(it) // add the new list of markers
+</pre>
+</li>
 </ul>
 </li>
 <li><em>Further advanced question:</em> Adapt the final part of Question 2 so that the list of songs is placed within a <code>RecyclerView</code>. You may need to revise <a href='../COM527/topic9.html'>last year's notes</a> for this.</li>
