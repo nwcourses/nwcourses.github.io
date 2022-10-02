@@ -355,7 +355,7 @@ Complete this app so that it fully works. I have already added the permissions m
 <pre>
 https://hikar.org/webapp/map/search?q=<em>the place name the user entered</em>
 </pre>
-    The API sends the data back as JSON (see the code comments). Parse the JSON and reset the <code>LatLon</code> object within the <code>ViewModel</code> to that value. You might find it helpful to look at <a href='../COM527/week8.html'>last year's notes</a> for this. You will not need to use Fuel; you can just use the <code>URL.readText()</code> method and then create a <code>JSONObject</code> from the data returned.
+    The API sends the data back as JSON (see the code comments). Parse the JSON and reset the <code>LatLon</code> object within the <code>ViewModel</code> to that value. You might find it helpful to look at <a href='../COM527/topic8.html'>last year's notes</a> for this. You will not need to use Fuel; you can just use the <code>URL.readText()</code> method and then create a <code>JSONObject</code> from the data returned.
     </li>
     <li>Create a <code>LifecycleObserver</code> in your activity and add it to the activity's lifecycle.</li>
     <li>Complete the code in the two fragments. In the place entry fragment you should read in the place the user entered and pass that to the <code>ViewModel</code>. In the map fragment you should observe the <code>LiveData</code> and update the map appropriately.</li>
