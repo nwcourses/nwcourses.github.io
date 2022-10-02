@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title>COM626 Week 2</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/android.css">
+</head><body>
+
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 2</h1>
+<h1>More on Lifecycle and Coroutines</h1>
+</div>
+
+<p>Today we will continue to look at further Android architecture components by examining <em>lifecycle observers</em>: objects which can observe the lifecycle of an activity or fragment. We will also look a little more at the use of <em>coroutines</em> in Android.</p>
+
+<h2>More on Android lifecycle</h2>
+
+<h3>A reminder of the Android lifecycle</h3>
+
+<p>You will remember from last year that Android activities have a <em>lifecycle</em>, with certain methods being called when the activity is in a certain state. For example, <code>onCreate()</code> is called when the activity is first created; <code>onPause()</code> is called when the activity is hidden; <code>onResume()</code> is called when the activity becomes visible again and <code>onDestroy()</code> is called when the activity is destroyed. The diagram below shows the lifecycle of an activity:
+<br />
+<img src="../images/lifecycle.png" alt="The Android activity lifecycle" />
+<br />
+Furthermore, other components (such as fragments, and services, which we will come onto soon) also have a lifecycle with very similar methods.</p>
+
+<h3>Abstracting out the lifecycle</h3>
+
+<p>What is the consequence of this? As many different Android components (e.g. activities and fragments) have a lifecycle, the developers of Android decided it would make sense to abstract out the lifecycle functionality into a <code>Lifecycle</code> class, and make all components with a lifecycle (<code>Activity</code>, <code>Fragment</code>, etc) contain a <code>Lifecycle</code> object. The <code>Lifecycle</code> object contains the current state of the app, which could be (ref: <a href='https://developer.android.com/topic/libraries/architecture/lifecycle'>Android documentation</a>):
+    <ul>
+    <li><code>Lifecycle.State.CREATED</code> - following <code>onCreate()</code> and before <code>onStart()</code></li>
+    <li><code>Lifecycle.State.STARTED</code> - following <code>onStart()</code> and before <code>onResume()</code></li>
+    <li><code>Lifecycle.State.RESUMED</code> - following <code>onResume()</code></li>
+    <li><code>Lifecycle.State.PAUSED</code> - following <code>onPause()</code> and before <code>onStop()</code></li>
+    <li><code>Lifecycle.State.STOPPED</code> - following <code>onStop()</code> and before <code>onDestroy()</code></li>
+    <li><code>Lifecycle.State.DESTROYED</code> - following <code>onDestroy()</code></li>
+    </ul>
+We can obtain a component's <code>Lifecycle</code> object using its <code>lifecycle</code> property, and test for its state with <code>lifecycle.currentState</code>. This allows us to write code which will only run if the component is in a particular lifecycle state.</p>
+<p>For example, inside an activity or fragment we could have:
+<pre>
+if(lifecycle.currentState == Lifecycle.State.RESUMED) {
+    // code which should only run if we're in the "resumed" state 
+}
+</pre>
+Furthermore, we can use <code>isAtLeast()</code> to test whether the component is in <em>at least</em> a certain state. For example:
+<pre>
+if(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+    
+}
+</pre>
+could be use to test that we are at least in the <code>STARTED</code> state. So the code inside the <code>if</code> statement would run if we are <em>either</em> in the <code>STARTED</code> state <em>or</em> in the <code>RESUMED</code> state. This can be useful if we want to execute code which depends on the activity or fragment being fully created (we could use <code>isAtLeast(Lifecycle.State.CREATED)</code>) or fully visible.
+</p>
+
+<h2>Lifecycle Observers</h2>
+
+<p>We can attach one or more <em>lifecycle observers</em> to any component with a lifecycle. Often, functionality might depend on the lifecycle of the component. For example, in a GPS application, we might only want to receive GPS updates when the activity or fragment showing the location is currently visible. Or, in a game, we would want the game to stop playing when the activity or fragment hosting the game is not currently visible (e.g. when a call is received). We could put this functionality in the relevant activity or fragment. However, as we saw last week, this can lead to large and bloated activities or fragments, and thus they do not have high <em>cohesion</em>.</p>
+<p>So instead, we can create one <em>lifecycle observer</em> for each lifecycle-related behaviour we want to add. The intention is to put the code in the lifecycle observer, to keep the activities and fragments small and "clean". So we could, for example, create a lifecycle observer for turning the GPS listener on and off (so it turns on when the activity or fragment resumes, and off when the component pauses) or another lifecycle observer for stopping and starting a game when its parent component pauses and resumes.</p>
+<p>Lifecycle observers are known as <em>lifecycle-aware components</em> because they react to the lifecycle of another component, such as an activity or fragment.</p>
+
+<h3>Creating a Lifecycle Observer</h3>
+
+<p>Lifecycle observers need to inherit from <code>DefaultLifecycleObserver</code> and override the appropriate methods, i.e. <code>onCreate()</code>, <code>onPause()</code>, <code>onResume()</code> etc. The methods however have different signatures to the usual ones: they all take a parameter of type <code>LifecycleOwner</code>. What is this? The <code>LifecycleOwner</code> is the parent component that owns the given lifecycle, i.e the <code>Activity</code>, <code>Fragment</code>, etc which launched the lifecycle observer.</p>
+
+<p>Lifecycle observers are created in the normal way, by instantiating an object of our lifecycle observer class. This allows us pass in any data the lifecycle observer needs, such as a <code>ViewModel</code></p>
+
+<h3>An example of a lifecycle observer</h3>
+<p>The code below shows an example of a lifecycle observer.
+<pre>
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+
+class TestLifecycleObserver: DefaultLifecycleObserver {
+
+
+    override fun onCreate(owner: LifecycleOwner) {
+        
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+
+    }
+}
+
+</pre>
+You can see that you create methods corresponding to the equivalent activity or fragment lifecycle method, but supply the <code>LifecycleOwner</code> as an argument.</p>
+
+<h3>Creating a lifecycle observer</h3>
+
+<p>As explained above, we can create a lifecycle observer from a component, such as an activity or fragment. Here is an example. Note how we add the lifecycle observer to the <code>lifecycle</code> attribute of our activity, which represents the <code>Lifecycle</code> object (discussed above) associated with the activity.
+<pre>
+class MyActivity : AppCompatActivity() {
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val lifecycleObserver = TestLifecycleObserver()
+        lifecycle.addObserver(lifecycleObserver)
+    }
+}
+</pre>
+We could pass in a <code>ViewModel</code> to the lifecycle observer, e.g.:
+<pre>
+class TestLifecycleObserver2(val viewModel: MyViewModel) : DefaultLifecycleObserver
+</pre>
+and then we could access the <code>ViewModel</code> in any method of <code>TestLifecycleObserver</code>. We'd pass the <code>ViewModel</code> across from the activity, e.g:
+<pre>
+class MyActivity : AppCompatActivity() {
+
+    val viewModel: MyViewModel by viewModels()
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val lifecycleObserver = TestLifecycleObserver2(<em>viewModel</em>)
+        lifecycle.addObserver(lifecycleObserver)
+    }
+}
+</pre>
+</div>
+</p>
+
+<h2>More on coroutines</h2>
+
+<p>Last year we looked at coroutines in the <a href='../COM527/topic7.html'>SQLite and Room topic</a>. A coroutine is a block of code which can run either in a foreground or a background context, and can switch contexts (switch between foreground and background). This is because a coroutine can be <em>suspended</em>. So when we switch to the background context, the code in the foreground context is <em>suspended</em> while the code running in the background, completes. We need to launch a coroutine from a <em>scope</em>, which represents the scope the coroutine "lives" in (often the Android lifecycle). Here is an example of an Android coroutine:
+<pre>
+lifecycleScope.launch {
+    // This lambda is the coroutine
+
+    // Interact with UI in the foreground (read a search query)
+    val searchQuery = getDataFromUI()
+
+    var results = ""
+
+    // Switch to a background context to communicate with the web and with a
+    // database. The foreground code suspends while waiting for the background code to complete
+    withContext(Dispatchers.IO) {
+        results = fetchDataFromWeb(searchQuery) // must be done in the background
+        saveToRoomDatabase(results) // must be done in the background
+    }
+    // The foreground code resumes here
+    // Update the UI with the data from the web
+    updateUI(results)    
+}
+</pre>
+We can actually put code which switches context in a <em>suspend function</em>  and call that from our coroutine. For example:
+<pre>
+suspend fun search() {
+
+    // Interact with UI in the foreground (read a search query)
+    val searchQuery = getDataFromUI()
+
+    // Switch to a background context to communicate with the web and with a
+    // database. The foreground code suspends while waiting for the background code to complete
+    withContext(Dispatchers.IO) {
+        results = fetchDataFromWeb(searchQuery) // must be done in the background
+        saveToRoomDatabase(results) // must be done in the background
+    }
+    // The foreground code resumes here
+    // Update the UI with the data from the web
+    updateUI(results)    
+}
+</pre>
+A <code>suspend</code> function is a function in which the code can be suspended to allow other code to run in the background; it's always called from a coroutine. So we could call it like this:
+<pre>
+lifecycleScope.launch {
+    search()
+}
+</pre>
+</p>
+<p>Typically coroutines are implemented using <em>threads</em>. A thread is a general concept in programming, used by many languages (Java, C and C++ as well, for example) and is a separate strand of execution. We have the <em>main thread</em>, which corresponds to the UI thread in Android or the <code>main()</code> method in console-mode Java. Then, we can run separate <em>background threads</em> to do background work (such as network communication) without blocking the main thread and causing it to become unresponsive. Kotlin coroutines are typically implemented using threads (with the <code>Dispatchers.Main</code> context the main Android UI thread) however, the architecture of coroutines is such that they could be implemented using something else if it was seen as desirable.</p>
+
+<h3>Using coroutines outside Android</h3>
+
+<p>To more fully understand coroutines, it is helpful to see examples of their use outside of Android, in console-mode applications. Please see <a href='coroutines.html'>these notes</a>; we may have time to look at them in the lecture, but if not, please read in your own time and let me know if you have any questions.</p>
+
+<h3>Coroutines from ViewModel</h3>
+
+<p>So far, all our coroutines have been launched from an activity. However they can be launched from <em>any coroutine scope</em>. The most usual scope is the <code>lifecycleScope</code> which is available from any component with a lifecycle (so fragments as well as activities). An interesting feature of coroutines launched from a <code>lifecycleScope</code> is that they are automatically terminated if the parent component is destroyed.</p>
+
+<p>Interestingly, though, a <code>ViewModel</code> has a scope to launch coroutines, <code>viewModelScope</code>. This is useful, as the <code>ViewModel</code> is the recommended place to send network requests (<a href="https://developer.android.com/topic/libraries/architecture/lifecycle">Android documentation</a>). Given the <code>ViewModel</code>'s role is to fetch data and prepare it for presentation, it makes sense for network communication to be placed there. So a method of your <code>ViewModel</code> can launch a coroutine which fetches data from a server (in a background context) then updates some <code>LiveData</code> which can be observed by an activity or fragment.</p>
+<p>So inside a <code>ViewModel</code> we can launch a coroutine as follows:
+<pre>
+viewModelScope.launch {
+}
+</pre>
+</p>
+<h3>Additional points on using coroutines with lifecycle-aware components</h3>
+<p>It's worth reading <a href='https://developer.android.com/topic/libraries/architecture/coroutines'>this article in the Android documentation</a>. These notes cover how you can control coroutines according to the current lifecycle state.</p>
+<h2>A full example - a timer application</h2>
+<p>Here is a full example, which uses a <code>LifecycleObserver</code> as well as a coroutine to display a timer in seconds. The timer pauses when the activity pauses, but is not reset - when the activity resumes, the timer resumes where it left off.
+Firstly, the main activity. Note how we create a <code>TimerLifecycleObserver</code> (our own custom lifecycle observer) and attach it to the activity's <code>lifecycle</code>. The activity also observes a piece of <code>LiveData</code>, <code>liveTime</code>, from the view model and updates a text view accordingly.
+<pre>
+package com.example.lifecycle1
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+
+class MainActivity :AppCompatActivity() {
+
+    val timerViewModel: TimerViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val observer = TimerLifecycleObserver(timerViewModel)
+        this.lifecycle.addObserver(observer)
+
+        timerViewModel.liveTime.observe(this, Observer {
+            findViewById<TextView>(R.id.tv1).text = "$it seconds have passed."
+        })
+    }
+}
+</pre>
+</p>
+<p>
+Secondly, the view model:
+<pre>
+package com.example.lifecycle1
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+class TimerViewModel : ViewModel() {
+    var time: Long = 0
+        set(value) {
+            field = value
+            liveTime.value = value
+        }
+    var liveTime  = MutableLiveData&lt;Long&gt;()
+}
+</pre>
+This is a simple <code>ViewModel</code> that holds a time value.
+</p>
+<p>Thirdly, the <code>LifecycleObserver</code>:
+<pre>
+package com.example.lifecycle1
+
+import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class TimerLifecycleObserver(val viewModel: TimerViewModel) :
+    DefaultLifecycleObserver {
+
+    private var running = false
+
+    override fun onCreate(owner: LifecycleOwner) {
+
+        var currentTime: Long
+        var lastTime = 0L
+        var secondsPassed = 0L
+
+        // Launch the coroutine from the lifecycleScope of the lifecycle owner (i.e. the Activity in this case)
+        owner.lifecycleScope.launch {
+
+            // Implement the counter in the background so it doesn't block the
+            // main thread
+            withContext(Dispatchers.IO) {
+
+                // Display the timer for one hour (3600 seconds)
+                while (secondsPassed &lt; 3600) {
+
+                    // Only update the time if we are running
+                    if (running) {
+
+                        currentTime = System.currentTimeMillis()
+                        // Update secondsPassed if 1000 milliseconds have passed
+                        if (currentTime - lastTime &gt; 1000) {
+                            lastTime = currentTime
+                            secondsPassed++
+
+                            // Must switch back to main context as modifying 
+                            // ViewModel will result in a UI update
+                            withContext(Dispatchers.Main) {
+                                viewModel.time = secondsPassed
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Stop the time update when we pause
+    override fun onPause(owner: LifecycleOwner) {
+        running = false
+    }
+
+    // Start the time update when we resume
+    override fun onResume(owner: LifecycleOwner) {
+        running = true
+    }
+}
+</pre>
+This is a bit more complex but note how we override the <code>onCreate()</code>, <code>onPause()</code> and <code>onResume()</code> methods. First, in the <code>onCreate()</code> we:
+    <ul>
+    <li>Launch a coroutine from the scope of the <em>lifecycle owner</em> (<code>owner.lifecycleScope</code>), which will be the activity in this case.</li>
+    <li>This coroutine is used to create a timer. It includes a loop which updates a counter every second, but because this is being done in the background (i.e. in the <code>Dispatchers.IO</code> context) it will not update the main thread and the UI will not freeze and become unresponsive.</li>
+    <li>The coroutine's loop will continue until one hour (3600 seconds) have passed.</li>
+    <li>We update the <code>secondsPassed</code> variable if 1000 milliseconds (1 second) have passed since the last update, but <em>only if the variable <code>running</code> is true</em>. This is related to whether the lifecycle owner (the activity) is in the resumed state, as discussed below.</li>
+    <li>When <code>secondsPassed</code> is updated, we update the <code>time</code> property of the view model, so it will be displayed to the user (due to the live data being observed from the activity).</li>
+    <li><strong>In <code>onPause()</code> and <code>onResume()</code>, we set the variable <code>running</code> to false and true, respectively</strong>. This will mean that, due to the logic of the coroutine, the <code>secondsPassed</code> variable will stop updating if the lifecycle owner is currently paused.</li>
+    </ul>
+</p>
+
+
+<h2>Exercises</h2>
+<ol>
+<li>Develop a simple application containing an activity, a view model and a lifecycle observer, to log lifecycle events in a <code>TextView</code>. It should look like the screenshot below:
+<br />
+<img src="../images/lifecycleStatusAppScreenshot.png" alt="Lifecycle status app" style='border: 1px solid black' />
+<br />
+<ul>
+<li>The view model should contain a <code>MutableList</code> of strings, and provide <code>LiveData</code> returning that list - this is similar to what you did last week. It should have a <code>addStatusMessage()</code> method which adds a string to the <code>MutableList</code>.</li>
+<li>The lifecycle observer should add an appropriate status message to the <code>ViewModel</code> as follows:
+    <ul>
+    <li>In <code>onCreate()</code>, the message "Created" should be passed to the view model via the <code>addStatusMessage()</code> method;</li>
+    <li>In <code>onResume()</code>, the message "Resumed" should be passed to the view model via the <code>addStatusMessage()</code> method;</li>
+    <li>In <code>onPause()</code>, the message "Paused" should be passed to the view model via the <code>addStatusMessage()</code> method;</li>
+    <li>In <code>onDestroy()</code>, the message "Destroyed" should be passed to the view model via the <code>addStatusMessage()</code> method;</li>
+    </ul>
+The intention is to keep a log of lifecycle changes, to be displayed on the activity.</li>
+<li>In the activity, observe changes in the live data (containing the list of status messages) and update a <code>TextView</code> to display all of them - like the examples last week.</li>
+<li>Run the app and try doing things which will change the lifecycle state, such as rotating the device (destroy/create) or moving to the app's home screen (via the rectangular button; this will cause a pause, not a destroy) and then returning to the app (this will cause a resume). Look at the status messages displayed on the <code>TextView</code> as a result.</li>
+</ul>
+</li>
+<li>Clone this GitHub repository:
+<pre>https://github.com/nwcourses/LifecycleMapsStarter.git</pre>
+This is a starter project for a GPS mapping application making use of a lifecycle observer and coroutines. It should have this functionality:
+    <ul>
+    <li>The map should show the current GPS location;</li>
+    <li>The app should include a search feature, allowing the user to search <em>by place</em>. This uses a web API to look up the latitude and longitude of the place the user entered. The map will then move to that location.</li>
+    </ul>
+The app will look something like this:
+<br />
+<img src="../images/lifecycleMapsScreenshot.png" alt="Lifecycle observer based mapping application" />
+<br />
+It includes:
+    <ul>
+    <li>a main activity;</li>
+    <li>two fragments (one to allow the user to enter a place, and another to show the map);</li>
+    <li>a <code>ViewModel</code>, which should store the current lat/lon and provide that as <code>LiveData</code>;</li>
+    <li>a <code>LifecycleObserver</code>.</li>
+    </ul>
+Complete this app so that it fully works. I have already added the permissions management code to the activity, so you don't need to worry about that. You need to:
+    <ul>
+    <li>Complete the <code>LifecycleObserver</code> to initialise the GPS listener in <code>onCreate()</code>, start GPS updates in <code>onResume()</code> and stop GPS updates in <code>onPause()</code>. In <code>onLocationChanged()</code>, pass the latitude and longitude to the <code>ViewModel</code>. The lifecycle observer contains comments to help you get started.</li>
+    <li>Complete the <code>ViewModel</code> so that it has a method which uses a coroutine to look up the latitude and longitude of a given place by calling the web API:
+<pre>
+https://hikar.org/webapp/map/search?q=<em>the place name the user entered</em>
+</pre>
+    The API sends the data back as JSON (see the code comments). Parse the JSON and reset the <code>LatLon</code> object within the <code>ViewModel</code> to that value. You might find it helpful to look at <a href='../COM527/week8.html'>last year's notes</a> for this. You will not need to use Fuel; you can just use the <code>URL.readText()</code> method and then create a <code>JSONObject</code> from the data returned.
+    </li>
+    <li>Create a <code>LifecycleObserver</code> in your activity and add it to the activity's lifecycle.</li>
+    <li>Complete the code in the two fragments. In the place entry fragment you should read in the place the user entered and pass that to the <code>ViewModel</code>. In the map fragment you should observe the <code>LiveData</code> and update the map appropriately.</li>
+    </ul>
+</li>
+<li>If you finish, try out the exercises in the <a href='coroutines.html'>further coroutines notes</a>.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li><a href='https://developer.android.com/topic/libraries/architecture/lifecycle'>Handling Lifecycles with Lifecycle-Aware Components</a> (Android documentation)</li>
+<li><a href='https://developer.android.com/topic/libraries/architecture/coroutines'>Using Kotlin coroutines with lifecycle-aware components</a> (Android documentation)</li>
+</body>
+</html>

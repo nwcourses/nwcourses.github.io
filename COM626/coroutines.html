@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Coroutines</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>More on Coroutines</h1>
+</div>
+<h2>Introduction</h2>
+<p>We have already looked at coroutines briefly in the context of Android.
+These notes will extend upon that and look at some additional features of
+coroutines.</p>
+<p>To revise: Kotlin allows you to achieve the same effect as threads with
+<em>coroutines</em>. 
+A coroutine is a function that can run in either the foreground
+or the background, can switch between foreground and background without having to write asynchronous code, and can be <em>suspended</em> (paused) to allow
+another operation to take place.</p>
+</ul>
+<p>We also saw that coroutines must be <em>launched</em> from a <em>scope</em>. The scope represents what the coroutine is launched from, e.g. a console-mode program or an <code>Activity</code>. The coroutine has a lifetime equal to the lifetime of its scope. For example a coroutine launched from the Android <code>lifecycleScope</code> means the coroutine has the scope of the parent component (e.g. activity or fragment) and will stop when the parent is destroyed.</p>
+<h2>Coroutines using basic command-line Kotlin</h2>
+<p>For this topic we will use command-line Kotlin. You can use the
+<em><a href='https://www.jetbrains.com/idea/'>IntelliJ IDEA</a></em> IDE to try out these examples, but if you do, you will need to add the coroutines library as a dependency to <code>build.gradle</code> (choose a Gradle project) because it's separate to the Kotlin standard library.
+<pre>implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")</pre>
+ If you have access to
+a machine with the command-line, you can also 
+<a href='https://kotlinlang.org/docs/tutorials/command-line.html'>install Kotlin standalone</a>.</p> 
+<p>There are some exercises here. As well as doing the exercises,
+<strong>try out the examples</strong> to get a feel of what is going on.</p>
+<h3>Basic example</h3>
+<p>Here is an example of a basic Kotlin program which launches a coroutine.
+The coroutine is launched from the <strong>global scope</strong>, which 
+is the scope of the running program.
+<pre>
+fun main() {
+    GlobalScope.launch {
+        for(i in 0..100) {
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+}
+</pre>
+This code is launching a coroutine which counts to 100.
+The code inside <code>launch</code> will run in the background, so
+<em>Not in the coroutine</em> will appear before the <code>launch</code> block
+has finished. But actually in this example, the <code>main()</code> function does not wait for the coroutine to finish, so you never see the output of the for
+loop. This is because <strong>a coroutine launched from a given scope will
+terminate when its parent scope terminates.</strong> Here, the parent
+scope is the <code>GlobalScope</code> - the scope of the program - and thus
+will terminate when the program terminates.</p>
+<p>If you add
+<pre>Thread.sleep(1000)</pre>
+after the "Not in the coroutine" println, then the GlobalScope 
+will pause 1000 milliseconds and will allow the coroutine to finish.</p>
+
+<h3>Using join() to wait for a coroutine to finish</h3>
+
+<p>The other approach to the above would be to tell the GlobalScope to <em>wait</em> for the coroutine to finish. We could use <code>join()</code> 
+for this. 
+For example, would this code work?
+<pre>
+fun main() {
+    val coroutine = GlobalScope.launch {
+        for(i in 0..100) {
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+    coroutine.join()
+}
+</pre>
+Even though it looks sensible, this will not work, you will get a compiler 
+error informing you that <code>join()</code> can only be called in another coroutine. The problem is, our <code>main()</code> is not a coroutine; it is just a
+regular function. However, You can turn <code>main()</code> into a coroutine by 
+assigning it to the result of a <code>runBlocking</code> call.
+<code>runBlocking</code> launches a coroutine and "blocks the current thread until all tasks inside that coroutine are finished" (<a href='https://antonioleiva.com/kotlin-coroutines/'>Leiva</a>).
+Here, this means that the main thread
+blocks (cannot do any other tasks) until the coroutine launched with
+<code>runBlocking</code> has finished. This will mean the program will only complete when the <code>runBlocking</code> coroutine has finished.
+<strong>It's important to note that <code>runBlocking()</code>
+will create a new scope, separate from the global scope.</strong>
+<pre>
+fun main() = runBlocking {
+    val coroutine = GlobalScope.launch {
+        for(i in 0..100) {
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+    coroutine.join()
+}
+</pre>
+This will work as expected, i.e the <code>join()</code> call will wait for the inner coroutine to complete before finishing. We can legally call <code>join()</code> here, as it's being called inside a coroutine (the one launched with <code>runBlocking</code>).
+</p>
+<p>
+So we will see:
+<pre>
+Not in the coroutine
+0
+1
+...
+100
+</pre>
+as the output.</p>
+<h3>Delaying a coroutine</h3>
+<p>Within a coroutine, we call tell it to delay by a certain number of milliseconds. 
+<pre>
+fun main() = runBlocking {
+    val coroutine = GlobalScope.launch {
+        delay(1000) // delay the start of the counter for one second
+        for(i in 0..100) {
+            delay(100) // delay for 100ms each time the loop runs
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+    coroutine.join()
+}
+</pre>
+This will delay execution in the coroutine by 100 milliseconds each iteration of the loop. <code>delay()</code> is non-blocking, ie. the delay in the coroutine 
+will not delay other strands of execution; for example, here, the coroutine
+launched with <code>GlobalScope.launch</code> will block, but the <code>main()</code> coroutine will not.</p>
+<h4>Exercise</h4>
+<ol>
+<li>Try out the above example. Before running it, ask yourself: when will
+"Not in the coroutine" appear? Run the program and see if you get the
+answer you expect.</li>
+<li>Launch two separate coroutines from your <code>main()</code> coroutine. One 
+should count
+from 0 to 50 in steps of 2 (add <code>step 2</code> to your for loop), pausing
+for 100 milliseconds each time. The other should count from 100 to 1000 in steps
+of 100 (add <code>step 100</code> to your for loop), pausing for one second each time. Write a "finished" message in your <code>main()</code> coroutine when
+<em>both</em> coroutines have finished.</li>
+</ol>
+
+<h3>Suspend functions</h3>
+
+Critical to coroutines is the concept of <em>suspending functions</em>. These 
+are marked with <code>suspend</code> and allow code to be suspended within them.
+withContext() works because it is a suspending function itself.
+
+What if we wanted to do the loop coroutine (with delay, as in the previous
+example) from a <em>function</em> from a coroutine? Would this work?
+<pre>
+fun main() = runBlocking {
+    val coroutine = GlobalScope.launch {
+       doLoop()
+    }
+    println("Not in the coroutine")
+    coroutine.join()
+}
+
+fun doLoop() {
+     for(i in 0..100) {
+        delay(100)
+        println(i)
+     }
+}
+</pre>
+This would cause a compilation error, because <code>delay()</code> can only be called within a coroutine.Even though <code>doLoop()</code> is called from 
+within the coroutine launched with <code>GlobalScope.launch()</code>,
+it will not work as <code>doLoop</code> has to be declared as a 
+ <strong>suspend</strong> function</em>.
+A suspend function is a function which is capable of suspending
+a coroutine, as delay() does here. So we need to rewrite our code as follows:
+<pre>
+fun main() = runBlocking {
+    val coroutine = GlobalScope.launch {
+       doLoop()
+    }
+    println("Not in the coroutine")
+    coroutine.join()
+}
+
+<strong>suspend</strong> fun doLoop() {
+     for(i in 0..100) {
+            delay(100)
+            println(i)
+     }
+}
+</pre>
+
+
+<h3>Coroutines terminate when the scope used to launch them terminates</h3>
+
+<p>Consider this example:
+<pre>
+fun main() = runBlocking{
+    GlobalScope.launch {
+        for(i in 0..10) {  
+            delay(100)
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+}
+</pre>
+As we have seen, this example will <em>not</em> wait for the loop to finish, as we did not use <code>join()</code>.  But what does the 
+<strong>GlobalScope</strong> actually mean? It is the
+<em>global scope</em>, i.e. the scope of the running program. As we have seen, <strong>a coroutine launched in a given scope will be terminated when its parent scope (here the running program) is terminated.</strong> So when the program finishes, the coroutine will terminate even if the loop hasn't finished iterating yet.</p>
+<p>Can we deal with this without using join()? Yes - 
+in fact we can - we can launch the coroutine using plain 
+<code>launch</code>, not <code>GlobalScope.launch</code>. 
+This is because, if the scope is not specified, the given coroutine 
+will be launched in <em>the scope of its parent coroutine</em>. As the parent
+coroutine is the main() coroutine launched with <code>runBlocking</code>, it
+will mean that the child coroutine (the one which does the loop) will
+also execute in the <code>runBlocking</code> scope. 
+So it won't finish until the <code>main()</code> coroutine has finished.So if we 
+do :
+<pre>
+fun main() = runBlocking{
+    launch {
+        for(i in 0..10) {  
+            delay(100)
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+}
+</pre>
+the <code>runBlocking</code> scope will wait for the coroutine to finish before 
+finishing itself because the coroutine is now running in the scope of runBlocking rather than the program scope.</p>
+
+<p>launch() is a method of CoroutineScope therefore it must be called within a coroutineScope or be called from GlobalScope.launch.  It takes a block of code to run - a function which will be run as the coroutine.</p>
+<h4>Making <code>main()</code> a suspend function</h4>
+<p>As an alternative you can make <code>main()</code> a suspend function, which allows you to launch coroutines in the <code>GlobalScope</code> (but unlike <code>runBlocking()</code>, does not give you a separate scope):
+<pre>
+suspend fun main() {
+    GlobalScope.launch {
+        // ...
+    }
+}
+</pre>
+</p>
+<h3>Jobs</h3>
+
+<p>What is actually returned when we launch a coroutine with <code>launch()</code>?  We are returned a <strong>Job</strong> object. This can be used to control the 
+coroutine, for example, cancel it. The join() method you've seen already is a 
+method of Job; this will cause the outer coroutine (the one launched with <code>runBlocking()</code> to wait until the child coroutine that the job refers to has finished.
+
+<h3>Concurrent coroutines</h3>
+<p>One of the key things that coroutines allow is <em>concurrency</em>. We can launch several coroutines in parallel by launching multiple jobs. The code below shows this and also shows the use of <code>joinAll()</code> to wait for all coroutines in a list to complete. Note how we write a function <code>launchJob()</code> to launch a coroutine from a given scope.
+<pre>
+import kotlinx.coroutines.*
+
+fun main() = runBlocking {
+    val jobs = listOf(
+        launchJob(GlobalScope, 0, 10, 1, 1000L),
+        launchJob(GlobalScope, 0, 20, 2, 4000L)
+    )
+    jobs.joinAll()
+    println("All jobs finished")
+
+}
+
+fun launchJob(scope: CoroutineScope, start: Int, end: Int, step: Int, delay: Long): Job {
+    return scope.launch {
+        for (i in start..end step step) {
+            // Use formatted text, %d means whole number (int or long), %4d means use a field 4 characters wide
+            println("Counting from %4d to %4d, step %2d, delay %4d ------- %d".format(start, end, step, delay, i))
+            delay(delay)
+        }
+        println("Counting from %4d to %4d, step %2d, delay %4d ------- COMPLETED!").format(start, end, step, delay))
+
+    }
+}
+</pre>
+</p>
+<h3>Exercise - Jobs</h3>
+<ol>
+<li>Take this code:
+<pre>
+fun main() = runBlocking{
+    launch {
+        for(i in 0..10) {  
+            delay(1000)
+            println(i)
+        }
+    }
+    println("Not in the coroutine")
+}
+</pre>
+Modify the example so that the <em>main coroutine</em> waits for 5 seconds
+after launching the loop coroutine, and then cancels the loop
+coroutine. Job has a <code>cancel()</code> method. Does it still count to 10?</li>
+<li>Modify the concurrency example to add a third job which counts from 0 to 5 in steps of 1 with a 10-second delay.</li>
+<li>Launch each job from the <code>runBlocking</code> coroutine's own scope, rather than the <code>GlobalScope</code>. (<em>Hint</em>: <code>runBlocking</code> takes a lambda function, with the scope as its single parameter). If you do this, can you remove anything from the code?</li>
+</ol>
+
+<h2>Reference</h2>
+<ul>
+<li>Official Kotlin documentation: 
+<a href='https://kotlinlang.org/docs/reference/coroutines/basics.html'>
+Kotlin coroutine basics</a></li>
+<li>Antonio Leiva has produced much useful documentation on coroutines in
+the context of Android:
+see <a href='https://antonioleiva.com/kotlin-coroutines/'>here</a>.</li>
+</ul>
+</body>
+</html>
