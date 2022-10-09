@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title>COM626 Week 3</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/android.css">
+</head><body>
+
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 3</h1>
+<h1>Introduction to Services and Broadcasts</h1>
+</div>
+
+
+<div>
+
+<h2>Introduction - Leaving tasks running when the app is shut down</h2>
+<p>Frequently in an app we need to perform a task when the activity has been <em>completely shut down</em>.  For example, in a music player, we probably want the music to continue to play when the user has closed the player's main activity - and we want the user to be able to pause or rewind the same music when they relaunch the activity.  
+Another example might be a mapping application in which the user would like to record their walking route using GPS. We want the recording to continue even if the user closes the activity - and allow the user to stop the recording if they re-launch the activity.</p>
+</div>
+
+<div>
+<h2>Services</h2>
+<ul>
+<li>
+To deal with these scenarios we use <code>Service</code>s 
+(see the Android developer documentation for full details - <a href='https://developer.android.com/guide/components/services.html'>here</a>).</li>
+<li>A Service is a background application component which is part of an application but is independent of any of the application's Activities.</li>
+<li>As they are part of the application, we have to declare all our services in the manifest, immediately after declaring our activities e.g.
+<pre>&lt;service android:name=".MusicService"&gt;&lt;/service&gt;</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Difference between a service and a thread</h3>
+<ul>
+<li>
+It is important to note that a Service is not the same as a thread.</li>
+<li>It is a separate component to an Activity, but by default it does not run in a separate thread.</li>
+<li>If you wish your service to perform tasks such as connecting to the Internet, you will need to implement a coroutine or thread within the service</li>
+</ul>
+</div>
+
+<div>
+<h3>Implementing a Service</h3>
+<ul>
+<li>
+You must create a class (separate to your Activity) which extends from <code>android.app.Service</code> and then launch it from the main activity.</li>
+<li>To launch a Service, you can either <em>start</em> or <em>bind</em> it, 
+or both.</li>
+<li><em>Starting</em> a service is intended for long-running services, which will run even if the Activity you start them from is closed down. </li>
+<li><em>Binding</em> a service is intended for shorter-running services,
+which are bound to a particular instance of an Activity and will stop when the Activity shuts down (e.g. a music player which only plays while the Activity is running)</li>
+<li>Even though in many cases you do not need to bind a service, you must still provide the <code>onBind()</code> method in your service</li>
+<li>Example of a template service:
+<pre>
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+
+class MyService: Service() {
+
+    // start handler
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY // we will look at this return value below
+    }
+
+    // bind handler - not needed in many cases but defined as an abstract
+    // method in Service, therefore must be overridden
+    override fun onBind(intent: Intent?): IBinder? {
+        return null // can just return null if binding is not needed
+    }
+
+}
+</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Service lifecycle methods</h3>
+<p>Services, like activities, have lifecycle methods including:
+    <ul>
+    <li><code>onCreate()</code> - when the service is created;</li>
+    <li><code>onStartCommand(intent: Intent?, startFlags: Int, id: Int): Int </code> - runs when a service is started (see below);</li>
+    <li><code> onBind(intent: Intent?): IBinder?</code> - runs when a service is bound. As seen above, you have to implement this even if you do not use binding, but it can just return <code>null</code></li>
+    <li><code>onDestroy()</code> - when a service is destroyed.</li>
+    </ul>
+</p>
+</div>
+
+<div>
+<h3>Starting a service</h3>
+<ul>
+<li>Starting a service is the easiest, you create an Intent to start a particular Service (similar to creating an Intent to launch a secondary activity) and then call startService():
+<pre>
+val startIntent = Intent(this, MusicService::class.java)
+startService(startIntent)
+</pre>
+</li>
+<li>This will have the effect both of creating a long-lasting service (which will continue until the service has done its work), though it may be killed if memory becomes low</li>
+<li>Generally you should make your service a <em>background service</em> (the default). You can alternatively make it a <em>foreground service</em> if you want to minimise the chance of it being killed due to low memory, however this is not recommended as it might result in apps the user is actively using being killed instead. <a href='https://commonsware.com/blog/2014/07/27/role-services.html'>Mark Murphy</a>, a well-known authority in Android development, talks about this issue with services. If you really do need a foreground service, you must also provide a notification to the user (we will do notifications next week).</li>
+</ul>
+</div>
+
+<div>
+<h4>Using onStartCommand() to start the service</h4>
+<ul>
+<li>As we have seen, <code>onStartCommand()</code> is called when a service is started with <code>startService()</code></li>
+<li>The return value is important; if you want the service to be restarted if it is killed when memory becomes low, you should return a value of <code>START_STICKY</code> (see <a href='https://android-developers.googleblog.com/2010/02/service-api-changes-starting-with.html'>here</a>)</li>
+<li>If you don't want it to be restarted, return <code>START_NOT_STICKY</code> instead</li>
+<li>Here is an example using <code>START_STICKY</code>:
+<pre>
+ override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        
+    // do something, e.g. start GPS, or music playing, etc.
+
+    return START_STICKY // Important if you want service to be restarted!
+
+}
+</pre>
+</li>
+<li>If the service is restarted due to previously being killed because of low memory, the <code>intent</code> parameter will be null (again, see <a href='https://android-developers.googleblog.com/2010/02/service-api-changes-starting-with.html'>here</a>; otherwise, this is the intent used to start the service)</li>
+</ul>
+</div>
+
+<div>
+<h3>Stopping a service and overriding onDestroy()</h3>
+<ul>
+<li>It's possible that you want your activity to <em>stop</em> a service at any time</li> <li>To do this you can call <code>stopService()</code> with the same Intent used to start the service, for example:
+<pre>stopService(serviceIntent)</pre>
+</li>
+<li>When a service is stopped, the <code>onDestroy()</code> method of the service will be called. In <em>the Service's <code>onDestroy()</code></em>, you must stop any threads, background tasks, etc. that the Service is running, as otherwise, the thread will continue to run after its parent Service has been destroyed, resulting in possible memory leaks and unintended behaviour</li>
+</ul>
+</div>
+
+
+<div>
+<h3>Binding a service</h3>
+<ul>
+<li>While starting a service is best for long running services, it
+has the disadvantage that you will not have a reference to the Service in the Activity. </li>
+<li>
+If you want to be able to easily control your Service from your Activity, you must bind it instead of, or in addition to, starting the service (see <a href='https://developer.android.com/guide/components/bound-services.html'>the Android documentation</a> for more details).</li>
+<li> Binding a service is a little trickier as you need to provide a 
+<code>Binder</code> object which provides access to your Service from your Activity.</li> 
+<li>The Binder object is an object which inherits from 
+<code>android.os.Binder</code> and provides a method to return the Service.</li>
+<li>The Activity is able to access the Binder (see below) and, as long as the Binder has a method which returns the Service, can obtain the Service.</li>
+<li>You must also provide an <code>onBind()</code> method within the Service to create a new Binder object and return it when the 
+Activity binds to the service. 
+</li>
+<li>A common pattern is to have the Binder as an inner class of the Service.
+</li>
+</ul>
+</div>
+
+<div>
+<h4>Binding a service - example</h4>
+<p>To bind a service, we need two more components, a <code>Binder</code> (as we have seen) and a <code>ServiceConnection</code>, which is used to provide a connection between the activity and the service. Here is an example.
+(Note that <code>IBinder</code> is an interface which <code>Binder</code> implements).
+<pre>
+class MusicService: Service() {
+    inner class MusicServiceBinder(val musicService: MusicService): android.os.Binder()
+
+    override fun onBind(intent:Intent) : IBinder {
+        return MusicServiceBinder(this)
+    }
+}
+</pre>
+Note the following:
+<ul>
+<li>The service contains a binder as an inner class. An instance of the binder is created, and returned, in the <code>onBind()</code> method. This method runs when the activity binds to it.</li>
+<li>The binder has a reference to the service <em>within it</em>, i.e. <code>musicService</code>. This is needed as the activity will receive only the binder, not the service. Thus, if the activity wants the service, it must obtain it from the binder.</li>
+</ul>
+</p>
+<h4>The ServiceConnection</h4>
+<p>In our activity, we must create a <code>ServiceConnection</code> object, to obtain a connection to the service. Here is an example:
+<pre>
+ val serviceConn = object: ServiceConnection {
+     override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+        service = (binder as MusicService.MusicServiceBinder).musicService
+     }
+
+     override fun onServiceDisconnected(name: ComponentName?) {
+     }
+ }
+</pre>
+It is an instance of an <em>anonymous class</em> (a class with no name, which inherits from the abstract class <code>ServiceConnection</code> and overrides the required methods on-the-fly. These methods are:
+    <ul>
+    <li>The <code>onServiceConnected()</code> method is a callback method which runs as soon as the Activity has been bound to the Service. The Binder object (the inner class within our Service, see above) is provided as a parameter to <code>onServiceConnected()</code>, so we cast it to the correct object (<code>MusicService.MusicServiceBinder</code>) and obtain our Service using its <code>service</code> attribute.</li>
+
+<li><code>onServiceDisconnected()</code> runs when the service is disconnected from the activity. Here, we're not doing anything in the method but we still need to override it.</li>
+</ul>
+<h4>Using <code>bindService()</code> to actually bind the service</h4>
+<p>Finally, In your main activity, you bind the service using <code>bindService()</code>
+which, like <code>startService()</code> takes an Intent for the Service.
+<pre>
+val bindIntent = Intent(this, MusicService::class.java);
+bindService(bindIntent, serviceConn,  Context.BIND_AUTO_CREATE)
+</pre>
+This will bind the activity to the service and trigger the onBind() method in the MusicService. The Context.BIND_AUTO_CREATE flag will "automatically create the service as long as the binding exists" (see <a href='https://developer.android.com/reference/android/content/Context.html'>here</a>), without this flag, you will also need to call <code>startService()</code> to start the service.</p>
+</div>
+
+<div>
+<h4>Unbinding</h4>
+<ul>
+<li>
+When destroying an Activity, you should call 
+<code>unbindService()</code> to let Android know that the activity does not wish to be connected anymore.</li>
+<li> By default, the service will be destroyed if no activities are currently connected to it</li>
+<li><code>unbindService()</code> takes the ServiceConnection as an argument</li>
+<li>e.g.:
+<pre>
+override fun onDestroy() {
+    super.onDestroy()
+    unbindService(gpsServiceConn)
+}
+</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Starting and binding</h3>
+<ul>
+<li>What if we wish to bind a service, but want the service to keep going even if an Activity is not running?</li>
+<li>This would be the case in both a music player and a GPS recorder, in which we want a GPS track to record even if the activity shuts down</li>
+<li>In this case, we need to call both <code>startService()</code> and <code>bindService()</code>.</li>
+<li>This will have the effect both of creating a long-lasting service (which will continue until the service has done its work) - this is enabled with startService() - and allowing the activity to control the service - this is done with bindService().</li>
+<li>You should still call unbindService() when the activity is destroyed.</li>
+</ul>
+</div>
+
+
+<div>
+<h2>Broadcasts</h2>
+<ul>
+<li><em>Broadcasts</em> allow us to use Intents to send information between components, and components can also <em>listen</em> to broadcasts. These components may belong to <em>completely different applications</em> or <em>the same application</em></li>
+<li>Using broadcasts allows for clean, easy to understand, loosely-coupled
+components</li>
+<li>A broadcast is an <code>Intent</code> and as such can pass data to another
+application component as a <code>Bundle</code></li>
+</ul>
+</div>
+
+<div>
+<h3>BroadcastReceiver</h3>
+<ul>
+<li>To receive a broadcast in a component, we need to 
+create a <code>BroadcastReceiver</code> object</li>
+<li>A BroadcastReceiver can receive intents and act upon them 
+according to the intent's <code>action</code></li>
+<li>To use a BroadcastReceiver you must also use an
+<code>IntentFilter</code></li>
+<li>An IntentFilter allows you to control which intents an 
+application component can receive</li>
+<li>Intents which do not match the filter will be ignored</li>
+</ul>
+</div>
+
+<div>
+<h3>Example of sending a broadcast</h3>
+<pre>
+val broadcast = Intent().apply {
+    action = "sendTime"
+    putExtra("time", System.currentTimeMillis())
+}
+sendBroadcast(broadcast)
+</pre>
+<ul>
+<li>We are creating an <code>intent</code> with an <code>action</code> of <code>sendTime</code></li>
+<li>The intent contains an extra, <code>time</code>, containing the current time in 
+milliseconds since Jan 1st 1970</li>
+<li>We then use <code>sendBroadcast()</code> to send the Intent as a broadcast</li>
+<li>This might typically be placed in a <code>Service</code> (so that the Service can broadcast updates to one or more activities) but could equally well be placed in any application component, such as an activity</li>
+</ul>
+</div>
+
+
+<div>
+<h3>Receiving a broadcast</h3>
+<ul>
+<li>This code, typically appearing in an Activity, shows a broadcast receiver:
+<pre>
+receiver = object:BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+         when (intent?.action) {
+                "sendTime" -&gt; toast("${intent?.getLongExtra("time", 0)}")
+            }
+        }
+ }
+</pre>
+</li>
+<li>We then need to set up an <code>IntentFilter</code> in our activity to explicitly state
+that this activity is capable of receiving intents with an action of <code>sendTime</code>:
+<pre>
+val filter = IntentFilter().apply {
+    addAction("sendTime")
+}
+</pre>
+</li>
+ <li>We then <em>register the receiver</em> with the Activity (or whatever application
+component is receiving it), specifying both receiver and intent filter:
+<pre>
+registerReceiver(receiver, filter)
+</pre>
+</li>
+<li>Note how we first check that the intent's action is indeed
+<code>sendTime</code>. Even though this is specified by the
+intent filter, it is recommended to do this as "it is possible for senders
+to force delivery to specific recipients, bypassing filter resolution"
+(see <a href='https://developer.android.com/reference/android/content/BroadcastReceiver.html#onReceive(android.content.Context, android.content.Intent)'>the documentation</a>)</li>
+</ul>
+</div>
+
+<div>
+<h3>Unregistering a broadcast receiver</h3>
+<ul>
+<li>A broadcast receiver must be <em>unregistered</em> on shutdown of the component receiving it</li>
+<li>This would typically go in <code>onDestroy()</code></li>
+<li>e.g.
+<pre>override fun onDestroy() {
+    super.onDestroy()
+    unregisterReceiver(receiver)
+}</pre>
+</li>
+</ul>
+</div>
+
+
+<h2>Exercises</h2>
+
+<ol>
+<li>Start with this GitHub repository:
+<pre>https://github.com/nwcourses/ServicesStarter.git</pre>
+which is another version of the mapping application. It features a map plus
+three buttons: "Start GPS", "Get GPS location" and "Stop GPS". Using a service, complete the app as follows. <strong>The functionality associated with each button should only run if the <code>permissionsGranted</code> boolean is <code>true</code></strong>.
+<ul>
+<li>In the activity's empty <code>initService()</code> method, start <em>and bind</em> the service. The service should contain a LocationListener. Start this up in a method of the service called <code>startGps()</code> and call this from <code>onStartCommand()</code>. Also write a method in the service called <code>stopGps</code> and remove updates on the listener in this method. Call this method from the <code>onDestroy()</code> in the service.</li>
+<li>"Start GPS" - start the GPS service. You should call the service's <code>startGps()</code> method.</li>
+<li>"Get GPS location" - query the service to get the GPS location. You'll need to use binding for this. Update the ViewModel accordingly.</li>
+<li>"Stop GPS" - stop the GPS service. You should call the service's <code>stopGps()</code> method.</li>
+</ul>
+ Test by using the emulator and sending mock locations -GPS is unlikely to work indoors.</li>
+<li>Modify the app to use broadcasts as follows: 
+<ul>
+<li>A broadcast should be used to continuously notify the main activity of location changes. Comment out the code to bind the service in the activity. In the service, when a new location is received, send a broadcast containing the latitude and longitude, using a custom name for the action.. In your activity, update the view model with that latitude and longitude when the broadcast is received.</li>
+<li>Modify the behaviour of your "Start GPS" and "Stop GPS" buttons. Using broadcasts, send intents from the activity to the service. Write a broadcast receiver in the <em>service</em> which receives these broadcasts and starts and stops the location listener, respectively (using the <code>startGps()</code> and <code>stopGps()</code> methods). Register the receiver in <code>onStartCommand()</code>.</li>
+</ol>
+
+</body>
+</html>
