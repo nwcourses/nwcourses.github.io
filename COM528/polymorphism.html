@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Java</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Object Oriented Design and Development</h1>
+<h1>Week 3 further reading - Polymorphism</h1>
+</div>
+
+<div>
+<h2>Polymorphism</h2>
+<ul>
+<li>Polymorphism (&quot;many forms&quot;) means:
+    <ul>
+    <li><em>the ability to produce different behaviour with a superclass method, 
+    depending on the subclass we are actually referencing</em></li>
+    </ul>
+</li>
+<li>What does this actually mean?</li>
+</ul>
+</div>
+
+<div>
+<h2>Polymorphism: an example scenario</h2>
+<ul>
+<li>Imagine we have an object of the superclass type which 
+actually points to an instance of the subclass, and when we call a method, the
+<em>subclass</em> version of the method will be called</li>
+<li>One example would be where we group together different subclasses in
+an array of objects of the superclass
+    <ul>
+    <li>e.g. an array of Shapes containing a mixture of Rectangles, Triangles and
+    Circles</li>
+    </ul>
+</li>
+<li>Calling a method on each member of the array in turn will cause the
+<em>subclass</em> behaviour to be exhibited</li>
+</ul>
+</div>
+
+<div>
+<h2>Polymorphism Example</h2>
+<ul>
+<li>Shape drawing:
+<pre>
+Shape[] shapes = new Shape[3];
+shapes[0] = new Rectangle (4, 3, Color.green); 
+shapes[1] = new Circle (4, Color.blue); 
+shapes[2] = new Square (5, Color.red); 
+
+for(int count=0; count&lt;3; count++)
+{
+    shapes[count].draw();
+}
+</pre>
+</li>
+<li>Even though the array and its members are of type Shape, when we loop 
+through the shapes, the <em>subclass</em> draw() method will be 
+called, giving us the correct shapes</li>
+</ul>
+</div>
+
+<div>
+<h2>Runtime Binding</h2>
+<ul>
+<li>Polymorphism is able to occur due to <em>runtime binding</em></li>
+<li>Runtime binding means:
+    <ul>
+    <li>the method to call is decided at run time (when the program
+    is run) rather than when we compile the program</li>
+    </ul>
+</li>
+<li>Without runtime binding, polymorphism would <em>not be possible</em></li>
+<li>The example below illustrates why</li>
+</ul>
+</div>
+
+<div>
+<h2>Example illustrating Why Runtime Binding Must Occur for 
+Polymorphism to Work</h2>
+<pre>
+Employee[] employees = new Employee[100];
+Scanner scanner=new Scanner(System.in);
+for(int count=0; count&lt;100; count++)
+{
+    System.out.println("What sort of employee   (1=programmer; 2=manager)");
+    String typeString = scanner.nextLine();
+    int type=Integer.parseInt(typeString);
+    if(type==1)
+    {
+        // ... read in job title and favourite programming language ...
+        System.out.println("Programmer: enter job title");
+        String jobTitle=scanner.nextLine();
+        System.out.println("Enter favourite language:");
+        String favouriteLanguage=scanner.nextLine();
+        employees[count]=new Programmer(jobTitle,favouriteLanguage);
+    }
+    else if (type==2)
+    {
+        // ... read in job title and number of shares in the company ... 
+
+        System.out.println("Manager: enter job title");
+        String jobTitle=scanner.nextLine();
+        System.out.println("Enter number of shares in company:");
+        int shares=Integer.parseInt(scanner.nextLine());
+        employees[count]=new Manager(jobTitle,shares);
+    }
+}
+
+for(int count=0; count&lt;100; count++)
+{
+    employees[count].printDetails();
+}
+</pre>
+<ul>
+<li>This example reads in a series of Employees (Programmers or Managers)
+from the keyboard and stores them in an array</li> 
+<li>The exact type of each Employee in the array is not known until the user
+has chosen the employee type, which happens <strong>at run time</strong></li>
+<li>The <em>compiler</em> <strong>cannot possibly know</strong>
+which method to call as the compiler cannot tell in advance which type of Employee the
+user is going to enter (obviously!)</li>
+</ul>
+</div>
+
+<div>
+<h2>Polymorphism in Method Parameters</h2>
+<ul>
+<li>Another scenario where polymorphism is freqently 
+observed is in <em>method parameters</em></li>
+<li>A method parameter of <em>any given superclass</em>
+will allow us to pass in 
+<em>any subclass of that superclass</em> as an argument to the method
+    <ul>
+    <li>e.g. if the parameter is of type <em>Object</em>, we can pass in an
+    instance of <em>any class</em></li> as an argument
+    </ul>
+</li>
+<li>If we then perform an operation on the 
+object passed to the method, the object will
+behave as the appropriate subclass, even though the
+type of the parameter is the superclass</li>
+</ul>
+</div>
+
+<div>
+<h2>Polymorphism in Method Parameters: Example</h2>
+
+<pre>
+class Oven
+{
+    public void cook (Food f)
+    {
+        int n = f.getCookingTime();
+        System.out.println(&quot;Cooking for &quot; + n + &quot;minutes.&quot;);
+    }
+}
+</pre>
+<ul>
+<li>The Oven class includes a <em>cook()</em> method which takes an item of
+<em>Food</em> as a parameter and displays its cooking time</li>
+<li>This allows <em>cook()</em> to cook <em>any subclass</em> of Food</li>
+<li>The <em>getCookingTime()</em> method of
+<em>the particular subclass of Food</em> that has been added to the Oven
+will be called....</li>
+<li>even though <em>f</em> is of type <em>Food</em></li>
+<li>So, the parameter <em>f</em> will exhibit different behaviour depending on what
+subclass it refers to</li>
+<li>This is polymorphism again: 
+    <ul>
+    <li>different behaviour from the same method depending on the subclass</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h2>Oven example, continued</h2>
+<ul>
+<li>Imagine the following:
+    <ul>
+    <li>The <em>getCookingTime()</em> method of <em>Fish</em> returns 
+    50 * the weight of
+    the fish</li>
+    <li>The <em>getCookingTime()</em> method of <em>Vegetables</em> returns 
+    10 * the weight of the vegetables </li>
+    <li>The <em>getCookingTime()</em> method of <em>Cake</em> returns 
+    100 * the weight of the cake</li>
+    <li>The constructor of each food type expects a weight</li>
+    <li>
+<pre>
+class Food
+{
+    protected int weight;
+    public Food(int w) { weight=w; }
+    public int getCookingTime()
+    {
+        return 0;
+    }
+}
+
+class Fish extends Food
+{
+    public Fish(int w) { super(w); }
+    public int getCookingTime()
+    {
+        return 50*weight;
+    }
+}
+
+class Vegetables extends Food
+{
+    public Vegetables(int w) { super(w); }
+    public int getCookingTime()
+    {
+        return 10*weight;
+    }
+}
+
+class Cake extends Food
+{
+    public Cake(int w) { super(w); }
+    public int getCookingTime()
+    {
+        return 100*weight;
+    }
+}
+</pre>
+</li>
+
+    </ul>
+</li>
+<li>The following code:
+<pre>
+Oven oven = new Oven();
+Fish f = new Fish(3);
+Vegetables v = new Vegetables(4);
+Cake c = new Cake(2);
+oven.cook(f);
+oven.cook(v);
+oven.cook(c);
+</pre>
+will give us the following results:
+<pre>
+Cooking for 150 minutes.
+Cooking for 40 minutes.
+Cooking for 200 minutes.
+</pre>
+<strong>Even though the data type of the parameter passed to 
+Oven.cook() is Food, it will be referring to a subclass, so the subclass
+version of getCookingTime() will be called</strong></li>
+</ul>
+</div>
+
+
+</body>
+</html>
