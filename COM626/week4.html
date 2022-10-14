@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title>COM626 Week 4</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/android.css">
+</head><body>
+
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 4</h1>
+<h1>Notifications and Implicit Intents</h1>
+</div>
+<div>
+<h2>Notifications</h2>
+<p>
+Frequently we wish to inform the user of an event, such as receiving an email, or getting a new message in social media. Such a message is known as a <em>notification</em>. In Android, a notification is a message which appears as an icon at the top of the device and also appears in a notification list. The <code>Notification</code> class represents a notification.</p>
+</div>
+
+<div>
+<h3>Creating and Displaying a Notification</h3>
+<ul>
+<li>A notification <em>builder</em> is used to construct the <code>Notification</code> object, by specifying options for the notification such as the icon and the associated text. The builder is used in a similar way to an AlertDialog.Builder. For example:
+<pre>
+val notification = Notification.Builder(this)
+        .setContentTitle("Time update")
+        .setContentText("Time is now ${System.currentTimeMillis()}")
+        .setSmallIcon(R.drawable.caution)
+        .build()
+</pre>
+
+This will create a notification with the title "Time update" and full message text showing the current time in milliseconds since Jan 1 1970.</li>
+<li>To actually show the notification, you should obtain the <code>NotificationManager</code> (a system-wide object) and call its <code>notify()</code> method, passing in the <code>Notificiation</code> object:
+<pre>val nMgr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+nMgr.notify(uniqueId, notification) // uniqueId is a unique ID for this notification</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Making something happen when the user selects the notification</h3>
+<p>In many cases, we will want something to happen when the user clicks on a notification.  or example, imagine a mapping app in which you receive a notification when you are nearby a point of interest. You might want a separate activity to launch when the user clicks on the notification, which displays full details of the point of interest (e.g a description, and reviews, for a pub or hotel).
+</p>
+<p>To do this we need to use <em>pending intents</em>. A <em>pending intent</em> is an intent which will occur at some future time (e.g. when the user clicks on the notification) hence the name <code><em>Pending</em>Intent</code>.</p>
+<p>Here is an example of creating a pending intent. Note we must first create an <code>Intent</code>, and then wrap it with a <code>PendingIntent</code>:
+<pre>
+// First, create an Intent, to launch the EmailActivity
+val intent1 = Intent(this, EmailActivity::class.java).apply {
+    putExtra("emailMessageId", 2345)
+}
+
+// Set the flags (options) for the Intent (discussed below)
+intent1.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+// Now create a PendingIntent referencing that intent
+val launchActivityPendingIntent = PendingIntent.getActivity(this, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT)
+</pre>
+You then use the <code>PendingIntent</code> in a notification:
+        <pre>
+        val notification = Notification.Builder(this)
+                            .setContentTitle("New email message")
+                            .setContentText("You have a new email message")
+                            .setSmallIcon(R.drawable.message)
+                            .setContentIntent(launchActivityPendingIntent)
+                            .build()
+        </pre>
+        </p>
+        <div>
+        <h4>Navigating back to the same activity with a notification</h4>
+        <p>One common use-case for pending intents is to <em>navigate back to the activity which generated the notification, by clicking on  a notification</em>. The main activity of an email app might notify you when an email has been received.  However, you might be using another app at the time, with the email app in a stopped state in the background (i.e. between <code>onStop()</code> and <code>onStart()</code>).  What should happen is that the email app should become visible again when you click on the notification.</p>
+        <p>This is a little more complex than you might think: you have to account for
+        <strong>whether the email activity is already running in the background or not</strong>; if it is, it should become visible, but if it is not, it should be launched. The code above will achieve this.
+        </p>
+        <p>
+        The key things to note here are the <code>flags</code> of the intent (note: <code>setFlags()</code> in Java). To repeat this code:
+        <pre>intent1.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP</pre>
+        These mean the following:
+            <ul>
+            <li><code>FLAG_ACTIVITY_CLEAR_TOP</code> - if there are other activities above the activity 
+            generating the notification, clear them from the activity stack</li>
+            <li><code>FLAG_ACTIVITY_SINGLE_TOP</code> - if the activity is already the top activity on the stack
+            (i.e. the one currently showing), do <em>not</em> relaunch it but use the existing
+            copy of the activity</li>
+            <li>Without <code>FLAG_ACTIVITY_SINGLE_TOP</code>, another copy of the activity would be
+            created and launched when the user presses the notification, so we have two copies
+            in the stack</li>
+            </ul>
+        </p>
+        </div>
+
+
+
+        <div>
+        <h4>onNewIntent() - handling intents delivered to an activity</h4>
+        <ul>
+        <li>In the case above, in which we run an Intent when clicking the notification but do not relaunch the activity (due to <code>FLAG_ACTIVITY_SINGLE_TOP</code>), the activity will not be
+        relaunched, <em>but an Intent will still be delivered to it</em></li>
+        <li>We may, however, need to handle the Intent if it contains useful information, such as the ID of an email message (we would want to display the emai message with that ID)</li>
+        <li>Activity has an <code>onNewIntent()</code> method which will handle all Intents delivered
+        to the activity, whether it's relaunched or not</li>
+        <li>This method takes the intent as a parameter, which we can then examine, e.g. by 
+        checking its <code>action</code> and then extracting the extras from it</li>
+        </ul>
+        </div>
+
+        <div>
+        <h3>Additional actions</h3>
+        <p>Notifications can have additional actions (which appear as buttons).
+        You use <code>Notification.Builder</code>'s <code>addAction()</code> with an <code>Action</code> object to add these; again providing an icon, text and a PendingIntent. For example, here we create a button "Stop Music Player" which is associated with a <code>PendingIntent</code> containing a <em>broadcast</em> <code>Intent</code> to send a broadcast with the action <code>STOP_MUSIC</code>. (Note how we use <code>PendingIntent.getBroadcast()</code> rather than <code>PendingIntent.getActivity()</code>)
+        <pre>
+val broadcast =Intent().apply {
+    action = "STOP_MUSIC"
+}
+val piStopMusic = PendingIntent.getBroadcast(this, 1, intent2, PendingIntent.FLAG_UPDATE_CURRENT)
+               
+val notification = Notification.Builder(this)
+                    .setContentTitle("Song update")
+                    .setContentText("Now playing: Oh Well by Fleetwood Mac")
+                    .setSmallIcon(R.drawable.stop)
+                    .setContentIntent(pendingIntent)
+                    .addAction(<em>Notification.Action.Builder(R.drawable.icon2, "Stop Music", piStopMusic).build()</em>)
+                    .build()
+</pre>
+</p>
+</div>
+
+
+<div>
+<h3>Notification channels</h3>
+<p>On Android Oreo (API level 26) and upwards, notifications must be associated with a particular <em>channel</em>.  Channels group together related notifications; all notifications on a given channel can be associated with the same
+sound or light colour (e.g. flashing green for text message, blue for a social media update, and so on.  A user can allow or block all notifications on a particular channel for a particular app, by going to the settings for that app, selecting "Notifications", and turning that specific channel on or off.</p>
+<p>To use channels:
+    <ul>
+    <li>Create a <code>NotificationChannel</code> object with a given ID</li>
+    <li>When building a notification with a <code>Notification.Builder</code>
+    specify the channel ID in the Builder constructor</li>
+    </ul>
+</li>
+If your <em>targetSdkVersion</em> is 26 or more and you're running on
+an older version of Android, multiple channgels will not be available, but you must still specify a channel ID when creating your notification (otherwise you will get a deprecation warning) but this can be anything.</p>
+</div>
+
+<div>
+<h3>Notification channels - example</h3>
+<p>The example was originally based on that provided
+<a href='https://developer.android.com/develop/ui/views/notifications/channels'>here</a>, but has been modified.  More information on channels can be found on this page, including associating
+a channel with a notification light colour or vibration, organising
+channels into groups, opening the user's notification settings and deleting
+channels.</p>
+<pre>
+val channelID = "EMAIL_CHANNEL" 
+
+// Check that we are running at least Oreo, channels can't be used in older versions
+if(Build.VERSION.SDK_INT &gt;=Build.VERSION_CODES.O)  {
+    val channel = NotificationChannel(channelID, "Email notifications", NotificationManager.IMPORTANCE_DEFAULT) 
+    val nMgr = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    nMgr.createNotificationChannel(channel)
+}
+</pre>
+When you create your notification with your builder, specify the 
+channel ID:
+<pre>
+val notification = Notification.Builder(this, channelID).setContentTitle(...).etc...
+</pre>
+Note that:
+    <ul>
+    <li>the <code>channelID</code> is a unique string identifier for that channel.</li>
+    <li>When we create a <code>NotificationChannel</code>, we supply the channel ID, the visible name of the channel ("Email notifications" here), and the channel importance. The importance controls how prominently the notifications are displayed.</li>
+    </ul>
+</p>
+
+
+<div>
+<h2>Implicit Intents</h2>
+<ul>
+<li><em>Implicit intents</em> allow us to request the services of
+<em>another application</em> from our own</li>
+<li>Why is this useful?
+    <ul>
+    <li>We might want to make a phone call,
+    send an email, take a photo or look at a web page from within 
+    our app (e.g. in a points of interest app, we might want to allow a user to
+    call or message a pub or hotel)</li>
+    <li>Rather than implementing email, photo or web functionality ourselves, we can launch
+    one of the standard system apps from our own</li>
+    <li>We do this by sending an <em>implicit intent</em> to launch the 
+    <em>default application</em> for a particular <em>action</em></li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Sending an implicit intent</h3>
+<ul>
+<li>Here is an example of an implicit intent:
+<pre>
+val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply{
+   putExtra(AlarmClock.EXTRA_MESSAGE, "Time to get up for early flight!")
+   putExtra(AlarmClock.EXTRA_HOUR, 4)
+   putExtra(AlarmClock.EXTRA_MINUTES, 30)
+}
+if(intent.resolveActivity(packageManager)!=null) {
+    startActivity(intent)
+} else {
+    Toast.makeText(this, "No activity to handle alarm intent", Toast.LENGTH_LONG).show()
+}
+
+</pre>
+</li>
+<li>This is an intent to set the alarm for 04:30</li>
+<li>It uses whichever app is registered as the default alarm clock app</li>
+<li>Note the use of an <em>inbuilt</em> action, <code>AlarmClock.ACTION_SET_ALARM</code></li>
+<li>We add the details of the alarm to the Intent as <em>extras</em>
+(similar to the approach you have seen before for passing information through an Intent)</li>
+<li>Note also how we have to <em>check</em> that there is an activity capable of receiving
+this intent:
+<pre>
+if(intent.resolveActivity(packageManager)!=null) {
+    startActivity(intent)
+}  else {
+    Toast.makeText(this, "No activity to handle alarm intent", Toast.LENGTH_LONG).show()
+}
+</pre>
+</li>
+</ul>
+</div>
+ 
+<div>
+<h3>Another example - opening the phone dialer</h3>
+<ul>
+<li>Using the inbuilt action <code>Intent.ACTION_DIAL</code>, this example 
+will launch the phone dialer with a specific phone number loaded in</li>
+<li>With dial intents, we set the intent's <code><em>data</em></code> rather than adding extras</li>
+<li>e.g:  
+<pre> 
+val intent = Intent(Intent.ACTION_DIAL).apply {
+   data = Uri.parse("tel:+442382013075")
+}       
+if(intent.resolveActivity(packageManager)!=null) {
+   startActivity(intent)
+} else {
+   Toast.makeText(this, "No activity to handle dialer intent", Toast.LENGTH_LONG).show()
+}
+</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>A third example - opening a web page</h3>
+<p>The <code>ACTION_VIEW</code> implicit intent will open a web browser to view a given URL. Again the URL is set as the intent's <code>data</code>.</p>
+<pre> 
+val intent = Intent(Intent.ACTION_VIEW).apply {
+    data = Uri.parse("https://www.free-map.org.uk")
+}
+
+if(intent.resolveActivity(packageManager)!=null) {
+   startActivity(intent)
+} else {
+   Toast.makeText(this, "No activity to handle web intent", Toast.LENGTH_LONG).show()
+}
+</pre>
+</div>
+
+<div>
+<h3>What if more than one app recognises an implicit intent?</h3>
+<ul>
+<li>It's possible that <em>more than one</em> activity on the device will respond to
+a given implicit intent, e.g. main activities for two web browsers
+or email apps</li>
+<li>The user can select a default app, e.g. default web browser or email app</li>
+<li>If you want to give the user the choice each time, however,
+you should launch a <em>chooser</em> to allow the user to select
+the preferred app</li>
+<li>e.g. this example allows the user to pick a browser app
+(this example is based on that given in <a href='https://developer.android.com/guide/components/intents-common'>the Android documentation</a>):
+<pre>
+val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+    data =  Uri.parse("https://www.free-map.org.uk")
+}
+val chooser = Intent.createChooser(viewIntent, "Pick a web browser")
+if(viewIntent.resolveActivity(packageManager)!=null) {
+    startActivity(chooser)
+}
+</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Making your apps respond to implicit intents</h3>
+<ul>
+<li>As well as launching other apps using implicit intents, you might wish to
+<em>make your own apps respond to implicit intents</em>, so that other apps
+can call them</li>
+<li>To do this you create an <em>intent filter</em> (you've already seen these in the
+broadcasts topic) to allow your activity to receive selected implicit intents</li>
+<li>In this case, intent filters are specified in your <em>manifest</em>:
+<pre>
+&lt;activity....&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="MyAction"&gt;
+        &lt;category android:name="android.intent.category.DEFAULT /&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;
+</pre>
+</li>
+<li>Note how we have placed the <code>intent-filter</code> tag inside the <em>activity</em>
+tag</li>
+<li>Within the <code>intent-filter</code> tag we specify the action to allow through and
+the category of intent (usually you can leave this as DEFAULT as here)</li>
+</ul>
+</div>
+
+<div>
+<h3>Reading an implicit intent received by an activity</h3>
+<ul>
+<li>Having set up our intent filter, we can read the received implicit intent from 
+our activity with the <em>intent</em> attribute (a readable property, in Java you would use <code>getIntent()</code>
+</li>
+<li>We can then check the intent's action (the intent filter might be allowing more than
+one intent type through), and then read its extras</li>
+<li>Or, if we passed <em>data</em> through the intent instead (as in the phone dialer
+example), we can read it with <code>getData()</code></li>
+<li>To <em>send</em> this implicit intent from another activity, we'd simply create an 
+intent with an <em>action</em> of <code>MyAction</code></li>
+</ul>
+</div>
+
+<div>
+<h3>Passing back data from an activity launched with an implicit intent</h3>
+<ul>
+<li>An activity launched with an implicit intent can pass back an Intent to whatever
+called it with <code>setResult()</code>, and then call <code>finish()</code> (as you have seen
+already with activities launched with regular Intents)</li>
+<li>You can use the same techniques to launch an activity with an implicit intent, as you can for a regular (explicit) intent
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Resources</h3>
+<ul>
+<li><a href='https://developer.android.com/guide/components/intents-common'>Android documentation on implicit and explicit intents</a></li>
+<li><a href='https://developer.android.com/guide/components/intents-common'>Common implicit intents</a></li>
+</ul>
+</div>
+
+<h2>Exercises</h2>
+
+<ol>
+<li>Return to your services application from last week. Ensure that you have completed the <code>BroadcastReceiver</code> question so that a broadcast is sent back from the service to the activity when a new GPS location is received. Write code in the main activity to display a notification containing the current location whenever the GPS location changes. Ensure you use a notification channel.</li>
+<li>Add a "Stop GPS" button to the notification, which, when clicked, stops the GPS by sending a broadcast to the service. If you did not do this last week, you should do it now.</li>
+<li>Change your main activity so that it can receive an implicit intent from another application. The implicit intent should have an action of <code>ACTION_DISPLAY_MAP</code> and should take latitude, longitude, and map style (regular or OpenTopoMap, see <a href='https://nwcourses.github.io/COM527/topic5.html'>last year</a>) as extras. The activity should read the latitude and longitude from the implicit intent and set the map's location accordingly.
+</li>
+<li>In a <em>completely different project</em>, write a simple app with one activity, allowing the user to enter a latitude and longitude in text fields and pick the map style via a <code>Spinner</code> (see below). This activity should use an implicit intent to launch your map activity from your original application when a button is pressed.
+    <ul>
+    <li>A <code>Spinner</code> is a dropdown list of items. Here is an example:
+<pre>
+    &lt;Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/spAddNote"
+        android:entries="@array/noteTypes"
+        app:layout_constraintTop_toBottomOf="@id/etAddNote" /&gt;
+</pre>
+    </li>
+    <li>
+Note how we specify the entries with <code>android:entries</code> which is a reference to an array resource, i.e. any XML file with an &lt;array&gt; tag in the <code>values</code> folder within <code>res</code>:
+<pre>
+&lt;resources&gt;
+    &lt;array name="noteTypes"&gt;
+        &lt;item&gt;Path problem/hazard&lt;/item&gt;
+        &lt;item&gt;Path directions&lt;/item&gt;
+        &lt;item&gt;Place of interest&lt;/item&gt;
+    &lt;/array&gt;
+&lt;/resources&gt;
+</pre>
+    </li>
+    <li>You can access the selected item with the spinner's <code>selectedItem</code> property or its position within the list (starting at 0) with <code>selectedPosition</code>.</li>    
+    </ul>
+</li>
+<li>If you finish, look at the <a href="coroutines.html">exercises in the additional notes on coroutines</a>.</li>
+</ol>
+
+</body>
+</html>
