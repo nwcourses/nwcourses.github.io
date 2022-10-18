@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OODD Week 4 - Intro to Analysis and Design</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 4: Intro to Analysis and Design (Class diagrams and Use cases)</h1>
+</div>
+
+<div>
+<h2>What we will cover this week</h2>
+<ul>
+<li>What is Analysis and Design?</li>
+<li>What are UML and ICONIX?</li>
+<li>Domain Models and Class Diagrams</li>
+<li>Use Case Diagrams and Use Case Texts</li>
+</ul>
+</div>
+
+<h2>Introduction to analysis and design</h2>
+
+<div>
+<h3>What is Analysis and Design?</h3>
+<p>When building software, we need to ensure we create something which is <em>what the user wants</em>. To achieve this, we should perform <em>analysis and design</em> before we start coding. There are two components: 
+<ul>
+<li><strong>Analysis:</strong> We <em>analyse</em> the problem by breaking it down to get an
+idea of such things as:
+    <ul>
+    <li>How a user will interact with the system</li>
+    <li>How the system will respond</li>
+    <li>How the system will react to errors</li>
+    </ul>
+</li>
+<li><strong>Design:</strong> using our analysis, we <em>design</em> the classes in our system by working out their attributes and methods and how they interact</li> 
+</ul>
+</p>
+</div>
+
+
+<div>
+<h3>UML: Unified Modelling Language</h3>
+<p>Object-oriented analysis and design makes use of <em>UML</em>. UML is an extensive set of diagrammatic tools to enable developers to
+analyse a problem and design an object-oriented solution to the problem 
+before coding it. These diagrammatic tools include (but are not restricted to):
+    <ul>
+	<li>Use-case diagrams</li>
+    <li>Class diagrams</li>
+    <li>Sequence diagrams</li>
+    </ul>
+<p>UML is <em>not</em> an analysis and design process; rather it is a set of
+tools which can aid us in that process. It can be used in various different analysis and design techniques, such as <em>ICONIX</em>, discusssed below.</p>
+</div>
+
+
+<div>
+<h3>The ICONIX process</h3>
+<p>ICONIX is a formal method to move from an initial description of a problem to code, making use of various analysis and design diagrams - many of which are part of UML. The ICONIX process takes the general form shown in the diagram below. The key thing is that there are two paths: a <em>code-oriented</em> path and a <em>user-oriented</em> path. In the former, we consider the system from a <em>code</em> point of view (e.g. class diagrams) and in the latter, we consider the system from a <em>user</em> point of view (e.g. use cases). Furthermore, the analysis carried out in the user-oriented path can be used to update the code-oriented artefacts such as the class diagram; we will see this later when we look at robustness diagrams.
+<br />
+<img src="../images/iconix1.png" alt="The ICONIX process"/>
+<br />
+Ref: Rosenberg/Scott "Applying Use Case Driven Object Modeling with UML", but modified</p>
+</ul>
+</div>
+
+<div>
+<h2>The problem statement</h2>
+
+<p>The ICONIX process (and many other analysis and design processes) starts with a <em>problem statement</em>.  This is a written description of what is required of the application, and will typically be produced by gathering requirements from the target users. Here is an example:
+<pre>There is a requirement for a software application to allow a university 
+to manage its undergraduate and masters students and modules. Each student and 
+module is identified by a unique ID. University admins need to be able to look 
+up students and modules by ID, look up students by name, and enrol students on 
+modules. The system should record all modules a student is enrolled on.
+
+Students are enrolled on a total of 6 modules.
+
+It may be necessary to remove a student from the university or update the 
+student's contact details.</pre>
+</li>
+</ul>
+</div>
+
+
+
+<div>
+<h3>What do we do with the problem statement?</h3>
+<p>We perform an analysis on the problem statement and derive two classes of artefact from it:
+    <ol>
+    <li>The <em>domain model</em> and initial <em>class diagrams</em>. These represent potential classes in the system and how they interact. Thus, we are thinking of the system from a <em>code-oriented</em> point of view.</li>
+    <li>The <em>use case diagram</em>. This is a diagram showing how <em>users</em> can interact with the system and what tasks different types of user can perform. Thus it is thinking of the system from a <em>user-oriented</em> point of view.</li>
+    </ol>
+</p>
+
+</div>
+
+<div>
+<h2>The domain model</h2>
+<p>The domain model is an initial diagram showing possible classes in the system, and their interaction. We derive it by:
+    <ol>
+    <li> <em>analysing the problem statement</em>, and looking for
+    <em>nouns</em> and their interactions - these are our first guess at
+    classes in the system</li>
+    <li>Having derived a list of possible objects, we then connect them 
+    together to illustrate the <em>relationship between them</em></li>
+    </ol>
+</p>
+<p>For example, for the student records application, specified in the problem statement above, we could identify likely nouns as below:
+<pre>There is a requirement for a software application to allow a 
+<em>university</em> to manage its undergraduate and masters <em>students</em> 
+and its <em>modules</em>. Each student and module is identified by a 
+<em>unique ID</em>. <em>University admins</em> need to be able to look up 
+students and modules by ID, look up students by <em>name</em>, and enrol 
+students on modules. The system should record all modules a student is enrolled 
+on. 
+
+Students are enrolled on a total of 6 modules.
+
+It may be necessary to remove a student from the university or update the 
+student's contact details.</pre>
+These likely nouns appear: 
+	<ul>
+	<li><em>university</em>;</li>
+	<li> <em>student</em>;</li>
+	<li><em>module</em>.</li>
+	</ul>
+We also possibly have: 
+	<ul>
+	<li><em>unique ID</em></li>
+	<li><em>name</em>,</li>
+	</ul>
+but these are just simple items of data which could be represented as numbers and strings and therefore do not need their own classes. Furthermore we also have:
+	<ul>
+	<li><em>university administrator</em>,</li>
+	</ul>
+but this is a bit different. The administrator will be a <em>user</em> of the software (an <em>actor</em> - see discussion on use cases below), not an entity that the software needs to manage. We consider users later, when doing use cases. So from this analysis we could derive a domain model as below:
+<br />
+<img src="../images/COM528domainmodel.png" alt="Initial domain model - 
+Student records system"/>
+<br />
+This shows the three possible classes in the system, and the relationship
+between them as annotations.</p>
+</div>
+
+<div>
+<h3>Multiplicity</h3>
+<p>The domain model also includes <em>multiplicity</em>. Multiplicity is an indication of  <em>how many objects</em> of each class are interacting
+with each other. The diagram above is indicating that:
+    <ul>
+    <li>A University may contain one or more (1...n) Modules</li>
+    <li>A University may contain one or more (1...n) Students</li>
+    <li>A Student studies 6 Modules</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h2>Class diagrams</h2>
+
+<p>Class diagrams show the classes in the system,
+their inter-relationships, and the attributes and methods of each class. The class diagram is an extension of the domain model, with attributes and methods added.</p>
+
+<div>
+<h3>How to derive the class diagram</h3>
+<ul>
+<li>Classes and their interrelationships come from the domain model</li>
+<li>When first analysing the problem statement, you can add a first guess at likely attributes and methods to the domain model to produce an initial class diagram</li>
+<li>The class diagram will be updated later, once we have gone through the full analysis and design process (robustness diagrams, sequence diagrams) as the full analysis and design will reveal additional methods and attributes</li>
+</ul>
+</div>
+
+<div>
+<h3>Class diagram syntax</h3>
+<p>Each class is represented by a box, with content as follows: 
+<ul>
+<li>Each class begins with the class name, followed by a horizontal line</li>
+<li>Attributes are denoted by:
+<pre>
+ACCESS AttributeName: AttributeType
+</pre>
+where <em>ACCESS</em> is:
+<ul> 
+<li><em>+</em> : public - accessible from anywhere</li>
+<li><em>-</em> : private - accessible only from instances of the current
+class</li>
+<li><em>#</em> : protected - accessible from instances of both the current
+class and subclasses</li>
+</ul>
+</li>
+<li>A further horizontal line separates the attributes and methods</li>
+<li>Methods also have an access indicator, and show parameters and return types are, using this syntax (also used in the Kotlin language, which many of you will do next term):
+<pre>ACCESS method(param1: DataType, param2: DataType): ReturnType</pre>
+</li>
+<li>Regular lines, annotated by multiplicity indicators, link classes (as in the domain model)</li>
+<li>Additionally, arrows with unfilled heads indicate inheritance</li>
+</ul>
+</p>
+<p>Here is an example, based on the domain model above:
+<br />
+<img src="../images/COM528classdiagram1.png" alt="University records system class diagram"/></p>
+<br />
+</p>
+</div>
+
+<div>
+<h2>Use cases</h2>
+<p>The other step we need to take is <em>use-case analysis</em>.
+This takes a different approach to the problem compared to the
+domain model by considering the system from a <em>user</em> point of view.  For example, we consider questions such as:
+	<ul>
+	<li>Who are the users?</li>
+	<li>How are they able to interact with the system?</li>
+	</ul>
+After performing use-case analysis, we produce a <em>use-case diagram</em> and then (ideally) <em>use-case texts</em>.
+</p>
+</div>
+
+
+<div>
+<h3>An example use case diagram</h3>
+<p>A use case diagram shows:</p>
+<ul>
+<li>The <em>actor(s)</em>
+    <ul>
+    <li>These are the external entities interacting with the system: typically, but not necessarily, humans (the university administrator in our example)</li>
+	<li>Actors can be non-human, for example if an automated background process was interacting with the system (e.g. auto-removing students whose degree has finished) this would be an actor too</li>
+    <li>Represented by matchstick figures</li>
+    </ul>
+</li>
+<li>The <em>use cases</em> themselves
+    <ul>
+    <li>These are the <em>tasks</em> which the actors need to perform with
+    the system</li>
+	<li>They can be derived by analysing the problem statement</li>
+    <li>e.g. for the university admin application, these could be:
+        <ul>
+        <li>Enrol student</li>
+        <li>Search for student by ID</li>
+        <li>Search for students by name</li>
+		<li>Create module</li>
+		<li>Add module to student</li>
+		<li>Edit student details</li>
+		<li>Delete student</li>
+        </ul>
+    </li>
+    </ul>
+</li>
+<li>From these, we would draw the use-case diagram below. Note the actor (matchstick figure) and use cases themselves (shown as ovals).</li>
+</ul>
+<p><img src="../images/COM528usecase1.png" alt="Use-case diagram for the university application"/></p>
+</div>
+
+
+<div>
+<h3>Dependencies between use cases</h3>
+<p>A more detailed use-case diagram will show <em>dependencies</em> between use cases. Dependencies include:
+	<ul>
+	<li>A use case <em>extending</em> another; this is when the second use case is an optional extension of the first	
+		<ul>
+		<li>For example, <code>delete a student</code> might extend <code>search for a student</code>, because after searching for a student object, the administrator might optionally delete it</li>
+		</ul>
+	</li>
+	<li>A use case <em>including</em> another; this is where the second use case is <em>part of the process</em> of the first
+		<ul>
+		<li>For example, <code>enrol a student</code> might include <code>edit student details</code>, because student details is part of the process of enrolling a student</li>
+		</ul>
+	<li>A use case <em>preceding</em> another; this indicates that the first use case must take place sometime before the second	
+		<ul>
+		<li>For example, the <code>login</code> use case might precede enrolling a student, updating a student's details, or deleting a student</li>
+		</ul>
+	</li>
+	</ul>
+An example is here:
+<br />
+<img src="../images/COM528usecase2.png" alt="Use case diagram showing dependencies"/>
+<br />
+See <a href="https://www.diagrams.net/blog/uml-use-case-diagrams">diagrams.net: "Draw a UML use case diagram"</a>.
+</p>
+</div>
+
+
+<div>
+<h4>Generalised and specialised actors</h4>
+<ul>
+<li>A use-case diagram can have more than one actor, as different use cases might be performed
+by different actors</li>
+<li>Through use of the <em>generalisation</em> symbol in UML (an arrow with an unfilled arrow-head),
+we can distinguish between <em>generalised</em> actors and more <em>specialised</em> actors</li>
+<li>An example for the university system might be if senior administrators (only) were allowed to add staff. The senior administrator is a more specialised version of the administrator, so they can do all use cases that administrators can do, as well as their own specific use case of adding a member of staff.</li>
+<li>The example below shows this
+<br />
+<img src="../images/COM528usecase3.png" alt="Use case diagram showing specialised actor"/>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Use-case texts</h3>
+<p>The next step is to break down each use case shown on the diagram into a series of steps describing how a user will interact with the system in order to complete the use case.   use-case text has two columns:
+    <ul>
+    <li><em>Actor action</em>, describing how the actor will interact with
+    the system</li>
+    <li><em>System response</em>, describing how the system will respond.</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h4>Example use-case text: Enrol student</h4>
+
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+enrol a new student.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the student  details (name, address, date of
+birth, course)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks validity of details, e.g. date of birth is sensible</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System allocates student ID for new student</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>System enrols student in university</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System confirms enrolment is successful</td>
+</tr>
+
+</table>
+
+</div>
+
+<div>
+<h4>Alternative courses of action</h4>
+<p>Our use-case text must also include <em>alternative courses of action</em>.
+These describe how the system should react to <em>errors</em>, which 
+can help us design robust systems.  These go below the main use-case text.
+For example, in the previous use-case text:
+<pre>
+At step 4: Date of birth is not sensible.
+    Staff informed that date of birth is not sensible.
+    Staff re-prompted for details (go back to step 3)
+</pre>
+</p>
+</div>
+
+
+
+<div>
+<h4>Example use-case text: Edit student details</h4>
+<p>This is a simplified version assuming <code>includes</code> or <code>extends</code> are not being used.</p>
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+edit the student details</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the student ID</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The DVD shop staff enters the student ID.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks that the student ID exists</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System displays details of that student in editable text boxes</td> 
+</tr>
+
+<tr>
+<td>6</td>
+<td>The admin staff changes the details.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System checks that the new details are valid (e.g. no blank strings)</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>System updates details of the student</td>
+</tr>
+
+</table>
+
+<p>Alternative courses of action:
+<pre>
+At step 4: Student ID does not exist on system 
+    Staff informed that the student ID does not exist
+    Staff re-prompted for details (go back to step 2)
+
+At step 7: New details are not valid (e.g. blank strings)
+    Staff informed that the new details are invalid
+    Staff re-prompted for details (go back to step 6)
+</pre>
+</p>
+</div>
+<h2>Drawing the diagrams - diagrams.net</h2>
+<p>We will be using <a href='https://diagrams.net'>diagrams.net</a>, an online piece of free software, to draw the diagrams. The labs will start with a live demo of this so <strong>please ensure you attend</strong> (or if you cannot attend, please ensure you watch the video later). diagrams.net have produced a very useful and extensive blog explaining how to draw different types of diagram. You will probably find the following particularly useful:
+	<ul>
+	<li><a href='https://www.diagrams.net/blog/uml-class-diagrams'>Create UML class diagrams</a></li>
+	<li><a href='https://www.diagrams.net/blog/uml-use-case-diagrams'>Draw a UML use case diagram</a></li>
+	</ul>
+</p>
+<h2>Exercise</h2>
+<p>Look at this problem statement:
+<pre>
+There is a requirement for a piece of software to manage bands and bookings for
+a live music venue. This is to be made available on the web. Customers should 
+be able to view all events, search for and book events, as well as cancel 
+bookings, on the web. Venue staff should also be able to perform these tasks on
+behalf of customers when they book over the phone. Venue staff should be able 
+to add and cancel events. 
+</pre>
+<ol>
+<li>Create a domain model for this problem statement.</li>
+<li>Add some likely attributes and methods to the domain model to produce a class diagram.</li>
+<li>Draw a use-case diagram based on this problem statement.</li>
+<li>Pick two use cases from the use case diagram (one of which should involve a search, and another of which should involve adding something) and produce use-case texts.</li>
+</ol>
+</body>
+</html>
