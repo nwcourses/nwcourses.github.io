@@ -1,0 +1,377 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body>
+<div class='titlebox'>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 5: Introduction to Java Server Pages</h1>
+</div>
+<h2>EARLY ACCESS - Subject to change before next Wednesday!</h2>
+<p><strong>CREDIT</strong>: <em>These notes are partly based on those originally prepared by Craig Gallen, a former lecturer at the university, but have been modified by myself</em>.</p>
+<h2 id="introduction">Introduction</h2>
+<p>One of the oldest but still widely used Java web technologies is Java Server Pages or JSP. JSP allows you to create dynamic web applications using Java.</p>
+<h3 id="whatisadynamicwebpage">What is a dynamic web page?</h3>
+<p>Static web pages (with a <code>.html</code> extension) contain unchanging content. This might be appropriate for certain simple scenarios (such as a personal home page, which is rarely updated) but in most cases we need <em>dynamic</em> web pages. </p>
+<p>For example, we might wish to search for hotels in a particular city. We would type in the city name in a search box within an HTML page, and a page containing all the matching hotels would be generated. The hotels would probably be stored in a database, so the page would be generated based on the contents of the database.</p>
+<p>For this, HTML on its own is inadequate, as it is simply a content-description language. It contains no logic, and contains no common programming features such as conditional statements (e.g. <code>if</code>) or loops. </p>
+<p>What we need instead is a <em>server-side</em> language: a language which runs on a web server and <em>dynamically</em> generates content, depending on user input or the contents of a database. Many of you have already been introduced to <strong>node.js</strong> (with <strong>ejs</strong> templates) which is one very common server-side technology, using JavaScript.</p>
+<p>Other languages can be used, such as PHP, Python, C# (with .NET), and Java. So, as this is a Java module, we will introduce the leading technology for server-side Java development: <strong>JSP</strong> (<strong>Java Server Pages</strong>).</p>
+<h2>Clients and servers</h2>
+<p>Before we look at JSP, we will start by looking at the concept of <em>clients</em> and <em>servers</em>.
+This is essential to understand how the web works, and is certainly essential to understand how server-based applications work.</p>
+<h3>What is a client/server system?</h3>
+A client/server system consists of two pieces of software which communicate with each other across a 
+network: the <em>client</em> and the <em>server</em>.
+The <em>client</em> software makes a <em>request</em> to the 
+<em>server</em> software, which then answers with a <em>response</em>.
+Server software need to run <em>continuously</em> in order to accept 
+requests from clients at any time.</p>
+<p>The web is a typical client/server system. When you are using a web browser, the browser is acting as a <em>client</em>. When you type in an address, you are making a <em>request</em> for a web page. This request is received by a web <em>server</em> running on the website's hardware (we will see shortly what this is), which sends the requested page back as a <em>response</em>.</p>
+<img src="../images/clientserver1.png" alt="A client/server system"/>
+<h3>Hypertext Transfer Protocol: HTTP</h3>
+<p>Client/server communication over the web takes place via <em>Hypertext Transfer Protocol</em> or <em>HTTP</em>. HTTP is a set of instructions for sending messages across a network.  Your browser sends the website an <em>HTTP request</em> for a web page, and the <em>server software</em> running on the website's hardware then responds with an <em>HTTP response</em> containing your requested page.</p>
+<h4>The HTTP Request: Asking the Website for a Web Page</h4>
+<p>When the user enters the address in their browser e.g.
+<pre>http://www.hittastic.com/about.html</pre></li>
+the browser generates an <em>HTTP request.</em> This is an instruction to the web server to send back the requested page in a format that the web server understands. An HTTP request looks like this:
+<pre>GET /about.html HTTP/1.1
+Host: www.hittastic.com</pre>
+It can be seen that we are requesting the page <code>about.html</code> from the domain <code>www.hittastic.com</code>. (Potentially one server can host several domains, that is why we need the domain name). The instruction <em>GET</em> is known as the HTTP <em>method</em>; there are various types of HTTP method such as GET, POST, PUT, or DELETE. A request with a method of GET (called a <em>GET</em> request) is used when we are simply <em>looking up a web page</em>, rather than creating or modifying an existing page.</p>
+<p>Once the website's server hardware receives the HTTP request, it is processed by <em>server software</em> continuously running on it. Server software continuuously listens to HTTP requests for a given page from clients, and
+delivers the appropriate page back as an 
+<em>HTTP response</em>.</p>
+<p>Examples of server software include:</p>
+<ul>
+<li><strong>Apache</strong>: free, open source, cross platform</li>
+<li><strong>Apache Tomcat</strong>: also developed by the Apache organisation, designed for running Java web applications</li>
+<li><strong>Nginx</strong>: another free, open source server</li>
+<li><strong>Microsoft Internet Information Services (IIS)</strong>: 
+available for Windows only (comes with certain versions of Windows)</li>
+</ul>
+<img src="../images/clientserver2.png" alt="The role of web server software"/>
+<h3>What does the Web Server Software do?</h3>
+<p>The web server software <em>interprets</em> ("reads")
+the HTTP request from the client (the browser),  and sends the requested page (or image, video, etc) back as an <em>HTTP response</em>.</p>
+</ul> 
+<img src="../images/http.png" alt="Web server software and HTTP"/>
+<h3>THe HTTP response</h3>
+<p>The HTTP response looks like this:
+<pre>HTTP/1.1 200 OK
+Date: 
+Content-Type: text/html
+Content-Length: 4444
+
+&lt;!DOCTYPE ... &gt;
+&lt;html&gt;
+&lt;head&gt;
+...
+&lt;/head&gt;
+&lt;body&gt;
+...
+&lt;/body&gt;
+&lt;/html&gt; </pre>
+It consists of three parts:
+    <ul>
+    <li>A <em>status code</em> (200 OK)</li>
+    <li>A <em>header</em>, consisting of information about the response</li>
+    <li>The <em>content</em> (the web page itself)</li>
+    </ul>
+<h4>HTTP Response Part 1: Status Code</h4>
+<pre>HTTP/1.1 200 OK</pre>
+<p>Status codes indicate to the client whether the request was successful. 
+The status code <em>200 OK</em> indicates that the request was successful,
+however there are various <em>error codes</em> to indicate different kinds
+of error. These include:
+    <ul>
+    <li><em>404 Not Found</em> - the requested page was not on the server;
+    </li>
+    <li><em>500 Internal Server Error</em> - the web server software encountered
+    some sort of internal error</li>
+    <li><em>401 Unauthorized</em> - you tried to request a web page which you do not have the rights to view</li>
+    <li><em>400 Bad Request</em> - the HTTP request was invalid in some way, e.g. contained invalid request data</li>
+    </ul>
+</li>
+If the response contains an error code, the browser can act appropriately
+to handle the error.</p>
+<h4>HTTP Response Part 2: The header</h4>
+<pre>Date: Fri, 31 Dec 1999 23:59:59 EEST
+Content-Type: text/html
+Content-Length: 4444</pre>
+<p>The HTTP response header consists of <em>information about the response</em>, including:
+    <ul>
+    <li>The <em>MIME type</em> (content-type) - 
+    what sort of content is being sent
+    back (HTML, image, PDF file, etc). Example MIME types include
+    <code>text/html</code>, the MIME type for an HTML page, or
+    <code>image/jpg</code>, the MIME type for a JPEG image.</li>
+    <li>The <em>content length</em> - length of the content</li>
+    <li>The <em>date</em></li>
+    </ul>
+The client's browser <em>uses the contents of the header</em> to determine
+<em>how to display the content</em>, for example if the browser reads the 
+MIME type as <code>text/html</code>, it will know to interpret the response
+as an HTML page, whereas if the MIME type is <code>image/jpeg</code>, it will
+know to interpret the response as a JPEG image.</p>
+<p>To summarise the operation of the web client/server system.</p>
+<img src="../images/clientserver3.png" alt="Client/server system on the web"/>
+<h2>Java Server Pages: JSP</h2>
+<p>Having looked at clients and servers in general, we will now focus specifically on JSP.</p>
+<h3 id="whatdoyouneedtorunjsp">What do you need to run JSP?</h3>
+<p>To run JSP we need a <em>web container</em>: a specific type of web server designed for running Java web applications. The one we will use is <strong>Apache Tomcat</strong>. A Java web application server like Tomcat can serve a mixture of HTML and JSP pages and any other content such as images or CSS or JavaScript which form part of a page.</p>
+<p>JSPs (Java Server Pages) are documents which contain a mixture of HTML and Java code.  The Java code is used to dynamically generate the HTML which is returned to the client by the server for each web request.  This is very similar to other web technologies such as Node.js with EJS, or PHP.  One feature of JSP pages is that instead of being interpreted each time they are called, JSPs are compiled into pure Java code (which contains Java statements to generate HTML and send it back to the client) when they are first requested and cached for later use.  This means that subsequent requests to a JSP page are very fast.</p>
+<h3 id="overviewJavaserverpagesonwebcontainers">Overview: Java Server Pages on web containers</h3>
+<p>The diagram below (produced by Craig, and modified by myself) shows the architecture of a Web Container which hosts JSPs.  A Web Container allows multiple Web Applications to coexist on the same server.  Each web application is contained in a zip file called a Web Application Resource file with the suffix <code>.war</code>.</p>
+<p>A <code>.war</code> file contains static web resources (such as index.html or CSS files), dynamic web resources (JSPs) and an XML file, describing the whole application, called web.xml.  It may also contain a number of precompiled classes (.class files) and/or a /lib directory which can contain JAR files (Java library files) containing third-party components. The contents, libraries and class path of each <code>war</code> are treated completely independently by the web container.</p>
+<p><img src="../images/Craig/WebContainers.png" alt="alt text" title="Figure WebContainers.png" /></p>
+<p>As we have seen, each page contains a mix of HTML amd Java.
+When a JSP is first accessed, the web container converts it 'on the fly' to a pure Java file called a <em>servlet</em> which is then compiled into a runnable class. As we saw above the servlet is cached to speed up subsequent requests.</p>
+<p>The servlet is given access to a session object (which we will cover next week) and a request object.  The session object lasts for the duration of the session i.e. from the first request until the browser session is closed down or times out.  Session objects are used to store objects which will be used across multiple page requests. The request object contains the parameters of the HTTP request and is used by the code in the JSP to create a response. </p>
+<p>The servlet is expected to return a response object which will contain the correctly coded HTML web page to be returned to the client browser.</p>
+<h3 id="webapplicationserversandTomcat">Web Application Servers and Tomcat</h3>
+<p>Many web application servers are available including Apache Tomcat <a href='https://tomcat.apache.org'>http://Tomcat.apache.org/</a> and Eclipse jetty <a href='https://www.eclipse.org/jetty/'>https://www.eclipse.org/jetty/</a></p>
+<p>In theory <code>war</code> files should be interchangeable between application servers and work just as well.  Unfortunately there are subtle differences between servers in the web.xml and other configuration files so each <code>war</code> needs to be targeted to a particular server. In our project we will be using Apache Tomcat as our application server. </p>
+<h2 id="installingTomcatserveronNetbeans">Installing Tomcat server on Netbeans</h2>
+<p>Before we can have a play with JSP's we need to install the Tomcat server in your Netbeans environment.
+Tomcat and Netbeans are installed in your university machine but they are not linked. 
+You need to supply the link to your own account.</p>
+<ol>
+<li>On Netbeans, right click on the Services tab. </li>
+<li>Then select ADD SERVER.</li>
+<li>Choose 'Tomcat or TomEE'</li>
+<li>Fill in the form as shown in the figure below, replacing the Server Location with the actual Tomcat installation directory (the <code>CATALINA_HOME</code> directory; ensure you set this up as an environment variable, see presentation on SOL) on your machine.</li>
+</ol>
+<p><img src="../images/netbeans_tomcat_location.png" alt="Specifying Tomcat location on Netbeans" /></p>
+<p>If you are on a university machine, the base directory for Tomcat (<code>CATALINA_HOME</code> is <code>C:\devel\Tomcat\apache-Tomcat-9.0.48</code>. This is where Tomcat code is installed.</p>
+<p>Also, create a Tomcat user (as shown above):
+<pre>username admin
+password admin</pre></p>
+<p>On the University machines (but not on your own personal machine) you need to supply a default working directory <code>CATALINA_BASE</code> for which you have write permissions so that you can start and use Tomcat from Netbeans. (You will not have permission to write to the <code>CATALINA_HOME</code> directory). The difference between <code>CATALINA_HOME</code> and <code>CATALINA_BASE</code> is explained <a href='https://Tomcat.apache.org/Tomcat-10.1-doc/introduction.html#CATALINA_HOME_and_CATALINA_BASE'>here</a>.</p>
+<p>Set the <code>CATALINA_BASE</code> to C:\Users\YOUR USER NAME\devel\catalinabase. Then, select finish, and you should see a new server show up under the lis t of servers.</p>
+<p>Now right click on Servers &gt; 'Apache Tomcat or TomEE' and select Start. This will start Tomcat, which will be running on port 8080. So, you should be able to visit a Tomcat generated web page in your browser at <code>http://localhost:8080/</code></p>
+<h3>Exploring the project directories</h3>
+<p>If you explore your <code>CATALINA_BASE</code> folder you will see that Tomcat creates intermediate files for your application, for example, full Java servlet code generated from your JSP.</p>
+<p>The <code>.war</code> file for your application, however, lives in your Netbeans project directory, within the <code>target</code> subdirectory.</p>
+<h2 id="basedoncraiggallensexercise">Walk-through Exercise</h2>
+<p><strong>This was partly created by Craig Gallen, but has been modified.</strong></p>
+<p>In this exercise we will use Netbeans to create a new empty Maven Web Application project which we will use to explore JSPs.</p>
+<h3 id="1createanewwebapplicationproject">1. Create a new web application project</h3>
+<p>a) select file &gt; new Project &gt; Java with Maven &gt; Web Application</p>
+<p><img src="../images/Craig/webcreate1.png" alt="Create web app" title="Figure webcreate1.png" /></p>
+<p>b) Select where you will create the project.  Again, OneDrive is recommended.</p>
+<p>c) Fill in the project details as shown in the diagram </p>
+<p>The groupId and the artifactId uniquely identify the project within a maven repository.  Usually the groupId contains a name space associated with your organisation or project (typically the domain name of your organisation, reversed).  You can see that Netbeans automatically creates a Java package using the group ID and artifact ID.</p>
+<p><img src="../images/newWebApp.png" alt="Create web project in Netbeans" title="Figure webcreate2.png" /></p>
+<p>d) click next and accept the default options for Tomcat and JavaEE</p>
+<p><img src="../images/Craig/webcreate3.png" alt="Default Tomcat options" title="Figure webcreate3.png" /></p>
+<h3 id="2exploreyourproject">2. Explore your project</h3>
+<p>If all goes well, you should now have a new project created in the location you specified and visible in the Netbeans IDE.Every Maven project follows the same conventions for laying out a project but each IDE may display this information differently.
+It is important to know where your files really are located in your project and how the IDE is displaying them.</p>
+<p>Netbeans provides two views of projects; A project view and a files view</p>
+<p>The Files view shows you exactly where each part of the project is created and stored on your computer
+You can see that the Java classes are stored in a nested tree of folders corresponding to the package name of each class.</p>
+<p><img src="../images/projectFileView.png" alt="Files view" title="Figure webcreate4.png" /></p>
+<p>The Project View can make it a bit easier to navigate around the logical layout of the project.
+You can see that the folder tree is collapsed into a package under Source Packages. </p>
+<p><img src="../images/projectView.png" alt="Project view" title="Figure webcreate5.png" /></p>
+<p>The layout is a little different. For instance in the project view you will see a folder labelled Web Pages. 
+In the Files view this is actually held in the /src/main/webapp folder.</p>
+<p>Similarly the pom.xml file is in the root of your project but is displated under Project Files in Netbeans.</p>
+<h4 id="webapplication">Web application</h4>
+<p>
+<ul>
+<li>The webapp folder (Web Pages) contains all of the web artifacts in our project.</li>
+<li>Anything at the root of the webapp folder will be available for rendering.</li>
+<li>Anything in the META-INF or WEB-INF folders is used by the web server but cannot be directly accessed using a web request.</li>
+</ul>
+</p>
+<p>In this example, the META-INF/context.xml file tells the server what the root of our web application will be.</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;Context path="/webExercise1"/&gt;
+</code></pre>
+<p>This tells the server that this web app will be available at <code>http://localhost:8080/webExercise1</code>. The server will always serve any index.html as an entry page to our application so 
+<pre>http://localhost:8080/webExercise1</pre>
+will be the same as 
+<pre>http://localhost:8080/webExercise1/index.html</pre>
+</p>
+<h3 id="3runningyourproject">3. Running your project.</h3>
+<p>To run the application, right click on the webExercise1 project and select 'run':
+<br /><img src="../images/Craig/netbeansRun.png" alt="Run project in Netbeans" title="Figure NetbeansRun.png" /></p>
+<p>The log output will tell you that Tomcat is starting up and that the application is being deployed to Tomcat. Once deployed, the application will be available at:
+<pre>http://localhost:8080/webExercise1/index.html</pre>
+You should see 'hello world'.</p>
+<p>If you look at the Tomcat tab under services you will see your application is deployed.
+<br />
+<img src="../images/Craig/netbeansTomcat.png" alt="Tomcat running" title="Figure NetbeansTomcat.png" /></p>
+<p>Finally, you can undeploy your application by right clicking on the webExercise1 project and select 'clean'.</p>
+<h4>Add a new web page</h4>
+<p>b) Add a new web page
+You can add a new html page, simply be right clicking on Web Pages and select add HTML. Call the new page newhtml.html. You should be able to see this at :
+<pre>http://localhost:8080/webExercise1/newhtml.html</pre>
+You can edit this page and see the changes in the running browser.</p>
+<h3 id="4addingajsp">4. Adding a JSP</h3>
+<p>We have seen how the application handles simple HTML. Now we will create a simple JSP page. Right click on Web Pages and select add JSP and name the file newjsp
+<br />
+<img src="../images/Craig/webcreate6.png" alt="Create a new JSP" title="Figure webcreate6.png" />
+You should see a newjsp.jsp page with the following content.</p>
+<pre><code>&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;JSP Page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Hello World!&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>You can view this page by browsing to:
+<pre>http://localhost:8080/webExercise1/newjsp.jsp</pre>
+You will see that the JSP looks very like a simple HTML file with the only difference being the <code>@page</code> directive line.
+In fact you can turn any HTML page into a JSP by changing its suffix to .jsp and adding the <code>@page</code> directive line.</p>
+<p>We mentioned that JSPs mix Java code with html. Add the following lines so that the page looks like the example below and refresh your browser.</p>
+<pre><code>&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@ page import="Java.util.Date" %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;JSP Page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Hello World!&lt;/h1&gt;
+        &lt;p&gt;the time is &lt;%= new Date() %&gt; &lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+You should now see the date and time printed out and every time you refresh the page, the milliseconds should increment.</p>
+<p>Note that:
+<ul>
+<li>In JSPs <code>&lt;%</code> and <code>%&gt;</code> are escape characters which indicate the intervening lines are JSP specific and are not included in the generated HTML.  Usually we write Java code between these characters in a JSP page.</li>
+<li>The <code><%= %></code> directive tells the server that Java code between the <%= %> will return a string to include in the page.</li>
+<li>The <pre><%@ page import="java.util.Date" %></pre> directive imports a class (in this case java.util.Date) in a similar way to the Java import directive in a normal Java class file.</li>
+</ul>
+</p>
+<h3 id="5querystrings">5. Query strings</h3>
+<p>Modify the JSP page from the previous exercise and add this line, below the line which displays the time.
+<pre><code class="html language-html">&lt;%
+String fName = request.getParameter("firstName");
+%&gt;
+&lt;p&gt;Hello &lt;strong&gt; &lt;%=fName %&gt;&lt;/strong&gt;&lt;/p&gt;
+</code></pre>
+</p>
+<p>What is this doing? <code>request</code> is a global variable within the JSP which is an object representing the HTTP request coming in from a client. The <code>getParameter()</code>  method of the <code>request</code> object retrieves a named parameter called <code>firstName</code>, sent from the client. We save it in a variable called <code>fName</code>. We then leave JSP, go into plain HTML again, before <strong>re-entering JSP</strong> to display the variable <code>fName</code> with strong highlighting.</p>
+<p>How can you send this parameter to a JSP? There are several ways. The simplest way is to append the parameter to the end of the URL as a <em>query string</em>.</p>
+<p>After re-compiling and deploying your revised application, alter the URL in the browser to:
+<pre><code class="html language-html">http://localhost:8080/webExercise1/newjsp.jsp?firstName=John
+</code></pre>
+(replacing John with your actual first name).
+</p>
+<p>It should greet you by name, e.g:</p>
+<pre>Hello John</pre>
+</p>
+<h3 id="connectingformstojsps">6. Connecting forms to JSPs</h3>
+<p>More commonly, a user would enter a parameter via a <em>form</em>. For example, they might enter a search term via a form. Create a new HTML form (<code>testform.html</code>) in your project and add the following to it:</p>
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;JSP Example 2&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;JSP Example 2: Form Request Examples&lt;/h1&gt;
+
+        &lt;!-- starting the href with ./ means you are referring relative to the root of this page --&gt;
+
+        &lt;form action="./newjsp.jsp" method="get"&gt;
+            &lt;p&gt;Please enter your name:&lt;input type="text" name="firstName" value="" /&gt;&lt;/p&gt;
+            &lt;input type="submit" value="Send to JSP!" /&gt;
+        &lt;/form&gt; 
+        &lt;br /&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>This HTML page allows the user to enter their name via an HTML form. Note how the form has one field with a name of <code>firstName</code>. Note how this corresponds to the parameter we are reading in the JSP, i.e.:</p>
+<pre>request.getParameter("firstName");</pre>
+<p>Note also the form has an <code>action</code> of <code>newjsp.jsp</code>, implying that the form details will be sent to that JSP page (the one we have written already).</p>
+<p>Try it out by entering the following URL in your browser:</p>
+<pre>http://localhost:8080/webExercise1/testform.html</pre>
+<p>Enter your name in the form and click the button. You should find that you are greeted with your name once again. You will also notice that the name once again gets appended to the URL as a query string. This is because the data is sent via a type of HTTP request called a <code>GET</code> request (commonly used for searches), and <code>GET</code> requests append the form data to the URL as parameters.</p>
+<h3 id="selfsubmittingforms">7. Self submitting forms</h3>
+<p>We can enhance the previous example so that the form and JSP are contained on the <em>same page</em>, so that the form <em>submits to itself</em>. Create a new JSP called <code>selfsubmitting.jsp</code> and add it to your project.</p>
+<pre><code>&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;JSP Example 2&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;JSP Example 2: Form Request Examples&lt;/h1&gt;
+
+&lt;%
+// any valid java code can go between &lt;% and %&gt;
+
+    String fName = request.getParameter("firstName");
+
+    // Was a parameter submitted? If so, the parameter will be non-null
+    if (fName != null)
+    {
+%&gt;
+        &lt;p&gt;Hello &lt;%=fName %&gt; !&lt;/p&gt;
+&lt;%
+        &lt;p&gt;&lt;a href='./selfsubmitting.jsp'&gt;Go back to form&lt;/a&gt;&lt;/p&gt;
+    }
+    else
+    {
+%&gt;
+        &lt;form action="./selfsubmitting.jsp" method="get"&gt;
+            &lt;p&gt;Please enter your name:&lt;input type="text" name="firstName" value="" /&gt;&lt;/p&gt;
+            &lt;input type="submit" value="Send to JSP!" /&gt;
+        &lt;/form&gt; 
+        &lt;br /&gt;
+&lt;%
+    }
+%&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>You can access it via:
+<pre>http://localhost:8080/webExercise1/selfsubmitting.jsp</pre>
+Note how, in this example, we try to read in the parameter <code>firstName</code>. If it exists, we know it's been sent to the JSP so we greet the user. If it does not, it will be <code>null</code>, so we display the form to allow the user to enter it. Note also how we display a link to return the user to the form after greeting them. This will send a request to <code>selfsubmitting.jsp</code> <strong>without</strong> the <code>firstName</code> parameter, therefore it will display the form again.</p>
+<h2>Exercise 2 - Building a web front-end for the student application</h2>
+<p>Write an application (in a <em>brand new project</em>) containing a form allowing a user to enter student details (name, course, and mark). The data should be sent to a JSP which reads the details and displays them.</p>
+<p>Use this form. You'll note that the form's <code>method</code> is now <strong><code>post</code></strong>. You should use <code>post</code> when data might be <em>updated</em> or when sensitive data is sent to the server. This creates an HTTP POST request; the form data is embedded within the HTTP request rather than being appended to the URL as a query string. However, in the JSP <em>you read the form data in the same way</em>, using <code>request.getParameter()</code>.</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;Add a student&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Add a student record&lt;/h1&gt;
+
+
+        &lt;form action="./FILL_THIS_IN" method="post"&gt;
+            &lt;p&gt;Student name:&lt;input type="text" name="studentName" value="" /&gt;&lt;/p&gt;
+            &lt;p&gt;Student course:&lt;input type="text" name="studentCourse" value="" /&gt;&lt;/p&gt;
+            &lt;p&gt;Student mark:&lt;input type="text" name="studentMark" value="" /&gt;&lt;/p&gt;
+            &lt;p&gt;Student type:
+            &lt;select name='studentType'&gt;
+            &lt;option&gt;Undergraduate&lt;/option&gt;
+            &lt;option&gt;Masters&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;/p&gt;
+            &lt;input type="submit" value="Register student!" /&gt;
+        &lt;/form&gt; 
+        &lt;br /&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<ol>
+<li>Write a JSP which reads this form and displays the contents of each form field.</li>
+<li>Modify your answer so that you copy the <code>Student</code> class from weeks 2 and 3 into your project (plus the <code>Undergraduate</code> and <code>Masters</code> classes if you got that far). In the JSP, create a Student object using the data read in. Initially, ignore the student type (just assume the student will be an <code>Undergraduate</code> if you completed the inheritance hierarchy).</li>
+<li>Can the Student's <code>printDetails()</code> method be used to output the student data on the JSP? Can you now see the general problem with classes representing the application's data including code to write to, and read from, the console?</li>
+<li>Create a <code>toString()</code> instead. This should <strong>return</strong> the same data that is printed out with the <code>printDetails()</code> method, Can this be used in both a console application and a JSP?</li>
+<li>Output the student to the JSP using its <code>toString()</code> method.</li>
+<li>You'll note that <code>setMark()</code> has a similar problem, in that if the mark is invalid, it displays an error message to the console. How can you modify it so that a JSP is able to output the error to the user?</li>
+<li>Modify your code so that it creates the appropriate type of student depending on what the user entered in the <code>studentType</code> drop-down list.</li>
+</ol>
+</body></html>
