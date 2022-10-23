@@ -6,8 +6,9 @@
 <h2>EARLY ACCESS - Subject to change before next Wednesday!</h2>
 <p><strong>CREDIT</strong>: <em>These notes are partly based on those originally prepared by Craig Gallen, a former lecturer at the university, but have been modified by myself</em>.</p>
 <h2 id="introduction">Introduction</h2>
+<p>In the first three weeks we looked at many of the fundamental features of Java. However real-world Java applications typically have a graphical front-end. In desktop applications we can use GUI toolkits such as <em>Swing</em> to create our front-end, or alternatively we can use the <em>web</em> and host our Java app on a <em>server</em>. Using the web has the advantage that a user can access our app via a web browser, the app has a familiar interface, and HTML (familiar to many people) can be used to create the front-end.</p>
 <p>One of the oldest but still widely used Java web technologies is Java Server Pages or JSP. JSP allows you to create dynamic web applications using Java.</p>
-<h3 id="whatisadynamicwebpage">What is a dynamic web page?</h3>
+<h2>Dynamic web pages</h2>
 <p>Static web pages (with a <code>.html</code> extension) contain unchanging content. This might be appropriate for certain simple scenarios (such as a personal home page, which is rarely updated) but in most cases we need <em>dynamic</em> web pages. </p>
 <p>For example, we might wish to search for hotels in a particular city. We would type in the city name in a search box within an HTML page, and a page containing all the matching hotels would be generated. The hotels would probably be stored in a database, so the page would be generated based on the contents of the database.</p>
 <p>For this, HTML on its own is inadequate, as it is simply a content-description language. It contains no logic, and contains no common programming features such as conditional statements (e.g. <code>if</code>) or loops. </p>
@@ -120,7 +121,7 @@ know to interpret the response as a JPEG image.</p>
 <p>The diagram below (produced by Craig, and modified by myself) shows the architecture of a Web Container which hosts JSPs.  A Web Container allows multiple Web Applications to coexist on the same server.  Each web application is contained in a zip file called a Web Application Resource file with the suffix <code>.war</code>.</p>
 <p>A <code>.war</code> file contains static web resources (such as index.html or CSS files), dynamic web resources (JSPs) and an XML file, describing the whole application, called web.xml.  It may also contain a number of precompiled classes (.class files) and/or a /lib directory which can contain JAR files (Java library files) containing third-party components. The contents, libraries and class path of each <code>war</code> are treated completely independently by the web container.</p>
 <p><img src="../images/Craig/WebContainers.png" alt="alt text" title="Figure WebContainers.png" /></p>
-<p>As we have seen, each page contains a mix of HTML amd Java.
+<p>As we have seen, each page contains a mix of HTML and Java.
 When a JSP is first accessed, the web container converts it 'on the fly' to a pure Java file called a <em>servlet</em> which is then compiled into a runnable class. As we saw above the servlet is cached to speed up subsequent requests.</p>
 <p>The servlet is given access to a session object (which we will cover next week) and a request object.  The session object lasts for the duration of the session i.e. from the first request until the browser session is closed down or times out.  Session objects are used to store objects which will be used across multiple page requests. The request object contains the parameters of the HTTP request and is used by the code in the JSP to create a response. </p>
 <p>The servlet is expected to return a response object which will contain the correctly coded HTML web page to be returned to the client browser.</p>
@@ -138,12 +139,12 @@ You need to supply the link to your own account.</p>
 <li>Fill in the form as shown in the figure below, replacing the Server Location with the actual Tomcat installation directory (the <code>CATALINA_HOME</code> directory; ensure you set this up as an environment variable, see presentation on SOL) on your machine.</li>
 </ol>
 <p><img src="../images/netbeans_tomcat_location.png" alt="Specifying Tomcat location on Netbeans" /></p>
-<p>If you are on a university machine, the base directory for Tomcat (<code>CATALINA_HOME</code> is <code>C:\devel\Tomcat\apache-Tomcat-9.0.48</code>. This is where Tomcat code is installed.</p>
+<p>If you are on a university machine, the base directory for Tomcat (<code>CATALINA_HOME</code> is <code>C:\devel\Tomcat\apache-Tomcat-9.0.48</code>). This is where Tomcat code is installed.</p>
 <p>Also, create a Tomcat user (as shown above):
 <pre>username admin
 password admin</pre></p>
 <p>On the University machines (but not on your own personal machine) you need to supply a default working directory <code>CATALINA_BASE</code> for which you have write permissions so that you can start and use Tomcat from Netbeans. (You will not have permission to write to the <code>CATALINA_HOME</code> directory). The difference between <code>CATALINA_HOME</code> and <code>CATALINA_BASE</code> is explained <a href='https://Tomcat.apache.org/Tomcat-10.1-doc/introduction.html#CATALINA_HOME_and_CATALINA_BASE'>here</a>.</p>
-<p>Set the <code>CATALINA_BASE</code> to C:\Users\YOUR USER NAME\devel\catalinabase. Then, select finish, and you should see a new server show up under the lis t of servers.</p>
+<p>Set the <code>CATALINA_BASE</code> to <code>C:\Users\YOUR USER NAME\devel\catalinabase</code>. Then, select finish, and you should see a new server show up under the list of servers.</p>
 <p>Now right click on Servers &gt; 'Apache Tomcat or TomEE' and select Start. This will start Tomcat, which will be running on port 8080. So, you should be able to visit a Tomcat generated web page in your browser at <code>http://localhost:8080/</code></p>
 <h3>Exploring the project directories</h3>
 <p>If you explore your <code>CATALINA_BASE</code> folder you will see that Tomcat creates intermediate files for your application, for example, full Java servlet code generated from your JSP.</p>
@@ -155,7 +156,7 @@ password admin</pre></p>
 <p>a) select file &gt; new Project &gt; Java with Maven &gt; Web Application</p>
 <p><img src="../images/Craig/webcreate1.png" alt="Create web app" title="Figure webcreate1.png" /></p>
 <p>b) Select where you will create the project.  Again, OneDrive is recommended.</p>
-<p>c) Fill in the project details as shown in the diagram </p>
+<p>c) Fill in the project details as shown in the screenshot below, but change the Project Location to something appropriate (e.g. in your OneDrive).</p>
 <p>The groupId and the artifactId uniquely identify the project within a maven repository.  Usually the groupId contains a name space associated with your organisation or project (typically the domain name of your organisation, reversed).  You can see that Netbeans automatically creates a Java package using the group ID and artifact ID.</p>
 <p><img src="../images/newWebApp.png" alt="Create web project in Netbeans" title="Figure webcreate2.png" /></p>
 <p>d) click next and accept the default options for Tomcat and JavaEE</p>
@@ -164,28 +165,28 @@ password admin</pre></p>
 <p>If all goes well, you should now have a new project created in the location you specified and visible in the Netbeans IDE.Every Maven project follows the same conventions for laying out a project but each IDE may display this information differently.
 It is important to know where your files really are located in your project and how the IDE is displaying them.</p>
 <p>Netbeans provides two views of projects; A project view and a files view</p>
-<p>The Files view shows you exactly where each part of the project is created and stored on your computer
+<p>The Files view shows you exactly where each part of the project is created and stored on your computer.
 You can see that the Java classes are stored in a nested tree of folders corresponding to the package name of each class.</p>
 <p><img src="../images/projectFileView.png" alt="Files view" title="Figure webcreate4.png" /></p>
-<p>The Project View can make it a bit easier to navigate around the logical layout of the project.
-You can see that the folder tree is collapsed into a package under Source Packages. </p>
+<p>The Project View does not show the exact folder structure, but instead groups your project by component type. It can make it a bit easier to navigate around the logical layout of the project.
+You can see that the source tree is collapsed into a package under Source Packages. This contains your Java code.</p>
 <p><img src="../images/projectView.png" alt="Project view" title="Figure webcreate5.png" /></p>
 <p>The layout is a little different. For instance in the project view you will see a folder labelled Web Pages. 
-In the Files view this is actually held in the /src/main/webapp folder.</p>
-<p>Similarly the pom.xml file is in the root of your project but is displated under Project Files in Netbeans.</p>
+In the Files view this is actually held in the <code>/src/main/webapp</code> folder.</p>
+<p>Similarly the <code>pom.xml</code> (Maven configuration) file is in the root of your project but is displated under Project Files in Netbeans.</p>
 <h4 id="webapplication">Web application</h4>
 <p>
 <ul>
 <li>The webapp folder (Web Pages) contains all of the web artifacts in our project.</li>
 <li>Anything at the root of the webapp folder will be available for rendering.</li>
-<li>Anything in the META-INF or WEB-INF folders is used by the web server but cannot be directly accessed using a web request.</li>
+<li>Anything in the <code>META-INF</code> or <code>WEB-INF</code> folders is used by the web server but cannot be directly accessed using a web request.</li>
 </ul>
 </p>
-<p>In this example, the META-INF/context.xml file tells the server what the root of our web application will be.</p>
+<p>For example, the <code>META-INF/context.xml</code> file tells the server what the root of our web application will be.</p>
 <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;Context path="/webExercise1"/&gt;
 </code></pre>
-<p>This tells the server that this web app will be available at <code>http://localhost:8080/webExercise1</code>. The server will always serve any index.html as an entry page to our application so 
+<p>This tells the server that this web app will be available at <code>http://localhost:8080/webExercise1</code>. The server will always serve any file called <code>index.html</code> as an entry page to our application so 
 <pre>http://localhost:8080/webExercise1</pre>
 will be the same as 
 <pre>http://localhost:8080/webExercise1/index.html</pre>
@@ -195,16 +196,17 @@ will be the same as
 <br /><img src="../images/Craig/netbeansRun.png" alt="Run project in Netbeans" title="Figure NetbeansRun.png" /></p>
 <p>The log output will tell you that Tomcat is starting up and that the application is being deployed to Tomcat. Once deployed, the application will be available at:
 <pre>http://localhost:8080/webExercise1/index.html</pre>
-You should see 'hello world'.</p>
+You should see a 'hello world' page, which is generated by Netbeans.</p>
 <p>If you look at the Tomcat tab under services you will see your application is deployed.
 <br />
 <img src="../images/Craig/netbeansTomcat.png" alt="Tomcat running" title="Figure NetbeansTomcat.png" /></p>
 <p>Finally, you can undeploy your application by right clicking on the webExercise1 project and select 'clean'.</p>
 <h3 id="4addingajsp">4. Adding a JSP</h3>
-<p>We have seen how the application handles simple HTML. Now we will create a simple JSP page. Right click on Web Pages and select add JSP and name the file newjsp
+<p>We have seen how the application handles simple HTML. Now we will create a simple JSP page. Right click on Web Pages and select add JSP and name the file <code>newjsp</code>
 <br />
 <img src="../images/Craig/webcreate6.png" alt="Create a new JSP" title="Figure webcreate6.png" />
-You should see a newjsp.jsp page with the following content.</p>
+<br />
+You should see a <code>newjsp.jsp</code> page with the following content.</p>
 <pre><code>&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
@@ -240,7 +242,7 @@ You should now see the date and time printed out and every time you refresh the 
 <p>Note that:
 <ul>
 <li>In JSPs <code>&lt;%</code> and <code>%&gt;</code> are escape characters which indicate the intervening lines are JSP specific and are not included in the generated HTML.  Usually we write Java code between these characters in a JSP page.</li>
-<li>The <code><%= %></code> directive tells the server that Java code between the <%= %> will return a string to include in the page.</li>
+<li>The <code><%= %></code> directive tells the server that Java code between the <%= %> will produce a string to include in the page.</li>
 <li>The <pre><%@ page import="java.util.Date" %></pre> directive imports a class (in this case java.util.Date) in a similar way to the Java import directive in a normal Java class file.</li>
 </ul>
 </p>
