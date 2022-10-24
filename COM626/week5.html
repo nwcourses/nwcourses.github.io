@@ -329,10 +329,13 @@ We can achieve this through <code>SensorManager.remapCoordinateSystem()</code>. 
 SensorManager.getRotationMatrix()) to work with the device's current view. We need a new array for the remapped matrix.
 To remap from portrait to landscape we would do:
 <pre>SensorManager.remapCoordinateSystem (originalMatrix, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, remappedMatrix)</pre>
-The 2nd parameter is what happens to x coordinates in the default system. These are remapped to y coordinates
-(<code>SensorManager.AXIS_Y</code>) in landscape.
-The 3rd parameter is what happens to y coordinates in the default system. These are remapped to x coordinates AND
-the sign is changed (<code>SensorManager.AXIS_MINUS_X</code>).
+<ul>
+<li>
+The 2nd parameter describes what axis in the default orientation the device's current <code>x</code> axis (in the device's current orientation) corresponds to. So in landscape, the <code>x</code> axis corresponds to the <code>y</code> axis in the default orientation (<code>SensorManager.AXIS_Y</code>.</li>
+<li>
+The 3rd parameter describes what axis in the default orientation the device's current <code>y</code> axis corresponds to. So in landscape, the <code>y</code> axis corresponds to the <strong>negative</strong> <code>x</code> axis in the default orientation (<code>SensorManager.AXIS_MINUS_X</code>).
+</li>
+</ul>
 </p>
 
 <p>The remapping is shown below.
@@ -461,5 +464,6 @@ class MainActivity : AppCompatActivity() {
 </pre>
 </li>
 </ol>
+
 </body>
 </html>
