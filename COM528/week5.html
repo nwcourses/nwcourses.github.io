@@ -132,18 +132,19 @@ When a JSP is first accessed, the web container converts it 'on the fly' to a pu
 Tomcat and Netbeans are installed in your university machine but they are not linked. 
 You need to supply the link to your own account.</p>
 <ol>
-<li>On Netbeans, right click on the Services tab. </li>
+<li>On Netbeans, select <em>Window-Services-Servers</em>. </li>
 <li>Then select ADD SERVER.</li>
 <li>Choose 'Tomcat or TomEE'</li>
 <li>Fill in the form as shown in the figure below, replacing the Server Location with the actual Tomcat installation directory (the <code>CATALINA_HOME</code> directory; ensure you set this up as an environment variable, see presentation on SOL) on your machine.</li>
 </ol>
 <p><img src="../images/netbeans_tomcat_location.png" alt="Specifying Tomcat location on Netbeans" /></p>
-<p>If you are on a university machine, the base directory for Tomcat (<code>CATALINA_HOME</code> is <code>C:\devel\Tomcat\apache-Tomcat-9.0.48</code>). This is where Tomcat code is installed.</p>
+<p>If you are on a university machine, the base directory for Tomcat (<code>CATALINA_HOME</code> is <code>C:\devel\Tomcat\apache_tomcat_10.0.22</code>). This is where Tomcat code is installed.</p>
 <p>Also, create a Tomcat user (as shown above):
 <pre>username admin
 password admin</pre></p>
 <p>On the University machines (but not on your own personal machine) you need to supply a default working directory <code>CATALINA_BASE</code> for which you have write permissions so that you can start and use Tomcat from Netbeans. (You will not have permission to write to the <code>CATALINA_HOME</code> directory). The difference between <code>CATALINA_HOME</code> and <code>CATALINA_BASE</code> is explained <a href='https://Tomcat.apache.org/Tomcat-10.1-doc/introduction.html#CATALINA_HOME_and_CATALINA_BASE'>here</a>.</p>
 <p>Set the <code>CATALINA_BASE</code> to <code>C:\Users\YOUR USER NAME\devel\catalinabase</code>. Then, select finish, and you should see a new server show up under the list of servers.</p>
+<p>You will also need to <strong>change the shutdown port</strong> on the university machines. This is the port used to shutdown Tomcat, but unfortunately the default port (8005) is used for something else. To do this select <em>Tools-Servers-Shutdown Port</em> and change 8005 to 8006.</p>
 <p>Now right click on Servers &gt; 'Apache Tomcat or TomEE' and select Start. This will start Tomcat, which will be running on port 8080. So, you should be able to visit a Tomcat generated web page in your browser at <code>http://localhost:8080/</code></p>
 <h3>Exploring the project directories</h3>
 <p>If you explore your <code>CATALINA_BASE</code> folder you will see that Tomcat creates intermediate files for your application, for example, full Java servlet code generated from your JSP.</p>
