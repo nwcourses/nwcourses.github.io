@@ -207,8 +207,8 @@ with). </li>
 </ol>
 <p>Use an underlying array with size 127 (i.e. 127 buckets), take the modulo 127 
 of the hash code, and store the key and value as a tuple in the
-corresponding list. Usse a simple Python list with an initial capacity of 5
-(initialise it to 5 <code>None</code>s as we did last week) to store the values. 
+corresponding list. Use a simple Python list to store the values.
+Initialise the underlying array to be an array of 127 empty arrays (Python lists, technically): <pre>self.buckets = [[] for i in range(127)]</pre>
 A linked list is generally recommended, but again I'm trying to keep things
 simple initially.</p>
 <p>Implement <code>get()</code> and <code>put()</code> methods as described above.</p>
