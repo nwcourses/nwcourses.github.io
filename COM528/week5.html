@@ -145,7 +145,7 @@ You need to supply the link to your own account.</p>
 <pre>username admin
 password admin</pre></p>
 <p>On the University machines (but not on your own personal machine) you need to supply a default working directory <code>CATALINA_BASE</code> for which you have write permissions so that you can start and use Tomcat from Netbeans. (You will not have permission to write to the <code>CATALINA_HOME</code> directory). The difference between <code>CATALINA_HOME</code> and <code>CATALINA_BASE</code> is explained <a href='https://Tomcat.apache.org/Tomcat-10.1-doc/introduction.html#CATALINA_HOME_and_CATALINA_BASE'>here</a>.</p>
-<p>Set the <code>CATALINA_BASE</code> to <code>C:\Users\YOUR USER NAME\devel\catalinabase</code>. Then, select finish, and you should see a new server show up under the list of servers.</p>
+<p>Set the <code>CATALINA_BASE</code> to <code>C:\Users\YOUR USER NAME\catalinabase</code> (you will need to <strong>create this folder first as an empty folder</strong>). Then, select finish, and you should see a new server show up under the list of servers.</p>
 <p>You will also need to <strong>change the shutdown port</strong> on the university machines. This is the port used to shutdown Tomcat, but unfortunately the default port (8005) is used for something else. To do this select <em>Tools-Servers-Shutdown Port</em> and change 8005 to 8006.</p>
 <p>Now right click on Servers &gt; 'Apache Tomcat or TomEE' and select Start. This will start Tomcat, which will be running on port 8080. So, you should be able to visit a Tomcat generated web page in your browser at <code>http://localhost:8080/</code></p>
 <h3>Exploring the project directories</h3>
@@ -227,7 +227,7 @@ You will see that the JSP looks very like a simple HTML file with the only diffe
 In fact you can turn any HTML page into a JSP by changing its suffix to .jsp and adding the <code>@page</code> directive line.</p>
 <p>We mentioned that JSPs mix Java code with html. Add the following lines so that the page looks like the example below and refresh your browser.</p>
 <pre><code>&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
-&lt;%@ page import="Java.util.Date" %&gt;
+&lt;%@ page import="java.util.Date" %&gt;
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
@@ -365,7 +365,17 @@ Note how, in this example, we try to read in the parameter <code>firstName</code
 </code></pre>
 <ol>
 <li>Write a JSP which reads this form and displays the contents of each form field.</li>
-<li>Modify your answer so that you copy the <code>Student</code> class from weeks 2 and 3 into your project (plus the <code>Undergraduate</code> and <code>Masters</code> classes if you got that far). In the JSP, create a Student object using the data read in. Initially, ignore the student type (just assume the student will be an <code>Undergraduate</code> if you completed the inheritance hierarchy).</li>
+<li>Modify your answer so that you copy the <code>Student</code> class from weeks 2 and 3 into your project (plus the <code>Undergraduate</code> and <code>Masters</code> classes if you got that far). In the JSP, create a Student object using the data read in. Initially, ignore the student type (just assume the student will be an <code>Undergraduate</code> if you completed the inheritance hierarchy).
+	<ul>
+	<li>To do this, you will need to add your <code>Student</code> class to the <code>java</code> folder within your project's hierarchy, as shown below with <code>Cat.java</code>:
+<br />
+<img src="../images/adding_classes_to_jsp_project.png" alt="Adding classes to JSP project" />
+<br />
+You can then import them from your JSP by using the project's package (<code>com.example.webexercise1</code> here), e.g
+<pre>&lt;%@page import="com.example.webexercise1.Cat" %&gt;</pre>
+If you encounter problems, try doing Clean and Build on your project (right-click on the project name).</li>
+</ul>
+</li>
 <li>Can the Student's <code>printDetails()</code> method be used to output the student data on the JSP? Can you now see the general problem with classes representing the application's data including code to write to, and read from, the console?</li>
 <li>Create a <code>toString()</code> instead. This should <strong>return</strong> the same data that is printed out with the <code>printDetails()</code> method, Can this be used in both a console application and a JSP?</li>
 <li>Output the student to the JSP using its <code>toString()</code> method.</li>
