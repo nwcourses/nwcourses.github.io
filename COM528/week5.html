@@ -306,7 +306,6 @@ String fName = request.getParameter("firstName");
         &lt;h1&gt;JSP Example 2: Form Request Examples&lt;/h1&gt;
 
 &lt;%
-// any valid java code can go between &lt;% and %&gt;
 
     String fName = request.getParameter("firstName");
 
@@ -315,8 +314,8 @@ String fName = request.getParameter("firstName");
     {
 %&gt;
         &lt;p&gt;Hello &lt;%=fName %&gt; !&lt;/p&gt;
-&lt;%
         &lt;p&gt;&lt;a href='./selfsubmitting.jsp'&gt;Go back to form&lt;/a&gt;&lt;/p&gt;
+&lt;%
     }
     else
     {
