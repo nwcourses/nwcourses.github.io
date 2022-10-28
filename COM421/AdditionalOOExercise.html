@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1>Additional practise exercise</h1>
+<p>If you are struggling with the module, I would recommend trying out this exercise today, rather than implementing a linked list. You can go back to implementing a linked list later, when you are more confident with general object-oriented concepts, as well as parameter passing and return values.</p>
+<ol>
+<li>Create a completely new class called <code>Student</code> to represent a student.
+Pass the following as parameters to the <code>__init__()</code> method, and initialise the appropriate attributes.
+	<ul>
+	<li><code>id</code>, representing the student's ID</li>
+	<li><code>name</code>, representing the student's name</li>
+	<li><code>course</code>, representing the student's course</li>
+	<li><code>mark</code>, the student's mark</li>
+	</ul>
+</li>
+<li>Give the <code>Student</code> class a <code>__str__()</code> method, which returns the student details as a string.</li>
+<li>Write some code to create 5 students within a loop. Create a <code>Student</code> object each time the loop runs, using details the user entered from the keyboard. Then, still within the loop, display each student by printing it.
+</li>
+<li>Add a <code>setMark()</code> method to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid. Return a boolean to indicate whether the method was successful or not: it should return <code>True</code> if the mark was valid and <code>False</code> otherwise.</li>
+<li>Add a <code>getGrade()</code> method to <code>Student</code>. This should return the student's grade as a <em>string</em> based on the mark, according to this scheme :
+    <ul>
+    <li>70+ : First</li>
+    <li>60-69 : 2/1</li>
+    <li>50-59 : 2/2</li>
+    <li>40-49 : Third</li>
+    <li>0-39 : Fail</li>
+    </ul>
+</li>
+
+<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
+
+<li>Change the <code>Student</code> <code>__init__()</code> method so that the mark is no longer passed in as a parameter, and instead, set to 0. The idea is that <code>setMark()</code> will be used instead to set the mark.</li>
+
+<li>Test out the above methods by modifying the loop so that the mark is passed in via the <code>setMark()</code> method. When all the details have been entered, print out the student's status (grade, and whether they passed or not) by calling the <code>getGrade()</code>, and the <code>didPass()</code> methods, and printing the return value of each.</li>
+</ul>
+
+</body>
+</html>
