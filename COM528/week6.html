@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html><head>
+<title>Topic 6: JSP Sessions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div class="titlebox">
+<h1>Topic 6: JSP Session Variables</h1>
+</div>
+<p>Today we will take a look at <em>session variables</em> and how we can use them in JSP. We will also look at using <em>hidden fields</em> to pass information from page to page. Before we do this, however, we will quickly recap on the exercise from last week.</p>
+<hr />
+<h2>Recap - last week's exercise and removing dependency on the console</h2>
+<p>Before we begin the new material from last week, I want to make one or two points which might be helpful for completing last week's exercise. Remember that your original Student class from weeks 1-3 had a <code>printDetails()</code> method, which displayed the details on the console (with <code>System.out.println()</code>). However this is of little use in JSP. With JSP, we output to an HTML page, not to the console, so any <code>System.out.println()</code> statements will be lost.</p>
+<p>It is much better to <em>return</em> the information with a <code>toString()</code> method, e.g:
+<pre>
+public class Student
+{
+    public String toString()
+    {
+        return "Name " + name + " Course " + course + " Mark " + mark + " Grade " + this.getGrade();
+    }
+}
+</pre>
+This can be used by both a console-mode program and a JSP, because each can call the method and output the return value in its own way. Importantly, <em>the <code>toString()</code> method determines how an object is displayed if we try to print it.</em> So for a console application we could do this to display a student, where <code>student</code> is a <code>Student</code> object:
+<pre>
+System.out.println(student);
+</pre>
+while in JSP we could do:
+<pre>&lt;%=student %&gt;</pre>
+</p>
+<p>Similarly, the <code>Student</code>'s <code>getMark()</code> method should return a <code>boolean</code>, rather than outputting a message to the console. Once again, both a console-mode application and a JSP could both call <code>getMark()</code> and handle the boolean return value in their own way.</p>
+<p>This is an example of the concept of <strong>separation of concerns</strong>: splitting our program into different components to handle different aspects of the system. Our data classes (such as <code>Student</code>) should focus on the data alone, and not focus on input or output. Other classes (such as a class with a <code>main()</code> for a console application, or a JSP) should focus on the input and output. By doing so, the data classes become <em>reusable</em> in different types of application.</p>
+<hr />
+<h2>Session Variables</h2>
+<h3>Cookies</h3>
+<p>Before looking at session variables, we will quickly take a look at
+<em>cookies</em>. You may have come across cookies before: they are data saved
+on your machine by a website when you visit it. They are stored in an area of
+your machine known as the <em>cookie jar</em> and are sent to your browser
+embedded within the HTTP response. Next time you visit the site, the cookie is
+sent back to the site via the HTTP request, and thus the site can "remember"
+data saved by it at the time of the last visit. Cookies can be used for various
+things, both benign and controversial. For example:
+    </p><ul>
+    <li>They can be used to save preferences, such as language, colour scheme
+    or font size;</li>
+    <li>They can be used to remember your username, so you do not have to
+    fill in the username field next time you login;</li>
+    <li>Slightly more controversially, they can be used by advertising networks
+    to provide appropriate adverts based on what pages you visit;</li>
+    <li>Most controversially of all, and most would say unethically, 
+cookies
+    can be used to build a profile of what kind of person you are 
+including such things as personality type and political persuasions 
+(based on sites you visit, things you search for, your comments on 
+social media, etc), which can be exploited in such things as election 
+campaigns and referenda.</li>
+    </ul>
+<p></p>
+<p>Consequently a user needs to be careful with cookies. It is now law 
+that a site which uses cookies for non-essential purposes must allow the
+ user to turn such cookies off, and this functionality must be clearly 
+visible to the user.</p>
+<p>The diagram below shows how cookies work:
+<br>
+<img src="../images/cookies.png" alt="Cookies">
+</p>
+<h3>Introduction to session variables</h3>
+<p>Having looked briefly at cookies, we will now start to look at <em>session variables</em>.</p>
+<ul>
+<li>Special variables used to <em>maintain state</em>, i.e. preserve information between successive HTTP requests</li>
+<li>This means that if a user reloads the page, or navigates to another page and then back to the original page, the data will be remembered. By contrast, if session variables are <em>not</em> used, the data will be forgotten.</li>
+<li>Unlike cookies, they are stored <em>server side</em> - typically in a database
+    <ul>
+    <li>... and are thus more secure than using cookies, which are stored 
+    locally in the cookie jar on the hard drive</li>
+    </ul>
+</li>
+</ul>
+<h3>What is a session?</h3>
+<ul>
+<li>A session is a <em>continuous period of interaction between a user and
+a website</em></li>
+<li>The session ends either when the user closes the browser down, or after a specified period of inactivity, typically around 10 minutes (this 
+is configurable)</li>
+<li>Session variables remain accessible throughout a session, but are destroyed when a session ends.</li>
+<li>So unlike cookies, session variables cannot be used to save data 
+between <em>separate</em> visits to a website, but only throughout a <em>single</em> visit to a website.</li>
+</ul>
+<h3>Using session variables in server-side coding</h3>
+<ul>
+<li>Session variables can be used in any scenario where we want to preserve
+information from page to page</li>
+<li>Common uses of session variables:
+    <ul>
+    <li><em>Login system:</em> - use a session variable to remember the
+    currently logged-in user</li>
+    <li><em>Shopping basket:</em> - on an e-commerce site, store the shopping
+    basket in a session variable so that it can be remembered across all the
+    pages of the site</li>
+    </ul>
+</li>
+</ul>
+<h3>How sessions work: Multiple clients, one session variable</h3>
+<ul>
+<li>We are now going to look at how sessions work "under the hood"</li>
+<li>Remember that session variables are stored on the <em>server</em> - typically in a database</li>
+<li>Imagine a cinema booking website, which uses session variables called <em>film</em> and <em>date</em>
+ to store the user's chosen film, and the date they want to see it. What
+ if more than one user was using the website at the same time? How would
+ the website distinguish between the values of these session variables 
+for different users?</li>
+</ul>
+<h3>Session IDs</h3>
+<ul>
+<li>Each client which connects to the server is given a unique
+<em>session ID</em> number</li>
+<li>On the server, the same session variable from different clients is
+distinguished by the session ID and stored as different entries in the 
+database</li>    
+<li>The session ID is normally stored on the client as a <em>cookie</em>
+(more on that below)</li>
+<li>See the diagram below</li>
+</ul>
+<br>
+<img src="../images/session_multiple_clients.png" alt="The use of session IDs for  distinguishing between clients">
+<br>
+<h3>Session cookies</h3>
+<ul>
+<li>Usually,
+when a session variable is first used, the session ID is sent to the client
+in the HTTP header of hte response as a cookie (the <em>session cookie</em>). You can see this by inspecting the HTTP headers of the response in RESTer.</li>
+<li>When a session variable is used in a later page, the server retrieves
+the session cookie (containing the session ID) from the HTTP request and uses 
+it to obtain the correct value for the session variable for <em>that</em> user</li>
+<li><em>The data itself is <strong>NOT</strong> stored as a cookie, only the
+session ID is!</em></li>
+<li>The session cookie expires when the user closes the browser</li>
+<li><strong>In JSP, the session cookie has the name <code>JSESSIONID</code></strong></li>
+</ul>
+<h3>How a session is maintained</h3>
+<img src="../images/sessions_jsp.png" alt="How a session is maintained"> 
+</p>
+<h3>Viewing session cookies in the browser</h3>
+<p>You can view session cookies in the browser. To view your cookies, open up the Developer Tools (More Tools &gt; Developer Tools) and then:
+    <ul>
+    <li>In Firefox, view "Storage" and then "Cookies";</li>
+    <li>In Chrome, view "Application" and then "Cookies".</li>
+    </ul>
+In both cases, you will see a cookie called <code>JSESSIONID</code> associated with <code>localhost:8080</code> if you are currently using a JSP application making use of sessions. You can delete this cookie in the browser to prove that session data is related to the session ID.</p>
+<h4>Firefox:</h4>
+<p>
+<img src="../images/jsp_session_cookie_firefox.png" alt="JSP session cookie on Firefox" />
+</p>
+<h4>Chrome:</h4>
+<p>
+<img src="../images/jsp_session_cookie_chrome.png" alt="JSP session cookie on Chrome" />
+</p>
+
+<h2>Using sessions in JSP</h2>
+<h3>Introduction</h3>
+<p>Most server-side technologies can use session variables. In JSP, it's quite easy, you can simply use the <code>session</code> object. This is a "global" object, of class <code>HttpSession</code>, which can be accessed anywhere within the JSP page. It can store a series of key-value pairs representing multiple items of data, with each key representing each item of data. Here is a simple example of setting two items of data within the session:
+<pre>
+session.setAttribute("username", "fred");
+session.setAttribute("shoppingCart", new ArrayList&lt;Product&gt;() );
+</pre>
+Here, we are setting two separate session variables, one with the key <code>username</code>, containing a username, and another with the key <code>shoppingCart</code>, containing an array list of <code>Product</code>s.</p>
+
+<h3>Reading session variables</h3>
+<p>The previous section showed how to <em>set</em> a session variable. How can we <em>read</em> an existing session variable? We just use the <code>getAttribute()</code> method of the session. For example: 
+<pre>
+String uName = session.getAttribute("username");
+</pre>
+or:
+<pre>
+ArrayList&lt;Product&gt; products = (ArrayList&lt;Product&gt;)session.getAttribute("shoppingCart");
+</pre>
+These two examples will read a session variable, using its key, into a regular variable (<code>uName</code> or <code>products</code>). The second example is interesting. Note the highlighted code:
+<pre>
+ArrayList&lt;Product&gt; products = <em>(ArrayList&lt;Product&gt;)</em>session.getAttribute("shoppingCart");
+</pre>
+This operation is called a <em>type cast</em>. The issue is that sessions can store data of <em>any type</em>. To allow this, the return type of <code>getAttribute()</code> is <code>Object</code>, which is the superclass of all other classes (all classes automatically inherit from <code>Object</code>). However in our case, the <code>shoppingCart</code> session is an <code>ArrayList</code>. <em>We</em> know this, but the <em>compiler</em> does not. So we have to tell the compiler that, in this case, the session variable will be an <code>ArrayList</code> of <code>Product</code> objects, and we do that by <em>type-casting</em> the return value to <code>ArrayList&lt;Product&gt;</code>.</p>
+
+<h3>A full example</h3>
+<p>Here is a full example (an extension of the self-submitting form example from last week) which makes use of sessions, showing the typical logic which needs to be implemented. It is a JSP application which allows the user to enter a name (as we did last week) but then stores the name in an <code>ArrayList</code> of all names entered so far, using a session. So when the page is reloaded, the list of names will be remembered.
+<pre>
+&lt;%
+    
+    // Does the session variable "names" exist? If not, create it and set it to an empty array list.
+    if(session.getAttribute("names") == null) 
+    {
+        session.setAttribute("names", new ArrayList&lt;String&gt;());
+    }
+
+    
+    // Make an alias of the session variable, using a regular variable called "sessionNames"
+    ArrayList&lt;String&gt; sessionNames = (ArrayList&lt;String&gt;) session.getAttribute("names");
+  
+    // Read in the parameter from the form
+    String fName = request.getParameter("firstName");
+
+    // Was a parameter submitted? If so, the parameter will be non-null
+    if (fName != null)
+    {
+          // Add the name to the list of names
+          sessionNames.add(fName);
+    }
+    // In this example, we ALWAYS display the form, whether the parameter was
+    // submitted or not
+   
+    %&gt;
+    &lt;!-- an empty action means we send the data to the current JSP --&gt;
+    &lt;form action="" method="get"&gt;
+    &lt;p&gt;Please enter your name:
+    &lt;input type="text" name="firstName" value="" /&gt;
+    &lt;input type="submit" value="Send to JSP!" /&gt;
+    &lt;/form&gt; 
+    &lt;br /&gt;
+    &lt;h2&gt;Names so far..&lt;/h2&gt;
+    &lt;%
+    // Loop through all the names in the array list
+    for(String currentName: sessionNames) 
+    {
+        %&gt;
+        &lt;%=currentName%&gt;&lt;br /&gt;
+        &lt;%
+    }
+%&gt;
+</pre>
+</p>
+<p>This is an extension of the self-submitting form example from last week. We first of all initialise the session variable <code>names</code> to an empty <code>ArrayList</code> if we need to, i.e if the session variable is currently null. We then make an alias of the session variable (<coe>sessionNames</code>) to simplify the code. Next, we test whether a name has been previously submitted via the form, and if it has, we add it to the array list within the session. Finally we display the form (in this example, it's displayed even if a name was previously submitted) and then use a loop to loop through the names in the session variable, displaying each on a separate line.</p>
+
+<h2>Passing single items of data from page to page</h2>
+
+<p>With session variables, we can preserve data (such as a username, or a shopping cart) from page to page. A related pattern in web applications, also involving passing information from page to page, is the need to <em>pass single items of data, often chosen by the user</em> (such as the unique ID of a product) from one page to the next. For example, imagine a shopping cart application in which the user does a search for products, and then can select one product from the list to buy, using a "Add to Cart" button beside each product. When the user clicks "Add to Cart", they should be taken to another JSP page which actually adds the product to their cart. This second JSP page would need to know the product ID, in order to add the correct product to the cart. But the question is: <em>how do we pass the product ID through to the next page?</em></p>
+<p>We can use a <em>hidden form field</em> to do this. A hidden field is like a regular form field, but cannot be viewed, or changed, by the user.</p>
+<p>The example below gives an idea how this could be done. Note, for simplicity, that the products are hard-coded (normally they would be read from a database).
+<pre>
+&lt;%
+ArrayList&lt;Product&gt; products = new ArrayList&lt;&gt;();
+
+// Each product has an ID, name price and quantity
+// In a real application, these would be taken from a database
+Product p1 = new Product(1, "Cheese", 2.05, 20);
+Product p2 = new Product(2, "Milk", 0.55, 30);
+Product p3 = new Product(3, "Chocolate", 0.79, 40);
+
+products.add(p1);
+products.add(p2);
+products.add(p3);
+
+// Loop through each product, and write out a form for each, allowing the user
+// to add that product to their cart, and containing the product ID as a hidden field.
+
+for(Product p: products)
+{
+    %&gt;
+    &lt;form action="addToCart.jsp" method="post"&gt;
+    Quantity needed: &lt;input type="text" name="quantity" /&gt;
+    <em>&lt;input type="hidden" name="productID" value="&lt;%=p.getId()%&gt;" /&gt;</em>
+    &lt;input type="submit" value="Add to Cart!" /&gt;
+    &lt;/form&gt;
+    &lt;%
+}
+
+%&gt;
+</pre>
+Note how the code loops through the products, and creates a form for each, allowing the user to buy a specific quantity of the current product. The form for each product passes through the product ID (<code>p.getId()</code>) to the <code>addToCart.jsp</code> page along with the desired quantity.</p>
+
+<h2>Exercises</h2>
+<ol>
+<li>Finish off Exercise 2 from last week, up to Question 5.</li>
+<li>Modify your answer to create an <code>ArrayList</code> of student objects as a <em>session</em>. Add each student object that you create to this <code>ArrayList</code>, so that the students are remembered even if the page is reloaded. On your JSP, display a list of student <em>names</em> added so far. (You should only display the names, using each student object's <code>getName()</code> method).</li>
+<li>For each student displayed in the previous question, create a form, with a hidden field containing the student ID, and a button labelled "View more details". When the user clicks the button, they should be taken to a second JSP which displays the full details of that student. This second JSP should find the student with that ID by looping through all students in the <code>ArrayList</code> in the session.</li>
+<li>Change your answer to the previous questions to create a <code>University</code> object as a session variable, rather than an <code>ArrayList</code> of students. You will need to add a <code>getAllStudents()</code> method to the university in order to do this.</li>
+</ol>
+</body>
+</html>
+
