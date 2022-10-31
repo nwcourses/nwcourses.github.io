@@ -264,7 +264,20 @@ Then, you set the activity's view to the <code>root</code> of the binding:
 <ol>
 <li>Implement an application to display a camera preview. Your layout should have a <code>PreviewView</code> occupying most of the screen, together with a "Take Picture" button. You will need to handle the <code>CAMERA</code> permission; look at your mapping application from week 2 (which used GPS permission) if you're unsure.</li>
 <li>Alter your code to use view binding.</li>
-<li>Implement the "Take Picture" button so it saves the image to a hard-coded location on your device, which should be a sub-folder of the <code>Pictures</code> folder.</li>
+<li>Implement the "Take Picture" button so it saves the image to a hard-coded location on your device, which should be a sub-folder of the <code>Pictures</code> folder.
+	<ul>
+	<li><strong>Note!</strong> You will encounter problems with the above code if running on a device running a version of Android below version 10. On older devices you need to use the classic file API rather than the MediaStore, using code such as:
+<pre>
+val file = "${getExternalFilesDir(Environment.DIRECTORY_PICTURES)}/test.jpg"
+val outputOptions: ImageCapture.OutputFileOptions =
+	ImageCapture.OutputFileOptions.Builder(File(file)).build()
+</pre>
+and then use <code>outputOptions</code> as shown on the original example.
+</li>
+</ul>
+</li>
+</ul>
+
 <li>Add a <code>TextView</code> on the UI to allow the user to specify the filename to save the picture to. It should still be in the same folder as the previous question, though.</li>
 </ol>
 </body>
