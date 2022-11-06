@@ -78,9 +78,12 @@ pre
 {
     font-size: 120%;
     border-style: solid;
-    overflow: auto;
     background-color: white;
 	padding: 5px;
+}
+
+pre.vector {
+	display: inline-block;	
 }
 
 img
