@@ -587,8 +587,8 @@ means that it expects a <em>f</em>loat <em>v</em>ector (i.e. array) with
 <em>4</em> members (red, green, blue and alpha - i.e. transparency - components).
 Here is an example. Note how we pass in the reference to the shader variable and the array we want
 to send. 
-<pre>val colour = floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f)
-GLES20.glUniform4fv (ref_uColour, 1, val, 0)</pre>
+<pre>val colour = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
+GLES20.glUniform4fv (ref_uColour, 1, colour, 0)</pre>
 (The other arguments mean: 1=we are modifying one value, and 0=the offset in the input array to
 the data we're interested in. See
 <a href="http://www.khronos.org/opengles/sdk/docs/man/xhtml/glUniform.xml">the OpenGL documentation</a>).</p>
