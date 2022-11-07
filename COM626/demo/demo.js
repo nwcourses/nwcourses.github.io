@@ -3,47 +3,54 @@ import * as THREE from 'three';
 let camera, scene, renderer, curKey = 0, bearing = 0, offset = 0, mouseDown = false, canvas, rotStep = THREE.MathUtils.degToRad(2), boxPos = [ new THREE.Vector3(0, 0.5, -5), new THREE.Vector3(5, 0.5, 0), new THREE.Vector3(-5, 0.5, 0) ], cols = ['red', 'green', 'blue'], step=0.1, canvas2;
 
 class Canvas2 {
-	constructor(canvasEl) {
-		this.ctx = canvasEl.getContext('2d');
-		this.ctx.fillStyle = '#c0ffc0';
-		this.ctx.fillRect(0,0,canvasEl.width,canvasEl.height);
-		this.drawBoxes();
-	}
+    constructor(canvasEl) {
+        this.ctx = canvasEl.getContext('2d');
+        this.ctx.fillStyle = '#c0ffc0';
+        this.ctx.fillRect(0,0,canvasEl.width,canvasEl.height);
+        this.drawBoxes();
+    }
 
-	drawBoxes() {
-		this.drawRectXZ('red', 0, -5);
-		this.drawRectXZ('green', 5, 0);
-		this.drawRectXZ('blue', -5, 0);
-	}
+    drawBoxes() {
+        this.drawRectXZ('red', 0, -5);
+        this.drawRectXZ('green', 5, 0);
+        this.drawRectXZ('blue', -5, 0);
+    }
 
-	setPosition(x,z,bearing) {
-		if(this.screenX !== undefined && this.screenY !== undefined) {
-			this.ctx.fillStyle = '#c0ffc0';
-			this.ctx.fillRect(this.screenX, this.screenY, 10, 10);
-		}
-		this.screenX = x*30 + 300; 
-		this.screenY = z*30 + 300;
-		this.drawRect('#ff00ff', this.screenX, this.screenY);
-		this.drawBoxes();
-	}
+    setPosition(x,z,bearing) {
+        if(this.screenX !== undefined && this.screenY !== undefined) {
+            this.ctx.fillStyle = '#c0ffc0';
+            this.ctx.fillRect(this.screenX-25, this.screenY-25, 50, 50);
+        }
+        this.screenX = x*30 + 300; 
+        this.screenY = z*30 + 300;
+        this.ctx.fillStyle = '#c0ffc0';
+        this.ctx.fillRect(this.screenX-5, this.screenY-5, 20, 20);
+        this.ctx.save();
+        this.ctx.translate(this.screenX, this.screenY);
+        this.ctx.rotate(-bearing);
+        this.drawRect('#ff00ff', 0,0,-5,-20);
+        this.ctx.restore();
+        this.drawBoxes();
+    }
 
-	drawRectXZ(colour, x, z) {
-		this.drawRect(colour, x*30 + 300, z*30 + 300);
-	}
+    drawRectXZ(colour, x, z,w=10,h=10) {
+        this.drawRect(colour, x*30 + 300, z*30 + 300,w,h);
+    }
 
-	drawRect(colour, screenX, screenY) {
-		this.ctx.fillStyle = colour;
-		this.ctx.fillRect(screenX, screenY, 10, 10);
-	}
-	
+    drawRect(colour, screenX, screenY,w=10,h=10) {
+        this.ctx.fillStyle = colour;
+        this.ctx.fillRect(screenX, screenY, w,h);
+    }
+    
 }
+
 function init() {
     camera = new THREE.PerspectiveCamera(60, 1.33, 0.001, 100);
     scene = new THREE.Scene();
     canvas = document.getElementById('canvas1');
-	canvas2 = new Canvas2(document.getElementById('canvas2'));
+    canvas2 = new Canvas2(document.getElementById('canvas2'));
 
-	camera.position.y = 0.1;
+    camera.position.y = 0.1;
 
     renderer = new THREE.WebGLRenderer({
         canvas: canvas 
@@ -68,11 +75,11 @@ function init() {
     scene.add(light);
     scene.add(light2);
 
-	const planeGeom = new THREE.PlaneGeometry(100, 100);
-	const planeMtl = new THREE.MeshLambertMaterial({color: 0x004000});
-	const planeMesh = new THREE.Mesh(planeGeom, planeMtl);
-	planeMesh.rotation.x = -Math.PI/2;
-	scene.add(planeMesh);
+    const planeGeom = new THREE.PlaneGeometry(100, 100);
+    const planeMtl = new THREE.MeshLambertMaterial({color: 0x004000});
+    const planeMesh = new THREE.Mesh(planeGeom, planeMtl);
+    planeMesh.rotation.x = -Math.PI/2;
+    scene.add(planeMesh);
     requestAnimationFrame(render);
 
     window.addEventListener("keydown", keyDownHandler);
@@ -163,9 +170,9 @@ function move() {
             update();
             break;
         case 90:
-			if(camera.position.y >= step + 0.01) {
-            	camera.position.y -= step;
-			}
+            if(camera.position.y >= step + 0.01) {
+                camera.position.y -= step;
+            }
             update();
             break;
     }
@@ -184,7 +191,7 @@ function update() {
     document.getElementById('position').innerHTML += `<br />${worldHtml}`;
     document.getElementById('position').innerHTML += `<br />${eyeHtml}`;
 
-	canvas2.setPosition(camera.position.x, camera.position.z, bearing);
+    canvas2.setPosition(camera.position.x, camera.position.z, bearing);
 }
 
 init();
