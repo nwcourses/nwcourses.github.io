@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>3D Graphics with OpenGL</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 8</h1>
+<h1>OpenGL part 2</h1>
+</div>
+<p>Today we will continue to look at OpenGL by examining matrix transformations in more detail, and look at the view and projection matrices and how we can send them to the shader.</p> 
+<h2>More on matrices</h2>
+<p>As we saw last week, a <em>matrix</em> is a "grid" of numbers representing a particular <em>transformation</em> in 2D or 3D space. Matrices can be applied to coordinates (defining shapes, for example) to change (transform) them in some way. These transformations include translations (moving a shape around the world), scaling (making a shape bigger or smaller in one or more axes), or rotations (rotating an object around the x, y or z axis). In the case of OpenGL, we are mostly interested in translations and rotations.
+Here is an example of a 3x3 matrix:
+<pre style='display: inline-block'>[1 0 0]
+[0 1 0]
+[0 0 1]</pre>
+</p>
+<p>When applying matrices to points, we typically represent the points in <em>vector</em> form, so a point <code>(x,y,z)</code> would become:
+<pre style='display: inline-block'>[x]
+[y]
+[z]</pre>
+<br />
+Technically a vector represents a <em>movement</em> in space from one point to another, and contains the <em>change</em> in the x, y and z dimensions. However for the purposes of this discussion, we are just using a vector to represent a point in a form which allows it to be multiplied by a matrix.</p>
+</p>
+<h4>Multiplying vectors and matrices</h4>
+<p>There is a predefined formula for multiplying a vector by a matrix to produce an output vector, which is:
+<pre>
+[a b c]      [x]         [ax + by + cz]
+[d e f]  *   [y]   =     [dx + ey + fz]
+[g h i]      [z]         [gx + hy + iz]
+</pre>
+Note how we multiply the rows by the columns. So the first component (x component) of the output vector will be the result of multiplying each term in the first row of the matrix with the corresponding term in the vector, and then summing them together. The second component (y component) of the output vector will be the result of multiplying each term in the second row of the matrix with the corresponding term in the vector, and summing them together. And the third component (z component) of the output vector will be the result of multiplying each term in the third row of the matrix with the corresponding term of the vector, and summing them together.</p> 
+<h4>The identity matrix</h4>
+A matrix which has <em>no effect</em> on the input vector is called an <em>identity matrix</em>. An identity matrix has <code>1</code> values along the main diagonal from top left to bottom right, and zeros elsewhere. We can show that the identity matrix has no effect from the above equation, as a=1, e=1, i=1 and all other values in the matrix are 0:
+<pre>
+[1 0 0]      [x]         [1x + 0y + 0z]    [x]
+[0 1 0]  *   [y]   =     [0x + 1y + 0z] =  [y]
+[0 0 1]      [z]         [0x + 0y + 1z]    [z]
+</pre>
+</p>
+<h4>Questions</h4>
+<p>What effect will these matrices have on a point (x,y,z) ?
+<br />
+<pre style='display: inline-block'>
+[2 0 0]
+[0 2 0]
+[0 0 2]
+</pre>
+<br />
+<pre style='display: inline-block'>
+[3 0 0]
+[0 1 0]
+[0 0 1]</pre>
+</p>
+<h4>Transforming shapes using matrices</h4>
+<p>To perform a transformation on a shape using a matrix, you have to multiply <em>each</em> point in the shape by the matrix, using the multiplication technique shown above.</p>
+<h3>Multiplying matrices</h3>
+<p>The same principle involves multiplying two matrices together, for example two 3x3 matrices. This produces an output matrix. This allows us to use a single matrix to apply two transformations in one go. If two matrices representing different transformations are multiplied, the resulting matrix performs <em>both</em> operations in one step. </p>
+<p>Here is an example of 3x3 matrix multiplication (note lower-case and upper-case letters represent different values). It's an extension of the same principle as multiplying a matrix and a vector. 
+</p>
+<p>
+<pre>
+[a b c] [A B C]   [aA+bD+cG aB+bE+cH aC+bF+cI]
+[d e f] [D E F] = [dA+eD+fG dB+eE+fH dC+eF+fI]
+[g h i] [G H I]   [gA+hD+iG gB+hE+iH gC+hF+iI]
+</pre>
+The value at position <code>(row, col)</code> of the output matrix consists of each value of row <code>row</code> from the first matrix multiplied by the corresponding value of column <code>col</code> from the second matrix and summed together. So, for example:
+	<ul>
+	<li>The value at position <code>(row=0,col=0)</code> in the output matrix consists of each value of row <code>0</code> from the first matrix multiplied by the corresponding value of column <code>0</code> from the second matrix and summed together.</li>
+	<li>The value at position <code>(row=0,col=1)</code> in the output matrix consists of each value of row <code>0</code> from the first matrix multiplied by the corresponding value of column <code>1</code> from the second matrix and summed together.</li>
+	<li>The value at position <code>(row=1,col=0)</code> in the output matrix consists of each value of row <code>1</code> from the first matrix multiplied by the corresponding value of column <code>0</code> from the second matrix and summed together.</li>
+	<li>The value at position <code>(row=1,col=2)</code> in the output matrix consists of each value of row <code>1</code> from the first matrix multiplied by the corresponding value of column <code>2</code> from the second matrix and summed together.</li>
+	</ul>
+</p>
+<p>Hopefully you can work out from the above that in matrix multiplication, <em>the order of multiplication matters</em>. So A*B is not the same as B*A. The result of multiplying the two matrices above in the reverse order would be different:
+<pre>
+[A B C] [a b c]   [Aa+Bd+Cg Ab+Be+Ch Ac+Bf+Ci]
+[D E F] [d e f] = [Da+Ed+Fg Db+Ee+Fh Dc+Ef+Fi]
+[G H I] [g h i]   [Ga+Hd+Ig Gb+He+Ih Gc+Hf+Ii]
+</pre>
+</p>
+<h2>Specific examples of matrix transformations</h2>
+<p>In OpenGL we are particularly interested in <em>rotation</em> and <em>translation</em> so we will look at these now.</p>
+<h3>Rotations about the x, y and z axes</h3>
+<p>In 2D, i.e. a graph with x and y axes only, the rotation about a given angle A (anticlockwise) is given by:
+<pre style='display: inline-block'>
+[cos A    -sin A]
+[sin A     cos A]
+</pre>
+<br />
+We can apply this matrix to each point in a shape, to rotate that shape by the given angle. In 3D it's an extension of the same idea:</p>
+<h4>Rotation about the x-axis</h4>
+<pre style='display: inline-block'>
+[1     0      0    ]
+[0     cos A -sin A]
+[0     sin A  cos A]
+</pre>
+<h4>About the y-axis</h4>
+<pre style='display: inline-block'>
+[cos A  0      sin A]
+[0      1      0    ]
+[-sin A 0      cos A]
+</pre>
+<h4>About the z-axis</h4>
+<pre style='display: inline-block'>
+[cos A  -sin A  0    ]
+[sin A   cos A  0    ]
+[0      0       1    ]
+</pre>
+<h3>4x4 Matrices in OpenGL</h3>
+<h4>4x4 Matrices</h4>
+<p>In 3D graphics it's commonplace to use <em>4x4</em> matrices rather than
+3x3. The reason why this is, is that they allow you to combine the translation
+and rotation into a <em>single matrix</em>.</p>
+For example remember that
+the standard matrix for rotating about the y axis anticlockwise by a given 
+angle A is:
+<br />
+<pre style='display: inline-block'>
+[cos A    0     sin A]
+[0        1         0]
+[-sin A   0     cos A]
+</pre>
+<br />
+Translations, by contrast, are represented by <em>vectors</em>. We saw above that a vector represents a <em>movement</em> in space. So we could represent a translation by <code>dx</code> in the x direction, <code>dy</code> in the y direction, and <code>dz</code> in the z direction as:
+<br />
+<pre style='display: inline-block'>
+[dx]
+[dy]
+[dz]
+</pre>
+<br />
+Can we just multiply the two together? No, because a matrix multiplied by a vector would give another vector, whereas what we want is a <em>matrix</em> representing the rotation and translation in one step. What we can do, however, is represent the translation vector in <em>matrix form</em> by combining it with an identity matrix:
+<br />
+<pre style='display: inline-block'>
+[1 0 0 dx] 
+[0 1 0 dy]
+[0 0 1 dz]
+</pre>
+<br />
+However, this will not quite work. If we wanted to use this to transform a vector such as:
+<br />
+<pre style='display: inline-block'>
+[3]
+[4]
+[5]
+</pre>
+<br />
+we would be unable to, because matrix multiplication involves <em>multiplying the rows of the first matrix with the columns of the second</em>. For this to work, <strong>the number of columns in the first matrix must be equal to the number of rows in the second</strong>, and here, it is not (matrix has four columns, vector has three rows). 
+</p>
+<p>To deal with this, we pad out the matrix with an additional line of zeros and ones which will have no impact on the result:
+<br />
+<pre style='display: inline-block'>
+[1 0 0 dx] 
+[0 1 0 dy]
+[0 0 1 dz]
+[0 0 0  1]
+</pre>
+<br />
+and use a <em>four-member vector</em> for our point (x,y,z), with a "padding" one as the fourth member:
+<br />
+<pre style='display: inline-block'>
+[3]
+[4]
+[5]
+[1]
+</pre>
+<br />
+</p>
+<h4>A combined 4x4 rotation-translation matrix</h4>
+<p>We can similarly pad out our <em>rotation</em> matrix with zeros and ones which will have no impact on the result, in order to make it a 4x4 matrix and thus make it able to be multiplied with the translation matrix:
+<br />
+<pre style='display: inline-block'>
+[cos A   0      sin A   0 ]
+[0       1      0       0 ]
+[-sin A  0      cos A   0 ]
+[0       0      0       1 ]
+</pre>
+<br />
+Then, if we multiply the two together (translation matrix * rotation matrix, NOT rotation * translation, <em>the order of matrix multiplication matters</em>), we get:
+<br />
+<pre style='display: inline-block'>
+[cos A   0      sin A   dx]
+[0       1      0       dy]
+[-sin A  0      cos A   dz]
+[0       0      0       1 ]
+</pre>
+<br />
+This matrix will perform a rotation (anticlockwise) by the angle A, <em>and
+</em> translate the coordinates by dx in the x direction, dy in the y 
+direction and dz in the z direction. If dx, dy and dz are 0, then only a 
+rotation will be performed. If A is 0, then only the translation will be
+performed. 
+</p>
+<h3>Relation to the view matrix</h3>
+<p>We saw last week that the <em>view matrix</em> represents the transformation from world to eye coordinates, and consists of both a translation and a rotation component. Therefore, the view matrix is actually a 4x4 matrix, of the form discussed above.</p>
+<h2>Communicating matrices to the vertex shader</h2>
+<p>We saw last week that the vertex shader is responsible for transforming world coordinates to eye coordinates using the view matrix. How do we manage this in code? We need to define a 16-member float array (4 rows * 4 columns) in our Kotlin, and then <em>send it to the shader</em> using a similar technique to last week. The view matrix on the shader is a <em>uniform</em> variable, because it stays the same for all vertices for the current rendering frame of our 3D scene. However, each time the scene changes (e.g. when it is rotated, or when the user changes position) we will need to update the matrix.</p>
+<p>How do we do this? We typically use a variable <em>within Kotlin</em> to store the view matrix and update this matrix <em>within Kotlin</em> in response to user interaction (such as the user moving through the 3D world or rotating the field of view). Then, we send it to the vertex shader so that next time the scene is rendered, the new matrix will be used. Here is the detail on how to do this.</p>
+<h4>Add a float array to your Renderer</h4>
+<p>Your <code>Renderer</code> class needs to contain a float array containing the view matrix, e.g.:
+<pre>
+class MyRenderer: GLSurfaceView.Renderer {
+    val viewMatrix = FloatArray(16)
+</pre>
+</p>
+<h4>A vertex shader using the view matrix</h4>
+<p>We will look at a vertex shader which actually transforms the vertices by the view matrix.
+<pre>
+attribute vec4 aVertex;
+uniform mat4 uView;
+
+void main(void)
+{
+    gl_Position = uView*aVertex;
+}
+</pre>
+Note how in this vertex shader we calculate the vertex position
+on-screen (eye coordinates) by multiplying the input vertex position
+(world coordinates; from the data model) by the view 
+matrix. We need to convert the input vertex position from
+a 3-element to a 4-element vector due to the view matrix being a 4x4 matrix.
+With matrix multiplication (we are treating the vector as a 4x1 matrix), the number of rows of the first matrix must be equal to the number of columns of
+the second.
+</p>
+<p>
+<ul>
+<li>Obtain a handle on the uniform 
+shader variable from Kotlin (we have seen this already):
+<pre>ref_uViewMatrix = GLES20.glGetUniformLocation(shaderProgram,"uView")</pre>
+</li>
+<li>Send the updated Kotlin matrix to the corresponding shader variable:
+<pre>GLES20.glUniformMatrix4fv (ref_uViewMatrix, 1, false, viewMatrix, 0);</pre>.  The most interesting arguments are the 1st (the reference to the shader variable) and the 4th (the matrix we want to send). (The others are less important: the second parameter (1)=one matrix being sent; the third parameter (false)=matrix isn't transposed; the final parameter (0)=offset into array of matrix data. These rarely change).
+</li>
+</ul>
+</p>
+<h2>The projection matrix</h2>
+<p>We have come across the view matrix already.  However, we also need to use the <em>projection matrix</em> to apply perspective effects (making nearby objects look larger than further-away objects and giving a sense of depth). To do this, we must define the <em>viewing frustum</em>.</p>
+<h3>The viewing frustum</h3>
+<p>To calculate the projection matrix, you need to define the current visible area of the world with four parameters:
+    <ul>
+    <li>The <em>field of view</em>: the angle describing the current visible area in degrees (180 degrees would mean you can see the half of the world in front of you, but normally the field of view is less than that</li>
+    <li>The <em>aspect ratio</em>, which is the width of the GLSurfaceView divided by the height.</li>
+    <li>The <em>near clipping plane</em>. This plane defines the closest distance to the camera that can be seen, and is typically very close to the camera.</li>
+    <li>The <em>far clipping plane</em>. This plane defines the furthest distance from the camera that can be seen.</li>
+    </ul>
+These four parameters together define a shape, resembling a pyramid with the top sawn off, called the <em>viewing frustum</em>. The viewing frustum defines the visible area of the world, and is shown below.
+<br />
+<img src="../images/fig8.png" alt="Viewing frustum" />
+<br />
+When we define the viewing frustum with these four parameters, we also calculate the projection matrix.</p>
+</p>
+<h3>Using the projection matrix</h3>
+<p>To use the projection matrix, you need to:
+    <ul>
+    <li>Create a float array in your <code>Renderer</code> to hold it, e.g:
+<pre>val projectionMatrix = FloatArray(16)
+    </li>
+    <li>Include it in the vertex shader, so that each vertex is transformed by both the view <em>and</em> projection matrices:
+<pre>
+attribute vec4 aVertex;
+uniform mat4 uView, uProjection;
+
+void main (void) {
+    gl_Position = uProjection * uView * aVertex;
+}
+</pre>
+    </li>
+<li>Add code to your <code>onSurfaceChanged()</code> method to calculate the projection matrix each time the dimensions of the <code>GLSurfaceView</code> change.
+<pre>
+override fun onSurfaceChanged(unused: GL10, w: Int, h: Int) {
+        GLES20.glViewport(0, 0, w, h)
+        val hfov = 60.0f
+        val aspect : Float = w.toFloat()/h
+        Matrix.perspectiveM(projectionMatrix, 0, hfov/aspect, aspect, 0.001f, 100f)
+
+}
+</pre>
+How is this working?
+    <ul>
+    <li>We set the <em>horizontal field of view</em>. This is the field of view, in
+    degrees, that we can currently see in the scene (60 degrees here)</li>
+    <li>We call <code>GLES20.glViewport()</code> to ensure the OpenGL viewport matches the screen size.</li>
+    <li>We then calculate the aspect ratio (width divided by height)</li>
+    <li>We then call <code>Matrix.perspectiveM()</code> to set the perspective.
+    The arguments are: 
+        <ul>
+        <li>the projection matrix (which is filled in by the method)</li>
+        <li>the offset into the array of the matrix data (usually 0);</li>
+        <li>the <em>vertical</em> field of view (which is the horizontal field of view divided by the aspect ratio);</li>
+        <li>the aspect ratio;</li>
+        <li>the near clip plane (0.001)</li>
+        <li>the far clip plane (100). </li>
+        </ul>
+    </li>
+    </ul>
+</li>
+    <li>Send the projection matrix to the corresponding uniform
+    variable in the shader, in exactly the same way we did with the view
+    matrix, i.e:
+<pre>ref_uProjMatrix = GLES20.glGetUniformLocation(shaderProgram,"uProjection")
+GLES20.glUniformMatrix4fv (ref_uProjMatrix, 1, false, projectionMatrix, 0)</pre>
+    </li>
+
+    </ul>
+</p>
+<h3>Exercise - View and Projection Matrices</h3>
+<p>Start with this repository:
+<pre>https://github.com/nwcourses/OpenGL01</pre>
+This is a solution to last week's work, but with an enhanced GUI containing
+buttons allowing you to move the camera around. This will be used for a 
+later exercise.</p>
+<ol>
+<li>Add two float arrays to the Renderer (as attributes, i.e. directly within the class, not in methods) to represent the view and projection matrices:
+<pre>
+val viewMatrix = FloatArray(16)
+val projectionMatrix = FloatArray(16)
+</pre> In the <code>onSurfaceChanged()</code>, initialise the view matrix to an identity matrix, so that initially it has no effect, e.g:
+<pre>Matrix.setIdentityM(viewMatrix, 0)</pre>
+The 0 is the offset of the matrix into the array.</li>
+<li>Write an <code>onSurfaceChanged()</code> method like the example above, to setup the projection matrix.</li>
+<li>Alter your vertex shader so that the vertices are transformed by the perspective and view matrices, as shown in the example above.</li>
+<li>In your <code>onViewCreated()</code>, create a float array containing vertices for two triangles:
+    <ul>
+    <li>Triangle 1: (0,0,-3), (1,0,-3), (0.5,1,-3)</li>
+    <li>Triangle 2: (-0.5, 0, -6), (0.5, 0, -6), (0, 1, -6)</li>
+    </ul>
+and create a vertex buffer containing all 6 vertices (i.e. 18 float values in total). Draw these triangles, in two different colours, in your <code>onDrawFrame()</code>.</li>
+<li>Try it out. In your <em>onDrawFrame()</em> you should send the view and projection matrices to the shader and then draw your two triangles.
+What effect do you get and why?</li>
+<li>Now, in <code>onDrawFrame()</code>, and before you draw the shapes, try sending an altered <em>view</em> matrix to the shader. Initialise your view matrix to the identity matrix first (to ensure you blank out the previous one) and then use the API call 
+<code>Matrix.translateM()</code> to translate the view matrix -1 in the z direction relative to its previous state: 
+<pre>Matrix.translateM(view, 0, 0, 0, -1);</pre>
+The arguments: the matrix; 0=offset into the array (as before); 
+0=translation in x direction, 0=translation in y direction; -1=translation in z direction. 
+<br />
+The view matrix was initially the identity matrix:
+<br />
+<pre style='display: inline-block'>
+[1 0 0 0]
+[0 1 0 0]
+[0 0 1 0]
+[0 0 0 1]
+</pre>
+<br />
+The effect of <code>translateM()</code> will be to convert it to:
+<br />
+<pre style='display: inline-block'>
+[1 0 0  0]
+[0 1 0  0]
+[0 0 1 -1]
+[0 0 0  1]
+</pre>
+<br />
+</li>
+<li><strong>What effect do you get, and why?</strong> Try using a range of different <code>z</code> translations, between -2 and +2, see what effect it has, and try to explain your observations. We will go over this in class.</li>
+</ol>
+
+
+
+<h2>3D Worlds in OpenGL</h2>
+
+<p>A common application of OpenGL is a 3D game or virtual reality application where the player can move around. These applications have the concept of a <em>camera</em>, as we saw last week.
+For example, a player in a game might be standing at the
+position x=100, y=0, z=100 and facing along the x axis. How can we develop this sort of application in
+OpenGL?</p>
+
+<h3>Express your objects in world coordinates</h3>
+
+<p>In this sort of application, all the objects in the world - as well as the camera - need to be stored in world coordinates. We then define a view matrix to transform the world coordinates to eye coordinates based on <em>the position of the camera</em>. We will need a <code>cameraPos</code> variable to represent the current camera position in x, y and z coordinates, i.e.:
+<pre>val cameraPos = FloatArray(3)</pre>
+</p>
+<p>Try answering this question. If the camera position is at x=0, y=0, z=100 in world coordinates, and facing towards negative z, what translation do we need to do (expressed as a translation vector) to transform our world coordinates into eye coordinates for that position? (Think about your observations in the final question of Exercise 1).</p>
+
+
+<h3>Exercise 2</h3>
+
+<p>
+Enhance the app, so that it allows the user to move the camera one unit in the x, y and z directions, either positive or negative. Use the 6 buttons on your UI (provided by the code in the repository) to do this.  You will need to:
+    <ul>
+    <li>store the position of the camera as a three-member float array <code>cameraPos</code>, as shown above.</li>
+	<li>ensure that, each time <code>onDrawFrame()</code> is called, the view matrix is <em>re-initialised to an identity matrix</em>. This is to ensure that, when the matrix is translated with <code>Matrix.translateM()</code>, it is relative to the identity matrix and not relative to its previous value.</li>
+    <li>write a set of methods in your renderer class to move the camera in the appropriate direction.
+    Each of these will need to <em>update the <code>cameraPos</code> float array accordingly</em></li>
+	<li>call these methods from the appropriate button (do this inside the main activity).</li>
+	<li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>Matrix.translateM()</code></em>. (How would you do this?)</li>
+    </ul>
+</p>
+
+</body>
+</html>
