@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Matrix Demo</title>
+<script type="text/javascript" src="https://unpkg.com/mathjs@11.3.3/lib/browser/math.js">
+</script>
+<script type='module' src='matrix.js' defer></script>
+<style>
+#mtxInput input[type=text] {
+	width: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Matrix Demo</h1>
+<canvas width='600' height='600' id='canvas1' style='border: 1px solid white;'></canvas>
+<p><strong>Multiply current matrix by your chosen matrix:</strong></p>
+<div id='mtxInput'>
+Row 0:
+<input id='mtx00' type='text'/>
+<input id='mtx01' type='text' />
+<br />
+Row 1:
+<input id='mtx10' type='text'/>
+<input id='mtx11' type='text'/>
+<br />
+<input type='button' value='Go!' id='updateMtxBtn' />
+<div>
+<p><strong>Current matrix:</strong></p>
+<code>[
+<span id='cur00'></span>
+<span id='cur01'></span>
+]</code>
+<br />
+<code>[
+<span id='cur10'></span>
+<span id='cur11'></span>
+]</code>
+<br />
+<input type='button' value='Reset Matrix' id='resetMtx' />
+</div>
+
+</body>
+</html>

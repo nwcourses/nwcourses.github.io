@@ -81,6 +81,8 @@ The value at position <code>(row, col)</code> of the output matrix consists of e
 [G H I] [g h i]   [Ga+Hd+Ig Gb+He+Ih Gc+Hf+Ii]
 </pre>
 </p>
+<h3>Matrix example</h3>
+<p>See <a href='demo/matrix.html'>here</a>. This is 2D only, but allows you to experiment with applying matrices to a 2D shape on a graph to see what effect it has. Note that the example stores a current matrix, which is the product of all previous matrices, i.e. it is multiplied by <strong>each new matrix entered</strong>. So a transformation will be combined with the previous transformation, unless you click the "Reset Matrix" button. This resets the current matrix to the identity matrix.</p>
 <h2>Specific examples of matrix transformations</h2>
 <p>In OpenGL we are particularly interested in <em>rotation</em> and <em>translation</em> so we will look at these now.</p>
 <h3>Rotations about the x, y and z axes</h3>
@@ -159,7 +161,7 @@ we would be unable to, because matrix multiplication involves <em>multiplying th
 [0 0 0  1]
 </pre>
 <br />
-and use a <em>four-member vector</em> for our point (x,y,z), with a "padding" one as the fourth member:
+and use a <em>four-member vector</em> for our point (x,y,z), with a one as the fourth member (this allows the translation component to be applied, which it would not if it was zero):
 <br />
 <pre style='display: inline-block'>
 [3]
@@ -179,12 +181,12 @@ and use a <em>four-member vector</em> for our point (x,y,z), with a "padding" on
 [0       0      0       1 ]
 </pre>
 <br />
-Then, if we multiply the two together (translation matrix * rotation matrix, NOT rotation * translation, <em>the order of matrix multiplication matters</em>), we get:
+Then, if we multiply the two together (rotation matrix * translation matrix, NOT rotation * translation, as <em>the order of matrix multiplication matters</em> - we will look at this in more detail next week), we get a combined matrix which is:
 <br />
 <pre style='display: inline-block'>
-[cos A   0      sin A   dx]
+[cos A   0      sin A   dz]
 [0       1      0       dy]
-[-sin A  0      cos A   dz]
+[-sin A  0      cos A  -dx]
 [0       0      0       1 ]
 </pre>
 <br />
