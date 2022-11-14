@@ -341,7 +341,7 @@ later exercise.</p>
 <pre>
 val viewMatrix = FloatArray(16)
 val projectionMatrix = FloatArray(16)
-</pre> In the <code>onSurfaceChanged()</code>, initialise the view matrix to an identity matrix, so that initially it has no effect, e.g:
+</pre> In the <code>onDrawFrame()</code>, initialise the view matrix to an identity matrix, so that initially it has no effect, e.g:
 <pre>Matrix.setIdentityM(viewMatrix, 0)</pre>
 The 0 is the offset of the matrix into the array.</li>
 <li>Write an <code>onSurfaceChanged()</code> method like the example above, to setup the projection matrix.</li>
