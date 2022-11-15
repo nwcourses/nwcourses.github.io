@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html><head>
+<title>Topic 8: Design Patterns: Coupling, Cohesion and Separation of Concerns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div class="titlebox">
+<h1>Topic 8: Design Patterns: Coupling, Cohesion and Separation of Concerns</h1>
+</div>
+
+<p><strong>Note</strong>: this topic is a <em>lecture-only</em> topic. There is no accompanying practical. This is to allow you all to catch up with Week 7, which only a few of you have completed.</p>
+<div>
+<h2>Credits for this week's notes</h2>
+<ul>
+<li><em>Many of today's notes are based on the originals by
+a former member of staff John Flackett, but reworded</em></li>
+</ul>
+</div>
+
+
+<div>
+<h2>What is a design pattern?</h2>
+<p>A software pattern is:</p>
+<ul>
+<li>A documented solution to a commonly-encountered software design problem</li>
+<li>Helps allocates responsibilities for different tasks amongst your classes</li>
+<li>Following design patterns leads to reusable, maintainable code</li> 
+</ul>
+</div>
+
+<div>
+<h2>General good design principles</h2>
+<p>Following patterns is a way to ensure that your code follows
+general <em>good design principles</em>:</p>
+<ul>
+<li><em>Reusability</em>: ability to reuse classes in other applications</li>
+<li><em>Maintainability</em>: patterns enhance clarity of code, and therefore make it
+easier to maintain</li>
+<li><em>Overall system robustness</em> - patterns help avoid 
+situations where changes in one class lead to changes in the whole system</li>
+</ul>
+</div>
+
+<div>
+<h2>Low coupling</h2>
+<ul>
+<li>Perhaps one of the most fundamental concepts in object-orientated design
+</li>
+<li>Low coupling means to minimise the dependency a class has on other classes
+</li>
+<li>This maximises its <em>reusability</em></li>
+<li>It also makes the code easier to read, and, therefore, maintain</li>
+</ul>
+</div>
+
+<div>
+<h3>What is wrong with dependency on other classes?</h3>
+<ul>
+<li>Harder to reuse
+    <ul>
+    <li>If class A depends on class B, we cannot reuse it in a scenario where
+    we don't need class B</li>
+    </ul>
+</li>
+<li>Harder to understand in isolation
+    <ul>
+    <li>It is harder to figure out the inner workings of a class which depends 
+    on other classes, compared to a class which does not</li>
+    </ul>
+</li>
+<li>Changes in other classes force changes in the class
+    <ul>
+    <li>If class A depends on class B, and the public methods in class B
+    change, we have to change class A</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Minimise, do not necessarily eliminate, dependencies</h3>
+<ul>
+<li>Obviously sometimes a class has to depend on another class
+    <ul>
+    <li>notably if a class has attributes which are themselves classes</li>
+    <li>e.g. a <code>Cinema</code> class which contains an array of three <code>Screen</code> objects</li>
+    <li>Here the <code>Cinema</code> depends on the <code>Screens</code>, which is sensible</li>
+    <li>However, if a <code>Cinema</code> depended on a <code>CarPark</code> class, that would minimise the reusability of the <code>Cinema</code></li>
+    <li>What if you wanted to have a <code>Cinema</code> with no <code>CarPark</code>?</li>
+    </ul>
+</li>
+<li><em>Think of real-world analogies, would the real world object the class
+is modelling exhibit such a dependency?</em></li>
+</ul>
+</div>
+
+<div>
+<h3>Coupling example - College, Course and Student</h3>    
+<ul>
+<li>Scenario: software to manage enrolments onto courses offered by a college</li>
+<li>We need to write code to add a student to a course</li>
+</ul>
+</div>
+
+<div>
+<h3>High coupling design (bad)</h3>    
+<ul>
+<li>
+<pre> class Student
+{
+    College college;
+    ArrayList&lt;Course&gt; courses;
+
+    public Student(College collegeIn)
+    {
+        college = collegeIn;
+        courses = new ArrayList&lt;Course&gt;();
+    }
+    
+    public void enrolOn(String courseID)
+    {
+        Course course = college.findCourseById(courseID);
+        courses.add(course);
+    }
+}
+</pre>    
+</li>
+<li>In this example, the <code>Student</code> depends on the <code>College</code> class</li>
+<li>The Student's <code>enrolOn()</code> method takes a course ID and uses the <code>College</code> to find the <code>Course</code> with that ID, and then the <code>Student</code> adds that <code>Course</code> to its list of courses</li>
+<li>The <code>Student</code> becomes dependent on <code>College</code></li>
+<li>This is bad, because it is an <em>unnecessary</em> dependency, as we will see with the 
+low-coupling design, and means that the Student class could not be used without a <code>College</code></li>
+<li>Examples where we might want to use students and courses without a college include:
+    <ul>
+    <li>a company which organises courses for its employees (who would be the students), such as IT or first-aid courses</li>
+    <li>individuals or organisations who set up their own private courses, independent of a college</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>An even worse example</h3>    
+<ul>
+<li>
+<pre> class Student
+{
+    College college;
+    ArrayList&lt;Course&gt; courses;
+
+    public Student(College collegeIn)
+    {
+        college = collegeIn;
+        courses = new ArrayList&lt;Course&gt;();
+    }
+    
+    public void enrolOnCourse()
+    {
+        Scanner scanner = new Scanner(System.in);
+        String courseID = scanner.nextLine();
+        Course course = college.getCourse(courseID);
+        courses.add(course);
+    }
+}
+</pre>    
+</li>
+<li>In this example, we are reading in the course ID from the <em>keyboard</em>
+rather than sending it in as a parameter</li>
+<li>This is <em>very bad practice</em> as it is coupling a data class (the Student) to the console (Scanner is used to read in from the console) which means that <em>enrolOnCourse()</em> could not be used in a non-console application (such as a JSP application or mobile app)</li>
+<li>Input from, and out to, particular user interfaces should be done in the user interface code (e.g. main class, or JSP) so that the data classes can be used with <em>any user interface</em></li>
+</ul>
+</div>
+
+
+<div>
+<h3>Low coupling alternative</h3>
+<p><code>Student</code> no longer depends on <code>College</code> in this example</p>
+<pre> 
+
+class Student
+{
+    ArrayList&lt;Course&gt; courses;
+
+    public Student()
+    {
+        courses = new ArrayList&lt;Course&gt;();
+    }
+    
+    public void enrolOn(Course course)
+    {
+        courses.add(course);
+    }
+}</pre>
+<ul>
+<li>The <code>Student no longer needs the College</code></li>
+<li>Rather than passing in a course ID (which needs a <code>College</code> to look up the <code>Course</code> with that ID) we pass in the <code>Course</code> object directly to <code>enrolOn()</code></li>
+</ul>
+</div>
+
+<div>
+<h3>Coupling and user interfaces - summary</h3>
+<ul>
+<li>You should design your data classes (e.g. <code>University</code> or <code>Student</code> in the week 3 exercise)  so that they are <em>independent</em> of your GUI</li>
+<li>Allows the data classes to be reused with a different UI (console, web, desktop GUI, Android app)</li>
+<li>Avoid all references to the GUI in data classes</li>
+<li>Similarly, avoid console output (<code>System.out.println()</code>) as this couples your data classes to the console
+	<ul>
+	<li>Use return values to indicate success or otherwise, e.g. boolean return values, or <code>null</code> to indicate an error if a method returns an object, instead</li> 
+	</ul>
+</li>
+<li>By keeping the data classes free of UI code, we are following the software engineering principle of <strong>separation of concerns</strong>, which states that you should separate out different functions of the system (UI, data) into different classes</li>
+</ul>
+</div>
+
+
+<div>
+<h2>High Cohesion pattern</h2>
+<ul>
+<li>A <em>highly cohesive</em> class is one where the responsibilities are
+all closely related, and focused on one thing</li>
+<li>It has a small number of methods, with highly related functionality</li>
+<li>It does the job it's supposed to do, and nothing else!</li>
+</ul>
+</div>
+
+<div>
+<h3>Example of a high cohesion pattern</h3>
+<ul>
+<li>Imagine a student records system application</li>
+<li>A <em>low cohesion</em> system might have one big <code>StudentRecordsSystem</code> class which does <em>all</em> the work</li>
+<li>A <em>high cohesion</em> system, by contrast, would have a series of
+smaller classes, all focused on one particular job, e.g.:
+    <ul>
+    <li> <code>Student</code> to represent a student</li>
+    <li> <code>Course</code> to represent a course</li>
+    <li> <code>University</code> to manage the system as a whole</li>
+    </ul>
+</li>
+<li>This means that the individual classes could be re-used in other applications, and by separating out code into individual classes, makes the application easier to read, and thus maintain</li>
+</ul>
+</div>
+
+<div>
+<h3>Another example of a high cohesion pattern: web communication</h3>
+<ul>
+<li>Imagine a ticket-office booking application at a railway station which allows the member of staff to look up train times for a passenger</li>
+<li>The train times might be stored on a database on a web-server machine</li>
+<li>There are two parts to this:
+    <ul>
+    <li>Communicate across the web to the web-server and obtain the train times data</li>
+    <li>Interpret the train times (which will be delivered in a particular text-based format, such as JSON or XML) and integrate them in the GUI</li>
+    </ul>
+</li>
+<li>A <em>low-cohesion</em> design would have one big class for both these 
+tasks (web communication, interpreting the data)</li>
+<li>A <em>high-cohesion</em> design would have <em>one class for the web communication</em> and
+<em>one class for interpreting the data</em></li>
+<li>Why is this beneficial? Main point is we could <em>use one without the other</em>
+    <ul>
+    <li>Imagine the train times were stored in a text file on the local machine, rather than on a 
+    web-server. We could then use
+    the data-interpreting class without the web communication class</li>
+    <li>Imagine that the format of the data changed (e.g. XML to JSON). We could then use the web communication class and substitute the original data-interpreting class with another</li>
+    <li>Imagine that bookings were stored on the web-server. We could then use the web-communication class to make bookings as well as look up train times</li>
+    </ul>
+</li>
+</ul>
+</div>
+
