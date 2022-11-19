@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html><head>
+<title>Topic 9: JDBC and SQLite</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div class="titlebox">
+<h1>Topic 9: JDBC and SQLite</h1>
+</div>
+<p>Today we will look at connecting to a database using <em>JDBC</em>. However before we do so, we need to take a look at error handling with <em>exceptions</em>.</p>
+
+<h2>Introduction to Exceptions</h2>
+
+<p>We will start today with a quick introduction to error-handling with <em>exceptions</em>. We will not cover exceptions in full, just enough to use them with JDBC. However I have provided more complete notes <a href='exceptions.html'>here</a> for you to read in your own time.</p>
+<p>Note that <em>some of the exceptions notes are based on the originals by
+John Flackett, but reworded</em></p>
+
+<div>
+<h3>Use of exceptions</h3>
+<ul>
+<li>Often our programs encounter unpredictable errors, which are not the fault of the user</li>
+<li>For example, a network connection might be lost, or a hard drive might be corrupted (meaning we cannot read files)</li>
+<li>Such unpredictable errors can be handled by the use of <em>exceptions</em></li>
+<li>When we encounter an error, we <em>throw an exception</em></li>
+<li>An exception is a special object which is generated when the error 
+occurs</li>
+<li>We then <em>catch the exception</em> in the calling code</li>
+</ul>
+<p><img src="../images/exceptions.png" alt="Exceptions"/></p>
+</div>
+
+<div>
+<h3>Catching an exception</h3>
+<ul>
+<li>In order to handle the error,
+we need to <em>catch</em> any exceptions that are thrown</li>
+<li>To do that, we put the code which might generate the exception in a
+<em>try/catch</em> block</li>
+<li>e.g.
+<pre>
+// Note that MyNetworkConnection is not part of the Java library - it's a custom class built by ourselves
+MyNetworkConnection networkConnection = new MyNetworkConnection();
+try
+{
+    Response response = networkConnection.fetchResponse("https://nwcourses.github.io/COM528/");
+    System.out.println(&quot;Response from server: &quot; + response.toString());
+}
+catch (IOException e)
+{
+    System.out.println (&quot;An error occurred: &quot; + e);
+}
+</pre>
+</li>
+<li>We <em>try</em> the code which might generate the exception (the <code>networkConnection.fetchResponse()</code> method) and <em>catch</em> any exceptions generated in the <em>catch block</em></li>
+<li>The code below the exception-generating method (<code>networkConnection.fetchResponse()</code>) in the try block will <em>not run if an exception occurred</em>
+    <ul>
+    <li>In other words, if there was an exception, the response from the 
+    server will not be displayed</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>What is an exception class?</h3>
+<ul>
+<li><code>IOException</code> is part of the standard library</li>
+<li>In general, an exception class which inherits from the standard library class <em>Exception</em>.</li>
+<li>This allows us to use certain features common to all Exceptions</li>
+<li>When we create the exception, we can store information about the exception
+within it</li>
+</ul>
+</div>
+
+<div>
+<h3>Examples of built-in Exceptions</h3>
+<ul>
+<li>There are many built-in exception classes in Java</li>
+<li>These include:
+    <ul>
+   <li><code>IOException</code> (i.e. <code>input/output exception</code>) - 
+    some sort of error occurred when we try to write to or read from
+   a file, or connect across a network. This could include, for example, the hard
+   drive or USB stick that we are writing to being corrupted or full</li>
+ <li><code>FileNotFoundException</code> - a subclass of IOException, which is thrown
+  if we try to access a non-existent file</li>
+    <li><code>ArithmeticException</code> - an illegal mathematical operation, such
+    as a division by zero, is performed</li>
+    <li><code>ArrayIndexOutOfBoundsException</code> - when we try to look up a member
+    of an array outside the array bounds</li>
+    <li><code>NumberFormatException</code> - if we convert a non-number (e.g. a word)
+    into a number using Integer.parseInt()</li>
+      <li><code>NullPointerException</code> - we try to do something with a 
+        null object, e.g.
+    <pre>
+    Person p = null; // SHOULD BE Person p = new Person(); !
+    p.setName (&quot;John&quot;);
+    </pre>
+    </li>
+   </ul>
+</li>
+</ul>
+</div>
+<div>
+<h3>Checked and Unchecked Exceptions</h3>
+<ul>
+<li>Normally, exceptions <em>must</em> be caught
+    <ul>
+    <li>Such exceptions are known as <em>checked exceptions</em></li>
+    <li>They typically represent unpredictable errors, which cannot be guarded against in advance, for example loss of network connectivity, or running out of hard drive space</li>
+    <li>The compiler will give an error if we do not catch a checked exception</li>
+    </ul>
+</li>
+<li>However, if we inherit from <code>RuntimeException</code> we do not have to catch them
+    <ul>
+    <li>RuntimeExceptions are also known as <em>unchecked exceptions</em> as
+    we do not have to catch them</li>
+    <li>RuntimeExceptions can be guarded against with careful programming, for example you can prevent a <code>NullPointerException</code> by checking none of your objects are <code>null</code>!</li>
+    </ul>
+</li> 
+</ul>
+</div>
+
+<hr />
+<h2>Introduction to JDBC</h2>
+<p>JDBC stands for <em>Java Data Base Connectivity</em> and provides a common standard for connecting to <em>any</em> supported database, such as Oracle, MySQL, PostgreSQL and so on. The great advantage of JDBC over the "native" methods for connecting to each database is that the same code (the JDBC API) can be used to connect to different databases. The only thing you need to change is the <em>driver</em> and <em>connection</em>.</p>
+
+
+<h3>JDBC drivers</h3>
+
+<p>JDBC connects to a range of different databases using <em>drivers</em>. Each database has its own driver, and the driver provides the interface between JDBC and the native database. In other words, the driver translates the common interface that JDBC provides into the specific implementation details needed for each type of database. So there is a MySQL driver, an Oracle driver, and so on.</p>
+
+<p>The diagram below shows a typical architecture of a JDBC application, showing the different components and how they interact. Note that not all databases include all layers.
+<br />
+<img src="../images/jdbc_simplified.png" alt="JDBC simplified" />
+<br />
+As can be seen, the JDBC API of your application (common to all databases) communicates with the driver. The driver would then typically communicate with a Java API for your specific database (e.g. SQLite) which then may use a native (C or C++) API for that database to actually communicate with the database itself - as most native database APIs are written in C or C++.
+</p>
+
+<h2>Introduction to SQLite</h2>
+<p><em>SQLite</em> (see <a href="http://www.sqlite.org">sqlite.org</a>)
+is a simple on-board client-side database which does not require a full
+database management system setup (like MySQL or Oracle) and its attendant client-server architecture. SQLite databases can be easily embedded into any Java application, whether that be a web application, a console application, a desktop GUI Java application or an Android app. SQLite databases are stored as simple files, with a <code>.db</code> extension. You can download SQLite <a href='https://www.sqlite.org/download.html'>here</a>. You can query and manipulate an SQLite database via the console-based <code>sqlite3</code> tool, documented <a href='https://www.sqlite.org/cli.html'>here</a> and downloadable <a href='https://www.sqlite.org/download.html'>here</a> along with the SQLite libraries. You can also upload a <code>.db</code> database to the online "fiddle" tool <a href='https://sqlite.org/fiddle/index.html'>here</a> and enter SQL statements to query and manipulate the database.</p>
+
+<h2>Using JDBC with SQLite</h2>
+<h3>Handling exceptions</h3>
+<p>To use JDBC with any database you need to handle possible <em>exceptions</em> representing various type of SQL error (e.g. cannot connect to the database, SQL syntax errors). An <code>SQLException</code> will be thrown in all these cases. Therefore, all your database code must be placed within a <code>try</code> block, with a <code>catch</code> block to handle errors, e.g.:
+<pre>
+Connection connection = null;
+try
+{
+    // Connect to the database (see below)
+    // Send your SQL queries (see below)
+}
+catch(SQLException sqlException)
+{
+    out.println("Error: " + sqlException);
+}
+finally
+{
+    try
+    {
+        if(connection != null)
+        {
+            connection.close();
+        }
+    }
+    catch (SQLException closeException)
+    {
+        out.println("Close error: " + closeException);
+    }
+}
+</pre>
+Note the <code>try</code> and <code>catch</code> is followed by a third type of block, a <code>finally</code> block, in which we close the database connection, whether or not there was an exception. More generally, <strong>the role of <code>finally</code> blocks is to run code whether or not an exception occurred</strong>. Note that closing the connection might itself generate an exception so the <code>finally</code> block must include its own <code>try</code>/<code>catch</code>.
+</p>
+<h3>Connecting to the database</h3>
+<p>First of all, use the driver to make the connection to the SQLite database:
+<pre>Class.forName("org.sqlite.JDBC");
+Connection conn = DriverManager.getConnection("jdbc:sqlite:venue.db");</pre>
+The first statement (<code>Class.forName("org.sqlite.JDBC");</code> ensures the driver is loaded by referencing one of the classes within it (<code>org.sqlite.JDBC</code>). Without this statement, the driver may not be loaded.</p>
+<p>Then we obtain a connection to a database, using the JDBC API. All supported databases would use <pre>DriverManager.getConnection()</pre> as it's a standard JDBC call, however the connection details (the <em>connection string</em>) would be different. Note that here, the connection string is:
+<pre>jdbc:sqlite:venue.db</pre>
+The <code>jdbc:</code> denotes the protocol, which confirms we are using JDBC. The next part of the string is the specific database we are using: <code>sqlite</code> here. The final part of the string is the <code>.db</code> file storing the database. This will be loaded from the <code>CATALINA_BASE</code> directory bydefault, unless a full path is specified. Also, the <code>.db</code> file will be created if it doesn't already exist.</p>
+
+<h3>Using Statements</h3>
+
+<p>To use JDBC to send SQL queries to the database, we need to create <code>Statement</code> objects. <code>Statement</code> objects can be used to execute queries of various kinds. Here is an example of using a <code>Statement</code> to create a table using SQLite (note that the SQL used is specifically SQLite SQL, which is slightly different to other types of SQL):
+<pre>Statement stmt = conn.createStatement();
+stmt.executeUpdate("create table if not exists event (id integer primary key autoincrement, band string, eventdate string, eventtime string, availability integer)");</pre>
+We use the <code>Connection</code> object to create the <code>Statement</code>. <code>Statement</code> has an <code>executeUpdate()</code> method to perform any query which will <em>update</em> the database in some way, e.g. create a table, or insert, update or delete a record. Here, we are creating a table with a primary key (<code>id</code>), three string columns (<code>band</code>, <code>eventdate</code> and <code>eventtime</code>) and an integer column (<code>availability</code>).
+</p>
+
+
+<h2>CRUD operations</h2>
+
+<p>CRUD (Create, Retrieve, Update, Delete) describes the standard data operations of creating data, looking up data, updating data and deleting data (in SQL, INSERT, SELECT, UPDATE and DELETE respectively). Here is how we perform CRUD operations with JDBC and SQLite.</p>
+
+<h3>Retrieval (SELECT statements)</h3>
+<p>Here is an example of some code to perform a SELECT statement. 
+<pre>
+String firstname = "John";
+PreparedStatement pStmt = conn.prepareStatement("select * from venue where band=?");
+pStmt.setString(1, request.getParameter("band"));
+ResultSet rs = pStmt.executeQuery();
+while(rs.next())
+{
+    out.println("Date: " + rs.getString("eventdate") + " Time: " + rs.getString("eventtime") + " Availability: " + rs.getString("availability") + "&lt;br /&gt;");
+}
+</pre>
+<ul>
+<li>We first create a <code>PreparedStatement</code> (rather than just a plain <code>Statement</code>). A prepared statement is a statement which has parameters <em>bound</em> to it, and then is <em>compiled</em> into a binary form which can be stored in memory and rapidly executed by the database. The advantage of a prepared statement is that once compiled, it can be rapidly executed again and again by the database if our application performs the same query multiple times. Prepared statements also prevent a certain type of security exploit known as <em>SQL injection</em>, in which a database can be compromised by the user entering fragments of SQL into a form which combine with existing SQL code in the JSP. We will look at SQL injection in more detail next term in COM518 (Web Application Development).</li>
+<li>Note how the SQL contains placeholders for bound parameters, using question marks <code>?</code> We bind data to each placeholder using <code>setString()</code>, which takes, as arguments, the placeholder number (beginning with 1) and the data we want to bind. So here:
+<pre>pStmt.setString(1, request.getParameter("band"));</pre>
+will bind the band read in from the HTML form (this example is JSP) to the first placeholder. The result will be that we query the database for all events performed by that band.</li>
+<li>We then actually <em>execute</em> the query. This will send the query to the database which will respond with the data:
+<pre>ResultSet rs = pStmt.executeQuery();</pre>
+This returns back a <code>ResultSet</code>: a collection of all the matching rows from the table.</li>
+<li>We then <em>loop through</em> the <code>ResultSet</code> by repeatedly calling <code>next()</code> on it. This retrieves the current row within the result set and moves onto the next row. When there are no more rows to retrieve, <code>next()</code> will return <code>false</code>, so the loop will stop.</li>
+<li>We then obtain the values within each column of the current row, using the <code>ResultSet</code>'s <code>getString()</code> method. This takes the column name as an argument, e.g <code>rs.getString("date")</code> to retrieve the value in the <code>date</code> column.</li>
+<li>Note also how we can output data to the HTML page in JSP using <code>out.println()</code>. I haven't introduced this before, though it is used in the Week 5 solution.</li>
+</ul>
+</p>
+
+<p>Here is another version where we are searching on both band and date: 
+<pre>
+PreparedStatement pStmt = conn.prepareStatement("select * from venue where band=? and eventdate=?");
+pStmt.setString(1, request.getParameter("band"));
+pStmt.setString(2, request.getParameter("date"));
+ResultSet rs = pStmt.executeQuery();
+while(rs.next())
+{
+    out.println("Date: " + rs.getString("eventdate") + " Time: " + rs.getString("eventtime") + " Availability: " + rs.getString("availability") + "&lt;br /&gt;");
+}
+</pre>
+</p>
+
+<h3>Record creation (INSERT statements)</h3>
+<p>INSERT statements are fairly straightforward, here is some sample code:
+<pre>
+PreparedStatement pStmt = conn.prepareStatement ("insert into venue(band,eventdate,eventtime,availability) values (?, ?, ?, ?)");
+pStmt.setString (1, request.getParameter("band"));
+pStmt.setString (2, request.getParameter("date"));
+pStmt.setString (3, request.getParameter("time"));
+pStmt.setInt (4, Integer.parseInt(request.getParameter("availability")));
+int rowsAdded = pStmt.executeUpdate();
+if(rowsAdded == 1) 
+{
+    out.println("Successfully added");
+}
+else
+{
+    out.println("Could not add");
+} 
+</pre>
+Note how it is very similar to the SELECT example, except we are now using an INSERT query and we use <code>executeUpdate()</code> to execute the prepared statement (we must do this for any prepared statement which changes the database in some way). We also use the return value of <code>executeUpdate()</code> to check how many rows were actually added, which should be 1.</p>
+
+<h3>Record update (UPDATE statements)</h3>
+<p>UPDATE statements are fairly straightforward, here is some sample code:
+<pre>
+PreparedStatement pStmt = conn.prepareStatement ("update people set email=? where id=?");
+pStmt.setString (1, request.getParameter("email"));
+pStmt.setString (2, request.getParameter("id"));
+int affectedRows = pStmt.executeUpdate();
+if(affectedRows == 1) 
+{
+    out.println("Successfully updated");
+}
+else
+{
+    out.println("Could not update");
+} 
+</pre>
+This is very similar to the INSERT example. The 
+<code>executeUpdate()</code> returns the number of affected rows; we check this is 1.</p>
+<h3>Record delete (DELETE statements)</h3>
+<p>DELETE statements are identical to UPDATE in logic:
+<pre>
+PreparedStatement pStmt = conn.prepareStatement ("delete from course where name=?");
+pStmt.setString (1, request.getParameter("course"));
+int affectedRows = pStmt.executeUpdate();
+if(affectedRows == 1) 
+{
+    out.println("Successfully deleted");
+}
+else
+{
+    out.println("Could not delete");
+} 
+</pre>
+</p>
+
+<div>
+<h2>Data Access Objects and Data Entities</h2>
+<ul>
+<li>When writing object-oriented code to interact with a database, we 
+typically make our code easier to read, and thus maintain, by making use of <em>data access objects (DAOs)</em> and 
+<em>data entities</em></li>
+<li>What are these?
+    <ul>
+    <li>A <em>data entity</em> is a standard Java object representing an individual entity in your table, e.g. a <code>Student</code> object (from the <code>Student</code> class you have already written) representing a record
+    in a <code>students</code> table</li>
+    <li>A <em>DAO</em> provides an interface to your table as a whole, and
+    might contain methods such as <code>findStudentById()</code> or
+    <code>findStudentsByName()</code> (for a <code>students</code> table). The methods of the DAO would either return data entities or take them as parameters.</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Example of a DAO for an events table (for the live music venue application)</h3>
+<pre>
+class EventDao 
+{
+    private Connection conn;
+    private String table; 
+
+    public EventsDao(Connection conn, String table) 
+    {
+        this.conn = conn;
+        this.table = table;
+    }
+
+    // find an event with a given ID
+
+    public Event findEventById(long id) throws SQLException
+    {
+        PreparedStatement pStmt = conn.prepareStatement("select * from " + table + " where id=?");
+        pStmt.setLong(1, id);
+        ResultSet rs = pStmt.executeQuery();
+    
+        // Is there a row? If so, next() will return true
+        if(rs.next())
+        {
+            // Create an Event object with the result
+            return new Event(
+                rs.getString("band"),
+                rs.getString("eventdate"),
+                rs.getString("eventtime"),
+                rs.getInt("availability")
+            );
+        }
+        // return null if there were no matching rows
+        return null;    
+    }
+
+
+    // find all events featuring a given band 
+    // returns the events as an ArrayList
+
+    public ArrayList&lt;Event&gt; findEventsByBand(String band) throws SQLException
+    {
+        ArrayList&lt;Event&gt; events = new ArrayList&lt;&gt;();
+        PreparedStatement pStmt = conn.prepareStatement("select * from " + table + " where band=?");
+        pStmt.setString(1, band);
+        ResultSet rs = pStmt.executeQuery();
+
+        // Loop through the results
+        while(rs.next())
+        {
+            // Create an Event object with each result and add it to the
+            // ArrayList
+
+            Event event = new Event(
+                rs.getString("band"),
+                rs.getString("eventdate"),
+                rs.getString("eventtime"),
+                rs.getInt("availability")
+            );
+            events.add(event);
+        }
+        return events;
+    }
+
+
+    // add a new event - takes an Event object (which will contain a name,
+    // a course, but NOT yet an ID) as a parameter and fills
+    // in the ID attribute of the Event object with the ID allocated by 
+    // the database. Also returns the allocated ID.
+
+    public long addEvent(Event event) throws SQLException
+    {
+        PreparedStatement pStmt = conn.prepareStatement ("insert into " + table + "(band,eventdate,eventtime,availability) values (?, ?, ?, ?)");
+        pStmt.setString (1, event.getBand()); 
+        pStmt.setString (2, event.getDate()); 
+        pStmt.setString (3, event.getTime()); 
+        pStmt.setInt (4, event.getAvailability()); 
+        int rowsAdded = pStmt.executeUpdate();
+        long allocatedId = 0L;
+
+        // Was a row added successfully?
+        if(rowsAdded == 1) 
+        {
+            // If so, get the keys added
+            ResultSet rs = pStmt.getGeneratedKeys();
+
+            // next() should return true, but check just in case
+            if(rs.next()) 
+            {
+                // get the allocated primary key
+                allocatedId = rs.getLong(1);
+            }
+        }
+
+        // Add the allocated ID to the event object and return the ID
+        event.setId(allocatedId);
+        return allocatedId;
+    }
+
+
+    // update an event - takes an Event object as a parameter and updates
+    // the record in the table with the ID of that event object passed in
+
+    public int updateEvent(Event event) throws SQLException
+    {
+        PreparedStatement pStmt = conn.prepareStatement ("update " + table + " set date=?,time=?,availability=? where id=?");
+        pStmt.setString (1, event.getDate()); 
+        pStmt.setString (2, event.getTime()); 
+        pStmt.setInt (3, event.getAvailability()); 
+        pStmt.setLong (4, event.getId()); 
+        return pStmt.executeUpdate();
+    }
+
+
+    // delete an event - takes an Event object as a parameter 
+    // and deletes the record with the ID of the event object passed in
+
+    public int deleteEvent(Event event) throws SQLException
+    {
+        PreparedStatement pStmt = conn.prepareStatement ("delete from " + table + " where id=?");
+        pStmt.setLong (1, event.getId()); 
+        return pStmt.executeUpdate();
+    }
+
+    // other methods would be present, only a sample is shown...
+}
+</pre>
+</div>
+
+<div>
+<h3>DAO - Explanation</h3>
+<ul>
+<li>Note how the DAO contains a series of methods which perform various
+database operations</li>
+<li>The rest of our Java code would interface with the DAO, rather than
+the database directly, keeping it clean and keeping all the 'messy' SQL
+statements in one place</li>
+<li>Many of the methods contain an Event object as a parameter; the DAO
+will take this event object and perform the appropriate operation using
+the data contained within it
+    <ul>
+    <li>e.g. the <code>updateEvent()</code> method will update the details of
+    the event with the ID specified in the event object, to the details
+    contained within the event object</li>
+    </ul>
+</li>
+<li>Note also how all the methods include the instruction <code>throws SQLException</code>. All these methods might throw an exception because all contain SQL statements. However, rather than handling the exceptions here, we <em>re-throw</em> them to whatever code might be calling the DAO. This allows for custom error handling depending on what UI we are using: the idea is that the UI will contain the <code>try</code>/<code>catch</code> statement and handle the exceptions in an appropriate way by displaying a message to the user with that UI.</p>
+</ul>
+</div>
+
+<div>
+<h3>Using the DAO from outside</h3>
+<p>A typical design would include a "manager" class (such as the <code>LiveMusicVenue</code> in this example) containing multiple DAOs. For example:
+<pre>
+public class LiveMusicVenue
+{
+    private Connection conn;
+    private EventDao eventDao;
+    private CustomerDao customerDao;
+
+    public LiveMusicVenue() throws SQLException
+    {
+        conn = DriverManager.getConnection("jdbc:sqlite:venue.db");
+        eventDao = new EventDao(conn, "event");
+        customerDao = new CustomerDao(conn, "customer");
+    }
+
+    public ArrayList&lt;Event&gt; findEventsByBand(String band) throws SQLException
+    {
+        return eventDao.findEventsByBand(band);
+    }
+
+    public boolean bookEvent(long eventId, long customerId, int nPeople) throws SQLException
+    {
+        Event event = eventDao.findEventById(eventId);
+        Customer customer = customerDao.findCustomerById(customerId);
+        
+        if(event.getAvailability() &gt;= nPeople)
+        {
+            Booking booking = new Booking(event, nPeople);
+            event.reduceAvailability(nPeople);
+            eventDao.updateEvent(event);
+            customer.addBooking(booking);
+            return true;
+        }
+        return false;
+    }
+
+    // ... etc ...
+}
+</pre>    
+Note how the <code>LiveMusicVenue</code> contains multiple DAOs and provides methods which allow the outside world to communicate with the DAOs (e.g. <code>findEventsByBand()</code>, shown here).
+</p>
+<p>Note also the <code>bookEvent()</code> method, which takes an event ID and customer ID as parameters. This shows how one event can communicate with multiple DAOs. We use the DAOs to find the event and customer with those IDs, and then, if the event has free space, we create a booking for the event, reduce the availability in the event object, pass the event object to the DAO via the <code>updateEvent()</code> method (so that the availability in the database updates), and add the booking to the customer. The latter operation would not change the database but just store a booking locally within the customer object, as it is not a long-term operation and therefore does not need database storage.
+</p>
+</div>
+<h2>Exercise</h2>
+    <ol>
+    <li>Start a new JSP project. Copy the <code>index.html</code> from week 6 to it (this contains a form allowing the user to add a student), and also add this additional form, allowing the user to search for a student by name:
+    <pre>
+&lt;form method="get" action="search.jsp"&gt;
+Student name: &lt;input name="studentName" /&gt;
+&lt;input type="submit" value="Go!" /&gt;
+&lt;/form&gt;</pre>
+    </li>
+    <li>Create a new JSP, <code>addStudent.jsp</code>. In this JSP, add code to connect to the database. Begin with the try/catch/finally structure shown above and then add the connection code. Use the filename <code>students.db</code> for your SQLite database. This file will be created if it doesn't exist already.</li>
+    <li>Add code to read in the student details from the form. Use an <code>INSERT</code> statement to add a new student record to a <code>student</code> table in the database. Test the number of affected rows returned, to confirm to the user whether the insertion was successful or not.</li>
+    <li>Create a second JSP, <code>search.jsp</code>. This should read in the student name from the second form on the index page, and use it to search for all students with that name. Display all matching students.</li>
+    <li>Create a <code>StudentDao</code> by following the DAO example above. It should include methods to add a student and search for a student by name. Modify your JSPs so that they create a <code>StudentDao</code> object and use it to perform the insertion and search operations.</li>
+    <li><strong>Advanced:</strong> Modify your University console application from week 3 so that it stores students in an SQLite database rather than an array list. It should include the <code>StudentDao</code> you wrote above. You will need to modify the <code>StudentDao</code> and the <code>University</code> in this way:
+        <ul>
+        <li>Include <code>findStudentById()</code> and <code>findStudentsByName()</code> methods in the DAO. These should query the database appropriately and return a single <code>Student</code>, and an <code>ArrayList</code> of matching <code>Student</code>s, respectively.</li>
+        <li>The <code>University</code> should contain a <code>StudentDao</code> within it, but it will no longer need an <code>ArrayList</code> of students.</li>
+        <li>Modify the methods of <code>University</code> so that they call the appropriate methods in the <code>StudentDao</code>.</li>
+        </ul>
+    </li>
+    </ol>
+</body>
+</html>
