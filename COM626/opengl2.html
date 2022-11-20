@@ -382,6 +382,13 @@ The effect of <code>translateM()</code> will be to convert it to:
 <li><strong>What effect do you get, and why?</strong> Try using a range of different <code>z</code> translations, between -2 and +2, see what effect it has, and try to explain your observations. We will go over this in class.</li>
 </ol>
 
+<h3>Discussion from Question 7 of above exercise</h3>
+<p>Now we have completed this week, I have added a discussion on this. You will note that setting the <code>z</code> translation to -1 makes the <em>triangles appear smaller</em>. Why is this? The diagram below helps explain it:
+<br />
+<img src="../images/camera_world_to_eye_coords.png" alt="World and eye coordinates of visible shapes" />
+<br />
+The <code>-1</code> does <em>not</em> define the <code>z</code> coordinate of the camera. It defines the <strong>translation needed to convert world to eye coordinates</strong>. If this translation is -1, it means that the <code>z</code> coordinate of the camera must be <em>+1</em>. This is because, by definition, the camera is at the <em>origin</em> in eye coordinates. So the translation required to translate the camera from a <em>world</em> <code>z</code> coordinate of <code>cz</code> to zero must always be <code>-cz</code>. Or, looking at it the other way round, the world coordinate of the camera for a given world to eye translation of <code>dz</code> will be <code>-dz</code>. So here, if the translation <code>dz</code> is -1, the <code>z</code> coordinate of the camera must be +1. (The same principles also apply in the <code>x</code> and <code>y</code> directions).</p>
+<p>You can also see from the diagram above that, when we move the camera to a <code>z</code> of +1, the distance to the two triangles <em>increases</em> by one unit (as they both have negative <code>z</code> coordinates) so the eye <code>z</code> coordinates of each will become one unit more negative (-3 to -4 and -6 to -7 for the red and yellow triangle respectively).</p>
 
 
 <h2>3D Worlds in OpenGL</h2>

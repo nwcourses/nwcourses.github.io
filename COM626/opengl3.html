@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>3D Graphics with OpenGL</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+<style>
+img {
+	border: 1px solid black;
+}
+</style>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 9</h1>
+<h1>OpenGL part 3 - Rotation</h1>
+</div>
+<p>Today we will continue to look at OpenGL by examining how we can perform <em>rotations</em> in 3D worlds.</p>
+
+<h2>Rotation in 3D worlds</h2>
+<p>We have looked at how to do <em>translations</em> using the view matrix. However, it may also be necessary to do <em>rotations</em> too. For example, if the camera position is at x=100, y=0, z=100 in world coordinates, and facing towards <em>positive x</em> in world coordinates, we need to do both a translation <em>and a rotation around the origin</em> to convert the world coordinates into eye coordinates.  Note that <em>positive</em> angles are <em>anticlockwise</em> in OpenGL.</p>
+<p>The rotation required to convert world to eye coordinates should be the <em>reverse</em> of the current camera rotation with respect to the default (facing negative z). So, for example, if the camera is currently rotated by -90 (90 degrees clockwise), we need to rotate it by <em>+90</em> to calculate eye coordinates. This is because eye coordinates <em>by definition</em> have the camera on the origin and facing negative z. So if the current world position and orientation are translated by a given translation T and rotation R with respect to the default position and orientation, we need to apply <em>the inverse of T</em> and <em>the inverse of R</em> to revert to the default position and orientation, which the camera will have in eye coordinates. In other words, if the camera is at position <code>(cx, cy, cz)</code> and is facing angle <code>A</code>, then we need to translate world coordinates by <code>(-cx, -cy, -cz)</code> and rotate by <code>-A</code> to obtain eye coordinates. This is true because the camera is always, by definition, at the origin and facing the default direction (i.e. rotation angle 0) in eye coordinates.
+</p>
+<h2>Order of translation and rotation</h2>
+<p>Rotation and translation order matters when converting world to eye coordinates. The diagram below proves this, which shows the xz-plane of an OpenGL scene. There is a triangle at these coordinates:
+	<ul>
+	<li>A (x=3, z=-1);</li>
+	<li>B (x=5, z=-1);</li>
+	<li>C (x=4, z=-3).</li>
+	</ul>
+The camera is at position (x=3, z=-1) <strong>and is facing positive x</strong>. So the camera is rotated 90 degrees clockwise (i.e. -90, as anticlockwise angles are positive) relative to the default orientation. So the <em>eye</em> coordinates of the triangle would be:
+	<ul>
+	<li>A (x=0, z=0);</li>
+	<li>B (x=0, z=-2);</li>
+	<li>C (x=-2, z=-1).</li>
+	</ul>
+</p>
+<p>We will now see what effect we get when we try to <em>rotate the triangle first, and then translate it</em>, and conversely, <em>translate the triangle first, then rotate it</em>. Which will give the correct transformation from world to eye coordinates?
+<br />
+<img src='../images/openglrotation.png' alt='OpenGL translation and rotation from world to eye coordinates' />
+</p>
+<p>So it can be seen that we must apply a <em>translation first</em> (to the origin) and <em>then a rotation</em> (around the origin) to get the desired result. </p>
+<p>However in our <em>code</em>, we have to do the opposite, <em>rotation first, then translation</em>. This may seem strange: Why is this?</p>
+<p>It's to do with the order in which matrices are multiplied. Remember from last week that this matters: for two matrices <code>A</code> and <code>B</code>, <code>A*B</code> is not the same as <code>B*A</code>. <a href='https://www.reinterpretcast.com/opengl-matrix-transformation-order'>This article</a> discusses this at some length. The points made by the article are summarised in the discussion below.</p>
+<p>The key thing is this. When doing each successive multiplication of the view matrix by a new matrix, the view matrix is the <em>left-hand</em> or <em>first</em> matrix in the multiplication, and the new transformation is the <em>right-hand</em> or <em>second</em> matrix</em>. By contrast the points (as vectors) are always on the <em>right-hand</em> side when they are multiplied by a matrix, as we saw last week.</p>
+<p>We will now prove that starting with <em>rotation</em> in our code actually means the <em>translation</em> matrix will be applied to the point first. We will start with the view matrix in is initial state as an identity matrix <code>I</code> and apply the rotation matrix <code>R</code> to get an initial view matrix <code>M<sub>1</sub></code>:
+<pre>M<sub>1</sub> = I * R</pre> 
+Then if we multiply <code>M<sub>1</sub></code> (the first view matrix) with the translation matrix <code>T</code>, we obtain a new view matrix <code>M<sub>2</sub></code>:
+<pre>M<sub>2</sub> = M<sub>1</sub> * T</pre> 
+However, <code>M<sub>1</sub></code> is equal to <code>R</code> (as M<sub>1</sub> is the identity matrix multiplied by <code>R</code>), so we can just express <code>M<sub>2</sub></code> with respect to <code>R</code> and <code>T</code>: 
+<pre>M<sub>2</sub> = R * T</pre> 
+M<sub>2</sub> is our final view matrix, as it includes both rotation and translation components. We use the final view matrix, M<sub>2</sub>, to transform any point <code>P<sub>world</sub></code> (with <code>P<sub>world</sub></code> on the <em>right</em> side, as we saw last week). This produces a transformed point in eye coordinates, P<sub>eye</sub>:
+<pre>P<sub>eye</sub> = M<sub>2</sub> * P<sub>world</sub></pre>
+To prove that this corresponds to translation first, we then expand the equation to express <code>P<sub>eye</sub></code> in terms of <code>R</code> and <code>T</code>:
+<pre>P<sub>eye</sub> = R * T * P<sub>world</sub></pre>
+Look at where the original point in world coordinates, <code>P<sub>world</sub></code>, is in this expression. It is being multiplied by the <em>translation matrix, <code>T</code></em>. Thus, the point is being <em>translated first</em> if the <em>rotation matrix is the first thing specified in our code</em>. This becomes clearer if we use brackets in the expression to show exactly what is multiplied by what:
+<pre>P<sub>eye</sub> = R * (T  * P<sub>world</sub>)</pre>
+So, <code>T</code> is multiplied by <code>P<sub>world</sub></code>, to produce an output (translated) point, then <code>R</code> is multiplied by that output point to produce a second point, which is our final point in eye coordinates. This corresponds to the desired order shown on the diagram above: translation and then rotation. So we have proved that <strong>if we want the point to be translated and then rotated when calculating the eye coordinates, we must specify the rotation matrix first, and then the translation matrix, when calculating the view matrix to use.</strong></p>
+<h3>Exercise: setting your code up to handle rotation</h3>
+<p>Return to your app from last week, in which you could move round the world in x, y and z directions. You are now going to add a rotation facility to it, to allow the user to rotate the camera. To do this:
+	<ul>
+	<li>Add a <em>float</em> attribute to your OpenGLView representing the current rotation of the camera
+	in degrees. 0 should represent the default of looking down the z axis towards negative z, and it should
+	increase anticlockwise and decrease clockwise. Use values in the range -180 &gt; 0 &gt; 180.</li>
+	<li>Add anticlockwise and clockwise rotation buttons to the user interface. When the user presses these, call
+	appropriate methods to increase the <em>float</em> attribute in your OpenGLView appropriately, using a step
+	of 10 degrees.</li>
+	<li>Alter your code in <code>onDrawFrame()</code> to apply the rotation in addition to the translation. You need to use the <code>Matrix.rotateM()</code> method:
+	<pre>Matrix.rotateM(matrix, offset, angle, x, y, z)</pre>
+	What are the arguments?
+		<ul>
+		<li>First argument is the matrix to be rotated;</li>
+		<li>Second argument is the offset into the array where the matrix begins (usually 0);</li>
+		<li>Third argument is the angle to rotate (degrees);</li>
+		<li>Fourth, fifth and sixth arguments define the axis to rotate around (x, y and z respectively). Note that you can rotate around any arbitrary axis, not just the x, y and z axes. Here, we wish to rotate around the y axis, so would supply the values <code>0</code>, <code>1</code> and <code>0</code> respectively.</li>
+		</ul>
+	</li>
+	<li>Try it out.</li>
+	</ul>
+</p>
+
+
+<h2>Moving the camera forward</h2>
+<p>Last time we looked at how to move the camera by changing its <code>position</code>. So far we have simply moved the camera along the x, y and z axes.  However, in an AR or VR application, we need to move the camera <em>in the direction it's currently facing</em>, in other words <em>move forward</em>. Let's say, for simplicity, we wish to move the camera forward <em>one unit</em> in the direction it's facing, on the xz-plane (ground plane), i.e. we are only moving <code>x</code> and <code>z</code> coordinates, not <code>y</code>. How do we do that? We need to work out <em>how far in the x direction</em> and <em>how far in the z direction</em> to move, and for this, we need some basic <em>trigonometry</em>.</p>
+<h3>Basic trigonometry - sines and cosines</h3>
+<p>The trigonometrical functions <em>sine</em>, <em>cosine</em> and <em>tangent</em> are used in calculations involving triangles, to work out either the length of the sides, or the size of angles, in a right-angled triangle. These functions take the size of an angle (usually in radians) as parameters. They are particularly used:
+	<ul>
+	<li>to work out the length of the sides of a right-angled triangle if we know the length of one side and we know the size of the triangle's angles;</li>
+	<li>to work out the size of the angles when we know the length of the sides of the right-angled triangle.</li>
+	</ul>
+The diagram below shows a <em>2D</em> mathematical representation of a right-angled triangle, with x and y axes only (no z axis). The triangle has one right angle (90 degrees) and one angle &theta;. (Because the angles of a triangle add up to 180 degrees, the other angle will be 90 - &theta;). The three sides of the triangle are known as the <em>opposite</em> side, the <em>adjacent</em> side and the <em>hypotenuse</em>. These are defined as follows:
+	<ul>
+	<li>The <em>hypotenuse</em> is the 'sloping' side of the triangle, i.e. the side opposite the right angle;</li>
+	<li>The <em>opposite</em> side, with respect to angle &theta;, is the side opposite the angle;</li>
+	<li>The <em>adjacent</em> side, with respect to angle &theta;, is the side adjacent to the angle, which is not the hypotenuse.</li>
+	</ul>
+With this in mind we can define the trigonometrical functions as follows:
+	<ul>
+	<li>The <em>sine</em> of &theta; (<code>sin &theta;</code>) is the length of the <em>opposite</em> side divided by the length of the <em>hypotenuse</em>;</li> 
+	<li>The <em>cosine</em> of &theta; (<code>cos &theta;</code>) is the length of the <em>adjacent</em> side divided by the length of the <em>hypotenuse</em>;</li> 
+	<li>The <em>tangent</em> of &theta; (<code>tan &theta;</code>) is the length of the <em>opposite</em> side divided by the length of the <em>adjacent</em> side. Note, however, we are not using the tangent here.</li> 
+	</ul>
+These can be remembered by the acronym <strong>SOHCAHTOA</strong>. See the diagram below.
+</p>
+<p><img src="../images/sohcahtoa.png" alt="SOHCAHTOA" /></p>
+<p>Why are these useful? They are available as functions from programming languages (and on calculators) and can be used to work out the length of the second and third side of a triangle when we know the size of the angle and the length of one side. This is precisely the problem we have with moving our camera: when we move a camera, we know the angle (because that is the angle the camera is currently facing) and we know the hypotenuse (because that is the distance we need to travel), but we need to find out the distance in the <code>x</code> and <code>z</code> directions in order to update the camera position.</p>
+<p>This is shown below:
+<br />
+<img src="../images/camera_trig.png" alt="Camera trigonometry" /><br />
+In this case, <code>-dx</code> is the x distance we need to move and <code>-dz</code> is the z distance we need to move. If the distance to travel is <code>d</code>, then we know, from above, that:
+	<ul>
+	<li><code>cos &theta;</code> is <code>-dz/d</code>, as the cosine is the adjacent divided by the hypotenuse. Consequently, <code>dz</code> is equal to <code>-d * cos &theta;</code>.</li>
+	<li><code>sin &theta;</code> is <code>-dx/d</code>, as the sine is the opposite divided by the hypotenuse. Consequently, <code>dx</code> is equal to <code>-d * sin &theta;.</code></li>
+	</ul>
+</p>
+<h3>Exercise 2 - moving the camera forward</h3>
+
+<p>Add buttons on the UI to move the camera forward and back by one unit, according to the current rotation, using the trigonometrical equations shown above. Use the functions <code>Math.sin()</code> and <code>Math.cos()</code> to calculate sines and cosines. Note that these functions take radians so you will have to convert your angle from degrees to radians, i.e:
+<pre>rad = deg * (Math.PI/180)</pre>
+</p>
+</body>
+</html>
