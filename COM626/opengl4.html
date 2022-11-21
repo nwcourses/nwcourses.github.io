@@ -62,10 +62,10 @@ array (of <em>short</em>s this time, rather than <em>float</em>s) and create the
 the array:
 <pre>
 val indices = shortArrayOf( 0,1,2, 2,3,0 )
-val ibuf = ByteBuffer.allocateDirect(indices.length*Short.SIZE_BYTES)
+val ibuf = ByteBuffer.allocateDirect(indices.size*Short.SIZE_BYTES)
 ibuf.order(ByteOrder.nativeOrder())
-ibuf.position(0)
 val indexbuffer: ShortBuffer = ibuf.asShortBuffer()
+indexbuffer.position(0)
 indexbuffer.put(indices)
 </pre>
 Then, when you draw the shape, you use <em>GLES20.glDrawElements()</em> rather than
