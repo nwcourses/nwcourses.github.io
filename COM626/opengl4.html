@@ -14,7 +14,7 @@ img {
 <h1>Mobile Development and 3D Graphics - Part 10</h1>
 <h1>OpenGL part 4 - Drawing more complex shapes with vertex indices</h1>
 </div>
-<h2>PREVIEW! - subject to possible change</h2>
+<h2>PREVIEW! - subject to change before intended delivery date of 28/11/22</h2>
 <p>Today we will 
 look at drawing more complex shapes made up of individual triangles
 by looking at <em>index buffers</em>.</p>
@@ -61,36 +61,28 @@ hidden faces (i.e. a face which is currently invisible due to being behind anoth
 array (of <em>short</em>s this time, rather than <em>float</em>s) and create the buffer from
 the array:
 <pre>
-short[] indices = { 0,1,2, 2,3,0 };
-ByteBuffer ibuf = ByteBuffer.allocateDirect(indices.length*Short.SIZE);
-ibuf.order(ByteOrder.nativeOrder());
-ibuf.position(0);
-ShortBuffer indexbuffer = ibuf.asShortBuffer();
-indexbuffer.put(indices);
+val indices = shortArrayOf( 0,1,2, 2,3,0 )
+val ibuf = ByteBuffer.allocateDirect(indices.length*Short.SIZE_BYTES)
+ibuf.order(ByteOrder.nativeOrder())
+ibuf.position(0)
+val indexbuffer: ShortBuffer = ibuf.asShortBuffer()
+indexbuffer.put(indices)
 </pre>
 Then, when you draw the shape, you use <em>GLES20.glDrawElements()</em> rather than
 <em>GLES20.glDrawArrays()</em>:
-<pre>GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices);</pre>
+<pre>GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices)</pre>
 where <em>indices</em> is your index buffer.</p>
 
 <h3>Exercise - creating a box</h3>
 
-<p>You are now going to use indices to create a class to represent a 3D box (cube).
-First, add index buffer functionality to your GPUInterface:
+<p>You are now going to use indices to create a class to represent a 3D box (cube).  First, try setting up a vertex buffer with these coordinates:
+<pre>(0,0,-3), (1,0,-3), (1,1,-3), (0,1,-3).</pre>
+This is a square made up of two triangles, but four vertices in total. Try drawing the square using vertex indices.</p>
+Now you are going to try drawing a box. Create a Box class:
 	<ul>
-	<li>Add a method to your <em>GPUInterface</em> class called
-	<em>drawIndexedBufferedData()</em>. This should take four parameters:
-	vertices (a Buffer); indices (a Buffer); stride (int) and shader variable (String).
-	Use <em>GLES20.glDrawElements()</em> to draw the shape defined by the vertices using
-	the indices.</li>
-	<li>Test it out by drawing a square with coordinates
-	(0,0,-3), (1,0,-3), (1,1,-3), (0,1,-3).</li>
-	</ul>
-Now create a Box class:
-	<ul>
-	<li>It should have a constructor taking the x,y
+	<li>It should have an initialisation method  taking the x,y
 	and z world coordinates of the bottom left of the box.
-	In the constructor, create a vertex buffer with these vertices, where
+	Create a vertex buffer with these vertices, where
 	<em>x</em>, <em>y</em> and <em>z</em> are the bottom left world coordinates:
 		<ul>
 		<li>x,y,z</li>
@@ -102,11 +94,9 @@ Now create a Box class:
 		<li>x+0.5, y+0.5, z-0.5</li>
 		<li>x, y+0.5, z-0.5</li>
 		</ul>
-	Also create an appropriate index buffer to draw all the triangles making up the outer
-	faces of the box. Ensure the triangles are drawn anticlockwise!
+	Also create an appropriate index buffer to draw all the triangles making up the outer faces of the box. Ensure the triangles are drawn anticlockwise!
 	Store the vertex and index buffers as attributes of your Box.</li>
-	<li>Write a <em>render()</em> method which renders the Box by calling the
-	appropriate method of GPUInterface.</li>
+	<li>Ensure the buffers associated with Box objects are accessible to the outside world.</li>
 	<li>Test it out by drawing two boxes at (0,0,-3) and (0,0,3).
 	Colour one red and the other yellow.</li>
 	</ul>
@@ -122,7 +112,7 @@ are nearest.</p>
 <h3>Shaders using a colour buffer</h3>
 <p> Here is an example of a shader which will do this:
 <pre>
-final String vertexShader =
+val vertexShader =
                 "attribute vec4 aVertex, aColour;\n" +
                         "varying vec4 vColour;\n" +
                         "uniform mat4 uPerspMtx, uMvMtx;\n" +
@@ -130,8 +120,8 @@ final String vertexShader =
                         "{\n"+
                         "gl_Position = uPerspMtx * uMvMtx * aVertex;\n" +
                         "vColour = aColour;\n" +
-                        "}\n",
-                fragmentShader =
+                        "}\n"
+val fragmentShader =
                         "precision mediump float;\n" +
                                 "varying vec4 vColour;\n" +
                                 "void main(void)\n"+
@@ -152,22 +142,21 @@ retrieve and use this variable in the fragment shader.</p>
 
 <h3>Passing colour buffers to the shader</h3>
 
-<p>Here is an example of some code to send a colour buffer (as well as vertex and index
-buffers) to a shader.
+<p>Here is an example of some code to send a colour buffer (as well as vertex and index buffers) to a shader. Imagine <code>colours</code> is a buffer containing RGB colour data.
 <pre>
-int attrVarRef= getShaderVarRef(vertexVar);
-int colourVarRef = getShaderVarRef(colourVar);
-vertices.position(0);
-indices.position(0);
-colours.position(0);
+val attrVarRef= GLES20.glGetAttribLocation(shaderProgram, "aVertex")
+val colourVarRef = GLES20.glGetAttribLocation(shaderProgram, "aColour")
+vertices.position(0)
+indices.position(0)
+colours.position(0)
 
-GLES20.glEnableVertexAttribArray(attrVarRef);
-GLES20.glVertexAttribPointer(attrVarRef, 3, GLES20.GL_FLOAT, false, stride, vertices);
+GLES20.glEnableVertexAttribArray(attrVarRef)
+GLES20.glVertexAttribPointer(attrVarRef, 3, GLES20.GL_FLOAT, false, stride, vertices)
 
-GLES20.glEnableVertexAttribArray(colourVarRef);
-GLES20.glVertexAttribPointer(colourVarRef, 3, GLES20.GL_FLOAT, false, cstride, colours);
+GLES20.glEnableVertexAttribArray(colourVarRef)
+GLES20.glVertexAttribPointer(colourVarRef, 3, GLES20.GL_FLOAT, false, cstride, colours)
 
-GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices);
+GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices)
 </pre>
 Note how the code to send the colour buffer is exactly the same as that to send the vertex
 buffer. Each colour in the colour buffer will correspond to a vertex in the vertex buffer.
