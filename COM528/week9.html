@@ -601,6 +601,7 @@ Delete the &lt;dependencies&gt; and &lt;build&gt; sections completely, and repla
 </p>
 <p>Now you can start developing the project:
     <ol>
+    <li>Note that you will need to import the various JDBC classes. They are all in the <code>java.sql</code> package, e.g. <code>java.sql.Connection</strong> or <code>java.sql.SQLException</code>.</li>
     <li>Copy the <code>index.html</code> from week 6 to it (this contains a form allowing the user to add a student), and also add this additional form, allowing the user to search for a student by name:
     <pre>
 &lt;form method="get" action="search.jsp"&gt;
@@ -609,7 +610,7 @@ Student name: &lt;input name="studentName" /&gt;
 &lt;/form&gt;</pre>
     </li>
     <li>Create a new JSP, <code>addStudent.jsp</code>. In this JSP, add code to connect to the database. Begin with the try/catch/finally structure shown above and then add the connection code. Use the filename <code>students.db</code> for your SQLite database. This file will be created if it doesn't exist already.</li>
-    <li>Add code to read in the student details from the form. Use an <code>INSERT</code> statement to add a new student record to a <code>student</code> table in the database. Test the number of affected rows returned, to confirm to the user whether the insertion was successful or not.</li>
+    <li>Add code to read in the student details from the form. Use an <code>INSERT</code> statement to add a new student record to a <code>student</code> table in the database. You'll need to create the table if it doesn't already exist. Test the number of affected rows returned, to confirm to the user whether the insertion was successful or not.</li>
     <li>Create a second JSP, <code>search.jsp</code>. This should read in the student name from the second form on the index page, and use it to search for all students with that name. Display all matching students.</li>
     <li>Create a <code>StudentDao</code> by following the DAO example above. It should include methods to add a student and search for a student by name. Modify your JSPs so that they create a <code>StudentDao</code> object and use it to perform the insertion and search operations.</li>
     <li><strong>Advanced:</strong> Modify your University console application from week 3 so that it stores students in an SQLite database rather than an array list. It should include the <code>StudentDao</code> you wrote above. You will need to modify the <code>StudentDao</code> and the <code>University</code> in this way:
