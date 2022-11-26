@@ -14,7 +14,6 @@ img {
 <h1>Mobile Development and 3D Graphics - Part 10</h1>
 <h1>OpenGL part 4 - Drawing more complex shapes with vertex indices</h1>
 </div>
-<h2>PREVIEW! - subject to change before intended delivery date of 28/11/22</h2>
 <p>Today we will 
 look at drawing more complex shapes made up of individual triangles
 by looking at <em>index buffers</em>.</p>
@@ -27,33 +26,21 @@ in drawing more complex 3D polygons. The key thing is that <em>more complex shap
 of triangles</em>. So we can draw a shape by drawing the individual triangles making up the
 shape.</p>
 
-<p>One way of doing this would be to put all vertices of all triangles making up the shape in
-a buffer. For example, if we have two triangles making up one face of a box, with vertices at
-(0,0,0) (1,0,0) (1,1,0) and (0,1,0) we can divide it into two triangles, with vertices at
-(0,0,0) (1,0,0) (1,1,0) for the first triangle and 
-(0,0,0) (0,1,0) (1,1,0) for the second triangle. So we could create a buffer with 6 vertices
-(2 triangles).</p>
-<p>However this is inefficient in terms of memory usage. Our square face contains only
-<em>four</em> vertices, while we are using <em>six</em> to draw it (two triangles of three
-vertices each). </p>
-<p>To deal with this we can use <em>vertex indices</em>. We store each vertex only <em>once</em>
-in a buffer and then create another buffer of <em>indices</em> to define how the shapes are
-drawn. So for example, to draw our square face we create one buffer with our vertices:
+<p>One way of doing this would be to put all vertices of all triangles making up the shape in a buffer. For example, if we have two triangles making up one face of a cube, with vertices at (0,0,0) (1,0,0) (1,1,0) and (0,1,0) we can divide it into two triangles, with vertices at (0,0,0) (1,0,0) (1,1,0) for the first triangle and (0,0,0) (0,1,0) (1,1,0) for the second triangle. So we could create a buffer with 6 vertices (2 triangles).</p>
+<p>However this is inefficient in terms of memory usage. Our square face contains only <em>four</em> vertices, while we are using <em>six</em> to draw it (two triangles of three vertices each). </p>
+<p>To deal with this we can use <em>vertex indices</em>. We store each vertex only <em>once</em> in a buffer and then create another buffer of <em>indices</em> to define how the shapes are drawn. So for example, to draw our square face we create one buffer with our vertices:
 <pre>(0,0,0) (1,0,0) (1,1,0) (0,1,0)</pre>
 and then an index buffer containing these values:
 <pre>0,1,2, 2,3,0</pre>
-The index buffer contains the <em>indices</em> of each vertex that will be drawn, rather than 
-the vertex itself. So with the above index buffer, we can see that the first triangle will be
-drawn with vertices 0,1 and 2 (ie. (0,0,0) (1,0,0) (1,1,0)) and the second triangle will be
-drawn with vertices 2, 3 and 0 (ie. (1,1,0) (0,1,0) (0,0,0)).</p>
-<p>Hopefully it should be obvious that repeating indices is a good deal less wasteful of memory
-than repeating the vertices themselves! The indices are typically stored as <em>short ints</em>
-(data type <em>short</em>, occupying 2 bytes) whereas a vertex stores three <em>floats</em>, i.e.
+The index buffer contains the <em>indices</em> of each vertex that will be drawn, rather than the vertex itself. So with the above index buffer, we can see that the first triangle will be drawn with vertices 0,1 and 2 (ie. (0,0,0) (1,0,0) (1,1,0)) and the second triangle will be drawn with vertices 2, 3 and 0 (ie. (1,1,0) (0,1,0) (0,0,0)).</p>
+<p>This is shown below:
+<br />
+<img src="../images/square_index_buffer.png" alt="Index buffers to draw a square" />
+</p>
+<p>Hopefully it should be obvious that repeating indices is a good deal less wasteful of memory than repeating the vertices themselves! The indices are typically stored as <em>short ints</em> (data type <em>short</em>, occupying 2 bytes) whereas a vertex stores three <em>floats</em>, i.e.
 it occupies 12 bytes in total.</p>
 
-<p>One thing to bear in mind is that you should define your triangles so that the vertices
-are specified in <em>anticlockwise</em> order. If you do not do this, OpenGL will not deal with
-hidden faces (i.e. a face which is currently invisible due to being behind another) correctly.</p>
+<p>One thing to bear in mind is that you should define your triangles so that the vertices are specified in <em>anticlockwise</em> order. If you do not do this, OpenGL will not deal with hidden faces (i.e. a face which is currently invisible due to being behind another) correctly.</p>
 
 <h3>Setting up an index buffer</h3>
 
@@ -73,42 +60,71 @@ Then, when you draw the shape, you use <em>GLES20.glDrawElements()</em> rather t
 <pre>GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices)</pre>
 where <em>indices</em> is your index buffer.</p>
 
-<h3>Exercise - creating a box</h3>
+<h3>Mixing indexed and non-indexed shapes</h3>
 
-<p>You are now going to use indices to create a class to represent a 3D box (cube).  First, try setting up a vertex buffer with these coordinates:
-<pre>(0,0,-3), (1,0,-3), (1,1,-3), (0,1,-3).</pre>
-This is a square made up of two triangles, but four vertices in total. Try drawing the square using vertex indices.</p>
-Now you are going to try drawing a box. Create a Box class:
-	<ul>
-	<li>It should have an initialisation method  taking the x,y
-	and z world coordinates of the bottom left of the box.
-	Create a vertex buffer with these vertices, where
-	<em>x</em>, <em>y</em> and <em>z</em> are the bottom left world coordinates:
-		<ul>
-		<li>x,y,z</li>
-		<li>x+0.5, y, z</li>
-		<li>x+0.5, y+0.5, z</li>
-		<li>x, y+0.5, z</li>
-		<li>x,y,z-0.5</li>
-		<li>x+0.5, y, z-0.5</li>
-		<li>x+0.5, y+0.5, z-0.5</li>
-		<li>x, y+0.5, z-0.5</li>
-		</ul>
-	Also create an appropriate index buffer to draw all the triangles making up the outer faces of the box. Ensure the triangles are drawn anticlockwise!
-	Store the vertex and index buffers as attributes of your Box.</li>
-	<li>Ensure the buffers associated with Box objects are accessible to the outside world.</li>
-	<li>Test it out by drawing two boxes at (0,0,-3) and (0,0,3).
-	Colour one red and the other yellow.</li>
-	</ul>
+<p>Through multiple calls to <code>GLES20.glVertexAttribPointer()</code> and <code>GLES20.glDrawElements()</code> / <code>GLES20.glDrawArrays()</code> you can mix indexed and non-indexed shapes in the same scene, e.g.:
+<pre>GLES20.glVertexAttribPointer(ref_aVertex, 3, GLES20.GL_FLOAT, false, 0, vertexBufferIndexed)
+GLES20.glUniform4fv(ref_uColour, 1, colour1, 0)
+GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexBuffer.limit(), GLES20.GL_UNSIGNED_SHORT, indexBuffer)
+
+GLES20.glVertexAttribPointer(ref_aVertex, 3, GLES20.GL_FLOAT, false, 0, vertexBufferWithNoIndices)
+GLES20.glUniform4fv(ref_uColour, 1, colour2, 0)
+GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3)</pre>
+</p>
+<h3>Exercise 1 - creating a square</h3>
+
+<p>You are now going to use indices to create a class to represent a 3D cube (cube).  First, try setting up a vertex buffer with these coordinates:
+<pre>(0,0,-2), (1,0,-2), (1,1,-2), (0,1,-2).</pre>
+This is a square made up of two triangles, but four vertices in total. Try drawing the square using vertex indices. Colour it in a different colour to the two triangles (e.g. blue)</p>
+
+<h3>Exercise 2 - creating a cube</h3>
+
+<p>
+<img src="../images/cube1.png" alt="Cube" />
+</p>
+
+<p>Now you are going to try creating a cube, as shown above, using 8 vertices. The cube has 6 faces, but each face is made up of 2 triangles, so there are 12 triangles in total. So you will need a total of 36 vertex indices in your index buffer, three for each of the 12 triangles.
+    <ul>
+    <li>Create a <code>Cube</code> class. It should take the x,y and z world coordinates of the bottom left of the cube as parameters. In the <code>init</code> block, create a vertex buffer with these 8 vertices, where <em>x</em>, <em>y</em> and <em>z</em> are the bottom left world coordinates:
+        <ul>
+        <li>x,y,z</li>
+        <li>x+0.5, y, z</li>
+        <li>x+0.5, y+0.5, z</li>
+        <li>x, y+0.5, z</li>
+        <li>x,y,z-0.5</li>
+        <li>x+0.5, y, z-0.5</li>
+        <li>x+0.5, y+0.5, z-0.5</li>
+        <li>x, y+0.5, z-0.5</li>
+        </ul>
+    </li>
+    <li>Also create an appropriate index buffer to draw all the triangles making up the outer faces of the cube. Ensure the triangles are drawn anticlockwise! Use the diagram of the cube, above, to help you here, and feel free to sketch out each face of the cube on paper if you feel that will help you. Store the vertex and index buffers as attributes of your Cube.</li>
+    <li>Use this to get started:
+<pre>class Cube(val x: Float, val y: Float, val z: Float) {
+    val vertexBuf: FloatBuffer
+    val indexBuf: ShortBuffer
+
+    init {
+        // Define your vertices and add them to vertexBuf
+
+        // Define your indices and add them to indexBuf
+    }
+}
+    </pre>
+    </li>
+    <li>Write a <code>render()</code> method inside the <code>Cube</code> class. This should call <code>GLES20.glVertexAttribPointer()</code> and <code>GLES20.glDrawElements()</code> appropriately, using the vertex and index buffers.</li>
+    <li>Test it out by drawing two cubes at (3,0,0) and (-3,0,0).
+    Colour one red and the other yellow.</li>
+    </ul>
 </p>
 
 <h2>Colour buffers</h2>
 <p>So far we have coloured the whole of our shapes in one colour.
-However, by sending <em>colour buffers</em> (buffers containing colour data) to the shader
-we can give <em>each vertex a separate colour</em>. The effect of this will be a "gradient"
-effect where the pixels in between each vertex have a blended colour, interpolated from the
-vertices and dependent on which vertices
+However, by sending <em>colour buffers</em> (buffers containing colour data) to the shader we can give <em>each vertex a separate colour</em>. The effect of this will be a "gradient" effect where the pixels in between each vertex have a blended colour, interpolated from the vertices and dependent on which vertices
 are nearest.</p>
+<p>In fact, we would often store vertices and colours in the <em>same buffer</em> for efficiency, as discussed in week 7:
+<br />
+<img src='../images/stride.png' alt='Vertices and colours in the same buffer' />
+</p>
 <h3>Shaders using a colour buffer</h3>
 <p> Here is an example of a shader which will do this:
 <pre>
@@ -129,45 +145,32 @@ val fragmentShader =
                                 "gl_FragColor = vColour;\n" +
                                 "}\n";
 </pre>
-Note how we now have an attribute variable <em>aColour</em> representing the colour of each
-vertex. This can be linked to a buffer in the same way that <em>aVertex</em> is linked to 
-a buffer of vertices. Note that this is in the vertex shader; this might seem odd as it is
-the <em>fragment shader</em> which specifies the colours of pixels making up our shape. However,
-<em>we cannot pass attribute variables directly to the fragment shader</em>, due to the 
-OpenGL rendering pipeline they must be passed to the vertex shader first. Since the vertex
-shader does not deal with colours, we need to <em>pass it on</em> to the fragment shader. To
-do this, we store it in a <em>varying</em> variable called <em>vColour</em> (varying variables
-are used to pass information from the vertex to the fragment shader) and then
-retrieve and use this variable in the fragment shader.</p>
+Note how we now have an attribute variable <em>aColour</em> representing the colour of each vertex. This can be linked to a buffer in the same way that <em>aVertex</em> is linked to a buffer of vertices. Note that this is in the vertex shader; this might seem odd as it is the <em>fragment shader</em> which specifies the colours of pixels making up our shape. However, <em>we cannot pass attribute variables directly to the fragment shader</em>, due to the OpenGL rendering pipeline they must be passed to the vertex shader first. Since the vertex shader does not deal with colours, we need to <em>pass it on</em> to the fragment shader. To do this, we store it in a <em>varying</em> variable called <code>vColour</code> (varying variables are used to pass information from the vertex to the fragment shader) and then retrieve and use this variable in the fragment shader.</p>
 
 <h3>Passing colour buffers to the shader</h3>
 
-<p>Here is an example of some code to send a colour buffer (as well as vertex and index buffers) to a shader. Imagine <code>colours</code> is a buffer containing RGB colour data.
+<p>Here is an example of some code to send a colour buffer (as well as vertex and index buffers) to a shader. We are going to use a single buffer for both vertices and colours, as introduced in Week 7. 
 <pre>
+val stride = 24 // because one record contains vertices (12 bytes) and colours (12 bytes)
 val attrVarRef= GLES20.glGetAttribLocation(shaderProgram, "aVertex")
-val colourVarRef = GLES20.glGetAttribLocation(shaderProgram, "aColour")
-vertices.position(0)
-indices.position(0)
-colours.position(0)
-
 GLES20.glEnableVertexAttribArray(attrVarRef)
-GLES20.glVertexAttribPointer(attrVarRef, 3, GLES20.GL_FLOAT, false, stride, vertices)
-
+val colourVarRef = GLES20.glGetAttribLocation(shaderProgram, "aColour")
 GLES20.glEnableVertexAttribArray(colourVarRef)
-GLES20.glVertexAttribPointer(colourVarRef, 3, GLES20.GL_FLOAT, false, cstride, colours)
+
+vertexAndColourBuffer.position(0)
+GLES20.glVertexAttribPointer(attrVarRef, 3, GLES20.GL_FLOAT, false, stride, verticesAndColours)
+vertexAndColourBuffer.position(3)
+GLES20.glVertexAttribPointer(colourVarRef, 3, GLES20.GL_FLOAT, false, stride, verticesAndColours)
 
 GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices)
 </pre>
-Note how the code to send the colour buffer is exactly the same as that to send the vertex
-buffer. Each colour in the colour buffer will correspond to a vertex in the vertex buffer.
-We repeat the <em>GLES20.glEnableVertexAttribArray()</em> and
-<em>GLES20.glVertexAttribPointer()</em> calls for the vertex and buffer data, and then call
-<em>GLES20.glDrawElements()</em>.</p>
-
+Note how we have two calls to <code>GLES20.glVertexAttribPointer()</code>, one for the vertices and one for the colours. The stride is set as 24 in both cases, because the gap in bytes between one record (whether that be vertices or colours) is 24 bytes: 3 floats for the vertices, and 3 floats for the colours (6 floats) multiplied by the size of a float in bytes (4).
+</p>
+<p>To differentiate between the vertices and colours we set the <code>position</code> of the buffer to the appropriate index before we call <code>GLES20.glVertexAttribPointer()</code>. So when the position is 0, we will be pointing at the first vertex, and when the position is 3, we will be pointing at the first colour.</p>
 <h3>Exercise</h3>
 
-<p>Modify your box-drawing application so that the first box has the bottom four vertices
-in red and top four in yellow, and the second box has the bottom four vertices in blue and the
+<p>Modify your cube-drawing application so that the first cube has the bottom four vertices
+in red and top four in yellow, and the second cube has the bottom four vertices in blue and the
 top four in green.</p>
 
 </body>
