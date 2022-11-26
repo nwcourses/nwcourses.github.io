@@ -173,5 +173,18 @@ Note how we have two calls to <code>GLES20.glVertexAttribPointer()</code>, one f
 in red and top four in yellow, and the second cube has the bottom four vertices in blue and the
 top four in green.</p>
 
+<h2>Taking it further - models</h2>
+<p>More complex shapes, representing real-world objects, are typically represented by <em>models</em>. These are typically created by specialist modelling software and saved asexternal files containing the vertices and vertex indices (as well as other properties such as textures - to be covered next time). Common model formats include:
+<ul>
+<li>The <em>Wavefront OBJ</em> format. This is a long-standing format which has been around since at least 1992. When working with the OBJ format, you typically have to deal with: 
+    <ul>
+    <li>The .obj file itself, containing vertices and faces (defined by indices);</li>
+    <li>The <em>.mtl</em> (material) file, describing the properties of the object's surface material, including colour, and any texture which will be applied to it.</li>
+    <li>Optional images for textures.</li>
+    </ul>
+</li>
+<li>The <em>glTF</em> format. A more recent format with support for more advanced features, such as animations, and, as described <a href="https://aframe.io/docs/1.0.0/components/gltf-model.html">in the documentation of the A-Frame JavaScript library</a>, information about the scene, such as light sources and cameras. Unlike OBJ, glTF stores the vertex data in a compact binary format, leading to smaller file sizes and faster loading time.</li>
+</ul>
+We will not have time to cover loading models (which is more difficult in Android compared to web-based OpenGL applications) but is something you might want to do further research on for the assignment.</p>
 </body>
 </html>
