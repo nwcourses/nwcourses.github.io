@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>3D Graphics with OpenGL - Part 5 - Textures </title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+</head>
+<body>
+<h1>Textures and the Camera</h1>
+<h2>Introduction</h2>
+
+<p>A <em>texture</em> is a raster (bitmap) image which is overlaid on a 3D shape in OpenGL and other 3D graphics APIs. Textures can be a range of formats including PNG. In this unit we are going to particularly focus on how textures can be used in an augmented reality (AR) application, to show the camera feed within an OpenGL scene.</p>
+
+<h3>Components of an augmented reality OpenGL application</h3>
+<p>The following classes are key to an OpenGL AR application:
+    <ul>
+    <li>The GLSurfaceView with its Renderer, the same as for any other OpenGL application;</li>
+    <li>The camera management code (CameraX here) (week 6)</li>
+    <li>A <code>SurfaceTexture</code>. This is an object representing the actual 	texture obtained from the camera feed. You create it in your OpenGL code.
+    When the texture has been created, you can inform Fotoapparat that it's
+    ready to stream the camera feed into the texture.</li>
+	<li>Sensor-handling code (week 5), with the orientation matrix used as the view matrix (we will look at this next week)</li>
+    </ul>
+</p>
+
+<h2>Creating a texture in the OpenGL view</h2>
+
+<h3>Initialising a texture ID</h3>
+
+<p>
+In our OpenGL renderer, we need to <em>create a texture</em>.
+We use code as follows, this goes in the <code>onSurfaceCreated()</code>:
+<pre>
+val textureId = IntArray(1)
+GLES20.glGenTextures(1, textureId, 0)
+</pre>
+What this is doing is <em>generating a texture ID</em>. A texture ID is a unique ID number representing a particular texture. We create an array to hold the texture ID: <pre>val textureId = IntArray(1)</pre>
+then generate the texture ID:
+<pre>GLES20.glGenTextures(1, textureId, 0)</pre>
+then, as long as the texture ID allocated is not 0 (which indicates an error),
+we initialise the texture:
+<pre>
+ if (textureId[0] != 0) {
+    GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId)
+    // ... rest of code ...
+</pre>
+We select the active texture and then bind the texture ID to it.
+Note the GL_TEXTURE0 refers to an on-GPU "texture unit"
+(ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>); this is <em>different</em> to the texture ID which is a CPU (Java) based value.  There are other texture units, GL_TEXTURE1, GL_TEXTURE2 etc.
+So this code is associating the GPU texture unit 0 with the texture ID we generated earlier.
+</p>
+
+<h2>Setting up texture objects</h2>
+
+<p>What we haven't created yet is how to actually apply the textures to our 3D shapes, which is done using shaders.  This is described below.</p>
+<h3>S and T coordinates</h3>
+<p>
+Textures are defined using so-called S and T coordinates.
+A texture is a 2D raster/bitmap image which is overlaid on a 3D shape. 
+The S coordinate of the texture represents its horizontal axis, and the T
+coordinate represents its vertical axis. The coordinates range from 0 to 1.
+S=0, T=0 represents the bottom left. So:
+    <ul>
+    <li>S=0, T=0 : bottom left of texture;</li>
+    <li>S=1, T=0 : bottom right of texture;</li>
+    <li>S=1, T=1 : top right of texture;</li>
+    <li>S=0, T=1 : top left of texture.</li>
+    </ul>
+When applying a texture to a 3D shape, we need to write a shader which
+<em>relates x, y and z coordinates of a shape</em> to<em>the S and T coordinates of a texture</em>.
+So we can specify what vertices of a shape the texture overlays.
+For instance, if we wanted to overlay the texture on a rectangle (made up of 2 triangles)
+with coordinates (-1,-1,0), (-1,1,0), (1,1,0) and (1,-1,0) then the following equation would
+hold:
+<pre>
+S coordinate = (X coordinate+1) / 2
+T coordinate = (Y coordinate+1) / 2
+</pre>
+For example, for the vertex (-1, -1, 0):
+<pre>
+S coordinate = 0/2 = 0
+T coordinate = 0/2 = 0
+</pre>
+and for the vertex (1, 1, 0):
+<pre>
+S coordinate = 2/2 = 1
+T coordinate = 2/2 = 1
+</pre>
+Here is an example of a shader which will do this:
+<pre>
+val texVertexShader = "attribute vec4 aVertex;\n" +
+                   "varying vec2 vTextureValue;\n" +
+                   "void main (void)\n" +
+                   "{\n" +
+                   "gl_Position = aVertex;\n" +
+                   "vTextureValue = vec2(0.5*(1.0 + aVertex.x), 0.5*(1.0 + aVertex.y));\n" +
+                   "}\n"
+
+val texFragmentShader = "#extension GL_OES_EGL_image_external: require\n" +
+                   "precision mediump float;\n" +
+                   "varying vec2 vTextureValue;\n" +
+                   "uniform samplerExternalOES uTexture;\n" +
+                   "void main(void)\n" +
+                   "{\n" +
+                   "gl_FragColor = texture2D(uTexture,vTextureValue);\n" +
+                   "}\n";
+</pre>
+Note how this shader is taking in the vertices as an attribute variable (as before) - this would store the current vertex of the shape we're drawing. Also note the:
+<pre>varying vec2 vTextureValue;</pre>
+This represents the S and T coordinates of the texture that we want to map the current vertex to.  It is a <em>varying</em> variable: as we have seen, varying variables are used to pass information from the vertex to the fragment shader. 
+So in the vertex shader we set the eye coordinate position to the vertex (assuming no modelview/perspective transform) and then do the maths (as shown above) to calculate the texture coordinate from the vertex coordinates.</p>
+
+<p>Then in the fragment shader we set the <code>gl_FragColor</code> to a colour taken from the texture.  Note the uniform variable <code>uTexture</code>, of the slightly cryptic type <code>samplerExternalOES</code>, represents the actual texture itself. We use the <code>texture2D</code> function to pull the correct drawing colour at the current S and T coordinate (which we calculated from the vertex position in the vertex shader) from the texture image.</p>
+
+<h3>Linking the texture ID to the shader</h3>
+<p>We need to link texture unit 0 (see above) to the shader variable representing the texture, <em>uTexture</em>:
+<pre>
+val refShaderVar = GLES20.glGetUniformLocation(shaderProgram, "uTexture")
+GLES20.glUniform1i(refShaderVar, 0)
+</pre>
+This code (which should come at the end of <code>onSurfaceCreated()</code>) is similar to what you have seen before: we first get a reference to the shader variable, and then set it to 0, for GPU texture unit 0.  This will associate GPU texture unit 0 with the <em>uTexture</em> shader variable.</p>
+<p>The <code>1i</code> in <code>glUniform1i()</code> refers to the fact that the shader variable is an integer, and there's only one (compare <code>glUniform4fv()</code> for an array of 4 floats)</p>
+<p>After initialising everything, you then need to start receiving
+frames from the camera. This is done in <em>onResume()</em>; see below.</p>
+<h2>Linking the OpenGL texture and the camera</h2>
+<p>We have considered how to create textures in general, but we have not yet looked at how to link textures to the camera. Our aim is to stream the camera feed (obtained using CameraX) into our texture. To do this we make use of a <code>SurfaceTexture</code> object. <code>SurfaceTexture</code>s are used for this purpose: to stream graphics into an OpenGL texture.</p>
+<h3>Creating our SurfaceTexture in our OpenGL code</h3>
+<p>We create the surface texture from our texture ID:
+<pre>cameraFeedSurfaceTexture = SurfaceTexture(textureId[0])</pre>
+</p>
+<h3>Sending the SurfaceTexture to the main activity</h3>
+<p>Once we've created a <code>SurfaceTexture</code> from our texture ID, we send it to the main activity, so that the main activity can use it to stream the camera into. This might be done via a callback function, specified as a parameter to the <code>Renderer</code>:
+<pre>class OpenGLRenderer(val textureAvailableCallback: (SurfaceTexture) -&gt; Unit) : GLSurfaceView.Renderer</pre>
+So we pass our <code>SurfaceTexture</code> to this callback once we've created it:
+<pre>textureAvailableCallback(cameraFeedSurfaceTexture!!)</pre>
+Note that the <code>!!</code> states that we know, in this case, that the texture will never be null. (The <code>SurfaceTexture</code> in this case would be likely declared as a nullable, because it should be null before it's setup).
+</p>
+<h3>Receiving the texture in the main activity</h3>
+<p>The main activity would typically store the surface texture as an attribute, which would be initialised by the callback function. The surface texture is then used as a destination by the CameraX code, as described below.</p>
+<h3>Receiving the surface texture from the CameraX code</h3>
+<p>Here is a version of the CameraX code (first covered in week 6) to work with a <code>SurfaceTexture</code>. The changed section is highlighted.
+<pre>
+private fun startCamera(): Boolean {
+    if (checkPermissions()) {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder().build().also {
+                <strong>
+                val surfaceProvider: (SurfaceRequest) -&gt; Unit = { request -&gt;
+                    val resolution = request.resolution
+                    surfaceTexture?.apply {
+                        setDefaultBufferSize(resolution.width, resolution.height)
+                        val surface = Surface(this)
+                        request.provideSurface(
+                            surface,
+                            ContextCompat.getMainExecutor(this@MainActivity.baseContext))
+                        { }
+
+                    }
+                }
+                it.setSurfaceProvider(surfaceProvider)
+                </strong>
+            }
+
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview)
+
+            } catch (e: Exception) {
+                Log.e("OpenGL01Log", e.stackTraceToString())
+            }
+        }, ContextCompat.getMainExecutor(this))
+        return true
+    } else {
+        return false
+    }
+}
+</pre>
+Previously we used our <code>PreviewView</code> object as the destination to stream the camera feed into with <code>setSurfaceProvider()</code>, Now, however we are going to use our <code>SurfaceTexture</code> (<code>surfaceTexture</code>) as the destination. 
+</p>
+<p>This is what the highlighted code is, in essence, doing. Specifically we have to create a <em>surface provider</em> which is a lambda function which receives a request (the <code>request</code> parameter) from the camera, and obtains a <code>Surface</code> (a destination for the camera feed) from the surface texture. If you look at the highlighted code you can see that <code>surfaceProvider</code> is this lambda function, and the lambda function essentially creates a <code>Surface</code> object from the surface texture and provides it.</p>
+<h2>The onDrawFrame() method: drawing the texture</h2>
+<p>
+In <em>onDrawFrame()</em>, you draw the two triangles
+to cover the whole screen. Note you should draw them unprojected, without
+either the view or the perspective matrix.</p>
+</p>
+<p>Also in <em>onDrawFrame()</em>,
+<strong>you need to call the SurfaceTexture's updateTexImage() method</strong>,
+to update the SurfaceTexture with the latest camera frame, e.g.
+<pre>
+GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+// Update the surface texture with the latest frame from the camera
+cameraFeedSurfaceTexture?.updateTexImage()
+
+// draw your texture triangles here..
+
+</pre>
+</p>
+
+<h2>Finally - set your activity's orientation to landscape</h2>
+<p>Augmented reality applications are more usable in landscape mode.
+It's also worth stopping the activity restarting on screen rotation.
+This can be done as follows in the <em>AndroidManifest.xml</em>:
+<pre>
+&lt;activity android:name="com.example.MainActivity"
+  android:screenOrientation="landscape"
+  android:configChanges="orientation|keyboardHidden|screenSize"&gt;
+</pre>
+</p>
+
+<h2>Exercise</h2>
+
+<p>Develop an app which shows the camera feed on the OpenGL view as a texture. Use this template from GitHub (URL TODO) as a starting point.  Make sure the CAMERA permission is added to your manifest.</p>
+<p>You will find the image comes out <em>upside down</em>. This is because images are arranged in memory from
+top to bottom, but the T coordinate of a texture increases from bottom to top.
+Change your shader to fix this!</p>
+
+</body>
+</html>
+
