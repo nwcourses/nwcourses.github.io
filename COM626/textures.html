@@ -15,10 +15,10 @@
     <ul>
     <li>The GLSurfaceView with its Renderer, the same as for any other OpenGL application;</li>
     <li>The camera management code (CameraX here) (week 6)</li>
-    <li>A <code>SurfaceTexture</code>. This is an object representing the actual 	texture obtained from the camera feed. You create it in your OpenGL code.
+    <li>A <code>SurfaceTexture</code>. This is an object representing the actual     texture obtained from the camera feed. You create it in your OpenGL code.
     When the texture has been created, you can inform Fotoapparat that it's
     ready to stream the camera feed into the texture.</li>
-	<li>Sensor-handling code (week 5), with the orientation matrix used as the view matrix (we will look at this next week)</li>
+    <li>Sensor-handling code (week 5), with the orientation matrix used as the view matrix (we will look at this next week)</li>
     </ul>
 </p>
 
@@ -37,12 +37,21 @@ What this is doing is <em>generating a texture ID</em>. A texture ID is a unique
 then generate the texture ID:
 <pre>GLES20.glGenTextures(1, textureId, 0)</pre>
 then, as long as the texture ID allocated is not 0 (which indicates an error),
-we initialise the texture:
+we initialise the texture (this code is also in <code>onSurfaceCreated()</code>):
 <pre>
- if (textureId[0] != 0) {
+if (textureId[0] != 0) {
     GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
     GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId)
-    // ... rest of code ...
+
+    cameraFeedSurfaceTexture = SurfaceTexture(textureId[0])
+
+
+    // Compile and link the shaders for textures (see below)
+
+    // Create the vertex and index buffers for the texture rectangle (see below)
+
+    // Call the texture callback (see below)
+} 
 </pre>
 We select the active texture and then bind the texture ID to it.
 Note the GL_TEXTURE0 refers to an on-GPU "texture unit"
@@ -182,11 +191,13 @@ private fun startCamera(): Boolean {
 Previously we used our <code>PreviewView</code> object as the destination to stream the camera feed into with <code>setSurfaceProvider()</code>, Now, however we are going to use our <code>SurfaceTexture</code> (<code>surfaceTexture</code>) as the destination. 
 </p>
 <p>This is what the highlighted code is, in essence, doing. Specifically we have to create a <em>surface provider</em> which is a lambda function which receives a request (the <code>request</code> parameter) from the camera, and obtains a <code>Surface</code> (a destination for the camera feed) from the surface texture. If you look at the highlighted code you can see that <code>surfaceProvider</code> is this lambda function, and the lambda function essentially creates a <code>Surface</code> object from the surface texture and provides it.</p>
-<h2>The onDrawFrame() method: drawing the texture</h2>
+<h2>Drawing the texture</h2>
+<h3>Creating a texture rectangle</h3>
+<p>You need to create an OpenGL rectangle covering the whole screen, and texture this rectangle using the camera. First of all You need to create a vertex buffer for this rectangle and corresponding index buffer, this would be done in <code>onSurfaceCreated()</code>. The vertices would be <code>(-1,1,0)</code>, <code>(-1,-1,0)</code>,<code>(1,-1,0)</code> and <code>(1,1,0)</code> and the indices <code>0,1,2,2,3,0</code>. As we have not specified a projection matrix this will draw two triangles (making up a rectangle) covering the <em>whole screen</em>. When there is no sense of perspective, <code>z</code> is always zero; <code>x</code> ranges from -1 (left of screen) to 1 (right of screen) and <code>y</code> ranges from -1 (bottom of screen) to 1 (top of screen).</p>
+<h3>The onDrawFrame() method: drawing the texture</h3>
 <p>
 In <em>onDrawFrame()</em>, you draw the two triangles
-to cover the whole screen. Note you should draw them unprojected, without
-either the view or the perspective matrix.</p>
+to cover the whole screen. As we saw above, you should draw them unprojected, without either the view or the projection matrix.</p>
 </p>
 <p>Also in <em>onDrawFrame()</em>,
 <strong>you need to call the SurfaceTexture's updateTexImage() method</strong>,
