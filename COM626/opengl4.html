@@ -87,14 +87,14 @@ This is a square made up of two triangles, but four vertices in total. Try drawi
     <ul>
     <li>Create a <code>Cube</code> class. It should take the x,y and z world coordinates of the bottom left of the cube as parameters. In the <code>init</code> block, create a vertex buffer with these 8 vertices, where <em>x</em>, <em>y</em> and <em>z</em> are the bottom left world coordinates:
         <ul>
-        <li>x,y,z</li>
-        <li>x+0.5, y, z</li>
-        <li>x+0.5, y+0.5, z</li>
-        <li>x, y+0.5, z</li>
-        <li>x,y,z-0.5</li>
-        <li>x+0.5, y, z-0.5</li>
-        <li>x+0.5, y+0.5, z-0.5</li>
-        <li>x, y+0.5, z-0.5</li>
+		<li>x, y+0.5, z</li>
+		<li>x+0.5, y+0.5, z</li>
+		<li>x+0.5, y+0.5, z+0.5</li>
+		<li>x, y+0.5, z+0.5</li>
+		<li>x, y, z</li>
+		<li>x+0.5, y, z</li>
+		<li>x+0.5, y, z+0.5</li>
+		<li>x, y, z+0.5</li>
         </ul>
     </li>
     <li>Also create an appropriate index buffer to draw all the triangles making up the outer faces of the cube. Ensure the triangles are drawn anticlockwise! Use the diagram of the cube, above, to help you here, and feel free to sketch out each face of the cube on paper if you feel that will help you. Store the vertex and index buffers as attributes of your Cube.</li>
