@@ -55,7 +55,7 @@ from heapq import heappush, heappop
 # Create an empty list. This will be converted to a heap.
 h = []
 
-# Add tuples containing a numerical value and another item of data (place name here) to the priority queue. If tuples are added, the queue will be prioritised using the first item in the tuple.
+# Add two member lists containing a numerical value and another item of data (place name here) to the priority queue. If two member lists are added, the queue will be prioritised using the first item in the two member list.
 heappush (h, (461, 'Paris'))
 heappush (h, (370, 'Brussels'))
 heappush (h, (1164, 'Munich'))
@@ -70,7 +70,7 @@ while len(h) &gt; 0:
 <p>Using the notes to help you, implement Dijkstra's algorithm to solve the problem in these notes (i.e. shortest train route from London to Munich). You will need to create <code>Node</code> and <code>Edge</code> classes to represent nodes and edges respectively, and a `Graph' class to represent the graph. </p>
 <p>Some hints:</p>
 <ul>
-<li><p>your <code>Node</code> class should contain <code>data</code> (a tuple, containing the distance and the node itself i.e. <code>self</code>), together with a <code>name</code>, a <code>parent</code>, a <code>used</code> Boolean (set this to false when the node is removed from the priority queue) and an <code>edges</code> list. There should also be an <code>add_edge()</code> method which adds an edge to the edges list. <strong>The distance should initally be a large number such as <code>sys.maxsize</code> (for which you need to <code>import sys</code>)</strong> so that when updated, the new value will always be less than the old.</p></li>
+<li><p>your <code>Node</code> class should contain <code>data</code> (a two member list, containing the distance and the node itself i.e. <code>self</code>), together with a <code>name</code>, a <code>parent</code>, a <code>used</code> Boolean (set this to <code>True</code> when the node is removed from the priority queue) and an <code>edges</code> list. There should also be an <code>add_edge()</code> method which adds an edge to the edges list. <strong>The distance should initally be a large number such as <code>sys.maxsize</code> (for which you need to <code>import sys</code>)</strong> so that when updated, the new value will always be less than the old.</p></li>
 <li>your <code>Node</code> class should also contain an <code>isInOpenList</code> boolean, to indicate whether the node is currently in the open list. It should be false initially, but set to true when added to the open list. This is to prevent duplicates of the same node being added to the open list.</li> 
 <li><p>your <code>Edge</code> class should contain <code>start</code> (the start node), <code>end</code> (the end node) and <code>dist</code> (the edge distance) and an appropriate initialiser method to initialise these three attributes.</p></li>
 <li><p>your <code>Graph</code> class should contain an <code>add_edge()</code> method. This should take as parameters <code>start</code>, <code>end</code> and <code>dist</code>, representing the start node, end node and distance. It should then call the <code>add_edge()</code> method of <code>Node</code> twice:</p>
@@ -95,7 +95,7 @@ while cur_node is not None:
 return route
 </code></pre>
 <ul>
-<li>You will get a problem with the priority queue because, when comparing values, the queue will compare both the distance and the <code>Node</code> in the tuple and <code>Nodes</code> cannot by default be compared. (This is so that the priority queue knows how to order the data if the distances are equal). However, you can compare nodes by name by <em>overloading the < operator for Nodes</em>. Here is how to do this. Add a <code>__lt__()</code> magic method to your <code>Node</code> class which compares <code>Node</code>s by name:</li>
+<li>You will get a problem with the priority queue because, when comparing values, the queue will compare both the distance and the <code>Node</code> in the two member list and <code>Nodes</code> cannot by default be compared. (This is so that the priority queue knows how to order the data if the distances are equal). However, you can compare nodes by name by <em>overloading the &lt; operator for Nodes</em>. Here is how to do this. Add a <code>__lt__()</code> magic method to your <code>Node</code> class which compares <code>Node</code>s by name:</li>
 </ul>
 <pre><code>   def __lt__(self, other):
         return self.name &lt; other.name
