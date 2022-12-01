@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>3D Graphics with OpenGL - Part 5 - Textures </title>
+<title>OpenGL Textures and the Camera</title>
 <link rel='stylesheet' type='text/css' href='../css/android.css' />
+<style>
+img {
+    border: 1px solid black;
+}
+</style>
 </head>
 <body>
-<h1>Textures and the Camera</h1>
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 11</h1>
+<h1>OpenGL part 5 - Textures and the Camera</h1>
+</div>
 <h2>Introduction</h2>
 
-<p>A <em>texture</em> is a raster (bitmap) image which is overlaid on a 3D shape in OpenGL and other 3D graphics APIs. Textures can be a range of formats including PNG. In this unit we are going to particularly focus on how textures can be used in an augmented reality (AR) application, to show the camera feed within an OpenGL scene.</p>
+<p>A <em>texture</em> is a raster (bitmap) image which is overlaid on a 3D shape in OpenGL and other 3D graphics APIs. Textures are typically used to apply realistic surfaces to 3D models and shapes, for example a brick texture can be overlaid on a wall, or a metallic texture could be overlaid on a robot model. Textures can be a range of formats including PNG: in a typical application we would load the texture from file and apply it to a model or 3D shape in our OpenGL world. In this module, however, we are going to particularly focus on how textures can be used in an augmented reality (AR) application, to show the camera feed within an OpenGL scene.</p>
 
 <h3>Components of an augmented reality OpenGL application</h3>
 <p>The following classes are key to an OpenGL AR application:
@@ -26,12 +34,12 @@
 
 <p>
 In our OpenGL renderer, we need to <em>create a texture</em>.
-We use code as follows, this goes in the <code>onSurfaceCreated()</code>:
+We use <code>GLES20.glGenTextures()</code> to do this. This typically goes in the <code>onSurfaceCreated()</code>:
 <pre>
 val textureId = IntArray(1)
 GLES20.glGenTextures(1, textureId, 0)
 </pre>
-What this is doing is <em>generating a texture ID</em>. A texture ID is a unique ID number representing a particular texture. We create an array to hold the texture ID: <pre>val textureId = IntArray(1)</pre>
+What this is doing is <em>generating a texture ID</em>. A texture ID is a unique ID number representing a particular texture. To discuss the code in detail, we first create a one-member array to hold the texture ID: <pre>val textureId = IntArray(1)</pre>
 then generate the texture ID:
 <pre>GLES20.glGenTextures(1, textureId, 0)</pre>
 then, as long as the texture ID allocated is not 0 (which indicates an error),
@@ -51,15 +59,13 @@ if (textureId[0] != 0) {
     // Call the texture callback (see below)
 } 
 </pre>
-We select the active texture and then bind the texture ID to it.
-Note the GL_TEXTURE0 refers to an on-GPU "texture unit"
-(ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>); this is <em>different</em> to the texture ID which is a CPU (Kotlin) based value.  There are other texture units, GL_TEXTURE1, GL_TEXTURE2 etc.
-So this code is associating the GPU texture unit 0 with the texture ID we generated earlier.
+We select the active <em>GPU texture unit</em> and then bind the texture ID to it.  Note the <code>GL_TEXTURE0</code> refers to the first on-GPU <em>texture unit</em> (ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>); this is <em>different</em> to the texture ID which is a CPU (Kotlin) based value.  There are multiple texture units, <code>GL_TEXTURE1</code> is the second, <code>GL_TEXTURE2</code> is the third, etc.
+So, to summarise, this code is associating the GPU texture unit 0 with the texture ID we generated earlier.
 </p>
 
-<h2>Setting up texture objects</h2>
+<h3>Setting up texture objects</h3>
 
-<p>What we haven't created yet is how to actually apply the textures to our 3D shapes, which is done using shaders.  This is described below.</p>
+<p>Once we have initialised a texture, we need to specify how it will be applied to a shape.This is done on the GPU using shaders, as described below.</p>
 <h3>S and T coordinates</h3>
 <p>
 Textures are defined using so-called S and T coordinates.
@@ -74,11 +80,8 @@ S=0, T=0 represents the bottom left. So:
     <li>S=0, T=1 : top left of texture.</li>
     </ul>
 When applying a texture to a 3D shape, we need to write a shader which
-<em>relates x, y and z coordinates of a shape</em> to<em>the S and T coordinates of a texture</em>.
-So we can specify what vertices of a shape the texture overlays.
-For instance, if we wanted to overlay the texture on a rectangle (made up of 2 triangles)
-with coordinates (-1,-1,0), (-1,1,0), (1,1,0) and (1,-1,0) then the following equation would
-hold:
+<em>relates x, y and z coordinates of a shape</em> to <em>the S and T coordinates of a texture</em>.
+So we can specify what vertices of a shape the texture overlays. In the case of a camera feed, we need to create a <em>rectangle made up of two triangles</em>. This rectangle will occupy the whole screen and be flat, with no sense of depth and no perspective effect (no projection matrix applied). When this is the case, <strong>the x eye coordinate ranges from -1 (left of screen) to +1 (right of screen) and the y eye coordinate ranges from -1 (bottom of screen) to +1 (top of screen) with the origin in the centre. Furthermore z is always 0 as there is no sense of perspective.</strong> So the rectangle would have coordinates (-1,-1,0), (-1,1,0), (1,1,0) and (1,-1,0), and the following equation would relate <code>x</code> and <code>y</code> coordinates to <code>s</code> and <code>t</code> coordinates: 
 <pre>
 S coordinate = (X coordinate+1) / 2
 T coordinate = (Y coordinate+1) / 2
@@ -132,8 +135,6 @@ GLES20.glUniform1i(refShaderVar, 0)
 </pre>
 This code (which should come at the end of <code>onSurfaceCreated()</code>) is similar to what you have seen before: we first get a reference to the shader variable, and then set it to 0, for GPU texture unit 0.  This will associate GPU texture unit 0 with the <em>uTexture</em> shader variable.</p>
 <p>The <code>1i</code> in <code>glUniform1i()</code> refers to the fact that the shader variable is an integer, and there's only one (compare <code>glUniform4fv()</code> for an array of 4 floats)</p>
-<p>After initialising everything, you then need to start receiving
-frames from the camera. This is done in <em>onResume()</em>; see below.</p>
 <h2>Linking the OpenGL texture and the camera</h2>
 <p>We have considered how to create textures in general, but we have not yet looked at how to link textures to the camera. Our aim is to stream the camera feed (obtained using CameraX) into our texture. To do this we make use of a <code>SurfaceTexture</code> object. <code>SurfaceTexture</code>s are used for this purpose: to stream graphics into an OpenGL texture.</p>
 <p>The relation between the different components of the system are shown below:
@@ -197,7 +198,7 @@ private fun startCamera(): Boolean {
 </pre>
 Previously we used our <code>PreviewView</code> object as the destination to stream the camera feed into with <code>setSurfaceProvider()</code>, Now, however we are going to use our <code>SurfaceTexture</code> (<code>surfaceTexture</code>) as the destination. 
 </p>
-<p>This is what the highlighted code is, in essence, doing. Specifically we have to create a <em>surface provider</em> which is a lambda function which receives a request (the <code>request</code> parameter) from the camera, and obtains a <code>Surface</code> (a destination for the camera feed) from the surface texture. If you look at the highlighted code you can see that <code>surfaceProvider</code> is this lambda function, and the lambda function essentially creates a <code>Surface</code> object from the surface texture and provides it.</p>
+<p>This is what the highlighted code is doing. Specifically we have to create a <em>surface provider</em> which is a lambda function which receives a request (the <code>request</code> parameter) from the camera, and obtains a <code>Surface</code> (a destination for the camera feed) from the surface texture, which will be the request's target. If you look at the highlighted code you can see that <code>surfaceProvider</code> is this lambda function, and the lambda function creates a <code>Surface</code> object from the surface texture and provides it to the request.</p>
 <h2>Drawing the texture</h2>
 <h3>Creating a texture rectangle</h3>
 <p>You need to create an OpenGL rectangle covering the whole screen, and texture this rectangle using the camera. First of all You need to create a vertex buffer for this rectangle and corresponding index buffer, this would be done in <code>onSurfaceCreated()</code>. The vertices would be <code>(-1,1,0)</code>, <code>(-1,-1,0)</code>,<code>(1,-1,0)</code> and <code>(1,1,0)</code> and the indices <code>0,1,2,2,3,0</code>. As we have not specified a projection matrix this will draw two triangles (making up a rectangle) covering the <em>whole screen</em>. When there is no sense of perspective, <code>z</code> is always zero; <code>x</code> ranges from -1 (left of screen) to 1 (right of screen) and <code>y</code> ranges from -1 (bottom of screen) to 1 (top of screen).</p>
@@ -220,7 +221,7 @@ cameraFeedSurfaceTexture?.updateTexImage()
 </pre>
 </p>
 
-<h2>Finally - set your activity's orientation to landscape</h2>
+<h3>Finally - set your activity's orientation to landscape</h3>
 <p>Augmented reality applications are more usable in landscape mode.
 It's also worth stopping the activity restarting on screen rotation.
 This can be done as follows in the <em>AndroidManifest.xml</em>:
@@ -233,7 +234,7 @@ This can be done as follows in the <em>AndroidManifest.xml</em>:
 
 <h2>Exercise</h2>
 
-<p>Develop an app which shows the camera feed on the OpenGL view as a texture. Use this template from GitHub (URL TODO) as a starting point.  Make sure the CAMERA permission is added to your manifest.</p>
+<p>Develop an app which shows the camera feed on the OpenGL view as a texture. Use this template from GitHub <code>https://github.com/nwcourses/TextureStarter</code> as a starting point.  Make sure the CAMERA permission is added to your manifest.</p>
 <p>You will find the image comes out <em>upside down</em>. This is because images are arranged in memory from
 top to bottom, but the T coordinate of a texture increases from bottom to top.
 Change your shader to fix this!</p>
@@ -264,8 +265,36 @@ Note that OpenGL has inbuilt <em>depth testing</em>. Depth testing invoves check
 
 <h2>Exercise 2</h2>
   
-<p>Try combining your OpenGL triangle drawing exercise with your camera feed.</p>
-	
+<p>Try combining your OpenGL triangle (or, if you're feeling ambitious, box) drawing exercise with your camera feed.</p>
+
+<h2>Loading textures from file</h2>
+<p>You might also want to texture <em>individual shapes</em> with textures loaded in from <em>file</em>. The code below shows how you can achieve this:
+<pre>
+val texFile = "texture.png"
+val textureId = IntArray(1)
+GLES20.glGenTextures(1, textureId, 0)
+if (textureId[0] != 0) {
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId[0])
+    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
+    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
+    val options = BitmapFactory.Options().apply { inScaled = false }
+    val inputStream = ctx.assets.open(texFile)
+    val bmp = BitmapFactory.decodeStream(inputStream, null, options)
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0)
+    bmp?.recycle()
+
+    // Now bind the texture ID to a texture unit as before, and send the texture unit to your shader...
+}
+
+</pre>    
+How is this code working?
+<ul>
+<li>We create a texture ID, as before, and set it as the active texture with <code>GLES20.glBindTexture()</code>.</li>
+<li>The <code>GLES20.glTexParameteri()</code> calls set up <em>magnification and minification filters</em>. For information on this, please see <a href='https://nwcourses.github.io/COM620/week3.html'>here</a>.</li>
+<li>We then open an image from the app's <code>assets</code>. <code>assets</code> is an optional folder within your project (within <code>app/src/main</code>) containing external assets your app needs, such as images.</li>
+<li>We then decode the bitmap (decompress the PNG format into a raw bitmap) and, using <code>GLUtils.texImage2D()</code>, associate it with the currently active texture (the texture ID we allocated earlier). Finally, once the bitmap has been loaded into the texture, we free memory by recycling it.</li>
+</ul>
+
 </body>
 </html>
 
