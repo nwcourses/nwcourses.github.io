@@ -15,9 +15,7 @@
     <ul>
     <li>The GLSurfaceView with its Renderer, the same as for any other OpenGL application;</li>
     <li>The camera management code (CameraX here) (week 6)</li>
-    <li>A <code>SurfaceTexture</code>. This is an object representing the actual     texture obtained from the camera feed. You create it in your OpenGL code.
-    When the texture has been created, you can inform Fotoapparat that it's
-    ready to stream the camera feed into the texture.</li>
+    <li>A <code>SurfaceTexture</code>. This is an object representing the actual     texture obtained from the camera feed. You create it in your OpenGL code and setup CameraX to stream the camera feed to it.</li>
     <li>Sensor-handling code (week 5), with the orientation matrix used as the view matrix (we will look at this next week)</li>
     </ul>
 </p>
@@ -55,7 +53,7 @@ if (textureId[0] != 0) {
 </pre>
 We select the active texture and then bind the texture ID to it.
 Note the GL_TEXTURE0 refers to an on-GPU "texture unit"
-(ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>); this is <em>different</em> to the texture ID which is a CPU (Java) based value.  There are other texture units, GL_TEXTURE1, GL_TEXTURE2 etc.
+(ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>); this is <em>different</em> to the texture ID which is a CPU (Kotlin) based value.  There are other texture units, GL_TEXTURE1, GL_TEXTURE2 etc.
 So this code is associating the GPU texture unit 0 with the texture ID we generated earlier.
 </p>
 
@@ -95,6 +93,11 @@ and for the vertex (1, 1, 0):
 S coordinate = 2/2 = 1
 T coordinate = 2/2 = 1
 </pre>
+</p>
+<p>This is shown in the diagram below.
+<br />
+<img src="../images/texcoords.png" alt="Texture coordinates" />
+</p>
 Here is an example of a shader which will do this:
 <pre>
 val texVertexShader = "attribute vec4 aVertex;\n" +
@@ -117,7 +120,7 @@ val texFragmentShader = "#extension GL_OES_EGL_image_external: require\n" +
 Note how this shader is taking in the vertices as an attribute variable (as before) - this would store the current vertex of the shape we're drawing. Also note the:
 <pre>varying vec2 vTextureValue;</pre>
 This represents the S and T coordinates of the texture that we want to map the current vertex to.  It is a <em>varying</em> variable: as we have seen, varying variables are used to pass information from the vertex to the fragment shader. 
-So in the vertex shader we set the eye coordinate position to the vertex (assuming no modelview/perspective transform) and then do the maths (as shown above) to calculate the texture coordinate from the vertex coordinates.</p>
+So in the vertex shader we set the eye coordinate position to the vertex (assuming no view/projection transform) and then do the maths (as shown above) to calculate the texture coordinate from the vertex coordinates.</p>
 
 <p>Then in the fragment shader we set the <code>gl_FragColor</code> to a colour taken from the texture.  Note the uniform variable <code>uTexture</code>, of the slightly cryptic type <code>samplerExternalOES</code>, represents the actual texture itself. We use the <code>texture2D</code> function to pull the correct drawing colour at the current S and T coordinate (which we calculated from the vertex position in the vertex shader) from the texture image.</p>
 
@@ -133,6 +136,10 @@ This code (which should come at the end of <code>onSurfaceCreated()</code>) is s
 frames from the camera. This is done in <em>onResume()</em>; see below.</p>
 <h2>Linking the OpenGL texture and the camera</h2>
 <p>We have considered how to create textures in general, but we have not yet looked at how to link textures to the camera. Our aim is to stream the camera feed (obtained using CameraX) into our texture. To do this we make use of a <code>SurfaceTexture</code> object. <code>SurfaceTexture</code>s are used for this purpose: to stream graphics into an OpenGL texture.</p>
+<p>The relation between the different components of the system are shown below:
+<br />
+<img src="../images/camera_opengl_texture.png" alt="Relation between camera and OpenGL textures via SurfaceTexture" />
+</p>
 <h3>Creating our SurfaceTexture in our OpenGL code</h3>
 <p>We create the surface texture from our texture ID:
 <pre>cameraFeedSurfaceTexture = SurfaceTexture(textureId[0])</pre>
@@ -203,7 +210,7 @@ to cover the whole screen. As we saw above, you should draw them unprojected, wi
 <strong>you need to call the SurfaceTexture's updateTexImage() method</strong>,
 to update the SurfaceTexture with the latest camera frame, e.g.
 <pre>
-GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
 // Update the surface texture with the latest frame from the camera
 cameraFeedSurfaceTexture?.updateTexImage()
@@ -231,6 +238,34 @@ This can be done as follows in the <em>AndroidManifest.xml</em>:
 top to bottom, but the T coordinate of a texture increases from bottom to top.
 Change your shader to fix this!</p>
 
+<h2>Overlaying OpenGL 3D objects on an OpenGL camera-feed texture</h2>
+
+<p>
+An augmented-reality application will need to overlay a regular 3D view on top of a camera-feed texture.
+How is this done?
+</p>
+
+<ul>
+<li>Have separate shaders for the camera feed and for your regular OpenGL scene.</li>
+<li>You first draw your texture. Remember this does not need a view or projection matrix.
+Note that OpenGL has inbuilt <em>depth testing</em>. Depth testing invoves checking whether objects are in front of others, and only drawing an object if it is currently visible. This can cause problems when using a camera texture, as the camera texture will be closer to the OpenGL camera than any 3D objects (as its <code>z</code> coordinate is 0), so by default it will hide those 3D objects. So, before drawing the camera feed, you need to disable depth testing.
+<pre>GLES20.glDisable(GLES20.GL_DEPTH_TEST)</pre>
+</li>
+<li>After disabling the depth testing, draw the camera feed.</li>
+<li>Enable depth testing again:
+<pre>GLES20.glEnable(GLES20.GL_DEPTH_TEST)</pre>
+</li>
+<li>Switch to using your regular shader with <code>GLES20.glUseProgram()</code>, passing in the shader program ID as parameter e.g.:
+<pre>GLES20.glUseProgram(shaderProgram)</pre>
+</li>
+<li>Initialise the view matrix to an identity matrix, do any rotation and translation required, and pass the view and projection matrices to your regular shader, as normal.</li>
+<li>Render your 3D scene as normal.</lik>
+</ul>
+
+<h2>Exercise 2</h2>
+  
+<p>Try combining your OpenGL triangle drawing exercise with your camera feed.</p>
+	
 </body>
 </html>
 
