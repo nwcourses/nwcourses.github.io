@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Introduction to Testing</title>
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css" />
+</head>
+
+<body>
+
+<h1>Introduction to Testing</h1>
+
+<p>These notes will introduce you to software testing and how to accomplish it in Java using the JUnit framework. <strong>These are older notes using JUnit 4</strong> in case you have problems with JUnit 5.</p>
+
+<h2>Testing general intro</h2>
+
+<p>Obviously it is important to test software before releasing it, to iron out bugs. Software testing can be
+done in an informal, ad-hoc way, however the disadvantage of this is that the developer is likely to miss out
+testing crucial functionality. The robustness of the software can be enhanced by taking a more formal
+approach to testing, by drawing up a <em>test plan</em> documenting all tests and the expected and actual
+output, as well as performing a series of <em>unit tests</em> designed to test different parts of the 
+system.</p>
+
+<h2>Unit testing</h2>
+
+<p>A <em>unit test</em> is designed to test one small part of the system in isolation, such as a method.
+Unit tests are written to test different outcomes of a method. For example, a Product class (used in shop
+management software) might have a sell() method which takes the number of items to sell as a parameter. This
+could have three outcomes:
+    <ul>
+    <li>The product is sold successfully;</li>
+    <li>There are insufficient items of the product in stock;</li>
+    <li>The number of items is invalid, i.e. zero or a negative number.</li>
+    </ul>
+We would create unit tests to test each of the three possible outcomes and check that the expected behaviour
+does indeed occur in each case.
+<pre>
+public class Product
+{
+    // ... rest of class omitted
+    
+    static final int SUCCESS = 0, INSUFFICIENT_QUANTITY = 1, INVALID_REQUESTED_QUANTITY = 2;
+    
+    public int sell (int amount)
+    {
+        if(quantity<amount)
+            return INSUFFICIENT_QUANTITY;
+        else if (amount<=0)
+            return INVALID_REQUESTED_QUANTITY;
+        quantity -= amount;
+        return SUCCESS;
+    }
+    
+    public int getQuantityInStock()
+    {
+        return quantity;
+    }
+</pre>
+Unit tests for this sell() method could involve:
+    <ul>
+    <li>Making a valid sale and checking that SUCCESS is returned;</li>
+    <li>Making a valid sale and checking that the amount is reduced by the expected amount;</li>
+    <li>Supplying an invalid amount (0 or less), checking that INVALID_REQUESTED_QUANTITY is returned;</li>
+    <li>Supplying an invalid amount (0 or less), checking that the quantity in stock does not change;</li>
+    <li>Supplying an amount greater than the quantity in stock, 
+    checking that INSUFFICIENT_QUANTITY is returned;</li>
+    <li>Supplying an amount greater than the quantity in stock
+    and checking that the quantity in stock does not change.</li>
+    </ul>
+</p>
+<h2>JUnit - A Unit Testing Framework</h2>
+<p>In Java, unit testing is made straightforward by the open-source unit testing framework
+<a href="http://www.junit.org">JUnit</a>. This is automatically available as part of Eclipse, so is quite easy to use.
+There is a good tutorial <a href="http://www.vogella.com/articles/JUnit/article.html">at Vogella</a> which was partly
+used to research these notes.</p>
+<h3>Example</h3>
+<p>Imagine you have an Item class:
+<pre>
+public class Item {
+    String name;
+    double price;
+    int qty;
+    
+    public Item (String name, double price, int qty)
+    {
+        this.name=name;
+        this.price=price;
+        this.qty=qty;
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public double getPrice()
+    {
+        return price;
+    }
+    
+    public int getQuantity()
+    {
+        return qty;
+    }
+    
+    public boolean isInStock()
+    {
+        return qty>0;
+    }
+    
+    public boolean sell()
+    {
+        if(isInStock())
+        {
+            qty--;
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean restock(int qty)
+    {
+        if(qty&gt;0)
+        {        
+            this.qty += qty;
+            return true;
+        }
+        return false;
+        
+    }
+    public String toString()
+    {
+        return name +" " +price +" " +qty;
+    }
+}
+
+</pre>
+</p>
+<p>To use JUnit, we have to create a <em>test class</em> with a series of unit tests.
+Here is an example of a series of unit tests that you would run with JUnit on the Item class above:
+<pre>
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+
+public class ItemTestBasic {
+
+    public ItemTestBasic()
+    {
+        
+    }
+    
+    @Test
+    public void testSellOnceInStock()
+    {
+        Item i = new Item("Mars bar",0.60, 1);
+        assertEquals(  true, i.sell() );
+    }
+    
+    @Test
+    public void testSellOnceNotInStock()
+    {
+        Item i = new Item("Mars bar",0.60, 0);
+        assertEquals(  false, i.sell() );
+    }
+        
+        
+    @Test
+    public void testIsInStockNeg() {
+        Item i = new Item("mars bar", 0.60, -1);
+        assertEquals(  false, i.isInStock() );
+    }
+
+    @Test
+    public void testIsInStockZero() {
+        Item i = new Item("mars bar", 0.60, 0);
+        assertEquals(  false, i.isInStock() );
+    }
+    
+    @Test
+    public void testIsInStockPositive() {
+        Item i = new Item("mars bar", 0.60, 1);
+        assertEquals(  true, i.isInStock() );
+    }
+    
+    
+    
+    @Test
+    public void testSellTwiceNotInStock()
+    {
+        Item i = new Item("Mars bar",0.60, 1);
+        i.sell();
+        assertEquals(  false, i.sell() );
+    }
+    
+
+    @Test
+    public void testRestock() {
+        
+        int amount=3, initial=10;
+        Item i = new Item("Mars bar", 0.60, initial);
+        i.restock(amount);
+        assertEquals( initial+amount,i.getQuantity());
+    }
+}
+
+
+</pre>
+</p>
+<p>Looking at this in more detail:
+    <ul>
+    <li>Unless they are parameterised (see later), test classes must have <em>a no-arguments constructor</em> (ItemTestBasic() here)</li>
+    <li>Note how we have a series of test methods. Note how each is preceded with the annotation 
+    <em>@Test</em>. This informs JUnit that the method coming up is a test that it should run.
+    (This is actually Java syntax, not specifically JUnit; for more on Java 
+    annotations see <a href="http://www.vogella.com/articles/JavaAnnotations/article.html">here</a>).</li>
+    <li>Note how each method <em>creates an instance of the class under test</em> (Item here),
+    <em>performs an operation on it</em> (e.g. sells it) and <em>tests whether a condition has been met
+    with assertEquals()</em>. <em>assertEquals()</em> is what is called an <em>assertion</em>: a general
+    technique in debugging to check whether a condition has been met. It takes two parameters:
+        <ul>
+        <li>The expected result, e.g. true or false;</li>
+        <li>The method under test.</li>
+        </ul>
+    </li>
+    <li>We'll now illustrate this by going through the <em>testSellOnceInStock()</em> test.
+    This tests that we can sell an item that is in stock once, successfully. We:
+        <ul>
+        <li>create a new item that is in stock: <code>Item i = new Item("Mars bar",0.60, 1);</code></li>
+        <li>test that <em>sell()</em> returns true: <code>assertEquals(  true, i.sell() );</code></li>
+        <li>If <em>assertEquals()</em> passes, i.e. <em>i.sell()</em> does return true, then the test will pass.
+        If on the other hand <em>i.sell()</em> returns false, then the assertion will fail because <em>i.sell()</em>
+        is not returning the expected value, and so the test will fail</li>
+        </ul>
+    </li>
+    <li>This first test tests that we can successfully perform an operation. However we can also write tests to prove
+    that an <em>expected error condition does happen</em>. The second test, <em>testSellOnceNotInStock()</em>, does
+    this:
+    <pre>
+    @Test
+    public void testSellOnceNotInStock()
+    {
+        Item i = new Item("Mars bar",0.60, 0);
+        assertEquals(  false, i.sell() );
+    }
+    </pre>
+    Note how we are asserting that <em>i.sell()</em> returns <em>false</em>. The test will pass 
+    if it does return false, and fail if it returns true: note again we are
+    <em>testing the expected outcome</em>. Here, since the initial quantity is 0, the expected outcome
+    is that the <em>i.sell()</em> method will return false because the item is out of stock.</li>
+    <li>The next three tests test the <em>isInStock()</em> method in three different situations:
+    negative stock, zero stock and positive stock. We test that the first two conditions return false
+    and the last condition returns true.</li>
+    <li>Try making a test fail. Change the <em>isInStock()</em> method in Item to:
+    <pre>
+    public boolean isInStock()
+    {
+        return qty&gt;=0; // greater than or equal to, not greater than
+    }
+    </pre>
+    This method is now <em>wrong</em> because an item should be out of stock if the quantity is 0 or less. Quantities of
+    0 do not count as being in stock! Consequently the <em>testIsInStockZero()</em> test will now <em>fail</em>.
+    The <em>assertEquals()</em> asserts that <em>isInStock()</em> returns false. Now, however it will return true, so the
+    assertion and consequently the test will fail.</li>
+    <li>The next test, <em>testSellTwiceNotInStock()</em>,
+    is slightly more complex, it tries to sell an item twice if the initial quantity in stock is one.
+    The expected outcome is that we will be able to sell it once, then it will be unable to sell
+    (<em>sell()</em> returns false) if we try to sell it again. We sell it once
+    without testing, then assert that the second call to <em>sell()</em> returns false. </li>
+    <li>The last test, <em>testRestock()</em>, shows that we are not limited to testing methods with a boolean
+    return value. We can test <em>any</em> return value of a method.
+    It creates an item with a given initial quantity, calls <em>restock()</em> with an amount to
+    increase the stock by, and then checks, with an assertion, that the <em>getQuantity()</em> method returns the sum of the initial
+    value and the amount to increase the stock by. In doing so, we check that the <em>restock()</em> method has 
+    restocked the item by the specified amount.</li>
+    <li>Note how we are performing a wide range of tests and focusing in particular on boundary conditions: for instance
+    we check that zero, as well as negative numbers, are treated as out-of-stock conditions. Boundary conditions are
+    where many programming bugs occur.</li>
+    </ul>
+</p>
+
+<h3>Parameterised Tests</h3>
+<p>The first example performed three very similar tests: testing that the <em>isInStock()</em> method gives the expected
+result for the values -1, 0 and 1. Clearly this is rather inefficient. It would be better if we could run a single test with
+one or more <em>parameters</em> - and luckily we can. The example below has a single test, <em>testIsInStockMultipleValues()</em>
+and runs it three times, passing the parameters -1, then 0, then 1 to it:
+<pre>
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collection;
+import org.junit.runners.Parameterized.Parameters;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+
+@RunWith(Parameterized.class)
+public class ParamItemTest {
+
+    int parameter;
+    
+    
+    public ParamItemTest(int parameter)
+    {
+        this.parameter=parameter;
+    }
+    
+    @Parameters
+    public static Collection<Object[]> data()
+    {
+        Object[][] data = { { -1 } , { 0 } , {1 } } ;
+        return Arrays.asList(data);
+    }
+    
+    @Test
+    public void testIsInStockMultipleValues()
+    {
+        Item i = new Item("Mars bar",0.60, parameter);
+        assertEquals(  parameter&gt;0, i.isInStock() );
+    }
+}
+</pre>
+</p>
+<p>Note the following:
+    <ul>
+    <li>The class is preceded with the annotation <code>@RunWith(Parameterized.class)</code>. This tells JUnit to run the
+    class with the parameterised tester, rather than the normal tester. Consequently we also need various additional
+    import statements.</li>
+    <li>Parameterised test classes <em>must</em> take at least one parameter in their constructor. This is the parameter which will
+    be passed to the tests.</li>
+    <li>Note the <em>data()</em> method:
+    <pre>
+    @Parameters
+    public static Collection<Object[]> data()
+    {
+        Object[][] testData = { { -1 } , { 0 } , {1 } } ;
+        return Arrays.asList(testData);
+    }
+    </pre>
+    This is the key method to running parameterised tests. The <em>data()</em> method returns a list of 
+    parameters to test: the test class will be instantiated with each parameter in the list in turn.
+    The data: <code>Object[][] data = { { -1 } , { 0 } , {1 } } ;</code> is a <em>two-dimensional array</em>
+    of parameters. Each member of the array <em>testData</em> corresponds to the parameters to test each time, but
+    each member is <em>itself an array</em> so that we can send <em>multiple parameters</em> to the test
+    (we'll see this in the next example). For now, however, we're only sending one parameter to the test so each
+    member of <em>testData</em> is an array with one member - the parameter to test.</li>
+    <li>What JUnit will then do is instantiate the ParamItemTest class with each parameter from the
+    <em>testData</em> array in turn. Note how the actual test method, <em>testIsInStockMultipleValues()</em>,
+    uses the parameter we passed into the constructor to do the test. We create an Item with a stock level of
+    the parameter, and then test <em>isInStock()</em> for the expected result, which will be the result of the
+    condition <pre>parameter&gt;0</pre>.</li>
+    </ul>
+</p>
+<h4>Parameterised Tests with Multiple Parameters</h4>
+<p>The following example is a modification of the previous one, which takes <em>multiple parameters</em> per test run:
+<pre>
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collection;
+import org.junit.runners.Parameterized.Parameters;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+
+@RunWith(Parameterized.class)
+public class ParamItemTest2 {
+
+    int paramAmount;
+    boolean paramExpectedResult;
+    
+    
+    public ParamItemTest2(int paramAmount, boolean paramExpectedResult)
+    {
+        this.paramAmount=paramAmount;
+        this.paramExpectedResult=paramExpectedResult;
+    }
+    
+    @Parameters
+    public static Collection<Object[]> data()
+    {
+        Object[][] testData = { { -1, false } , { 0,false } , {1,true } } ;
+        return Arrays.asList(testData);
+    }
+    
+    @Test
+    public void testIsInStockMultipleValues()
+    {
+        Item i = new Item("Mars bar",0.60, paramAmount);
+        assertEquals(  paramExpectedResult , i.isInStock() );
+    }
+}
+</pre>
+</p>
+<p>Note how each element in the <em>testData</em> array is now a <em>two-member array</em>, representing the
+<em>two</em> parameters that are passed into the test class: the initial amount in stock and the <em>expected result</em> of 
+<em>isInStock()</em> for that initial amount. Each pair of values in the <em>testData</em> array will be passed in
+turn into the constructor, which now takes two parameters corresponding to these two values.
+Note how the test method uses these parameters to perform the test: it instantiates
+an Item object using the initial amount <em>paramAmount</em>, and then checks that <em>isInStock()</em>
+returns a value of <em>paramExpectedResult</em>.</p>
+<h3>Test Suites</h3>
+<p>A common approach in testing is to gather a series of tests into a <em>suite</em>. For example, imagine we had a series of tests
+for a VendingMachine class (omitted)
+in addition to our Item tests (the idea being that the VendingMachine contains several Items):
+<pre>
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+
+public class VendingMachineTest {
+
+    @Test
+    public void testAddItem()
+    {
+        VendingMachine vm=new VendingMachine();
+        vm.addItem(id,new Item("Creme Egg",0.60,101));
+        assertTrue(vm.itemIsPresent(101));
+        
+    }
+    
+    @Test
+    public void testSellOK()
+    {
+        VendingMachine vm = new VendingMachine();
+        vm.addItem(101,new Item("Creme Egg",0.60,101));
+        vm.insertMoney(0.60);
+        assertTrue(vm.sell(101));
+    }
+    
+    @Test
+    public void testSellInsufficientMoney()
+    {
+        VendingMachine vm = new VendingMachine();
+        vm.addItem(101,new Item("Creme Egg",0.60,101));
+        vm.insertMoney(0.59);
+        assertFalse(vm.sell(101));
+    }
+}
+</pre>
+(These tests are used to test whether an item was successfully added, whether an item can be sold if 
+enough money was inserted, and whether an item is unable to be sold if not enough money was
+inserted. Note also here the use of <em>assertTrue()</em> and <em>assertFalse()</em> which are shorthand versions of
+<em>assertEquals()</em> in cases where we know the method will return true or false).</p>
+<h2>References</h2>
+<p><a href="http://www.vogella.com/articles/JUnit/article.html">Lars Vogel's tutorial on JUnit</a> </p>
+</body>
+</html>

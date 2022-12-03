@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html><head>
+<title>Topic 10: Introduction to Unit Testing with JUnit</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div class="titlebox">
+<h1>Topic 10: Introduction to Unit Testing with JUnit</h1>
+</div>
+
+<p>These notes will introduce you to software testing (specifically, unit testing) and how to accomplish it in Java using the JUnit framework.</p>
+
+<h2>Testing general intro</h2>
+
+<p>Obviously it is important to test software before releasing it, to iron out bugs. Software testing can be done in an informal, ad-hoc way, however the disadvantage of this is that the developer is likely to miss out testing crucial functionality. The robustness of the software can be enhanced by taking a more formal approach to testing, by drawing up a <em>test plan</em> documenting all tests and the expected and actual output, as well as performing a series of <em>unit tests</em> designed to test different parts of the system.</p>
+
+<h2>Unit testing</h2>
+
+<p>A <em>unit test</em> is designed to test one small part of the system in isolation, such as a method.  Unit tests are written to test different outcomes of a method. For example, an Event class (used in the live music venue application) might have a  book() method which takes the number of tickets to book as a parameter. This could have three outcomes: 
+<ul>
+    <li>The event is booked successfully;</li>
+    <li>There are insufficient tickets available;</li>
+    <li>The number of tickets is invalid, i.e. zero or a negative number.</li>
+    </ul>
+We would create unit tests to test each of the three possible outcomes and check that the expected behaviour does indeed occur in each case.
+<pre>
+public class Event
+{
+    int tickets;
+    // ... rest of class omitted
+    
+    public boolean book (int amount)
+    {
+        if(tickets &lt; amount)
+        {
+            return false;
+        }
+        else if (amount &lt; 0)
+        {
+            return false;
+        }
+        tickets -= amount;
+        return true; 
+    }
+    
+    public int getTickets()
+    {
+        return tickets;
+    }
+}
+</pre>
+Unit tests for this book() method could involve:
+    <ul>
+    <li>Making a valid booking and checking that true is returned;</li>
+    <li>Making a valid booking and checking that the amount is reduced by the expected amount;</li>
+    <li>Supplying an invalid amount (0 or less), checking that false is returned;</li>
+    <li>Supplying an invalid amount (0 or less), checking that the number of tickets does not change;</li>
+    <li>Supplying an amount greater than the number of tickets,
+    and checking that false is returned;</li>
+    <li>Supplying an amount greater than the number of tickets 
+    and checking that the number of tickets does not change.</li>
+    </ul>
+</p>
+<h2>JUnit - A Unit Testing Framework</h2>
+<p>In Java, unit testing is made straightforward by the open-source unit testing framework <a href="http://www.junit.org">JUnit</a>. This can be used from Netbeans by adding the required libraries as a dependency to your pom.xml within the &lt;dependencies&gt; section. We are using JUnit 5, as this is the latest version. It requires Java 8 or higher. If you are having problems with JUnit 5, there are also some (older) notes for <a href='junit4.html'>JUnit 4</a> here.
+<pre>
+&lt;dependency&gt;
+&lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+&lt;artifactId&gt;junit-jupiter-api&lt;/artifactId&gt;
+&lt;version&gt;5.7.2&lt;/version&gt;
+&lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+&lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+&lt;artifactId&gt;junit-jupiter-engine&lt;/artifactId&gt;
+&lt;version&gt;5.7.2&lt;/version&gt;
+&lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+&lt;!-- This is needed only if you are doing parameterised tests (see below) --&gt;
+&lt;dependency&gt;
+&lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+&lt;artifactId&gt;junit-jupiter-params&lt;/artifactId&gt;
+&lt;version&gt;5.7.2&lt;/version&gt;
+&lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+</pre> 
+To use JUnit 5, you also need to update the Maven Surefire plugin, which is used to automate your tests, to at least version 2.22. Add this to your <code>pom.xml</code> below the <code>dependencies</code>.
+<pre>
+&lt;build&gt;
+&lt;plugins&gt;
+&lt;plugin&gt;
+&lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+&lt;version&gt;2.22.0&lt;/version&gt; 
+&lt;configuration&gt;
+&lt;includes&gt;
+&lt;include&gt;**/*Tests.java,**/*Test.java&lt;/include&gt;
+&lt;/includes&gt;
+&lt;/configuration&gt;
+&lt;/plugin&gt;
+&lt;/plugins&gt;
+&lt;/build&gt;
+</pre>
+There is a good tutorial <a href="http://www.vogella.com/articles/JUnit/article.html">at Vogella</a> which was partly used to research these notes.</p>
+<h3>Example</h3>
+<p>Imagine you have an Event class above.
+To use JUnit, we have to create a <em>test class</em> with a series of unit tests.
+Here is an example of a series of unit tests that you would run with JUnit on the Item class above:
+<pre>
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+public class EventTest {
+    
+    // Test that selling one ticket returns true if there are enough tickets
+    @Test
+    public void testSellOneTicketSuccess()
+    {
+        // Arguments of Event: name, number of tickets
+        Event e = new Event("Postmodern Doom", 100);
+        assertTrue( e.book(1) );
+    }
+   
+    // Test that selling one ticket reduces the stock appropriately if there are enough tickets
+    @Test
+    public void testSellOneTicketReducesStock()
+    {
+        Event e = new Event("Postmodern Doom", 100);
+        e.book(1);
+        assertEquals( e.getTickets(), 99 );
+    }
+
+    // Test that selling one ticket returns false if there are not enough tickets
+    @Test
+    public void testSellOneTicketNoAvailability()
+    {
+        Event e = new Event("Postmodern Doom", 0);
+        assertFalse( e.book(1) );
+    }
+        
+    // Test that selling one ticket returns false if the quantity is invalid
+    @Test
+    public void testSellOneTicketInvalidQuantity()
+    {
+        Event e = new Event("Postmodern Doom", 100);
+        assertFalse( e.book(-1) );
+    }
+
+    // Test that selling one ticket does not reduce the stock if there are not enough tickets
+    @Test
+    public void testSellOneTicketNoAvailabilityDoesNotChangeStock()
+    {
+        Event e = new Event("Postmodern Doom", 0);
+        e.book(1);
+        assertEquals( e.getTickets(), 0 );
+    }
+
+    // Test that selling one ticket does not change the stock if the quantity is invalid
+    @Test
+    public void testSellOneTicketInvalidQuantityDoesNotChangeStock()
+    {
+        Event e = new Event("Postmodern Doom", 100);
+        e.book(-1);
+        assertEquals( e.getTickets(), 100 );
+    }
+
+    @Test
+    public void testSellTwoTicketsReducesStock()
+    {
+        Event e = new Event("Postmodern Doom", 100);
+        e.book(2);
+        assertEquals( e.getTickets(), 98 );
+    }
+}
+
+
+</pre>
+</p>
+<p>Looking at this in more detail:
+    <ul>
+    <li>Note how we have a series of test methods. Note how each is preceded with the annotation 
+    <em>@Test</em>. This informs JUnit that the method coming up is a test that it should run.
+    (This is actually Java syntax, not specifically JUnit; for more on Java 
+    annotations see <a href="http://www.vogella.com/articles/JavaAnnotations/article.html">here</a>).</li>
+    <li>Note how each method <em>creates an instance of the class under test</em> (Item here),
+    <em>performs an operation on it</em> (e.g. sells it) and <em>tests whether a condition has been met</em> with an <strong>assertion</strong>. Assertions include <code>assertTrue()</code> (tests whether a method returns true), <code>assertFalse()</code> (tests whether a method returns false), or <code>assertEquals()</code> (which tests whether a return value is equal to specified value.
+    </li>
+    
+    </ul>
+</p>
+<h3>Adding tests in Netbeans</h3>
+<p>Test classes should be placed in the <code>test</code> folder within your project. Right-click on the <code>test</code> folder, as shown below, to add a new test class:
+<br />
+<img src="../images/netbeans_test_folder.png" alt="Netbeans test folder" />
+</p>
+<h3>Parameterised Tests</h3>
+<p>Often, tests differ only in the parameter we are supplying to the method. You can see this above in the tests within <code>EventTest</code>; most only differ by the amount of tickets we are supplying.  Clearly this is rather inefficient. It would be better if we could run a single test with
+one or more <em>parameters</em> - and luckily we can. The example below has a single test, <code>testSellMultipleValues()</code>
+and runs it three times, passing the parameters -1, then 1, then 2 to it:
+<pre>
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+public class ParamItemTest {
+
+    public static int[][] testData()
+    {
+        int[][] data = { { -1 } , { 1 } , { 2 } } ;
+        return data; 
+    }
+    
+    @ParameterizedTest
+    @MethodSource(value="testData")
+    public void testSellMultipleValues(int[] data)
+    {
+        int maxTickets = 100;
+        Event event = new Event("Test event", maxTickets);
+        int expectedTickets = data[0] &gt; 0 ? maxTickets - data[0] : maxTickets;
+        event.sell(data[0]);
+        assertEquals( event.getTickets(), expectedTickets );
+    }
+}
+</pre>
+</p>
+<p>Note the following:
+    <ul>
+    <li>Note the <code>testData()</code> method. This provides the parameters to send to the test. It creates and returns a two-dimensional int array (<code>int[][]</code>) of the parameters to send to the test. 
+    <pre>
+    @Parameters
+    public static int[][] testData()
+    {
+        int[][] data = { { -1 } , { 1 } , { 2 } } ;
+        return data;
+    }
+    </pre>
+    This method returns an array of parameters to test: the test method will be run with each parameter in the array in turn.
+    The data: <code>int[][] data = { { -1 } , { 1 } , { 2 } } ;</code> is a <em>two-dimensional array</em>
+    of parameters. Each member of the array <em>data</em> corresponds to the parameters to test each time, but
+    each member is <em>itself an array</em> so that we can send <em>multiple parameters</em> to the test. Here, however, we're only sending one parameter to the test so each
+    member of <code>testData</code> is an array with one member - the parameter to test.</li>
+    <li>We then come to the test itself, the <code>testSellMultipleValues()</code> method. This is annotated with <code>@ParameterizedTest</code> to indicate that it's a parameterised test, and another annotation <code>@MethodSource</code> to indicate where the test data is coming from. <pre>@MethodSource(value="testData")</pre> indicates the data is coming from a method called <code>testData()</code>. The current item from the test data is passed to the <code>testSellMultipleValues()</code> method; it will be an int array (<code>int[]</code>) containing one single value.</li>
+    <li>The test method creates an Event with 100 tickets, and then tries to sell the number of tickets defined by the current parameter (i.e. -1, 1 or 2, with a different value for each run of the test). We then work out the expected number of tickets after the sale. This will either be:
+	<ul>
+	<li>the maximum tickets minus the parameter (if the parameter is 1 or more);</li>
+	<li>or the maximum tickets (if the parameter is less than 1), because numbers of tickets less than 1 should be treated as invalid and thus the number of tickets after the attempted sale will not change.</li>
+	</ul>
+ Note how we do this with the <em>ternary operator</em> (?), which is a short-hand way of doing a conditional statement:
+    <pre>int expectedTickets = data[0] &gt; 0 ? maxTickets - parameter : maxTickets;</pre>
+    This is saying "if <code>data[0]</code> (i.e. the number of tickets we want to sell) is greater than 0, set <code>expectedTickets</code> to <code>maxTickets - data[0]</code>, otherwise set it to <code>maxTickets</code>".</li>
+    <li>We then check, with an assertion, whether the return value of <code>getTickets()</code> is the expected number.</li>
+    </ul>
+</p>
+<h4>Parameterised Tests with Multiple Parameters</h4>
+<p>The following example is a modification of the previous one, which takes <em>multiple parameters</em> per test run. We specify these via a <em>CSV</em> source this time:
+<pre>
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+public class ParamItem2Test {
+
+    @ParameterizedTest
+    @CsvSource({"-1,false","1,true","2,true","101,false"})
+    public void testSellMultipleValuesSuccess(int numberOfTickets, boolean expectedSellStatus)
+    {
+        Event event = new Event("Test event", 100);
+        assertEquals(event.sell(numberOfTickets), expectedSellStatus);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"-1,100","1,99","2,98","101,100"})
+    public void testSellMultipleValuesRemainingQuantity(int numberOfTickets, int expectedRemainingTickets)
+    {
+        Event event = new Event("Test event", 100);
+        event.sell(numberOfTickets);
+        assertEquals(event.getTickets(), expectedRemainingTickets);
+    }
+}
+</pre>
+</p>
+<p>Note how we pass the test data to each test in <em>comma-separated</em> (CSV) format with <code>@CsvSource</code>, e.g:
+<pre>
+@CsvSource({"-1,false","1,true","2,true","101,false"})
+</pre> 
+The <code>CsvSource</code> contains a set of test data to be used for each run of the test, as a CSV string. For the first test, <code>testSellMultipleValuesSuccess()</code>, we are testing whether the <code>sell()</code> method returns the expected boolean value when a particular number of copies are sold. The CSV contains the copies to be sold, and the expected boolean return value of <code>sell()</code> for that number of copies, in that order. The parameters to the method (<code>numberOfTickets</code> and <code>expectedSellStatus</code>) correspond to this data from the CSV, in the same order.
+</p> 
+<p>So here, the test will be run four times, the first time with the values of <code>-1</code> and <code>false</code>; the second time with the values of <code>1</code> and <code>true</code>, and so on.</p>
+<p>The <code>testSellMultipleValuesRemainingQuantity()</code> method works in a similar way, but this time we are testing that the remaining number of tickets is as we expect for each run of the test.</p>
+<p>The test data in the CSV contains these cases:
+    <ul>
+    <li>Selling -1 tickets. <code>sell()</code> should return <code>false</code> as -1 is an invalid quantity, and not change the remaining tickets (so this remains as 100).</li>
+    <li>Selling 1 ticket. <code>sell()</code> should return <code>true</code> and leave 99 remaining tickets.</li>
+    <li>Selling 2 tickets. <code>sell()</code> should return <code>true</code> and leave 98 remaining tickets.</li>
+    <li>Selling 101 tickets. <code>sell()</code> should return <code>false</code> due to attempting to sell one more than the maximum available number of tickets, and as a result not change the remaining tickets (so this remains as 100).</li>
+    </ul>
+</p>
+<p>
+Note how the two tests work. The first test tries to sell <code>numberOfTickets</code> tickets (the first parameter of the test) and checks that the return value of <code>sell</code> is equal to <code>expectedSellStatus</code> (the second parameter of the test). The second test tries to sell <code>numberOfTickets</code> tickets and checks that the number of remaining tickets is equal to <code>expectedRemainingTickets</code> (the second parameter of the test).
+</p>
+<h3>Further example: the Venue</h3>
+<p>This is an example of testing a more complex class (the <code>Venue</code>, which contains multiple <code>Event</code>s). Not all possible tests are shown. As discussed below, you should test more complex classes, such as <code>Venue</code>, <em>after</em> the simpler classes (such as <code>Event</code>) are fully tested and working.
+<pre>
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+public class VenueTest {
+
+    @Test
+    public void testAddEvent()
+    {
+        int id = 1;
+        Venue v=new Venue();
+        v.addEvent(new Event(id, "Postmodern Doom","1/4/23", 1000));
+        assertNotNull(v.findEventById(id));
+        
+    }
+    
+    @Test
+    public void testFindOneEventByName()
+    {
+        Venue v = new Venue();
+        int id = 1;
+        String name = "Postmodern Doom";
+        Event e = new Event(id, name, "1/4/23", 1000);
+        v.addEvent(e);
+        ArrayList&lt;Event&gt; events = v.findEventsByName(name);
+        assertEquals(events.size(), 1);
+    }
+    
+    @Test
+    public void testFindTwoEventsByName()
+    {
+        Venue v = new Venue();
+        int id = 1;
+        String name = "Postmodern Doom";
+        Event e = new Event(id, name, "1/4/23", 1000);
+        Event e2 = new Event(id+1, name, "2/4/23", 1000);
+        v.addEvent(e);
+        v.addEvent(e2);
+        ArrayList&lt;Event&gt; events = v.findEventsByName(name);
+        assertEquals(events.size(), 2);
+    }
+
+    @Test
+    public void testFindNonExistentEventByName()
+    {
+        Venue v = new Venue();
+        int id = 1;
+        String name = "Postmodern Doom";
+        Event e = new Event(id, name, "1/4/23", 1000);
+        v.addEvent(e);
+        ArrayList&lt;Event&gt; events = v.findEventsByName("Metagalactic Hamstaaz");
+        assertEquals(events.size(), 0);
+    }
+
+    @Test
+    public void testFindNonExistentEventById()
+    {
+        Venue v = new Venue();
+        int id = 1;
+        String name = "Postmodern Doom";
+        Event e = new Event(id, name, "1/4/23", 1000);
+        v.addEvent(e);
+        assertNull(v.findEventById(id+1));
+    }
+}
+</pre>
+</p>
+<h2>General strategy for unit testing</h2>
+<p>You should test each class as you write it. A good strategy is to test <em>the simpler classes, with no dependencies on other classes, first</em>, as then you know that those classes are fully working. For example, you would want to test the <code>Event</code> class and a <code>Booking</code> class before testing the <code>Venue</code> class. After testing the classes with no dependencies, you can then test the larger and more complex classes (e.g. <code>Venue</code>), which <em>use</em> those simpler classes, to see if they work.</p> 
+<p>You should also ensure you test <em>edge cases</em>. An edge case is a value on the boundary between two outcomes. For example, if a venue has 100 tickets, you might want to test whether 100 tickets can be booked (which should work), and whether 101 tickets can be booked (which should not). Edge cases are common places to find bugs (one example is confusion between &lt; and &lt;=) and ensuring they are included as data in tests means that such bugs are likely to be found.</p>
+<h2>Exercise</h2>
+<p>Clone this repository from GitHub:
+<pre>https://github.com/nwcourses/COM528</pre>
+This contains the solutions to previous exercises, but also a project called <code>UniversityForTesting</code>, which you should use for this exercise. It contains a modified version of the Week 3 solution. Look at the classes within the project.</p>
+<p>Develop a series of unit tests for both the <code>Student</code> class and the <code>University</code> class, and run them.</p>
+<h2>References</h2>
+<p><a href="http://www.vogella.com/articles/JUnit/article.html">Lars Vogel's tutorial on JUnit</a> </p>
+</body>
+</html>
