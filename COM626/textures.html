@@ -47,7 +47,7 @@ we initialise the texture (this code is also in <code>onSurfaceCreated()</code>)
 <pre>
 if (textureId[0] != 0) {
     GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
-    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId)
+    GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId[0])
 
     cameraFeedSurfaceTexture = SurfaceTexture(textureId[0])
 
