@@ -459,7 +459,35 @@ the data contained within it
 </div>
 
 <div>
-<h3>Using the DAO from outside</h3>
+<h3>Using the DAO from outside - simple</h3>
+<p>Just create the DAO from your JSP, e.g. as follows:
+<pre>
+Connection conn = null;
+try
+{
+    // Connect to database
+    Class.forName("org.sqlite.JDBC");
+    conn = DriverManager.getConnection("jdbc:sqlite:venue.db");
+
+    // Create the DAO
+    EventDao dao = new EventDao(conn, "event");
+
+    // Find all events by the user's chosen band
+    ArrayList&lt;Event&gt; events = dao.findEventsByBand(request.getParameter("band"));
+
+    // Display each event
+    for(Event e: events)
+    {
+        out.println(e.getDate() + " " + e.getTime());
+    }
+    // ... etc ...
+</pre>
+</p>
+</div>
+
+
+<div>
+<h3>Using the DAO from outside - more complex</h3>
 <p>A typical design would include a "manager" class (such as the <code>LiveMusicVenue</code> in this example) containing multiple DAOs. For example:
 <pre>
 public class LiveMusicVenue
