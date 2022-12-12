@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OpenGL Textures and the Camera</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+<style>
+img {
+    border: 1px solid black;
+}
+</style>
+</head>
+<body>
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 12</h1>
+<h1>OpenGL part 6 - Wrap up</h1>
+</div>
+<h2>Introduction</h2>
+<p>We have now covered almost everything necessary to build a location-based AR application on Android. There are just a small number of things necessary now to complete the picture.</p>
+
+
+<h2>Passing the orientation matrix into OpenGL</h2>
+
+<p>Remember in the <a href='week5.html'>sensors topic</a> we covered how to obtain the azimuth, pitch and roll of the device. We also covered how to obtain an <em>orientation matrix</em> representing the current device orientation. The good news is that this orientation matrix <em>can (almost) be used as the view matrix</em> in OpenGL, though note that you will probably need to remap the coordinate system to translate from portrait to landscape (again, see <a href='week5.html'>the sensors topic</a>).</p>
+
+<p>So how can this be implemented?
+<ul>
+<li>Your renderer class needs an additional array to represent the latest sensor readings:
+<pre>private var lastOrientMtx = FloatArray(16)</pre>
+</li>
+<li>
+It also needs a setter method to update this matrix with the latest sensor matrix (obtained elsewhere in your code, from the Sensor API):
+<pre>
+fun setOrientMtx(orientMtx: FloatArray) {
+    lastOrientMtx = orientMtx.clone()
+}
+</pre>
+</li>
+<li>and in <code>onDrawFrame()</code>, you need to set the view matrix to a clone of <code>lastOrientMtx</code>, and then translate it by the negative of the current camera position, as before:
+<pre>
+// This should be placed where your current code to setup the view matrix is placed, in onDrawFrame()
+viewMtx = lastOrientMtx.clone()
+Matrix.translateM(
+    viewMtx, 0, -cameraPos.x, -cameraPos.y, -cameraPos.z
+)
+</pre>
+</li>
+</ul>
+
+<h2>Projecting from latitude/longitude to a metre-based coordinate system</h2>
+<p>
+Latitude and longitude cannot be mapped directly to OpenGL coordinates, because latitude and longitude are designed for a spherical surface, such as the Earth, but OpenGL assumes that the units for the x, y and z directions are equal. So we need to convert latitude and longitude into coordinates expressed in a standard distance unit, such as <em>metres</em>. This involves performing a mathematical transformation known as a <em>projection</em>, in which the Earth (a sphere, more or less) is projected onto a flat surface. The projection being used is the <em>Spherical Mercator</em> projection, which works reasonably well for most places (the units do not exactly equal metres, but it's good enough for a typical AR application) However it is heavily distorted towards the poles and not recommended for far northern latitudes.
+</p>
+
+<p>
+I have now added a library to do this conversion on the website, which you can download <a href='PROJ/PROJ-v2.zip'>here</a>. It contains these classes:
+
+<ul>
+<li><code>SphericalMercatorProjection</code> - represents the projection being used. A projection allows you to convert between different coordinate systems. Here it can be used to convert between latitude/longitude and eastings/northings - see below.</li>
+
+<li><code>LonLat</code> - a class representing a longitude and latitude, Has 'lon' and 'lat' attributes.</li>
+
+<li><code>EastNorth</code> - a class representing a metre-based point, defined by eastings and northings. Eastings and northings are (approximately, not exactly, but good enough for our purposes here) metres east and north of a particular point, or world origin. Here, the world origin is Solent University. So if you convert the longitude and latitude of Solent into an EastNorth (easting and northing), it will give you zero for both the easting and northing. Points east of Solent have positive eastings and points north of Solent have positive northings. Has 'easting' and 'northing' attributes.
+</li>
+
+<li><code>Algorithms</code> - includes a method to calculate the distance between two latitude/longitude pairs.</li>
+
+<li><code>Main</code> - contains some test code (currently commented out) showing you how you can use the SphericalMercatorProjection to project LonLat points into EastNorth, and unproject EastNorth points back into LonLat.</li>
+
+</ul>
+
+<p>
+You can just add these classes to your assignment project (feel free to put them in a separate package if you wish).
+</p>
+
+<p>
+Note the relation between EastNorth and OpenGL x, y and z coordinates. Due to differences between the OpenGL matrix and the sensor matrix, the coordinate system as rotated as shown below:
+<br />
+<img src="../images/sensorworld.png" alt="Coordinate system from sensor-derived matrices" />
+<br />
+So: 
+<ul>
+<li>
+OpenGL x world coordinates are equivalent to eastings.
+</li>
+<li>
+OpenGL y world coordinates are equivalent to northings (note this important difference from the usual world coordinates setup, in which y is normally used for altitude)
+</li>
+<li>
+OpenGL z coordinates are equivalent to altitude (which we are ignoring; again note the difference from the usual world coordinates setup)
+</li>
+</ul>
+
+</p>
+
+<h2>JSON parsing</h2>
+
+<p>You can use the JSON parsing from last year, in MAD (see <a href='https://nwcourses.github.io/COM527/topic8.html'>here</a>). However note that the GeoJSON API returns an <em>object</em> so you will need to use <code>obj()</code> rather than <code>array()</code> to obtain it via Fuel e.g.
+<pre>
+url = "https://example.com/geojson"
+url.httpGet().responseJson { request, response, result -&gt;
+    when(result) {
+        is Result.Success -&gt; {
+            val geojsonRootObj = result.get().obj()
+            // Parse your JSON
+        }
+
+        is Result.Failure -&gt; {
+            tv1.text = "ERROR ${result.error.message}"
+        }
+    }
+}
+</pre>
+</p>
+
+<h2>Exercise</h2>
+
+<p>You can use today to either catch up with last week, or ask questions about the assignment. However you might also want to try this exercise.</p>
+<p>Try adding the Sensor API to your existing OpenGL application, and pass in the orientation matrix from the Sensor API to your Renderer. If you are on landscape you will need to remap the coordinate system.</p>
+</body>
+</html>
+
