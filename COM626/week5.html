@@ -331,10 +331,7 @@ To remap from portrait to landscape we would do:
 <pre>SensorManager.remapCoordinateSystem (originalMatrix, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, remappedMatrix)</pre>
 <ul>
 <li>
-The 2nd parameter describes what axis in the default orientation the device's current <code>x</code> axis (in the device's current orientation) corresponds to. So in landscape, the <code>x</code> axis corresponds to the <code>y</code> axis in the default orientation (<code>SensorManager.AXIS_Y</code>.</li>
-<li>
-The 3rd parameter describes what axis in the default orientation the device's current <code>y</code> axis corresponds to. So in landscape, the <code>y</code> axis corresponds to the <strong>negative</strong> <code>x</code> axis in the default orientation (<code>SensorManager.AXIS_MINUS_X</code>).
-</li>
+The 2nd and third parameters describe the mapping: as can be seen from the diagram x in the default system maps to y in the current view, and y in the default system maps to -x.</li>
 </ul>
 </p>
 
