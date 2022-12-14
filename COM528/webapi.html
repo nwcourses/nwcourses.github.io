@@ -236,7 +236,7 @@ how each student object within the array is separated by a comma.
 The majority of this you can use unchanged, but note the highlighted sections.
     <ul>
     <li>The first highlighted section <code>com.example.jersey.tomcat</code> refers to the package containing the classes making up your service. An example of a service class is shown below.</li>
-    <li>The second highlighted section <code>/api/*</code> refers to the URL path which will trigger the service. So here, any path beginning with <code>/api</code>, i.e. <code>http://localhost:8080/api/...</code> will be handled by your service.</li>
+    <li>The second highlighted section <code>/api/*</code> refers to the URL path which will trigger the service. So here, any path beginning with <code>/api</code>, i.e. <code>http://localhost:8080/app-name/api/...</code> will be handled by your service.</li>
     </ul>
 </p>
 <h4>The service class</h4>
@@ -274,11 +274,11 @@ public class MyAPI {
 }
 </pre>
 Note the <code>@Path</code> annotation at the start. This is the URL path which will trigger the methods inside this class. So any path beginning with <code>/api/routes</code> (<code>api</code> from the <code>web.xml</code> as above), i.e.:
-<pre>http://localhost:8080/api/routes/...</pre>
+<pre>http://localhost:8080/app-name/api/routes/...</pre>
 will be processed by methods in this class. 
 </p>
 <p>The class contains two methods: <code>helloWorld()</code> and <code>helloHtml()</code>. Each is preceded by an HTTP method annotation (<code>@GET</code> or <code>@POST</code>, typically), a path which the method maps to (e.g. <code>@Path("/html")</code>), and a <code>@Produces</code> annotation (which describes the content type the method is producing, e.g. plain text, HTML or JSON). The method itself follows, which will be executed by the service in response to a request. Note how the methods <em>return</em> the data which will be returned by the server within an HTTP response.</p>
-<p>Note that the <code>helloWorld()</code> method contains no <code>@Path</code>. This means this will run in response to a request to the "root" of the <code>/api</code> path, i.e. <code>http://localhost:8080/api/routes</code>.</p>
+<p>Note that the <code>helloWorld()</code> method contains no <code>@Path</code>. This means this will run in response to a request to the "root" of the <code>/api</code> path, i.e. <code>http://localhost:8080/app-name/api/routes</code>.</p>
 <p>The second method <code>helloHtml()</code> has a <code>@Path</code> of <code>/html</code>, meaning it will run in response to a request to <code>http://localhost:8082/api/html</code>.</p>
 <h4>Sending parameters to routes</h4>
 <p>We can specify <em>parameters</em> in the URL for each route. Here is an example of a route handler which counts from 1 to a given number, supplied as a parameter:
@@ -301,8 +301,8 @@ class MyAPI {
 </pre>
 Note how the route is <code>countTo/{count}</code>, which means the route handler will handle any requests for <code>api/countTo</code> plus a parameter <code>{count}</code> - for example:
 <pre>
-http://localhost:8080/api/routes/countTo/3
-http://localhost:8080/api/routes/countTo/10
+http://localhost:8080/app-name/api/routes/countTo/3
+http://localhost:8080/app-name/api/routes/countTo/10
 </pre>
 Note how the route-handler method (<code>countTo()</code>) now takes a parameter (<code>int count</code>), but that parameter is annotated with <code>@PathParam("count")</code> which specifies that the integer <code>count</code> will be read from the <code>{count}</code> parameter within the URL. The method then creates an HTML string containing the numbers 1 to the specified parameter, separated by a line break, and returns it to the client.</p>
 
@@ -345,7 +345,7 @@ We can also return array lists of data as JSON easily:
     @Produces(MediaType.TEXT_HTML)
     public String postJson(Event event)
     {
-        return "Name: " + student.getName() + " Course: " + student.getCourse() + " Mark: " + student.getMark();
+        return "Band: " + event.getBand() + " Date: " + event.getDate() + " Availability: " + event.getAvailability();
     }
 </pre>
 Note this method <code>@Consumes</code> JSON. If we pass JSON representing an event, with the fields in the JSON corresponding to the attributes in the <code>Event</code> class, Jackson will automatically generate an Event object from the JSON and pass it to the method as a parameter. Here we are just testing that it's worked by sending back the data within the event to the client as HTML.</p>
