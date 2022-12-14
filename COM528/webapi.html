@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html><head>
+<title>Topic 11: Introduction to Java Web APIs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
+</head><body>
+<div class="titlebox">
+<h1>Topic 11: Introduction to Java Web APIs</h1>
+</div>
+
+<h2>Introduction</h2>
+
+<p>In this week's topic you will be introduced to the concept of
+<strong>web APIs</strong>. You will get an initial idea of why they are useful, and will start to write a simple web API using Java using <em>Jersey</em>.</p>
+
+<h2>Is HTML always the best output format?</h2>
+<p>Think about the work you did last year in Web Technologies, in which you wrote a simple Node/Express server to search a database table and display the results using EJS. You generated <em>HTML</em> as the output format, so that the results look good in a browser.</p>
+<p>The problem with HTML, however, is that it is a format <em>specific to a browser</em>. This is fine if we are simply writing a website to be viewed by an end-user in a browser. But the end-user is not the only potential user of the data. <em>Other applications</em> might want to make use of the content, for example a weather app running on Android or iOS might want to access weather forecasts from a weather website. Apps do not typically use HTML, they use their own user interface, so it would be better if our server delivered the data as <em>raw data</em>, without any presentation or formatting. An example of a raw data format is <em>JSON</em>, which you saw last year in COM419. Raw data could then be easily processed by <em>any front end</em>, for example:
+    <ul>
+    <li>A smartphone app, as we have seen.</li>
+    <li>A third-party website, which might want to use data provided by our server. For example, a tourist website for a particular city might want to display a weather forecast for that city, using a server which provides weather information. This would be easier if the weather server sent back raw data, rather than HTML. With HTML, the relevant data (the weather forecast) would have to be extracted from an HTML page (containing formatting, styling etc) which would be difficult to parse compared to concise, well-structured raw data such as JSON.</li>
+    </ul>
+</p>
+<h2>Web services and APIs - Introduction</h2>
+<p>
+A <em>web service</em> is an application running on a web server which provides <em>raw data</em> (such as JSON) to other applications (<em>client applications</em>), as we saw above. Web servics receive HTTP requests, via a collection of URLs known as a <em>web API</em> (Application Programming Interface), from clients, process the request, and deliver the response back as an HTTP response - but unlike the simple servers you saw last year, the response is delivered as raw data, rather than HTML. This is shown on the diagram below:
+</p>
+<p>
+<img src="../images/web_apis_json.png" alt="JSON web APIs" />
+</p>
+<p> Here are a few examples of web APIs and their clients:
+
+<ul>
+<li>
+<em>Flights:</em>
+An airline provides flight times and a booking service available on its own website. However, other organisations might wish to make use of this. Third-party sites such as Skyscanner (which can search all airlines for the cheapest flight on a given date) or travel agents may wish to use the information provided by the airline, and display it to the end-user. In these cases, code on the Skyscanner web server, or a standalone booking application at a travel agent (which might be written in Java, for example) might connect to the airline's web API, and receive flight information back. The clients (Skyscanner and the travel agent application) could also contact the web API to perform bookings.
+</li>
+<li>
+<em>Weather:</em> We mentioned this example above, briefly. A weather web API might make available current conditions in various cities around the world. Then, a tourism website (e.g. for London or Paris) could connect to the weather web API and display the current conditions in that city, retrieved from the web API, integrated seamlessly into the layout of its own site. Furthermore, a smartphone app could connect to the web API and show the weather for the user's current location within the app's interface.
+</li>
+
+<li>
+<em>Mapping:</em>
+electronic maps are typically stored in a database, which contains information about the roads (name, number, type) plus the road's route as a series of coordinates (representing points on the Earth's surface).  A mapping web API could make available this mapping information as raw data, so that client websites could use this raw data to draw a map in their own style and colour scheme. OpenStreetMap (<a href='http://www.openstreetmap.org'>openstreetmap.org</a>) is an example of such a mapping web API.
+</li>
+</ul>
+
+</p>
+
+
+<h3>Raw data is easier to parse</h3>
+
+<p>
+Web APIs obviously send back information to their clients, but as we have seen, a raw data format such as JSON is preferred to HTML. Why is this? HTML is not considered a good idea because it contains not only data, but also page structure information (headings, paragraphs, tables etc). A client website using the web API, or an app, might wish to arrange the information in a different way. </p>
+<p>So what we want is a format which represents the data, and the data alone. There are a number of formats we can use, including JSON (JavaScript Object Notation), and also <em>XML</em> (eXtensible Markup Language). In this module we will focus on JSON, because it's the leading format, it is easy to generate on the server and to parse (interpret) on the client, and you have met it already.</p>
+<h3>JSON - JavaScript Object Notation - Revision</h3>
+<p>JSON uses JavaScript syntax (hence the name) to represent data as it gets sent across the web. As you saw last year, JavaScript uses curly brackets {} to represent objects (similar to Python dictionaries in the sense that they consist of key/value pairs, though you can also add <em>methods</em> to objects) and square brackets [] to represent arrays. So with JSON we reuse this syntax to represent data, using curly brackets {} to represent a single entity (such as a person, a song or a film) and square brackets [] to represent a collection of entities (i.e. an <em>array</em> of entities).</p>
+<p>Here is an example of a JSON object representing a single student.
+<pre>
+{ 
+    "name": "Tim Smith",
+    "username": "2smitt82",
+    "course": "Computer Studies"
+}
+</pre>
+Note how the JSON object representing the student is defined by curly brackets { and }, and inside the curly bracket, we specify each property of the student (name, username and course) and the corresponding value ("Tim Smith", "2smitt82", and "Computer Studies", respectively). A colon (:) 
+separates the property and the value, and a comma separates each property/value pair.</p>
+<p>The next example shows a <em>collection (array) of students</em>. Note how we use the JSON array syntax [ and ] to
+define the collection, how each individual student object is represented by curly brackets { and }, and
+how each student object within the array is separated by a comma.
+<pre>
+[
+    { 
+      "name": "Tim Smith",
+      "username": "2smitt82",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Jamie Bailey",
+      "username": "1bailj39",
+      "course": "Computer Studies"
+    },
+
+    {
+      "name": "Deep Patel",
+      "username": "0pated61",
+      "course": "Networks and Web Design"
+    }
+]
+</pre>
+</p>
+<h2>Implementing web APIs in Java</h2>
+<p>There are various libraries available for creating web APIs in Java. There is a published Java specification for web APIs called <em>JAX-RS</em> (see <a href='https://www.oracle.com/technical-resources/articles/java/jax-rs.html'>here</a>. This specification defines a set of classes and methods for implementing web APIs, but is not an actual library of code that you can include in your project. Various libraries <em>implement</em> the JAX-RS specification, and one example of a library which does so is <a href='https://eclipse-ee4j.github.io/jersey/'>Jersey</a>.</p>
+
+<h2>Setting up a Jersey service</h2>
+<p>We can setup a Jersey service in two ways:
+    <ul>
+    <li>Using Tomcat, as normal;</li>
+    <li>Using an embedded webserver called <em>Grizzly</em> (see <a href='https://projects.eclipse.org/projects/ee4j.grizzly'>here</a>). There appear to be some compatibility issues between Tomcat and Jersey on some environments (Jersey appears to work more smoothly with the alternative Glassfish server), so Grizzly will be used as a fallback option.</li>
+    </ul>
+</p>
+<h3>Tomcat</h3>
+<h4>Dependencies</h4>
+<p>Use this pom.xml which includes the Jersey dependencies:
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    <strong>&lt;!-- replace jersey-tomcat with your project name --&gt;</strong>
+    &lt;artifactId&gt;jersey-tomcat&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;war&lt;/packaging&gt;
+
+    <strong>&lt;!-- replace jersey-tomcat with your project name --&gt;</strong>
+    &lt;name&gt;jersey-tomcat&lt;/name&gt;
+    
+
+    &lt;properties&gt;
+        &lt;endorsed.dir&gt;${project.build.directory}/endorsed&lt;/endorsed.dir&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;jersey.version&gt;2.37&lt;/jersey.version&gt;
+    &lt;/properties&gt;
+    
+      &lt;dependencyManagement&gt;
+        &lt;dependencies&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.glassfish.jersey&lt;/groupId&gt;
+                &lt;artifactId&gt;jersey-bom&lt;/artifactId&gt;
+                &lt;version&gt;2.37&lt;/version&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+            &lt;/dependency&gt;
+        &lt;/dependencies&gt;
+    &lt;/dependencyManagement&gt;
+
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;javax&lt;/groupId&gt;
+            &lt;artifactId&gt;javaee-web-api&lt;/artifactId&gt;
+            &lt;version&gt;7.0&lt;/version&gt;
+            &lt;scope&gt;provided&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.inject&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-hk2&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+       
+         &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.containers&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-container-servlet&lt;/artifactId&gt;  
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.media&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-media-json-jackson&lt;/artifactId&gt;  
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;3.1&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.7&lt;/source&gt;
+                    &lt;target&gt;1.7&lt;/target&gt;
+                    &lt;compilerArguments&gt;
+                        &lt;endorseddirs&gt;${endorsed.dir}&lt;/endorseddirs&gt;
+                    &lt;/compilerArguments&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.3&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;failOnMissingWebXml&gt;false&lt;/failOnMissingWebXml&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.6&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;phase&gt;validate&lt;/phase&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;copy&lt;/goal&gt;
+                        &lt;/goals&gt;
+                        &lt;configuration&gt;
+                            &lt;outputDirectory&gt;${endorsed.dir}&lt;/outputDirectory&gt;
+                            &lt;silent&gt;true&lt;/silent&gt;
+                            &lt;artifactItems&gt;
+                                &lt;artifactItem&gt;
+                                    &lt;groupId&gt;javax&lt;/groupId&gt;
+                                    &lt;artifactId&gt;javaee-endorsed-api&lt;/artifactId&gt;
+                                    &lt;version&gt;7.0&lt;/version&gt;
+                                    &lt;type&gt;jar&lt;/type&gt;
+                                &lt;/artifactItem&gt;
+                            &lt;/artifactItems&gt;
+                        &lt;/configuration&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+&lt;/project&gt;
+</pre>
+</p>
+<h4>The web.xml file</h4>
+<p>The <code>web.xml</code> file is an additional file that must be added to your project. This tells Tomcat where to find the classes making up your service. Here is an example, taken from the example on <a href='https://www.vogella.com/tutorials/REST/article.html'>Vogella</a> and modified:
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0"&gt;
+  &lt;display-name&gt;com.example.jersey.tomcat&lt;/display-name&gt;
+ &lt;servlet&gt;
+    &lt;servlet-name&gt;Jersey REST Service&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.glassfish.jersey.servlet.ServletContainer&lt;/servlet-class&gt;
+     &lt;!-- Register resources and providers under stated package. --&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;jersey.config.server.provider.packages&lt;/param-name&gt;
+        &lt;param-value&gt;<strong>com.example.jersey.tomcat</strong>&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+  &lt;/servlet&gt;
+  &lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;Jersey REST Service&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;<strong>/api/*</strong>&lt;/url-pattern&gt;
+  &lt;/servlet-mapping&gt;
+&lt;/web-app&gt;
+</pre>
+The majority of this you can use unchanged, but note the highlighted sections.
+    <ul>
+    <li>The first highlighted section <code>com.example.jersey.tomcat</code> refers to the package containing the classes making up your service. An example of a service class is shown below.</li>
+    <li>The second highlighted section <code>/api/*</code> refers to the URL path which will trigger the service. So here, any path beginning with <code>/api</code>, i.e. <code>http://localhost:8080/api/...</code> will be handled by your service.</li>
+    </ul>
+</p>
+<h4>The service class</h4>
+<p>In the service class we setup methods to handle <em>routes</em>. A route is a URL relative to the root of the server, e.g: the route <code>allStudents</code> would run in response to a request to <code>http://localhost:8082/allStudents</code>.</p> 
+
+<p>Each route-handling method is specified by a Java annotation and also labelled with a further annotation which specifies which HTTP method (GET, POST etc) will trigger it. We also specify the type of data we are sending back with the @Produces annotation. An example is below, which was partly auto-generated by Maven as above:
+<pre>
+package com.example.jersey.tomcat;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+
+@Path("routes")
+public class MyAPI {
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String helloWorld() {
+        return "Hello World!";
+    }
+
+    @GET
+    @Path("/html")
+    @Produces(MediaType.TEXT_HTML)
+    public String helloHtml() {
+        return "&lt;h1&gt;Hello HTML!&lt;/h1&gt;";
+    }
+}
+</pre>
+Note the <code>@Path</code> annotation at the start. This is the URL path which will trigger the methods inside this class. So any path beginning with <code>/api/routes</code> (<code>api</code> from the <code>web.xml</code> as above), i.e.:
+<pre>http://localhost:8080/api/routes/...</pre>
+will be processed by methods in this class. 
+</p>
+<p>The class contains two methods: <code>helloWorld()</code> and <code>helloHtml()</code>. Each is preceded by an HTTP method annotation (<code>@GET</code> or <code>@POST</code>, typically), a path which the method maps to (e.g. <code>@Path("/html")</code>), and a <code>@Produces</code> annotation (which describes the content type the method is producing, e.g. plain text, HTML or JSON). The method itself follows, which will be executed by the service in response to a request. Note how the methods <em>return</em> the data which will be returned by the server within an HTTP response.</p>
+<p>Note that the <code>helloWorld()</code> method contains no <code>@Path</code>. This means this will run in response to a request to the "root" of the <code>/api</code> path, i.e. <code>http://localhost:8080/api/routes</code>.</p>
+<p>The second method <code>helloHtml()</code> has a <code>@Path</code> of <code>/html</code>, meaning it will run in response to a request to <code>http://localhost:8082/api/html</code>.</p>
+<h4>Sending parameters to routes</h4>
+<p>We can specify <em>parameters</em> in the URL for each route. Here is an example of a route handler which counts from 1 to a given number, supplied as a parameter:
+<pre>
+@Path("api")
+class MyAPI {
+    // Other routes not shown...
+
+    @GET
+    @Path("/countTo/{count}")
+    @Produces(MediaType.TEXT_HTML)
+    public String countTo(@PathParam("count") int count) {
+        String html = "";
+        for(int i=1; i&lt;=count; i++) {
+            html += i + "<br />";
+        }
+        return html;
+    }
+}
+</pre>
+Note how the route is <code>countTo/{count}</code>, which means the route handler will handle any requests for <code>api/countTo</code> plus a parameter <code>{count}</code> - for example:
+<pre>
+http://localhost:8080/api/routes/countTo/3
+http://localhost:8080/api/routes/countTo/10
+</pre>
+Note how the route-handler method (<code>countTo()</code>) now takes a parameter (<code>int count</code>), but that parameter is annotated with <code>@PathParam("count")</code> which specifies that the integer <code>count</code> will be read from the <code>{count}</code> parameter within the URL. The method then creates an HTML string containing the numbers 1 to the specified parameter, separated by a line break, and returns it to the client.</p>
+
+
+<h4>Generating JSON</h4>
+
+<p>As seen above, a web API will commonly need to generate <em>JSON</em>. To do this we use the <em>Jackson</em> JSON library (see <a href='https://github.com/FasterXML/jackson'>here</a>), which automatically maps Java objects to JSON data. So if you have an <code>Event</code> class containing <code>band</code>, <code>date</code> and <code>availability</code> attributes, Jackson will generate JSON from <code>Event</code> objects containing these three properties. Likewise, Jackson can consume (read) JSON containing these three properties and generate an <code>Event</code> object from it.</p>
+
+<p>Here is an example of a method which generates JSON:
+<pre>
+    @GET
+    @Path("/json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Event json() {
+        Event event = new Event("Postmodern Doom", "Indie Rock", "01/04/2023");
+        return event;
+    }
+</pre>
+We can also return array lists of data as JSON easily:
+<pre>
+    @GET
+    @Path("/multiJson")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ArrayList&lt;Event&gt; multiJson() {
+        ArrayList&lt;Event&gt; events = new ArrayList&lt;&gt;();
+        Event event = new Event("Postmodern Doom", "01/04/2023");
+        Event event2 = new Event("Metagalactic Hamstaaz", "02/04/2023");
+        events.add(event);
+        events.add(event2);
+        return events;
+    }
+</pre>
+</p>
+<h4>Consuming JSON</h4>
+<p>Finally a service can <em>consume</em> (read and use) JSON. Here is an example:
+<pre>
+    @POST
+    @Path("/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_HTML)
+    public String postJson(Event event)
+    {
+        return "Name: " + student.getName() + " Course: " + student.getCourse() + " Mark: " + student.getMark();
+    }
+</pre>
+Note this method <code>@Consumes</code> JSON. If we pass JSON representing an event, with the fields in the JSON corresponding to the attributes in the <code>Event</code> class, Jackson will automatically generate an Event object from the JSON and pass it to the method as a parameter. Here we are just testing that it's worked by sending back the data within the event to the client as HTML.</p>
+<h3>Grizzly</h3>
+<p>If Tomcat does not work on your system, an alternative is to use <em>Grizzly</em>. Grizzly is an HTTP web server which can be embedded in an application.</p>
+<h4>pom.xml</h4>
+<p>Please use a <code>pom.xml</code> similar to that below, again this contains the Jersey dependencies.
+<pre>
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"&gt;
+
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    <strong>&lt;!-- replace simple-service with your project name --&gt;</strong>
+    &lt;artifactId&gt;simple-service&lt;/artifactId&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    <strong>&lt;!-- replace simple-service with your project name --&gt;</strong>
+    &lt;name&gt;simple-service&lt;/name&gt;
+
+    &lt;dependencyManagement&gt;
+        &lt;dependencies&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.glassfish.jersey&lt;/groupId&gt;
+                &lt;artifactId&gt;jersey-bom&lt;/artifactId&gt;
+                &lt;version&gt;2.37&lt;/version&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+            &lt;/dependency&gt;
+        &lt;/dependencies&gt;
+    &lt;/dependencyManagement&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.containers&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-container-grizzly2-http&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.inject&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-hk2&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.media&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-media-json-jackson&lt;/artifactId&gt;  
+        &lt;/dependency&gt;
+
+        &lt;!-- uncomment this to get JSON support:
+         &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jersey.media&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-media-json-binding&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;junit&lt;/groupId&gt;
+            &lt;artifactId&gt;junit&lt;/artifactId&gt;
+            &lt;version&gt;4.12&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;3.8.1&lt;/version&gt;
+                &lt;inherited&gt;true&lt;/inherited&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.8&lt;/source&gt;
+                    &lt;target&gt;1.8&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+                &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;1.2.1&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;java&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+                &lt;configuration&gt;
+                    &lt;mainClass&gt;com.example.Main&lt;/mainClass&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+    &lt;properties&gt;
+        &lt;jersey.version&gt;2.37&lt;/jersey.version&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;/properties&gt;
+&lt;/project&gt;
+</pre>
+</p>
+<h4>Grizzly server</h4>
+<p>The Grizzly server is implemented with a main class; note that the <strong>example code below is auto-generated by Maven</strong>, which has the facility to create a starter Jersey project for you. Details in the <a href='https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/getting-started.html'>Jersey documentation</a>.
+<pre>
+package com.example.jersey.grizzly;
+
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
+
+import java.io.IOException;
+import java.net.URI;
+
+/**
+ * Main class.
+ *
+ */
+public class Main {
+    // Base URI the Grizzly HTTP server will listen on
+    public static final String BASE_URI = "http://localhost:8082/";
+
+    /**
+     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
+     * @return Grizzly HTTP server.
+     */
+    public static HttpServer startServer() {
+        // create a resource config that scans for JAX-RS resources and providers
+        // in com.example.simpleservice package
+        final ResourceConfig rc = new ResourceConfig().packages("com.example.jersey.grizzly");
+
+         // create and start a new instance of grizzly http server
+        // exposing the Jersey application at BASE_URI
+        HttpServer server =  GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+
+        // Setup a folder to contain static web pages
+        StaticHttpHandler staticHttpHandler = new StaticHttpHandler("C:/users/MyUser/webpages");
+
+        // Routes starting with /static will be handled by retrieving the requested HTML page from the static pages folder
+        server.getServerConfiguration().addHttpHandler(staticHttpHandler, "/static");
+
+        return server;
+    }
+
+    /**
+     * Main method.
+     * @param args
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+        final HttpServer server = startServer();
+        System.out.println(String.format("Jersey app started with endpoints available at "
+                + "%s%nHit Ctrl-C to stop it...", BASE_URI));
+        System.in.read();
+        server.stop();
+    }
+}
+</pre>
+Hopefully you can see what is going on here from the comments (auto-generated by Maven).
+<ul>
+<li>In the <code>main()</code>, we start a server with the <code>startServer()</code> method. This will start a server running on port 8082 until it's stopped by the user. Note this server is <em>separate to Tomcat</em>.</li>
+<li>In the <code>startServer()</code> method we create a <code>ResourceConfig</code> object. This specifies which package the service classes (see above under Tomcat discussion) can be found, in a similar way to Tomcat's <code>web.xml</codE>. Here we are specifying they will be in the <code>com.example.jersey.grizzly</code> package. The service code will be autoloaded from classes in this package, and the Grizzly server will serve them to the client.</li>
+<li>The service class works in exactly the same way, but the path is different this time as there is no <code>api</code> path (from the <code>web.xml</code> file) specified this time, e.g.:
+<pre>
+http://localhost:8082/routes/html
+http://localhost:8082/routes/countTo/3
+http://localhost:8082/routes/json
+</pre>
+</li> 
+</ul>
+
+<h2>Sending data to the server</h2>
+
+<p>Typically, in web development, we would use JavaScript code to send requests to a service, and to interpret the JSON returned. (Or, in an Android app, we would use Android API code to do this). However this is rather off-topic for this module so I have provided a library to make this simple, which you can insert into an HTML page with very minimal JavaScript.</p>
+
+<p>The file <code>webapi.js</code> provides this library, you can obtain it from GitHub at the URL <code>https://github.com/nwcourses/autoajax</code>. It consists of just one file, <code>webapi.js</code>. Here is an example of using it. Note the comments provided in the code to explain how it works.
+
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;!-- link in the webapi.js file --&gt;
+&lt;script type='text/javascript' src='webapi.js'&gt;&lt;/script&gt;
+&lt;script&gt;
+
+function function1() {
+    // The get() function takes three arguments:
+    // - the URL of the web API route you are communicating with;
+    // - the field names for the data in the JSON;
+    // - the ID of the HTML &lt;div&gt; to place the results in. A table will be created and placed in this &lt;div&gt;.
+    get(
+        'http://localhost:8082/routes/json', 
+        ["name","course","mark"], 
+        "results"
+    );
+}
+
+function function2() {
+    // The post() function is designed to take data from input boxes and send it
+    // to the server. takes three arguments:
+    // - the URL of the web API route you are communicating with;
+    // - the IDs of the form fields containing the data to send. 
+    //   Note that these must exactly match the attributes in the object that 
+    //   your POST route in your service receives.
+    // - the ID of the HTML &lt;div&gt; to place the response in
+    post(
+        'http://localhost:8082/routes/json', 
+        ["name", "course", "mark"], 
+        "results"
+    ); 
+}
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!-- Form containing fields for data to be sent via the POST request --&gt;
+&lt;div&gt;
+Name: &lt;br /&gt;&lt;input id='name' /&gt;&lt;br /&gt;
+Course: &lt;br /&gt;&lt;input id='course' /&gt;&lt;br /&gt;
+Mark: &lt;br /&gt;&lt;input id='mark' /&gt;&lt;br /&gt;
+&lt;/div&gt;
+&lt;!-- Setup two buttons which call the appropriate JavaScript functions when they are clicked --&gt;
+&lt;input type='button' name='Get Data' value='get' onclick='function1()' /&gt;
+&lt;input type='button' name='Post Data' value='post' onclick='function2()' /&gt;
+&lt;/div&gt;
+&lt;!-- div containing the results from the server --&gt;
+&lt;div id='results'&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p>
+
+
+<h2>Testing HTTP request methods other than GET</h2>
+<p>One question remains. How can you <em>test out</em> these methods?
+With GET methods, it's simple (we did it last week); you simply request
+the desired API endpoint in your browser and the appropriate route will
+be executed. However, with other methods, such as POST and DELETE, it's more
+difficult, as browsers always send GET requests when you type in a URL.</p>
+<h4>Enter RESTer</h4>
+<p>There are various third-party tools which can be used to test out APIs.
+A particularly useful one, which those of you on Craig's OODD will have 
+already been introduced to, is <em>RESTer</em>. This is a browser extension
+which allows you to simulate HTTP requests and is available for
+<a href='https://chrome.google.com/webstore/detail/rester/eejfoncpjfgmeleakejdcanedmefagga'>Chrome</a> and <a href='https://addons.mozilla.org/en-US/firefox/addon/rester/'>Firefox</a>. To install RESTer, visit either of these links and follow the instructions, and RESTer will be installed to your browser.</p>
+<p>RESTer has an interface as shown below:
+<br />
+<img src="../images/rester1.png" alt="RESTer interface" />
+<br />
+Note how RESTer allows you to specify, amongst other things:
+    <ul>
+    <li>the HTTP method to use;</li>
+    <li>the URL to request;</li>
+    <li>the <em>headers</em> and <em>body</em> of the request.
+    </ul>
+In the example above, a GET request is being made to the URL <code>https://url_of_your_server.example.com/artist/Oasis</code>. Note how the response is shown below the controls, showing the status code, the response headers and the response body.</p>
+<p>The screenshot below shows how you can add headers to the HTTP request by selecting the <em>Headers</em> tab. Here we have specified the <code>Content-Type</code> as <code>application/json</code>:
+<br />
+<img src="../images/rester2.png" alt="Setting content type in RESTer" />
+<br />
+You can also add data to the request body. This is shown below, note how we have added JSON describing a song. (Prize to anyone who can guess why I have chosen this particular song...)
+<br />
+<img src="../images/rester3.png" alt="Setting request body in RESTer" />
+<br />
+RESTer also allows you to test error conditions: if you supply invalid 
+request data and your web API checks for this, then you will get a non-200
+status code returned.</p>
+<h2>Exercise</h2>
+<p>Please note there are template projects available here for Tomcat and Grizzly respectively. Please use these as they have pom.xml, plus web.xml or the main class, set up already:
+<pre>
+https://github.com/nwcourses/jersey-tomcat-template
+https://github.com/nwcourses/jersey-grizzly-template
+</pre>
+</p>
+<ol>
+<li>Add the example methods to your service and test them out.</li>
+<li>Add a JSON-based route to search your SQLite database for all songs by a given artist and return the results as JSON.</li>
+</ol>
+</body>
+</html>
