@@ -496,9 +496,9 @@ public class LiveMusicVenue
     private EventDao eventDao;
     private CustomerDao customerDao;
 
-    public LiveMusicVenue() throws SQLException
+    public LiveMusicVenue(Connection conn) throws SQLException
     {
-        conn = DriverManager.getConnection("jdbc:sqlite:venue.db");
+        this.conn = conn;
         eventDao = new EventDao(conn, "event");
         customerDao = new CustomerDao(conn, "customer");
     }
