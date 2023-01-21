@@ -489,23 +489,7 @@ fun main (args: Array&lt;String&gt;) {
 </li>
 <li>Much more concise code!</li>
 </ul>
-<hr><h2>More on Functions in Kotlin</h2>
-<ul>
-<li>In Kotlin, functions can be <em>stored in variables</em> and
-<em>passed as arguments to other functions</em>
-    <ul>
-    <li>In this respect, Kotlin is similar to JavaScript</li>
-    </ul>
-</li>
-<li>This property of functions makes them <em>first class</em>
-(see <a href="https://kotlinlang.org/docs/reference/lambdas.html">the Kotlin documentation</a>)</li>
-<li>This can allow for some powerful programming techniques,
-e.g. operating on all members of an array or list using a function,
-allowing us to adopt a functional programming style</li>
-<li>..or, allowing us to pass a function as a <em>callback</em> to another function, helping
-this function become more loosely-coupled</li>
-</ul>
-<hr><h2>First.. introducing some more Kotlin collections</h2>
+<hr><h2>Introducing some more Kotlin collections</h2>
 <ul>
 <li>Last time we looked at how to create simple <em>arrays</em></li>
 <li>However, we can also use Java-style <em>collections</em> in Kotlin, e.g. List, HashMap</li>
@@ -552,6 +536,22 @@ Note how we use <em>mutableListOf</em></li>
 <li>We can create an empty list by omitting the arguments, e.g:
 <pre>val peopleList = mutableListOf<em>&lt;String&gt;</em>()</pre>
 </li>
+</ul>
+<hr><h2>More on Functions in Kotlin</h2>
+<ul>
+<li>In Kotlin, functions can be <em>stored in variables</em> and
+<em>passed as arguments to other functions</em>
+    <ul>
+    <li>In this respect, Kotlin is similar to JavaScript</li>
+    </ul>
+</li>
+<li>This property of functions makes them <em>first class</em>
+(see <a href="https://kotlinlang.org/docs/reference/lambdas.html">the Kotlin documentation</a>)</li>
+<li>This can allow for some powerful programming techniques,
+e.g. operating on all members of an array or list using a function,
+allowing us to adopt a functional programming style</li>
+<li>..or, allowing us to pass a function as a <em>callback</em> to another function, helping
+this function become more loosely-coupled</li>
 </ul>
 <hr><h2>Anonymous Functions</h2>
 <ul>
@@ -698,14 +698,6 @@ the lambda as the <em>person</em> parameter</li>
 more concise?</li>
 <li>Answer will be given out in class!</li>
 </ul>
-<hr /><h2>Mappings: performing the same operation on all members of a list</h2>
-<p>Another common use of lambdas is to perform a <em>mapping</em>. A mapping transforms each member of an input list by a specified function, and returns a new list containing the transformed data. This example will convert each string in the input list to lower case and return a new list containing the lower case values:
-<pre>fun main(args: Array&lt;String&gt;) {
-    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
-    val lowerCaseList = peopleList.map { person -&gt; person.lowercase() }
-    println(lowerCaseList)    
-}</pre>
-Note how we use the <code>map()</code> function to transform each member of <code>peopleList</code> by a specified lambda. The lambda here will take each member of the input list in turn (<code>person</code>) and return that member converted to lower case (i.e. <code>person.lowercase()</code>). So, the list returned from <code>map</code>, i.e. <code>lowerCaseList</code>, will contain the person names converted to lower case.</p> 
 <h2>Further reading</h2>
 <p>I have prepared some notes on additional basic Kotlin topics, including inheritance and map data structures. There is unfortunately no time in the lecture to cover these, but <a href='topic1a.html'>please read the notes here</a>.</p>
 </body></html>
