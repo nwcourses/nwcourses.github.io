@@ -1,257 +1,307 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 8 : More Modular Applications: DAOs and Controllers</title>
+<title>Topic 8: Session variables</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
+<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
+<!--
 <div class='titlebox'>
-<h1>Topic 8: More Modular Applications: DAOs and Controllers</h1>
+<h1>Topic 8: Session Variables and Login Systems</h1>
 </div>
-<hr />
-<h2>Firstly - one or two hints for the assignment</h2>
-<p>Here are one or two hints about the assignment which relate to questions some of you have been asking.</p>
-<h3>How do I add a form to a popup?</h3>
-<p>This may help you in task 11. <code>bindPopup()</code> can take a DOM node as well as plain text or HTML. So you can create a DOM structure containing your form and pass it in as an argument to <code>bindPopup()</code>, e.g.:
-<pre>
-const domDiv = document.createElement('div');
-// ... other code to create a form ...
-marker.bindPopup(domDiv); // add the DOM-created div to a marker
-</pre>
+<p>Today we will take a look at <em>session variables</em> and how we can use them in Node.js. We will also look at how we can make use of session variables when developing <em>login systems</em>.</p>
+<h2>Cookies</h2>
+<p>Before looking at session variables, we will quickly take a look at
+<em>cookies</em>. You may have come across cookies before: they are data saved
+on your machine by a website when you visit it. They are stored in an area of
+your machine known as the <em>cookie jar</em> and are sent to your browser
+embedded within the HTTP response. Next time you visit the site, the cookie is
+sent back to the site via the HTTP request, and thus the site can "remember"
+data saved by it at the time of the last visit. Cookies can be used for various
+things, both benign and controversial. For example:
+    <ul>
+    <li>They can be used to save preferences, such as language, colour scheme
+    or font size;</li>
+    <li>They can be used to remember your username, so you do not have to
+    fill in the username field next time you login;</li>
+    <li>Slightly more controversially, they can be used by advertising networks
+    to provide appropriate adverts based on what pages you visit;</li>
+    <li>Most controversially of all, and most would say unethically, cookies
+    can be used to build a profile of what kind of person you are including such things as personality type and political persuasions (based on sites you visit, things you search for, your comments on social media, etc), which can be exploited in such things as election campaigns and referenda. For example it is likely that cookies played a part in the Cambridge Analytica scandal.</li>
+    </ul>
 </p>
-<h3>How do I show and hide an element?</h3>
-<p>You may wish, as part of your UI, to show and hide page elements such as &lt;div&gt;s First, set its <code>display</code> property to <code>none</code> in the CSS:
-<pre>
-#myDiv {
-    display: none;
-}
-</pre>
-Then, at the point you want to show it, change the <code>display</code> property from JavaScript to <code>block</code>, e.g.:
-<pre>document.getElementById('myDiv').style.display = 'block';</pre>
-Then, when you want to hide it again, change <code>display</code> back to <code>none</code>:
-<pre>document.getElementById('myDiv').style.display = 'none';</pre>
+<p>Consequently a user needs to be careful with cookies. It is now law that a site which uses cookies for non-essential purposes must allow the user to turn such cookies off, and this functionality must be clearly visible to the user.</p>
+<p>The diagram below shows how cookies work:
+<br />
+<img src="../images/cookies.png" alt="Cookies" />
 </p>
-<hr />
-<h2>The main material</h2>
-<p>Now onto the main topic for this week. Today we will look at using a more modular, easier-to-maintain structure for our Node/Express applications by making use of <em>Data Access Objects (DAOs)</em> and <em>controllers</em>.</p>
-<p><strong>Note that this is a more advanced topic, aimed at those of you who are coping reasonably well with the module. You should complete previous exercises before attempting this week's - particularly login systems from last week.</strong></p>
-<h2>Data Access Objects</h2>
+<h2>Session variables</h2>
+<p>Having looked briefly at cookies, we will now start to look at <em>session variables</em>.</p>
 <ul>
-<li>We have already seen how to interact with a MySQL database from node.js</li>
-<li>However, we can make our code more structured and object-oriented (remember you did classes and objects last year)</li>
-<li>When writing object-oriented code to interact with a database, we 
-typically deal with <em>data access objects (DAOs)</em>.</li>
-<li>A <em>DAO</em> provides an interface to your table as a whole, and
-might contain methods such as <em>findStudentById()</em> or
-<em>findStudentsByName()</em></li>
-</ul>
-<h3>Example of a DAO for the students table</h3>
-<pre>
-
-class StudentDao {
-    // conn is our mysql database connection
-    // table is the table storing the students
-    constructor(conn, table) {
-        this.conn = conn;
-        this.table = table;
-    }
-
-
-    // find a student with a given ID
-
-    findStudentById(id) {
-        return new Promise ( (resolve, reject) =&gt; {
-            this.conn.query(`SELECT * FROM ${this.table} WHERE ID=?`, [id],
-                (err, results, fields) =&gt; {
-                    if(err) {
-                        reject(err);
-                    } else if (results.length == 0) {
-                        // resolve with null if no results - this is not considered an error, so we do not reject
-                        resolve(null); 
-                    } else {
-                        // only one student will be found but "results" will still be an array with one member. 
-                        // To simplify code which makes use of the DAO, extract the one and only row from the array 
-                        // and resolve with that.
-                        resolve(results[0]);
-                    }
-                });
-        });
-    }
-                            
-
-    // find all students on a given course
-    findStudentsByCourse(course) {
-        return new Promise ( (resolve, reject) =&gt; {
-            this.conn.query(`SELECT * FROM ${this.table} WHERE course=?`, [course],
-                (err, results, fields) =&gt; {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(results);
-                    }
-                });
-        });
-    }
-
-    // add a new student 
-
-    addStudent(name, course) {
-        return new Promise ( (resolve, reject) =&gt; {
-            this.conn.query(`INSERT INTO ${this.table} (name,course) VALUES (?,?)`, [name, course],
-                (err, results, fields) =&gt; {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(results.insertId); // resolve with the record's allocated ID
-                    }
-                });
-        });
-    }
-
-    // update a student - takes student ID, name, and course as parameters and 
-    // updates the name and the course of the record with that ID
-    // For you to complete!
-
-    updateStudent(id, name, course) {
-    }
-
-
-    // delete a student - takes a student ID as a parameter
-    // and deletes the record with that ID.
-    // For you to complete!
-
-    deleteStudent(id) {
-    }
-}
-
-module.exports = StudentDao; // so that other code can use it</pre>
-<h3>DAO - Explanation</h3>
-<ul>
-<li>Note how the DAO contains a series of methods which perform various
-database operations</li>
-<li>The rest of our code would interface with the DAO, rather than
-the database directly, keeping it clean and keeping all the 'messy' SQL
-statements in one place</li>
-<li>Each method in the DAO performs a particular database operation (find a student by ID, find all students on a given course, add a student, update a student's details, and delete a student)</li>
-<li>Finally, note how each method <em>returns a Promise object</em>. This is
-to make coding using the DAO easier, as we no longer have to worry about
-callbacks and can instead write sequential code with <code>async</code>/<code>await</code> (remember from Topic 5 that we can use <code>await</code> with any method which returns a promise). This allows you to use simpler code such as:
-<pre>const dao = new StudentDao(dbconn, "students");
-const student = <em>await</em> dao.findStudentById(req.params.id);</pre>
+<li>Special variables used to <em>maintain state</em>, i.e. preserve information between successive HTTP requests</li>
+<li>Unlike cookies, they are stored <em>server side</em> - typically in a database
+    <ul>
+    <li>... and are thus more secure than using cookies, which are stored 
+    locally in the cookie jar on the hard drive</li>
+    </ul>
 </li>
 </ul>
-</p>
-<p>Note how we create our own custom <em>Promise</em>, which will either resolve or reject depending on whether the query succeeded or not:
+<h3>What is a session?</h3>
 <ul>
-<li> When you create your own custom Promise object, you must supply <em>a function which will carry out the promise</em>. This function will typically be an arrow function, and takes two parameters: <code>resolve</code> (a function which will run when the promise resolves), and <code>reject</code> (a function which will run when the promise rejects). These functions will be supplied by the code which uses the promise (in this example, the code which calls the DAO method).</li>
-<li>For example if you are using "plain promises" rather than async/await, the <code>resolve</code> function corresponds to the argument to <code>then()</code> and the <code>reject</code> function corresponds to the argument to <code>catch()</code>. If using async/await, the argument to <code>resolve()</code> will become the return value of the <code>await</code> call and the argument to <code>reject()</code> will become the parameter of the <code>catch</code> block.</li>
-<li> Note how the code to query the database is placed inside this arrow function, and note how we call either <code>resolve</code> or <code>reject</code> depending on whether the operation succeeded or not.</li>
-<li>Please see the notes <a href='topic3.html#implementingpromises'>here</a> for more details on creating your own custom promises.</li>
+<li>A session is a <em>continuous period of interaction between a user and
+a website</em></li>
+<li>The session ends typically ends after a specified period of inactivity, in which the user is not interacting with the website (this is configurable)</li>
+<li>Session variables remain accessible throughout a session</li>
+<li>... but are destroyed when a session ends</li>
+<li>So unlike cookies, session variables cannot be used to save data 
+between <em>separate</em> visits to a website...</li>
+<li>... but only throughout a <em>single</em> visit to a website</li>
 </ul>
-</p>
-<h2>Controllers</h2>
-<p>We can further enhance the modularity of our code through the use of <em>controllers</em>. Controllers are part of the <em>model/view/controller</em> (MVC) architecture, in which we divide the code into three components:
+<h3>Using session variables in server-side coding</h3>
+<ul>
+<li>Session variables can be used in any scenario where we want to preserve
+information from page to page</li>
+<li>Common uses of session variables:
     <ul>
-    <li>the <em>model</em> - those components which directly interact with the database, i.e. the DAO</li>
-    <li>the <em>view</em> - those components used to <em>present</em> the data (i.e. output the data as JSON or as HTML)</li>
-    <li>the <em>controller</em> - which manages the interaction between the model and the view.</li>
+    <li><em>Login system:</em> - use a session variable to remember the
+    currently logged-in user</li>
+    <li><em>Shopping basket:</em> - on an e-commerce site, store the shopping
+    basket in a session variable so that it can be remembered across all the
+    pages of the site</li>
     </ul>
+</li>
+</ul>
+<h2>How sessions work: Multiple clients, one session variable</h2>
+<ul>
+<li>We are now going to look at how sessions work "under the hood"</li>
+<li>Remember that session variables are stored on the <em>server</em> - typically in a database</li>
+<li>Imagine a cinema booking website, which uses session variables called <em>film</em> and <em>date</em> to store the user's chosen film, and the date they want to see it. What if more than one user was using the website at the same time? How would the website distinguish between the values of these session variables for different users?</li>
+</ul>
+<h3>Session IDs</h3>
+<ul>
+<li>Each client which connects to the server is given a unique
+<em>session ID</em> number</li>
+<li>On the server, the same session variable from different clients is
+distinguished by the session ID and stored as different entries in the 
+database</li>    
+<li>The session ID is normally stored on the client as a <em>cookie</em>
+(more on that below)</li>
+<li>See the diagram below</li>
+</ul>
 <br />
-<img src="../images/mvc.png" alt="MVC architecture" /><br />
-The typical role of a controller would be to communicate with the model (the DAO) to get database results, and then format those results to be presented to the client. Or, alternatively, the controller could gather information from the client and then forward it on to the model (DAO) to insert it into the database.</p>
-<p>Hopefully, from this you may be able to figure out that the <em>router</em> takes the role of the controller. To improve the modularity of your code, however, you can create separate <em>controller objects</em> to represent the controller, and add methods to these objects to carry out the functionality of your router. Then, in your router, you create a controller object and call these methods from each route in the router.</p>
-<p>A good way to organise your project is to have sub-folders within the main folder of your project for routes, controllers and DAOs. These folders could simply be named:
-	<ul>
-	<li><code>routes</code> containing all your route files;</li>
-	<li><code>controllers</code> containing all your controllers;</li>
-	<li><code>dao</code> containing all your DAOs.
-	</ul>
-</p>
-<p>So, if we imagine a student router, within the <code>routes</code> folder:
+<img src="../images/session_multiple_clients.png" alt="The use of session IDs for  distinguishing between clients"/>
+<br/>
+<h3>Session cookies</h3>
+<ul>
+<li>Usually,
+when a session variable is first used, the session ID is sent to the client
+in the HTTP header of hte response as a cookie (the <em>session cookie</em>). You can see this by inspecting the HTTP headers of the response in RESTer.</li>
+<li>When a session variable is used in a later page, the server retrieves
+the session cookie (containing the session ID) from the HTTP request and uses 
+it to obtain the correct value for the session variable for <em>that</em> user</li>
+<li><em>The data itself is <strong>NOT</strong> stored as a cookie, only the
+session ID is!</em></li>
+<li>The session cookie expires when the user closes the browser</li>
+</ul>
+<h3>How a session is maintained</h3>
+<img src="../images/sessions_routes.png" alt="How a session is maintained"/> 
+<br/>
+<h2>Using sessions in node.js</h2>
+<h3>Introduction</h3>
+<p>Most server-side technologies can use session variables. Some technologies, such as PHP, come with session variables enabled by default as part of the core distribution. With node.js, we have to use a third-party <em>module</em> depending on which server framework we are using. With Express, the usual module is <code>express-session</code> which can be installed in the normal way:
+<pre>npm install express-session</pre>
+<code>express-session</code> will create session cookies and send them back to the client automatically, and also retrieve session cookies from clients and use them to work out the correct session variables for that user. <code>express-session</code> will store session data in a <em>session store</em>. You can configure <code>express-session</code> to tell it which session store to use. By default, it uses an in-memory store, but this is regarded as insecure. Instead, it is better to use whichever database you are using to store the session data, which in our case will be MySQL. So we will need to install the <code>express-mysql-session</code> module:
+<pre>npm install express-mysql-session</pre>
+The module will store the data in a table called <code>sessions</code> by default, which you might want to look at to see exactly how the session data is stored. Each entry in <code>sessions</code> contains a JSON object with the session ID plus the values of the session variables themselves.</p>
+<h3>Requiring and setting up the modules</h3>
+<p>This code demonstrates how we can require and setup the <code>express-session</code> and <code>express-mysql-session</code> modules. First we require the two modules:
 <pre>
-const express = require('express');
-const studentRouter = express.Router();
+const expressSession = require('express-session');
+const MySQLStore = require('express-mysql-session')(expressSession);
+</pre>
+Note how we have to pass in the <code>expressSession</code> object as an argument to the <code>require()</code> for <code>express-mysql-session</code>.</p>
+<p>Then we create a MySQL session store object:
+<pre>
+// require mysql connection from external module, as per last week
+const con = require('./conn'); 
 
-// include our database connection, note that .. means "go up a folder" so the 
-// mysqlconn.js is in the parent folder to the routes folder
-const db = require('../mysqlconn'); 
+// use connection to create the session store. Note we have to use the connection in promise-based mode
+const sessionStore = new MySQLStore({ } , con.promise());
+</pre>
+Note how we create the MySQL session store using our existing connection. We have to use the connection in promise-based mode for the session store to work correctly.</p>
+<p>Once we have created the session store, we can initialise the Express session object itself. You have to specify quite a few options: these are summarised in the comments accompanying the code and explained in more detail on the <a href='https://npmjs.com/package/express-session'>NPM page</a> for the module. The options below should be good for use with the MySQL session store and common web applications.</p>
+<pre>
+app.use(expressSession({
+    <span class='comment'>// Specify the session store to be used.</span>
+    store: sessionStore, 
 
-// assume the StudentController is inside a 'student.js' file within the 
-// 'controllers' folder of the project, as described above
-const StudentController = require('../controllers/student'); 
+    <span class='comment'>// a secret used to digitally sign session cookie, use something unguessable (e.g. random bytes as hex) in a real application.</span>
+    secret: 'BinnieAndClyde', 
 
+    <span class='comment'>// use as recommended by your chosen session store - related to internals of how session stores work</span>
+    resave: false, 
 
-// Create the controller object, and pass in the database connection as an argument
-const sController = new StudentController(db);
+    <span class='comment'>// save session to store before modification</span>
+    saveUninitialized: false, 
 
-// handle get requests to route /id/:id using the controller's findStudentById() method
-studentRouter.get('/id/:id', sController.findStudentById.bind(sController));
+    <span class='comment'>// reset cookie for every HTTP response. The cookie expiration time will be reset, to 'maxAge' milliseconds beyond the time of the response. 
+    // Thus, the session cookie will expire after 10 mins of *inactivity* (no HTTP request made and consequently no response sent) when 'rolling' is true.
+    // If 'rolling' is false, the session cookie would expire after 10 minutes even if the user was interacting with the site, which would be very
+    // annoying - so true is the sensible setting.</span>
+    rolling: true, 
 
-// handle get requests to route /course/:course using the controller's findStudentByCourse() method
-studentRouter.get('/course/:course', sController.findStudentByCourse.bind(sController));
+    <span class='comment'>// destroy session (remove it from the data store) when it is set to null, deleted etc</span>
+    unset: 'destroy', 
 
-// handle post requests to /create using the controller's addStudent() method
-studentRouter.post('/create', sController.addStudent.bind(sController));
+    <span class='comment'>// useful if using a proxy to access your server, as you will probably be doing in a production environment: this allows the session cookie to pass through the proxy</span>
+    proxy: true, 
 
-module.exports = studentRouter; // so that main application can use it</pre>
-Note how the router creates a StudentController object, passing the database connection to it (which will be needed by the DAO) and note also how we handle each route with <em>methods of the controller object</em>. Remember we looked at "<code>bind()</code>" in week 4. Here we are using it slightly differently. <code>bind()</code> is necessary here to <strong>preserve the context of the <code>this</code> object in callbacks</strong>. By default, the context of <code>this</code> (the current object) is lost in a callback function, and to preserve the context of <code>this</code>, you have to <em>bind</em> the callback to the object you wish to use as <code>this</code> (which will be the controller here). You can read about the use of <code>bind()</code> to preserve the context of <code>this</code> in callbacks in more detail <a href='topic4.html#thisAndCallbacks'>here</a>.</p>
-<p>So, let's look at the Controller object, which would be in the <code>controllers</code> folder:
-<pre>// assume the DAO is in a 'student.js' file within the 
-//'dao' folder of the project, as described above
-const StudentDao = require('../dao/student'); 
-
-class StudentController {
-    constructor(db) {
-        // Create a DAO for communicating with the database
-        this.dao = new StudentDao(db, "students");
+    <span class='comment'>// properties of session cookie</span>
+    cookie: { 
+        maxAge: 600000, <span class='comment'>// 600000 ms = 10 mins expiry time</span>
+        httpOnly: false <span class='comment'>// allow client-side code to access the cookie, otherwise it's kept to the HTTP messages</span>
     }
+}));
+</pre>
+</p>
+<p>The code above will set up the session using the given session store. Note how <code>expressSession()</code> returns a <em>middleware</em> function which sets up the session, which is then used by the application.</p>
+<p>However, how do we actually <em>store data in session variables?</em>. We can use the object <code>req.session</code>, which is setup as soon as you have initialised your session as above. For example, we could use code such as:
+<code>req.session.name = 'Fred Smith';</code>
+to setup a session variable called <code>name</code>. This session variable could then be used by all subsequent requests, until the session is deleted. To end a session, we can set the session to <code>null</code> which, as described in the comments above, will destroy the session and remove it from the database:
+<code>req.session = null;</code>
+</p>
+<p>Here is an example of a MuSQL session store. Two users logged in to the system (John Stevenson and Kate Palmer) and for each, a session was created. The screenshot below shows the sessions table being queried twice (from the MySQL command-line client), once after John Stevenson logged in and again after Kate Palmer logged in. When a user logs in, their username is stored in a session variable (see below). Note how, as a result, each user has an entry in the sessions table.
+<br />
+<img src="../images/sessions_in_db.png" alt="Session data stored in a MySQL databasse" />
+</p>
+<h3>Session variables and Authentication</h3>
+<p>A common use of session variables is in site <em>authentication</em>.
+In authentication, the user must enter a username and password to gain acces
+to the site. What happens is as follows:
+    <ul>
+    <li>An authentication route tests that the user entered a valid username and
+    password on a web form</li>
+    <li>If they did, we store the username in a session variable, e.g. <code>req.session.username</code></li> 
+    <li>We protect any routes which we want to restrict access to logged in users by writing a piece of middleware which checks for the existence of this session variable.Thus, such routes are "locked out" to unauthorised users</li>
+    <li>We then write a logout route which sets <code>req.session</code> to <code>null</code>, as described above, thus terminating the session.</li>
+    </ul>
+</p>
+<p>Here is some code (an extract from a full server) which will actually do this. Note that we have three routes and one piece of 'checking' middleware.
+<pre>
+<span class='comment'>// Login route</span>
+app.post('/login', (req, res) =&gt; {
+        if(req.body.username == 'SimonSmith' &amp;&amp; req.body.password == 'secret' ) {
+            req.session.username = req.body.username; 
+            res.json({success: 1});
+        } else {
+            res.status(401).json({error: "Incorrect login!"});
+        } 
+});
 
-    // findStudentById()
-    // calls the DAO's findStudentById() method, passing the ID parameter to
-    // it, and formats the JSON returned.
-    async findStudentById(req, res) {
-        try {
-            const student = await this.dao.findStudentById(req.params.id);
-            // Remember from the DAO that the promise resolves with null if there are no results
-            if(student == null) {
-                res.status(404).json({error: "No student with that ID"});
+<span class='comment'>// Logout route</span>
+app.post('/logout', (req, res) =&gt; {
+    req.session = null;
+    res.json({'success': 1 });
+});
+
+<span class='comment'>// 'GET' login route - useful for clients to obtain currently logged in user</span>
+app.get('/login', (req, res) =&gt; {
+    res.json({username: req.session.username || null} );
+});
+
+<span class='comment'>// Middleware which protects any routes using POST or DELETE from access by users who are are not logged in</span>
+app.use( (req, res, next) =&gt; {
+    if(["POST", "DELETE"].indexOf(req.method) == -1) {
+        next();
+    } else {
+        if(req.session.username) { 
+            next();
+        } else {
+            res.status(401).json({error: "You're not logged in. Go away!"});
+        }
+    }
+});
+</pre>
+What do these routes do?
+    <ul>
+    <li>Firstly the <code>/login</code> <code>POST</code> route checks the <code>POST</code> data sent to it, specifically the <code>username</code> and <code>password</code> fields. Here, it simply checks that they are equal to <em>SimonSmith</em> and <em>secret</em> respectively. If the details are correct, the supplied username is stored in a session variable (<code>req.body.username</code>). This is a deliberately simple example: in a more realistic example it would need to check the username and password are in the users table in the database.</li>
+    <li>Next, the <code>/logout</code> route sets <code>req.session</code> to null and in doing so, removes the session from the session store. This will mean that <code>req.session.username</code> will no longer exist.</li>
+    <li>The next route is the <code>/login</code> <code>GET</code> route. This returns the currently logged-in user within a JSON object, or <code>null</code> if a user is not logged in. This can be used by clients (e.g. AJAX front ends) to display the currently logged-in user in the UI.</li>
+    <li>Finally, we have some middleware which is used to prevent access to routes with a method of <code>POST</code> or <code>DELETE</code> if the user is not logged in. To explain this:
+    <ul>
+    <li> The first thing we do is check whether the method of the request (<code>req.method</code>) is contained within the array <code>["POST", "DELETE"]</code>, i.e. we check whether the method is either <code>POST</code> or <code>DELETE</code>. We use <code>indexOf()</code> to do this, which returns the position of an element within an array, or -1 if it is not in the array.</li>
+    <li>So <code>indexOf()</code> will return 0 for <code>POST</code>, 1 for <code>DELETE</code> or -1 for any other method (such as <code>GET</code>).</li>
+    <li>So, if the value is -1 (the method is not <code>POST</code> or <code>DELETE</code>), we just call <code>next()</code> to forward the user on to the route without checking if they're logged in. Otherwise, we check whether <code>req.session.username</code> exists (i.e. whether the user is logged in) and either call <code>next()</code> (if it does exist) or return a 401 Unauthorized error and appropriate error message (if it does not).</li>
+    </ul>
+    </li>
+    </ul>
+</p>
+<h2 id='hashing'>Password hashing</h2>
+<p>For additional security, ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this. For example, to hash (encode) a password when signing up:
+<pre>const encPass = await bcrypt.hash(pass, 10);</pre>
+The 10 is the number of rounds of encoding to use; 10 is a good compromise between security and performance as each round improves the security of the encoding but takes some time to execute. <br />
+To check a password when logging in, use code such as the following. Query the database to find the row for a given user, and then use <code>bcrypt.compare()</code> to compare the password entered against the hashed password in the table:
+<pre>const dbres = this.db.query('SELECT * FROM users WHERE username=?',
+    [req.body.username],
+    async(err, results, fields) =&gt;{
+        if(results.length == 1) {
+            const match = await bcrypt.compare(req.body.password, results[0].password);
+            if(match === false) {
+                // passwords don't match
             } else {
-                res.json(student);    
+                // passwords do match, carry on...
             }
-        } catch(e) {
-            res.status(500).json({error: e});
+        } else {
+            // ... no results ...
         }
     }
-
-    // findStudentByCourse()
-    // calls the DAO's findStudentByCourse() method, passing the course parameter to
-    // it, and formats the JSON returned.
-    async findStudentByCourse(req, res) {
-        try {
-             const students = await this.dao.findStudentByCourse(req.params.course);
-            res.json(students);    
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-
-    // addStudent()
-    // calls the DAO's addStudent() method, passing in the 'name' and 'course'
-    // POST data to it, and formats the allocated ID as JSON to send back to the client.
-    async addStudent(req, res) {
-        try {
-            const studentId = await this.dao.addStudent(req.body.name, req.body.course);
-            res.json({id: studentId});
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-}
-
-module.exports = StudentController; // so that the router can use it</pre>
-Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
-
+);</pre>
+See <a href='https://www.npmjs.com/package/bcrypt'>here</a> for more details.
+</p>
 <h2>Exercise</h2>
-<p>Rewrite questions 1 to 6 from Topic 6 to use appropriate DAOs and controllers as well as routes. If you do not have topic 6 on its own, and only have topics 6 and 7 together, you can attempt to convert the login system to use DAOs, or, you may wish to comment out session/login code as it may make things easier.</p>
-</body>
-</html>
+<h3>Essential questions</h3>
+<ol>
+<li>Add code to initialise <code>express-session</code> and <code>express-mysql-session</code> on your Express server, as shown above.</li>
+<li>Add the three routes in the example above (<code>/login</code> GET, <code>/login</code> POST and <code>/logout</code>), as well as the session-checking middleware, to your Express server. You should make one important change: <em>the <code>/login</code> POST route should check whether the username and password are contained within the <code>ht_users</code> table</em>, rather than just checking for a hard-coded username and password. To do this, perform your query and then check that the number of rows returned is one by checking the length of the <code>results</code> array, for example:
+<pre>
+if(results.length == 1) {
+    res.json({"username": req.body.username});
+} else {
+    // ...
+}
+</pre>
+This code will also return the username as JSON back to the client if the login was successful, which will allow the client to display a <code>Logged in as ...</code> message.</li>
+<li>Run through this process in RESTer to check that it all works:
+    <ul>
+    <li>Send a POST request to your <code>/login</code> route with an appropriate username and password from the <code>ht_users</code> table. <strong>Look at the HTTP response</strong>; you should find that a session cookie is contained within it.</li>
+    <li>Send a DELETE request to your route which deletes a song with a given ID. It should be successful. Look again at the HTTP response; the session cookie should still be there, and will be there until the session is destroyed.</li>
+    <li>Send a POST request to your <code>/logout</code> route. This should log you out; look at the HTTP response again and you should find the session ID is no longer there.</li>
+    <li>Send another DELETE request to your delete song route. You should now be unable to do so.</li>
+    </ul>
+</li>
+<li>Now start to add login functionality to your AJAX front end. Create a <code>&lt;div&gt;</code> containing a login form, with username and password fields and a "Login" button. When the button is clicked, send a request to your <code>/login</code> POST route to log the user in. Check the HTTP code sent back from the server (via <code>response.status</code>). If it's 200, replace the contents of the login &lt;div&gt; with a message 'Logged in as ...' containing the username. Use <code>innerHTML</code> for this. Otherwise display an error via an alert box.</li>
+<li>Modify the "buy" functionality (week 6) so that if a 401 is returned from the <code>buy</code> route, an error message telling the user they're not logged in should appear as an alert box. Test it by trying to buy music before the user is logged in (it should not work) and then after they've logged in (it should work).</li>
+</ol>
+<h3>More advanced questions</h3>
+<ol>
+<li>Enhance your login system so that you have "Logout" functionality, and also modify your code so that if the user reloads the page, the "Logged in as ..." message remains present. To do this: 
+    <ul>
+    <li>When a user has logged in, add a button to the "Logged in as..." message which appears in the &lt;div&gt;. You can do this simply by adding the button HTML to the <code>innerHTML</code> text (or, if you are feeling ambitious, use the DOM). Ensure this button has an ID, so that you can attach an event listener to it. For example:
+<pre>document.getElementById(...).innerHTML = `Logged in as ... &lt;input type='button' value='Logout' id='logoutBtn' /&gt;`</pre>
+</li>
+    <li>On the next line of code, use <code>document.getElementById()</code> and <code>addEventListener()</code> to add a "click" event to this button so that the user is logged out by calling the <code>/logout</code> route. Once logged out, your should re-fill the login &lt;div&gt; with the original login form (use <code>innerHTML</code> for this, similar to the example in the previous question; note you will need to connect the 'Login' button to an event listener to handle login).</li>
+    <li><strong>If the user reloads the page, you want the "Logged in as ..." message to remain present. This question allows you to do this.</strong> At the start of your client-side JavaScript, call the <code>/login</code> GET route of your web server to determine if the user is logged in or not. If they are, the <code>username</code> field of the JSON returned will be non-null. If the username is non-null, display the "Logged in as... " message with the Logout button, and add the event listener to the Logout button, as in the earlier question. If not, display the login form, ensuring you continue to add an event listener to the Login button.</li>
+    </ul>
+</li>
+<li>Add a signup route to your server, allowing the user to sign up. Use <code>bcrypt</code> to encode the password. Then, change your login route to use <code>bcrypt</code>. Test by using RESTer, or, alternatively, add an AJAX-based signup facility to your HTML page.</li>
+</ol>
+<h3>Other things to try</h3>
+<ul>
+    <li>Modify your <code>buy</code> route so that the balance of the currently logged-in user is reduced by 0.79 when they buy a song.</li>
+</ul>
+-->
+
+</body></html>
+
+

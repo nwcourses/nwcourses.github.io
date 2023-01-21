@@ -5,6 +5,8 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head>
 <body>
+<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
+<!--
 <div class="titlebox"><h1>Topic 2: Node.js and databases</h1></div>
 <h2>Databases - revision</h2>
 <p>You have already worked with SQL databases in your first year. As you
@@ -47,38 +49,14 @@ user's web browser, but the <em>client</em> with respect to the database server:
 </ol>
 </p>
 <h2>Installing and using a database server</h2>
-<p>We are primarily going to use gooruIDE to host our database, which has the advantage that you can access it from your own personal machine as well as the university machines. Please see <a href='Configuring_Goorm_for_MySQL.pdf'>here</a> for a guide describing how to do this.</p>
-<p>If you wish to install a database to your own personal machine, these are your options:
+<p>We are primarily going to use goormIDE to host our database, which has the advantage that you can access it from your own personal machine as well as the university machines. Please see here (link not available yet) for a guide describing how to do this.</p>
+<p>If you wish to install a database to your own personal machine, these are your options (please note <strong>no support will be provided by the tutor if you are running a Mac, and if problems occur on Windows or Linux which are unresolvable by the tutor, you will need to research them youself</strong>):
     <ul>
-    <li>Install a package such as <a href='https://apachefriends.org'>XAMPP</a>, which contains not just a database (MariaDB, based on MySQL) but also the Apache web server, PHP and the database administration tool PHPMyAdmin. XAMPP generally works but a small number of users have reported problems starting Apache. An alternative is <a href='https://www.wampserver.com/en/download-wampserver-64bits'>WAMP</a> which you may find works if XAMPP does not work for you.</li>
+    <li>Install a package such as <a href='https://apachefriends.org'>XAMPP</a>, which contains not just a database (MariaDB, based on MySQL) but also the Apache web server, the PHP language, and the database administration tool PHPMyAdmin. XAMPP generally works but a small number of users have reported problems starting Apache. An alternative is <a href='https://www.wampserver.com/en/download-wampserver-64bits'>WAMP</a> which you may find works if XAMPP does not work for you.</li>
     <li>Install a database directly, as a standalone application, for example <a href='https://mysql.com/products/community'>MySQL Community Edition</a> or <a href='https://mariadb.org/download/'>MariaDB</a>. Please ensure you follow the installation instructions carefully, for example <a href='https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html'>these for MySQL on Windows</a>.</li>
     </ul>
 </p>
-<h3>Using PHPMyAdmin</h3>
-<p><strong>Note that you may encounter problems with using PHPMyAdmin on a Mac - if you encounter problems, please use the command prompt instead.</strong></p>
-<p>You can use a graphical interface to manage your database, such as <a href='https://phpmyadmin.net'>PHPMyAdmin</a> which we installed to goormIDE above. This is a web-based front-end to a MySQL or MariaDB database, written in the PHP server-side scripting language. Once installed, you should be able to access it via the URL you set up in goormIDE.
-You will see a login screen like this, as long as you setup your user with a password:
-</p>
-<p>
-<img src='../images/phpmyadmin1.png' alt='PHPMyAdmin login screen' />
-</p>
-<p>
-If you do not have a password set up, it should take you straight to the main
-screen:
-</p> <p>
-<img src='../images/phpmyadmin2.png' alt='PHPMyAdmin main screen' />
-</p> <p>
-You can see your database name on the left; in my example <code>ephp001</code>. If you expand your database you will see a list of tables:
-</p> <p>
-<img src='../images/phpmyadmin3.png' alt='PHPMyAdmin tables' />
-</p> <p>
-and then if you select a specific table (<code>wadsongs</code> in my case)
-you will see its contents:
-</p> <p>
-<img src='../images/phpmyadmin4.png' alt='PHPMyAdmin tables' />
-</p> <p>
-If you now click the 'SQL' tab, you will be able to enter SQL commands to send to the database server.
-</p>
+<p>We will be using the <em>mysqlview</em> application to view our databases - details will appear subsequently.</p>
 <h3>Using the command-line client</h3>
 <p>As an alternative you will be able to use the command line database client from your command prompt. This will be either <code>mysql</code> or <code>mariadb</code>.
 For example, to launch the MySQL client you would enter, at the command
@@ -411,6 +389,7 @@ Once you've done that, add a further two fields (for title an artist) and second
 <pre>app.use(express.static('public'));</pre>
 This will tell Express to serve all content in the <code>public</code> folder as static pages. So to access the file <code>file.html</code> inside the <code>public</code> folder from the browser, you can access it via <code>https://url-of-your-server.example.com/file.html</code>.</li>
 </ol>
+-->
 </body>
 </html>
 

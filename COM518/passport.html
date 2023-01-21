@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Additional topic: Passport</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Additional topic: Passport</h1>
+</div>
+
+<h2>Introduction</h2>
+<p>
+As you are probably aware, many websites allow authentication using third-party providers, such as Google, Facebook and Twitter. Passport is a Node module which allows your app to authenticate with such third-party providers, as well as local login with the usernames and passwords stored in your own database, using a common style of code. Thus, the goal of Passport is to allow the use of common code to authenticate with many different providers.</p>  
+<p>Passport is based around <em>strategies</em>. Each strategy represents a method of logging in with a different provider. There are strategies available for third-party login providers such as Google and Facebook, as well as the <em>local strategy</em> for logging in using a local database on your own server. When developing with Passport you specify one or more strategies to use; a single app can authenticate with a local database <em>and</em> with a third-party provider. In your strategies you implement code to check the login details.</p>
+<p>We will only cover the local strategy here in detail, but the others
+are described at the <a href='http://passportjs.org'>Passport website</a></p>
+<h2>Using Passport</h2>
+<p>To use Passport, you need to install both Passport itself and one or more strategies as NPM packages. For example the <code>npm</code> command below will install both Passport and the local strategy:
+<pre>npm install passport passport-local</pre>
+In your code, first <code>require()</code> it, as usual for a third-party 
+module:
+<pre>const passport = require('passport');</pre>
+You then import the specific strategy you want to use. For example, to use the local strategy, use:
+<pre>const LocalStrategy = require('passport-local').Strategy;</pre>
+</p>
+<p>You must also link Passport to your Express application as middleware. 
+This can be done as follows:
+<pre>app.use(passport.initialize());
+app.use(passport.session());</pre>
+The first middleware will initialise Passport, while the second will set up
+Passport for <em>serialisation and deserialisation</em> with sessions
+(see "Serialisation and deserialisation", below).
+<strong>The <code>app.use(passport.session())</code> must come AFTER initialising <code>express.session</code>, as it relies on sessions having been setup 
+already, but should also come BEFORE any other Passport code.</strong></p>
+<h3>General mechanism of operation</h3>
+<p>The diagram below shows the general mechanism of operation of Passport.
+Note how we typically call our strategy from our login route. The strategy then
+checks the username and password, and if they are correct, we are returned to the route and the main route handler is run (which might send back the login details to the client as JSON). On the other hand, if the login details are correct
+or we cannot connect to the database or other data source containing the 
+user details, we tell Passport to return a 401 or 500 respectively. The 
+detail on how this is done is discussed below.
+<br />
+<img src="../images/passport.png" alt="Passport" />
+</p>
+<h3>Implementation detail</h3>
+<h4>The login route</h4>
+<p>We will start discussing the detailed implenentation by looking at the <code>/login</code> route, as this is the natural place to start in order to understand Passport. A commented <code>/login</code> route is provided below. Note how it calls the appropriate strategy - the local strategy in this example. 
+<pre>
+app.post('/login',
+
+    // call Passport's authenticate() method (which is actually middleware)
+    // This will use the appropriate strategy to authenticate the user: the
+    // local strategy is used here as we pass an argument of 'local'. 
+    // The strategy must authenticate the user with the given credentials
+    // and return an object containing the user details on completion.
+    //
+    // If the authentication fails, a 401 will be AUTOMATICALLY sent back.
+
+    passport.authenticate('local'), 
+
+    // The actual route handler, which actually sends a response back to the
+    // client. This will be called by the strategy if the login was 
+    // successful. (We could also use additional items of middleware here
+    // to run after the authentication)
+
+    (req, res) =&gt; {
+        // the strategy code will attach the user details to the request object 
+        // 'req' as the property 'req.user'. This is explained below.
+        // Here, we send 'req.user' back to the client as JSON.
+        res.json(req.user); 
+    }
+);
+</pre>
+Note how we call the strategy with <code>passport.authenticate()</code>, passing in the name of the strategy (<code>local</code> represents the local strategy) as an argument. The strategy will then run, and if the login was successful,
+the code will redirect back to the <code>/login</code> route and the next
+item of middleware, or (as is the case here) the final route handler, will
+be called.</p>
+<h4>The LocalStrategy</h4>
+<p>So we will now look at an example of a strategy, specifically a 
+LocalStrategy. What do we do inside the strategy?
+    <ul>
+    <li>A strategy constructor typically expects one argument, a function
+    known as the <em>verify function</em>. The verify function needs to
+    perform the authentication. The exact signature of the verify function
+    depends on which strategy we are using.</li>
+    <li>With LocalStrategy, you must supply it with a veeify function
+    that takes three parameters: <code>username</code>, <code>password</code>
+    and <code>done</code>. The first two parameters are the username and
+    password. The strategy will <em>automatically</em> extract these from the request body: <strong>it will look for <code>req.body.username</code> and <code>req.body.password</code> so you must name your POST fields <code>username</code> and <code>password</code></strong>. <code>done</code> is a 
+    callback function that must be called to complete the authentication
+    process (rather like <code>next</code> in Express middleware).</li>
+    <li>We check that the username and password are correct, for example,
+    by querying a database</li>
+    <li>If they are, we call the supplied <code>done()</code> callback
+    with <code>null</code> as the first argument and an object containing
+    the user details as the second.  This will call the route handler (or 
+    the next item of middleware, if there is one) in the <code>/login</code>
+    route (or whatever route called the strategy). The user details are attached to the request object <code>req</code>
+    as <code>req.user</code>; note how, in the <code>/login</code> route above,
+     we send back the 
+    <code>req.user</code> object to the client as JSON if the authentication
+    is successful.</li>
+    <li>If they are incorrect, we call the supplied <code>done()</code>
+    callback with <code>null</code> as the first argument and 
+    <code>false</code> as the second. This will cause Passport to 
+    generate a 401 (Unauthorized) response to send back to the client.</li>
+    <li>If there is a database error, we call the supplied <code>done()</code>
+    callback with the error as the first argument. This will cause Passport
+    to generate a 500 (Internal Server Error) response to send back to the 
+    client.</li>
+    </ul>
+<pre>
+// Note that the local strategy will AUTOMATICALLY read fields named 'username'
+// and 'password' from req.body, and will supply them as parameters to the
+// function passed in as an argument to LocalStrategy. So in the code below,
+// 'username' and 'password' will contain the user's login credentials sent
+// within a POST request.
+
+passport.use(new LocalStrategy(async(username, password, done)=&gt; {
+    // Imagine we have a user DAO which contains code to query the 'users' table
+    const userDao = new UserDao(db);
+    try {
+        // imagine our user DAO has a method to check the username and password
+        // against the database. It will return an object containing the full 
+        // details of the user (username, user id, admin status) if the 
+        // username and password is correct, or null otherwise.
+        const userDetails = await userDao.login(username, password);
+
+        // If null is returned, call the 'done()' callback with 'false' as
+        // the second argument - to indicate authentication was unsuccessful
+        // This will cause Passport to AUTOMATICALLY send back a 401 to the client
+        if(userDetails === null) {
+            return done(null, false);
+        } else {
+            // otherwise call the 'done()' callback with the user object as
+            // the second argument. This will be automatically attached to 
+            // the 'req' object as 'req.user'
+            return done(null, userDetails);
+        }
+    } catch(e) {
+        // If there were errors with the database (e.g could not connect to
+        // the database), call 'done()' with the error as the first argument
+        // This will AUTOMATICALLY send back a 500 error with the contents of
+        // "e" in the response body.
+        return done(e);
+    }
+}));
+</pre>
+</p>
+<h3>How to protect routes using Passport</h3>
+<p>When using Passport, we need to check the contents of <code>req.user</code> when writing middleware used to protect routes from unauthenticated users (non-logged-in users), rather than a username within <code>req.session</code>. This does raise a question: <strong>how do we persist <code>req.user</code> across multiple requests?</strong> This is detailed in the next section.</p>
+<h3>Serialisation and deserialisation - persisting the user across multiple requests</h3>
+<p>We have implemented authentication with a local strategy, which results in the user details being saved in <code>req.user</code> if authentication was successful. However, how can we preserve information across multiple HTTP requests, as a user interacts with the website? <code>req.user</code>, being a property of the request object, only has a lifetime <em>within the current request</em>. To preserve the user across multiple requests, we need to save the user details to a session variable using <em>serialisation</em>/<em>deserialisation</em>.  We need to define <em>serialisation</em> and <em>deserialisation</em> functions which saves user information to, and restores it from, <code>req.session</code> across requests. Specifically the serialised data is saved to <code>req.session.passport.user</code> within the session.</p>
+<p>So, when a user authenticates, <em>serialisation</em> will take place to save the user in the session. When a client makes another HTTP request to the server, the user from the session will be <em>deserialised</em> into <code>req.user</code>. The diagram below shows the general mechanism of serialisation: 
+<br />
+<img src="../images/passport_serialisation.png" alt="Passport serialisation" />
+</p>
+<p>We perform this with the <code>serializeUser()</code> and <code>deserializeUser()</code> methods, which save user information to the session, and restore it from the session, respectively. Typically we do not need to preserve <em>all</em> the user information in the session, just enough to identify the user - so the user ID will be fine. Each of these methods takes a callback function
+(an arrow function here) which actually does the processing, and like the
+strategy code above, this is supplied with a <code>done</code> callback which you need to call to complete the serialisation or deserialisation. 
+<pre>
+// Serialise function - saves the user from req.user to the session
+// The parameter 'userDetails' is the information contained within 'req.user'
+// We only need to save the ID, as that is sufficient to identify the user
+
+passport.serializeUser((userDetails, done) =&gt; {
+    done(null, userDetails.id);
+});
+
+// Deserialise function - restores the user from the session to req.user.
+// It needs to perform a database query (using our DAO) to restore the full
+// user details (username, admin status) using the ID.
+// The full user object is passed to done(), this will result in it being
+// attached to req.user.
+
+passport.deserializeUser(async(userid, done) =&gt; {
+    try {
+        const userDao = new UserDao(db);
+
+        // use the DAO to find the full user details from the user ID.
+        const details = await userDao.findById(userid);
+
+        // call "done()" with the full details. This will result in the details
+        // being attached to the "req" object as "req.user".
+        done(null, details);
+    } catch(e) {
+        // handle error by calling done() with the error information
+        done(e);
+    }
+});
+</pre>
+</p>
+<h4>Logging out</h4>
+<p>You can implement a logout function in the same way as a regular login system. This will terminate the session and thus <code>req.session.passport.user</code> will be deleted. Therefore, when deserialisation is attempted on the next request, there will be no information in the session to deserialise and the <code>req.user</code> object will not be set up.</p>
+<h3>Handling authentication errors</h3>
+<p>How are authentication errors handled? If <code>done()</code> is called from your strategy with <code>false</code> as the second argument (to indicate that the login is invalid), Passport will <strong>automatically</strong> send back a 401 Unauthorized HTTP response to the client, which the client can then test for. However, you may want to supply a custom JSON response to the client.</p>
+<p>To do this, you need to set up an additional route to send back the JSON, e.g:
+<pre>
+app.get('/badlogin', (req, res) =&gt; {
+    res.status(401).json({error: "The login was invalid"});
+});
+</pre>
+and then tell Passport to redirect to this route if the login fails using the <code>failureRedirect</code> option to <code>passport.authenticate()</code>, e.g:
+<pre>passport.authenticate('local', { <strong>failureRedirect: '/badlogin'</strong> } )</pre>
+</p>
+<h2>Using another strategy</h2>
+<p>Passport makes it easy to implement multiple strategies in the same application, which can be selected based on the argument passed to <code>passport.authenticate()</code>. I will not go into any detail as to how to implement strategies other than the local strategy, but I will show you a snippet of code making use of another strategy - the OpenStreetMap strategy - which allows you to login to a site using your <a href='https://openstreetmap.org'>OpenStreetMap</a> login details:
+<pre>
+passport.use(new OpenStreetMapStrategy({ 
+    //OpenStreetMap options (omitted)...
+}, (token, tokenSecret, profile, done) {
+    // OpenStreetMap authentication callback function...
+    return done (null, { id: profile.id, username: profile.displayName  } );
+});
+</pre>
+I will not describe the OpenStreetMap strategy in any detail but you should
+take note of some similarities to the local strategy. You will
+notice that it takes a callback function which runs when the user has 
+authenticated with OpenStreetMap. The <code>profile</code> object contains an
+<code>id</code> field with the user's OpenStreetMap ID, and a <code>displayName</code> field with the
+user's name, which can be placed in an object and passed to
+<code>done()</code> in the same way as the local strategy. This object will
+then be stored in <code>req.user</code>, as before.</p>
+<p>Then, you could setup an OpenStreetMap login route to use the strategy, alongside a regular login route, and both routes, provided they are coded correctly, would end up attaching the user information to <code>req.user</code>.
+<pre>
+// Your normal login route
+app.post('/login',
+    passport.authenticate('local'),
+    (req, res) =&gt; { ... }
+);
+
+// Your OpenStreetMap login route
+app.post('/osm/login',
+    passport.authenticate('openstreetmap') // use OpenStreetMap strategy
+});
+</pre>
+</p>
+<h2>Documentation</h2>
+<p>See the official documentation <a href='http://www.passportjs.org/docs/'>here</a>.</p>
+<h2>Exercise</h2>
+<p>Rewrite your login system from Topic 7 to use Passport, storing the user's ID, username and admin status inside <code>req.user</code>.</p>
+</body>
+</html>

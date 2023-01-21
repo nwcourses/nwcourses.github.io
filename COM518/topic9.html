@@ -1,244 +1,260 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 9: Passport</title>
+<title>Topic 9 : More Modular Applications: DAOs and Controllers</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 9: Passport</h1>
+<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
+<!--
+<h1>Topic 9: More Modular Applications: DAOs and Controllers</h1>
 </div>
-
-<h2>Introduction</h2>
-<p>
-As you are probably aware, many websites allow authentication using third-party providers, such as Google, Facebook and Twitter. Passport is a Node module which allows your app to authenticate with such third-party providers, as well as local login with the usernames and passwords stored in your own database, using a common style of code. Thus, the goal of Passport is to allow the use of common code to authenticate with many different providers.</p>  
-<p>Passport is based around <em>strategies</em>. Each strategy represents a method of logging in with a different provider. There are strategies available for third-party login providers such as Google and Facebook, as well as the <em>local strategy</em> for logging in using a local database on your own server. When developing with Passport you specify one or more strategies to use; a single app can authenticate with a local database <em>and</em> with a third-party provider. In your strategies you implement code to check the login details.</p>
-<p>We will only cover the local strategy here in detail, but the others
-are described at the <a href='http://passportjs.org'>Passport website</a></p>
-<h2>Using Passport</h2>
-<p>To use Passport, you need to install both Passport itself and one or more strategies as NPM packages. For example the <code>npm</code> command below will install both Passport and the local strategy:
-<pre>npm install passport passport-local</pre>
-In your code, first <code>require()</code> it, as usual for a third-party 
-module:
-<pre>const passport = require('passport');</pre>
-You then import the specific strategy you want to use. For example, to use the local strategy, use:
-<pre>const LocalStrategy = require('passport-local').Strategy;</pre>
-</p>
-<p>You must also link Passport to your Express application as middleware. 
-This can be done as follows:
-<pre>app.use(passport.initialize());
-app.use(passport.session());</pre>
-The first middleware will initialise Passport, while the second will set up
-Passport for <em>serialisation and deserialisation</em> with sessions
-(see "Serialisation and deserialisation", below).
-<strong>The <code>app.use(passport.session())</code> must come AFTER initialising <code>express.session</code>, as it relies on sessions having been setup 
-already, but should also come BEFORE any other Passport code.</strong></p>
-<h3>General mechanism of operation</h3>
-<p>The diagram below shows the general mechanism of operation of Passport.
-Note how we typically call our strategy from our login route. The strategy then
-checks the username and password, and if they are correct, we are returned to the route and the main route handler is run (which might send back the login details to the client as JSON). On the other hand, if the login details are correct
-or we cannot connect to the database or other data source containing the 
-user details, we tell Passport to return a 401 or 500 respectively. The 
-detail on how this is done is discussed below.
-<br />
-<img src="../images/passport.png" alt="Passport" />
-</p>
-<h3>Implementation detail</h3>
-<h4>The login route</h4>
-<p>We will start discussing the detailed implenentation by looking at the <code>/login</code> route, as this is the natural place to start in order to understand Passport. A commented <code>/login</code> route is provided below. Note how it calls the appropriate strategy - the local strategy in this example. 
+<hr />
+<h2>Firstly - one or two hints for the assignment</h2>
+<p>Here are one or two hints about the assignment which relate to questions some of you have been asking.</p>
+<h3>How do I add a form to a popup?</h3>
+<p>This may help you. <code>bindPopup()</code> can take a DOM node as well as plain text or HTML. So you can create a DOM structure containing your form and pass it in as an argument to <code>bindPopup()</code>, e.g.:
 <pre>
-app.post('/login',
-
-    // call Passport's authenticate() method (which is actually middleware)
-    // This will use the appropriate strategy to authenticate the user: the
-    // local strategy is used here as we pass an argument of 'local'. 
-    // The strategy must authenticate the user with the given credentials
-    // and return an object containing the user details on completion.
-    //
-    // If the authentication fails, a 401 will be AUTOMATICALLY sent back.
-
-    passport.authenticate('local'), 
-
-    // The actual route handler, which actually sends a response back to the
-    // client. This will be called by the strategy if the login was 
-    // successful. (We could also use additional items of middleware here
-    // to run after the authentication)
-
-    (req, res) =&gt; {
-        // the strategy code will attach the user details to the request object 
-        // 'req' as the property 'req.user'. This is explained below.
-        // Here, we send 'req.user' back to the client as JSON.
-        res.json(req.user); 
-    }
-);
+const domDiv = document.createElement('div');
+// ... other code to create a form ...
+marker.bindPopup(domDiv); // add the DOM-created div to a marker
 </pre>
-Note how we call the strategy with <code>passport.authenticate()</code>, passing in the name of the strategy (<code>local</code> represents the local strategy) as an argument. The strategy will then run, and if the login was successful,
-the code will redirect back to the <code>/login</code> route and the next
-item of middleware, or (as is the case here) the final route handler, will
-be called.</p>
-<h4>The LocalStrategy</h4>
-<p>So we will now look at an example of a strategy, specifically a 
-LocalStrategy. What do we do inside the strategy?
+</p>
+<h3>How do I show and hide an element?</h3>
+<p>You may wish, as part of your UI, to show and hide page elements such as &lt;div&gt;s First, set its <code>display</code> property to <code>none</code> in the CSS:
+<pre>
+#myDiv {
+    display: none;
+}
+</pre>
+Then, at the point you want to show it, change the <code>display</code> property from JavaScript to <code>block</code>, e.g.:
+<pre>document.getElementById('myDiv').style.display = 'block';</pre>
+Then, when you want to hide it again, change <code>display</code> back to <code>none</code>:
+<pre>document.getElementById('myDiv').style.display = 'none';</pre>
+</p>
+<hr />
+<h2>The main material</h2>
+<p>Now onto the main topic for this week. Today we will look at using a more modular, easier-to-maintain structure for our Node/Express applications by making use of <em>Data Access Objects (DAOs)</em> and <em>controllers</em>.</p>
+<p><strong>Note that this is a more advanced topic, aimed at those of you who are coping reasonably well with the module. You should complete previous exercises before attempting this week's - particularly login systems from last week.</strong></p>
+<h2>Data Access Objects</h2>
+<ul>
+<li>We have already seen how to interact with a MySQL database from node.js</li>
+<li>However, we can make our code more structured and object-oriented (remember you did classes and objects last year)</li>
+<li>When writing object-oriented code to interact with a database, we 
+typically deal with <em>data access objects (DAOs)</em>.</li>
+<li>A <em>DAO</em> provides an interface to your table as a whole, and
+might contain methods such as <em>findStudentById()</em> or
+<em>findStudentsByName()</em></li>
+</ul>
+<h3>Example of a DAO for the students table</h3>
+<pre>
+
+class StudentDao {
+    // conn is our mysql database connection
+    // table is the table storing the students
+    constructor(conn, table) {
+        this.conn = conn;
+        this.table = table;
+    }
+
+
+    // find a student with a given ID
+
+    findStudentById(id) {
+        return new Promise ( (resolve, reject) =&gt; {
+            this.conn.query(`SELECT * FROM ${this.table} WHERE ID=?`, [id],
+                (err, results, fields) =&gt; {
+                    if(err) {
+                        reject(err);
+                    } else if (results.length == 0) {
+                        // resolve with null if no results - this is not considered an error, so we do not reject
+                        resolve(null); 
+                    } else {
+                        // only one student will be found but "results" will still be an array with one member. 
+                        // To simplify code which makes use of the DAO, extract the one and only row from the array 
+                        // and resolve with that.
+                        resolve(results[0]);
+                    }
+                });
+        });
+    }
+                            
+
+    // find all students on a given course
+    findStudentsByCourse(course) {
+        return new Promise ( (resolve, reject) =&gt; {
+            this.conn.query(`SELECT * FROM ${this.table} WHERE course=?`, [course],
+                (err, results, fields) =&gt; {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(results);
+                    }
+                });
+        });
+    }
+
+    // add a new student 
+
+    addStudent(name, course) {
+        return new Promise ( (resolve, reject) =&gt; {
+            this.conn.query(`INSERT INTO ${this.table} (name,course) VALUES (?,?)`, [name, course],
+                (err, results, fields) =&gt; {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(results.insertId); // resolve with the record's allocated ID
+                    }
+                });
+        });
+    }
+
+    // update a student - takes student ID, name, and course as parameters and 
+    // updates the name and the course of the record with that ID
+    // For you to complete!
+
+    updateStudent(id, name, course) {
+    }
+
+
+    // delete a student - takes a student ID as a parameter
+    // and deletes the record with that ID.
+    // For you to complete!
+
+    deleteStudent(id) {
+    }
+}
+
+module.exports = StudentDao; // so that other code can use it</pre>
+<h3>DAO - Explanation</h3>
+<ul>
+<li>Note how the DAO contains a series of methods which perform various
+database operations</li>
+<li>The rest of our code would interface with the DAO, rather than
+the database directly, keeping it clean and keeping all the 'messy' SQL
+statements in one place</li>
+<li>Each method in the DAO performs a particular database operation (find a student by ID, find all students on a given course, add a student, update a student's details, and delete a student)</li>
+<li>Finally, note how each method <em>returns a Promise object</em>. This is
+to make coding using the DAO easier, as we no longer have to worry about
+callbacks and can instead write sequential code with <code>async</code>/<code>await</code> (remember from Topic 5 that we can use <code>await</code> with any method which returns a promise). This allows you to use simpler code such as:
+<pre>const dao = new StudentDao(dbconn, "students");
+const student = <em>await</em> dao.findStudentById(req.params.id);</pre>
+</li>
+</ul>
+</p>
+<p>Note how we create our own custom <em>Promise</em>, which will either resolve or reject depending on whether the query succeeded or not:
+<ul>
+<li> When you create your own custom Promise object, you must supply <em>a function which will carry out the promise</em>. This function will typically be an arrow function, and takes two parameters: <code>resolve</code> (a function which will run when the promise resolves), and <code>reject</code> (a function which will run when the promise rejects). These functions will be supplied by the code which uses the promise (in this example, the code which calls the DAO method).</li>
+<li>For example if you are using "plain promises" rather than async/await, the <code>resolve</code> function corresponds to the argument to <code>then()</code> and the <code>reject</code> function corresponds to the argument to <code>catch()</code>. If using async/await, the argument to <code>resolve()</code> will become the return value of the <code>await</code> call and the argument to <code>reject()</code> will become the parameter of the <code>catch</code> block.</li>
+<li> Note how the code to query the database is placed inside this arrow function, and note how we call either <code>resolve</code> or <code>reject</code> depending on whether the operation succeeded or not.</li>
+<li>Please see the notes <a href='topic3.html#implementingpromises'>here</a> for more details on creating your own custom promises.</li>
+</ul>
+</p>
+<h2>Controllers</h2>
+<p>We can further enhance the modularity of our code through the use of <em>controllers</em>. Controllers are part of the <em>model/view/controller</em> (MVC) architecture, in which we divide the code into three components:
     <ul>
-    <li>A strategy constructor typically expects one argument, a function
-    known as the <em>verify function</em>. The verify function needs to
-    perform the authentication. The exact signature of the verify function
-    depends on which strategy we are using.</li>
-    <li>With LocalStrategy, you must supply it with a veeify function
-    that takes three parameters: <code>username</code>, <code>password</code>
-    and <code>done</code>. The first two parameters are the username and
-    password. The strategy will <em>automatically</em> extract these from the request body: <strong>it will look for <code>req.body.username</code> and <code>req.body.password</code> so you must name your POST fields <code>username</code> and <code>password</code></strong>. <code>done</code> is a 
-    callback function that must be called to complete the authentication
-    process (rather like <code>next</code> in Express middleware).</li>
-    <li>We check that the username and password are correct, for example,
-    by querying a database</li>
-    <li>If they are, we call the supplied <code>done()</code> callback
-    with <code>null</code> as the first argument and an object containing
-    the user details as the second.  This will call the route handler (or 
-    the next item of middleware, if there is one) in the <code>/login</code>
-    route (or whatever route called the strategy). The user details are attached to the request object <code>req</code>
-    as <code>req.user</code>; note how, in the <code>/login</code> route above,
-     we send back the 
-    <code>req.user</code> object to the client as JSON if the authentication
-    is successful.</li>
-    <li>If they are incorrect, we call the supplied <code>done()</code>
-    callback with <code>null</code> as the first argument and 
-    <code>false</code> as the second. This will cause Passport to 
-    generate a 401 (Unauthorized) response to send back to the client.</li>
-    <li>If there is a database error, we call the supplied <code>done()</code>
-    callback with the error as the first argument. This will cause Passport
-    to generate a 500 (Internal Server Error) response to send back to the 
-    client.</li>
+    <li>the <em>model</em> - those components which directly interact with the database, i.e. the DAO</li>
+    <li>the <em>view</em> - those components used to <em>present</em> the data (i.e. output the data as JSON or as HTML)</li>
+    <li>the <em>controller</em> - which manages the interaction between the model and the view.</li>
     </ul>
-<pre>
-// Note that the local strategy will AUTOMATICALLY read fields named 'username'
-// and 'password' from req.body, and will supply them as parameters to the
-// function passed in as an argument to LocalStrategy. So in the code below,
-// 'username' and 'password' will contain the user's login credentials sent
-// within a POST request.
-
-passport.use(new LocalStrategy(async(username, password, done)=&gt; {
-    // Imagine we have a user DAO which contains code to query the 'users' table
-    const userDao = new UserDao(db);
-    try {
-        // imagine our user DAO has a method to check the username and password
-        // against the database. It will return an object containing the full 
-        // details of the user (username, user id, admin status) if the 
-        // username and password is correct, or null otherwise.
-        const userDetails = await userDao.login(username, password);
-
-        // If null is returned, call the 'done()' callback with 'false' as
-        // the second argument - to indicate authentication was unsuccessful
-        // This will cause Passport to AUTOMATICALLY send back a 401 to the client
-        if(userDetails === null) {
-            return done(null, false);
-        } else {
-            // otherwise call the 'done()' callback with the user object as
-            // the second argument. This will be automatically attached to 
-            // the 'req' object as 'req.user'
-            return done(null, userDetails);
-        }
-    } catch(e) {
-        // If there were errors with the database (e.g could not connect to
-        // the database), call 'done()' with the error as the first argument
-        // This will AUTOMATICALLY send back a 500 error with the contents of
-        // "e" in the response body.
-        return done(e);
-    }
-}));
-</pre>
-</p>
-<h3>How to protect routes using Passport</h3>
-<p>When using Passport, we need to check the contents of <code>req.user</code> when writing middleware used to protect routes from unauthenticated users (non-logged-in users), rather than a username within <code>req.session</code>. This does raise a question: <strong>how do we persist <code>req.user</code> across multiple requests?</strong> This is detailed in the next section.</p>
-<h3>Serialisation and deserialisation - persisting the user across multiple requests</h3>
-<p>We have implemented authentication with a local strategy, which results in the user details being saved in <code>req.user</code> if authentication was successful. However, how can we preserve information across multiple HTTP requests, as a user interacts with the website? <code>req.user</code>, being a property of the request object, only has a lifetime <em>within the current request</em>. To preserve the user across multiple requests, we need to save the user details to a session variable using <em>serialisation</em>/<em>deserialisation</em>.  We need to define <em>serialisation</em> and <em>deserialisation</em> functions which saves user information to, and restores it from, <code>req.session</code> across requests. Specifically the serialised data is saved to <code>req.session.passport.user</code> within the session.</p>
-<p>So, when a user authenticates, <em>serialisation</em> will take place to save the user in the session. When a client makes another HTTP request to the server, the user from the session will be <em>deserialised</em> into <code>req.user</code>. The diagram below shows the general mechanism of serialisation: 
 <br />
-<img src="../images/passport_serialisation.png" alt="Passport serialisation" />
+<img src="../images/mvc.png" alt="MVC architecture" /><br />
+The typical role of a controller would be to communicate with the model (the DAO) to get database results, and then format those results to be presented to the client. Or, alternatively, the controller could gather information from the client and then forward it on to the model (DAO) to insert it into the database.</p>
+<p>Hopefully, from this you may be able to figure out that the <em>router</em> takes the role of the controller. To improve the modularity of your code, however, you can create separate <em>controller objects</em> to represent the controller, and add methods to these objects to carry out the functionality of your router. Then, in your router, you create a controller object and call these methods from each route in the router.</p>
+<p>A good way to organise your project is to have sub-folders within the main folder of your project for routes, controllers and DAOs. These folders could simply be named:
+	<ul>
+	<li><code>routes</code> containing all your route files;</li>
+	<li><code>controllers</code> containing all your controllers;</li>
+	<li><code>dao</code> containing all your DAOs.
+	</ul>
 </p>
-<p>We perform this with the <code>serializeUser()</code> and <code>deserializeUser()</code> methods, which save user information to the session, and restore it from the session, respectively. Typically we do not need to preserve <em>all</em> the user information in the session, just enough to identify the user - so the user ID will be fine. Each of these methods takes a callback function
-(an arrow function here) which actually does the processing, and like the
-strategy code above, this is supplied with a <code>done</code> callback which you need to call to complete the serialisation or deserialisation. 
+<p>So, if we imagine a student router, within the <code>routes</code> folder:
 <pre>
-// Serialise function - saves the user from req.user to the session
-// The parameter 'userDetails' is the information contained within 'req.user'
-// We only need to save the ID, as that is sufficient to identify the user
+const express = require('express');
+const studentRouter = express.Router();
 
-passport.serializeUser((userDetails, done) =&gt; {
-    done(null, userDetails.id);
-});
+// include our database connection, note that .. means "go up a folder" so the 
+// mysqlconn.js is in the parent folder to the routes folder
+const db = require('../mysqlconn'); 
 
-// Deserialise function - restores the user from the session to req.user.
-// It needs to perform a database query (using our DAO) to restore the full
-// user details (username, admin status) using the ID.
-// The full user object is passed to done(), this will result in it being
-// attached to req.user.
+// assume the StudentController is inside a 'student.js' file within the 
+// 'controllers' folder of the project, as described above
+const StudentController = require('../controllers/student'); 
 
-passport.deserializeUser(async(userid, done) =&gt; {
-    try {
-        const userDao = new UserDao(db);
 
-        // use the DAO to find the full user details from the user ID.
-        const details = await userDao.findById(userid);
+// Create the controller object, and pass in the database connection as an argument
+const sController = new StudentController(db);
 
-        // call "done()" with the full details. This will result in the details
-        // being attached to the "req" object as "req.user".
-        done(null, details);
-    } catch(e) {
-        // handle error by calling done() with the error information
-        done(e);
+// handle get requests to route /id/:id using the controller's findStudentById() method
+studentRouter.get('/id/:id', sController.findStudentById.bind(sController));
+
+// handle get requests to route /course/:course using the controller's findStudentByCourse() method
+studentRouter.get('/course/:course', sController.findStudentByCourse.bind(sController));
+
+// handle post requests to /create using the controller's addStudent() method
+studentRouter.post('/create', sController.addStudent.bind(sController));
+
+module.exports = studentRouter; // so that main application can use it</pre>
+Note how the router creates a StudentController object, passing the database connection to it (which will be needed by the DAO) and note also how we handle each route with <em>methods of the controller object</em>. Remember we looked at "<code>bind()</code>" in week 4. Here we are using it slightly differently. <code>bind()</code> is necessary here to <strong>preserve the context of the <code>this</code> object in callbacks</strong>. By default, the context of <code>this</code> (the current object) is lost in a callback function, and to preserve the context of <code>this</code>, you have to <em>bind</em> the callback to the object you wish to use as <code>this</code> (which will be the controller here). You can read about the use of <code>bind()</code> to preserve the context of <code>this</code> in callbacks in more detail <a href='topic4.html#thisAndCallbacks'>here</a>.</p>
+<p>So, let's look at the Controller object, which would be in the <code>controllers</code> folder:
+<pre>// assume the DAO is in a 'student.js' file within the 
+//'dao' folder of the project, as described above
+const StudentDao = require('../dao/student'); 
+
+class StudentController {
+    constructor(db) {
+        // Create a DAO for communicating with the database
+        this.dao = new StudentDao(db, "students");
     }
-});
-</pre>
-</p>
-<h4>Logging out</h4>
-<p>You can implement a logout function in the same way as a regular login system. This will terminate the session and thus <code>req.session.passport.user</code> will be deleted. Therefore, when deserialisation is attempted on the next request, there will be no information in the session to deserialise and the <code>req.user</code> object will not be set up.</p>
-<h3>Handling authentication errors</h3>
-<p>How are authentication errors handled? If <code>done()</code> is called from your strategy with <code>false</code> as the second argument (to indicate that the login is invalid), Passport will <strong>automatically</strong> send back a 401 Unauthorized HTTP response to the client, which the client can then test for. However, you may want to supply a custom JSON response to the client.</p>
-<p>To do this, you need to set up an additional route to send back the JSON, e.g:
-<pre>
-app.get('/badlogin', (req, res) =&gt; {
-    res.status(401).json({error: "The login was invalid"});
-});
-</pre>
-and then tell Passport to redirect to this route if the login fails using the <code>failureRedirect</code> option to <code>passport.authenticate()</code>, e.g:
-<pre>passport.authenticate('local', { <strong>failureRedirect: '/badlogin'</strong> } )</pre>
-</p>
-<h2>Using another strategy</h2>
-<p>Passport makes it easy to implement multiple strategies in the same application, which can be selected based on the argument passed to <code>passport.authenticate()</code>. I will not go into any detail as to how to implement strategies other than the local strategy, but I will show you a snippet of code making use of another strategy - the OpenStreetMap strategy - which allows you to login to a site using your <a href='https://openstreetmap.org'>OpenStreetMap</a> login details:
-<pre>
-passport.use(new OpenStreetMapStrategy({ 
-    //OpenStreetMap options (omitted)...
-}, (token, tokenSecret, profile, done) {
-    // OpenStreetMap authentication callback function...
-    return done (null, { id: profile.id, username: profile.displayName  } );
-});
-</pre>
-I will not describe the OpenStreetMap strategy in any detail but you should
-take note of some similarities to the local strategy. You will
-notice that it takes a callback function which runs when the user has 
-authenticated with OpenStreetMap. The <code>profile</code> object contains an
-<code>id</code> field with the user's OpenStreetMap ID, and a <code>displayName</code> field with the
-user's name, which can be placed in an object and passed to
-<code>done()</code> in the same way as the local strategy. This object will
-then be stored in <code>req.user</code>, as before.</p>
-<p>Then, you could setup an OpenStreetMap login route to use the strategy, alongside a regular login route, and both routes, provided they are coded correctly, would end up attaching the user information to <code>req.user</code>.
-<pre>
-// Your normal login route
-app.post('/login',
-    passport.authenticate('local'),
-    (req, res) =&gt; { ... }
-);
 
-// Your OpenStreetMap login route
-app.post('/osm/login',
-    passport.authenticate('openstreetmap') // use OpenStreetMap strategy
-});
-</pre>
-</p>
-<h2>Documentation</h2>
-<p>See the official documentation <a href='http://www.passportjs.org/docs/'>here</a>.</p>
+    // findStudentById()
+    // calls the DAO's findStudentById() method, passing the ID parameter to
+    // it, and formats the JSON returned.
+    async findStudentById(req, res) {
+        try {
+            const student = await this.dao.findStudentById(req.params.id);
+            // Remember from the DAO that the promise resolves with null if there are no results
+            if(student == null) {
+                res.status(404).json({error: "No student with that ID"});
+            } else {
+                res.json(student);    
+            }
+        } catch(e) {
+            res.status(500).json({error: e});
+        }
+    }
+
+    // findStudentByCourse()
+    // calls the DAO's findStudentByCourse() method, passing the course parameter to
+    // it, and formats the JSON returned.
+    async findStudentByCourse(req, res) {
+        try {
+             const students = await this.dao.findStudentByCourse(req.params.course);
+            res.json(students);    
+        } catch(e) {
+            res.status(500).json({error: e});
+        }
+    }
+
+    // addStudent()
+    // calls the DAO's addStudent() method, passing in the 'name' and 'course'
+    // POST data to it, and formats the allocated ID as JSON to send back to the client.
+    async addStudent(req, res) {
+        try {
+            const studentId = await this.dao.addStudent(req.body.name, req.body.course);
+            res.json({id: studentId});
+        } catch(e) {
+            res.status(500).json({error: e});
+        }
+    }
+}
+
+module.exports = StudentController; // so that the router can use it</pre>
+Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
+
 <h2>Exercise</h2>
-<p>Rewrite your login system from Topic 7 to use Passport, storing the user's ID, username and admin status inside <code>req.user</code>.</p>
+<p>Rewrite questions 1 to 6 from Topic 6 to use appropriate DAOs and controllers as well as routes. If you do not have topic 6 on its own, and only have topics 6 and 7 together, you can attempt to convert the login system to use DAOs, or, you may wish to comment out session/login code as it may make things easier.</p>
+-->
 </body>
 </html>

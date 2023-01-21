@@ -1,304 +1,363 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 7: Session variables</title>
+<title>Topic 7.h: Further Node and Express: Routers and Middleware</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 7: Session Variables and Login Systems</h1>
+<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
+<!--
+<h1>Topic 7: Further Node and Express: Routers and Middleware</h1>
 </div>
-<p>Today we will take a look at <em>session variables</em> and how we can use them in Node.js. We will also look at how we can make use of session variables when developing <em>login systems</em>.</p>
-<h2>Cookies</h2>
-<p>Before looking at session variables, we will quickly take a look at
-<em>cookies</em>. You may have come across cookies before: they are data saved
-on your machine by a website when you visit it. They are stored in an area of
-your machine known as the <em>cookie jar</em> and are sent to your browser
-embedded within the HTTP response. Next time you visit the site, the cookie is
-sent back to the site via the HTTP request, and thus the site can "remember"
-data saved by it at the time of the last visit. Cookies can be used for various
-things, both benign and controversial. For example:
-    <ul>
-    <li>They can be used to save preferences, such as language, colour scheme
-    or font size;</li>
-    <li>They can be used to remember your username, so you do not have to
-    fill in the username field next time you login;</li>
-    <li>Slightly more controversially, they can be used by advertising networks
-    to provide appropriate adverts based on what pages you visit;</li>
-    <li>Most controversially of all, and most would say unethically, cookies
-    can be used to build a profile of what kind of person you are including such things as personality type and political persuasions (based on sites you visit, things you search for, your comments on social media, etc), which can be exploited in such things as election campaigns and referenda. For example it is likely that cookies played a part in the Cambridge Analytica scandal.</li>
-    </ul>
-</p>
-<p>Consequently a user needs to be careful with cookies. It is now law that a site which uses cookies for non-essential purposes must allow the user to turn such cookies off, and this functionality must be clearly visible to the user.</p>
-<p>The diagram below shows how cookies work:
-<br />
-<img src="../images/cookies.png" alt="Cookies" />
-</p>
-<h2>Session variables</h2>
-<p>Having looked briefly at cookies, we will now start to look at <em>session variables</em>.</p>
+This week we will look at
 <ul>
-<li>Special variables used to <em>maintain state</em>, i.e. preserve information between successive HTTP requests</li>
-<li>Unlike cookies, they are stored <em>server side</em> - typically in a database
-    <ul>
-    <li>... and are thus more secure than using cookies, which are stored 
-    locally in the cookie jar on the hard drive</li>
-    </ul>
-</li>
+<li>Using Node <em>modules</em> from an Express application;</li>
+<li>Using the Express <em>router</em> to organise and group routes;</li>
+<li>Using <em>middleware</em> to intercept requests before they are processed by routes, and therefore perform <em>pre-processing tasks</em>.</li>
 </ul>
-<h3>What is a session?</h3>
-<ul>
-<li>A session is a <em>continuous period of interaction between a user and
-a website</em></li>
-<li>The session ends typically ends after a specified period of inactivity, in which the user is not interacting with the website (this is configurable)</li>
-<li>Session variables remain accessible throughout a session</li>
-<li>... but are destroyed when a session ends</li>
-<li>So unlike cookies, session variables cannot be used to save data 
-between <em>separate</em> visits to a website...</li>
-<li>... but only throughout a <em>single</em> visit to a website</li>
-</ul>
-<h3>Using session variables in server-side coding</h3>
-<ul>
-<li>Session variables can be used in any scenario where we want to preserve
-information from page to page</li>
-<li>Common uses of session variables:
-    <ul>
-    <li><em>Login system:</em> - use a session variable to remember the
-    currently logged-in user</li>
-    <li><em>Shopping basket:</em> - on an e-commerce site, store the shopping
-    basket in a session variable so that it can be remembered across all the
-    pages of the site</li>
-    </ul>
-</li>
-</ul>
-<h2>How sessions work: Multiple clients, one session variable</h2>
-<ul>
-<li>We are now going to look at how sessions work "under the hood"</li>
-<li>Remember that session variables are stored on the <em>server</em> - typically in a database</li>
-<li>Imagine a cinema booking website, which uses session variables called <em>film</em> and <em>date</em> to store the user's chosen film, and the date they want to see it. What if more than one user was using the website at the same time? How would the website distinguish between the values of these session variables for different users?</li>
-</ul>
-<h3>Session IDs</h3>
-<ul>
-<li>Each client which connects to the server is given a unique
-<em>session ID</em> number</li>
-<li>On the server, the same session variable from different clients is
-distinguished by the session ID and stored as different entries in the 
-database</li>    
-<li>The session ID is normally stored on the client as a <em>cookie</em>
-(more on that below)</li>
-<li>See the diagram below</li>
-</ul>
-<br />
-<img src="../images/session_multiple_clients.png" alt="The use of session IDs for  distinguishing between clients"/>
-<br/>
-<h3>Session cookies</h3>
-<ul>
-<li>Usually,
-when a session variable is first used, the session ID is sent to the client
-in the HTTP header of hte response as a cookie (the <em>session cookie</em>). You can see this by inspecting the HTTP headers of the response in RESTer.</li>
-<li>When a session variable is used in a later page, the server retrieves
-the session cookie (containing the session ID) from the HTTP request and uses 
-it to obtain the correct value for the session variable for <em>that</em> user</li>
-<li><em>The data itself is <strong>NOT</strong> stored as a cookie, only the
-session ID is!</em></li>
-<li>The session cookie expires when the user closes the browser</li>
-</ul>
-<h3>How a session is maintained</h3>
-<img src="../images/sessions_routes.png" alt="How a session is maintained"/> 
-<br/>
-<h2>Using sessions in node.js</h2>
-<h3>Introduction</h3>
-<p>Most server-side technologies can use session variables. Some technologies, such as PHP, come with session variables enabled by default as part of the core distribution. With node.js, we have to use a third-party <em>module</em> depending on which server framework we are using. With Express, the usual module is <code>express-session</code> which can be installed in the normal way:
-<pre>npm install express-session</pre>
-<code>express-session</code> will create session cookies and send them back to the client automatically, and also retrieve session cookies from clients and use them to work out the correct session variables for that user. <code>express-session</code> will store session data in a <em>session store</em>. You can configure <code>express-session</code> to tell it which session store to use. By default, it uses an in-memory store, but this is regarded as insecure. Instead, it is better to use whichever database you are using to store the session data, which in our case will be MySQL. So we will need to install the <code>express-mysql-session</code> module:
-<pre>npm install express-mysql-session</pre>
-The module will store the data in a table called <code>sessions</code> by default, which you might want to look at to see exactly how the session data is stored. Each entry in <code>sessions</code> contains a JSON object with the session ID plus the values of the session variables themselves.</p>
-<h3>Requiring and setting up the modules</h3>
-<p>This code demonstrates how we can require and setup the <code>express-session</code> and <code>express-mysql-session</code> modules. First we require the two modules:
+
+<h2>Modules</h2>
+<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes.</p>
+<p>To do this, you need to be familiar with the concept of <em>modules</em>, so we will cover this first.</p>
+
+<h3>Writing a custom module to easily connect to MySQL</h3>
+
+<p>The examples from <a href='topic2.html'>topic 2</a>  show a potential issue with using the Node MySQL module: it's callback based (if you do not use the promise based version), so the code ends up relatively complex.  This means that, to integrate MySQL into an Express application, you'd need to connect to MySQL first and then put your Express code in the MySQL connection callback. This makes your code perhaps rather messy and convoluted. A better approach is to <em>create your own Node module</em> and put the connection code in that. Here is an example:
 <pre>
-const expressSession = require('express-session');
-const MySQLStore = require('express-mysql-session')(expressSession);
-</pre>
-Note how we have to pass in the <code>expressSession</code> object as an argument to the <code>require()</code> for <code>express-mysql-session</code>.</p>
-<p>Then we create a MySQL session store object:
-<pre>
-// require mysql connection from external module, as per last week
-const con = require('./conn'); 
+// File - mysqlconn.js
+const mysql = require('mysql2');
 
-// use connection to create the session store. Note we have to use the connection in promise-based mode
-const sessionStore = new MySQLStore({ } , con.promise());
-</pre>
-Note how we create the MySQL session store using our existing connection. We have to use the connection in promise-based mode for the session store to work correctly.</p>
-<p>Once we have created the session store, we can initialise the Express session object itself. You have to specify quite a few options: these are summarised in the comments accompanying the code and explained in more detail on the <a href='https://npmjs.com/package/express-session'>NPM page</a> for the module. The options below should be good for use with the MySQL session store and common web applications.</p>
-<pre>
-app.use(expressSession({
-    <span class='comment'>// Specify the session store to be used.</span>
-    store: sessionStore, 
+const con = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        database: 'mysql'});
 
-    <span class='comment'>// a secret used to digitally sign session cookie, use something unguessable (e.g. random bytes as hex) in a real application.</span>
-    secret: 'BinnieAndClyde', 
-
-    <span class='comment'>// use as recommended by your chosen session store - related to internals of how session stores work</span>
-    resave: false, 
-
-    <span class='comment'>// save session to store before modification</span>
-    saveUninitialized: false, 
-
-    <span class='comment'>// reset cookie for every HTTP response. The cookie expiration time will be reset, to 'maxAge' milliseconds beyond the time of the response. 
-    // Thus, the session cookie will expire after 10 mins of *inactivity* (no HTTP request made and consequently no response sent) when 'rolling' is true.
-    // If 'rolling' is false, the session cookie would expire after 10 minutes even if the user was interacting with the site, which would be very
-    // annoying - so true is the sensible setting.</span>
-    rolling: true, 
-
-    <span class='comment'>// destroy session (remove it from the data store) when it is set to null, deleted etc</span>
-    unset: 'destroy', 
-
-    <span class='comment'>// useful if using a proxy to access your server, as you will probably be doing in a production environment: this allows the session cookie to pass through the proxy</span>
-    proxy: true, 
-
-    <span class='comment'>// properties of session cookie</span>
-    cookie: { 
-        maxAge: 600000, <span class='comment'>// 600000 ms = 10 mins expiry time</span>
-        httpOnly: false <span class='comment'>// allow client-side code to access the cookie, otherwise it's kept to the HTTP messages</span>
+con.connect( err=&gt; {
+    if(err) {
+        console.log(err);
+        process.exit(1); // exit the server
+    } else { 
+        console.log('connected to mysql ok');
     }
-}));
+});
+    
+<em>module.exports = con;</em>
+</pre>
+Note how we have created a file <em>mysqlconn.js</em> which connects to
+the database. Note the final line as this is key:
+<pre>module.exports=con;</pre>
+This <em>exports</em> the variable <em>con</em> (representing the connection)
+to the outside world. This is how we can define a Node module; write some
+code and then <em>export</em> an object to the outside world.</p>
+<p>To use our custom module in our Express application, we use 
+<em>require()</em> in the same way that we imported third-party modules:
+<pre>const con = <em>require('./mysqlconn');</em></pre>
+The variable <em>con</em> will represent our MySQL connection. Note how
+it's set equal to the return value of <em>require()</em>; this will be
+whatever was exported from our module. Also note the module name
+<em>./mysqlconn</em> and how this corresponds to the module filename
+<em>mysqlconn.js</em>; the <em>./</em> means the current folder.</p>
+<p>You might be thinking that a problem with that approach is: if the database connection is asynchronous, what if a user tries to do a query before the connection has succeeded? You need to remember, though, that the Express server is running <em>continuously</em>, and the connection will be made <em>as soon as the Express server starts up</em> (which will only happen if the server admin needs to shut down and restart the server for any reason). So a user would literally have to make a request in the first two or three seconds of the server running for this error to occur.</p>
+
+<h3>Using a module to define your routes</h3>
+<p>In a larger application, you will quickly find that your main Express file (often <code>app.js</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.js</em>) which we would save in our <em>routes</em> folder:
+<pre>
+// routes/product.js 
+
+const express = require('express');
+const productRouter = express.Router();
+
+productRouter.get('/all', (req,res)=&gt; {
+    // code to return all products
+});
+
+productRouter.get('/id/:id', (req,res)=&gt; {
+    // code to find the product with the given ID
+});
+
+module.exports = productRouter; // export the module for external use
+</pre>
+Then, in your main Express app, you could <em>use</em> the router as
+follows:
+<pre>
+const express = require('express');
+const app = express();
+
+// Import our product router module which we created above
+const productRouter = require('./routes/product');
+
+// Tell the app to use productRouter for all routes beginning with /products
+// As we are using "use()", the router is acting as a middleware - see below
+app.use('/products', productRouter);
+app.listen(3000);
+</pre>
+So the song router is imported from the <em>routes/product</em> module
+(corresponding to routes/product.js) and then we call <em>use()</em> 
+with two arguments:
+    <ul>
+    <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
+    <li>The router object itself.</li>
+    </ul>
+So, the route <code>/products/all</code> will be handled via the product 
+router (as the route begins with <code>/products</code>) and then via the <code>/all</code> route within the <code>products</code> router.</p>
+
+<h2>Middleware</h2>
+
+<p>Express uses the concept of <em>middleware</em>. Middleware in 
+the context of web APIs consists of code which runs before a request is handled,
+which can modify the <em>req</em> and <em>res</em> objects. It is typically
+used to prepare the request before it's handled, or intercept requests to perform operations such as logging. <code>express.json()</code>, which you have already seen, is actually middleware. It parses JSON from the body of the incoming HTTP request and adds a <em>body</em> property to the <em>req</em> object allowing you to easily access POST data. Without the middleware, the <em>body</em> property of <em>req</em> would not exist.</p>
+<p>Middleware is included with the <code>use()</code> method of your <code>app
+</code> object, or with <code>get()</code> and <code>post()</code> if you only want a certain piece of middleware to run with GET and POST requests, respectively. Revisiting the use of <code>express.json()</code>, note how it is included with <code>use()</code>:
+<pre>app.use(express.json());</pre>
+<code>express.json()</code> is a function that returns middleware to parse JSON in the request body.
+</p>
+<h3>Writing our own middleware</h3>
+<p>You will frequently want to write <em>your own middleware</em>. A piece of middleware is simply a function which takes three parameters - described below - and can examine the request or modify the request and/or the response. The three parameters taken by a middleware function are:
+    <ul>
+    <li>the request object (typically called <code>req</code>);</li>
+    <li>the response object (typically called <code>res</code>);</li>
+    <li>the next function in the middleware chain (see below; typically called <code>next</code>).</li>
+    </ul>
+We write our middleware function and then <code>use()</code> it from our Express application object.</p>
+<p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request.
+<pre>
+const express = require('express');
+const app = express();
+
+app.use( (req,res,next) =&gt; {
+    console.log(`Received a request at ${Date.now()} milliseconds.`);
+    next();
+});
+
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+app.listen(3000);
+</pre>
+Note how <em>use()</em> expects a function which takes request and response
+as parameters, the same as the route handlers, as well as <code>next</code>. This example writes a message to the console informing the user of the time of the request.</p>
+<p>Notice the call to the <em>next();</em> function (also passed as a
+parameter to use()). This calls the next function in the middleware chain.
+What do we mean by this? It is important to note that we can <em>specify multiple items of middleware via multiple <code>use()</code> calls</em>. Each item of middleware is called in the order it is specified, as long as <code>next()</code> is called from the previous item. So, if another middleware function is specified after this one, it will be called with <code>next()</code>. If there is no middleware after this one, the route handler itself will be called with <code>next()</code>.</p>
+<p>The diagram below shows how the request can pass through multiple items of
+middleware before reaching the route handler:
+<br />
+<img src="../images/middleware.png" alt="Multiple items of middleware" />
+</p>
+<h3>Another example - CORS</h3>
+<p>Here is a second example (snippet only, not the whole server) which adds a <a href='topic3.html#cors'>CORS</a> header to all responses to allow clients from any domain to connect. In this example, the middleware will be added as a custom function which will allow any client to connect to this server.
+<pre>
+app.use((req, res, next) =&gt; {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+}
+</pre> 
+Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
+<h3>Writing middleware as a separate function in a module</h3>
+<p>Furthermore, we can write the middleware as a separate function, rather than an arrow function, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. The advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
+<pre>
+// corsMiddleware.js
+function corsMiddleware(req, res, next) {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+}
+
+module.exports = corsMiddleware;
+</pre>
+We could then <code>require()</code> this from our main server, and <code>use()</code> it, as follows:
+<pre>const express = require('express');
+const app = express();
+
+// Require the middleware module
+const corsMiddleware = require('./corsMiddleware');
+
+// use() it
+app.use(corsMiddleware);
+
+// Routes
+app.get('/', ...);
+
+// etc
+
+app.listen(3000);</pre>
+</p>
+
+
+<h3>Middleware with specific routes</h3>
+<p>We can use routes to specify that a given middleware will only
+run before handling <em>a particular route</em>. This can be useful as,
+we might want certain middleware to only run in response to certain
+requests.  We do this by supplying an optional first argument to <em>use()</em> to specify which routes will run this middleware. For example,
+the middleware below (showing the time of the request once again)
+will only run with a route of <em>search</em> followed by a search term:
+<pre>
+const express = require('express');
+const app = express();
+
+// Note that middleware only runs with /search/:query route
+app.use( '/search/:query', (req,res,next) =&gt; {
+    console.log(`Received a request for /search at ${Date.now()} milliseconds.`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called
+app.get('/search/:query', (req,res) =&gt; {
+    res.send(`Searching for ${req.params.query}...`);
+});
+
+app.listen(3000);
 </pre>
 </p>
-<p>The code above will set up the session using the given session store. Note how <code>expressSession()</code> returns a <em>middleware</em> function which sets up the session, which is then used by the application.</p>
-<p>However, how do we actually <em>store data in session variables?</em>. We can use the object <code>req.session</code>, which is setup as soon as you have initialised your session as above. For example, we could use code such as:
-<code>req.session.name = 'Fred Smith';</code>
-to setup a session variable called <code>name</code>. This session variable could then be used by all subsequent requests, until the session is deleted. To end a session, we can set the session to <code>null</code> which, as described in the comments above, will destroy the session and remove it from the database:
-<code>req.session = null;</code>
-</p>
-<p>Here is an example of a MuSQL session store. Two users logged in to the system (John Stevenson and Kate Palmer) and for each, a session was created. The screenshot below shows the sessions table being queried twice (from the MySQL command-line client), once after John Stevenson logged in and again after Kate Palmer logged in. When a user logs in, their username is stored in a session variable (see below). Note how, as a result, each user has an entry in the sessions table.
-<br />
-<img src="../images/sessions_in_db.png" alt="Session data stored in a MySQL databasse" />
-</p>
-<h3>Session variables and Authentication</h3>
-<p>A common use of session variables is in site <em>authentication</em>.
-In authentication, the user must enter a username and password to gain acces
-to the site. What happens is as follows:
-    <ul>
-    <li>An authentication route tests that the user entered a valid username and
-    password on a web form</li>
-    <li>If they did, we store the username in a session variable, e.g. <code>req.session.username</code></li> 
-    <li>We protect any routes which we want to restrict access to logged in users by writing a piece of middleware which checks for the existence of this session variable.Thus, such routes are "locked out" to unauthorised users</li>
-    <li>We then write a logout route which sets <code>req.session</code> to <code>null</code>, as described above, thus terminating the session.</li>
-    </ul>
-</p>
-<p>Here is some code (an extract from a full server) which will actually do this. Note that we have three routes and one piece of 'checking' middleware.
+<h3>Middleware with specific HTTP methods</h3>
+<p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
 <pre>
-<span class='comment'>// Login route</span>
-app.post('/login', (req, res) =&gt; {
-        if(req.body.username == 'SimonSmith' &amp;&amp; req.body.password == 'secret' ) {
-            req.session.username = req.body.username; 
-            res.json({success: 1});
-        } else {
-            res.status(401).json({error: "Incorrect login!"});
-        } 
+const express = require('express');
+const app = express();
+
+// This middleware will only run with POST requests, due to the use of
+// app.post() rather than app.use()
+// * means 'match all', so this middleware will run with all POST requests
+app.post( '*', (req,res,next) =&gt; {
+    console.log(`Received a POST request at ${Date.now()} milliseconds.`);
+    next();
 });
 
-<span class='comment'>// Logout route</span>
-app.post('/logout', (req, res) =&gt; {
-    req.session = null;
-    res.json({'success': 1 });
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
 });
 
-<span class='comment'>// 'GET' login route - useful for clients to obtain currently logged in user</span>
-app.get('/login', (req, res) =&gt; {
-    res.json({username: req.session.username || null} );
+// Middleware called, because it uses post()
+app.post('/product/new', (req,res) =&gt; {
+    // Code to add a product to the database
 });
 
-<span class='comment'>// Middleware which protects any routes using POST or DELETE from access by users who are are not logged in</span>
-app.use( (req, res, next) =&gt; {
-    if(["POST", "DELETE"].indexOf(req.method) == -1) {
-        next();
-    } else {
-        if(req.session.username) { 
+app.listen(3000);
+</pre>
+</p>
+<h3>Using multiple middleware with one statement</h3>
+<p>You can use multiple items of middleware in <em>one</em> <code>use()</code>, <code>get()</code> or <code>post()</code> call. You specify each middleware function as a successive parameter, so that the syntax is:
+<pre>
+app.use('/route', middleware1, middleware2, middleware3...);
+</pre>
+So, for example:
+<pre>
+app.use( '/testroute', (req, res, next) =&gt; {
+            console.log('Running middleware 1')
             next();
-        } else {
-            res.status(401).json({error: "You're not logged in. Go away!"});
-        }
+        },
+         (req, res, next) =&gt; {
+            console.log('Running middleware 2')
+            next();
+        } 
+);
+</pre>
+In this example, all requests to <code>/testroute</code> will be intercepted by <em>both</em> specified middleware functions, and both messages will be displayed on the console, in order (the first specified function will run first).</p>
+<h3>Using middleware to prevent access to a route under certain conditions</h3>
+<p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. In the example below, the middleware handling the <code>/christmasSurprise</code> route tests whether it's December. If it is, then the <code>/christmasSurprise</code> route is called with <code>next()</code>. if not, the user is told to come back when it's Christmas!
+<pre>
+const express = require('express');
+const app = express();
+
+// Christmas checker middleware: is it December?
+app.use('/christmasSurprise', (req, res, next) =&gt; {
+    // Create an object representing today's date
+    const d = new Date();
+
+    // Get the current month, note that d.getMonth() gives a month in the range
+    // 0-11 so we have to add one to get the normal numbering (1-12)
+    const month = d.getMonth() + 1;
+
+    // If it's December, let the client access the route
+    if (month == 12) {
+        next();
+    // If not, tell them to come back later!
+    } else {
+        res.send(`It's not Christmas yet, come back in ${12 - month} months!`); 
     }
 });
+
+// Christmas surprise route, "guarded" by the middleware above
+app.get('/christmasSurprise', (req, res) =&gt; {
+    const html = "&lt;h1&gt;HERE IS YOUR CHRISTMAS SURPRISE!&lt;/h1&gt; ... etc ...";
+    res.send(html);
+});
+
+app.listen(3000);
 </pre>
-What do these routes do?
-    <ul>
-    <li>Firstly the <code>/login</code> <code>POST</code> route checks the <code>POST</code> data sent to it, specifically the <code>username</code> and <code>password</code> fields. Here, it simply checks that they are equal to <em>SimonSmith</em> and <em>secret</em> respectively. If the details are correct, the supplied username is stored in a session variable (<code>req.body.username</code>). This is a deliberately simple example: in a more realistic example it would need to check the username and password are in the users table in the database.</li>
-    <li>Next, the <code>/logout</code> route sets <code>req.session</code> to null and in doing so, removes the session from the session store. This will mean that <code>req.session.username</code> will no longer exist.</li>
-    <li>The next route is the <code>/login</code> <code>GET</code> route. This returns the currently logged-in user within a JSON object, or <code>null</code> if a user is not logged in. This can be used by clients (e.g. AJAX front ends) to display the currently logged-in user in the UI.</li>
-    <li>Finally, we have some middleware which is used to prevent access to routes with a method of <code>POST</code> or <code>DELETE</code> if the user is not logged in. To explain this:
-    <ul>
-    <li> The first thing we do is check whether the method of the request (<code>req.method</code>) is contained within the array <code>["POST", "DELETE"]</code>, i.e. we check whether the method is either <code>POST</code> or <code>DELETE</code>. We use <code>indexOf()</code> to do this, which returns the position of an element within an array, or -1 if it is not in the array.</li>
-    <li>So <code>indexOf()</code> will return 0 for <code>POST</code>, 1 for <code>DELETE</code> or -1 for any other method (such as <code>GET</code>).</li>
-    <li>So, if the value is -1 (the method is not <code>POST</code> or <code>DELETE</code>), we just call <code>next()</code> to forward the user on to the route without checking if they're logged in. Otherwise, we check whether <code>req.session.username</code> exists (i.e. whether the user is logged in) and either call <code>next()</code> (if it does exist) or return a 401 Unauthorized error and appropriate error message (if it does not).</li>
-    </ul>
-    </li>
-    </ul>
 </p>
-<h2 id='hashing'>Password hashing</h2>
-<p>For additional security, ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this. For example, to hash (encode) a password when signing up:
-<pre>const encPass = await bcrypt.hash(pass, 10);</pre>
-The 10 is the number of rounds of encoding to use; 10 is a good compromise between security and performance as each round improves the security of the encoding but takes some time to execute. <br />
-To check a password when logging in, use code such as the following. Query the database to find the row for a given user, and then use <code>bcrypt.compare()</code> to compare the password entered against the hashed password in the table:
-<pre>const dbres = this.db.query('SELECT * FROM users WHERE username=?',
-    [req.body.username],
-    async(err, results, fields) =&gt;{
-        if(results.length == 1) {
-            const match = await bcrypt.compare(req.body.password, results[0].password);
-            if(match === false) {
-                // passwords don't match
-            } else {
-                // passwords do match, carry on...
-            }
-        } else {
-            // ... no results ...
-        }
-    }
-);</pre>
-See <a href='https://www.npmjs.com/package/bcrypt'>here</a> for more details.
-</p>
-<h2>Exercise</h2>
-<h3>Essential questions</h3>
-<ol>
-<li>Add code to initialise <code>express-session</code> and <code>express-mysql-session</code> on your Express server, as shown above.</li>
-<li>Add the three routes in the example above (<code>/login</code> GET, <code>/login</code> POST and <code>/logout</code>), as well as the session-checking middleware, to your Express server. You should make one important change: <em>the <code>/login</code> POST route should check whether the username and password are contained within the <code>ht_users</code> table</em>, rather than just checking for a hard-coded username and password. To do this, perform your query and then check that the number of rows returned is one by checking the length of the <code>results</code> array, for example:
+<h2>dotenv - Environment variables</h2>
+<p>Finally this week we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. Examples of such variables might include database name, username and password. This also has a security advantage: by adding private data to your <code>.env</code> it means that you can keep information such as passwords outside your source code, and publish your code to GitHub or another repository without giving away such information.</p>
+<p><code>dotenv</code> is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
+<pre>npm install dotenv</pre>
+You then <code>require()</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
 <pre>
-if(results.length == 1) {
-    res.json({"username": req.body.username});
+const express = require('express');
+const app = express();
+<em>require('dotenv').config();</em>
+</pre>
+Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
+<pre>
+DB_HOST=localhost
+DB_USER=root
+DB_DBASE=mysql
+</pre>
+We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example:
+<pre>
+const con = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_DBASE
+});
+</pre>
+It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
+<hr />
+<h2>Exercise</h2>
+<p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
+<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-5 before attempting it. Please ensure that you have completed last week (Week 5) first, and also the standard exercises for Weeks 1-4.</p>
+<ol>
+<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference. As shown in the first example, create a separate module to connect to your MySQL database, and <code>require()</code> it from the new <em>copy</em> of your server. <strong>You should use the non-promise version of your database connection code for this.</strong></li>
+<li>Available <a href='ht_users.sql'>here</a> is an SQL file to create and populate a <code>ht_users</code> table with data about users. Download it and import it into your database.</li>
+<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.js</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
+    <ul>
+    <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
+    <li>a <code>/user/:username</code> route which returns details of a specific user, identified by username.</li>
+    </ul>
+</li>
+<li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
+<li>Test it out by trying out the following in your browser (type in the URL directly, do not access from AJAX):
+    <ul>
+    <li>List all users;</li>
+    <li>Look up a user by username.</li>
+    </ul>
+</li>
+<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.js</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
+<li>Install <code>dotenv</code> and <code>require()</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
+<pre>
+if(process.env.APP_USER === undefined) {
+    // process.env.APP_USER does not exist (it's undefined)
+    // Return a 401 (Unauthorized) HTTP code, with a JSON error message
+    res.status(401).json({error: "You're not logged in. Go away!"});
 } else {
-    // ...
+    // username exists, carry on...
 }
 </pre>
-This code will also return the username as JSON back to the client if the login was successful, which will allow the client to display a <code>Logged in as ...</code> message.</li>
-<li>Run through this process in RESTer to check that it all works:
-    <ul>
-    <li>Send a POST request to your <code>/login</code> route with an appropriate username and password from the <code>ht_users</code> table. <strong>Look at the HTTP response</strong>; you should find that a session cookie is contained within it.</li>
-    <li>Send a DELETE request to your route which deletes a song with a given ID. It should be successful. Look again at the HTTP response; the session cookie should still be there, and will be there until the session is destroyed.</li>
-    <li>Send a POST request to your <code>/logout</code> route. This should log you out; look at the HTTP response again and you should find the session ID is no longer there.</li>
-    <li>Send another DELETE request to your delete song route. You should now be unable to do so.</li>
-    </ul>
+Test this out by first trying to access a <code>POST</code> route without creating a <code>.env</code> file. Test this out in RESTer; you should get a 401 error and the "Go away" message as a response. Then, create a <code>.env</code> file with a <code>username</code> environment variable. The username can be anything, for example:
+<pre>APP_USER=AdamAdams</pre>
+You should now be able to access your POST route.
 </li>
-<li>Now start to add login functionality to your AJAX front end. Create a <code>&lt;div&gt;</code> containing a login form, with username and password fields and a "Login" button. When the button is clicked, send a request to your <code>/login</code> POST route to log the user in. Check the HTTP code sent back from the server (via <code>response.status</code>). If it's 200, replace the contents of the login &lt;div&gt; with a message 'Logged in as ...' containing the username. Use <code>innerHTML</code> for this. Otherwise display an error via an alert box.</li>
-<li>Modify the "buy" functionality (week 6) so that if a 401 is returned from the <code>buy</code> route, an error message telling the user they're not logged in should appear as an alert box. Test it by trying to buy music before the user is logged in (it should not work) and then after they've logged in (it should work).</li>
+<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>require()</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
+<li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists in <code>.env</code>. Use the same middleware for this.</li>
+<li><strong>Advanced question:</strong> Modify your answer to the previous question so that, if the <code>/users</code> group of routes is requested, the middleware checks that the <code>APP_USER</code> username is <em>actually in the database</em> (use a SELECT statement to do this) and that the value of the <code>isadmin</code> column of this user is 1. In this way, only admin users can access the <code>/users</code> routes which, for data protection reasons, is probably a good idea!</li>
 </ol>
-<h3>More advanced questions</h3>
-<ol>
-<li>Enhance your login system so that you have "Logout" functionality, and also modify your code so that if the user reloads the page, the "Logged in as ..." message remains present. To do this: 
-    <ul>
-    <li>When a user has logged in, add a button to the "Logged in as..." message which appears in the &lt;div&gt;. You can do this simply by adding the button HTML to the <code>innerHTML</code> text (or, if you are feeling ambitious, use the DOM). Ensure this button has an ID, so that you can attach an event listener to it. For example:
-<pre>document.getElementById(...).innerHTML = `Logged in as ... &lt;input type='button' value='Logout' id='logoutBtn' /&gt;`</pre>
-</li>
-    <li>On the next line of code, use <code>document.getElementById()</code> and <code>addEventListener()</code> to add a "click" event to this button so that the user is logged out by calling the <code>/logout</code> route. Once logged out, your should re-fill the login &lt;div&gt; with the original login form (use <code>innerHTML</code> for this, similar to the example in the previous question; note you will need to connect the 'Login' button to an event listener to handle login).</li>
-    <li><strong>If the user reloads the page, you want the "Logged in as ..." message to remain present. This question allows you to do this.</strong> At the start of your client-side JavaScript, call the <code>/login</code> GET route of your web server to determine if the user is logged in or not. If they are, the <code>username</code> field of the JSON returned will be non-null. If the username is non-null, display the "Logged in as... " message with the Logout button, and add the event listener to the Logout button, as in the earlier question. If not, display the login form, ensuring you continue to add an event listener to the Login button.</li>
-    </ul>
-</li>
-<li>Add a signup route to your server, allowing the user to sign up. Use <code>bcrypt</code> to encode the password. Then, change your login route to use <code>bcrypt</code>. Test by using RESTer, or, alternatively, add an AJAX-based signup facility to your HTML page.</li>
-</ol>
-<h3>Other things to try</h3>
-<ul>
-    <li>Modify your <code>buy</code> route so that the balance of the currently logged-in user is reduced by 0.79 when they buy a song.</li>
-</ul>
-
-</body></html>
-
-
+-->
+</body>
+</html>

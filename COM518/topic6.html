@@ -1,360 +1,414 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-<title>Topic 6: Further Node and Express: Routers and Middleware</title>
+<title>Topic 6: Web Mapping with OpenStreetMap and Leaflet</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 6: Further Node and Express: Routers and Middleware</h1>
+<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
+<!--
+<h1>Topic 6: Web Mapping with OpenStreetMap and Leaflet</h1>
 </div>
-This week we will look at
-<ul>
-<li>Using Node <em>modules</em> from an Express application;</li>
-<li>Using the Express <em>router</em> to organise and group routes;</li>
-<li>Using <em>middleware</em> to intercept requests before they are processed by routes, and therefore perform <em>pre-processing tasks</em>.</li>
-</ul>
-
-<h2>Modules</h2>
-<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes.</p>
-<p>To do this, you need to be familiar with the concept of <em>modules</em>, so we will cover this first.</p>
-
-<h3>Writing a custom module to easily connect to MySQL</h3>
-
-<p>The examples from <a href='topic2.html'>topic 2</a>  show a potential issue with using the Node MySQL module: it's callback based (if you do not use the promise based version), so the code ends up relatively complex.  This means that, to integrate MySQL into an Express application, you'd need to connect to MySQL first and then put your Express code in the MySQL connection callback. This makes your code perhaps rather messy and convoluted. A better approach is to <em>create your own Node module</em> and put the connection code in that. Here is an example:
-<pre>
-// File - mysqlconn.js
-const mysql = require('mysql2');
-
-const con = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        database: 'mysql'});
-
-con.connect( err=&gt; {
-    if(err) {
-        console.log(err);
-        process.exit(1); // exit the server
-    } else { 
-        console.log('connected to mysql ok');
-    }
-});
-    
-<em>module.exports = con;</em>
-</pre>
-Note how we have created a file <em>mysqlconn.js</em> which connects to
-the database. Note the final line as this is key:
-<pre>module.exports=con;</pre>
-This <em>exports</em> the variable <em>con</em> (representing the connection)
-to the outside world. This is how we can define a Node module; write some
-code and then <em>export</em> an object to the outside world.</p>
-<p>To use our custom module in our Express application, we use 
-<em>require()</em> in the same way that we imported third-party modules:
-<pre>const con = <em>require('./mysqlconn');</em></pre>
-The variable <em>con</em> will represent our MySQL connection. Note how
-it's set equal to the return value of <em>require()</em>; this will be
-whatever was exported from our module. Also note the module name
-<em>./mysqlconn</em> and how this corresponds to the module filename
-<em>mysqlconn.js</em>; the <em>./</em> means the current folder.</p>
-<p>You might be thinking that a problem with that approach is: if the database connection is asynchronous, what if a user tries to do a query before the connection has succeeded? You need to remember, though, that the Express server is running <em>continuously</em>, and the connection will be made <em>as soon as the Express server starts up</em> (which will only happen if the server admin needs to shut down and restart the server for any reason). So a user would literally have to make a request in the first two or three seconds of the server running for this error to occur.</p>
-
-<h3>Using a module to define your routes</h3>
-<p>In a larger application, you will quickly find that your main Express file (often <code>app.js</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.js</em>) which we would save in our <em>routes</em> folder:
-<pre>
-// routes/product.js 
-
-const express = require('express');
-const productRouter = express.Router();
-
-productRouter.get('/all', (req,res)=&gt; {
-    // code to return all products
-});
-
-productRouter.get('/id/:id', (req,res)=&gt; {
-    // code to find the product with the given ID
-});
-
-module.exports = productRouter; // export the module for external use
-</pre>
-Then, in your main Express app, you could <em>use</em> the router as
-follows:
-<pre>
-const express = require('express');
-const app = express();
-
-// Import our product router module which we created above
-const productRouter = require('./routes/product');
-
-// Tell the app to use productRouter for all routes beginning with /products
-// As we are using "use()", the router is acting as a middleware - see below
-app.use('/products', productRouter);
-app.listen(3000);
-</pre>
-So the song router is imported from the <em>routes/product</em> module
-(corresponding to routes/product.js) and then we call <em>use()</em> 
-with two arguments:
-    <ul>
-    <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
-    <li>The router object itself.</li>
-    </ul>
-So, the route <code>/products/all</code> will be handled via the product 
-router (as the route begins with <code>/products</code>) and then via the <code>/all</code> route within the <code>products</code> router.</p>
-
-<h2>Middleware</h2>
-
-<p>Express uses the concept of <em>middleware</em>. Middleware in 
-the context of web APIs consists of code which runs before a request is handled,
-which can modify the <em>req</em> and <em>res</em> objects. It is typically
-used to prepare the request before it's handled, or intercept requests to perform operations such as logging. <code>express.json()</code>, which you have already seen, is actually middleware. It parses JSON from the body of the incoming HTTP request and adds a <em>body</em> property to the <em>req</em> object allowing you to easily access POST data. Without the middleware, the <em>body</em> property of <em>req</em> would not exist.</p>
-<p>Middleware is included with the <code>use()</code> method of your <code>app
-</code> object, or with <code>get()</code> and <code>post()</code> if you only want a certain piece of middleware to run with GET and POST requests, respectively. Revisiting the use of <code>express.json()</code>, note how it is included with <code>use()</code>:
-<pre>app.use(express.json());</pre>
-<code>express.json()</code> is a function that returns middleware to parse JSON in the request body.
-</p>
-<h3>Writing our own middleware</h3>
-<p>You will frequently want to write <em>your own middleware</em>. A piece of middleware is simply a function which takes three parameters - described below - and can examine the request or modify the request and/or the response. The three parameters taken by a middleware function are:
-    <ul>
-    <li>the request object (typically called <code>req</code>);</li>
-    <li>the response object (typically called <code>res</code>);</li>
-    <li>the next function in the middleware chain (see below; typically called <code>next</code>).</li>
-    </ul>
-We write our middleware function and then <code>use()</code> it from our Express application object.</p>
-<p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request.
-<pre>
-const express = require('express');
-const app = express();
-
-app.use( (req,res,next) =&gt; {
-    console.log(`Received a request at ${Date.now()} milliseconds.`);
-    next();
-});
-
-app.get('/', (req,res) =&gt; {
-    res.send(`Hello world!`);
-});
-
-app.listen(3000);
-</pre>
-Note how <em>use()</em> expects a function which takes request and response
-as parameters, the same as the route handlers, as well as <code>next</code>. This example writes a message to the console informing the user of the time of the request.</p>
-<p>Notice the call to the <em>next();</em> function (also passed as a
-parameter to use()). This calls the next function in the middleware chain.
-What do we mean by this? It is important to note that we can <em>specify multiple items of middleware via multiple <code>use()</code> calls</em>. Each item of middleware is called in the order it is specified, as long as <code>next()</code> is called from the previous item. So, if another middleware function is specified after this one, it will be called with <code>next()</code>. If there is no middleware after this one, the route handler itself will be called with <code>next()</code>.</p>
-<p>The diagram below shows how the request can pass through multiple items of
-middleware before reaching the route handler:
+<h2>Introduction</h2>
+<p>Websites and smartphone apps which show maps are very common these days.
+Many such sites use commercial mapping providers such as Google Maps and
+the like. However, such providers place restrictions on their users
+and the maps are often generic and do not show information for specialised
+users such as walkers and cyclists.</p>
+<p><em>OpenStreetMap</em> is a project to produce free, editable maps of
+the entire world. Users can contribute their own mapping data and the
+data can be used for free by anyone; see 
+<a href='http://www.openstreetmap.org'> the OpenStreetMap site</a> for more 
+details. Users typically survey a road or path with a GPS device, such as
+a smartphone, and then draw the road or path on top of their GPS trace
+using editing software.
+The fact that the data is free means that developers can use it
+for their own pruposes, for instance, create their own maps or develop
+routing applications.</p>
+<p><em><a href='http://leafletjs.com'>Leaflet</a></em> 
+is an open-source JavaScript mapping library which
+offers similar functionality to commercial web mapping services such as
+Google Maps. It allows you to embed a "slippy" map into a web page.
+However, unlike these other services, Leaflet can be used to display 
+maps from <em>a whole range</em> of map providers, including, but not 
+restricted to, OpenStreetMap.</p>
+<h2>Latitude and Longitude</h2>
+<p>In order to understand location-based applications, it is important
+to understand the coordinate system used on the earth. The most common
+coordinate system uses <em>latitude and longitude</em>. Latitude is a measure
+of how far north or south you are: the equator is at 0 degrees,
+while the North Pole is at 90 degrees North, we are at about 50 and Spain
+is at about 40. Longitude is a measure of how far east or west you are:
+0 degrees of longitude is referred to as the <em>Prime Meridian</em>
+(or <em>Greenwich Meridian</em>) and passes through Greenwich, London. 
+By contrast Germany is located
+between approximately 7 degrees and 15 degrees East, while New York is at
+74 degrees West and the west coast of North America at approximately 120
+degrees West.</p>
+<p><img src="../images/latlon.png" alt="Latitude and longitude" /></p>
+<p>So a given point on the earth can be defined via its latitude and
+longitude. We are at, approximately, 50.9 North (latitude) and 1.4 West
+(longitude). By convention, latitudes north of the equator and longitudes
+east of Greenwich are treated as positive, so we can also define our
+position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
+<h2>Projections</h2>
+<p>An important consideration when doing web mapping is that
+<em>the earth is not flat</em> (it's more or less a sphere) while
+<em>maps are flat</em>. To display a curved surface on a flat piece
+of paper or computer screen, we need to do a <em>projection</em> and
+mathematically transform the latitude and longitude to coordinates suitable
+for representation on a flat surface. Why is this?
+Imagine any printed map of the earth. The map is equal width everywhere, from
+far northern areas such as Greenland or north Norway, to the equator. This
+does not match reality; since the earth is (more or less) a sphere, 
+the circumference of the earth will be much greater at the equator than 
+those far northern
+areas - indeed, at the poles, the circumference of the earth is zero!</p>
+<p>For this reason, latitude and longitude must be transformed
+to so called <em>projected coordinates</em> if we want to represent them on
+a flat surface, such as a computer screen.  
+The details of exactly how this projection is done is 
+out of scope of this unit, but it is something to be aware of if you aim
+to do more with web mapping. Leaflet makes it easy for us by doing the
+transformation automatically.</p>
+<p>The most common
+projection used with web mapping is informally
+referred to as the "Google Projection" (more formally, a type
+of <em>Spherical Mercator</em>), so called because Google Maps
+popularised it. </p>
+<p><img src="../images/projection.png" 
+alt="Projecting sphere onto flat surface" /></p>
+<h3>Details on the "Google Projection"</h3>
+<p>If you are interested, this is how the "Google Projection" works. It
+consists of a series of <em>zoom levels</em>, with 0 the most zoomed out and
+successive levels progressively zoomed in. How does this work? Basically,
+zoom level 0 is defined as a flat map of the entire world, occupying 
+256x256 pixels, so that 360 degrees of longitude becomes 256 pixels and 
+180 degrees of latitude becomes 256 pixels, as shown below:
 <br />
-<img src="../images/middleware.png" alt="Multiple items of middleware" />
-</p>
-<h3>Another example - CORS</h3>
-<p>Here is a second example (snippet only, not the whole server) which adds a <a href='topic3.html#cors'>CORS</a> header to all responses to allow clients from any domain to connect. In this example, the middleware will be added as a custom function which will allow any client to connect to this server.
+<img src="../images/zoom0.png" alt="Google Projection zoom level 0" /><br />
+Each successive zoom level zooms in by a factor of 2 in
+both directions, so
+that at zoom level 1, there are four 256x256 pixel tiles, each covering
+a quarter of the earth (N of the equator and W of the Prime Meridian;
+N of the equator and E of the Prime Meridian; 
+S of the equator and W of the Prime Meridian and
+S of the equator and E of the Prime Meridian): 
+<br />
+<img src="../images/zoom1.png" alt="Google Projection zoom level 1" /><br />
+With progressive zoom
+levels, we continue zooming in by a factor of 2, so that zoom level 2 has
+16 tiles (4x4), zoom level 3 has 64 (8x8), and so on. Each tile has
+an x and y coordinate where x=0 represents the leftmost column of tiles,
+y=0 represents the topmost row of tiles, and the tile with x=0 y=0 
+represents the top left tile (x=1 y=0 represents the second tile on the
+top row, and so on)</p>
+<p><em>Images from OpenStreetMap, (c) OSM contributors,
+licenced under CC-by-SA (not ODBL as they are old images)</em></p>
+<h2>Some examples</h2>
+<p>We will be using OpenStreetMap as the mapping provider.</p>
+<h3>Hello World in Leaflet</h3>
+<p>This is a basic example which creates a map. First the JavaScript:
 <pre>
-app.use((req, res, next) =&gt; {
-    res.set('Access-Control-Allow-Origin', '*');
-    next();
-}
-</pre> 
-Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
-<h3>Writing middleware as a separate function in a module</h3>
-<p>Furthermore, we can write the middleware as a separate function, rather than an arrow function, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. The advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
-<pre>
-// corsMiddleware.js
-function corsMiddleware(req, res, next) {
-    res.set('Access-Control-Allow-Origin', '*');
-    next();
-}
+const map = L.map ("map1");
 
-module.exports = corsMiddleware;
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+            
+map.setView([50.908,-1.4], 14);
 </pre>
-We could then <code>require()</code> this from our main server, and <code>use()</code> it, as follows:
-<pre>const express = require('express');
-const app = express();
-
-// Require the middleware module
-const corsMiddleware = require('./corsMiddleware');
-
-// use() it
-app.use(corsMiddleware);
-
-// Routes
-app.get('/', ...);
-
-// etc
-
-app.listen(3000);</pre>
-</p>
-
-
-<h3>Middleware with specific routes</h3>
-<p>We can use routes to specify that a given middleware will only
-run before handling <em>a particular route</em>. This can be useful as,
-we might want certain middleware to only run in response to certain
-requests.  We do this by supplying an optional first argument to <em>use()</em> to specify which routes will run this middleware. For example,
-the middleware below (showing the time of the request once again)
-will only run with a route of <em>search</em> followed by a search term:
+Then the HTML:
 <pre>
-const express = require('express');
-const app = express();
-
-// Note that middleware only runs with /search/:query route
-app.use( '/search/:query', (req,res,next) =&gt; {
-    console.log(`Received a request for /search at ${Date.now()} milliseconds.`);
-    next();
-});
-
-// Middleware not called
-app.get('/', (req,res) =&gt; {
-    res.send(`Hello world!`);
-});
-
-// Middleware called
-app.get('/search/:query', (req,res) =&gt; {
-    res.send(`Searching for ${req.params.query}...`);
-});
-
-app.listen(3000);
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Leaflet Example&lt;/title&gt;
+&lt;link rel='stylesheet' href='https://unpkg.com/leaflet@1.7.1/dist/leaflet.css'/&gt;
+&lt;script type='text/javascript' src='https://unpkg.com/leaflet@1.7.1/dist/leaflet.js'&gt;&lt;/script&gt;
+&lt;body&gt;
+&lt;h1&gt;Leaflet Test&lt;/h1&gt;
+&lt;div id="map1" style="width:800px; height:600px"&gt; &lt;/div&gt;
+&lt;script type='text/javascript' src='mapapp.js'&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </pre>
 </p>
-<h3>Middleware with specific HTTP methods</h3>
-<p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
+<p>Note the following:
+    <ul>
+    <li>We link in the Leaflet library (a local copy is on Edward2)
+    as an external JavaScript file.</li> 
+    <li>We also link in the Leaflet CSS file; this is necessary ad
+    Leaflet uses some advanced CSS features.</li>
+    <li>Note how the HTML contains a <em>div</em> with an ID of <em>map1</em>.
+    This will hold our map.</li>
+    <li>Moving onto the JavaScript init() function, where we write our
+    custom code:
+        <ul>
+        <li>We first create a map object (the variable <em>map</em>, an object
+        of type <em>L.Map</em> created with the <em>L.map()</em> method), 
+        and associate it with <em>div1</em>;</li>
+        <li>Next we set up a map <em>layer</em>. Leaflet maps consist of
+        several <em>layers</em>. This allows us, for instance, to overlay, 
+        the locations of points of interest on top of an underlying map.
+        Here, the layer is a <em>TileLayer</em>, a layer of map tiles.
+        The map tiles come from the server <em>tile.openstreetmap.org</em>.
+        The x, y and z in the URL relate to the "Google" tiling scheme,
+        see above; z is the zoom level. Leaflet will automatically work
+        out the correct values to place in here.</li>
+        <li>Having created the layer, we add it to the map
+        (<em>addTo(map)</em>).</li>
+        <li>Finally, we set the latitude and longitude of the centre of the
+        map, here latitude=50.908, longitude=-1.4. We pass the latitude
+        and longitude in as a two-member <em>array</em>.</li>
+        <li>Note how, when we set the centre of the map, we specify the
+        <em>zoom level</em> (see discussion of "Google" tiling scheme,
+        above). 13 and 14 are good ones to start with; try
+        experimenting with different values.</li>
+        </ul>
+    </li>
+    </ul>
+</p>
+<h3>Adding features</h3>
+<p>Most web maps have some kind of <em>overlay</em> on the base map,
+for example a series of markers plotting the locations of pubs, cafes or
+other points of interest. We can even draw vector shapes (lines, polygons,
+circles) and add them to the map. This example creates a map and adds a 
+feature to it:
 <pre>
-const express = require('express');
-const app = express();
 
-// This middleware will only run with POST requests, due to the use of
-// app.post() rather than app.use()
-// * means 'match all', so this middleware will run with all POST requests
-app.post( '*', (req,res,next) =&gt; {
-    console.log(`Received a POST request at ${Date.now()} milliseconds.`);
-    next();
-});
+const map = L.map ("map1");
 
-// Middleware not called
-app.get('/', (req,res) =&gt; {
-    res.send(`Hello world!`);
-});
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
 
-// Middleware called, because it uses post()
-app.post('/product/new', (req,res) =&gt; {
-    // Code to add a product to the database
-});
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
 
-app.listen(3000);
+const pos = [50.908, -1.4];            
+map.setView(pos, 14);
+
+L.marker(pos).addTo(map);
 </pre>
 </p>
-<h3>Using multiple middleware with one statement</h3>
-<p>You can use multiple items of middleware in <em>one</em> <code>use()</code>, <code>get()</code> or <code>post()</code> call. You specify each middleware function as a successive parameter, so that the syntax is:
+<p>Hopefully this code is obvious. We simply create a marker at the
+specified position (<em>L.marker</em> takes an array of two members,
+latitude and longitude), and add it to the map.</p>
+<h3>Events</h3>
+<p>In a mapping application, we commonly need to respond to user 
+<em>events</em>, for instance we might want something to happen if the user
+clicks on the map (such a display a new marker, for instance) or if the user
+finishes dragging the map to a new location 
+(we might want to load markers from a server, for instance). It is easy
+to attach events in Leaflet, here is an example:
 <pre>
-app.use('/route', middleware1, middleware2, middleware3...);
-</pre>
-So, for example:
-<pre>
-app.use( '/testroute', (req, res, next) =&gt; {
-            console.log('Running middleware 1')
-            next();
-        },
-         (req, res, next) =&gt; {
-            console.log('Running middleware 2')
-            next();
-        } 
-);
-</pre>
-In this example, all requests to <code>/testroute</code> will be intercepted by <em>both</em> specified middleware functions, and both messages will be displayed on the console, in order (the first specified function will run first).</p>
-<h3>Using middleware to prevent access to a route under certain conditions</h3>
-<p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. In the example below, the middleware handling the <code>/christmasSurprise</code> route tests whether it's December. If it is, then the <code>/christmasSurprise</code> route is called with <code>next()</code>. if not, the user is told to come back when it's Christmas!
-<pre>
-const express = require('express');
-const app = express();
 
-// Christmas checker middleware: is it December?
-app.use('/christmasSurprise', (req, res, next) =&gt; {
-    // Create an object representing today's date
-    const d = new Date();
+const map = L.map ("map1");
 
-    // Get the current month, note that d.getMonth() gives a month in the range
-    // 0-11 so we have to add one to get the normal numbering (1-12)
-    const month = d.getMonth() + 1;
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
 
-    // If it's December, let the client access the route
-    if (month == 12) {
-        next();
-    // If not, tell them to come back later!
-    } else {
-        res.send(`It's not Christmas yet, come back in ${12 - month} months!`); 
-    }
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+            
+map.setView([50.908, -1.4], 14);
+map.on("click", e =&gt; {
+	// "e.latlng" is an object (of type L.LatLng) representing the mouse click 
+	// position
+	// It has two properties, "lat" is the latitude and "lng" is the longitude.
+	alert(`You clicked at:${e.latlng.lat} ${e.latlng.lng}`);
 });
 
-// Christmas surprise route, "guarded" by the middleware above
-app.get('/christmasSurprise', (req, res) =&gt; {
-    const html = "&lt;h1&gt;HERE IS YOUR CHRISTMAS SURPRISE!&lt;/h1&gt; ... etc ...";
-    res.send(html);
-});
 
-app.listen(3000);
+</pre>
+We use the <em>on()</em> method of the map to attach an event handler to the
+map. The <em>on()</em> method takes two parameters: the event type and
+the event handler function. A full list of event types can be found on the
+<a href="https://leafletjs.com/reference-1.7.1.html#map-event">
+Leaflet website</a>.</p>
+<p>In the event-handling function itself (<em>an arrow function</em>), we use
+the event object <em>e</em> to obtain details about the event (in this case,
+we are interested in the click position). The event object <em>e</em> is
+automatically passed to the event handler function by the Leaflet library.
+The event object has a <em>latlng</em> property, representing the position
+of the mouse click, which is an object of the type <em>L.LatLng</em>. This in 
+turn has two properties, <em>lat</em> and <em>lng</em> representing the actual
+latitude and longitude.</p>
+<h3>Popups</h3>
+<p>One commonly-encountered feature of web mapping is <em>popups</em>, in
+which the user can click on a marker and be presented with additional 
+information on that feature. These are easy to do in Leaflet: we simply
+call the <em>bindPopup()</em> method of the feature to attach a popup to
+that feature. <em>bindPopup()</em> takes one parameter, the text (you can
+include HTML tags) to appear in the popup. Here is an example. 
+Note how you have to store the 
+marker in a variable so that you can then call bindPopup():
+<pre>
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+
+const pos = [50.908, -1.4];            
+map.setView(pos, 14);
+
+const marker = L.marker(pos).addTo(map);
+marker.bindPopup("My Location");
 </pre>
 </p>
-<h2>dotenv - Environment variables</h2>
-<p>Finally this week we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. Examples of such variables might include database name, username and password. This also has a security advantage: by adding private data to your <code>.env</code> it means that you can keep information such as passwords outside your source code, and publish your code to GitHub or another repository without giving away such information.</p>
-<p><code>dotenv</code> is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
-<pre>npm install dotenv</pre>
-You then <code>require()</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
+<h3>Circles, polylines and polygons</h3>
+<p>The following example shows how to create circle, 
+polyline (i.e. a line with multiple points) and polygon features:
 <pre>
-const express = require('express');
-const app = express();
-<em>require('dotenv').config();</em>
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+
+map.setView([50.908, -1.4], 14);
+
+
+const solent = L.circle([50.9079, -1.4015], { radius:100}).addTo(map); 
+
+
+// Saints stadium (football ground)
+const saints = L.polygon ( [
+        [50.9063 , -1.3914 ] ,
+        [50.9063 , -1.3905 ] ,
+        [50.9053 , -1.3905 ] ,
+        [50.9053 , -1.3914 ]
+        ] ).addTo(map);
+
+// Route to railway station
+const routeToStation = L.polyline ( [
+        [50.9079, -1.4015] ,
+        [50.9071, -1.4015], 
+        [50.9069, -1.4047],
+        [50.9073, -1.4077],
+        [50.9081, -1.4134] 
+        ]).addTo(map);
+
+solent.bindPopup("Solent University");
+saints.bindPopup("Saints stadium");
+routeToStation.bindPopup("Route to station");
 </pre>
-Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
+</p>
+<p>Again, hopefully this should be mostly self-explanatory. The second
+parameter when creating a circle is the radius in metres.
+For polygons and polylines, we specify the shape using an array of points.
+Each point is a two-member array containing latitude and longitude.</p>
+<h3>Styling features</h3>
+<p>We can create custom styles for map features. For polygons, circles and
+polylines, we can set properties such as the colour and the opacity
+(opposite of transparency: 0 is completely transparent and 1 is
+completely opaque).</p>
 <pre>
-DB_HOST=localhost
-DB_USER=root
-DB_DBASE=mysql
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+
+map.setView([50.908, -1.4], 14);
+
+
+const solent = L.circle([50.9079, -1.4015], { radius:100, fillColor: 'blue',
+                                color: 'red', opacity: 0.5 }).addTo(map); 
+
+
+// Saints stadium (football ground)
+const saints = L.polygon ( [
+        [50.9063 , -1.3914 ] ,
+        [50.9063 , -1.3905 ] ,
+        [50.9053 , -1.3905 ] ,
+        [50.9053 , -1.3914 ]
+        ] ).addTo(map);
+
+// Route to railway station
+const routeToStation = L.polyline ( [
+        [50.9079, -1.4015] ,
+        [50.9071, -1.4015], 
+        [50.9069, -1.4047],
+        [50.9073, -1.4077],
+        [50.9081, -1.4134] 
+        ]).addTo(map);
+        
+solent.bindPopup("Solent University");
+saints.bindPopup("Saints stadium");
+routeToStation.bindPopup("Route to station");
+
 </pre>
-We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example:
-<pre>
-const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    database: process.env.DB_DBASE
-});
-</pre>
-It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
+<p>
+In this example, we have set the circle's fill colour (interior colour) to
+blue, its outline colour to red, and the opacity to 0.5.</p>
+<h2>Displaying markers from a web API</h2>
+<p>A common use of web mapping is to show data from a web API on a 
+map. For example, we might want to show the location of restaurants in a 
+particular city on a web map. This is quite easy - you simply need to make an
+AJAX request to a web API, parse the JSON (or XML) returned and create
+markers using the data. The following exercise will allow you to explore
+this.</p>
 <hr />
-<h2>Exercise</h2>
-<p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
-<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-5 before attempting it. Please ensure that you have completed last week (Week 5) first, and also the standard exercises for Weeks 1-4.</p>
+<h2>Exercises</h2>
+<h3>Exercise 1</h3>
 <ol>
-<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference. As shown in the first example, create a separate module to connect to your MySQL database, and <code>require()</code> it from the new <em>copy</em> of your server. <strong>You should use the non-promise version of your database connection code for this.</strong></li>
-<li>Available <a href='ht_users.sql'>here</a> is an SQL file to create and populate a <code>ht_users</code> table with data about users. Download it and import it into your database.</li>
-<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.js</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
-    <ul>
-    <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
-    <li>a <code>/user/:username</code> route which returns details of a specific user, identified by username.</li>
-    </ul>
-</li>
-<li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
-<li>Test it out by trying out the following in your browser (type in the URL directly, do not access from AJAX):
-    <ul>
-    <li>List all users;</li>
-    <li>Look up a user by username.</li>
-    </ul>
-</li>
-<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.js</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
-<li>Install <code>dotenv</code> and <code>require()</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
-<pre>
-if(process.env.APP_USER === undefined) {
-    // process.env.APP_USER does not exist (it's undefined)
-    // Return a 401 (Unauthorized) HTTP code, with a JSON error message
-    res.status(401).json({error: "You're not logged in. Go away!"});
-} else {
-    // username exists, carry on...
-}
-</pre>
-Test this out by first trying to access a <code>POST</code> route without creating a <code>.env</code> file. Test this out in RESTer; you should get a 401 error and the "Go away" message as a response. Then, create a <code>.env</code> file with a <code>username</code> environment variable. The username can be anything, for example:
-<pre>APP_USER=AdamAdams</pre>
-You should now be able to access your POST route.
-</li>
-<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>require()</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
-<li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists in <code>.env</code>. Use the same middleware for this.</li>
-<li><strong>Advanced question:</strong> Modify your answer to the previous question so that, if the <code>/users</code> group of routes is requested, the middleware checks that the <code>APP_USER</code> username is <em>actually in the database</em> (use a SELECT statement to do this) and that the value of the <code>isadmin</code> column of this user is 1. In this way, only admin users can access the <code>/users</code> routes which, for data protection reasons, is probably a good idea!</li>
+<li>New York is at longitude 74 West, latitude 40.75 North (more or less).
+Change the example above so that it's centred on New York, at zoom level 
+13.</li>
+<li>Find the latitude and longitude of your home town 
+(e.g. google it) and change the example
+so it's centred on your home town.</li>
 </ol>
+<h3>Exercise 2</h3>
+<ol>
+<li>Add a marker on your map from Exercise 1 on your home town.</li>
+<li>Combine the marker and mouse click event examples, above,
+so that by clicking on the 
+map, you add a marker to the map at that position.
+</li>
+<li>Using a prompt box to read the text in, bind a popup to the marker 
+containing text entered by the user, e.g:
+<pre>const text = prompt('Please enter some text');</pre>
+</li>
+</ol>
+<h3>Exercise 3 - Connecting to a web API and displaying markers</h3>
+<p>This <a href='artists.sql'>SQL file</a> creates and populates a table called
+<em>artists</em> which gives the latitude and longitude of the home towns
+of selected artists. Import this into your database, remembering to change the <code>USE</code> statement to reference your specific database.
+</p>
+<ul>
+<li>Extend your Express server to add an additional route <code>/hometown/:artist</code> which looks up the hometown of a particular artist. It should return
+a JSON object containing the hometown name, latitude and longitude, or a 404 if the requested artist cannot be found in the <code>artists</code> table.</li>
+<li>Modify your HitTastic! AJAX page (Sessions 3 and 4) so that as well as a 
+"Search" button, there is a "Where is this artist from?" button. This should 
+connect to a <em>new JavaScript function</em>
+which sends an AJAX request to this route. 
+ Also modify your code from your AJAX exercise so
+that it initialises a Leaflet map. 
+</li>
+<li>In the AJAX callback, parse the JSON returned so that a 
+marker is shown on the map for that artist, and the map is centred at 
+the artist's hometown. When the marker is clicked,
+the name of the home town of the artist should be shown in a popup.</li>
+</ul>
+<h3>Exercise 4 - adding data to a web API via a map interface</h3>
+<p>Add a <em>new</em> route to your server, to <em>add</em> a new home town to the database. The route should take, as POST data, the latitude, longitude, artist name, and home town name. In your client-side code, when the user clicks on the map, send a POST request to this route, containing the required information. Use the map click position for the latitude and longitude, and read the artist name and location via prompt boxes, e.g:
+<pre>const artist = prompt('Please enter an artist name');</pre>
+</p>
+<p>Add a marker to your map <strong>when the response is received from the server, and only if a 200 is returned</strong>.</p>
+-->
 </body>
 </html>
