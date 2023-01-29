@@ -5,8 +5,6 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head>
 <body>
-<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
-<!--
 <div class="titlebox"><h1>Topic 2: Node.js and databases</h1></div>
 <h2>Databases - revision</h2>
 <p>You have already worked with SQL databases in your first year. As you
@@ -48,114 +46,30 @@ user's web browser, but the <em>client</em> with respect to the database server:
 <li>Send the results, formatted in HTML, back to the browser</li>
 </ol>
 </p>
-<h2>Installing and using a database server</h2>
-<p>We are primarily going to use goormIDE to host our database, which has the advantage that you can access it from your own personal machine as well as the university machines. Please see here (link not available yet) for a guide describing how to do this.</p>
-<p>If you wish to install a database to your own personal machine, these are your options (please note <strong>no support will be provided by the tutor if you are running a Mac, and if problems occur on Windows or Linux which are unresolvable by the tutor, you will need to research them youself</strong>):
-    <ul>
-    <li>Install a package such as <a href='https://apachefriends.org'>XAMPP</a>, which contains not just a database (MariaDB, based on MySQL) but also the Apache web server, the PHP language, and the database administration tool PHPMyAdmin. XAMPP generally works but a small number of users have reported problems starting Apache. An alternative is <a href='https://www.wampserver.com/en/download-wampserver-64bits'>WAMP</a> which you may find works if XAMPP does not work for you.</li>
-    <li>Install a database directly, as a standalone application, for example <a href='https://mysql.com/products/community'>MySQL Community Edition</a> or <a href='https://mariadb.org/download/'>MariaDB</a>. Please ensure you follow the installation instructions carefully, for example <a href='https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html'>these for MySQL on Windows</a>.</li>
-    </ul>
-</p>
-<p>We will be using the <em>mysqlview</em> application to view our databases - details will appear subsequently.</p>
-<h3>Using the command-line client</h3>
-<p>As an alternative you will be able to use the command line database client from your command prompt. This will be either <code>mysql</code> or <code>mariadb</code>.
-For example, to launch the MySQL client you would enter, at the command
-line (<code>myuser</code> is your database username):
-<pre>mysql -u myuser -p</pre>
-and the enter the password. The screenshot below shows this.
-<br />
-<img src='../images/mysql1.png' alt='Launching MySQL client' />
-<br />
-You will then be in the console-based MySQL, or MariaDB, client. Next you
-need to select your database with the <code>USE</code> command. The example below selects a database called <code>ephp001</code> however if using the defaults for your database, it's likely to be called <code>mysql</code>.
-<br />
-<img src='../images/mysql2.png' alt='Selecting a database with USE' />
-<br />
-Once you've done this, you can enter SQL commands which will be sent to the
-database server, e.g:
-<br />
-<img src='../images/mysql3.png' alt='Sending a SELECT statement to the database server with the MySQL client' />
-<br />
-</p>
-<h2>Node and MySQL</h2>
-<p>We are going to look now at how you can connect to a MySQL or MariaDB 
+<h2>Installing and using a database</h2>
+<p>Due to problems connecting to Goorm currently (meaning that it will be difficult to use MySQL), we are going to focus on <em>SQLite</em>. This is not a full client-server system (there is no SQLite server) but instead uses a simple flat file (with a <code>.db</code> extension) to store the data. Nonetheless, SQLite still allows you to use SQL to communicate with the database via Express routes, which is the basis of developing a database-driven web API.</p>
+<h3>More on SQLite</h3>
+<p><em>SQLite</em> (see <a href="http://www.sqlite.org">sqlite.org</a>)
+is a simple on-board client-side database which does not require a full
+database management system setup (like MySQL or Oracle) and its attendant client-server architecture. SQLite databases can be easily embedded into any Java application, whether that be a web application, a console application, a desktop GUI Java application or an Android app. SQLite databases are stored as simple files, with a <code>.db</code> extension. You can download SQLite <a href='https://www.sqlite.org/download.html'>here</a>. You can query and manipulate an SQLite database via the console-based <code>sqlite3</code> tool, documented <a href='https://www.sqlite.org/cli.html'>here</a> and downloadable <a href='https://www.sqlite.org/download.html'>here</a> along with the SQLite libraries. You can also upload a <code>.db</code> database to the online "fiddle" tool <a href='https://sqlite.org/fiddle/index.html'>here</a> and enter SQL statements to query and manipulate the database.</p>
+<h2>Node and SQLite</h2>
+<p>We are going to look now at how you can connect to an SQLite
 database from Node.js. As you might guess from last week, there are various
-modules available to do the job, including <code>mysql2</code> (for MySQL) or <code>mariadb</code> for MariaDB. Documentation for these is available at:
-    <ul>
-    <li><a href='https://npmjs.com/package/mysql2'>mysql2 module</a></li>
-    <li>The original <a href='https://npmjs.com/package/mysql'>mysql module</a>: the predecessor to <code>mysql2</code>; <code>mysql2</code> improves upon this. However the documentation for the original <code>mysql</code> module is more extensive, so I have linked it here.</li>
-    <li><a href='https://npmjs.com/package/mariadb'>mariadb module</a>, and specifically the <a href='https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/documentation/callback-api.md'>Callback API</a> of the <code>mariadb</code> module, which is compatible with <code>mysql</code> and <code>mysql2</code></li>
-    </ul>
-To install any of these, use <code>npm</code> as for last week from the command prompt (such as the goormIDE command prompt), e.g. one of:
+modules available to do the job, including <code>better-sqlite3</code> which we will use as it is straightforward and, according to its developers, gives better performance than some alternatives. Documentation is available
+    <a href='https://npmjs.com/package/better-sqlite3'>here</a></p>
+<p>
+To install, use <code>npm</code> as for last week from the command prompt (such as the goormIDE command prompt), e.g:
 <pre>
-npm install mysql2
-npm install mariadb
+npm install better-sqlite3 
 </pre>
 </p>
 
-<p>All three of these modules can be used in the same way with basic
-queries. Here is a simple example with the <code>mysql2</code> module:
+<p>Here is a simple example. You need to import the <code>Database</code> class from the <code>better-sqlite3</code> module and then create a <code>Database</code> object using your <code>.db</code> file:
 <pre>
-// mysql2 will also work with MariaDB, alternatively use
-// const mysql = require('mariadb/callback')
-const mysql = require('mysql2');
+import Database from 'better-sqlite3';
+const db = new Database('mydatabase.db'); 
 
-const con = mysql.createConnection({
-    host: 'localhost',
-    user: 'myuser',
-    password: 'mypass',
-    database: 'songsdb'
-});
-
-con.connect( err=&gt; {
-    if(err) {
-           console.log(`Error connecting to mysql: ${err}`);
-    } else { 
-        console.log('connected to mysql ok');
-        //  now we have a successful connection, query the database..
-    }
-});
-</pre>
-<p>Note the <em>callback</em> based approach. Node database APIs use callback-based approaches, as database connection and querying are both operations that might take some time, and we do not want the Node server to become unresponsive, so we specify a callback to run when the appropriate operation (connecting to the database in this example) has completed. The callback here is an arrow function, which takes one parameter <code>err</code> which will contain an error if there was an error connecting, or null otherwise. So we check for the error and if there was no error, we can perform queries. <strong>Note that this pattern, with an error as the first parameter of a callback, which contains a non-null value if there was an error, is a common one in Node.js.</strong></p>
-<h4>Connecting to MySQL from an Express application</h4>
-<p>How can we connect from an Express application? As seen above, connection to a MySQL database is <em>asynchronous</em>. In an Express application, we 
-probably want to prevent the application starting up if we cannot connect
-to the database. Therefore, we can <em>set up our routes so that the API
-endpoints are only handled if a successful connection to the database was
-made</em>, and if no successful connection was made, quit the Express server.
-Here is an example:
-<pre>
-const express = require('express');
-const app = express();
-// mysql2 will also work with MariaDB, alternatively use
-// const mysql = require('mariadb/callback')
-const mysql = require('mysql2');
-
-const con = mysql.createConnection({
-    host: 'localhost',
-    user: 'myuser',
-    password: 'mypass',
-    database: 'songsdb'
-});
-
-con.connect( err=&gt; {
-    if(err) {
-        console.log(`Error connecting to mysql: ${err}`);
-        process.exit(1); // Quit the Express server with an error code of 1
-    } else { 
-        // Once we have successfully connected to MySQL, we can setup our
-        // routes, and start the server.
-        console.log('connected to mysql ok');
-
-        // now set up the routes...
-        app.get('/students/:lastname', (req, res) =&gt; {
-            // ...
-        });
-
-        // listen on port 3000
-        app.listen(3000);
-    }
-});
+// Rest of the code follows...
 </pre>
 </p>
 <h3>REST - Representational State Transfer - An introduction</h3>
@@ -197,25 +111,8 @@ This pattern, of:
 is a key feature of the <em>REST</em> (Representational State Transfer)
 pattern for developing web APIs. An API which follows these principles
 (plus some others) is known as a REST API. (There is more to REST, the former Level 6 WAD module <a href='https://nwcourses.github.io/wad/wad2.html'>gives some information here</a>).</p>
-<h3>Performing SQL queries with the mysql2 module</h3>
+<h3>Performing SQL queries with the better-sqlite3 module</h3>
 <h4>SELECT</h4>
-<p>Performing a SELECT statement is as follows. Note how it's callback-based
-again: the callback will run when the database sends back the results. The
-three arguments to <code>con.query</code> are as follows:
-<ul>
-<li>The SQL query we want to send. Note the presence of question marks
-<code>?</code>. This is called a <em>parameterised SQL query</em> and the
-question marks are <em>placeholders</em> and will be replaced by
-input data, specified in the second argument within an array. This approach avoids a security exploit known as <em>SQL injection</em> which we will cover 
-later.</li>
-<li>An array of input data. Each <code>?</code> placeholder will be
-replaced, in order, by an item of input data in the array. In this example
-there is only one item in the array, <code>req.params.lastname</code> (the
-last name parameter in the route), so the one and only question mark in the
-parameterised query will be replaced by this.</li>
-<li>The third argument is the <em>callback</em> which runs when the query has returned results.  This callback has three parameters: an error (if there is one); the results (an array of objects, one object for each record) and the database fields.</li>
-</ul>
-</p>
 <p>The code below is a <em>snippet</em> of code showing a
 route handler as part of an Express application. It performs an SQL 
 statement to find all students with the last name matching the
@@ -224,69 +121,73 @@ statement to find all students with the last name matching the
 would find all students with the last name Smith.
 <pre>
 app.get('/students/:lastname', (req, res) =&gt; {
-    con.query(`SELECT * FROM students WHERE lastname=?`,
-        [req.params.lastname], (error,results,fields) =&gt; { 
-        if(error) {
-            res.status(500).json({ error: error });
-        } else {
-            res.json(results);
-        }
-    });
+    try {
+        const stmt = db.prepare("SELECT * FROM students WHERE lastname=?");
+        const results = stmt.all(req.params.lastname);
+        res.json(results);
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
 });
 </pre>
-Note how we send back <em>JSON</em> to the client, whether there was an 
-error or the operation was successful. If there was an error, we send
-back a JSON object containing an <em>error</em> property with a value of
+<p>We first create a <em>prepared statement</em> using the <code>prepare()</code> method of our database object. A prepared statement is a statement which has parameters <em>bound</em> to it, and then is <em>compiled</em> into a binary form which can be stored in memory and rapidly executed by the database. The advantage of a prepared statement is that once compiled, it can be rapidly executed again and again by the database if our application performs the same query multiple times. Prepared statements also prevent a certain type of security exploit known as <em>SQL injection</em>, in which a database can be compromised by the user entering fragments of SQL into a form which combine with existing SQL code in the JSP. We will look at SQL injection in more detail later in the module.</li>
+<li>Note how the SQL contains placeholders for bound parameters, using question marks <code>?</code> We bind data to each placeholder when we execute the statement. To execute a SELECT statement we use the <code>all()</code> method of our prepared statement object, and pass the bound parameters as arguments. So here:
+<pre>const results = stmt.all(req.params.lastname);</pre>
+will bind the <code>lastname</code> parameter of the route to the first placeholder. The result will be that we query the database for all students with that last name.</p> 
+<p>The <code>all()</code> method returns <em>an array of all matching rows from the database, as an array of JavaScript objects</em>. We send back that array as  <em>JSON</em>, using <code>res.json()</code>, which we saw last week.</p>
+<p>Note also the use of a <code>try</code>/<code>catch</code> block. Those of who who have studied OODD will have seen this already. Basically we are <em>try</em>ing to do something, and if it fails, we <em>catch</em> the error in the <em>catch block</em>. So, if there was an error, we send back a JSON object containing an <em>error</em> property with a value of
 the error that occurred, and also send back an HTTP status code of 500
 (Internal Server Error) which, by convention, is used if the server
 encountered an internal error which was not caused by a user mistake. 
 </p>
-<p>If, on the other hand, the operation was successful, the callback
-parameter <em>results</em> will contain the results (as we saw above) and
-we can convert it straight to JSON and send it back to the client.</p>
-<p>This version returns <em>all</em> students. Note that in this case, we don't need to specify a parameter for the query, so <code>con.query()</code> takes just two arguments, the SQL query and the callback.
-<pre>app.get('/students/:lastname', (req, res) =&gt; {
-    con.query('SELECT * FROM students',(error,results,fields) =&gt; { 
-        if(error) {
-            res.status(500).json({ error: error });
-        } else {
-            res.json(results);
-        }
-    });
+<p>This version returns <em>all</em> students in the database. Note that in this case, we don't need to specify a parameter to the the query, so <code>stmt.all()</code> takes no arguments.
+<pre>app.get('/students', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare("SELECT * FROM students");
+        const results = stmt.all();
+        res.json(results);
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
 });
 </pre></p>
 <h4>UPDATE</h4>
 <p>Performing an UPDATE statement uses the same approach. Here is a route which could be used to <em>buy a product with a given ID</em> by reducing its quantity in stock by one. <strong>Note how this route has a method of POST, following the REST principles discussed above.</strong>
 <pre>
 app.post('/products/:id/buy', (req, res) =&gt; {
-    con.query('UPDATE products SET quantity=quantity-1 WHERE id=?', [req.params.id], (error,results,fields)=&gt; {
-        if(error) {
-            res.status(500).json({error: error});
-        } else if(results.affectedRows==1) {
-            res.json({'message': 'Successfully bought.'});
+    try {
+        const stmt = db.prepare('UPDATE products SET quantity=quantity-1 WHERE id=?');
+        const info = stmt.run(req.params.id);
+        if(info.changes == 1) {
+            res.json({success:1});
         } else {
-            res.status(404).json({error: 'No rows updated, could not find a record matching that ID'});
+            res.status(404).json({error: 'No product with that ID'});
         }
-    } );
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
 });
 </pre>
-We first test whether there was an error, as for the <em>SELECT</em> example. If there ws no error, we then check the <em>affectedRows</em> property of the results object to determine whether any results were updated. If there were, we send back a JSON success message. If not, the reason will be that there is no product with that ID. By convention, following the principles of REST, if we cannot find what we are looking for in a route, we send back the HTTP status code 404 (Not Found).</p>
+Note that we use <code>run()</code>, rather than <code>all()</code>, with a statement which <em>updates</em> the database.
+We use a try/catch block, as for the <em>SELECT</em> example. Also, we check the <code>changes</code> property of the <code>info</code> object returned from the query. This contains the number of rows affected by the SQL statement. If one row was updated, we send back a JSON success message. If not, the reason will be that there is no product with that ID. By convention, following the principles of REST, if we cannot find what we are looking for in a route, we send back the HTTP status code 404 (Not Found).</p>
 <h4>DELETE</h4>
 <p>DELETE is similar to UPDATE. As we saw above, a route which results in the deletion of data makes use of the HTTP <em>DELETE</em> method.
 <pre>
-app.delete('/products/:id', (req, res) =&gt; {
-    con.query('DELETE FROM products WHERE id=?', [req.params.id], (error,results,fields)=&gt; {
-        if(error) {
-            res.status(500).json({error: error});
-        } else if(results.affectedRows==1) {
-            res.json({'message': 'Successfully deleted.'});
+app.delete('/products/:id/buy', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare('DELETE FROM products WHERE id=?');
+        const info = stmt.run(req.params.id);
+        if(info.changes == 1) {
+            res.json({success:1});
         } else {
-            res.status(404).json({error: 'Could not delete: could not find a record matching that ID'});
+            res.status(404).json({error: 'No product with that ID'});
         }
-    } );
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
 });
 </pre>
-Note how again we check the <code>affectedRows</code> property of the results
+Note how again we check the <code>changes</code> property of the results
 to check whether it found the record to delete.</p>
 <h4>INSERT</h4>
 <p>Insertion is discussed below, as there is something else we need to 
@@ -314,18 +215,17 @@ and performs an SQL INSERT statement with it:
 app.use(express.json()); // necessary to read JSON data from the request body
 
 app.post('/product/create', (req, res) =&gt; {
-    con.query('INSERT INTO products(name, manufacturer, price) VALUES (?,?,?)',
-        [req.body.name, req.body.manufacturer, req.body.price],
-        (error, results, fields) =&gt; {
-            if(error) {
-                res.status(500).json({error: error});
-            } else {
-                res.json({success: 1});
-            } 
-    );
+    try {
+        const stmt = db.prepare('INSERT INTO products(name, manufacturer, price) VALUES (?,?,?)');
+
+        const info = stmt.run(req.body.name, req.body.manufacturer, req.body.price);
+        res.json({id: info.lastInsertRowid});
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
 });
 </pre>
-</p>
+Note how the <code>info</code> object has a <code>lastInsertRowid</code> property representing the primary key (ID) allocated to the new record. So if the operation was successful, we send back JSON containing the ID, which can then be used by the client.</p>
 <h3>Testing HTTP request methods other than GET</h3>
 <p>One question remains. How can you <em>test out</em> these methods?
 With GET methods, it's simple (we did it last week); you simply request
@@ -362,15 +262,7 @@ request data and your web API checks for this, then you will get a non-200
 status code returned.</p>
 <h2>Exercises</h2>
 <ol>
-<li>Launch your database (see the instructions above) Use this <a href='wadsongs.sql'>SQL file</a> to create a <code>wadsongs</code> table and populate it with around 1000-1500 songs. <strong>You will need to change the <code>USE</code> statement at the top of the file to use your database (i.e. the database you created with <code>CREATE DATABASE</code>)</strong>. In PHPMyAdmin, you can use the Import tab to import them:
-<br />
-<br />
-<img src='../images/phpmyadmin_import.png' alt='PHPMyAdmin import' />
-<br />
-<br />
-If using the command prompt, you can use a shell command (enter in your command prompt or shell, NOT in the MySQL or MariaDB client), e.g.
-<pre>mysql -u myuser -p &lt; wadsongs.sql</pre>
-</li>
+<li>Launch your database (see the instructions in class, which will be recorded as a video) Use this <a href='wadsongs.db'>db file</a> for your database.</li>
 <li>Once your database is populated, develop a simple REST API in Node and Express with endpoints to: 
     <ul>
     <li>GET: search for all songs by a given artist;</li>
@@ -389,7 +281,6 @@ Once you've done that, add a further two fields (for title an artist) and second
 <pre>app.use(express.static('public'));</pre>
 This will tell Express to serve all content in the <code>public</code> folder as static pages. So to access the file <code>file.html</code> inside the <code>public</code> folder from the browser, you can access it via <code>https://url-of-your-server.example.com/file.html</code>.</li>
 </ol>
--->
 </body>
 </html>
 

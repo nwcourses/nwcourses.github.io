@@ -6,8 +6,6 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head>
 <body>
-<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
-<!--
 <div class="titlebox"><h1>Topic 3: Promises and AJAX</h1></div>
 <p>Today we will cover the following topics:</p>
 <ul>
@@ -54,7 +52,7 @@ to the script.
 <p>To add a CORS header to a Node/Express server, it's easy if you install the <code>cors</code> package:
 <pre>npm install cors</pre>
 You just use:
-<pre>const cors = require('cors');
+<pre>import cors from 'cors';
 app.use(cors());</pre>
 </p>
 
@@ -320,7 +318,7 @@ or on a server on the web, such as your Goorm container, something like:
 <pre>
 // Node.js code
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 const city = 'London';
 fetch(`https://api.weather.example.com/city/${city}`)
     .then(response =&gt; response.json())
@@ -328,51 +326,6 @@ fetch(`https://api.weather.example.com/city/${city}`)
         console.log(`The forecast for ${city} is ${json.weather} with max temp ${json.maxtemp} C`);
     });
 </pre>
-</p>
-<h2>Using the promise-based mysql2 API</h2>
-<p>We can also use promises and <code>async</code>/<code>await</code> with the <code>mysql2</code> API, which can make our code a little easier to understand as it appears more sequential (even though it is still asynchronous!) and we do not use callbacks. Here is an example of using the promise-based version of <code>mysql2</code>:
-<pre>const express = require('express');
-const app = express();
-const mysql = require('mysql2/promise'); 
-
-async function startApp() {
-    try {
-        var con = await mysql.createConnection({
-            host: 'localhost',
-            user: 'myuser',
-            password: 'mypass',
-            database: 'mydb'
-        });
-
-        const conn = await con.connect();
-        console.log('connected to mysql ok');
-
-        app.get('/student/:studentid', async(req, res) =&gt; {
-            try {
-                const [results,fields] = await con.query(`SELECT * FROM students WHERE studentid=?`, [req.params.studentid]);
-                res.json(results);
-            } catch(e) {
-                res.status(500).json(e);
-            }
-        });
-        app.listen(3000);
-    } catch(e) {
-        console.error(`ERROR connecting to database: ${e}`);
-    }
-}
-
-startApp();</pre>
-Note how:
-    <ul>
-    <li>We use the promises-based version of <code>mysql2</code> by requiring <code>mysql2/promise</code>.</li>requiring <code>mysql2/promise</code>.</li>
-    <li>Our entire code needs to be placed into an <code>async</code> function, <code>startApp()</code>. As we have seen, <code>await</code> calls can only be done within an <code>async</code> function. So we place all our code in this function and then call it when the application starts.</li>
-    <li>With the promises API, <code>mysql.createConnection()</code> returns a promise which resolves as soon as a successful connection has been made. So we <code>await</code> the resolution of that promise; the promise will resolve with the connection object.</li>
-    <li>We then setup our Express route. Note that inside the route, we again <code>await</code> the resolution of <code>con.query()</code>; this again returns a promise which will resolve once we get results from the query. This promise resolves with an <em>array</em> containing two members: an array of matching rows, and an array of fields. Note the use here of <strong>JavaScript destructuring syntax</strong>:
-    <pre>const [results, fields] = await con.query(...);</pre>
-    This is a very powerful JavaScript feature which allows you to "unpack" individual members from an array into individual variables. In this case, we are saying "set <code>results</code> equal to the first member of the array which the promise resolves with, and set <code>fields</code> equal to the second member of that array".
-    </li>
-    <li>Note also the use of <code>try</code>/<code>catch</code>, as before, to handle promise rejections. We have two <code>try</code>/<code>catch</code> blocks, one to handle the database connection and one to handle the query taking place in the route.</li>
-    </ul>
 </p>
 <h2>Exercises</h2>
 <p><strong>IMPORTANT! Please ensure that you complete last week's exercises up to question 3 first.</strong></p> 
@@ -542,6 +495,5 @@ What happens here, exactly?
     if the <code>squareroot</code> promise succeeds.</li> 
     </ul>
 </p>
--->
 </body>
 </html>
