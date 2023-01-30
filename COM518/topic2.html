@@ -58,7 +58,7 @@ database from Node.js. As you might guess from last week, there are various
 modules available to do the job, including <code>better-sqlite3</code> which we will use as it is straightforward and, according to its developers, gives better performance than some alternatives. Documentation is available
     <a href='https://npmjs.com/package/better-sqlite3'>here</a></p>
 <p>
-To install, use <code>npm</code> as for last week from the command prompt (such as the goormIDE command prompt), e.g:
+To install, use <code>npm</code> as for last week from the command prompt, e.g:
 <pre>
 npm install better-sqlite3 
 </pre>
@@ -232,10 +232,40 @@ With GET methods, it's simple (we did it last week); you simply request
 the desired API endpoint in your browser and the appropriate route will
 be executed. However, with other methods, such as POST and DELETE, it's more
 difficult, as browsers always send GET requests when you type in a URL.</p>
-<h4>Enter RESTer</h4>
-<p>There are various third-party tools which can be used to test out APIs.
-A particularly useful one, which those of you on Craig's OODD will have 
-already been introduced to, is <em>RESTer</em>. This is a browser extension
+<h4>Using an HTML form</h4>
+<p>One simple way of testing POST requests, where the data is sent in the request body (as above), is to use a simple HTML form. For example:
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+&lt;h1&gt;Add A Product&lt;/h1&gt;
+&lt;form method="post" action="/product/create"&gt;
+Name:
+&lt;input name="name" /&gt;
+Manufacturer:
+&lt;input name="manufacturer" /&gt;
+Price:
+&lt;input name="price" /&gt;
+&lt;input type="submit" value="Go!" /&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+This form simply sends a POST request to the <code>/product/create</code> route, passing across the name, manufacturer and price in the request body. However it is sent as a series of key-value pairs, rather than as JSON, as follows:
+<pre>
+POST /product/create HTTP/1.1
+Host: www.solent-e-stores.com
+Content-Type: application/json
+
+name=Corn Flakes&amp;manufacturer=Smith Emporium&amp;price=1.20
+</pre>
+</p>
+<p>To read POST data in this format from Express, we must add the following statement after we have created our <code>app</code> object:
+<pre>app.use(express.urlencoded({extended: false}));</pre>
+Then, we can read the individual fields with <code>req.body</code>, as we did with JSON above.</p>
+<h4>RESTer - more flexible testing of an API</h4>
+<p>As a more flexible approach, there are various third-party tools which can be used to test out APIs.  A particularly useful one
+is <em>RESTer</em>, but <strong>please note this is not available on the university computers</strong>. This is a browser extension
 which allows you to simulate HTTP requests and is available for
 <a href='https://chrome.google.com/webstore/detail/rester/eejfoncpjfgmeleakejdcanedmefagga'>Chrome</a> and <a href='https://addons.mozilla.org/en-US/firefox/addon/rester/'>Firefox</a>. To install RESTer, visit either of these links and follow the instructions, and RESTer will be installed to your browser.</p>
 <p>RESTer has an interface as shown below:
@@ -273,12 +303,12 @@ Develop a simple REST API in Node and Express with endpoints to:
     <li>GET: search for all songs with a given title;</li>
     <li>GET: search for songs by artist AND title (i.e. both must match);</li>
     <li>GET: find a song with a given ID</li>
-    <li>POST: buy a physical copy of song (decrease its quantity by 1)</li>
-    <li>DELETE: delete a song with a given ID</li>
-    <li>POST: add a new song; specify all columns in the database except the ID which is auto-created.</li> 
+    <li>POST: buy a physical copy of song (decrease its quantity by 1) (note, cannot be tested without RESTer, but please implement anyway).</li>
+    <li>DELETE: delete a song with a given ID (note, cannot be tested without RESTer, but please implement anyway).</li>
+    <li>POST: add a new song; specify all columns in the database except the ID which is auto-created (can be tested with an HTML form, as shown above, or with RESTer).</li> 
     </ul>
 </li>
-<li>Test the GET endpoints in the browser, <strong>and the POST and DELETE endpoints in RESTer. In particular, for "add a new song", you will need to specify the song as JSON in the request body in RESTer, and set the content type to <code>application/json</code></strong>; see above.</li>
+<li>Test the GET endpoints in the browser, <strong>and the POST and DELETE endpoints in RESTer, if on your own computer, or with an HTML form if not. If using RESTer, you will need to specify the song as JSON in the request body, and set the content type to <code>application/json</code></strong>; see above.</li>
 <li><strong>More advanced</strong>: Create a <code>public</code> folder, and in it, create a static HTML page containing a field for the artist and a button. When the user clicks the button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. In this client-side code, <code>window.location</code> to redirect the browser, e.g.
 <pre>window.location = `https://url-of-your-server.example.com/.....`; // for you to complete!</pre>
 Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>For both questions, use Express to serve the static page. You can do this by adding the line:</strong>
