@@ -1,8 +1,7 @@
 <html>
 <head>
-<script type="text/javascript">
-function newText()
-{
+<script type="module">
+document.getElementById("go").addEventListener("click", () => {
     /* Create a brand new paragraph element */
     var node1 = document.createElement("p");
 
@@ -15,7 +14,7 @@ function newText()
 
     /* Add the new node to the body */
     document.body.appendChild(node1);
-}
+});
 </script>
 <link rel="stylesheet" type="text/css" href="../../../css/dfti0910.css">
 </head>
@@ -24,6 +23,6 @@ function newText()
 <p>This example creates a brand new paragraph and dynamically adds
 it to the page</p>
 <p>Right click to view source</p>
-<input type="button" value="new text!" onclick="newText()">
+<input type="button" value="new text!" id="go" />
 </body>
 </html>

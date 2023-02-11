@@ -1,8 +1,7 @@
 <html>
 <head>
-<script type="text/javascript">
-function bytagname()
-{
+<script type="module">
+document.getElementById("go").addEventListener("click", () => {
     /* Make a new paragraph (as before) */
     var newElem = document.createElement('p');
     var newText = document.createTextNode("This is the new paragraph!");
@@ -15,7 +14,7 @@ function bytagname()
        0. */
     document.body.replaceChild (newElem,paras[4]);
     
-}
+});
 </script>
 <link rel="stylesheet" type="text/css" HREF="../../../css/dfti0910.css">
 </head>
@@ -31,6 +30,6 @@ using <em>document.getElementsByTagName()</em>, then replacs the
 <p>This is paragraph 6</p>
 <p>This is paragraph 7</p>
 <p>This is paragraph 8</p>
-<input type="button" value="Replace 5th paragraph!" onclick="bytagname()">
+<input type="button" value="Replace 5th paragraph!" id="go" />
 </body>
 </html>

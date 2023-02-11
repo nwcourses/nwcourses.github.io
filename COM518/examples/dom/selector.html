@@ -6,9 +6,9 @@
 <style type='text/css'>
 div { margin: 10px; }
 </style>
-<script type='text/javascript'>
+<script type='module'>
 
-function selectorTest() {
+document.getElementById("go").addEventListener("click", () => {
 	var div = document.querySelector("#div1");
 	div.style.backgroundColor = 'black';
 	div.style.color = 'white';
@@ -21,7 +21,7 @@ function selectorTest() {
 		imp[i].style.backgroundColor = 'red';
 		imp[i].style.color = 'white';
 	}
-}
+});
 
 </script>
 </head>
@@ -43,7 +43,7 @@ There are no WAD classes the week of Jan 25th.
 </div>
 
 <p>
-<input type="button" value="Go!" onclick="selectorTest()" />
+<input type="button" value="Go!" id="go" />
 </p>
 
 </body>

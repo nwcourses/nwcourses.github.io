@@ -1,26 +1,29 @@
 <html>
 <head>
-<script type="text/javascript">
-function repnode()
-{
+<script type="module">
+document.getElementById("go").addEventListener("click", ()=> {
     /* Use the ID to get the element to replace */
     var elemToReplace = document.getElementById('para1');
 
     /* Make a new paragraph (as before) */
     var newElem = document.createElement('p');
-    var newText = document.createTextNode("This is the new paragraph!");
+    var newText = document.createTextNode("This is the brand new, exciting paragraph!!!!!!");
     newElem.appendChild(newText);    
         
     /* Replace the old element with the new */
-    document.body.replaceChild(newElem,elemToReplace);
-}
+    if(document.getElementById("para1")) { // does para1 still exist?
+        document.body.replaceChild(newElem,elemToReplace);
+    } else { // if not, it's already replaced
+        alert("para1 already replaced!");
+    }
+});
 </script>
 </head>
-<link rel="stylesheet" type="text/css" href="../../../css/dfti0910.css">
 <body>
+<link rel="stylesheet" type="text/css" href="../../../css/dfti0910.css" />
 <p>This example replaces a paragraph of text</p>
 <p id="para1">This paragraph will be replaced!</p>
 <p>right click to view source</p>
-<input type="button" value="replace!" onclick="repnode()">
+<input type="button" value="replace!" id="go" />
 </body>
 </html>
