@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<head>
+<title>Topic 5: Introduction to React</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+
+<h1>Topic 5: Introduction to React</h1>
+</div>
+<p><strong>Note:</strong> You should finish the standard exercises from the previous four topics first.</p>
+
+<h2>What is React?</h2>
+
+<p>React (see <a href='https://reactjs.org'>reactjs.org</a>)
+is a JavaScript framework, originally developed by Facebook, which allows complex JavaScript applications to be written in modular, high-level, easy-to-read code.  React revolves around the concept of a <em>component</em>. A component is a subsection of a web page, consisting of multiple related HTML elements (e.g. &lt;div&gt;s, form fields and buttons), which all work together to perform a particular task.</p>
+<p>For example, we could have a component representing a clock, which consists of a &lt;div&gt; containing the current time. Or we could have a component for an AJAX search, consisting of the
+text field to enter the search term, the search button and the &lt;div&gt; to display the search results.</p>
+
+<h2>JSX</h2>
+
+<p>With React, we use an extension of JavaScript called <em>JSX</em> (see 
+<a href='https://reactjs.org/docs/introducing-jsx.html'>the React documentation</a>). JSX allows us to embed HTML elements within
+JavaScript code which can simplify coding a component if it contains large amounts of static HTML and only a small
+amount of variable data. You will see examples of JSX below. Because JSX is not native JavaScript, it needs to
+be converted to standard JavaScript using <em>Babel</em>. Babel is a 
+<em>transpiler</em>; a piece of software which converts between different
+versions of JavaScript, including ECMAScript 6 and older versions, and JSX and standard JavaScript. More details
+<a href='https://babeljs.io'>here</a>.
+Babel needs to be linked to by your web page.</p>
+
+<h2>A simple example</h2>
+
+<p>Here is an initial example, this would be saved in a <em>separate JavaScript file</em> e.g. <code>index.js</code>:
+
+<pre>//index.js
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+
+root.render(&lt;h1&gt;Hello World&lt;/h1&gt;);
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=1'>live example</a></p>
+What's this doing? 
+    <ul>
+    <li>First of all we create a <em>root element</em> for our React app. This is done with the <code>ReactDOM.createRoot()</code> method, part of the <code>ReactDOM</code> package. This takes an existing HTML element as an argument - here, the element with the ID of <code>root</code>
+    </li>
+    <li>We then call the <code>render()</code> method of our <code>root</code> elementand specify something which looks like
+a string of HTML, but does not have the quotes. This is <em>JSX</em>. 
+So here the React code will render an H1 heading reading Hello World inside the 
+element with the ID of <code>div1</code>.</li>
+    </ul>
+</p>
+<p>Here are the required links for React and Babel, which need to go in your accompanying HTML page:
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='https://unpkg.com/react@18/umd/react.development.js' crossorigin&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='https://unpkg.com/react-dom@18/umd/react-dom.development.js' crossorigin&gt;&lt;/script&gt;
+&lt;script type='text/javascript' src='https://unpkg.com/babel-standalone@6/babel.min.js'&gt;&lt;/script&gt;
+&lt;script type='text/babel' src='index.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id='root'&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+The fourth script here (index.js) is <em>your</em> JavaScript file, but note that it has a type of <code>text/babel</code> because it uses JSX rather than pure JavaScript. This tells Babel to process it.</li>
+
+<h2>Defining components</h2>
+
+<h3>Specifying components with functions</h3>
+<p>We can now start looking at how to create individual <em>components</em>.
+Each component can be represented as a <em>custom tag</em> in JSX and is implemented with a corresponding <em>function</em>. Consider this example:
+<pre>
+
+function InputWidget() {
+    return (
+            &lt;div&gt;
+            &lt;h1&gt;Input your name&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' /&gt;
+            &lt;input type='button' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+    );
+}
+
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+
+root.render(&lt;InputWidget /&gt;);
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=2'>live example</a></p>
+<p>
+Note how we create a <em>function</em>
+called <code>InputWidget</code>. This class defines 
+how the component <code>InputWidget</code>, will be rendered. Note how
+the function <em>returns</em> JSX describing how the component will be rendered, i.e.  it will be rendered as a div containing an H1 heading, and a text box and
+button within a fieldset. We can then include the component as a tag in
+the root element's <code>render()</code> to actually render it on the web page.
+Note how we render an &lt;InputWidget&gt;
+to the element with the ID of <code>root</code>.</p>
+
+<h2>Props</h2>
+<p><em>Props</em> (short for properties) are a key feature in React
+(see <a href='https://beta.reactjs.org/learn/passing-props-to-a-component'>the React documentation</a>). Props allow
+you to pass parameters to the component by specifying them as attributes on your
+custom component tag. Here is a modification of the above example to use props:
+<pre>
+function InputWidget({title, defaultName})
+{
+    return (
+            &lt;div&gt;
+            &lt;h1&gt;{title}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' defaultValue={defaultName}/&gt;
+            &lt;input type='button' value='Go!' /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+}
+
+
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+root.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;
+)
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=3'>live example</a></p>
+<p>
+Note how in this example we pass two properties <code>title</code> and
+<code>defaultName</code> to the component:
+<pre>
+&lt;InputWidget <em>title</em>='Please enter your name:' <em>defaultName</em>='Tim Berners-Lee'/&gt;
+</pre>
+We can then refer to them within the component function by specifying them as parameters:
+<pre>function InputWidget({<em>title</em>,<em>defaultName</em>})</pre>
+and referencing them within our code.
+Hence we use <code>title</code> and
+<code>defaultName</code> to refer to each. Note how <em>we can embed variables - and expressions in general - within JSX using the braces { and }</em>:
+<pre>&lt;input type='text' id='name' value={<em>defaultName</em>}/&gt;</pre>
+Anything between braces will be treated as
+a JavaScript variable or expression. As well as simple variables, more complex expressions
+can be embedded within the braces. Thus, here, the <code>title</code> prop will 
+be rendered as an H1 heading, and the <code>defaultName</code> prop will be inserted
+into the text field.</p>
+<h3>Object destructuring</h3>
+<p>Note also the syntax for specifying the props as parameters, specifically the curly brackets:
+<pre>function InputWidget(<em>{title, defaultName}</em>)</pre>
+What is this doing? This is a general JavaScript (<em>not</em> React specific) feature known as <em>object destructuring</em>. It allows us to allocate properties of a JavaScript object into variables of the same name. Here is a simpler non-React example:
+<pre>
+function displaySong({title, artist}) {
+    console.log(`${title} ${artist}`);
+}
+
+const songObject = {
+    title: 'Wonderwall',
+    artist: 'Oasis'
+};
+
+displaySong(songObject);
+</pre>
+In this simpler example we create an object <code>songObject</code> containing two properties <code>title</code> and <code>artist</code>. We then pass this to the <code>displaySong()</code> function. However, note that <code>displaySong()</code> <em>destructures</em> the object into two variables, <code>title</code> and <code>artist</code>, corresponding to the properties of the same name. Likewise with React props, the props to a component become an object, which is then <em>destructured</em> in the component function.</p>
+<h2>State</h2>
+
+<p>React components use the concept of <em>state</em>. A React component can
+store data it needs to do its job in a group of <em>state variables</em>, which can be retrieved when methods of the component are called. This is central to how React works. We store the application's <em>data</em> in its state, and <em>describe</em> the components to be rendered using a mix of HTML and state variables. The result will be that when we update the state, the application will be <em>automatically re-rendered</em> to use the current values stored in the state. Thus, we do not have to manually update the UI each time the application's data changes. For example here is some JSX which might represent a component for displaying a shopping cart.
+<pre>
+&lt;div&gt;
+&lt;p&gt;The contents of your shopping cart is:&lt;/p&gt;
+{shoppingCart}
+&lt;/div&gt;
+</pre>
+<code>shoppingCart</code> is a state variable, which would be updated elsewhere in the code. However because it is a state variable, the component will be automatically re-rendered when the shopping cart changes. Thus, the logic of updating the component is much simpler than using the raw DOM.
+</p>
+<h3>How do we update state?</h3>
+<p>We do this using <code>React.useState()</code>, which is known as a React <em>hook</em>. Hooks provide access to the React API from your own code to accomplish certain tasks: see <a href='https://beta.reactjs.org/reference/react'>here</a>
+<pre>
+function InputWidget({title, defaultName}) {
+
+    const [name, setName] = React.useState(defaultName);
+
+    // ... rest of component ...
+}
+</pre>
+Note how this differs from the previous example.
+    <ul>
+    <li>The line:
+    <pre>const[name, setName] = React.useState(defaultName);</pre>
+    sets up a state property called <code>name</code> and sets it up to initially contain the value of the <code>defaultName</code> prop. It also creates a function <code>setName()</code> which is used to <em>update</em> the state. <code>React.useState</code> always returns an array containing a state variable and function to update it. Note the <em>destructuring</em> syntax:
+<pre>const [name, setName] = ....;</pre>
+This causes the array returned by <code>React.useState()</code> to be <em>destructured</em> into two individual variables, <code>name</code> and <code>setName</code>.</li>
+    <li>Multiple state variables can be setup in this way, and each state variable has a corresponding <code>set</code> method to update that state variable.</li>
+    <li>Note how the text field's <em>value</em> is set to the state variable
+    <code>name</code>. The interesting thing here is that <em>whenever
+    the name property of the state changes, the text field will be automatically
+    updated, as <code>name</code> always refers to the current state</em>. 
+    This shows how state can be more useful than just storing the
+    name in a regular variable, in which case this auto-update would not happen.</li>
+    <li>Also note how we're using the state in the click event handler to retrieve the name.</li>
+    </ul>
+</p>
+<p>The general rule is, <em>always store data associated with a component in
+its state.</em></p>
+<p>See <a href='https://beta.reactjs.org/learn/state-as-a-snapshot'>here</a> for a good description of state, what it is, and why it's useful.</p>
+<h2>Event handling the React way</h2>
+<p>The next example uses state, and additionally, includes code to handle a click event on a button.
+In React, the convention used for event handling is to set up an event handler in the HTML rather than using <code>addEventListener()</code>. This is done in a component's JSX, not the HTML of the web page, so the actual main HTML page remains free of JavaScript.</p>
+<pre>
+function InputWidget({defaultName, title}) {
+    const [name, setName] = React.useState(defaultName);
+       
+    function sayHello() {
+        alert(`Hello ${name}`);
+    }       
+            
+    return (
+        &lt;div&gt;
+        &lt;h1&gt;{title}&lt;/h1&gt;
+        &lt;fieldset&gt;
+        &lt;input type='text' id='name' value={name}/&gt;
+        &lt;input type='button' id='btn1' value='Go!' onClick={sayHello} /&gt;
+        &lt;/fieldset&gt;
+        &lt;/div&gt;
+    );
+}
+
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+
+root.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;
+);
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=4'>live example</a></p>
+<p>
+Note how we set up an <code>onClick</code> event for the button directly in the JSX
+code. The event handler is a function (<code>sayHello()</code>; note that this is a function within a function) that uses the state to alert the
+name entered. Note how the braces following the <code>onClick</code> are
+for embedding JavaScript within our HTML as we have seen before.</p>
+<p>Note also how the event is <code>onClick</code>, not <code>onclick</code>; React
+uses the convention for event handling of capitalising the first letter of the
+event type.</p>
+<h3>Implementing an onChange() event handler</h3>
+<p>If you try this out, you'll notice that it is <em>impossible to change the text in the text field</em>. Why is this? The text field is <em>tightly bound to the name property of the state, so unless the state changes, the text field will
+not change</em>. More generally, <em>any element within the component which 
+references the state is tightly bound to the state and will not change unless
+the state changes</em>. To implement an editable text field, you need to implement
+an <code>onChange()</code> event handler on the text field to update the
+<em>state</em>. The next example shows this:
+<pre>
+function InputWidget({title, defaultName}) {
+    
+    const [name, setName] = React.useState(defaultName);
+       
+    return (
+            &lt;div&gt;
+            &lt;h1&gt;{title}&lt;/h1&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='name' value={name} onChange={updateState}/&gt;
+            &lt;input type='button' id='btn1' value='Go!' onClick={sayHello} /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+        );
+
+        
+    function sayHello() {
+        alert(`Hello ${name}`);
+    }
+
+    function updateState() {
+        setName(document.getElementById('name').value);
+    }
+}
+    
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+
+root.render(
+    &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;
+);
+~   
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=5'>live example</a></p>
+<p>
+Note how the text field now has an <code>onChange</code> event handler, which is
+the <code>updateState()</code> method of the component.
+In <code>updateState()</code> we use the
+<code>setName()</code> method, remember that when we create the hook we obtain a series of variables, the state variable and a setter to update the state with.
+<p>Note that <em>you must use the setter method</em> to update the state</em>; do not modify the state variable directly.</li> 
+
+
+<h2>Components containing other components, and sharing state ("lifting state up")</h2>
+
+<p>More complex components will contain <em>sub-components</em>. For example,
+imagine an extended version of the previous example in which the greeting message appears in a separate &lt;div&gt; <em>when the user enters their name</em>.
+You can imagine that there might be one component for the text box, another
+component for the &lt;div&gt; and an overall "parent" component containing
+them both.</p>
+<p>What you are probably asking is: how can the contents of the first 
+sub-component (the text field) be passed to the second (the &lt;div&gt; ?)
+The recommended approach (see <a href='https://beta.reactjs.org/learn/sharing-state-between-components'>the React documentation</a>) 
+is to store information that needs to be shared between the two components as
+<em>state of the parent</em>. We can then pass that state to the sub-components
+via props. This is known as <em>lifting state up</em>. The following example illustrates this:
+<pre>
+function AppWidget({title, defaultName}) {
+    const [name, setName] = React.useState(defaultName);
+
+
+    function updateState(name) {
+        setName(name);
+    }
+
+    return (
+        &lt;div&gt;
+        &lt;InputWidget title={title} passBackUserInput={updateState} name={name}/&gt;
+        &lt;ResultsWidget name={name} /&gt;
+        &lt;/div&gt;
+    )
+
+}
+
+function InputWidget({title, passBackUserInput}) {
+
+
+    function updateName() {
+        const n =  document.getElementById('name').value;
+        passBackUserInput(n);
+    }
+
+    return (
+        &lt;div&gt;
+        &lt;h1&gt;{title}&lt;/h1&gt;
+        &lt;fieldset&gt;
+        &lt;input type='text' id='name' onChange={updateName} /&gt;
+        &lt;/fieldset&gt;
+        &lt;/div&gt;
+    )
+}
+
+function ResultsWidget({name}) {
+    return (
+        &lt;div style={{border: '1px solid black'}}&gt;{name}&lt;/div&gt;
+    )
+}
+
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+
+root.render(
+    &lt;AppWidget title='Enter your name' defaultName='Fred'  /&gt;
+)
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=6'>live example</a></p>
+<p>
+What is happening here? The diagram gives a general idea:
+<br />
+<img src="../images/liftingstate.png" alt="Lifting state up" />
+<br />
+In more detail:
+<ul>
+<li>Firstly note the parent component, <code>AppWidget</code>. Note that the <em>parent</em> component stores the name in its state. Note how the name is passed down to the two sub-components,
+<code>InputWidget</code> and <code>ResultsWidget</code>, as their props. In a similar way to the text
+field value being tightly bound to the state, this will tightly bind the props of the sub-components
+to the state of the parent.</li>
+<li>In the <code>ResultsWidget</code> (the output &lt;div&gt;), we display the <code>name</code> prop, which as we have
+seen, is tightly bound to the state of the parent. <em>Note also how we set the style of this &lt;div&gt;</em>.
+As we are in JSX and not plain HTML, we have to use different syntax to normal inline styles:
+<pre>&lt;div style={{border: '1px solid black'}}&gt;</pre>
+The outer curly brackets indicate that we are embedding JavaScript within HTML within JSX, as before. The inner brackets indicate that we are defining a <em>JavaScript object</em> to represent the style, rather than
+ordinary CSS. The same rules as normal for accessing styles within JavaScript apply, i.e. style properties with
+dashes become camel case, for example <code>background-color</code> becomes <code>backgroundColor</code>.</li>
+<li>Note also how in the render() method of the parent component, <code>AppWidget</code>, we render the 
+<code>InputWidget</code> as:
+<pre>&lt;InputWidget passBackUserInput={updateState} name={name}/&gt;</pre>
+What we are doing here is <em>passing a callback method, <code>updateState()</code>, into the InputWidget as a prop
+named passBackUserInput</em>.
+You can do this; methods can be passed as props as well as simple data. <code>updateState()</code> updates the
+name property of the parent's state to the name passed in as a parameter.</li>
+<li>Thus, this prop, i.e. <code>passBackUserInput()</code>, can be called as a method from the <code>InputWidget</code>.
+This is precisely what happens when we encounter an <code>onChange</code> event; we first call <code>updateName()</code> and then
+pass the name in the text field to <code>passBackUserInput()</code>. Since the <code>passBackUserInput()</code> property is set equal
+to the <code>updateState()</code> method in <code>AppWidget</code>, it follows that any change to the name in the text field
+will update the state of the parent component. Then, since the name prop of the <code>ResultsWidget</code> is tightly bound
+to the parent's state, it follows that any updates in the text field will update the <code>ResultsWidget</code>.</li>
+</ul>
+</p>
+<h3>Components must have a root element</h3>
+<p>Note that the JSX returned by a component function must have a 
+<em>single root element</em>. Here is an example, note that <code>MappingAppWidget</code> contains a <code>MapWidget</code> and a <code>PointsOfInterestListWidget</code> but also contains a <code>div</code> to contain them both as a root element for this component.
+<pre>
+function MappingAppWidget()  {
+    return (
+        &lt;div&gt;
+        &lt;MapWidget /&gt;
+        &lt;PointOfInterestListWidget /&gt;
+        &lt;/div&gt;
+    );
+}
+</pre>
+</p>
+<h2>Production React apps: create-react-app</h2>
+<p>When building a production React app, you would typically not use the method described here, in which React is linked into your HTML via <code>script</code> tags. Instead you would use build tools such as <code>npm</code> with NPM packages for React and Babel. However, due to the Babel transpiling step, this can become quite complex. There is a piece of software <code>create-react-app</code> which automates a lot of this for you. You can find out about this <a href='https://create-react-app.dev'>here</a>.</p>
+<h2>Further Reading on React website</h2>
+<ul>
+<li><a href='https://reactjs.org'>React website</a></li>
+<li><a href='https://beta.reactjs.org'>React up-to-date documentation</a> using currently-recommended development practice</li>
+<li><a href='https://beta.reactjs.org/learn/tutorial-tic-tac-toe'>React tutorial</a></li>
+</ul>
+<h2>Exercise</h2>
+<p>Build a version of your HitTastic! AJAX site using React. To do this:
+<ol>
+<li>In your <code>public</code> folder, create a web page which links in the appropriate React and Babel libraries, and contains a single root &lt;div&gt;. Your React components should
+be rendered to this &lt;div&gt;.</li>
+<li>Now start working on your React code, within a JavaScript file also in the <code>public</code> folder. Initially,
+create a single component with a search box for the artist, a button, and
+a results &lt;div&gt;</li>
+<li>Next, connect the button to an event handler function within the component. The event handler should initially display an alert box with a message of "You entered the artist " plus the artist name.</li>
+<li>Once you've got this working, create a <em>state</em> variable to represent search results returned from the server, together with a function to update the state variable.</li>
+<li>Now write a function <em>inside your component function</em> to perform an AJAX request to your Session 1 web API (the search by artist route) and update the results &lt;div&gt; to contain the <em>raw JSON</em> from the server. You should display title, artist, year and quantity. <strong>Store the array of objects returned from the web API in the state variable you created in the previous step, and set the contents of the results &lt;div&gt; to this state variable.</strong></li>
+<li>Next, try displaying the search results in a user-readable form, rather than JSON:
+    <ul>
+    <li><em>Hint</em>: you will need to convert your array of objects to JSX in your component and return it.
+    this by using the <code>map()</code> method. This maps an input array to an
+    output array and can be used as follows:
+<pre>
+    // Each entry needs a unique key, we use the song ID here
+    // This is done to keep track of individual list items when the data 
+    // changes (though we will not look at this here, just know each item needs
+    // a key)
+    const output = songs.map( song=&gt;
+        &lt;p key={song.id}&gt;Title: {song.title}&lt;/p&gt;
+    );
+    return (
+        &lt;div&gt;
+        {output}
+        &lt;/div&gt;
+    );
+</pre>
+    What is happening here? If <code>songs</code> is a state variable containing an  array with the JSON results, <code>map</code> returs a new array with each member of the array
+    (each song) <em>mapped</em> to the resulting JSX string, i.e. <em>Title: <code>{song.title}</code></em>. Thus, the array <em>output</em> will be an array of JSX for each song. We include this as part of the JSX returned from the function.</li>
+    </ul>
+</li>
+<li>Once you've completed this, try using <em>a parent component and two sub-components</em> (see the "lifting state up" section above), one containing the
+text field and button, and another containing the results &lt;div&gt;. By storing the data returned from the AJAX in the parent
+component's <em>state</em>, update the search &lt;div&gt; every time the button is clicked.</li> 
+</ol>
+</body>
+</html>
