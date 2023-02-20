@@ -154,11 +154,11 @@ child node of a given node. e.g.
 <pre>
 
 // create a child node of the parent, assume that 'parent' has no children yet
-var p = document.createElement("p");
+const p = document.createElement("p");
 parent.appendChild(p);
 
 // create a text node
-var textNode = document.createTextNode("some text");
+const textNode = document.createTextNode("some text");
 
 // append it to the first child of the node 'parent', which will be the
 // paragraph we created above. In other words 'p' and 'parent.firstChild'

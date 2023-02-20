@@ -3,12 +3,12 @@
 <script type="module">
 document.getElementById("go").addEventListener("click", () => {
     /* Make a new paragraph (as before) */
-    var newElem = document.createElement('p');
-    var newText = document.createTextNode("This is the new paragraph!");
+    const newElem = document.createElement('p');
+    const newText = document.createTextNode("This is the new paragraph!");
     newElem.appendChild(newText);    
     
     /* Get an array of all the paragraphs */
-    var paras = document.body.getElementsByTagName("P");
+    const paras = document.body.getElementsByTagName("P");
     
     /* Replace the 5th paragraph. Remember arrays are indexed from
        0. */

@@ -4,11 +4,17 @@ function InputWidget({title, defaultName}) {
        
 	return (
             <div>
+
+            <div>
             <h1>{title}</h1>
             <fieldset>
             <input type='text' id='name' value={name} onChange={updateState}/>
             <input type='button' id='btn1' value='Go!' onClick={sayHello} />
             </fieldset>
+            </div>
+
+            <p style={{backgroundColor: 'yellow'}}>Hello {name}!</p>
+
             </div>
         );
     

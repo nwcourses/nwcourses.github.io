@@ -3,11 +3,11 @@
 <script type="module">
 document.getElementById("go").addEventListener("click", ()=> {
     /* Use the ID to get the element to replace */
-    var elemToReplace = document.getElementById('para1');
+    const elemToReplace = document.getElementById('para1');
 
     /* Make a new paragraph (as before) */
-    var newElem = document.createElement('p');
-    var newText = document.createTextNode("This is the brand new, exciting paragraph!!!!!!");
+    const newElem = document.createElement('p');
+    const newText = document.createTextNode("This is the brand new, exciting paragraph!!!!!!");
     newElem.appendChild(newText);    
         
     /* Replace the old element with the new */

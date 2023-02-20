@@ -262,10 +262,12 @@ an <code>onChange()</code> event handler on the text field to update the
 <em>state</em>. The next example shows this:
 <pre>
 function InputWidget({title, defaultName}) {
-    
+
     const [name, setName] = React.useState(defaultName);
        
     return (
+            &lt;div&gt;
+    
             &lt;div&gt;
             &lt;h1&gt;{title}&lt;/h1&gt;
             &lt;fieldset&gt;
@@ -273,13 +275,17 @@ function InputWidget({title, defaultName}) {
             &lt;input type='button' id='btn1' value='Go!' onClick={sayHello} /&gt;
             &lt;/fieldset&gt;
             &lt;/div&gt;
+            
+            &lt;p style={{backgroundColor: 'yellow'}}&gt;Hello {name}!&lt;/p&gt;
+            
+            &lt;/div&gt;
         );
 
-        
+            
     function sayHello() {
         alert(`Hello ${name}`);
     }
-
+            
     function updateState() {
         setName(document.getElementById('name').value);
     }
@@ -287,12 +293,12 @@ function InputWidget({title, defaultName}) {
     
 const root = ReactDOM.createRoot(
     document.getElementById('root')
-);
-
+);          
+            
 root.render(
     &lt;InputWidget title='Please enter your name:' defaultName='Tim Berners-Lee'/&gt;
 );
-~   
+
 </pre>
 </p>
 <p>See the <a href='examples/react/index.html?ex=5'>live example</a></p>
@@ -302,7 +308,75 @@ the <code>updateState()</code> method of the component.
 In <code>updateState()</code> we use the
 <code>setName()</code> method, remember that when we create the hook we obtain a series of variables, the state variable and a setter to update the state with.
 <p>Note that <em>you must use the setter method</em> to update the state</em>; do not modify the state variable directly.</li> 
+<p>Another change here is that the current name is displayed in a &lt;div&gt;, which live-updates when the name is changed.
+As we are in JSX and not plain HTML, we have to use different syntax to normal inline styles:
+<pre>&lt;p style={{backgroundColor: 'yellow'}}&gt;</pre>
+The outer curly brackets indicate that we are embedding JavaScript within HTML within JSX, as before. The inner brackets indicate that we are defining a <em>JavaScript object</em> to represent the style, rather than
+ordinary CSS. The same rules as normal for accessing styles within JavaScript apply, i.e. style properties with
+dashes become camel case, for example <code>background-color</code> becomes <code>backgroundColor</code>.</p>
 
+<h3>A more complex example - storing an array in state</h3>
+<p>The next example simulates a shopping cart by storing an array of items in state. 
+<pre>
+let itemId = 1;
+
+function CartWidget({store}) {
+    const [cart, setCart] = React.useState([]);
+
+
+    const cartHtml = cart.map ( item =&gt; &lt;li key={item.id}&gt;{item.name}&lt;/li&gt;);
+
+    return (
+            &lt;div&gt;
+
+            &lt;h1&gt;{store}&lt;/h1&gt;
+
+            &lt;div&gt;
+            &lt;h2&gt;Add an item to your cart&lt;/h2&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='item' /&gt;
+            &lt;input type='button' id='btn1' value='Go!' onClick={addItem} /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+
+            Here are your items:
+            &lt;ul style={{backgroundColor: 'yellow'}}&gt;
+            {cartHtml}
+            &lt;/ul&gt;
+
+            </div>
+        );
+
+
+
+    function addItem() {
+        const items = structuredClone(cart);
+        const newItem = {
+            id: itemId++,
+            name: document.getElementById('item').value
+        };
+        items.push(newItem);
+        setCart(items);
+    }
+}
+
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+
+root.render(
+    &lt;CartWidget store='Solent E-Stores'/&gt;
+);
+</pre>
+</p>
+<p>See the <a href='examples/react/index.html?ex=6'>live example</a></p>
+<p>
+Note how we:
+	<ul>
+	<li>Implement a method to add an item to the cart, <code>addItem()</code>. This runs when the user clicks the "add item" button. In here we make a <em>clone</em> of the cart state object (we cannot add directly to an array stored in state, we must make a clone, add to that, and reset the state to the clone). We then create an object for the new item (<code>newItem</code>), containing fields for its ID and its name. The former is an auto-incrementing integer, the latter is what the user entered. We then add the item to the clone of the cart (<code>items.push(newItem)</code>), before updating the <code>cart</code> variable in the state to the clone (with the new item added) with <code>setCart()</code></li>.
+	<li>Use the <code>map()</code> method of <code>cart</code> to convert it to an array of JSX, ready for rendering. Each cart item is converted to an HTML list item (<code>li</code>), containing the item's name. Note also how each list item has a unique <code>key</code> containing the item ID. React uses this to keep track of which item is which if items in the list are modified or deleted. We don't do this here, but nonetheless you should always give items in a rendered list of items a unique <code>key</code>.</li>
+	</ul>
+</p>
 
 <h2>Components containing other components, and sharing state ("lifting state up")</h2>
 
@@ -368,7 +442,7 @@ root.render(
 )
 </pre>
 </p>
-<p>See the <a href='examples/react/index.html?ex=6'>live example</a></p>
+<p>See the <a href='examples/react/index.html?ex=7'>live example</a></p>
 <p>
 What is happening here? The diagram gives a general idea:
 <br />
@@ -382,11 +456,7 @@ field value being tightly bound to the state, this will tightly bind the props o
 to the state of the parent.</li>
 <li>In the <code>ResultsWidget</code> (the output &lt;div&gt;), we display the <code>name</code> prop, which as we have
 seen, is tightly bound to the state of the parent. <em>Note also how we set the style of this &lt;div&gt;</em>.
-As we are in JSX and not plain HTML, we have to use different syntax to normal inline styles:
-<pre>&lt;div style={{border: '1px solid black'}}&gt;</pre>
-The outer curly brackets indicate that we are embedding JavaScript within HTML within JSX, as before. The inner brackets indicate that we are defining a <em>JavaScript object</em> to represent the style, rather than
-ordinary CSS. The same rules as normal for accessing styles within JavaScript apply, i.e. style properties with
-dashes become camel case, for example <code>background-color</code> becomes <code>backgroundColor</code>.</li>
+</li>
 <li>Note also how in the render() method of the parent component, <code>AppWidget</code>, we render the 
 <code>InputWidget</code> as:
 <pre>&lt;InputWidget passBackUserInput={updateState} name={name}/&gt;</pre>
@@ -435,32 +505,15 @@ a results &lt;div&gt;</li>
 <li>Next, connect the button to an event handler function within the component. The event handler should initially display an alert box with a message of "You entered the artist " plus the artist name.</li>
 <li>Once you've got this working, create a <em>state</em> variable to represent search results returned from the server, together with a function to update the state variable.</li>
 <li>Now write a function <em>inside your component function</em> to perform an AJAX request to your Session 1 web API (the search by artist route) and update the results &lt;div&gt; to contain the <em>raw JSON</em> from the server. You should display title, artist, year and quantity. <strong>Store the array of objects returned from the web API in the state variable you created in the previous step, and set the contents of the results &lt;div&gt; to this state variable.</strong></li>
-<li>Next, try displaying the search results in a user-readable form, rather than JSON:
+<li>Next, try displaying the search results in a user-readable form, rather than JSON.
     <ul>
-    <li><em>Hint</em>: you will need to convert your array of objects to JSX in your component and return it.
-    this by using the <code>map()</code> method. This maps an input array to an
-    output array and can be used as follows:
-<pre>
-    // Each entry needs a unique key, we use the song ID here
-    // This is done to keep track of individual list items when the data 
-    // changes (though we will not look at this here, just know each item needs
-    // a key)
-    const output = songs.map( song=&gt;
-        &lt;p key={song.id}&gt;Title: {song.title}&lt;/p&gt;
-    );
-    return (
-        &lt;div&gt;
-        {output}
-        &lt;/div&gt;
-    );
-</pre>
-    What is happening here? If <code>songs</code> is a state variable containing an  array with the JSON results, <code>map</code> returs a new array with each member of the array
-    (each song) <em>mapped</em> to the resulting JSX string, i.e. <em>Title: <code>{song.title}</code></em>. Thus, the array <em>output</em> will be an array of JSX for each song. We include this as part of the JSX returned from the function.</li>
+    <li><em>Hint</em>: you will need to convert your array of objects to JSX in your component and return it, as shown in the shopping cart example above.</li>
     </ul>
 </li>
 <li>Once you've completed this, try using <em>a parent component and two sub-components</em> (see the "lifting state up" section above), one containing the
 text field and button, and another containing the results &lt;div&gt;. By storing the data returned from the AJAX in the parent
 component's <em>state</em>, update the search &lt;div&gt; every time the button is clicked.</li> 
+<li><strong>Requires further research:</strong> Try using <code>create-react-app</code> for your application. See the documentation there. You might also find this information on <a href='https://nwcourses.github.io/COM620/week4.html'>JavaScript modules</a> useful.</li>
 </ol>
 </body>
 </html>

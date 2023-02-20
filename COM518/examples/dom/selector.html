@@ -9,13 +9,13 @@ div { margin: 10px; }
 <script type='module'>
 
 document.getElementById("go").addEventListener("click", () => {
-	var div = document.querySelector("#div1");
+	const div = document.querySelector("#div1");
 	div.style.backgroundColor = 'black';
 	div.style.color = 'white';
 
-	var imp = document.querySelector(".important");
+	let imp = document.querySelector(".important");
 	console.log(imp);
-	var imp = document.querySelectorAll(".important");
+	imp = document.querySelectorAll(".important");
 	console.log(imp);
 	for(var i=0; i<imp.length; i++) {
 		imp[i].style.backgroundColor = 'red';

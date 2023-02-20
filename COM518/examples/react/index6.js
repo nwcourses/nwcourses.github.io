@@ -1,48 +1,48 @@
-function AppWidget({title, defaultName}) {
-    const [name, setName] = React.useState(defaultName);
+let itemId = 1;
+
+function CartWidget({store}) {
+	const [cart, setCart] = React.useState([]);
+
+
+    const cartHtml = cart.map ( item => <li key={item.id}>{item.name}</li> ); 
+       
+	return (
+            <div>
+            <h1>{store}</h1>
+
+            <div>
+            <h2>Add an item to your cart</h2>
+            <fieldset>
+            <input type='text' id='item' />
+            <input type='button' id='btn1' value='Go!' onClick={addItem} />
+            </fieldset>
+            </div>
+
+            Here are your items:
+            <ul style={{backgroundColor: 'yellow'}}>
+            {cartHtml}
+            </ul>
+
+            </div>
+        );
+    
     
 
-    function updateState(name) {
-        setName(name);
+    function addItem() {
+        const items = structuredClone(cart);
+        const newItem = { 
+            id: itemId++, 
+            name: document.getElementById('item').value 
+        };
+        items.push(newItem);
+        setCart(items);
     }
-
-    return (
-        <div>
-        <InputWidget title={title} passBackUserInput={updateState} name={name}/>
-        <ResultsWidget name={name} />
-        </div>
-    )
-    
-}
-
-function InputWidget({title, passBackUserInput}) {
-
-
-    function updateName() {
-        const n =  document.getElementById('name').value;
-        passBackUserInput(n);
-    }
-
-    return (
-        <div style={{backgroundColor: 'blue', color: 'white'}}>
-        <h1>{title}</h1>
-        <fieldset>
-        <input type='text' id='name' onChange={updateName} />
-        </fieldset>
-        </div>
-    )
-}
-
-function ResultsWidget({name}) {
-    return (
-        <div style={{border: '1px solid black', color: 'black', backgroundColor: 'yellow'}}>Hello {name}!</div>
-    )
 }
 
 const root = ReactDOM.createRoot(
-    document.getElementById('root')
+	document.getElementById('root')
 );
 
 root.render(
-    <AppWidget title='Enter your name' defaultName='Fred'  />
-)
+    <CartWidget store='Solent E-Stores'/>
+);
