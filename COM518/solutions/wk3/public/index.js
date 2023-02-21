@@ -23,13 +23,49 @@ async function ajaxSearch(artist) {
     // Parse the JSON
     const songs = await ajaxResponse.json();
 
+	console.log(songs);
+
     // Loop through each song in the JSON
     let html = "";
     songs.forEach( song => {
         // Format the HTML output, using the fields from the current song
-        html += `${song.title} by ${song.artist}, year ${song.year}, chart ${song.chart}<br />`;
+        html += `${song.title} by ${song.artist}, year ${song.year}<br />`;
     });
 
     // Add the results to the 'ht_results' <div>
     document.getElementById("ht_results").innerHTML = html;
 }
+
+
+// Add a song
+document.getElementById("ht_add").addEventListener("click", async() => {
+
+    const song = {
+        "title": document.getElementById("new_title").value,
+        "artist": document.getElementById("new_artist").value,
+        "year": document.getElementById("new_year").value,
+        "quantity": document.getElementById("new_quantity").value,
+        "price": document.getElementById("new_price").value
+    };
+
+    try {
+
+        const response = await fetch('/song/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(song)
+        });    
+
+        if(response.status == 200) {
+            alert("Successfully added");
+        } else if (response.status == 400) {
+            alert("Blank fields");
+        } else {
+            alert(`Unknown error: code ${response.status}`);
+        }
+    } catch(e) {
+        alert(`Error: ${e}`);
+    }
+});

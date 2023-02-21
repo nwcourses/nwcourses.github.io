@@ -18,6 +18,9 @@ const app = express();
 // Enable reading JSON from the request body of POST requests
 app.use(express.json());
 
+// Access static content in the 'public' folder
+app.use(express.static('public'));
+
 // Load the database. You may need to change the path.
 const db = new Database("wadsongs.db");
 
@@ -87,9 +90,13 @@ app.delete('/song/:id', (req, res) => {
 // Add a song
 app.post('/song/create', (req, res) => {
     try {
-        const stmt = db.prepare('INSERT INTO wadsongs(title,artist,year,downloads,price,quantity) VALUES(?,?,?,0,?,?)');
-        const info = stmt.run(req.body.title, req.body.artist, req.body.year, req.body.price, req.body.quantity);
-        res.json({id: info.lastInsertRowid});
+        if(req.body.title == "" || req.body.artist == "" || req.body.year == "" || req.body.price == "" || req.body.quantity == "") {
+            res.status(400).json({error: "Blank fields"});
+        } else {
+            const stmt = db.prepare('INSERT INTO wadsongs(title,artist,year,downloads,price,quantity) VALUES(?,?,?,0,?,?)');
+            const info = stmt.run(req.body.title, req.body.artist, req.body.year, req.body.price, req.body.quantity);
+            res.json({id: info.lastInsertRowid});
+        }
     } catch(error) {
         res.status(500).json({error: error});
     }

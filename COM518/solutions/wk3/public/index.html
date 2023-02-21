@@ -20,6 +20,14 @@ a {
 #main {
 	font-size: 120%;
 }
+
+#ht_results {
+    border: 1px solid black;
+    background-color: white;
+    width: 50%;
+    height: 200px;
+    overflow: auto;
+}
 </style>
 </head>
 <body>
@@ -31,5 +39,20 @@ Search for an artist: <input id="ht_artist" />
 <input type="button" id="ht_search" value="Go!" />
 </p>
 <div id="ht_results"></div>
+
+<h2>Add a song</h2>
+<p>
+Title: <br />
+<input id="new_title" /><br />
+Artist: <br />
+<input id="new_artist" /><br />
+Year: <br />
+<input id="new_year" /><br />
+Quantity: <br />
+<input id="new_quantity" /><br />
+Price: <br />
+<input id="new_price" /><br />
+<input type="button" id="ht_add" value="Go!" />
+</p>
 </body>
 </html>
