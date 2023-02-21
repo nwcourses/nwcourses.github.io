@@ -146,6 +146,11 @@ override fun onRequestPermissionsResult(requestCode:Int, permissions:Array&lt;St
   
 }</pre>
 Note how we call <code>readFromFile()</code> again when the user has granted file read permission. This time, as the permission has been granted, the app will actually be able to read from the file.</p>
+<h3>Example runtime permissions starter code (NEW 21/02/23)</h3>
+<p>There is now a starter project on <a href='https://github.com/nwcourses/PermissionsStarter'>GitHub</a>:
+<pre>https://github.com/nwcourses/PermissionsStarter</pre>
+This is the example we went through at the end of Week 3.
+</p>
 <h3>Using runtime permissions on devices running older versions of Android</h3>
 <p>As long as we manage runtime permissions via the Jetpack AppCompat library (as we did in the examples above), code using runtime permissions will compile and run on these old versions of Android, as long as our <code>targetSdkVersion</code> is at least 23. However, that the user will not actually be prompted to grant permissions on a pre-Android 6 device; it will fall back to install-time
 permissions
