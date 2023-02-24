@@ -6,8 +6,6 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
-<!--
 <h1>Topic 6: Web Mapping with OpenStreetMap and Leaflet</h1>
 </div>
 <h2>Introduction</h2>
@@ -215,10 +213,10 @@ L.tileLayer
             
 map.setView([50.908, -1.4], 14);
 map.on("click", e =&gt; {
-	// "e.latlng" is an object (of type L.LatLng) representing the mouse click 
-	// position
-	// It has two properties, "lat" is the latitude and "lng" is the longitude.
-	alert(`You clicked at:${e.latlng.lat} ${e.latlng.lng}`);
+    // "e.latlng" is an object (of type L.LatLng) representing the mouse click 
+    // position
+    // It has two properties, "lat" is the latitude and "lng" is the longitude.
+    alert(`You clicked at:${e.latlng.lat} ${e.latlng.lng}`);
 });
 
 
@@ -380,14 +378,12 @@ so that by clicking on the
 map, you add a marker to the map at that position.
 </li>
 <li>Using a prompt box to read the text in, bind a popup to the marker 
-containing text entered by the user, e.g:
+containing text entered by the user. Use a prompt box to read information in from the user, e.g:
 <pre>const text = prompt('Please enter some text');</pre>
 </li>
 </ol>
 <h3>Exercise 3 - Connecting to a web API and displaying markers</h3>
-<p>This <a href='artists.sql'>SQL file</a> creates and populates a table called
-<em>artists</em> which gives the latitude and longitude of the home towns
-of selected artists. Import this into your database, remembering to change the <code>USE</code> statement to reference your specific database.
+<p>This <a href='wadsongs.db'>updated HitTastic! database</a> contains a table called <code>artists</code> which stores the latitude and longitude of the home towns of selected artists, in addition to the <code>wadsongs</code>. Download this, and replace your existing <code>wadsongs.db</code> with it.
 </p>
 <ul>
 <li>Extend your Express server to add an additional route <code>/hometown/:artist</code> which looks up the hometown of a particular artist. It should return
@@ -405,10 +401,12 @@ the artist's hometown. When the marker is clicked,
 the name of the home town of the artist should be shown in a popup.</li>
 </ul>
 <h3>Exercise 4 - adding data to a web API via a map interface</h3>
-<p>Add a <em>new</em> route to your server, to <em>add</em> a new home town to the database. The route should take, as POST data, the latitude, longitude, artist name, and home town name. In your client-side code, when the user clicks on the map, send a POST request to this route, containing the required information. Use the map click position for the latitude and longitude, and read the artist name and location via prompt boxes, e.g:
+<ul>
+<li>Add a <em>new</em> route to your server, to <em>add</em> a new home town to the database. The route should take, as POST data, the latitude, longitude, artist name, and home town name.</li>
+<li> In your client-side code, when the user clicks on the map, send a POST request to this route, containing the required information. Use the map click position for the latitude and longitude, and read the artist name and location via prompt boxes, e.g:
 <pre>const artist = prompt('Please enter an artist name');</pre>
-</p>
-<p>Add a marker to your map <strong>when the response is received from the server, and only if a 200 is returned</strong>.</p>
--->
+</li>
+<li>Add a marker to your map <strong>when the response is received from the server, and only if a 200 is returned</strong>.</li>
+</ul>
 </body>
 </html>
