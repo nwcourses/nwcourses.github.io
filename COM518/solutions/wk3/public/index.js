@@ -23,8 +23,6 @@ async function ajaxSearch(artist) {
     // Parse the JSON
     const songs = await ajaxResponse.json();
 
-	console.log(songs);
-
     // Loop through each song in the JSON
     let html = "";
     songs.forEach( song => {
@@ -40,6 +38,7 @@ async function ajaxSearch(artist) {
 // Add a song
 document.getElementById("ht_add").addEventListener("click", async() => {
 
+    // Create an object containing the details from the form
     const song = {
         "title": document.getElementById("new_title").value,
         "artist": document.getElementById("new_artist").value,
@@ -50,6 +49,7 @@ document.getElementById("ht_add").addEventListener("click", async() => {
 
     try {
 
+        // Send an AJAX post request to the server, with the song in the body
         const response = await fetch('/song/create', {
             method: 'POST',
             headers: {
@@ -58,6 +58,7 @@ document.getElementById("ht_add").addEventListener("click", async() => {
             body: JSON.stringify(song)
         });    
 
+        // Handle the status returned from the server
         if(response.status == 200) {
             alert("Successfully added");
         } else if (response.status == 400) {
