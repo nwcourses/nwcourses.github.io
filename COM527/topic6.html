@@ -23,7 +23,7 @@
     <li>We could make our map a local variable in <code>onCreate()</code>, e.g.:
     <pre>val map = findViewById&lt;MapView&gt;(R.id.map1)</pre>
     However this has the disadvantage that we would have to find the map using <code>findViewById()</code> <em>again</em> if we wanted to use it in other methods of the activity, which is inefficient.</li>
-    <li>Could we initialise it outside of any method, e.g.
+    <li>Could we initialise it directly inside the class body, outside of any particular method? For example:
 <pre>class MainActivity: AppCompatActivity() {
     val map = findViewById&lt;MapView&gt;(R.id.map1)
 
@@ -34,7 +34,7 @@
         Unfortunately this would <em>not</em> work. We can only initialise variables which reference UI elements from <code>onCreate()</code> onwards, when the UI has been fully initialised.</li>
             <li>We could make it a nullable, and then initialise it in <code>onCreate()</code>, e.g.
 <pre>class MainActivity: AppCompatActivity() {
-    val map : MapView? = null
+    var map : MapView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         map = findViewById&lt;MapView&gt;(R.id.map1)
@@ -243,34 +243,21 @@ the following methods run when certain events occur:
     <li><em>onCreate()</em>: runs when the application is first launched.
     Note also that certain actions, such as changing the device orientation,
     can force <em>onCreate()</em> to run.</li>
-    <li><em>onStart()</em>: runs when the activity becomes visible. This can
-    either be when it first becomes visible, or becomes visible again after
-    being hidden. For example, it will be called
-    after you return to the current Activity after using another application,
-    or after closing a second activity within the same application, e.g. a
-    preferences screen, causing the original activity to become visible again.</li>
-    <li><em>onStop()</em>: runs when the activity is hidden, e.g.
-    you open another application which hides the current app, or you run a second activity
-    within the same application, e.g. a preferences screen, which hides the current activity.</li>
+    <li><em>onStart()</em> and <em>onResume()</em>: both run when the activity becomes visible. This can either be when it first becomes visible, or becomes visible again after being hidden. For example, it will be called
+    after you return to the current Activity after using a completely different application, or after closing a second activity within the same application, e.g. a
+    preferences screen, causing the original activity to become visible again.
+    See the discussion of <code>onPause()</code> and <code>onStop()</code>, below, for the difference between the two.</li>
+    <li><em>onPause()</em>: when the activity pauses after being fully visible, and focused. This happens on shutdown of the activity, or when another activity comes in front of the current activity, <strong>including activities not occupying the whole of the screen.</strong></li>
+    <li><em>onStop()</em>: is called immediately after <code>onPause()</code> but <em>only</em> on shutdown, or if the activity coming in front of the current one <strong>occupies the whole of the screen</strong>. </li>
+    <li><code>onResume()</code> is the opposite of <code>onPause()</code> and <code>onStart()</code> is the opposite of <code>onStop()</code>. Thus, <code>onResume()</code> is called when the current activity becomes visible and focused again after removing an activity in front of it (or when launching the activity), <strong>including cases where the activity on top of the current activity, which has just been removed, does not occupy the whole of the screen</strong>. By contrast, <em>onStart()</em> is only called either on startup or when the activity on top of the current activity, now being removed, occupies the whole of the screen.</li>
     <li><em>onDestroy()</em>: runs when the user dismisses the application. This will happen
     when the user presses the Back button from the main activity. It can also be called under other
     circumstances, e.g. Android kills the activity due to low memory, or when the user rotates the
     device.</li>
-    <li><em>onPause()</em>: when an activity not occupying the whole of the
-    screen comes in front of the current activity. In this case, the current activity is not
-    completely hidden, so <em>onStop()</em> is not called. <em>However</em>, as shown on the
-    diagram above, onPause() also runs
-    immediately before onStop() when the activity becomes completely hidden.</li>
-    <li><em>onResume()</em>: when the current activity becomes focused again
-    after <em>onPause().</em>. In this case, the current activity was never
-    completely hidden, so <em>onStart()</em> is not called.
-    <em>However</em>, as shown on the diagram above, onResume() also runs
-    immediately after onStart() when the activity becomes visible after being completely hidden.</li>
     </ul>
 </p>
 <p>The lifecycle can have important consequences for development. For example, in a mapping app you might want to stop GPS communication when the activity becomes invisible and start it again when it becomes visible again (to save battery), in which case you would stop the GPS in <em>onPause()</em> and start it in <em>onResume()</em>. If you did this in <em>onDestroy()</em> and <em>onCreate()</em> instead, the GPS would still be running if the activity was running but invisible, which for a mapping app would be unnecessary.</p>
-<p>The differences between <em>onStart()/onStop()</em> and <em>onResume()/onPause()</em> are quite subtle and need only be considered if you are writing activities which do not occupy the whole of the screen, which is very rare. You can
-use either.</p> 
+<p>The differences between <em>onStart()/onStop()</em> and <em>onResume()/onPause()</em> are quite subtle and need only be considered if you are writing activities which do not occupy the whole of the screen, which is not so common. In many cases, you can use either.</p> 
 <h3>Accessing Preferences from the App</h3>
 <p>The other thing we need to look at is <em>how to access the values of preferences from your Kotlin code</em>. This can be accomplished by means of the
 <em>PreferenceManager</em> class, which controlls access to the preferences, and <em>SharedPreferences</em> which represents a set of preferences. 
@@ -330,28 +317,25 @@ With these sorts of additional preferences not controlled via a preference scree
 </p>
 <h2>Exercise</h2>
 <ol>
-<li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, and <code>onResume()</code> to <em>the main activity from last week's exercise</em>. In each method, as well as in <code>onCreate()</code>,
-display an <code>AlertDialog</code> with a message saying which method has
-been called. <em>All these methods should call the superclass version of the method, e.g <code>super.onResume()</code></em>. You can avoid duplicating code by creating a <code>showTheDialog()</code> method which shows the alert dialog, and calling it from each of these lifecycle methods.
+<li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, <code>onResume()</code>, <code>onStop()</code>, <code>onPause()</code> and <code>onDestroy()</code> to <em>the main activity from last week's exercise</em>. In each method, as well as in <code>onCreate()</code>,
+display a <code>Log</code> message saying which method has
+been called. <em>All these methods should call the superclass version of the method, e.g <code>super.onResume()</code></em>. 
 For example: 
 <pre>
-// Generic function to show a dialog, to avoid code duplication
-fun showTheDialog(message : String) {
-    AlertDialog.Builder(this)
-        .setPositiveButton("OK", null)
-        .setMessage(message)
-        .show()
-}
+import android.util.Log
 
-// Show the dialog from onResume(). 
-// You should also add the other lifecycle methods onCreate() and onStart(), as explained above
+// ...
+
 override fun onResume() {
     super.onResume()
-    showTheDialog("onResume() called") // call our generic dialog function
+    Log.d("lifecycleApp", "onResume")
 }
 </pre>
+You can display <code>Log</code> messages with the <code>logcat</code> tool. We will cover this in class.
+<br />
+<br />
 Test by launching your app, changing the mapping provider using the second activity, returning to the main activity, and then pressing the Back button to 
-quit the application entirely. <strong>Note how many times <code>onCreate()</code>, <code>onStart()</code> and <code>onResume()</code> are called.</strong>
+quit the application entirely. <strong>Note how many times the lifecycle methods are called.</strong>
 </li>
 <li>The idea of this exercise is to develop a version of your mapping app which uses preferences, rather than a custom activity. 
 Add an extra menu item to launch the preferences, and add 
