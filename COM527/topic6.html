@@ -328,12 +328,16 @@ import android.util.Log
 
 override fun onResume() {
     super.onResume()
-    Log.d("lifecycleApp", "onResume")
+    // First argument is log tag, second argument is message (see below)
+    Log.d("lifecycle", "onResume")
 }
 </pre>
-You can display <code>Log</code> messages with the <code>logcat</code> tool. We will cover this in class.
+You can display <code>Log</code> messages with the <code>logcat</code> tool. Select <em>View-Tool Windows-Logcat</em> to view log messages. A window below your code, similar to that shown below will appear:
 <br />
+<img src='../images/logcat.png' alt='Logcat' />
 <br />
+You need to add a <em>filter</em> to filter log messages to only those you are interested in, such as log messages with a particular <em>log tag</em>. To do this, as shown on the diagram above, add a filter with a particular name, and in the filter settings, set it to filter only messages with a particular log tag (e.g. <code>lifecycle</code>).</p>
+<p>
 Test by launching your app, changing the mapping provider using the second activity, returning to the main activity, and then pressing the Back button to 
 quit the application entirely. <strong>Note how many times the lifecycle methods are called.</strong>
 </li>
