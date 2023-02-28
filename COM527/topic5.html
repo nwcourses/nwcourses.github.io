@@ -247,7 +247,10 @@ val mapChooseLauncher =
         if (it.resultCode == RESULT_OK) {
             it.data?.apply {
                 val opentopomap = this.getBooleanExtra("com.example.opentopomap", false) // false is a default value
-                mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
+
+                // See "lateinit" in week 6 for a way of doing this more efficiently
+                val map1 = findViewById&lt;MapView&gt;(R.id.map1)
+                map1.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
             }
         }
         // The lambda function ends here
@@ -265,6 +268,7 @@ Unfortunately, the API for creating the launcher is rather wordy (a common featu
     This launches the second activity using the launcher we have provided.</p>
     </pre>
 </p>
+<!--
 <h3>Using an interface rather than a lambda to process the result</h3>
 <p>In Week 2 we mentioned the use of <em>SAM conversions</em> to allow us to use a lambda in place of implementing an interface with one method. We have done this here. However, it's possible in some cases that you may wish to use an interface directly instead. The lambda is wrapping the <code>ActivityResultCallback</code> interface, which specifies one method, <code>onActivityResult()</code>. So we could instead make our activity implement this interface e.g.
 <pre>
@@ -277,7 +281,8 @@ override fun onActivityResult(result: ActivityResult) {
     if (result.resultCode == RESULT_OK) {
         result.data?.apply {
             val opentopomap = this.getBooleanExtra("com.example.opentopomap", false) // false is a default value
-            mv.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
+            val map1 = findViewById&lt;MapView&gt;(R.id.map1)
+            map1.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )
         }
     }
 }
@@ -287,6 +292,7 @@ We'd then need to pass in a reference to our <code>Activity</code> (as it is imp
     registerForActivityResult(ActivityResultContracts.StartActivityForResult(), <em>this</em>)
 </pre>
 </p> 
+-->
 <h2>Exercises</h2>
 <ol>
 <li>Create a <em>new</em> mapping project in Android Studio. This should be

@@ -7,16 +7,57 @@
 <body>
 <div class='titlebox'>
 <h1>Mobile Application Development - Part 6</h1>
-<h1>Persistence I - Preferences</h1>
+<h1>Persistence I - Preferences (plus <code>lateinit</code>)</h1>
 </div>
 <p>In this section we will:
     <ul>
+    <li>Look at Kotlin's <code>lateinit</code> keyword and how it is useful in Android</li>
     <li>Look at preferences and how to write a preferences XML file</li>
     <li>Look at how to access preferences from Kotlin code</li>
     <li>Look at the Android activity lifecycle</li>
     </ul>
 </p>
+<h2>First - lateinit</h2>
+<p>Before we start on the main topic of preferences, I want to use this opportunity to introduce the Kotlin <code>lateinit</code> keyword. Imagine we want to initialise our map object in <code>onCreate()</code> and then access it from other methods in our main activity. How could we do this?
+    <ul>
+    <li>We could make our map a local variable in <code>onCreate()</code>, e.g.:
+    <pre>val map = findViewById&lt;MapView&gt;(R.id.map1)</pre>
+    However this has the disadvantage that we would have to find the map using <code>findViewById()</code> <em>again</em> if we wanted to use it in other methods of the activity, which is inefficient.</li>
+    <li>Could we initialise it outside of any method, e.g.
+<pre>class MainActivity: AppCompatActivity() {
+    val map = findViewById&lt;MapView&gt;(R.id.map1)
+
+    override fun onCreate(....) {
+        ....
+    }
+        </pre>
+        Unfortunately this would <em>not</em> work. We can only initialise variables which reference UI elements from <code>onCreate()</code> onwards, when the UI has been fully initialised.</li>
+            <li>We could make it a nullable, and then initialise it in <code>onCreate()</code>, e.g.
+<pre>class MainActivity: AppCompatActivity() {
+    val map : MapView? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        map = findViewById&lt;MapView&gt;(R.id.map1)
+        ....
+    }
+</pre>
+        This works, however because the <code>map</code> variable is nullable, we have to do null-safety checks throughout our code when using it.
+        </li>
+        </ul>
+        </p>
+        <p>As an alternative, we can use <code>lateinit</code>. In cases, such as this, we need to use a variable which <strong>we know will never be null</strong> (so we don't make it nullable) but <strong>we cannot initialise it when the class is first created</strong>. This is common in Android development, where frequently, we can only create objects in <code>onCreate()</code>, once the activity is fully initialised. So in these cases, we declare the variables <code>lateinit</code> to indicate that they will be initialised later, after the class is first created:
+<pre>class MainActivity: AppCompatActivity() {
+    <em>lateinit var</em> map : MapView?
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        map = findViewById&lt;MapView&gt;(R.id.map1)
+        // Now we can use 'map' without null safety checks...
+    }
+</pre>
+</p>
+<hr />
 <h2>Persistence</h2>
+<p
 <p>To <em>persist</em> data means to preserve data across multiple executions of the application. For example the first time you run an app you might enter your username
 and password to log on to a web server. The next time you run the app, you'll probably want your login details to be remembered. So we need some method of
 <em>persisting</em> data between individual uses of the app. There are a number of different mechanisms we can use, including:
@@ -73,11 +114,11 @@ You can hopefully see that each preference is defined by an &lt;EditTextPreferen
 <h4>CheckBoxPreference</h4>
 <p>The <em>CheckBoxPreference</em> is also quite easy to understand. A CheckBoxPreference is a boolean value, which can be set to either true
 (if the checkbox is selected) or false (if it isn't). It is typically used for "on/off" values, for example in an app which accesses the internet to
-automatically download data about surrounding cinemas (their location, films showing, etc), 
+automatically download data about surrounding restaurants and cafes (their location, food and drink available, etc), 
 the user might want to turn downloading on or off depending on whether they are 
 connected to a wifi network. The XML is also quite simple:<pre><code>&lt;PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"&gt;
 &lt;CheckBoxPreference android:key="autodownload" android:defaultValue="true" android:title="Auto-download" 
-android:summary="Auto-download data about surrounding cinemas?" /&gt;
+android:summary="Auto-download nearby restaurant and cafe locations?" /&gt;
 &lt;/PreferenceScreen&gt;
 </code></pre>
 It can be seen that the XML is almost the same: the only differences are that it's a CheckBoxPreference and not an EditTextPreference, and that
@@ -229,7 +270,7 @@ the following methods run when certain events occur:
 </p>
 <p>The lifecycle can have important consequences for development. For example, in a mapping app you might want to stop GPS communication when the activity becomes invisible and start it again when it becomes visible again (to save battery), in which case you would stop the GPS in <em>onPause()</em> and start it in <em>onResume()</em>. If you did this in <em>onDestroy()</em> and <em>onCreate()</em> instead, the GPS would still be running if the activity was running but invisible, which for a mapping app would be unnecessary.</p>
 <p>The differences between <em>onStart()/onStop()</em> and <em>onResume()/onPause()</em> are quite subtle and need only be considered if you are writing activities which do not occupy the whole of the screen, which is very rare. You can
-use either; <strong>one key advantage of using onResume() is that it is always called after onActivityResult() (see <a href='https://developer.android.com/reference/android/app/Activity#onActivityResult(int,%20int,%20android.content.Intent)'>the documentation</a>),</strong> which can make your code logic easier in some cases. There is no guarantee as to whether <em>onStart()</em> is called before or after <em>onActivityResult()</em>. Therefore, if given a choice, I would advise <em>onPause()/onResume()</em> rather than <em>onStart()/onStop()</em>.</p>
+use either.</p> 
 <h3>Accessing Preferences from the App</h3>
 <p>The other thing we need to look at is <em>how to access the values of preferences from your Kotlin code</em>. This can be accomplished by means of the
 <em>PreferenceManager</em> class, which controlls access to the preferences, and <em>SharedPreferences</em> which represents a set of preferences. 
@@ -265,8 +306,7 @@ use if that preference does not exist. Note also how the <em>EditTextPreference<
 </p>
 <h3>Preferences outside a Preference Screen</h3>
 <p>It is possible for an app to have <em>additional</em> preferences, outside those defined in the XML for the PreferenceScreen. One example might be an app which is 
-recording a trail of your position on the Earth using GPS; you might want to use this to record a walking or cycling route, for example. If the app is still recording
-when the app is closed down, you might want to save the recording status so that the next time the app starts up (which could be after powering the phone down and switching
+recording a trail of your position on the Earth using GPS; you might want to use this to record a walking or cycling route, for example. If the app is still recording when the app is closed down, you might want to save the recording status so that the next time the app starts up (which could be after powering the phone down and switching
 it back on again), the app can read the recording status from the preferences so that it continues recording if it was recording last time it was used. However, unlike
 preferences in a PreferenceScreen, these additional preferences will not automatically be saved when the app is destroyed. You instead need to make use of
 a <em>SharedPreferences.Editor</em> to save the preferences. For example:<pre><code>override fun onDestroy() {
@@ -290,9 +330,9 @@ With these sorts of additional preferences not controlled via a preference scree
 </p>
 <h2>Exercise</h2>
 <ol>
-<li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, and <code>onResume()</code> to your <em>main map activity from last week</em>. In each method, as well as in <code>onCreate()</code>,
+<li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, and <code>onResume()</code> to <em>the main activity from last week's exercise</em>. In each method, as well as in <code>onCreate()</code>,
 display an <code>AlertDialog</code> with a message saying which method has
-been called. <em>All these methods should call the superclass version of the method</em>. You can avoid duplicating code by creating a <code>showTheDialog()</code> method which shows the alert dialog, and calling it from each of these lifecycle methods.
+been called. <em>All these methods should call the superclass version of the method, e.g <code>super.onResume()</code></em>. You can avoid duplicating code by creating a <code>showTheDialog()</code> method which shows the alert dialog, and calling it from each of these lifecycle methods.
 For example: 
 <pre>
 // Generic function to show a dialog, to avoid code duplication
@@ -320,14 +360,14 @@ a preference activity containing a PreferenceFragment which includes the followi
     <li>Current Latitude and Longitude of the map (EditTextPreference; incorporate the code provided above)</li>
     <li>Default zoom level for the map (EditTextPreference)</li>
     </ul>
-Add code in the <em>onResume()</em> to get these working. Once this is working,
+Add code in the <code>onResume()</code> to get these working. Once this is working,
 add the following further preference:
     <ul>
     <li>Map style - Regular or OpenTopoMap(use a ListPreference)</li>
     </ul>
-Make sure the preferences are read when the main activity is started, so that the app immediately changes when the preference activity containing a PreferenceFragment is dismissed. 
 </li>
 </ol>
+<!--
 <hr />
 <h2>Additional reading</h2>
 <p>This is not essential for the module but is provided for your own interest.
@@ -350,5 +390,5 @@ Note how the method is automatically passed a <em>Bundle</em> object (a collecti
 Hopefully this code is self-explanatory: we read back the same boolean that we saved in the Bundle. Note though that we need to
 test for <em>savedInstanceState</em> being null; if the activity is started without any saved instance state (e.g. for the first time)
 the Bundle will be null.</p>
-<p></body>
-</html></p></body></html>
+-->
+</p></body></html>
