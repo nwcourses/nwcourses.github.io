@@ -47,7 +47,7 @@
         </p>
         <p>As an alternative, we can use <code>lateinit</code>. In cases, such as this, we need to use a variable which <strong>we know will never be null</strong> (so we don't make it nullable) but <strong>we cannot initialise it when the class is first created</strong>. This is common in Android development, where frequently, we can only create objects in <code>onCreate()</code>, once the activity is fully initialised. So in these cases, we declare the variables <code>lateinit</code> to indicate that they will be initialised later, after the class is first created:
 <pre>class MainActivity: AppCompatActivity() {
-    <em>lateinit var</em> map : MapView?
+    <em>lateinit var</em> map : MapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         map = findViewById&lt;MapView&gt;(R.id.map1)
@@ -342,8 +342,7 @@ Test by launching your app, changing the mapping provider using the second activ
 quit the application entirely. <strong>Note how many times the lifecycle methods are called.</strong>
 </li>
 <li>The idea of this exercise is to develop a version of your mapping app which uses preferences, rather than a custom activity. 
-Add an extra menu item to launch the preferences, and add 
-a preference activity containing a PreferenceFragment which includes the following:
+Add an extra menu item to last week's project to  launch the preferences, and add a preference activity containing a PreferenceFragment which includes the following:
     <ul>
     <li>Current Latitude and Longitude of the map (EditTextPreference; incorporate the code provided above)</li>
     <li>Default zoom level for the map (EditTextPreference)</li>
