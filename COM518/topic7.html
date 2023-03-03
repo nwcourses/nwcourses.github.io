@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 7.h: Further Node and Express: Routers and Middleware</title>
+<title>Topic 7.h: Further Node and Express: Modules, Routers and Middleware</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
-<!--
-<h1>Topic 7: Further Node and Express: Routers and Middleware</h1>
+<h1>Topic 7: Further Node and Express: Modules, Routers and Middleware</h1>
 </div>
 This week we will look at
 <ul>
@@ -18,54 +16,144 @@ This week we will look at
 </ul>
 
 <h2>Modules</h2>
-<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes.</p>
-<p>To do this, you need to be familiar with the concept of <em>modules</em>, so we will cover this first.</p>
+<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes, in a separate file called a <em>module</em>, which can be <em>imported</em> from your main server file.</p>
+<p>There are two approaches for implementing modules, <em>CommonJS modules</em> and <em>ECMAScript 6 modules</em>. ECMAScript 6 modules are a web standard, and are increasingly well supported, so we will use ECMAScript 6 modules. Before looking at routers, we will look at ECMAScript 6 modules in general.</p>
 
-<h3>Writing a custom module to easily connect to MySQL</h3>
+<h3 id="anexampleecmascript6module">An example ECMAScript 6 module</h3>
+<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module. <strong>Note that this discussion applies to both Node.js and client-side, in-browser, JavaScript.</strong>
+</p>
+<p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension (JavaScript module) rather than <code>.js</code>. You must use this convention from Node.js, and it is optional in browsers.</p>
+<pre><code class="javascript language-javascript">
+// Module mymaths.mjs
 
-<p>The examples from <a href='topic2.html'>topic 2</a>  show a potential issue with using the Node MySQL module: it's callback based (if you do not use the promise based version), so the code ends up relatively complex.  This means that, to integrate MySQL into an Express application, you'd need to connect to MySQL first and then put your Express code in the MySQL connection callback. This makes your code perhaps rather messy and convoluted. A better approach is to <em>create your own Node module</em> and put the connection code in that. Here is an example:
+function square(n) {
+    return n * n;
+}
+
+function cube(n) {
+    return n * n * n;
+}
+
+export { square, cube };
+</code></pre>
+<p>Note how this module contains two functions, <code>square()</code> and <code>cube()</code>, which calculate the square and the cube of of a number, respectively. However the interesting thing is the statement at the end:</p>
+<pre><code class="javascript language-javascript">export { cube, square };
+</code></pre>
+<p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>mymaths.mjs</code>.</p>
+<h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
+<p>We've created a simple module, but how might we use it from another file?
+We need to <code>import</code> the functions that have been exported. This could be done from your main server in a Node/Express example, or from browser-based JavaScript. Here's an example. You can imagine this is the "main" JavaScript function of your application, in other words the file which runs when the page is first loaded. For client-side JavaScript, this is often named <code>index.mjs</code> by convention.</p>
+<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
+
+// Import the two functions from the module. 
+// Note the './' before 'mymaths.mjs'. This means 'the current folder'
+import { square, cube } from './mymaths.mjs';
+
+const a = square(3);
+console.log(`The square of 3 is : ${a}`);
+
+const b = cube(2);
+console.log(`The cube of 2 is : ${b}`);
+</code></pre>
+<p>Note how we have to <em>import</em> the functions from the module before we can use
+them. This makes for easier-to-read code as we can tell exactly where the
+two functions <code>cube()</code> and <code>square()</code> have come from.</p>
+<h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
+<p>To actually make this code run in a browser, we need to link it to an HTML web page which can be executed from the browser. We link the <code>index.mjs</code> file as that is the main file of the application, and then the <code>mymaths.mjs</code> file will automatically load.</p>
+<p>In a browser, we link a module in the same way as a regular JavaScript file, except we use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file, <code>index.mjs</code>, is itself a module. It's the 'main module' of the application and it's using another module, <code>mymaths.mjs</code>. We have actually seen this already, in week 3. For example:</p>
+<pre><code class="html language-html">&lt;html&gt;
+&lt;head&gt;
+&lt;script type='module' src='index.mjs'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+...
+</code></pre>
+<p>A critical point is that <strong>you have to access your site via a web server</strong> to use modules. You can use your own Express server, or if you want to test quickly, you can easily set up a web server in the current folder with:
+<pre>npx http-server</pre>
+and then access pages on port 8080, e.g:
+<pre>http://localhost:8080/index.html</pre>
+</p>
+<h3 id="example2onlyimportingsomefunctions">Example 2: Only importing some functions</h3>
+<p>It's possible to only import <em>some</em> functions from a module. For instance this version of our <code>index.mjs</code> code:</p>
+<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
+
+// Import cube() (only) from the module. 
+import { cube } from './mymaths.mjs';
+
+// Call the cube() function from the module
+const a = cube(3);
+console.log(`The cube of 3 is : ${a}`);
+
+// This will not work now, as square() was not imported from the module
+const b = square(4);
+console.log(`The square of 4 is : ${b}`);
+</code></pre>
+<h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
+<p>The code above works, but it can be a little messy to import each function
+separately. It would be nicer if we could <em>collect together all module
+exports as a single object</em>  so that the code is a bit more, well, 
+modular. This approach is frequently used with libraries, such as three.js. The next <code>index.mjs</code> example shows this:</p>
+<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
+
+// Import the two functions from the module into a module object 'MyModule'
+import * as MyModule from './mymaths.mjs';
+
+// Call the functions from the module
+
+const a = MyModule.square(3);
+console.log(`The square of 3 is : ${a}`);
+const b = MyModule.cube(4);
+console.log(`The cube of 4 is : ${b}`);
+</code></pre>
+<p>Note how this differs from the first two examples. First, consider the
+<code>import</code> statement:</p>
+<pre><code class="javascript language-javascript">import * as MyModule from './mymaths.mjs';
+</code></pre>
+<p>Rather than importing each function separately, they are all being imported
+as a single <em>module object</em>, MyModule. You can reference each exported 
+function by referencing the module object name, then a dot, then the function
+name, for example <code>MyModule.cube(...)</code>. </p>
+<p>(To relate this to object-oriented programming, which we did in your web module last year and you may have done COM528, <code>MyModule</code> is an <em>object</em> and <code>cube()</code> is a <em>method</em> of that object).</p>
+<h3 id="example4defaultexport">Example 4: Default export</h3>
+<p>If your module only needs to export one function or object, you can declare
+this as the <em>default export</em>. This is another way of achieving the effect of the previous example, with all exports from a module packaged into a single
+object. So here is an example of the module using a default export:</p>
+<pre><code class="javascript language-javascript">function _cube(name) {
+    return n*n*n; 
+}
+
+function _square(n) {
+    return n*n;
+}
+
+const exportedObject = {
+    cube: _cube,
+    square1: _square,
+    PI: 3.141592654
+};
+
+export default exportedObject;
+</code></pre>
+<p>This exports a default object with two fields: The <em>cube</em> field is set
+equal to the function <code>_cube()</code> (note that an underscore is a convention in JavaScript for a 'private' or 'internal function), and the <em>square</em> field is set equal to the function <code>_square()</code>.</p>
+<p>We can then use the default export in our main module using:</p>
+<pre><code class="javascript language-javascript">import MyDefaultObject from './mymaths.mjs';
+</code></pre>
+<p>This will import the <em>default</em> export from the module as <code>MyDefaultObject</code>, so we can then call the methods with:</p>
+<pre><code class="javascript language-javascript">const a = MyDefaultObject.cube(4);
+const b = MyDefaultObject.square(9);
+</code></pre>
+and we can also use the constant <code>PI</code>, as that is included in the exported object:
+<pre>console.log(MyDefaultObject.PI);</pre>
+</p>
+<p>Contrast the import with Example 3, above, in which we manually grouped
+each separate import from the module into a module object in <code>index.mjs</code>. In that example, the grouping of imports into an object was done in <code>index.mjs</code>.  In this example, by contrast, we are grouping them in <code>mymaths.mjs</code> by creating a default export.</p>
+<h2>Using a module to define your routes</h2>
+<p>In a larger application, you will quickly find that your main Express file (often <code>app.mjs</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.mjs</em>) which we would save in our <em>routes</em> folder:
 <pre>
-// File - mysqlconn.js
-const mysql = require('mysql2');
+// routes/product.mjs 
 
-const con = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        database: 'mysql'});
-
-con.connect( err=&gt; {
-    if(err) {
-        console.log(err);
-        process.exit(1); // exit the server
-    } else { 
-        console.log('connected to mysql ok');
-    }
-});
-    
-<em>module.exports = con;</em>
-</pre>
-Note how we have created a file <em>mysqlconn.js</em> which connects to
-the database. Note the final line as this is key:
-<pre>module.exports=con;</pre>
-This <em>exports</em> the variable <em>con</em> (representing the connection)
-to the outside world. This is how we can define a Node module; write some
-code and then <em>export</em> an object to the outside world.</p>
-<p>To use our custom module in our Express application, we use 
-<em>require()</em> in the same way that we imported third-party modules:
-<pre>const con = <em>require('./mysqlconn');</em></pre>
-The variable <em>con</em> will represent our MySQL connection. Note how
-it's set equal to the return value of <em>require()</em>; this will be
-whatever was exported from our module. Also note the module name
-<em>./mysqlconn</em> and how this corresponds to the module filename
-<em>mysqlconn.js</em>; the <em>./</em> means the current folder.</p>
-<p>You might be thinking that a problem with that approach is: if the database connection is asynchronous, what if a user tries to do a query before the connection has succeeded? You need to remember, though, that the Express server is running <em>continuously</em>, and the connection will be made <em>as soon as the Express server starts up</em> (which will only happen if the server admin needs to shut down and restart the server for any reason). So a user would literally have to make a request in the first two or three seconds of the server running for this error to occur.</p>
-
-<h3>Using a module to define your routes</h3>
-<p>In a larger application, you will quickly find that your main Express file (often <code>app.js</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.js</em>) which we would save in our <em>routes</em> folder:
-<pre>
-// routes/product.js 
-
-const express = require('express');
+import express from 'express';
 const productRouter = express.Router();
 
 productRouter.get('/all', (req,res)=&gt; {
@@ -76,16 +164,17 @@ productRouter.get('/id/:id', (req,res)=&gt; {
     // code to find the product with the given ID
 });
 
-module.exports = productRouter; // export the module for external use
+export default productRouter; // export the module for external use
 </pre>
-Then, in your main Express app, you could <em>use</em> the router as
-follows:
+Note how we are making <code>productRouter</code> the default export from this module, which means we'll be able to import it as follows:
+<pre>import productRouter from './routes/product.mjs';</pre>
+This is shown in the full Express application, below:
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
 
 // Import our product router module which we created above
-const productRouter = require('./routes/product');
+import productRouter from './routes/product';
 
 // Tell the app to use productRouter for all routes beginning with /products
 // As we are using "use()", the router is acting as a middleware - see below
@@ -93,7 +182,7 @@ app.use('/products', productRouter);
 app.listen(3000);
 </pre>
 So the song router is imported from the <em>routes/product</em> module
-(corresponding to routes/product.js) and then we call <em>use()</em> 
+(corresponding to routes/product.mjs) and then we call <em>use()</em> 
 with two arguments:
     <ul>
     <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
@@ -123,7 +212,7 @@ used to prepare the request before it's handled, or intercept requests to perfor
 We write our middleware function and then <code>use()</code> it from our Express application object.</p>
 <p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request.
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
 
 app.use( (req,res,next) =&gt; {
@@ -159,20 +248,20 @@ Note how we specify a custom arrow function as the argument to <code>use()</code
 <h3>Writing middleware as a separate function in a module</h3>
 <p>Furthermore, we can write the middleware as a separate function, rather than an arrow function, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. The advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
 <pre>
-// corsMiddleware.js
+// corsMiddleware.mjs
 function corsMiddleware(req, res, next) {
     res.set('Access-Control-Allow-Origin', '*');
     next();
 }
 
-module.exports = corsMiddleware;
+export default corsMiddleware;
 </pre>
-We could then <code>require()</code> this from our main server, and <code>use()</code> it, as follows:
-<pre>const express = require('express');
+We could then <code>import</code> this from our main server, and <code>use()</code> it, as follows:
+<pre>import express from 'express';
 const app = express();
 
 // Require the middleware module
-const corsMiddleware = require('./corsMiddleware');
+import corsMiddleware from './corsMiddleware';
 
 // use() it
 app.use(corsMiddleware);
@@ -194,7 +283,7 @@ requests.  We do this by supplying an optional first argument to <em>use()</em> 
 the middleware below (showing the time of the request once again)
 will only run with a route of <em>search</em> followed by a search term:
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
 
 // Note that middleware only runs with /search/:query route
@@ -219,7 +308,7 @@ app.listen(3000);
 <h3>Middleware with specific HTTP methods</h3>
 <p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
 
 // This middleware will only run with POST requests, due to the use of
@@ -264,7 +353,7 @@ In this example, all requests to <code>/testroute</code> will be intercepted by 
 <h3>Using middleware to prevent access to a route under certain conditions</h3>
 <p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. In the example below, the middleware handling the <code>/christmasSurprise</code> route tests whether it's December. If it is, then the <code>/christmasSurprise</code> route is called with <code>next()</code>. if not, the user is told to come back when it's Christmas!
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
 
 // Christmas checker middleware: is it December?
@@ -298,11 +387,11 @@ app.listen(3000);
 <p>Finally this week we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. Examples of such variables might include database name, username and password. This also has a security advantage: by adding private data to your <code>.env</code> it means that you can keep information such as passwords outside your source code, and publish your code to GitHub or another repository without giving away such information.</p>
 <p><code>dotenv</code> is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
 <pre>npm install dotenv</pre>
-You then <code>require()</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
+You then <code>import</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
-<em>require('dotenv').config();</em>
+<em>import 'dotenv/config';</em>
 </pre>
 Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
 <pre>
@@ -324,9 +413,9 @@ It's important to understand that <em>you can only use <code>process.env</code> 
 <p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
 <p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-5 before attempting it. Please ensure that you have completed last week (Week 5) first, and also the standard exercises for Weeks 1-4.</p>
 <ol>
-<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference. As shown in the first example, create a separate module to connect to your MySQL database, and <code>require()</code> it from the new <em>copy</em> of your server. <strong>You should use the non-promise version of your database connection code for this.</strong></li>
+<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference.</li>
 <li>Available <a href='ht_users.sql'>here</a> is an SQL file to create and populate a <code>ht_users</code> table with data about users. Download it and import it into your database.</li>
-<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.js</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
+<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.mjs</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
     <ul>
     <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
     <li>a <code>/user/:username</code> route which returns details of a specific user, identified by username.</li>
@@ -339,8 +428,8 @@ It's important to understand that <em>you can only use <code>process.env</code> 
     <li>Look up a user by username.</li>
     </ul>
 </li>
-<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.js</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
-<li>Install <code>dotenv</code> and <code>require()</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
+<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.mjs</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
+<li>Install <code>dotenv</code> and <code>import</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
 <pre>
 if(process.env.APP_USER === undefined) {
     // process.env.APP_USER does not exist (it's undefined)
@@ -354,10 +443,10 @@ Test this out by first trying to access a <code>POST</code> route without creati
 <pre>APP_USER=AdamAdams</pre>
 You should now be able to access your POST route.
 </li>
-<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>require()</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
+<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>import</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
 <li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists in <code>.env</code>. Use the same middleware for this.</li>
 <li><strong>Advanced question:</strong> Modify your answer to the previous question so that, if the <code>/users</code> group of routes is requested, the middleware checks that the <code>APP_USER</code> username is <em>actually in the database</em> (use a SELECT statement to do this) and that the value of the <code>isadmin</code> column of this user is 1. In this way, only admin users can access the <code>/users</code> routes which, for data protection reasons, is probably a good idea!</li>
 </ol>
--->
 </body>
 </html>
+
