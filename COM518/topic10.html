@@ -6,8 +6,6 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
-<!--
 <h1>Topic 10: File I/O, Streams, File Upload</h1>
 </div>
 
@@ -21,7 +19,7 @@
 
 <pre class="codebox">
 
-const fs = require('fs').promises; // use promise-based version
+import * as fs from 'fs/promises'; // use promise-based version
 
 async function fileTest() {
     try {
@@ -65,7 +63,7 @@ Note here that we do not pass in a buffer to <code>read()</code>, and instead gi
 <h3>Writing to file</h3>
 <p>The next example will illustrate <em>writing</em> to file.
 <pre>
-const fs = require('fs').promises;
+import * as fs from 'fs/promises'; // use promise-based version
 
 async function fileWriteTest() {
     try {
@@ -93,7 +91,7 @@ Note how we:
 </p>
 <p>Note that the <code>write()</code> method of the <code>FileHandle</code> will also accept a string, rather than a buffer. This allows us to easily write text to file. The following example shows this:
 <pre>
-const fs = require('fs').promises;
+import * as fs from 'fs/promises'; // use promise-based version
 
 async function textFileWriteTest() {
     try {
@@ -115,7 +113,7 @@ This example creates an array of strings and then loops through them with a <cod
 <h3>Higher-level operations</h3>
 <p>We can also perform some commonly-used higher-level operations with the <code>fs</code> package with minimal code. For example we can read in the entire contents of a file with <code>fs.readFile()</code>:
 <pre>
-const fs = require('fs').promises;
+import * as fs from 'fs/promises'; // use promise-based version
 
 async readWholeFile() {
     const wholeFile = await fs.readFile("data.txt").toString();
@@ -157,15 +155,15 @@ file, screen, network etc). In Node parlance, input streams are known as <em>rea
 This example will continue until the user terminates the input stream with Control-D.</p>
 <p>
 Here is an example which will pipe standard input to a file:
-<pre>const fs = require('fs');
+<pre>import * as fs from 'fs/promises'; // use promise-based version
 const outStream = fs.createWriteStream('output.txt');
 process.stdin.pipe(outStream);</pre>
 Again this will continue until the user terminates standard input with Control-D. Here is an example which will create an input stream from a file, and stream it to standard output (i.e. the file contents will appear on screen):
-<pre>const fs = require('fs');
+<pre>import * as fs from 'fs'; 
 const inStream = fs.createReadStream('file.txt');
 inStream.pipe(process.stdout);</pre>
 and finally here is an example which will copy one file to another by opening an input stream from the first file, an output stream to the second file, and pipe the input stream to the output stream:
-<pre>const fs = require('fs');
+<pre>import * as fs from 'fs';
 const inStream = fs.createReadStream('file1.txt');
 const outStream = fs.createWriteStream('file2.txt');
 inStream.pipe(outStream);</pre>
@@ -299,10 +297,10 @@ Note how this works:
 <h3>The server side</h3>
 <p>Having looked at how we upload files on the client side, how do we then process them on the server? As said above we can make the job easier by relying on a third-party Node module, and we are going to use <code>express-fileupload</code>. First of all we have to add this as middleware to our Express app:
 <pre>
-const express = require('express');
+import express from 'express';
 const app = express();
-const fileUpload = require('express-fileupload');
-require('dotenv').config();
+import fileUpload from 'express-fileupload';
+import 'dotenv/config';
 
 app.use(fileUpload({
     useTempFiles: true,
@@ -353,6 +351,5 @@ Name: next restaurant name
 <li>Return to question 1 and try to add a route to your Express application to send back JSON of all the restaurants to the client. You need to parse the CSV file into an array of objects, the array being an array of the restaurants and each object representing a restaurant (use appropriate keys). Then, connect the route to your map front end, so that the locations of all restaurants are shown.</li>
 <li>Modify your Nominatim search to handle multiple results by creating a &lt;div&gt; for the results, and list each result in the &lt;div&gt;. Add a button to each result, and move the map to that location when the user clicks the button.</li>
 </ul>
--->
 </body>
 </html>

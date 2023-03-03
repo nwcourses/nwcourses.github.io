@@ -6,8 +6,6 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>These notes are being updated, please check back nearer the scheduled week/</h1>
-<!--
 <h1>Topic 9: More Modular Applications: DAOs and Controllers</h1>
 </div>
 <hr />
@@ -126,7 +124,7 @@ class StudentDao {
     }
 }
 
-module.exports = StudentDao; // so that other code can use it</pre>
+export default StudentDao; // so that other code can use it</pre>
 <h3>DAO - Explanation</h3>
 <ul>
 <li>Note how the DAO contains a series of methods which perform various
@@ -163,24 +161,22 @@ const student = <em>await</em> dao.findStudentById(req.params.id);</pre>
 The typical role of a controller would be to communicate with the model (the DAO) to get database results, and then format those results to be presented to the client. Or, alternatively, the controller could gather information from the client and then forward it on to the model (DAO) to insert it into the database.</p>
 <p>Hopefully, from this you may be able to figure out that the <em>router</em> takes the role of the controller. To improve the modularity of your code, however, you can create separate <em>controller objects</em> to represent the controller, and add methods to these objects to carry out the functionality of your router. Then, in your router, you create a controller object and call these methods from each route in the router.</p>
 <p>A good way to organise your project is to have sub-folders within the main folder of your project for routes, controllers and DAOs. These folders could simply be named:
-	<ul>
-	<li><code>routes</code> containing all your route files;</li>
-	<li><code>controllers</code> containing all your controllers;</li>
-	<li><code>dao</code> containing all your DAOs.
-	</ul>
+    <ul>
+    <li><code>routes</code> containing all your route files;</li>
+    <li><code>controllers</code> containing all your controllers;</li>
+    <li><code>dao</code> containing all your DAOs.
+    </ul>
 </p>
 <p>So, if we imagine a student router, within the <code>routes</code> folder:
 <pre>
-const express = require('express');
+import express from 'express';
 const studentRouter = express.Router();
 
-// include our database connection, note that .. means "go up a folder" so the 
-// mysqlconn.js is in the parent folder to the routes folder
-const db = require('../mysqlconn'); 
+// Initialise database, not shown
 
-// assume the StudentController is inside a 'student.js' file within the 
+// assume the StudentController is inside a 'student.mjs' file within the 
 // 'controllers' folder of the project, as described above
-const StudentController = require('../controllers/student'); 
+import StudentController from '../controllers/student.mjs';
 
 
 // Create the controller object, and pass in the database connection as an argument
@@ -195,12 +191,12 @@ studentRouter.get('/course/:course', sController.findStudentByCourse.bind(sContr
 // handle post requests to /create using the controller's addStudent() method
 studentRouter.post('/create', sController.addStudent.bind(sController));
 
-module.exports = studentRouter; // so that main application can use it</pre>
+export default studentRouter; // so that main application can use it</pre>
 Note how the router creates a StudentController object, passing the database connection to it (which will be needed by the DAO) and note also how we handle each route with <em>methods of the controller object</em>. Remember we looked at "<code>bind()</code>" in week 4. Here we are using it slightly differently. <code>bind()</code> is necessary here to <strong>preserve the context of the <code>this</code> object in callbacks</strong>. By default, the context of <code>this</code> (the current object) is lost in a callback function, and to preserve the context of <code>this</code>, you have to <em>bind</em> the callback to the object you wish to use as <code>this</code> (which will be the controller here). You can read about the use of <code>bind()</code> to preserve the context of <code>this</code> in callbacks in more detail <a href='topic4.html#thisAndCallbacks'>here</a>.</p>
 <p>So, let's look at the Controller object, which would be in the <code>controllers</code> folder:
-<pre>// assume the DAO is in a 'student.js' file within the 
+<pre>// assume the DAO is in a 'student.mjs' file within the 
 //'dao' folder of the project, as described above
-const StudentDao = require('../dao/student'); 
+import StudentDao from '../dao/student.mjs';
 
 class StudentController {
     constructor(db) {
@@ -250,11 +246,10 @@ class StudentController {
     }
 }
 
-module.exports = StudentController; // so that the router can use it</pre>
+export default StudentController; // so that the router can use it</pre>
 Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
 
 <h2>Exercise</h2>
 <p>Rewrite questions 1 to 6 from Topic 6 to use appropriate DAOs and controllers as well as routes. If you do not have topic 6 on its own, and only have topics 6 and 7 together, you can attempt to convert the login system to use DAOs, or, you may wish to comment out session/login code as it may make things easier.</p>
--->
 </body>
 </html>
