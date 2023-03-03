@@ -17,10 +17,10 @@ This week we will look at
 
 <h2>Modules</h2>
 <p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes, in a separate file called a <em>module</em>, which can be <em>imported</em> from your main server file.</p>
-<p>There are two approaches for implementing modules, <em>CommonJS modules</em> and <em>ECMAScript 6 modules</em>. ECMAScript 6 modules are a web standard, and are increasingly well supported, so we will use ECMAScript 6 modules. Before looking at routers, we will look at ECMAScript 6 modules in general.</p>
+<p>There are two approaches for implementing modules, <em>CommonJS modules</em> and <em>ECMAScript 6 modules</em>. ECMAScript 6 modules are a web standard, and are increasingly well supported, so we will use ECMAScript 6 modules.</p> 
 
 <h3 id="anexampleecmascript6module">An example ECMAScript 6 module</h3>
-<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module. <strong>Note that this discussion applies to both Node.js and client-side, in-browser, JavaScript.</strong>
+<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module. <strong>Modules can be used in both Node.js and client-side, in-browser, JavaScript.</strong>
 </p>
 <p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension (JavaScript module) rather than <code>.js</code>. You must use this convention from Node.js, and it is optional in browsers.</p>
 <pre><code class="javascript language-javascript">
@@ -37,12 +37,12 @@ function cube(n) {
 export { square, cube };
 </code></pre>
 <p>Note how this module contains two functions, <code>square()</code> and <code>cube()</code>, which calculate the square and the cube of of a number, respectively. However the interesting thing is the statement at the end:</p>
-<pre><code class="javascript language-javascript">export { cube, square };
+<pre><code class="javascript language-javascript">export { square, cube };
 </code></pre>
 <p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>mymaths.mjs</code>.</p>
 <h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
 <p>We've created a simple module, but how might we use it from another file?
-We need to <code>import</code> the functions that have been exported. This could be done from your main server in a Node/Express example, or from browser-based JavaScript. Here's an example. You can imagine this is the "main" JavaScript function of your application, in other words the file which runs when the page is first loaded. For client-side JavaScript, this is often named <code>index.mjs</code> by convention.</p>
+We need to <code>import</code> the functions that have been exported. This could be done from your main server in a Node/Express example, or from browser-based JavaScript. Here's an example of using the module from the main file of a client-side JavaScript application. This is often named <code>index.mjs</code> by convention.</p>
 <pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
 
 // Import the two functions from the module. 
@@ -59,7 +59,7 @@ console.log(`The cube of 2 is : ${b}`);
 them. This makes for easier-to-read code as we can tell exactly where the
 two functions <code>cube()</code> and <code>square()</code> have come from.</p>
 <h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
-<p>To actually make this code run in a browser, we need to link it to an HTML web page which can be executed from the browser. We link the <code>index.mjs</code> file as that is the main file of the application, and then the <code>mymaths.mjs</code> file will automatically load.</p>
+<p>To actually make this code run in a browser, we need to link it to an HTML web page which can be executed from the browser.</p> 
 <p>In a browser, we link a module in the same way as a regular JavaScript file, except we use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file, <code>index.mjs</code>, is itself a module. It's the 'main module' of the application and it's using another module, <code>mymaths.mjs</code>. We have actually seen this already, in week 3. For example:</p>
 <pre><code class="html language-html">&lt;html&gt;
 &lt;head&gt;
@@ -89,10 +89,9 @@ const b = square(4);
 console.log(`The square of 4 is : ${b}`);
 </code></pre>
 <h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
-<p>The code above works, but it can be a little messy to import each function
+<p>It can be a little messy to import each function
 separately. It would be nicer if we could <em>collect together all module
-exports as a single object</em>  so that the code is a bit more, well, 
-modular. This approach is frequently used with libraries, such as three.js. The next <code>index.mjs</code> example shows this:</p>
+exports as a single object</em> when we import them. This approach is frequently used with libraries, such as three.js. This version of <code>index.mjs</code> shows this:</p>
 <pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
 
 // Import the two functions from the module into a module object 'MyModule'
@@ -117,7 +116,7 @@ name, for example <code>MyModule.cube(...)</code>. </p>
 <h3 id="example4defaultexport">Example 4: Default export</h3>
 <p>If your module only needs to export one function or object, you can declare
 this as the <em>default export</em>. This is another way of achieving the effect of the previous example, with all exports from a module packaged into a single
-object. So here is an example of the module using a default export:</p>
+object. However, with a default export, we group everything together as an object when <em>exporting</em>, rather than when importing. So here is an example of the module using a default export:</p>
 <pre><code class="javascript language-javascript">function _cube(name) {
     return n*n*n; 
 }
@@ -146,9 +145,9 @@ const b = MyDefaultObject.square(9);
 and we can also use the constant <code>PI</code>, as that is included in the exported object:
 <pre>console.log(MyDefaultObject.PI);</pre>
 </p>
-<p>Contrast the import with Example 3, above, in which we manually grouped
-each separate import from the module into a module object in <code>index.mjs</code>. In that example, the grouping of imports into an object was done in <code>index.mjs</code>.  In this example, by contrast, we are grouping them in <code>mymaths.mjs</code> by creating a default export.</p>
-<h2>Using a module to define your routes</h2>
+<h2>Express Routers</h2>
+<p>Having looked at modules, we will now look at how to implement an Express <em>router</em> as a module.</p>
+<h3>Implementing an Express Router as a Module</h3>
 <p>In a larger application, you will quickly find that your main Express file (often <code>app.mjs</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.mjs</em>) which we would save in our <em>routes</em> folder:
 <pre>
 // routes/product.mjs 
