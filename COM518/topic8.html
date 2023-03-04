@@ -7,8 +7,6 @@
 </head><body>
 <h1>Topic 8: Session Variables and Login Systems</h1>
 </div>
-<p>This topic will be revised, due to using SQLite rather than MySQL.</p>
-<!--
 <p>Today we will take a look at <em>session variables</em> and how we can use them in Node.js. We will also look at how we can make use of session variables when developing <em>login systems</em>.</p>
 <h2>Cookies</h2>
 <p>Before looking at session variables, we will quickly take a look at
@@ -110,38 +108,40 @@ session ID is!</em></li>
 <h3>Introduction</h3>
 <p>Most server-side technologies can use session variables. Some technologies, such as PHP, come with session variables enabled by default as part of the core distribution. With node.js, we have to use a third-party <em>module</em> depending on which server framework we are using. With Express, the usual module is <code>express-session</code> which can be installed in the normal way:
 <pre>npm install express-session</pre>
-<code>express-session</code> will create session cookies and send them back to the client automatically, and also retrieve session cookies from clients and use them to work out the correct session variables for that user. <code>express-session</code> will store session data in a <em>session store</em>. You can configure <code>express-session</code> to tell it which session store to use. By default, it uses an in-memory store, but this is regarded as insecure. Instead, it is better to use whichever database you are using to store the session data, which in our case will be MySQL. So we will need to install the <code>express-mysql-session</code> module:
-<pre>npm install express-mysql-session</pre>
-The module will store the data in a table called <code>sessions</code> by default, which you might want to look at to see exactly how the session data is stored. Each entry in <code>sessions</code> contains a JSON object with the session ID plus the values of the session variables themselves.</p>
+<code>express-session</code> will create session cookies and send them back to the client automatically, and also retrieve session cookies from clients and use them to work out the correct session variables for that user. <code>express-session</code> will store session data in a <em>session store</em>. You can configure <code>express-session</code> to tell it which session store to use. By default, it uses an in-memory store, but this is regarded as insecure. Instead, it is better to use whichever database you are using to store the session data, which in our case will be SQLite. So we will need to install the <code>express-session-better-sqlite3</code> module:
+<pre>npm install express-session-better-sqlite3</pre>
+The module will store the data in a table called <code>express_session</code> by default, which you might want to look at to see exactly how the session data is stored. Each entry in <code>express_session</code> contains a JSON object with the session ID plus the values of the session variables themselves.</p>
 <h3>Requiring and setting up the modules</h3>
-<p>This code demonstrates how we can require and setup the <code>express-session</code> and <code>express-mysql-session</code> modules. First we require the two modules:
+<p>This code demonstrates how we can require and setup the <code>express-session</code> and <code>express-session-better-sqlite3</code> modules. First we import the two modules, as well as <code>express</code> and <code>better-sqlite3</code>:
 <pre>
-const expressSession = require('express-session');
-const MySQLStore = require('express-mysql-session')(expressSession);
+import express from 'express';
+import Database from 'better-sqlite3';
+import expressSession from 'express-session';
+import betterSqlite3Session from 'express-session-better-sqlite3';
 </pre>
-Note how we have to pass in the <code>expressSession</code> object as an argument to the <code>require()</code> for <code>express-mysql-session</code>.</p>
-<p>Then we create a MySQL session store object:
+<p>Then we create an SQLite database to contain the session data, and using it and the <code>expressSession</code> object, create a store: 
 <pre>
-// require mysql connection from external module, as per last week
-const con = require('./conn'); 
+
+// Create sqlite database to store sessions 
+const sessDb = new Database('session.db');
 
 // use connection to create the session store. Note we have to use the connection in promise-based mode
-const sessionStore = new MySQLStore({ } , con.promise());
+const SqliteStore = betterSqlite3Session(expressSession, sessDb);
 </pre>
-Note how we create the MySQL session store using our existing connection. We have to use the connection in promise-based mode for the session store to work correctly.</p>
-<p>Once we have created the session store, we can initialise the Express session object itself. You have to specify quite a few options: these are summarised in the comments accompanying the code and explained in more detail on the <a href='https://npmjs.com/package/express-session'>NPM page</a> for the module. The options below should be good for use with the MySQL session store and common web applications.</p>
+</p>
+<p>Once we have created the session store, we can initialise the Express session object itself. You have to specify quite a few options: these are summarised in the comments accompanying the code and explained in more detail on the <a href='https://npmjs.com/package/express-session'>NPM page</a> for the module. The options below should be good for use with the SQLite3 session store and common web applications.</p>
 <pre>
 app.use(expressSession({
     <span class='comment'>// Specify the session store to be used.</span>
-    store: sessionStore, 
+    store: new SqliteStore(), 
 
     <span class='comment'>// a secret used to digitally sign session cookie, use something unguessable (e.g. random bytes as hex) in a real application.</span>
     secret: 'BinnieAndClyde', 
 
-    <span class='comment'>// use as recommended by your chosen session store - related to internals of how session stores work</span>
-    resave: false, 
+    <span class='comment'>// regenerate session on each request (keeping the session active)</span>
+    resave: true, 
 
-    <span class='comment'>// save session to store before modification</span>
+    <span class='comment'>// save session to store before data is stored in it (disabled as this unnecessarily creates empty sessions)</span>
     saveUninitialized: false, 
 
     <span class='comment'>// reset cookie for every HTTP response. The cookie expiration time will be reset, to 'maxAge' milliseconds beyond the time of the response. 
@@ -169,10 +169,6 @@ app.use(expressSession({
 <code>req.session.name = 'Fred Smith';</code>
 to setup a session variable called <code>name</code>. This session variable could then be used by all subsequent requests, until the session is deleted. To end a session, we can set the session to <code>null</code> which, as described in the comments above, will destroy the session and remove it from the database:
 <code>req.session = null;</code>
-</p>
-<p>Here is an example of a MuSQL session store. Two users logged in to the system (John Stevenson and Kate Palmer) and for each, a session was created. The screenshot below shows the sessions table being queried twice (from the MySQL command-line client), once after John Stevenson logged in and again after Kate Palmer logged in. When a user logs in, their username is stored in a session variable (see below). Note how, as a result, each user has an entry in the sessions table.
-<br />
-<img src="../images/sessions_in_db.png" alt="Session data stored in a MySQL databasse" />
 </p>
 <h3>Session variables and Authentication</h3>
 <p>A common use of session variables is in site <em>authentication</em>.
@@ -235,6 +231,16 @@ What do these routes do?
     </ul>
     </li>
     </ul>
+</p>
+<h3>How is the session data stored in the database?</h3>
+<p>
+<img src="../images/sessions_in_db_sqlite.png" alt="Session data stored in an SQLite databasse" />
+</p>
+<p>Above is an example of a session store. Two users had logged in to the system (John Stevenson and Kate Palmer) and for each, a session was created and stored in the <code>express_session</code> table. The screenshot below shows the <code>express_session</code> table being queried twice (from the SQLite command-line client), once after John Stevenson logged in and again after Kate Palmer logged in. When a user logs in, their username is stored in a session variable (see below). Note how, as a result, each user has an entry in the <code>express_session</code> table. The table has two columns: 
+	<ul>
+	<li><code>id</code>: the session ID, and</li>
+	<li><code>data</code>: data about the session, stored as JSON, including information about the cookie and its expiry date, and the session variables themselves. So <code>username</code> the JSON corresponds to the session variable <code>req.session.username</code></li>
+	</ul>
 </p>
 <h2 id='hashing'>Password hashing</h2>
 <p>For additional security, ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this. For example, to hash (encode) a password when signing up:
@@ -299,8 +305,6 @@ This code will also return the username as JSON back to the client if the login 
 <ul>
     <li>Modify your <code>buy</code> route so that the balance of the currently logged-in user is reduced by 0.79 when they buy a song.</li>
 </ul>
--->
-
 </body></html>
 
 
