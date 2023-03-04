@@ -9,7 +9,6 @@
 <h1>Topic 12: Common Security Issues in Web Development</h1>
 </div>
 <p>This topic will be revised, due to using SQLite rather than MySQL.</p>
-<!--
 <p>In this final lecture we will look at security issues, including:
 <ul>
 <li>SQL Injection</li>
@@ -30,10 +29,10 @@ users</li>
 <li>A subtle but potentially dangerous security issue</li>
 <li>A cracker could potentially enter an SQL query in an HTML form and 
 grab confidential data, or even modify or delete a table!</li>
-<li>e.g. if we had code such as the following:
+<li>e.g. if we had code such as the following (<code>exec()</code> is an unsafe method of executing an SQL query):
 <pre>
 ... connect to database ...
-dbconn.query(`select * from details where name='{req.params.name}'`, ...);
+db.exec(`select * from details where name='{req.params.name}'`, ...);
 </pre>
 </li>
 <li>If the user entered in the form the following:
@@ -49,13 +48,12 @@ with potentially devastating results!!!</li>
 <ul>
 <li>Imagine a login script to a banking site with code such as that below, which displays your card details:
 <pre>
-dbconn.query(`SELECT * FROM users where password='{req.body.password}' AND username='{req.body.username}'`, [ ], (err, results, fields) =&gt; {
-    html = "";
-    results.forEach ( result =&gt; {
-        html += `Credit card: ${result.creditcard} Expiry date: ${result.expiry}&lt;br /&gt;`;
-    });
-    res.send(html);
+const results = db.exec(`SELECT * FROM users where password='{req.body.password}' AND username='{req.body.username}'`);
+html = "";
+results.forEach ( result =&gt; {
+	html += `Credit card: ${result.creditcard} Expiry date: ${result.expiry}&lt;br /&gt;`;
 });
+res.send(html);
 </pre>
 </li>
 <li>and you logged in with:
@@ -80,20 +78,9 @@ SQL query:
 <li>The second condition (1=1) will always be true so
 it will return all records in the users table, including their credit card details!</li>
 </ul>
-<h3>Using placeholders</h3>
-<p>In fact, the technique we have been using makes use of placeholders (?) in our SQL queries, and thus protects against SQL injection, as long as MySQL is in the default configuration. This is secure as it applies escape sequences to characters with special meaning to MySQL in the input data to ensure these SQL injection attacks cannot occur. See <a href='https://www.npmjs.com/package/mysql#escaping-query-values'>here</a> for more details.</p>
-<h3>Prepared statements</h3>
-<p>Another approach to improving the security of scripts, and guarding against SQL injection attacks, is <em>prepared statements</em>. With prepared statements, he SQL statements are compiled (prepared) into a binary form, which is executed more rapidly by the database, and this binary form is cached and thus can then be re-used, improving the efficiency of your application.</p>
-<p>Here is an example of using prepared statements in the mysql2 API. Essentially it's the same approach as normal, but you use <code>execute()</code> rather than <code>query()</code>, and when you have finished with the statement (i.e it won't be executed again), you call <code>unprepare()</code> to free the memory used by it.</p>
-<p>See the documentation <a href='https://github.com/sidorares/node-mysql2/blob/master/documentation/Prepared-Statements.md'>here</a>.</p>
-<p>An example is below:
-<pre>conn.execute("SELECT * FROM songs WHERE artist=?", [req.params.artist],
-    (err, results, fields)=&gt; {
-        // ...
-    }
-);</pre>
-</p>
-
+<h3>Prepared statements and placeholders to prevent SQL injection</h3>
+<p>If you look at the code above, you will see it is <em>unlike</em> the code we've been developing so far. We've been using <strong>prepared statements</strong> with <strong>placeholders</strong>, which prevents SQL injection occurring. 
+With prepared statements, the SQL statements are compiled (prepared) into a binary form, which is executed more rapidly by the database, and this binary form is cached and thus can then be re-used, improving the efficiency of your application. The placeholders (<code>?</code>) are replaced by the specified input parameters, and this method is not vulnerable to SQL injection.</p>
 <h2>Cross-site scripting (XSS)</h2>
 <ul>
 <li>A subtle, easily-overlooked, but widely-exploited, security risk with untested input to a web application</li>
@@ -219,6 +206,7 @@ See <a href='https://expressjs.com/en/guide/routing.html'>the documentation</a> 
     <li>Ensure you test your site with common ad-blockers, such as uBlock Origin, enabled. Ensure your site works with "Strict" privacy enabled. Ad-blockers and strict privacy levels are used by many users to guard against at best annoying, and at worst dangerous and privacy-invading, invasive popup ads. Morally, if perhaps not legally, core functionality must still work when a user takes these measures.</li>
     </ul>
 Unfortunately some web developers ignore the last point in particular, so much so that making payments on certain sites operated by very well-known companies are impossible with ad-blocker enabled.</p>
+<!--
 <h2>Examples for today</h2>
 <p>The source code for the live examples can be found <a href='https://github.com/nwcourses/nwcourses.github.io/tree/master/COM518/examples/security'>on GitHub</a>. Note that the phishing site uses PHP and Apache, rather than Node and Express - to highlight the fact that it is an entirely separate site.</p>
 -->
