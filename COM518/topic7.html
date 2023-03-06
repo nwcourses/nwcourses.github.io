@@ -241,7 +241,7 @@ middleware before reaching the route handler:
 app.use((req, res, next) =&gt; {
     res.set('Access-Control-Allow-Origin', '*');
     next();
-}
+});
 </pre> 
 Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
 <h3>Writing middleware as a separate function in a module</h3>
@@ -427,7 +427,7 @@ It's important to understand that <em>you can only use <code>process.env</code> 
     <li>Look up a user by username.</li>
     </ul>
 </li>
-<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 4) to a separate router inside the file <code>songs.mjs</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
+<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 2) to a separate router inside the file <code>songs.mjs</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
 <li>Install <code>dotenv</code> and <code>import</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
 <pre>
 if(process.env.APP_USER === undefined) {

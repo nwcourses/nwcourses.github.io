@@ -244,8 +244,10 @@ What do these routes do?
     </ul>
 </p>
 <h2 id='hashing'>Password hashing</h2>
-<p>For additional security, ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module for this. For example, to hash (encode) a password when signing up:
-<pre>const encPass = await bcrypt.hash(pass, 10);</pre>
+<p>For additional security, ensure that passwords are stored as a hashed (unreadable) form in your database, to prevent them being stolen. You can use Node's <code>bcrypt</code> module (which must be installed using <code>npm</code>) for this. For example, to hash (encode) a password when signing up:
+<pre>import bcrypt from 'bcrypt';
+...
+const encPass = await bcrypt.hash(pass, 10);</pre>
 The 10 is the number of rounds of encoding to use; 10 is a good compromise between security and performance as each round improves the security of the encoding but takes some time to execute. <br />
 To check a password when logging in, use code such as the following. Query the database to find the row for a given user, and then use <code>bcrypt.compare()</code> to compare the password entered against the hashed password in the table:
 <pre>const stmt = this.db.prepare('SELECT * FROM users WHERE username=?');
@@ -265,7 +267,7 @@ See <a href='https://www.npmjs.com/package/bcrypt'>here</a> for more details.
 <h2>Exercise</h2>
 <h3>Essential questions</h3>
 <ol>
-<li>Add code to initialise <code>express-session</code> and <code>express-mysql-session</code> on your Express server, as shown above.</li>
+<li>Add code to initialise <code>express-session</code> and <code>express-session-better-sqlite3</code> on your Express server, as shown above.</li>
 <li>Add the three routes in the example above (<code>/login</code> GET, <code>/login</code> POST and <code>/logout</code>), as well as the session-checking middleware, to your Express server. You should make one important change: <em>the <code>/login</code> POST route should check whether the username and password are contained within the <code>ht_users</code> table</em>, rather than just checking for a hard-coded username and password. To do this, perform your query and then check that the number of rows returned is one by checking the length of the <code>results</code> array, for example:
 <pre>
 if(results.length == 1) {
