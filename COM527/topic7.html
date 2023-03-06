@@ -452,18 +452,12 @@ Also, add this line to the top of the app build.gradle:
 have the following effects. Each should call an appropriate method in your
 DAO. These buttons should perform the following operations:
 <ul>
-<li>Add - add the Title, Artist and Year in the fields to a "hits" table in an
-SQLite database. Once added, the ID field should be filled in with the
-allocated ID. (DAO insert methods will return the new ID as a Long as
-long as it's declared in the method signature - see the example)</li>
-<li>Search by ID - find the record with the ID in the ID field. Display the
-found song in the other three fields (title, artist, year). An error (a
-toast is fine) should appear if that song does not exist.</li>
-<li>Update - should update the details of the song currently displayed in
-the four fields. Again display an error if the song with that ID does not
+<li>Add - add the Title, Artist and Year in the appropriate fields to a "hits" table in an SQLite database. <strong>The ID field should be ignored, as the database will allocate an ID</strong>. Once added, however, the ID field should be filled in with the allocated ID. (Note that DAO insert methods will return the new ID as a Long as long as it's declared in the method signature - see the example)</li>
+<li>Search by ID - find the record with the ID the user entered in the ID field. Display the details of the found song in the other three fields (title, artist, year). An error (a toast is fine) should appear if that song does not exist.</li>
+<li>Update - should update the details of the song with the ID entered in the ID field to the title, artist and year entered in the appropriate fields.
+Again display an error if the song with that ID does not
 exist.</li>
-<li>Delete - delete the song with that ID. Again, display an error if the
-song with that ID does not exist.</li>
+<li>Delete - delete the song with the ID the user entered. Again, display an error if the song with that ID does not exist.</li>
 </ul>
 <h3>Further reading</h3>
 <p><a href="https://developer.android.com/training/data-storage/room/">Save data in a local database using Room</a> - Android documentation on Room.</p>
