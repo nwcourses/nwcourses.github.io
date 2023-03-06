@@ -398,7 +398,7 @@ DB_HOST=localhost
 DB_USER=root
 DB_DBASE=mysql
 </pre>
-We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example:
+We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example, if we were using MySQL, which requires a host, username and password, we could do:
 <pre>
 const con = mysql.createConnection({
     host: process.env.DB_HOST,
