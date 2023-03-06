@@ -410,10 +410,10 @@ It's important to understand that <em>you can only use <code>process.env</code> 
 <hr />
 <h2>Exercise</h2>
 <p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
-<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-5 before attempting it. Please ensure that you have completed last week (Week 5) first, and also the standard exercises for Weeks 1-4.</p>
+<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-4 and 6 before attempting it. Please ensure that you have completed last week (Week 6) first, and also the standard exercises for Weeks 1-4.</p>
 <ol>
 <li>Make a <em>copy</em> of your Express server, so you still have the original version for reference.</li>
-<li>Available <a href='ht_users.sql'>here</a> is an SQL file to create and populate a <code>ht_users</code> table with data about users. Download it and import it into your database.</li>
+<li>Available <a href='wadsongs.db'>here</a> is an updated wadsongs.db to use, including an <code>ht_users</code> table for users. Note the <code>ht_users</code> table has these columns: username, password, name, dayofbirth, monthofbirth, yearofbirth, balance, isadmin, id. Download this, so it replaces your existing wadsongs.db.</li> 
 <li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.mjs</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
     <ul>
     <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
