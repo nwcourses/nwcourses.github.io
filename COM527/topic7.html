@@ -406,8 +406,8 @@ class MainActivity: AppCompatActivity() {
                     student = db.studentDao().getStudentById(id)
                 }
                 student?.apply {
-                    txtName.setText(name)
-                    txtCourse.setText(course)
+                    txtName.setText(this.name)
+                    txtCourse.setText(this.course)
                 }
             }
         }
@@ -432,7 +432,7 @@ database
 </li>
 </ul>
 <h3>Viewing the database from Android Studio</h3>
-<p>You can view your database from Android Studio by selecting <em>View-Tool Windows-Database Inspector</em>. You have to use a device running at least API 26 to do this.</p>
+<p>You can view your database from Android Studio by selecting <em>View-Tool Windows-App Inspection</em>. You have to use a device running at least API 26 to do this.</p>
 <h2>Exercise</h2>
 <p>Develop an application to store music in an SQLite database using Room.
 You'll need four classes: the data entity, the DAO, the database and the
@@ -444,8 +444,8 @@ implementation 'androidx.room:room-runtime:2.2.3'
 implementation 'androidx.room:room-ktx:2.2.3'
 kapt 'androidx.room:room-compiler:2.2.3'
 </pre>
-Also, add this line to the top of the app build.gradle:
-<pre>apply plugin: 'kotlin-kapt'</pre>
+Also, add this line to the <code>plugins</code> section of the app build.gradle:
+<pre>id 'kotlin-kapt'</pre>
 </p>
 <p>Use <strong>a device running at least API level 26</strong> so you can use the Database Inspector to visualise your database.</p>
 <p>The Activity should have a layout with four fields: ID, Title, Artist and Year, with four buttons (Search by ID, Add, Update, Delete). These buttons should
