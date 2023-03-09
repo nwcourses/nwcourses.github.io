@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 11: Further Fragments</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 11</h1>
+<h1>Further Fragments</h1>
+</div>
+<p>This week we will cover some further topics relating to fragments.</p>
+
+<h2>The Back Stack</h2>
+<p>Last week we looked at how to develop a simple fragment-based application using fragment transactions and a navigation drawer. However what might be nice is to allow <strong>navigation using the back button</strong>, so that as the user navigates through the app using the navigation drawer, they can revisit a previous fragment. Thus we end up with a <strong>stack of fragments</strong> rather like the normal stack of activities. In fact, it's the same stack, which can contain a mixture of activities and fragments.</p>
+<p>To do this, we can add fragments to this stack - the <strong>back stack</strong>. This is performed in the fragment transaction. Here is an example:
+<pre>
+supportFragmentManager.commit {
+    replace(R.id.fragContainer, MapStyleFragment())
+    <strong>addToBackStack(null)</strong>
+}
+</pre>
+This performs a fragment transaction to replace the contents of the element with the ID of <code>fragContainer</code> with a new instance of <code>MapStyleFragment</code> and then <strong>adds it to the back stack, to allow navigation</strong>. Note the <code>null</code> argument is an optional name for this fragment on the back stack, it should be unique if specified.</p>
+<p>Note that when fragments are added to the back stack, they are <strong>unique instances of the fragment</strong> (contrasted to last week, in which we were navigating between single instances of <code>Frag1</code> and <code>Frag2</code>.). So in a mapping activity, we might have <strong>multiple instances of <code>MapFragment</code></strong> on the back stack</strong>, all with different settings (e.g. different location, different map style).</p>
+<p>Adding a fragment to the back stack changes the behaviour when it is replaced with a new fragment. It is no longer destroyed, but instead merely <em>stopped</em> (and <em>started</em> again when it becomes visible once more). Thus a good place to save the state of the fragment is in <code>onStop()</code> and a good place to restore the fragment's state (when we navigate back to it) is in <code>onStart()</code>. For example, here is an (incomplete) <code>MapFragment</code> which saves the map position in <code>lastPoint</code>, the zoom in <code>lastZoom</code> and the map style (is OpenTopoMap displayed?) in <code>isOpenTopo</code>. All these are saved in <code>onStop()</code> and restored in <code>onStart()</code>.
+<pre>
+// MapFragment (incomplete)
+class MapFragment: Fragment(R.layout.layout_map_frag) {
+    var map1: MapView? = null
+    var lastPoint: GeoPoint? = null
+    var lastZoom = 14.0
+    var isOpenTopo = false
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Configuration.getInstance()
+            .load(activity, PreferenceManager.getDefaultSharedPreferences(activity));
+
+        map1 = view.findViewById(R.id.map1)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // Deal with pending properties here..
+
+        setPosition(lastPoint?.longitude ?: -0.72, lastPoint?.latitude ?: 51.05, lastZoom)
+        setStyle(isOpenTopo)
+    }
+
+    override fun onStop() {
+        lastPoint = map1?.mapCenter as GeoPoint?
+        lastZoom = map1?.zoomLevelDouble ?: 14.0
+        isOpenTopo = map1?.tileProvider?.tileSource == TileSourceFactory.OpenTopo
+        super.onStop()
+
+    }
+
+     fun setPosition(lon: Double, lat: Double, zoom: Double = 14.0) {
+        map1?.controller?.setCenter(GeoPoint(lat, lon))
+        map1?.controller?.setZoom(zoom)
+    }
+
+    fun setStyle(topo: Boolean) {
+        map1?.tileProvider?.tileSource = if(topo) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK
+    }
+
+    fun setPendingStyle(pendingOpenTopo: Boolean) {
+        // set pending properties as discussed last week
+        
+    }
+
+    fun setPendingLocation(pendingLat: Double, pendingLon: Double) {
+        // set pending properties as discussed last week
+    }
+}
+</pre>
+</p>
+<p>The example would still need to implement <em>pending properties</em> as per last week, as the fragment transactions are still asynchronous: for example if we had a fragment to update the map's latitude and longitude, we should set the latitude and longitude the user entered as pending properties so that they can be updated when the transaction completes. See the end of last week's notes for more details.</p>
+
+<h2>The Fragment lifecycle</h2>
+
+<p>Like Activities, Fragments define a lifecycle with several methods called one after the other. However, because Fragments need to associate with
+(<em>attach</em> to) their parent Activity, the lifecycle is a little more complex with a few more methods which relate to the association and
+dissociation with the Activity. The methods are as follows, in order of
+being called
+(ref <a href="https://developer.android.com/guide/fragments/lifecycle">Android developer documentation</a>):
+    <ul>
+    <li><em>onCreate()</em> - similar in concept to Activity's onCreate(), this is called when the Activity is first created.</li>
+    <li><em>onCreateView()</em> - called when the View associated with the Fragment is to be created. As we have seen above, this must
+    create and return a View object associated with the Fragment; this may be either through inflating an XML layout (as above) or creating and
+    returning a subclass of <em>View</em> from code.</li>
+    <li><em>onViewCreated()</em> - runs when the Fragment's view has been created. You can add code to initialise sub-components of the Fragment's View in here, for example attach event listeners to buttons.</li>
+    <li><em>onViewStateRestored()</em> - used to restore state saved in a Bundle when the fragment was previously destroyed (see <em>onSaveInstanceState()</em>, below)</li>
+    <li><em>onStart()</em>, <em>onResume()</em>, <em>onPause()</em> and <em>onStop()</em> - similar to the equivalent methods in Activity</li>
+    <li><em>onSaveInstanceState</em> - used to save data associated with the fragment in a Bundle, which can be recalled when the fragment is recreated.</li>
+    <li><em>onDestroyView()</em> - when the View associated with the Fragment is destroyed</li>
+    <li><em>onDestroy()</em> - similar to the equivalent method in Activity</li>
+    </ul>
+</p>
+
+<h2>Developing activities with multiple fragments using FragmentContainerView</h2>
+
+<p>Last week we looked at how we can use fragment transactions within a FrameLayout to replace one fragment with another. This week we will look at how we can develop fragment-based applications from scratch by embedding &lt;FragmentContainerView&gt; tags in the XML layout of activities, which explicitly contain a specific fragment (defined in the XML)</p>
+
+<h3>Simple example - one activity, one fragment</h3>
+
+<p>To keep things simple, the first FragmentContainerView example will involve <em>one</em> fragment inside <em>one</em> activity.
+First we will look at the Activity. Because all the work (in this simple example) is now going on inside the
+Fragment, the activity simply has an empty onCreate() method which just calls the superclass version of onCreate():
+<pre>class FragActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        super.onCreate (savedInstanceState)
+        setContentView (R.layout.activity_main)
+    }
+}</pre>
+</p>
+<p>
+Next the main layout file for the activity, activity_main.xml:
+<pre>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+
+&lt;androidx.fragment.app.FragmentContainerView android:name="com.example.fragments.HelloWorldFragment"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:id="@+id/helloWorldFrag"&gt;
+
+&lt;/androidx.fragment.app.FragmentContainerView&gt;
+ 
+&lt;/LinearLayout&gt;
+</pre>
+Note how the layout file for the activity does not contain any "regular" user interface elements such as TextViews, but instead, one <em>fragment</em>, specified with a &lt;FragmentContainerView&gt; tag (a <code>FragmentContainerView</code> is a <code>View</code> which is used to contain a fragment). In this example, the fragment is occupying the whole of the activity,
+as the <em>layout_width</em> and <em>layout_height</em> are both set to "match_parent". </p>
+<p>Note how the fragment has an ID, <em>helloWorldFrag</em>: we will use this later on to get hold of the fragment from our Activity.</p>
+<p>
+Notice also how we have to specify the class of the fragment, which here is "com.example.fragments.HelloWorldFragment"
+i.e. the class <em>HelloWorldFragment</em> inside the <em>com.example.fragments</em> package.</p>
+<p>Now we come to the actual fragment itself, which is called
+<em>HelloWorldFragment</em>.  You should recognise this code from last week.
+<pre>
+class HelloWorldFragment : Fragment(R.layout.helloworldfrag) {
+}
+</pre>
+Here is the XML layout file for this fragment (<em>helloworldfrag.xml</em>):
+<pre>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+
+&lt;TextView android:id="@+id/tv1"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:text="@string/hello_fragment_world" /&gt; &lt;!-- imagine the string hello_fragment_world is defined as "Hello Fragment World!" in strings.xml --&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+The layout is simple, containing a text view and nothing else.
+</p>
+<h3>Referencing the Activity from the Fragment and vice-versa</h3>
+<p>In most Fragment-based applications, we need to reference the Activity from the Fragment and vice-versa. This section looks at how we can do this.</p>
+<h4>Activity from Fragment</h4>
+<p>Frequently we must access the parent Activity from the Fragment. Remember from previous topics that many Android UI features (such as the <em>AlertDialog</em>s or <em>Toast</em>s, for instance) expect a subclass of <em>Context</em> when we are creating them.  However, Fragment is <em>not</em> a subclass of Context. So if we want to create an AlertDialog or a Toast in a Fragment, we need to pass in the parent Activity.
+Luckily this is easy to obtain via the <code>activity</code> property of Fragment. Alternatively, the <em>onAttach()</em> method, which runs when the 
+Fragment is attached to the Activity, contains the Activity as a parameter.
+</p>
+<p>The only problem with this approach is that it makes the fragment <strong>tightly coupled</strong> to the activity, which means it introduces a <strong>dependency</strong> on the activity and code within it - and thus the fragment is less <strong>reusable</strong> in other applications. A better, more loosely-coupled approach is to specify a <em>callback function</em> in the constructor of the fragment, which can be user-defined and contain any code. This callback would contain code to update the activity and other fragments based on how the user interacts with the current fragment; an example is given later on.</p>
+<h4>Fragment from Activity</h4>
+<p>We might also want to access a Fragment from the parent Activity. For example, an app's menu is associated with the Activity, rather than a
+Fragment, so the code to handle menu items would have to go into the Activity - but we might want to update the contents of a Fragment
+as a result. Therefore, we need to access a given Fragment from the Activity.</p>
+<p>To do this, we need to use the <em>FragmentManager</em>, which we used last week to perform fragment transactions, and use its <code>findFragmentById()</code> method which searches for a fragment using its ID. Remember that when we add fragments to the activity layout, we give each fragment an ID.
+Here is an example of accessing a given Fragment from the Activity. All it does is set the text within the fragment's text view to the string "Updated text in the Hello World fragment!"
+<pre>
+class MainActivity: AppCompatActivity() {
+    override fun onCreate (savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView (R.layout.activity_main)
+        val helloWorldFrag = supportFragmentManager.findFragmentById(R.id.helloWorldFrag) as HelloWorldFragment
+
+        // Our fragment has a setText() method (our own custom method), see below
+        helloWorldFrag.setText("Updated text in the Hello World fragment!")
+    }
+}
+</pre>
+For this to work, we need to give our Fragment a <code>setText()</code> method to update the text of the text view within the fragment:
+<pre>
+class HelloWorldFragment: Fragment() {
+
+    var tv: TextView? = null
+    var pendingText = ""
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        tv = view.findViewById(R.id.tv1)
+        if(pendingText != "") {
+            tv?.text = pendingText
+            pendingText = ""
+        }
+    }
+ 
+    // setText() method updates the TextView within the fragment to the
+    // details corresponding to the text passed in.  
+    fun setText(text: String) {
+        if(tv == null) {
+            pendingText = text 
+        } else {
+            tv?.text = text 
+        }     
+    }
+}
+</pre>
+Note how, in <code>onViewCreated()</code>, we obtain the TextView within the fragment and store it in variable <code>tv</code>. Note also the detail of the
+<code>setText()</code> method,  in particular the use of <code>pendingText</code>.  Remember at the end of last week, we covered a potential issue in which if
+a method of the fragment is called <em>immediately after</em> a fragment
+transaction, the method might complete before the transaction has completed
+(as the transaction is asynchronous). When we launch our activity 
+containing the fragment, a fragment
+transaction will take place to fill the <code>FragmentContainerView</code> with the actual fragment. If <code>setText()</code> is called on the fragment at this point, as it is in the Activity's <code>onCreate()</code> shown above,` it might complete before the fragment transaction, which means the view might not be properly initialised yet (<code>onViewCreated()</code> has not completed) so the text view might be <code>null</code>. So if the text view is <code>null</code>, we store the text in the <code>pendingText</code> variable so that <code>onViewCreated()</code> can use it when it is able.
+</p>
+<h2>Building a two-fragment activity</h2>
+
+<p>Having looked at a one-fragment activity, we will now move onto something a bit more complex and develop a two-fragment activity. It will consist of two fragments:
+    <ul>
+    <li>one fragment containing an EditText allowing the user to enter a famous person;</li>
+    <li>a second fragment containing a TextView, which will display details of the chosen famous person.</li>
+    </ul>
+ The person-entry fragment will be on the left and the person details on the right.  When the user enters a person, information on that person will appear in the second fragment. So the application will look something like the diagram
+below:
+<br />
+<img src='../images/twofrag.png' alt='Example two-fragment activity' />
+<br />
+How do we do this? The first step is to look at the layout XML file for the activity:
+<pre>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"&gt;
+
+&lt;androidx.fragment.app.FragmentContainerView android:name="com.example.fragments.PersonEntryFragment"
+android:layout_height="match_parent"
+android:layout_width="wrap_content"
+android:id="@+id/personEntryFrag"&gt;
+
+&lt;/androidx.fragment.app.FragmentContainerView&gt;
+
+&lt;androidx.fragment.app.FragmentContainerView android:name="com.example.fragments.PersonDetailsFragment"
+android:layout_height="match_parent"
+android:layout_width="wrap_content"
+android:id="@+id/personDetailsFrag"&gt;
+
+&lt;/androidx.fragment.app.FragmentContainerView&gt;
+
+
+&lt;/LinearLayout&gt;
+</pre>
+There are two fragments, one an instance of the <em>PersonEntryFragment</em> class (to be introduced below) and the other an instance of <em>PersonDetailsFragment</em> (also to be introduced below)</p>
+
+<h3>Layouts for the fragments</h3>
+
+<p>The layouts for the fragments are as below. Note this is optimised for landscape. This is because, later on, we will show how the application can be adapted so that in landscape mode, two fragments are visible simultaneously, whereas in portrait, each fragment is in a separate activity.</p>
+<h4>PersonEntryFragment</h4>
+<pre>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+
+&lt;TextView android:text="@string/person"
+android:layout_width="match_parent"
+android:layout_height="wrap_content" /&gt;
+
+&lt;EditText android:id="@+id/etPersonName"
+android:layout_width="match_parent"
+android:layout_height="wrap_content" /&gt;
+
+&lt;Button android:id="@+id/btnGo"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="@string/go" /&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+</p>
+<h4>PersonDetailsFragment</h4>
+<p>
+<pre>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+
+&lt;TextView android:id="@+id/tvPersonDetails"
+android:layout_width="match_parent"
+android:layout_height="match_parent"&gt;
+
+&lt;/TextView&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+</p>
+<h3>Transferring data from PersonEntryFragment to PersonDetailsFragment</h3>
+<p>We must now ask: how can we update the main fragment when an item in the list fragment is clicked? We can use a <em>callback-based</em> approach, to reduce coupling in our system, as we discussed above. The PersonEntryFragment has, as a property, a callback method which is called when the user enters a person. This callback can be specified by whichever activity is hosting the fragment, and would forward the person onto the other fragment. Here is an example: see the comments for explanation.
+<pre>
+class MainActivity: AppCompatActivity() {
+    override fun onCreate (savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView (R.layout.activity_main)
+
+        // Find each fragment using their IDs
+        val personEntryFrag = supportFragmentManager.findFragmentById(R.id.personEntryFrag) as PersonEntryFragment
+        val personDetailsFrag = supportFragmentManager.findFragmentById(R.id.personDetailsFrag) as PersonDetailsFragment
+
+        // Set the callback of personEntryFrag (which will run when the button
+        // is clicked, see below) to a lambda which calls the setText() method of 
+        // personDetailsFrag. In this way, the person entered in personEntryFrag
+        // will be transferred to personDetailsFrag, which will then look up the
+        // details of that person.
+        personEntryFrag.callback = {
+            personDetailsFrag.setText(it)
+        }
+    }
+}
+</pre>
+<pre>
+// in PersonEntryFragment
+class PersonEntryFragment : Fragment(R.layout.personentryfrag) {
+    var callback: ((String) -&gt; Unit)? = null
+
+    // when the view has been created, add the event listener to the button, so
+    // the callback is called when it's clicked
+    override fun onViewCreated(v: View, b: Bundle?) {
+
+        val btnGo = v.findViewById(R.id.btnGo) as Button
+        val etPersonName = v.findViewById(R.id.etPersonName) as EditText
+
+        btnGo.setOnClickListener {
+            // Invoke the callback, passing it the text in the edit text.
+            // We cannot just do 
+            // callback(etPersonName.text.toString())
+            // as the callback is nullable, and will be null until it's set.
+
+            callback?.invoke(etPersonName.text.toString())    
+        }    
+    }
+}
+</pre>
+<pre>
+package com.example.fragments
+
+import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+
+class PersonDetailsFragment : Fragment(R.layout.persondetailsfrag) {
+    var tv: TextView? = null
+    var pendingText = ""
+
+    val descriptions = hashMapOf(
+        "Tim Berners-Lee" to "Inventor of the World Wide Web.",
+        "John Lennon" to "Singer and songwriter from the Beatles whose life was cut tragically short in 1980.",
+        "Linus Torvalds" to "Original developer of Linux.",
+        "Barack Obama" to "President of the US. (2008-16)"
+    )
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        tv = view.findViewById(R.id.tvPersonDetails)
+        if(pendingText != "") {
+            tv?.setText(descriptions[pendingText] ?: "I do not know about $pendingText!")
+            pendingText = ""
+        }
+    }
+
+
+    fun setText(person: String) {
+        if(tv != null ) {
+            tv?.text = descriptions[person] ?: "I do not know about $person !"
+        } else {
+            pendingText = person
+        }
+    }
+}
+</pre>
+Note the use of <code>pendingText</code> again, as in the Hello World example above.</p>
+<h2>Exercise</h2>
+<ol>
+<li>Build a complete application using the code snippets above, so that you have an activity with two fragments, the first allowing the user to enter a famous person, and the second displaying the details of that person.</li>
+<li>Using the same principles, build a similar application in which the first fragment allows the user to enter a latitude and longitude, and the second displays a map. When the user enters the latitude and longitude, the map should be centred on that location.</li>
+<li><strong>More advanced:</strong> Have a go at building a mapping app which uses the navigation drawer and fragment transactions, as per last week, but also uses the back stack. This app should work like the back stack demo app I showed you in the lecture. Create two fragments: a <code>MapFragment</code> which displays a map, and a <code>MapStyleFragment</code> which allows the user to choose the map style (either regular or OpenTopoMap) using either buttons or a RecyclerView (up to you, buttons will be easier to implement). Add a navigation drawer with two entries for the <code>MapFragment</code> and the <code>MapStyleFragment</code>. When the user chooses either, create a <em>new instance</em> of that fragment and <em>add it to the back stack</em>. Also, when the user clicks one of the two buttons on the <code>MapStyleFragment</code>, a callback should run. The callback should <em>perform a further fragment transaction to replace the <code>MapStyleFragment</code> with a new instance of the <code>MapFragment</code>, and add it to the back stack once again</em>.
+<br />
+<br />
+You will need to save the map fragment's state in <code>onStop()</code> and restore in <code>onStart()</code>, and add methods to set the latitude, longitude and map style as pending properties, as shown above.
+<br />
+<br />
+Test out your application by moving the map, changing style, moving the map again, changing style again, and then pressing the Back button a few times to prove that you can navigate backwards through the previous fragment instances and view the previous locations of the map.
+</li>
+</ol>
+<hr />
+<h2>Further reading: Making the app compatible with both landscape and portrait modes</h2>
+<p>Note this section is <strong>not required for the assignment</strong>, even for a high A. It is provided for general interest. It details an approach in which you can use one activity with two fragments in landscape mode, and two activities, each with one fragment, in portrait mode.</p>
+<h3>Separate layouts for the main activity</h3> 
+<p>The first thing we must do is to create <em>two separate layouts for the main activity</em>, one for landscape and one for portrait. How can we do this? You choose your default layout (eithr landscape or portrait) and store all the XML files for that layout, as well as any which apply in either landscape or portrait, in your main <code>layout</code> directory. With the non-default layout, you create a separate directory inside <code>res</code> called <code>layout-port</code> (for portrait) and <code>layout-land</code> (for landscape) and put the XML which only relates to that layout in there.</p>
+</p>
+
+<h3>One fragment in portrait, two in landscape</h3>
+<h4>Layout in landscape mode</h4>
+<p>The landscape layout in this case would be the same as that above,
+with two fragments in horizontal orientation.</p>
+<h4>Layout for the activities in portrait mode</h4>
+<p>In portrait mode, we need two separate activities, one for the main screen 
+(which will be the list)
+and a secondary activity to show the details of the person. For the main screen, the XML would look like this:
+<pre>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+    
+
+&lt;androidx.fragment.app.FragmentContainerView android:id="@+id/personEntryFrag"  android:layout_width="wrap_content" android:layout_height="wrap_content" 
+    android:name="com.example.fragments.PersonEntryFragment"&gt;&lt;/androidx.fragment.app.FragmentContainerView&gt;
+    
+&lt;/LinearLayout&gt;
+</body>
+</html>
+
+</pre>
+while for the secondary activity, which shows the details of the selected 
+person, the XML (which we will call <em>persondetails.xml</em>)
+would look like this:
+<pre>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"&gt;
+    
+    &lt;androidx.fragment.app.FragmentContainerView android:id="@+id/personDetailsFrag" android:layout_height="wrap_content"
+    android:layout_width="wrap_content" android:name="com.example.fragments.PersonDetailsFragment"&gt;
+    
+    
+   
+    &lt;/androidx.fragment.app.FragmentContainerView&gt;
+    
+&lt;/LinearLayout&gt;</pre>
+These should be easy to understand, as they are simple layouts with one fragment
+(either  PersonEntryFragment, our list fragment or PersonDetailsFragment, our "person details" fragment).
+</p>
+<h4>Code for the main activity</h4>
+<p>We need to add new code now to the main (list) activity so that different things happen depending on whether we are in 
+portrait or landscape mode. The code for FragActivity would now be modified as follows: 
+<pre>
+class MainActivity: AppCompatActivity() {
+    override fun onCreate (savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView (R.layout.activity_main)
+
+        // Find each fragment using their IDs
+        val personEntryFrag = supportFragmentManager.findFragmentById(R.id.personEntryFrag) as PersonEntryFragment
+        val personDetailsFrag = supportFragmentManager.findFragmentById(R.id.personDetailsFrag) as PersonDetailsFragment?
+
+        personEntryFrag.callback = {
+            if (personDetailsFrag == null || !personDetailsFrag.isVisible()) {
+                Intent (this, PersonDetailsActivity::class.java).apply {
+                    this.putExtra("name", it)
+                    startActivity(this)
+                }
+            } else {
+                personDetailsFrag.setText(it)
+            }
+        }
+    }
+}
+</pre>
+Note how the callback lambda has some extra logic to deal with the difference between portrait and landscape:
+    <ul>
+    <li>We first try to find the fragment with the ID of <em>personDetailsFrag</em>. (the fragment which will contain the
+    person details, i.e. PersonDetailsFragment)</li>
+    <li>If the fragment does not exist yet (when the activity first starts up in portrait mode) or if it is not in the layout of the
+    current activity (this will happen if we rotate from portrait to landscape and back to portrait - the fragment will exist but
+    will not be within the current activity's layout as the current activity only contains the list fragment) then we
+    <em>launch a second activity</em> to display the text. This is done in the same way as usual, i.e create an Intent
+    for that activity (class PersonDetailsActivity), add an extra (the text to display),
+    and start the activity using that intent.</li>
+    <li>If the fragment <em>is</em> within the current activity then we call its <em>setText()</em> method, as before.</li>
+    </ul>
+</p>
+<h4>Code for the second activity</h4>
+<p>Lastly, we must consider the code for the second activity (in portrait mode), which shows the person details. As we saw above,
+this is launched by <em>receiveText()</em> from the main activity if the person details fragment does not exist within the main
+activity. Here is the code for the second activity:
+<pre>
+class PersonDetailsActivity : AppCompatActivity() {
+    
+    override fun onCreate (savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            finish()
+            return
+        }
+        
+        setContentView(R.layout.persondetails)
+        
+        intent?.apply {
+            val person = this.getStringExtra("name") ?: "No name found"
+            val  frag = fragmentManager.findFragmentById(R.id.personDetailsFrag) as PersonDetailsFragment
+            frag.setText(person)
+        }
+    }
+
+}
+
+</pre>
+Most of this is fairly straightforward: we read the intent, extract the text from it, and send it on to <em>PersonDetailsFragment</em>.
+The only section of code that you may not understand is this:
+<pre>
+if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+    finish()
+    return
+}
+</pre>
+This (taken from <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">Lars Vogel (vogella)'s article on fragments</a>), 
+is saying "if the orientation is landscape, finish the activity". Why do we want to do this? The
+reason is that if we rotate the phone from portrait to landscape when this second activity is being displayed, the second activity is
+recreated. This is because every time the device is rotated, the current activity is recreated again and onCreate() is called once more.
+However, in landscape, we do not <em>want</em> this second activity to appear (because both fragments are on the main activity).
+Instead, we want the main activity to appear. So, if we rotate to landscape while the second activity is being displayed, we
+finish the second activity, which will mean the main activity will re-appear (as the second activity was launched from the main activity).</p>
+<h2>Exercise 2</h2>
+<p><em>This is not needed for the assignment but you might want to attempt it out of interest.</em></p>
+<ol>
+<li>Enhance your answer to Question 3 from Exercise 1 so that it remains the same (2 fragments in the main activity) in landscape mode, but uses two separate activities, each containing one fragment (the main activity should contain the RecyclerView, and the second activity should contain the person details) in portrait mode.</li>
+<li>Do the same for the map exercise (Question 2 from Exercise 1), with the latitude/longitude fragment in the main activity in portrait mode, and the map fragment in the second activity.</li>
+</ol>
+</body>
+</html>
