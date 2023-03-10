@@ -486,7 +486,7 @@ Use menu items in the navigation drawer to select which fragment will appear.
 	<li>One fragment to hold the map. The map fragment should update to the latitude and longitude the user entered when the button on the first fragment is clicked.</li>
 	</ul>
 When the button is clicked, store the latitude and longitude in a <code>ViewModel</code>, using a data class called <code>LatLon</code> (which you need to create) containing fields for latitude and longitude. The <code>ViewModel</code> should also store <code>LiveData</code> referencing the <code>LatLon</code>. Make the map fragment observe this <code>LiveData</code> from the <code>ViewModel</code> and update the map's position when the <code>LiveData</code> changes.</li>
-<li><em>Modifying exercise 1 to use ViewModel</em>: you can use <code>ViewModel</code> and <code>LiveData</code> with fragment transactions. Modify exercise 1 to store the list of songs in a <code>ViewModel</code>. Make it available as <code>LiveData</code> and observe it from the first fragment.</li>
+<li><em>Modifying exercise 1 to use ViewModel</em>: you can use <code>ViewModel</code> and <code>LiveData</code> with fragment transactions. Modify exercise 1 to store the list of songs in a <code>ViewModel</code>. Make it available as <code>LiveData</code> and observe it from the first fragment. <strong>An important point is that a fragment's <code>onViewCreated()</code> is reloaded each time a fragment transaction occurs, so you will need to add code to set the text view's contents to the data in the <code>ViewModel</code> within the <code>onViewCreated()</code>.</li>
 </ol>
 </body>
 </html>
