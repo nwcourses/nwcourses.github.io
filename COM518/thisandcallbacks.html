@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>"this" and callbacks</title>
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head>
+<body>
+<div class="titlebox"><h1>Advanced material - "this" and callbacks</h1></div>
+<h2 id='thisAndCallbacks'>Introduction</h2>
+<p>There are a number of subtleties with JavaScript <em>this</em> which you need to understand to work
+effectively with objects, and which make its use
+less straightforward than the use of <em>this</em> in other languages such as Java and C++. <strong>These subtleties are particularly important when it
+comes to callbacks.</strong></p>
+<h3>"this" and the window object</h3>
+<p>Firstly, what does <em>this</em> refer to if it is not being used in the context of an object?
+For example, if the function below was run, what would be displayed?
+<pre>
+function thisTest()
+{
+    alert(this);
+}
+</pre>
+On Firefox it displays:
+<pre>[object Window]</pre>
+The output demonstrates what <em>this</em> refers to when out of the context of an object. It refers to a <em>"default object"</em> which in a web browser is the <em>window</em> object, representing
+the browser window as a whole. So the example below would work too:
+<pre>
+function thisTest()
+{
+    window.alert("alert is actually a method of the window object!");
+    this.alert("... and here, *this* refers to the window so this works too!");
+}
+</pre>
+Both alerts are displayed. <em>alert()</em> is actually a method of the window object, but because
+the window object is the environment's "default" object, we can normally leave <em>window</em> out;
+it's included here just to illustrate the point. And
+because <em>this</em> also refers to the window object in this context, the second alert will be
+displayed too.</p>
+<h3>"this" and callbacks - the problem</h3>
+<p>The problem most commonly encountered with "this" is 
+when it is being used in a <em>callback function</em>. As we have
+seen, a <em>callback function</em> is a function that does not run immediately,
+but at a later time, when some event has occurred (such as the user clicking a button,
+or the response from an AJAX request is received). So imagine we had a Cat and we wanted it to meow if
+we pressed a button, e.g:
+<pre>
+// cat.js
+class Cat 
+{
+
+    constructor(n,a)
+    {
+        this.theName=n;
+        this.age=a;
+    }
+
+    meow()
+    {
+        alert(`${this.theName} says meow!`);
+    }
+}
+
+
+
+// Create the cat
+const tom = new Cat("Tom", 7);
+
+// When the user clicks the button, the meow method will run
+document.getElementById("meowbtn").addEventListener("click", tom.meow);
+
+</pre>
+HTML:
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type='text/javascript' src='cat.js'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;input type='button' id='meowbtn' value='Meow!' /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p>
+<p>If you try this out, and click the button, does the expected output:
+<pre>Tom says Meow!</pre>
+occur? No. Instead, you will get something like:
+<pre>undefined says Meow!</pre>
+Why is this happening? 
+<ul>
+<li>On a simple level, it is because <em>callback functions do not keep track of the object that
+the method relates to.</em> So when we click the button, the meow function will be called but
+the fact that it relates to the object <em>tom</em> is not retained. So when we try to display
+<em>theName</em> of the current object, we get <em>undefined</em> because the current object
+is not <em>tom</em> and hence has no <em>theName</em> property</li>
+<li>To explain in more depth: <em>when we are using a callback function, the context of
+the function changes</em>. In this example, we are basically setting the <em>click</em>
+event handler of the button to be the meow method of the object <em>tom</em>. But the object
+<em>tom</em> itself is <em>not</em> copied across. Instead, the code in <em>meow()</em> is copied
+across to the button object, and becomes the <em>click</em> method of the button object. So,
+when we click the button, <em>this</em> is actually the button object! Buttons do not have a
+<em>theName</em> property, so we get <em>undefined</em>.</li>
+<li>Note that <em>arrow functions always preserve the context of this</em>
+so we don't have the same sort of problem if we use an arrow function as a 
+callback. However, frequently we want to make a method of a class or object a callback function, as 
+we have done here. In these cases, we are forced to deal with the
+the "context of this" problem and ensure that <em>this</em> refers to
+the correct object in the callback.</li>
+</ul>
+</p>
+<h3>Dealing with "this" issues in callbacks with bind()</h3>
+<p>Luckily, the issue is easy to deal with.
+You can simply use the <em>bind()</em> method.
+<em>bind()</em> does what it says on the tin: it binds the callback function to the specified
+object, so that when the callback is called, <em>this</em> will refer to the correct object.
+So to rewrite our Cat example so they work correctly:
+<pre>
+class Cat 
+{
+
+    constructor(n,a)
+    {
+        this.theName=n;
+        this.age=a;
+    }
+
+    meow()
+    {
+        alert(`${this.theName} says meow!`);
+    }
+}
+
+
+// Runs when the page loads
+
+// Create the cat
+const tom = new Cat("Tom", 7);
+
+// When the user clicks the button, the meow method will run
+    document.getElementById("meowbtn").addEventListener("click", <em>tom.meow.bind(tom)</em>);
+
+</pre>
+</p>
+<p>Note how the callback <em>tom.meow()</em> is now <em>bound</em> to the
+object <em>tom</em>. This means that <em>this</em> will refer to the correct
+object, <em>tom</em>, when <em>tom.meow()</em> is called as a callback on
+response to a button click, or indeed any other event.</p>
