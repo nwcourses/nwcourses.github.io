@@ -140,8 +140,24 @@ class MainActivity: AppCompatActivity() {
 }</pre>
 <p>Note how easy it is to send a simple GET request in Kotlin.
 We simply use the <em>readText()</em> extension function of Java's
-<em>URL</em> class (<em>extension functions</em> are a Kotlin feature in which you can add extra functions to a pre-existing class without having to override it). This will send an HTTP request to the given URL and return the response.</p>
+<em>URL</em> class (<em>extension functions</em> are a Kotlin feature in which you can add extra functions to a pre-existing class without having to override it; see below). This will send an HTTP request to the given URL and return the response.</p>
 <p>Notice again how we use <em>coroutines</em> to send the request asynchronously, just like we did last week for querying an SQLite database. We switch to the <code>Dispatchers.IO</code> context to send the request, so that the UI remains responsive while waiting for the response to be delivered.</p>
+<h4>A quick diversion: extension functions</h4> 
+<p>With Kotlin we can add one, or a small number, of functions (methods) to a class without subclassing -
+these are called <em>extension functions</em>.  This can be very useful if we just want to add a small amount of functionality to a class. For example:
+<pre>
+fun String.greet(greeting: String = "Hello") {
+    println("$greeting $this")
+}
+
+fun main(args: Array&lt;String&gt;) {
+    val s = "Fred"
+    s.greet()
+    s.greet("Goodbye")
+    "John".greet("Nice to see you") // This also works
+}</pre>
+Note how we are adding a <pre>greet()</pre> function to String, so all Strings can have <pre>greet()</pre> called on them. Note also how the parameter <pre>greeting</pre> takes on a default value of "Hello"; this is common to all Kotlin functions, not just extension functions.
+</p>
 <h3>What about other requests? - Intro to Fuel</h3>
 <p>The URL extension function above allows us to send GET requests
 very easily, however we cannot send other request types (e.g. POST) in the
