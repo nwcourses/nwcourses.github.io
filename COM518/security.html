@@ -32,7 +32,7 @@ grab confidential data, or even modify or delete a table!</li>
 <li>e.g. if we had code such as the following (<code>exec()</code> is an unsafe method of executing an SQL query):
 <pre>
 ... connect to database ...
-db.exec(`select * from details where name='{req.params.name}'`, ...);
+db.exec(`select * from details where name='${req.params.name}'`, ...);
 </pre>
 </li>
 <li>If the user entered in the form the following:
@@ -48,7 +48,7 @@ with potentially devastating results!!!</li>
 <ul>
 <li>Imagine a login script to a banking site with code such as that below, which displays your card details:
 <pre>
-const results = db.exec(`SELECT * FROM users where password='{req.body.password}' AND username='{req.body.username}'`);
+const results = db.exec(`SELECT * FROM users where password='${req.body.password}' AND username='${req.body.username}'`);
 html = "";
 results.forEach ( result =&gt; {
 	html += `Credit card: ${result.creditcard} Expiry date: ${result.expiry}&lt;br /&gt;`;
@@ -172,8 +172,8 @@ meaning the attack still takes place</li>
 </ul>
 <h3>Guarding against basic XSS attacks: using the Node xss module</h3>
 <p>Node makes it easy to guard against XSS attacks using the <code>xss</code> module. With this, you can sanitise any input before it's output again. This invoves replacing characters with special meaning to HTML, such as &lt; and &gt; with their HTML entities, such as &amp;lt; and &amp;gt;. The attack relies on the browser receiving HTML tags in the response, so if these are sanitised, the browser will not interpret them as tags and the attack cannot take place. For example:
-<pre>const xss = require('xss');
-const express = require('express');
+<pre>import xss from 'xss';
+import express from 'express';
 const app = express();
 app.get('/', (req, res) =&gt; {
     const sanitised = xss("&lt;script&gt;alert('666 I am evil!');&lt;/script&gt;");
