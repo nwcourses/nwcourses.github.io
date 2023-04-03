@@ -115,8 +115,8 @@ This example creates an array of strings and then loops through them with a <cod
 <pre>
 import * as fs from 'fs/promises'; // use promise-based version
 
-async readWholeFile() {
-    const wholeFile = await fs.readFile("data.txt").toString();
+async function readWholeFile() {
+    const wholeFile = (await fs.readFile("data.txt")).toString();
     const lines = wholeFile.split("\n");
     console.log(lines);
 }
@@ -155,7 +155,7 @@ file, screen, network etc). In Node parlance, input streams are known as <em>rea
 This example will continue until the user terminates the input stream with Control-D.</p>
 <p>
 Here is an example which will pipe standard input to a file:
-<pre>import * as fs from 'fs/promises'; // use promise-based version
+<pre>import * as fs from 'fs'; // use promise-based version
 const outStream = fs.createWriteStream('output.txt');
 process.stdin.pipe(outStream);</pre>
 Again this will continue until the user terminates standard input with Control-D. Here is an example which will create an input stream from a file, and stream it to standard output (i.e. the file contents will appear on screen):
@@ -169,6 +169,8 @@ const outStream = fs.createWriteStream('file2.txt');
 inStream.pipe(outStream);</pre>
 You can also do more complex piping operations by executing multiple stream operations , such a technique can be used for example to zip files using a zip stream from the <code>zlib</code> module. For example (from the documentation <a href='https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#readablepipe'>here</a>, this reads one file, creates a zip stream to compress the file to gz (gzip) format, and then outputs the zip file. The data is piped through all three.
 <pre>
+import * as fs from 'fs';
+import * as zlib from 'zlib';
 const instrm = fs.createReadStream('file2.txt');
 const outstrm = fs.createWriteStream('file2.txt.gz');
 const z = zlib.createGzip();
@@ -211,6 +213,8 @@ app.get('/nominatimSearch/:query', async(req, res) =&gt; {
 <h3>Stream events</h3>
 <p>It is possible to handle certain <em>events</em> emitted through the use of streams. For example the <code>error</code> event to indicate an error (e.g. opening a non-existing file), the <code>end</code> event for readable (input) streams when all data has been read, and the <code>finish</code> event for writable (output) streams when all data has been written. For example:
 <pre>
+import * as fs from 'fs';
+
 const instrm =  fs.createReadStream('file1.txt');
 instrm.on("error", e =&gt; { console.error(`Input stream: ERROR ${e}`); } );
 instrm.on("end", () =&gt; console.log("READ...") );
