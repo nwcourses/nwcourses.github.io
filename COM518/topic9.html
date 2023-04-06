@@ -42,8 +42,9 @@ Then, when you want to hide it again, change <code>display</code> back to <code>
 <p>You may be wondering how to run start-up code when a React component is created. For example if you create a React component for your map, how would you initialise the map and set the map's initial position and zoom level? You should not put this directly inside the component's main function, as this is intended for <em>rendering</em>. Instead you should use a React <em>effect</em>. Here is an example:
 <pre>
 function ReactMap() {
+    let map;
     React.useEffect( () =&gt; {
-        const map = L.map("map1");
+        map = L.map("map1");
         L.tileLayer("URL", { attribution: "Copyright message" }).addTo(map);
         map.setView([51.05, -0.72], 14);
     }, <strong>[]</strong> );
