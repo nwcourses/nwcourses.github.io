@@ -155,7 +155,7 @@ file, screen, network etc). In Node parlance, input streams are known as <em>rea
 This example will continue until the user terminates the input stream with Control-D.</p>
 <p>
 Here is an example which will pipe standard input to a file:
-<pre>import * as fs from 'fs'; // use promise-based version
+<pre>import * as fs from 'fs';
 const outStream = fs.createWriteStream('output.txt');
 process.stdin.pipe(outStream);</pre>
 Again this will continue until the user terminates standard input with Control-D. Here is an example which will create an input stream from a file, and stream it to standard output (i.e. the file contents will appear on screen):
@@ -350,7 +350,7 @@ Name: next restaurant name
 ... etc ...
 </pre>
 </li>
-<li>Add functionality to your mapping application to add a Nominatim search via a proxy. There should be a "search" box with a button, and when this is pressed, you should call a proxy route on your server to forward the search string to Nominatim. <strong>Ensure you supply the <code>User-Agent</code> and <code>Referer</code> properties, as shown in the example, these are required to use Nominatim otherwise you are breaching its terms and conditions otherwise you are breaching its terms and conditions. The <code>User-Agent</code> can just be something like "Student test app", while the <code>Referer</code> should be the URL of your Goorm app.</strong>. Pipe the JSON returned from Nominatim to your browser. By examining the JSON returned from Nominatim, work out how to set the map position to that of the found location (if more than one result, use the first).</li>
+<li>Add functionality to your mapping application to add a Nominatim search via a proxy. There should be a "search" box with a button, and when this is pressed, you should call a proxy route on your server to forward the search string to Nominatim. <strong>Ensure you supply the <code>User-Agent</code> and <code>Referer</code> properties, as shown in the example, these are required to use Nominatim otherwise you are breaching its terms and conditions otherwise you are breaching its terms and conditions. The <code>User-Agent</code> can just be something like "Student test app", while the <code>Referer</code> should be a localhost URL e.g. <code>http://localhost:3000</code>.</strong>. Pipe the JSON returned from Nominatim to your browser. By examining the JSON returned from Nominatim, work out how to set the map position to that of the found location (if more than one result, use the first).</li>
 <li>Write a simple test file-upload application. It should just contain a form to allow the user to upload a file, plus some client side code to upload the file and Node.js code to handle receiving the file.</li>
 <li>Return to question 1 and try to add a route to your Express application to send back JSON of all the restaurants to the client. You need to parse the CSV file into an array of objects, the array being an array of the restaurants and each object representing a restaurant (use appropriate keys). Then, connect the route to your map front end, so that the locations of all restaurants are shown.</li>
 <li>Modify your Nominatim search to handle multiple results by creating a &lt;div&gt; for the results, and list each result in the &lt;div&gt;. Add a button to each result, and move the map to that location when the user clicks the button.</li>
