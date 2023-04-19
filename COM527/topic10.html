@@ -171,11 +171,8 @@ class MainActivity : AppCompatActivity() {
         // Observe changes in the LiveData within the ViewModel. When the 
         // LiveData changes, update the TextView with the new data.
         viewModel.studentsLive.observe(this, Observer {
-            // Map the array of students to an array of Strings containing the student details, by calling the toString() method of each student
-            val studentDetails = it.map ( student -&gt; student.toString() )
-            
-            // Join the array of Strings into a single String and display it in the TextView
-            findViewById&lt;TextView&gt;(R.id.tv1).text = studentDetails.joinToString("\n")
+            // Join the students into a single String and display it in the TextView
+            findViewById&lt;TextView&gt;(R.id.tv1).text = it.joinToString("\n")
         })
     }
 }
@@ -248,7 +245,7 @@ This is a simple application which allows the user to enter a song and artist. W
     <ul>    
     <li>First enter a song and artist in the <code>EditText</code> and note how it appears in the <code>TextView</code>.</li>
     <li>When you rotate the device, what happens?</li>
-    <li>Try using <code>ViewModel</code> to preserve the details when the device rotates, following the example above. When the user enters the details, you need to save it in a <code>ViewModel</code>. Also, when the activity is first created (i.e. in <code>onCreate()</code>, you will need to read the details from the <code>ViewModel</code> and update the <code>TextView</code>, so that the text in the <code>TextView</code> is maintained when the device is rotated.</li>
+    <li>Try using <code>ViewModel</code> and <code>LiveData</code> to preserve the details when the device rotates, following the example above. When the user enters the details, you need to save it in a <code>ViewModel</code>. Also, when the activity is first created (i.e. in <code>onCreate()</code>, you will need to read the details from the <code>ViewModel</code> and update the <code>TextView</code>, so that the text in the <code>TextView</code> is maintained when the device is rotated.</li>
     <li>Change the application so that the <code>ViewModel</code> holds a list of songs and <code>LiveData</code> of this list of songs, as in the "Using LiveData with ViewModel" example, above. Use an <code>Observer</code> in your <code>MainActivity</code> to observe changes in the <code>ViewModel</code>, updating the <code>TextView</code> when it updates so that it contains a list of songs so far.</li>
     </ul>
 </li>
