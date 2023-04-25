@@ -51,13 +51,230 @@ two-activity one-fragment-per-each layout in portrait mode. However the principl
 
 <p>Another common use of fragments is to <em>dynamically swap areas of screen content</em>. For example, in a music database application, the main activity could by default contain a fragment to allow the user to search for music. When the user selects a menu option, this fragment could be dynamically swapped for another fragment to allow the user to <em>add</em> a new song.</p>
 
-<h2>Developing fragment-based apps</h2>
 
-<p>We will initially focus on <em>dynamically swapping sections of the user interface</em> and then look at how we can use <code>ViewModel</code> to share information between fragments.</p>
+<h2>The Fragment lifecycle</h2>
+
+<p>Like Activities, Fragments define a lifecycle with several methods called one after the other. However, because Fragments need to associate with
+(<em>attach</em> to) their parent Activity, the lifecycle is a little more complex with a few more methods which relate to the association and
+dissociation with the Activity. The methods are as follows, in order of
+being called
+(ref <a href="https://developer.android.com/guide/fragments/lifecycle">Android developer documentation</a>):
+    <ul>
+    <li><code>onCreate()</code> - similar in concept to Activity's onCreate(), this is called when the Activity is first created.</li>
+    <li><code>onCreateView()</code> - called when the View associated with the Fragment is to be created. As we have seen above, this must
+    create and return a View object associated with the Fragment; this may be either through inflating an XML layout (as above) or creating and
+    returning a subclass of <code>View</code> from code.</li>
+    <li><code>onViewCreated()</code> - runs when the Fragment's view has been created. You can add code to initialise sub-components of the Fragment's View in here, for example attach event listeners to buttons.</li>
+    <li><code>onViewStateRestored()</code> - used to restore state saved in a Bundle when the fragment was previously destroyed (see <code>onSaveInstanceState()</code>, below)</li>
+    <li><code>onStart()</code>, <code>onResume()</code>, <code>onPause()</code> and <code>onStop()</code> - similar to the equivalent methods in Activity</li>
+    <li><code>onSaveInstanceState</code> - used to save data associated with the fragment in a Bundle, which can be recalled when the fragment is recreated.</li>
+    <li><code>onDestroyView()</code> - when the View associated with the Fragment is destroyed</li>
+    <li><code>onDestroy()</code> - similar to the equivalent method in Activity</li>
+    </ul>
+</p>
+
+<h2>Developing activities with multiple fragments using FragmentContainerView and ViewModel</h2>
+
+<p>We will start by looking at how we can develop fragment-based applications which <strong>directly include fragments within the layout</strong>, by embedding &lt;FragmentContainerView&gt; tags in the XML layout of activities. These are designed to hold fragments.</p>
+
+<p>Here is a simple example containing two fragments: 
+    <ul>
+    <li>one fragment containing an <code>EditText</code> (allowing the user to enter a name) and <code>Button</code>,</li>
+    <li> and another containing a <code>TextView</code> which will greet the user.</li>
+    </ul>
+The interface will look something like this:
+<br />
+<img src="../images/viewModelFrags.png" alt="ViewModel Fragments app" />
+<br />
+</p>
+<p>The XML code for this would be as follows. Firstly the <strong>activity</strong> XML layout. Note how it contains two <code>FragmentContainerView</code>s for the two fragments and hote how each refers to the fragment class which will be placed inside the <code>FragmentContainerView</code> in the <code>android:name</code> property (<code>Frag1</code> for the first fragment and <code>Frag2</code> for the second).
+<pre>
+<?xml version="1.0" encoding="utf-8"?>
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"&gt;
+
+    &lt;androidx.fragment.app.FragmentContainerView
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/frag1"
+        android:name="com.example.viewmodelfrags.Frag1"
+        app:layout_constraintBottom_toTopOf="@id/frag2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" /&gt;
+
+    &lt;androidx.fragment.app.FragmentContainerView
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/frag2"
+        android:name="com.example.viewmodelfrags.Frag2"
+        app:layout_constraintTop_toBottomOf="@id/frag1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+Secondly, the layout for the first fragment (represented by the <code>Frag1</code> class, which will be shown below). This contains an <code>EditText</code> and <code>Button</code> arranged vertically:
+<pre>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
+
+    &lt;EditText
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/etName" /&gt;
+    &lt;Button
+        app:layout_constraintTop_toBottomOf="@id/etName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/go"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/btn1" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+Thirdly, the layout for the second fragment (the <code>Frag2</code> class, see below):
+<pre>
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
+
+    &lt;TextView
+        android:text="@string/defaultText"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/tvName" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+</p>
+<h3>Sharing data between fragments</h3>
+<p>We wish to <em>share data between these two fragments</em>. The name entered in the first fragment needs to be displayed in the second fragment. How do we do this?</p> 
+<p>Using a <code>ViewModel</code> and <code>LiveData</code> can significantly ease the process of sharing data between fragments. By using <code>ViewModel</code>, we can update a <code>ViewModel</code> from one fragment, and then, using <code>LiveData</code> and an <code>Observer</code>, observe it from a second. Thus, data is shared between fragments.</p>
+When the button, on the first fragment, is clicked, the second fragment is updated with the text in the <code>EditText</code>. To use <code>ViewModel</code> with fragments, you will need the <code>fragment-ktx</code> dependency in your <code>build.gradle</code>:
+<pre>implementation 'androidx.fragment:fragment-ktx:1.5.2'</pre>
+</p>
+Here is our <code>ViewModel</code>. 
+<pre>
+package com.example.viewmodelfrags
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+class TestViewModel : ViewModel() {
+    var currentName = ""
+        set(newValue) {
+            field = newValue
+            liveName.value = newValue
+        }
+    var liveName =  MutableLiveData&lt;String&gt;()
+}
+</pre>
+Note how the <code>ViewModel</code> contains an attribute <code>currentName</code>. This represents the name the user entered. It also contains an attribute <code>liveName</code> which is <code>LiveData</code> referencing the name (which can be observed by the second fragment, as we will see).</p>
+<h4>Custom setters</h4>
+<p>Note also that this example introduces a new Kotlin language feature, <em>custom setters</em>.
+<pre>
+    var currentName = ""
+        set(newValue) {
+            field = newValue
+            liveName.value = newValue
+        }
+</pre>
+In Kotlin, you can define <em>custom setters</em> which run when we set an attribute in a class, using a statement such as:
+<pre>viewModel.currentName = "John"</pre>
+Custom setters are used to make custom behaviour occur when we set an attribute. We define a custom setter by declaring the attribute (<code>currentName</code> here), and following it (indented by one tab) with a special method which must be named <code>set()</code>. This method takes the new value as a parameter. The first thing we must do is set the attribute itself, using the special keyword <code>field</code>. However, we can also add further statements to the <code>set()</code> method, to define custom setter behaviour. In this example, we are updating the value of the <code>LiveData</code> to be the attribute's value, with the statement <pre>liveName.value = newValue</pre></p>
+<h4>Fragment code</h4>
+<p>We now move on to the code inside the two fragments. First, <code>Frag1</code> (the first fragment, allowing us to enter a name):
+<pre>
+package com.example.viewmodelfrags
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import androidx.fragment.app.activityViewModels
+
+class Frag1 : androidx.fragment.app.Fragment(R.layout.frag1) {
+    val viewModel : TestViewModel by activityViewModels()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val etName = view.findViewById&lt;EditText&gt;(R.id.etName)
+        view.findViewById&lt;Button&gt;(R.id.btn1).setOnClickListener {
+            viewModel.currentName = etName.text.toString()
+        }
+    }
+}
+</pre>
+This code is mostly straightforward. We obtain a <code>ViewModel</code> in much the same way as before (the only difference is that we use <code>activityViewModels()</code> rather than <code>viewModels()</code> to initialise the <code>ViewModel</code>, because the view model is associated with the activity but we are inside the fragment). Then, in our <code>onViewCreated()</code> (see fragments notes from last year) we handle a click event on the button by updating the <code>currentName</code> attribute to the current value inside the edit text. This will call our custom <code>set()</code> method, discussed above, and therefore the <code>LiveData</code> will be updated also.</p>
+<p>Moving onto the second fragment (<code>Frag2</code>):
+<pre>
+package com.example.viewmodelfrags
+
+import android.os.Bundle
+import android.view.View
+import android.widget.TextView
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+
+class Frag2 : androidx.fragment.app.Fragment(R.layout.frag2) {
+    val viewModel : TestViewModel by activityViewModels()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val tv = view.findViewById&lt;TextView&gt;(R.id.tvName)
+        viewModel.liveName.observe(this.viewLifecycleOwner, Observer {
+            tv.text = "Hello $it!"
+        })
+    }
+}
+</pre>
+This is very simple, and should not be difficult to understand. In our <code>onViewCreated()</code> we setup an <code>Observer</code> to observe the <code>LiveData</code> and update the <code>TextView</code> within the fragment when it changes.</p>
+<p>Finally the main activity is very simple, as all the logic is in the fragments and ViewModel:
+<pre>
+package com.example.viewmodelfrags
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}
+</pre>
+</p>
+<h3>Accessing the activity within the fragment</h3>
+<p>A fragment may use functionality that needs an activity passed in as an argument, e.g. it may need to create an AlertDialog or a Toast, or interact with a database. This is easily obtained: inside the fragment you can use <code>activity</code> to refer to the parent activity, as <code>activity</code> is a property of fragments pointing to the parent activity.</p>
+<h2>Coroutines from ViewModel</h2>
+<p><em>This topic is useful when discussing ViewModel and fragments, and will come in useful should you do Question 8 of the assignment.</em></p>
+<p>So far, all our coroutines have been launched from an activity. However they can be launched from <em>any coroutine scope</em>. The most usual scope is the <code>lifecycleScope</code> which is available from any component with a lifecycle (so fragments as well as activities). An interesting feature of coroutines launched from a <code>lifecycleScope</code> is that they are automatically terminated if the parent component is destroyed.</p>
+
+<p>Interestingly, though, a <code>ViewModel</code> has a scope to launch coroutines, <code>viewModelScope</code>. This is useful, as the <code>ViewModel</code> is the recommended place to send network requests (<a href="https://developer.android.com/topic/libraries/architecture/lifecycle">Android documentation</a>) and is also a useful place to put database queries, as the <code>ViewModel</code> is frequently used to manage the interaction between the UI and the database. Both of these need to do work in the background, as we have seen, and hence need coroutines.</p>
+<p>So inside a <code>ViewModel</code> we can launch a coroutine as follows:
+<pre>
+viewModelScope.launch {
+    // interact with database or send network requests from here...
+}
+</pre>
+</p>
+<hr />
+<h2>Developing fragment-based apps with the navigation drawer</h2>
+<p><em>This section is not now required for the assignment.</em></p>
+
+<p>We will now look at <em>dynamically swapping sections of the user interface</em> using fragments.</p>
 
 <h3>Navigation Drawer</h3>
 
-<p>Before we look at fragments we will take a look at the <em>navigation drawer</em>. The navigation drawer is part of <em>material design</em>: a series of user interface guidelines for Android and web apps drawn up by Google. Material design comes with a series of standard components, of which the navigation drawer is one. The navigation drawer is a component allowing a "slide-out" menu from typically the left of the screen. A common pattern in fragment-based applications is to have menu options on a navigation drawer which swap one fragment for another.</p>
+<p>We will take a look at the <em>navigation drawer</em>. The navigation drawer is part of <em>material design</em>: a series of user interface guidelines for Android and web apps drawn up by Google. Material design comes with a series of standard components, of which the navigation drawer is one. The navigation drawer is a component allowing a "slide-out" menu from typically the left of the screen. A common pattern in fragment-based applications is to have menu options on a navigation drawer which swap one fragment for another.</p>
 <o>Credit: <a href="https://guides.codepath.com/android/fragment-navigation-drawer">this article</a> was used to draw up these notes.</p>
 <h4>How to create a navigation drawer</h4>
 <ul>
@@ -258,211 +475,17 @@ class Frag1 : Fragment(R.layout.frag1) {
     }
 }</pre>
 </p>
-<h3>Accessing the activity within the fragment</h3>
-<p>A fragment may use functionality that needs an activity passed in as an argument, e.g. it may need to create an AlertDialog or a Toast, or interact with a database. This is easily obtained: inside the fragment you can use <code>activity</code> to refer to the parent activity.</p>
-
-<h2>The Fragment lifecycle</h2>
-
-<p>Like Activities, Fragments define a lifecycle with several methods called one after the other. However, because Fragments need to associate with
-(<em>attach</em> to) their parent Activity, the lifecycle is a little more complex with a few more methods which relate to the association and
-dissociation with the Activity. The methods are as follows, in order of
-being called
-(ref <a href="https://developer.android.com/guide/fragments/lifecycle">Android developer documentation</a>):
-    <ul>
-    <li><code>onCreate()</code> - similar in concept to Activity's onCreate(), this is called when the Activity is first created.</li>
-    <li><code>onCreateView()</code> - called when the View associated with the Fragment is to be created. As we have seen above, this must
-    create and return a View object associated with the Fragment; this may be either through inflating an XML layout (as above) or creating and
-    returning a subclass of <code>View</code> from code.</li>
-    <li><code>onViewCreated()</code> - runs when the Fragment's view has been created. You can add code to initialise sub-components of the Fragment's View in here, for example attach event listeners to buttons.</li>
-    <li><code>onViewStateRestored()</code> - used to restore state saved in a Bundle when the fragment was previously destroyed (see <code>onSaveInstanceState()</code>, below)</li>
-    <li><code>onStart()</code>, <code>onResume()</code>, <code>onPause()</code> and <code>onStop()</code> - similar to the equivalent methods in Activity</li>
-    <li><code>onSaveInstanceState</code> - used to save data associated with the fragment in a Bundle, which can be recalled when the fragment is recreated.</li>
-    <li><code>onDestroyView()</code> - when the View associated with the Fragment is destroyed</li>
-    <li><code>onDestroy()</code> - similar to the equivalent method in Activity</li>
-    </ul>
-</p>
-
-<h2>Developing activities with multiple fragments using FragmentContainerView and ViewModel</h2>
-
-<p>Above, we looked at how we can use fragment transactions within a FrameLayout to replace one fragment with another. Now, we will look at how we can develop fragment-based applications which <strong>directly include fragments within the layout</strong>, by embedding &lt;FragmentContainerView&gt; tags in the XML layout of activities. These are designed to hold fragments.</p>
-
-<p>Here is a simple example containing two fragments: 
-    <ul>
-    <li>one fragment containing an <code>EditText</code> (allowing the user to enter a name) and <code>Button</code>,</li>
-    <li> and another containing a <code>TextView</code> which will greet the user.</li>
-    </ul>
-The interface will look something like this:
-<br />
-<img src="../images/viewModelFrags.png" alt="ViewModel Fragments app" />
-<br />
-</p>
-<p>The XML code for this would be as follows. Firstly the <strong>activity</strong> XML layout. Note how it contains two <code>FragmentContainerView</code>s for the two fragments and hote how each refers to the fragment class which will be placed inside the <code>FragmentContainerView</code> in the <code>android:name</code> property (<code>Frag1</code> for the first fragment and <code>Frag2</code> for the second).
-<pre>
-<?xml version="1.0" encoding="utf-8"?>
-&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity"&gt;
-
-    &lt;androidx.fragment.app.FragmentContainerView
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:id="@+id/frag1"
-        android:name="com.example.viewmodelfrags.Frag1"
-        app:layout_constraintBottom_toTopOf="@id/frag2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" /&gt;
-
-    &lt;androidx.fragment.app.FragmentContainerView
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:id="@+id/frag2"
-        android:name="com.example.viewmodelfrags.Frag2"
-        app:layout_constraintTop_toBottomOf="@id/frag1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        /&gt;
-
-&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
-</pre>
-Secondly, the layout for the first fragment (represented by the <code>Frag1</code> class, which will be shown below). This contains an <code>EditText</code> and <code>Button</code> arranged vertically:
-<pre>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
-
-    &lt;EditText
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btn1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:id="@+id/etName" /&gt;
-    &lt;Button
-        app:layout_constraintTop_toBottomOf="@id/etName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:text="@string/go"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:id="@+id/btn1" /&gt;
-
-&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
-</pre>
-Thirdly, the layout for the second fragment (the <code>Frag2</code> class, see below):
-<pre>
-&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"&gt;
-
-    &lt;TextView
-        android:text="@string/defaultText"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:id="@+id/tvName" /&gt;
-
-&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
-</pre>
-</p>
-<h3>Sharing data between fragments</h3>
-<p>We wish to <em>share data between these two fragments</em>. The name entered in the first fragment needs to be displayed in the second fragment. How do we do this?</p> 
-<p>Using a <code>ViewModel</code> and <code>LiveData</code> can significantly ease the process of sharing data between fragments. By using <code>ViewModel</code>, we can update a <code>ViewModel</code> from one fragment, and then, using <code>LiveData</code> and an <code>Observer</code>, observe it from a second. Thus, data is shared between fragments.</p>
-When the button, on the first fragment, is clicked, the second fragment is updated with the text in the <code>EditText</code>. To use <code>ViewModel</code> with fragments, you will need the <code>fragment-ktx</code> dependency in your <code>build.gradle</code>:
-<pre>implementation 'androidx.fragment:fragment-ktx:1.5.2'</pre>
-</p>
-Here is our <code>ViewModel</code>. 
-<pre>
-package com.example.viewmodelfrags
-
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-
-class TestViewModel : ViewModel() {
-    var currentName = ""
-        set(newValue) {
-            field = newValue
-            liveName.value = newValue
-        }
-    var liveName =  MutableLiveData&lt;String&gt;()
-}
-</pre>
-Note how the <code>ViewModel</code> contains an attribute <code>currentName</code>. This represents the name the user entered. It also contains an attribute <code>liveName</code> which is <code>LiveData</code> referencing the name (which can be observed by the second fragment, as we will see).</p>
-<h4>Custom setters</h4>
-<p>Note also that this example introduces a new Kotlin language feature, <em>custom setters</em>.
-<pre>
-    var currentName = ""
-        set(newValue) {
-            field = newValue
-            liveName.value = newValue
-        }
-</pre>
-In Kotlin, you can define <em>custom setters</em> which run when we set an attribute in a class, using a statement such as:
-<pre>viewModel.currentName = "John"</pre>
-Custom setters are used to make custom behaviour occur when we set an attribute. We define a custom setter by declaring the attribute (<code>currentName</code> here), and following it (indented by one tab) with a special method which must be named <code>set()</code>. This method takes the new value as a parameter. The first thing we must do is set the attribute itself, using the special keyword <code>field</code>. However, we can also add further statements to the <code>set()</code> method, to define custom setter behaviour. In this example, we are updating the value of the <code>LiveData</code> to be the attribute's value, with the statement <pre>liveName.value = newValue</pre></p>
-<h4>Fragment code</h4>
-<p>We now move on to the code inside the two fragments. First, <code>Frag1</code> (the first fragment, allowing us to enter a name):
-<pre>
-package com.example.viewmodelfrags
-
-import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import androidx.fragment.app.activityViewModels
-
-class Frag1 : androidx.fragment.app.Fragment(R.layout.frag1) {
-    val viewModel : TestViewModel by activityViewModels()
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val etName = view.findViewById&lt;EditText&gt;(R.id.etName)
-        view.findViewById&lt;Button&gt;(R.id.btn1).setOnClickListener {
-            viewModel.currentName = etName.text.toString()
-        }
-    }
-}
-</pre>
-This code is mostly straightforward. We obtain a <code>ViewModel</code> in much the same way as before (the only difference is that we use <code>activityViewModels()</code> rather than <code>viewModels()</code> to initialise the <code>ViewModel</code>, because the view model is associated with the activity but we are inside the fragment). Then, in our <code>onViewCreated()</code> (see fragments notes from last year) we handle a click event on the button by updating the <code>currentName</code> attribute to the current value inside the edit text. This will call our custom <code>set()</code> method, discussed above, and therefore the <code>LiveData</code> will be updated also.</p>
-<p>Moving onto the second fragment (<code>Frag2</code>):
-<pre>
-package com.example.viewmodelfrags
-
-import android.os.Bundle
-import android.view.View
-import android.widget.TextView
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-
-class Frag2 : androidx.fragment.app.Fragment(R.layout.frag2) {
-    val viewModel : TestViewModel by activityViewModels()
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val tv = view.findViewById&lt;TextView&gt;(R.id.tvName)
-        viewModel.liveName.observe(this.viewLifecycleOwner, Observer {
-            tv.text = "Hello $it!"
-        })
-    }
-}
-</pre>
-This is very simple, and should not be difficult to understand. In our <code>onViewCreated()</code> we setup an <code>Observer</code> to observe the <code>LiveData</code> and update the <code>TextView</code> within the fragment when it changes.</p>
-<p>Finally the main activity is very simple, as all the logic is in the fragments and ViewModel:
-<pre>
-package com.example.viewmodelfrags
-
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-    }
-}
-</pre>
-</p>
+<hr />
 <h2>Exercise</h2>
+<p>Question 1 is important for the assignment, while Questions 2 and 3 relate to the navigation drawer and fragment transactions.</p>
 <ol>
+<li><em>ViewModel and fragments</em>:
+    Create a mapping application using fragments, a <code>ViewModel</code> and <code>LiveData</code>. It should have, on the main activity, two fragments <em>visible at the same time</em>:
+    <ul>
+    <li>One fragment to allow the user to enter a latitude and longitude;</li>
+    <li>One fragment to hold the map. The map fragment should update to the latitude and longitude the user entered when the button on the first fragment is clicked.</li>
+    </ul>
+When the button is clicked, store the latitude and longitude in a <code>ViewModel</code>, using a data class called <code>LatLon</code> (which you need to create) containing fields for latitude and longitude. The <code>ViewModel</code> should also store <code>LiveData</code> referencing the <code>LatLon</code>. Make the map fragment observe this <code>LiveData</code> from the <code>ViewModel</code> and update the map's position when the <code>LiveData</code> changes.</li>
 <li><em>Navigation Drawer and fragment transactions</em>: Return to your Room database application (week 7) and modify to use fragments. Change your activity to use a DrawerLayout and a navigation drawer. There
 should be two fragments, of which only one should be visible at a time. Each
 fragment will need its own XML layout (separate from the main activity layout). So you will need:
@@ -479,13 +502,6 @@ Details on the two fragments you need are as follows:
 </ul>
 Use menu items in the navigation drawer to select which fragment will appear.
 </li>
-<li><em>ViewModel and fragments</em>:
-	Create a mapping application using fragments, a <code>ViewModel</code> and <code>LiveData</code>. It should have, on the main activity, two fragments <em>visible at the same time</em>:
-	<ul>
-	<li>One fragment to allow the user to enter a latitude and longitude;</li>
-	<li>One fragment to hold the map. The map fragment should update to the latitude and longitude the user entered when the button on the first fragment is clicked.</li>
-	</ul>
-When the button is clicked, store the latitude and longitude in a <code>ViewModel</code>, using a data class called <code>LatLon</code> (which you need to create) containing fields for latitude and longitude. The <code>ViewModel</code> should also store <code>LiveData</code> referencing the <code>LatLon</code>. Make the map fragment observe this <code>LiveData</code> from the <code>ViewModel</code> and update the map's position when the <code>LiveData</code> changes.</li>
 <li><em>Modifying exercise 1 to use ViewModel</em>: you can use <code>ViewModel</code> and <code>LiveData</code> with fragment transactions. Modify exercise 1 to store the list of songs in a <code>ViewModel</code>. Make it available as <code>LiveData</code> and observe it from the first fragment. <strong>An important point is that a fragment's <code>onViewCreated()</code> is reloaded each time a fragment transaction occurs, so you will need to add code to set the text view's contents to the data in the <code>ViewModel</code> within the <code>onViewCreated()</code>.</li>
 </ol>
 </body>

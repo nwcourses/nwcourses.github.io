@@ -1,10 +1,12 @@
 const express = require('express');
-const xss = require('xss');
+//const xss = require('xss');
 const db = require('./my');
 
 const app = express();
 
-
+function xss(s) {
+	return s;
+}
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: false}));
 
