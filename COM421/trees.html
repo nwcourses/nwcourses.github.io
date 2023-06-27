@@ -22,26 +22,27 @@ tree by starting at the root node, then looping through each immediate
 descendant in turn. Within a descendant, we loop through <em>its</em>
 descendants, and so on.</p>
 <h3>What are trees used for?</h3>
-<p>Trees have a variety of uses in computing, including:	
-	<ul>
-	<li>Representing hierarchical documents, such as HTML, the language of
-	web pages. In HTML pages, the page contains a body (the content), the body
-	can contain sections, and sections can contain paragraphs and images.
-	Thus the body can be seen as the root node, a section would be the
-	descendant of the body, and a paragraph or image, a descendant of a
-	section.</li>
-	<li>Providing a way of sorting and searching for data efficiently - we
-	will see this during this week and subsequent weeks in the algorithms
-	section of the module.</li>
-	<li><em>Scene graphs</em> in graphical applications such as games. A
-	scene graph is a way of organising 3D components of a graphical application
-	so that 3D objects can have child, or descendant objects - and that any
-	transformations applied to the parent object will be applied to all its
-	descendants. For example
-	a horse object might have a rider object. The rider would be a descendant
-	of the horse. When the horse moves or turns, we want the rider to move 
-	or turn with it.</li>
-	</ul>
+<p>Trees have a variety of uses in computing, including:    
+    <ul>
+    <li>Representing directory (folder) structures. The top-level directory is the root of the tree, and its sub-directories its descendants.</li>
+    <li>Representing hierarchical documents, such as HTML, the language of
+    web pages. In HTML pages, the page contains a body (the content), the body
+    can contain sections, and sections can contain paragraphs and images.
+    Thus the body can be seen as the root node, a section would be the
+    descendant of the body, and a paragraph or image, a descendant of a
+    section.</li>
+    <li>Providing a way of sorting and searching for data efficiently - we
+    will see this during this week and subsequent weeks in the algorithms
+    section of the module.</li>
+    <li><em>Scene graphs</em> in graphical applications such as games. A
+    scene graph is a way of organising 3D components of a graphical application
+    so that 3D objects can have child, or descendant objects - and that any
+    transformations applied to the parent object will be applied to all its
+    descendants. For example
+    a horse object might have a rider object. The rider would be a descendant
+    of the horse. When the horse moves or turns, we want the rider to move 
+    or turn with it.</li>
+    </ul>
 <h2>Binary Trees</h2>
 <p>A <em>binary tree</em> is a form of tree 
 in which each node has two child nodes, a "left node" and a "right node". </p>
@@ -165,14 +166,17 @@ Then we stop recursing and
 descend the stack of function calls. To illustrate the concept here
 is some code to print out the numbers 1 to 10 using recursion:</p>
 <pre>
-def recursive_print (value, max_value):
-    print(value)
-    if value &lt; max_value:
-        value += 1
-        recursive_print(value, max_value)
+def recursive_print(num, limit):
+    print(f"recursive_print(): parameters: num {num} limit {limit}")
+
+    if num &lt;= limit:
+        print(f"num does not exceed {limit}, so calling recursive_print again with argument of {num+1}")
+        print(num)
+        recursive_print(num+1, limit)
+
+    print(f"Returning from recursive_print call with a parameter of {num}")
 
 recursive_print (1, 10)
-
 </pre>
 What happens when we run this?
     <ul>
@@ -236,6 +240,16 @@ descend a branch again. Once we get to the bottom of a tree, we then
 ascend the tree again by returning from each successive
 function call.</li>
 </ul>
+<h3>Example of tree recursion from the Python standard library</h3>
+<p>The <code>walk()</code> function from the <code>os</code> module allows you to "walk" a directory tree (note: not a binary tree) structure, starting at the root directory and recursively descending into subdirectories. For example:
+<pre>
+import os
+
+# walk the "src" directory and all its subdirectories
+for directory in os.walk("src"):
+    print(directory)
+</pre>
+Each directory is represented as a three-member tuple, containing the directory name, a list of subdirectories, and list of files.</p>
 <h3>Exercise: Creating a Binary Tree and using it to sort some data</h3>
 <ol>
 <li>Create a TreeNode data structure to represent a single node in a tree:
