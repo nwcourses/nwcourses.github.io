@@ -66,6 +66,11 @@ the pivot</li>
 <li>recursively call the "master" function passing in the partition <em>after</em>
 the pivot</li></ul></li>
 </ul>
+<h3>Progressive sorting of quicksort</h3>
+<p>The diagram below shows how, with each run of the Hoare partitioning algorithm, the list is progressively sorted into place.
+<br />
+<img src="../images/quicksort.png" alt="Quicksort" />
+</p>
 <h3 id="complexityofquicksort">Complexity of quicksort</h3>
 <p>The complexity of quicksort can be as low as <code>O(n^2)</code> in unusual cases but on average <code>O(n log n)</code>(<a href="https://www.khanacademy.org/computing/computer-science/algorithms/quick-sort/a/analysis-of-quicksort">Khan Academy</a>). The maths behind calculating this complexity is quite advanced but is discussed at length in this article.</p>
 <h2 id="mergesort">Merge sort</h2>
@@ -90,7 +95,7 @@ same diagram above; the merge phase is shown by the stages using blue lines.</p>
 <p>How do we merge two parts so that they are
 in sorted order? The algorithm is as below.
 Also see <a href="https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/linear-time-merging">Khan Academy</a> for a detailed explanation.</p>
-<pre><code>merge(listA, listB):
+<pre><code>combine(listA, listB):
 
     Set counterA to 0
     Set counterB to 0
@@ -176,4 +181,25 @@ It might take you a while as there will be multiple recursive stages!</p>
 <h3 id="exercisecode">Exercise (code)</h3>
 <p>If you finish, have a go at implementing quicksort in code, using the
 pseudocode above to help you.</p>
-<p>If you finish that, have a go at implementing merge sort.</p></body></html>
+<p>If you finish that, have a go at implementing merge sort. Hint: you should include three functions:
+	<ol>
+	<li>A function to split a list into two. You can use range indexing to easily do this:
+	<pre>
+	midpoint = math.floor(len(data)/2)
+	first_half = data[:midpoint] # up to but not including midpoint
+	second_half = data[midpoint:] # from midpoint onwards
+	return [first_half, second_half] # return a list of the two sublists
+	</pre>
+	</li>
+	<li>A function to combine two lists. See the explanation above for how to do this.</li>
+	<li>A recursive mergesort function to control the whole process. This should take the list to sort as a parameter and then:
+		<ul>
+		<li>Split the list using your splitting function;</li>
+		<li>Test if the length of each sublist is more than one. If so, recursively call your mergesort function and pass the sublist to it. This will have the effect of recursively splitting the list until it can be split no further.</li>
+		<li>Combine the return values of the two recursive mergesort calls, and return the combined list from the mergesort function.</li>
+		</ul>
+	</li>
+	</ol>
+</p>
+
+</body></html>
