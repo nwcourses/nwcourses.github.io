@@ -96,8 +96,12 @@ while cur_node is not None:
 return route
 </code></pre>
 <ul>
-<li>You will get a problem with the priority queue because, when comparing values, the queue will compare both the distance and the <code>Node</code> in the two member list and <code>Nodes</code> cannot by default be compared. (This is so that the priority queue knows how to order the data if the distances are equal). However, you can compare nodes by name by <em>overloading the &lt; operator for Nodes</em>. Here is how to do this. Add a <code>__lt__()</code> magic method to your <code>Node</code> class which compares <code>Node</code>s by name:</li>
-</ul>
+<li>You will get a problem with the priority queue because, when comparing values, the queue will compare both the distance and the <code>Node</code> in the two member list and <code>Nodes</code> cannot by default be compared. (This is so that the priority queue knows how to order the data if the distances are equal). However, you can compare nodes by name by <em>overloading the &lt; operator for Nodes</em>. Here is how to do this. Add a <code>__lt__()</code> magic method to your <code>Node</code> class which compares <code>Node</code>s by name:
 <pre><code>   def __lt__(self, other):
         return self.name &lt; other.name
-</code></pre></body></html>
+</code></pre>
+</li>
+<li>Test it out and see if it works. Try then finding two routes in succession from two different pairs of nodes. You will find the route finding does not work with the second attempt. Why not? Try solving this by adding a <code>reset()</code> method to your <code>Graph</code>.
+</li>
+</ul>
+</body></html>
