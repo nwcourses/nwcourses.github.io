@@ -39,25 +39,25 @@ Even though Lyon is on the direct path, Brussels has a lower F score than Lyon, 
 <h4 id="iteration3">Iteration 3</h4>
 <p>Having picked Brussels, we add its neighbours (Amsterdam and Cologne) to the open list.</p>
 <p>Open list after visiting Brussels;</p>
-<pre><code>[Lyon, Birmingham, Nice, Cologne, Amsterdam, Bordeaux ]
+<pre><code>[Lyon, Birmingham, Cologne, Amsterdam, Bordeaux ]
 </code></pre>
 <h4 id="iteration4">Iteration 4</h4>
 <p>The next-lowest F score after Brussels is Lyon, so we pick Lyon next. Lyon's unexplored neighbour is Nice, which is our destination. So we calculate the F score of Nice and add it to the open list.</p>
 <pre><code>Nice: G=461+465+472 = 1398. H=0 ... 1398 (heuristic is 0 as we are at destination)
 </code></pre>
 <p>Open list after visiting Lyon: </p>
-<pre><code>[Birmingham, Nice, Cologne, Amsterdam, Bordeaux ]
+<pre><code>[Birmingham, Cologne, Nice, Amsterdam, Bordeaux ]
 </code></pre>
-<h4 id="iteration5">Iteration 5</h4>
-<p>Note that Nice, by this path, has a higher F score than Birmingham at 1379. Expressing this in a straightforward way, the road distance between London and Birmingham plus the straight-line distance between Birmingham and Nice is less than the road distance from London to Nice via Paris and Lyon. So we still have to explore Birmingham, just in case there is a road direct from Birmingham to Nice via a straight-line path.</p>
-<p>… We find no such route exists from Birmingham to Nice, as Birmingham has no unexplored neighbours, so can move on.</p>
-<p>Open list after visiting Birmingham:</p>
-<pre><code>[Nice, Cologne, Amsterdam, Bordeaux ]
+<h4 id="iteration5">Iterations 5 and 6</h4>
+<p>Note that Nice, by this path, has a higher F score than Birmingham at 1379 or Cologne at 1386. Expressing this in a straightforward way, the road distance between London and Birmingham plus the straight-line distance between Birmingham and Nice is less than the road distance from London to Nice via Paris and Lyon. So we still have to explore Birmingham, and then Cologne, just in case there is a road direct from these cities to Nice via a straight-line path.</p>
+<p>… We find no such route exists from these cities to Nice, as neither have any unexplored neighbours, so can move on.</p>
+<p>Open list after visiting Birmingham and Cologne:</p>
+<pre><code>[Nice, Amsterdam, Bordeaux ]
 </code></pre>
 <h4 id="iteration6">Iteration 6</h4>
-<p>We have Nice, Cologne, Amsterdam and Bordeaux remaining on the open list. The F score of Nice is lower than any of the others, and Nice is the destination, so we are done.</p>
+<p>We have Nice, Amsterdam and Bordeaux remaining on the open list. The F score of Nice is lower than any of the others, and Nice is the destination, so we are done.</p>
 <h4 id="generalcomments">General comments</h4>
-<p>Note how the use of the heuristic avoided us having to explore the nodes which are completely in the wrong direction, namely Bordeaux, Amsterdam and Cologne. A* favours the preferential selection of nodes which are nearer the target as measured by the heuristic, hence we explore Paris first whereas with Dijkstra we would explore Brussels first. With Dijkstra, we would end up considering Amsterdam and Cologne (both at 561km from London) because they are nearer London than Lyon is. By contrast with A*, the F score of Amsterdam would be 581+980 = 1561, and for Cologne it would be 581+805 = 1486. As both Amsterdam and Cologne have higher F scores than Nice via the actual road route, they would never be explored. So A* explores less nodes. It will work better when the heuristic is close to the actual distance, so may not work so efficiently in mountainous terrain for example. An example of this is the way that Brussels was picked over Lyon early on in the algorithm. The straight-line distance from Brussels to Nice is considerably less than the road distance, because a straight line passes over the western Alps which the main roads avoid by taking a longer route to the west around the mountains.</p>
+<p>Note how the use of the heuristic avoided us having to explore the nodes which are completely in the wrong direction, namely Bordeaux, and Amsterdam. A* favours the preferential selection of nodes which are nearer the target as measured by the heuristic, hence we explore Paris first whereas with Dijkstra we would explore Brussels first. With Dijkstra, we would end up considering Amsterdam (at 561km from London) because they are nearer London than Lyon is. By contrast with A*, the F score of Amsterdam would be 581+980 = 1561. As Amsterdam has higher F scores than Nice via the actual road route, they would never be explored. So A* explores less nodes. It will work better when the heuristic is close to the actual distance, so may not work so efficiently in mountainous terrain for example. An example of this is the way that Brussels was picked over Lyon early on in the algorithm. The straight-line distance from Brussels to Nice is considerably less than the road distance, because a straight line passes over the western Alps which the main roads avoid by taking a longer route to the west around the mountains.</p>
 <h2 id="exercise">Exercise</h2>
 <p>Rewrite your path finder from last week to use A* rather than Dijkstra. Use this graph (the London to Nice graph presented here) rather than the London to Munich graph from last week. You can set up the straight-line distances using a dictionary, e.g:</p>
 <pre><code>heuristic_distances = {
