@@ -213,6 +213,8 @@ as 64, and imagine it's a worst-case scenario, where we have to narrow down to o
 </ul>
 <p>So the length of the portion under search decreases from 64-32-16-8-4-2-1 in each iteration of the list. In other words, assuming the list length is an exact power of two, the number of iterations will be <code>log n + 1</code> (+1 because we also check a list of length 1 as well as the various powers of two; the lengths in each subsequent iteration are 2^6, 2^5, 2^4, 2^3, 2^2, 2^1 and 2^0 - i.e. 1). But as we saw last week, we only need to take the most significant term of the complexity and can discard the <code>+1</code> (as we are interested in the general behaviour of algorithms at large <code>n</code>, not the <em>exact</em> complexity) - giving us <code>O(log n)</code>.</p>
 <p>Likewise, for a value <code>n</code> between <code>2^p</code> and <code>2^(p+1)</code>, the number of iterations will be <code>p-1</code>, or <code>log(floor(n))-1</code> - but again we can simplify to <code>O(log n)</code>. (For example, try repeating the above on a list of length 63, a value between 32 and 64, and you find that only six iterations are needed, as the length of the portion being searched will decrease 63-31-15-7-3-1).</p>
+<h3>Exercise 3</h3>
+<p>Implement binary search in Python. If you are struggling, try using pseudocode first.</p>
 <h2 id="furtherreading">Further reading</h2>
 <ul>
 <li><a href="https://www.toptal.com/developers/sorting-algorithms">Toptal, Sorting Algorithms Animations</a></li>
