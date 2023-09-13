@@ -1,0 +1,221 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="topic7algorithmsintroduction">Topic 7: Algorithms Introduction</h1>
+<p>We are now going to start looking at <em>algorithms</em>. An algorithm is, as we
+have seen, a clearly-defined solution to a particular problem, which follows
+a series of clearly-specified steps. Common examples of algorithms include
+sorting collections of data, or searching for an item in a collection of
+data.</p>
+<p>We will start by looking at algorithm <em>efficiency</em> using the <em>Big O</em>
+notation, and then look at some sorting algorithms, comparing their 
+efficiency.</p>
+<h2 id="algorithmefficiencythebigonotation">Algorithm efficiency: the "Big O" notation</h2>
+<p>When designing algorithms, we need some measure of how <em>complex</em> an
+algorithm is. Complexity can be measured in various ways, for example 
+performance (time taken), or memory usage. The standard for measuring 
+algorithm complexity is known as the <em>Big O</em> notation. This is a measure
+which expresses complexity in relation to some property <code>n</code>. This property
+depends on exactly what we are trying to do. For a sorting algorithm, which
+sorts a list, for example, it could be the number of items in the list. For
+indexing a list or linked list, it could also be the number of items in the list; the larger the list, the more items we potentially have to traverse to reach a given index.</p>
+<p>"Big O" notation is expressed in terms of this property <code>n</code>. For example
+we can have:</p>
+<ul>
+<li><code>O(1)</code> : if an algorithm is <code>O(1)</code> it means that its complexity is independent of <code>n</code>. Calculating the memory address of the index of an array would be an example of an <code>O(1)</code> operation because it is always given by the equation:</li>
+</ul>
+<pre><code>memory_address = start_memory_address + index * bytes_used_by_one_item
+</code></pre>
+<p>Clearly the time taken to evaluate this equation does not depend on the 
+size of the list, which is the property <code>n</code> in this case. Even if the list is very large, and the index is very large, we can quickly calculate the item's address using the simple equation above. <code>O(1)</code> algorithms are thus highly efficient… but not many algorithms are <code>O(1)</code>!</p>
+<ul>
+<li><code>O(n)</code> : if an algorithm is <code>O(n)</code> it means that its complexity depends on
+the value of <code>n</code> directly, or <em>linearly</em>. 
+So if <code>n</code> increases by 2, the complexity will also
+increase by 2 Indexing a linked list is a good example of an <code>O(n)</code> 
+algorithm because we have to manually follow the links to retrieve the item
+with a given index - we cannot rely on consecutive memory addresses. So
+complexity of linked list indexing is related linearly to the length of the
+list.</li>
+</ul>
+<p>This brings up an important point, the big O notation used is the <strong>worst-case scenario</strong>. In a basic search such as this, we assume the index will not be found until the end of the list in which case we will have to search through <code>n</code> items, where <code>n</code> is the number of items in the list.</p>
+<p>A basic search for an item in a list, in which we loop through all members of the list until we find the search term we are looking for, is also <code>O(n)</code>: it's again linearly related to the length of the list, because in a worst-case scenario, we will have to search through the entire list before we find the item.</p>
+<ul>
+<li><code>O(n^2)</code> (<strong>^ indicates "power"</strong>): if an algorithm is <code>O(n^2)</code> then the time taken or memory used is most influenced by the square of the number of items. So if the number of items doubles, then the time taken will increase around four times. Or if the 
+number of items increases by 10, the time taken will increase around 100 times.</li>
+</ul>
+<p>Algorithms which have an outer and inner loop, in which we have to loop through an array twice, are of this kind. The outer loop has to be run <code>n</code> times, 
+but the inner loop has to be run <code>n</code> times <em>each time the outer loop runs</em>.
+So the time taken is proportional to n^2. For example, below is some code
+with two loops, an outer and inner loop. An algorithm  <code>do_something()</code> is
+performed <code>n^2</code> times (16 times in the example, as <code>n</code> is 4). If <code>n</code> is changed
+to 5, then the operation will be performed 25 (5^2) times.</p>
+<pre><code>n = 4
+for i in range (n):
+    for j in range (n):
+        do_something(i, j)
+</code></pre>
+<p>Clearly it can be seen that <code>O(n^2)</code> algorithms are not efficient, and should
+be refactored to a more efficient algorithm e.g. <code>O(n)</code> or, as described
+below, <code>O(log n)</code>.</p>
+<p><code>O(n^2)</code> algorithms are known as quadratic because their complexity can be calculated using a quadratic equation <code>an^2 + bn + c</code>. It should be noted that,
+depending on the exact algorithm, the complexity will not be exactly
+<code>n^2</code>. However it will be something <em>close</em> to <code>n^2</code> which can be expressed
+using a quadratic equation. If you consider a quadratic equation, it can be
+seen that, as the variable <code>n</code> increases, the <code>n^2</code> term will come to
+dominate the result. </p>
+<pre><code>3n^2 + 6n + 7
+</code></pre>
+<p>for the value <code>n=100</code> will be:</p>
+<pre><code>3(100^2) + 6(100) + 7
+</code></pre>
+<p>which is </p>
+<pre><code>30000 + 600 + 7
+</code></pre>
+<p>It can be seen that the <code>n^2</code> term dominates. Remember we said above that
+in Big O notation, we need to worry about worst-case scenarios (scenarios with
+large <code>n</code> typically) as these will be the main source of inefficiencies. 
+So it can be seen that, in these worst-case scenarios, even if the complexity
+is not <em>exactly</em> <code>n^2</code>, it will <em>approximate</em> to it. So, such algorithms are still designated <code>O(n^2)</code>.</p>
+<p>Essentially, when considering complexity with the Big O notation, we divide algorithms into classes, and ask ourselves which class (e.g. <code>O(1)</code>, <code>O(n)</code>, <code>O(n^2)</code> etc) does the algorithm fall into, depending on the behaviour of the algorithm
+for large <code>n</code>. We are less interested in an absolute value for the time taken, or memory used, to complete an algorithm and more interested in the algorithm's behaviour for very large values of <code>n</code>, so we can see what happens in worst-case scenarios.</p>
+<p>The diagram below shows how complexity increases with increasing <code>n</code> for
+different classes of Big O complexity:</p>
+<ul>
+<li><code>n</code> is along the <code>x</code> (horizontal) axis, while the complexity is along the <code>y</code> (vertical) axis;</li>
+<li>green is <code>O(n)</code>;</li>
+<li>red is <code>O(n^2)</code>;</li>
+<li>blue is <code>O(log n)</code>; to be discussed below;</li>
+<li>magenta is the quadratic equation <code>0.5*n^2 + 0.5n</code>. This shows that the quadratic form is exhibited, and the shape of the graph, with a rapid increase with the rate of increase getting bigger with larger values of <code>n</code> is very similar to <code>n^2</code>. (This is known as a <em>parabolic graph</em>). So, even if the complexity is not <em>exactly</em> <code>O(n^2)</code>, the behaviour of the graph for increasing <code>n</code> is essentially the same as <code>O(n^2)</code>.</li>
+</ul>
+<canvas id='canvas1' width='640' height='640' style='background-color: white; border: 1px solid black'></canvas>
+<ul>
+<li><code>O(log n)</code>: if an algorithm ia <code>O(log n)</code> it is related to the <em>logarithm</em>
+of n. Logarithm is the inverse operation to power, and is always expressed in
+terms of a particular base. A logarithm of a given number (relative to a particular base, such as base 10 or base 2) will give you the power the base has to be raised to, to give that number. So if b to the power p equals x, then log(b)x = p.</li>
+</ul>
+<pre><code>b^p = x =&gt; log(b) x = p
+</code></pre>
+<p>In Big O notation, the base is 2. So for example, if:</p>
+<pre><code>2^2 = 4 
+2^3 = 8 
+</code></pre>
+<p>so:</p>
+<pre><code>log(2) 4 = 2
+log(2) 8 = 3
+</code></pre>
+<p>Hopefully you can see from this that an <code>O(log n)</code> operation is relatively
+efficient, because we can increase <code>n</code> significantly but the time taken, or
+memory consumed, will increase much less. For example, to perform an 
+<code>O(log n)</code> operation on a list of 256 (2^8) items will only take twice as long as a list of 16 (2^4) items. Constrast that to an <code>O(n)</code> algorithm which will take 16 times as long (because 16 x 16 is 256). So if you can refactor an algorithm from <code>O(n)</code> to <code>O(log n)</code>, it is clearly desirable.</p>
+<p>You should be able to see that an <code>O(log n)</code> operation has an initial fast increase in complexity which then flattens out. Algorithms which involve one complex operation which must be done once, or a small number of times, no matter what the value of <code>n</code>, followed by a less-complex operation, will typically be of the form <code>O(log n)</code>.</p>
+<h2 id="introductiontosortingalgorithms">Introduction to sorting algorithms</h2>
+<p>We are now going to start looking at sorting algorithms, and consider the
+Big O complexity of each algorithm we examine.</p>
+<h3 id="bubblesort">Bubble sort</h3>
+<p>We are now going to look at various sorting algorithms and express their
+complexity in Big O notation. The first algorithm we will look at is the
+<em>bubble sort</em>. This is a simple algorithm, but it is not very efficient.
+As you can see from the diagram below, it involves looping through a list
+and considering each pair of values in turn. If the pair is in the correct
+order, we do nothing. If it is not, we swap them.</p>
+<p><img src="images/bubble_sort.png" alt="Bubble Sort" /></p>
+<p>As you can see from the diagram, larger numbers "bubble" towards the end of the
+list, for example the value 20 will, each time a swap is done, move one position
+onwards in the list. So once we've finished the first iteration of the sort, the largest value will be in the correct position. <em>However</em>, you should also be able to see from the diagram, and appreciate from the way the algorithm works, that the <em>smaller</em> values only move forward <em>one</em> position per iteration (i.e. <em>one</em> position per loop). So once we've finished the loop, the value 1 will only have moved forward one place.</p>
+<p>So we then need to iterate (loop) <em>again</em> through the list, and perform another series of swapping operations. You can see this on the "second iteration" part of the diagram. This results in the smaller numbers again moving forward just
+one position.</p>
+<p>We'd therefore need to implement this using a loop within a loop. The outer
+loop would be the successive iterations, whereas the inner loop would be used to perform the swapping operations of <em>one</em> particular iteration of the algorithm.</p>
+<p><strong>It should be noted that on the first iteration of the bubble sort, the largest value will be correctly in place at the end of the list. So on the second iteration, we do not need to consider the last position in the index; for example if there are 5 values, we only need to consider 4 in the second iteration. Similarly, at the end of the second iteration, the second-biggst value will be correctly placed, so on the third iteration we do not need to consider the final two values of the list.</strong></p>
+<h3 id="pseudocode">Pseudocode</h3>
+<p>A common way to represent the logic of an algorithm before actually writing it
+is known as <em>pseudocode</em>. Pseudocode looks like real code but written in
+English (or whatever language you are using) statements rather than a specific
+programming language. For example, pseudocode for bubble sort might look like
+this.</p>
+<pre><code>For i = 0 to number of itens in list minus one (outer loop)
+    For j = 0 to number of items in list minus the iteration number of the outer loop (inner loop)
+        If item at j is greater than item at j+1
+            Swap items at j and j+1
+</code></pre>
+<h4 id="swappingvariables">Swapping variables</h4>
+<p>Bubble sort (and many other sorts) require variables to be <em>swapped</em>. How
+can we do this? We would use code such as this, involving the <em>creation of a temporary variable</em>.</p>
+<pre><code>tempVar = a
+a = b
+b = tempVar
+</code></pre>
+<p>We cannot just do:</p>
+<pre><code>a = b
+b = a
+</code></pre>
+<p>because the first statement will set <code>a</code> to <code>b</code> before we've saved the value
+of <code>a</code> anywhere else, so when we execute the statement <code>b = a</code> we will set
+<code>b</code> to its <em>original</em> value, because we <code>a</code> now contains the value of <code>b</code>.
+The use of a temporary variable, as in the correct example, means we can
+store <code>a</code> before assigning the variable <code>a</code> to the value of <code>b</code>, which means
+we do not lose the original value of <code>a</code>.</p>
+<h3 id="exercise1">Exercise 1</h3>
+<p>On paper, continue the iterations of bubble sort to sort the values. After how many iterations are the values completely sorted?</p>
+<p>How could we express the time taken in terms of <code>n</code>, i.e. the number of items
+in the list?</p>
+<p>What, therefore, would be the complexity in Big O notation of this algorithm, where <code>n</code> is the number of values in the list? </p>
+<h3 id="exercise2">Exercise 2</h3>
+<p>Using the pseudocode for bubble sort, plus the code for swapping variables, above, have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place.</p>
+<h2 id="efficientsearchingavoidingbruteforcealgorithms">Efficient searching - avoiding brute-force algorithms</h2>
+<p>As we saw above, searching through a list is an <code>O(n)</code> operation, as the worst-case scenario performance will be linearly proportional to the length of the list. We have to loop through each member of the list until we find the item that we are looking for, which, if near the end of the list, may take some time. </p>
+<p>This approach is known as <em>brute-force</em>. Brute-force algorithms attempt to find an answer through testing every possibility (here, every item in the list) and do not try to use any optimisations or more efficient techniques. Another example of a brute-force algorithm would be trying to find the factors of a number (factors of a number are every integer that the number can be divided by to give a further integer, for example the factors of 24 are 2, 3, 4, 6, 8 and 12). What we could do in a brute-force algorithm is to divide the number by every integer from 2 to the number to see if we get an integer as a result. This works, but is not efficient (<code>O(n)</code> with respect to the number). </p>
+<p>Another perhaps notorious brute-force technique is one which, sadly, has been proven successful despite the time taken, and that is brute-force password attacks. In this, every possible password of a certain length is tested on a login system. The result will be that the password will eventually discovered. Brute-force password attacks are now feasible due to increased computing power, notably brute-force dictionary attacks (in which known words are tested) which is the reason why longer and more obscure passwords - with special characters, lower- and upper-case letters, and numbers -  are now recommended compared to say 20 years ago.</p>
+<h3 id="binarysearch">Binary search</h3>
+<p>Binary search is a significantly more efficient approach to searching than ordinary brute-force search (called <em>linear search</em>). It has <code>O(log n)</code> complexity, which as we saw last week, will mean it performs much better with large sets of data than an <code>O(n)</code> algorithm.</p>
+<p>How does binary search work? It works by repeatedly "guessing" a position to index in a list to find a particular item of data. This is described in more detail below, but one point that needs to be made clear is that the data should be <em>sorted</em> - using a sorting algorithm - first. You might be asking yourself, wouldn't that make binary search not particularly efficient compared to linear search, as we have to sort first? The answer is - not necessarily. In many use-cases, such as, for example, searching for a record in a large list of people in some sort of records system (such as a student records system) it's likely that <em>searching</em> will have to be done many, many times. By contrast, the data would only have to be <em>sorted</em> once - i.e. when the data is first created - or at worst, when a new record is added to the data, which is likely to be infrequent.</p>
+<p>Binary search is known as a <em>divide and conquer</em> algorithm because the data we are searching is repeatedly divided in order to efficiently find what we are looking for. This is how you would play a "guess the number" game. Someone would try to repeatedly guess a number, and the other person would say "lower" or "higher". The person guessing would then use the other person's response to narrow down the range of numbers they select from.</p>
+<p>Here is an example of binary search. We have an array with 100 members containing names sorted in alphabetical order, and we are searching for "Smith, Tim".</p>
+<ul>
+<li>First we select the <em>midpoint</em> of the list. This could be the member with index 49 or 50 (doesn't matter which) for an 100-member list. If we use, in Python:</li>
+</ul>
+<pre><code>math.floor((start + end) / 2) # need to import math
+</code></pre>
+<p>where <code>start</code> is the start of the portion of the list we are searching (0 - as
+we are searching the whole list) and <code>end</code> is the end of the portion of the list
+(99 here, assuming a list of 100)
+then it will always give a suitable midpoint to index. Note that <code>math.floor</code> takes a floating-point number and rounds it down. If the length is an even number (e.g. 100) it will give us the index of the item immediately before the midpoint (49) while if it is an odd number (e.g. 101) it will give us the exact midpoint (because indices start from 0 and <code>math.floor(101/2)</code> is <code>math.floor(50.5)</code> which is 50, in other words, exactly halfway between 0 and 100.</p>
+<ul>
+<li>You then see what value is at the midpoint. If it's <em>after</em> the search term, you know that you need to look at the portion of the list before the midpoint (i.e. 0-48) while if it is <em>before</em> the midpoint, you know that you need to look at the portion after the midpoint (i.e. 50-99). If the midpoint contains the value you're looking for, of course, you stop as the search has completed.</li>
+</ul>
+<p>So, say we find "Jones, Jane" at position 49 in our example. We know we need to look within the range 50-99 because "Smith, Tim" is after "Jones, Jane" in the alphabet.</p>
+<p>So we repeat the divide-and-conquer operation. We find the midpoint of 50 and 99 (74) and look at the value there. It's "Nodd, Nigel".</p>
+<p>We repeat the process. "Smith, Tim" is after "Nodd, Nigel" in the alphabet so we know we have to search the portion of the list <em>after</em> 74. So we find the midpoint of 75 and 99, which is 87. We might get "Trott, Tina" at this position, so now we need to look at the portion <em>before</em> 87 (as "Smith, Tim" is before "Trott, Tina" in the alphabet). So we have to search within the portion75-86. We choose the midpoint, 80, and now found "Raven, Roger".</p>
+<p>Our area of search is cut down now to 81-86. We pick 83 and find "Smith, Alice", i.e just before "Smith, Tim" alphabetically. We then only have three list positions to search - 84 to 86. So we pick the midpoint 85. We find "Smith, Simon". We now only have one possibility - 86 - and looking at item 86 we finally find what we want, "Smith, Tim".</p>
+<p>The diagram below shows the process. Our search term (Smith, Tim) is shown using a red circle.</p>
+<p><img src="images/binary_search.png" alt="Binary search" /></p>
+<p>So how many searches did we need until we found Smith, Tim?</p>
+<ol>
+<li>The first search, picking index 49 in the whole list gave "Jones, Jane"</li>
+<li>The second search, picking index 74, gave us "Nodd, Nigel"</li>
+<li>The third search, picking index 87, gave us "Trott, Tina".</li>
+<li>The fourth search, picking index 80, gave us "Raven, Roger"</li>
+<li>The fifth search, picking index 83, gave us "Smith, Alice"</li>
+<li>The sixth search, picking index 85, gave us "Smith, Simon"</li>
+<li>… and in the seventh search, we eliminated the possibilites down to one index - 86 - and found what we were looking for, "Smith, Tim".</li>
+</ol>
+<p>Clearly 7 checked items (and this was a worst case scenario here, as we only found what we were looking for after narrowing down the possibilities to one) is a good deal more efficient than the 87 we would have to check with a brute-force linear search!</p>
+<h3 id="whyisthecomplexityofbinarysearchologn">Why is the complexity of binary search <code>O(log n)</code>?</h3>
+<p>The complexity of binary search is <code>O(log n)</code>, with <code>n</code> the number of items in the list. In our example <code>n</code> was 100. What is <code>log(2) 100</code>? The exact value does not matter, but we know it will be between 6 and 7, as <code>log(2) 64</code> is 6 and <code>log(2) 128</code> is 7. So you can see that <code>O(log n)</code> fairly represents the complexity, as, in this worst-case scenario, we had 7 iterations.</p>
+<p>How can we prove this? Think of a list with an exact power of 2 length, such
+as 64, and imagine it's a worst-case scenario, where we have to narrow down to one possibility before we find what we are looking for.</p>
+<ul>
+<li>In the first iteration, we take the midpoint of 64 items and split the list into two portions of length 31 and 32 (rejecting the midpoint as it doesn't contain our search item)</li>
+<li>In the second iteration, we assume we search the longer portion of length 32, and split it into two portions of length 15 and 16 (again rejecting the midpoint)</li>
+<li>In the third iteration, we assume we search the portion of length 16, splitting it into portions of length 7 and 8;</li>
+<li>In the fourth iteration, we assume we search the portion of length 8, splitting it into portions of length 3 and 4;</li>
+<li>In the fifth iteration, we assume we search the portion of length 4, splitting it into portions of length 1 and 2,</li>
+<li>In the sixth iteration, we have two values. We assume we pick the "wrong" one.</li>
+<li>So in the seventh iteration, we only have one possibility left and we finally find what we are looking for, or conclude that it is not in the list.</li>
+</ul>
+<p>So the length of the portion under search decreases from 64-32-16-8-4-2-1 in each iteration of the list. In other words, assuming the list length is an exact power of two, the number of iterations will be <code>log n + 1</code> (+1 because we also check a list of length 1 as well as the various powers of two; the lengths in each subsequent iteration are 2^6, 2^5, 2^4, 2^3, 2^2, 2^1 and 2^0 - i.e. 1). But as we saw last week, we only need to take the most significant term of the complexity and can discard the <code>+1</code> (as we are interested in the general behaviour of algorithms at large <code>n</code>, not the <em>exact</em> complexity) - giving us <code>O(log n)</code>.</p>
+<p>Likewise, for a value <code>n</code> between <code>2^p</code> and <code>2^(p+1)</code>, the number of iterations will be <code>p-1</code>, or <code>log(floor(n))-1</code> - but again we can simplify to <code>O(log n)</code>. (For example, try repeating the above on a list of length 63, a value between 32 and 64, and you find that only six iterations are needed, as the length of the portion being searched will decrease 63-31-15-7-3-1).</p>
+<h2 id="furtherreading">Further reading</h2>
+<ul>
+<li><a href="https://www.toptal.com/developers/sorting-algorithms">Toptal, Sorting Algoritmms Animations</a></li>
+<li><a href="https://rob-bell.net/2009/06/a-beginners-guide-to-big-o-notation/">Rob Bell, A beginner's guide to Big O notation</a></li>
+</ul>
+<script type='text/javascript' src='week7.js'></script></body></html>

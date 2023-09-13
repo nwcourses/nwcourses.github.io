@@ -1,32 +1,4 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 2 - More on Arrays, Linked Lists and Stacks</h1>
-<p>This week we will be looking at some further basic <em>data structures</em>. We will continue to look at the array, and also introduce the <em>linked list</em> and the <em>stack</em>, and look at their relevance.</p>
-<h2>Further Arrays</h2>
-<p><a href='intro1.html'>Last time</a> we looked at arrays and considered some of their advantages and disadvantages. Before moving onto other data structures, we will finish our look at array disadvantages.</p>
-<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
-<p>Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
-For example, imagine we had an array of contacts that we wished to keep in 
-alphabetical order, e.g:</p>
-<pre><code>Alex Acland
-Bonnie Black
-Charley Chase
-Earl Edwards
-Frances Freeman
-</code></pre>
-<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What we would have to do is:</p>
-<ul>
-<li>Create a new array, with one more space than the original array;</li>
-<li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
-<li>Add the new member to the appropriate space in the new array. </li>
-</ul>
-<p><img src="images/array_insert.png" alt="Array Insertion" /></p>
-<p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
-<h2 id="moreflexibledatastructures">More flexible data structures</h2>
-<p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
-<p>In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, the <code>append</code> operation may require the inefficient process we saw last week, in which  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array.</p>
-<p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing from last week, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
-<p><img src="images/list.png" alt="Appending to a list" /></p>
-<p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
-<p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 2 - More Advanced Data Structures: Linked Lists, Stacks and Queues</h1>
 <h2 id="thelinkedlist">The linked list</h2>
 <p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
 in that they are <em>not</em> stored continuously in memory. Instead, data is stored
@@ -83,39 +55,7 @@ If the stack is empty, an error is generated.</p></li>
 <li><strong>Peek</strong>, To <em>peek</em> a stack is to obtain the value of the top-most item of the stack <em>without</em> removing it.</li>
 </ul>
 <h2 id="exercises">Exercises</h2>
-<h3 id="exercise1arrayspaperbased">Exercise 1: Arrays: Paper-based</h3>
-<p>You are writing a program to store employees for a company. It's a small company, with only 10 employees. Try drawing, on paper, an array containing these 10 
-employees. Draw each name in each position in the array, similar to the 
-diagram above containing an array of fruit.</p>
-<pre><code>John Stevenson
-Jane Smith
-Tim Wilson
-Kate Stevenson
-Kate Palmer
-Tom Eastman
-Laura Green
-Mike Watson
-Sally Black
-Mark Ramsey
-</code></pre>
-<p>Answer these questions:</p>
-<ul>
-<li><p>What would be the index of "Kate Stevenson" in this array? What about "Mike Watson"?</p></li>
-<li><p>If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing <code>Kate Stevenson</code>?</p></li>
-</ul>
-<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Exercise 2: Arrays (code): Creating a simple program making use of an array</h3>
-<p>Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.</p>
-<h3 id="exercise3addingnewdatatoanarraypaper">Exercise 3: Adding new data to an array (paper)</h3>
-<p>Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.</p>
-<ul>
-<li>Draw a 4-member array containing the values "C++", "Java", "PHP" and "Python"</li>
-<li>Draw a new, empty 6-member array with space for the two new values "JavaScript" and "Kotlin". However, do not add these yet.</li>
-<li>Write a heading "Copying old array to new array". Under this heading.
-draw the second array again, with the existing members "C++", "Java", "PHP" and "Python" inserted, leaving two spaces in the middle (the data is sorted in alphabetical order) for the two new entries. </li>
-<li>Write a heading "Adding new members to new array". Under this heading, 
-draw the second array with the new values "JavaScript" and "Kotlin" inserted into the two spaces in the array.</li>
-</ul>
-<h3 id="exercise4linkedlistpaper">Exercise 4 : Linked List (paper)</h3>
+<h3 id="exercise4linkedlistpaper">Exercise 1 : Linked List (paper)</h3>
 <ol>
 <li><p>Think about what you would have to do to search for a particular
 item in a linked list using its index, starting at the beginning. </p>
@@ -148,14 +88,20 @@ same thing with a linked list. On paper, draw a linked list containing the eleme
 <h4 id="solution-1">Solution</h4>
 <p>Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.</p>
 -->
-<h3 id="exercise5stacks">Exercise 5: Stacks</h3>
+<h3>Exercise: Working out the logic of adding to a linked list</h3>
+<p>This exercise allows you to work out the logic of adding to a linked list without (yet) doing any coding.</p>
+<p>A linked list has two components: the node, and the linked list itself, as we've seen. Each node is linked in both directions to the previous and the end node.</p>
+<p>We need to be able to <em>add a node to a linked list</em>. <strong>What information does the linked list need to store in order to do this efficiently?</strong></p>
+<p>Try to write out the logic for adding data to a linked list. You'll need to create a node and add it to the list, but where do you add it? Do you have to do anything different if the list is empty?</li>
+<h3 id="exercise5stacks">Exercise 2: Stacks</h3>
 <p>We are now going to perform another paper-based exercise with stacks, to help
 you understand them and their operations.</p>
 <p>Imagine you have an empty stack. Draw the stack after each operation
 below, and explain what, if anything is returned from each operation and
 any errors that might occur.</p>
 <p><code>push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().</code></p>
-<h3 id="exercise6linkedlistinsertion">Exercise 6: Linked list insertion</h3>
+<!--
+<h3 id="exercise6linkedlistinsertion">Exercise 4: Linked list insertion</h3>
 <p>Think about adding a new item of data into the middle of a linked list. Consider this ordered list of names:</p>
 <ul>
 <li>Alex Acland</li>
@@ -165,7 +111,6 @@ any errors that might occur.</p>
 <li>Frances Freeman</li>
 </ul>
 <p>On paper draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? </p>
-<!--
 <h4 id="solution-2">Solution</h4>
 <p>Note the mixed efficiency when inserting into the middle of the linked list:</p>
 <ul>
@@ -173,5 +118,11 @@ any errors that might occur.</p>
 <li><p>on the other hand, the actual insertion process is <em>more</em> efficient, as we just have to break the links between Charley Chase and Earl Edwards, and create new links between each and Danielle Dawson. This is more efficient than an array, in which we would have to create a new array with one extra space and copy the old items over once again.</p></li>
 </ul>
 -->
+<h3>Exercise: working out the logic of a stack</h3>
+<p>Another paper exercise. You need to try and work out how a stack would operate. For the purposes of this exercise, the stack should be implemented internally using an <em>array</em> of a certain fixed length. The array initially contains empty spaces.</p>
+<p>What does the stack need to store to keep track of its current top position?</p>
+<p>What logic needs to occur when we push an item onto the stack? </p>
+<p>What about popping off the stack?</p>
+<p>What error checking needs to occur when pushing and popping data?</p>
 </body>
 </html>

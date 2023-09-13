@@ -1,5 +1,5 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 (lecture only) - Introduction</h1>
-<p>This week there is only a lecture, as you may not have had your class in COM411 (the main programming module) yet, and therefore may not have had any exposure to programming. In the lecture we will look at some very basic Python programs and introduce the general concept of <em>data structures</em>. We will also look at a simple data structure, the <em>array</em>.</p>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 - Introduction</h1>
+<p>This week we will look at some very basic Python programs and introduce the general concept of <em>data structures</em>. We will also look at two simple data structure, the <em>array</em> and the <em>list</em>.</p>
 <h2 id="usingrepl">Using Repl</h2>
 <p>We will start with a demo of some very, very basic Python programming as it's possible you have not had your first practical COM411 class yet.  We will be using the <em>Repl</em> online development environment. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
 <p>You can login to Repl using either a Repl account or your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
@@ -108,7 +108,63 @@ people[4] = input("Please enter the fifth person:")
 </ul>
 <p>This is shown in the diagram below, which returns to the original Python code example, in which team members were added to an array. Imagine we have an array with three team members, and we want to add two more members to the team. Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
 <p><img src="images/array_extension_1.png" alt="Array extension" /></p>
-<h2>That's all for this week!</h2>
-<p>As you may not have had any COM411 classes yet, we are keeping it short this week. Next week you will look in more detail at simple data structures, and will have your first three-hour lab session.</p>
+<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage of arrays: insertion difficult</h3>
+<p>Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
+For example, imagine we had an array of contacts that we wished to keep in 
+alphabetical order, e.g:</p>
+<pre><code>Alex Acland
+Bonnie Black
+Charley Chase
+Earl Edwards
+Frances Freeman
+</code></pre>
+<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What we would have to do is:</p>
+<ul>
+<li>Create a new array, with one more space than the original array;</li>
+<li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
+<li>Add the new member to the appropriate space in the new array. </li>
+</ul>
+<p><img src="images/array_insert.png" alt="Array Insertion" /></p>
+<p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
+<h2 id="moreflexibledatastructures">More flexible data structures</h2>
+<p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
+<p>In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, the <code>append</code> operation may require the inefficient process we saw last week, in which  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array.</p>
+<p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing from last week, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
+<p><img src="images/list.png" alt="Appending to a list" /></p>
+<p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
+<p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
+<h2 id="exercises">Exercises</h2>
+<h3 id="exercise1arrayspaperbased">Exercise 1: Arrays: Paper-based</h3>
+<p>You are writing a program to store employees for a company. It's a small company, with only 10 employees. Try drawing, on paper, an array containing these 10 
+employees. Draw each name in each position in the array, similar to the 
+diagram above containing an array of fruit.</p>
+<pre><code>John Stevenson
+Jane Smith
+Tim Wilson
+Kate Stevenson
+Kate Palmer
+Tom Eastman
+Laura Green
+Mike Watson
+Sally Black
+Mark Ramsey
+</code></pre>
+<p>Answer these questions:</p>
+<ul>
+<li><p>What would be the index of "Kate Stevenson" in this array? What about "Mike Watson"?</p></li>
+<li><p>If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing <code>Kate Stevenson</code>?</p></li>
+</ul>
+<h3 id="exercise3addingnewdatatoanarraypaper">Exercise 2: Adding new data to an array (paper)</h3>
+<p>Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.</p>
+<ul>
+<li>Draw a 4-member array containing the values "C++", "Java", "PHP" and "Python"</li>
+<li>Draw a new, empty 6-member array with space for the two new values "JavaScript" and "Kotlin". However, do not add these yet.</li>
+<li>Write a heading "Copying old array to new array". Under this heading.
+draw the second array again, with the existing members "C++", "Java", "PHP" and "Python" inserted, leaving two spaces in the middle (the data is sorted in alphabetical order) for the two new entries. </li>
+<li>Write a heading "Adding new members to new array". Under this heading, 
+draw the second array with the new values "JavaScript" and "Kotlin" inserted into the two spaces in the array.</li>
+</ul>
+<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Exercise 3: Lists (code): Creating a simple program making use of a list</h3>
+<p>Write a program which creates a list with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the list appropriately.</p>
 </body>
 </html>
