@@ -1,7 +1,7 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 2 - More Advanced Data Structures: Linked Lists, Stacks and Queues</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 2 - More Advanced Data Structures: Linked Lists and Stacks</h1>
+<p>This week we will look at two more specialised data structures, the <em>linked list</em> and the <em>stack</em>.</p>
 <h2 id="thelinkedlist">The linked list</h2>
-<p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
-in that they are <em>not</em> stored continuously in memory. Instead, data is stored
+<p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed last time</em>, are unlike arrays or lists in that they are <em>not</em> stored continuously in memory. Instead, data is stored
 as a series of linked <em>nodes</em>. Each node contains one item of data, and links
 to the memory locations of the previous and the next item of data in the 
 linked list.</p>
@@ -13,7 +13,7 @@ we link the new node back to the previous node to form a two-way link.</p>
 <p>What are the consequences of this? </p>
 <ul>
 <li><p>Remember how we could use simple arithmetic, using the array index, to 
-calculate the location in memory of a given element in an array. Can
+calculate the location in memory of a given element in an array or list. Can
 we do this here? <strong>We cannot. This is because, in a linked list, items are not 
 stored continuously in memory. Instead, each node contains references to the 
 memory locations of the previous and the following node.</strong></p></li>
@@ -54,8 +54,60 @@ If the stack is empty, an error is generated.</p></li>
 <ul>
 <li><strong>Peek</strong>, To <em>peek</em> a stack is to obtain the value of the top-most item of the stack <em>without</em> removing it.</li>
 </ul>
-<h2 id="exercises">Exercises</h2>
-<h3 id="exercise4linkedlistpaper">Exercise 1 : Linked List (paper)</h3>
+<p>Stacks are typically implemented using an <em>internal array or list</em>. When we push an item to a stack, we add an item to the next available space in this internal array. When we pop an item from a stack, we remove it from the last occupied space in the internal array, and "blank out" that position in the internal array.</p>
+<h2>Pseudocode</h2>
+
+<p>When coding a data structure or algorithm, it is useful to be able to work out the logic of the code <em>before</em> you actually write any real code. Why is this useful?
+
+<ul>
+<li>It gets you to carefully think through the logic of the data structure or algorithm before you actually write code, including any errors that might occur;</li>
+<li>once the logic has been worked out (arguably the hard part, harder than actually writing the code) the data structure or algorithm can then be implemented in <em>any</em> programming language, or even implemented in multiple languages.</li>
+</ul>
+
+We can use <em>pseudocode</em> to represent such logic. Pseudocode is a way of representing the logic of some code in concise English (or other human language) statements which clearly and unambiguously represent the logic of the code.</p>
+
+<p>Starting with a basic example, "Hello World" might look like this in pseudocode:
+
+<pre>Print "hello world"</pre>
+
+Moving on to a more interesting example, here is some pseudocode to represent some simple logic to determine if you are old enough to vote:
+<pre>
+Read age from the user into a variable "age"
+If age is 18 or greater
+    Print "You are old enough to vote"
+Otherwise
+    Print "Sadly you are not old enough to vote, but you will be in "
+    Print 18 minus age
+    Print "years"
+</pre>
+And here is some pseudocode to represent a "while" loop to count up to a number that the user enters:
+<pre>
+Read a number from the user into a variable "number"
+Set a variable "counter" to 0
+While counter is less than number
+    Print counter
+    Increase counter by 1
+</pre>
+</p>
+
+<p>
+As can be seen, these examples of pseudocode represent the logic before we actually write code. They are trivial examples, but hopefully are enough to illustrate the point, and once completed, the pseudocode can then be implemented in real code of any given programming language. Python actually resembles pseudocode more than some other languages, so hopefully converting pseudocode to Python should be quite an easy job!
+</p>
+<h3>Higher-level pseudocode</h3>
+<p>
+It should also be said that there are differing levels of detail that you can write pseudocode with. The examples above include references to variables, which make them particularly useful for converting into real code. For simple algorithms, you can go straight to this stage. In more complex algorithms you might want to, before you go into this level of detail, write some higher-level pseudocode which describes the general logic <em>without</em> referencing variables. This helps you think about the overall high level logic of what must be done before you start thinking about what variables are needed. Higher-level pseudocode for the age tester might look like this:
+<pre>
+Read age from the user 
+If user's age is 18 or greater
+    Tell them that they are old enough to vote
+Otherwise
+    Tell them that they are not old enough to vote
+    Tell them how long they must wait to vote, based on their age
+</pre>
+
+</p>
+<h2 id="exercises">Exercise 1 - Exploring Linked Lists and Stacks on Paper</h2>
+<h3 id="exercise4linkedlistpaper">Question 1 : Linked List (paper)</h3>
 <ol>
 <li><p>Think about what you would have to do to search for a particular
 item in a linked list using its index, starting at the beginning. </p>
@@ -68,7 +120,7 @@ item in a linked list using its index, starting at the beginning. </p>
 </code></pre>
 <p>Imagine we wish to retrieve the item with index 3 (Android). How could we 
 do this? Draw out how you think it could be done on paper, and ask yourself:
-<strong>how efficient is this</strong>, particularly compared to doing the same thing with an array. </p></li>
+<strong>how efficient is this</strong>, particularly compared to doing the same thing with an array or list. </p></li>
 <li>Imagine that we wish to add a new item (Solaris) to the end of the linked list. Draw a diagram showing the process of creating this new item and adding it to the linked list.</li>
 </ol>
 <!--
@@ -88,12 +140,7 @@ same thing with a linked list. On paper, draw a linked list containing the eleme
 <h4 id="solution-1">Solution</h4>
 <p>Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.</p>
 -->
-<h3>Exercise: Working out the logic of adding to a linked list</h3>
-<p>This exercise allows you to work out the logic of adding to a linked list without (yet) doing any coding.</p>
-<p>A linked list has two components: the node, and the linked list itself, as we've seen. Each node is linked in both directions to the previous and the end node.</p>
-<p>We need to be able to <em>add a node to a linked list</em>. <strong>What information does the linked list need to store in order to do this efficiently?</strong></p>
-<p>Try to write out the logic for adding data to a linked list. You'll need to create a node and add it to the list, but where do you add it? Do you have to do anything different if the list is empty?</li>
-<h3 id="exercise5stacks">Exercise 2: Stacks</h3>
+<h3 id="exercise5stacks">Question 2: Stacks</h3>
 <p>We are now going to perform another paper-based exercise with stacks, to help
 you understand them and their operations.</p>
 <p>Imagine you have an empty stack. Draw the stack after each operation
@@ -118,11 +165,78 @@ any errors that might occur.</p>
 <li><p>on the other hand, the actual insertion process is <em>more</em> efficient, as we just have to break the links between Charley Chase and Earl Edwards, and create new links between each and Danielle Dawson. This is more efficient than an array, in which we would have to create a new array with one extra space and copy the old items over once again.</p></li>
 </ul>
 -->
-<h3>Exercise: working out the logic of a stack</h3>
-<p>Another paper exercise. You need to try and work out how a stack would operate. For the purposes of this exercise, the stack should be implemented internally using an <em>array</em> of a certain fixed length. The array initially contains empty spaces.</p>
-<p>What does the stack need to store to keep track of its current top position?</p>
-<p>What logic needs to occur when we push an item onto the stack? </p>
-<p>What about popping off the stack?</p>
-<p>What error checking needs to occur when pushing and popping data?</p>
+<h2>Exercise 2: Designing a Stack and Linked List with Pseudocode</h2>
+<p>This exercise will allow you to think about the logic of stacks and linked lists using pseudocode, before you actually write real code. In two weeks' time, once you have learnt more Python programming, you will actually implement stacks and linked lists using real Python code.</p>
+<h3>Stack</h3>
+<p>First try writing, in a text editor, using pseudocode, the logic for implementing a stack.
+
+<ul>
+
+<li>The stack, in this case, will be implemented using an internal array of a fixed size (so the stack has a fixed capacity). This will not be the case for all stacks, but you can assume it will be in this case.</li>
+
+<li>The internal array will initially be empty: each position in the array will hold nothing (in Python this is represented by the value "None").</li>
+
+<li>The push operation should add data to the next available space in the array.</li>
+
+<li>The pop operation should remove data from the top of the stack, which should be the member of the array with the highest index containing data, and return it to the user. It should do this by setting the value to "None" and returning the data being popped.</li>
+
+</ul>
+
+To answer the question, consider and carry out the following:
+
+<ul>
+<li>As well as the array, what other variable will the stack need to hold, to implement the stack as described above?</li>
+
+<li>Using pseudocode, describe the full logic of the push operation, including how it changes the variable mentioned in the last question.</li>
+
+<li>Using pseudocode, describe the full logic of the pop operation, including how it changes that same variable.</li>
+
+<li>What error checks must the push and pop operations include? Modify your pseudocode to include these error checks.</li>
+
+</ul>
+</p>
+<p>If you're struggling with the pseudocode, try writing higher-level pseudocode, without the use of variables, first. See the discussion on pseudocode above.</p>
+
+<h3>Linked List</h3>
+
+<p>Try writing, in a text editor, using pseudocode, the logic for implementing the "add" and "get" operations of a linked list.
+
+<ul>
+<li>The linked list will require two entities to implement it: a node, and the linked list itself.</li>
+
+<li>The "add" operation should add a new item of data to the linked list.</li>
+
+<li>The "get" operation should retrieve an item from the linked list, using its index (where 0 represents the first item in the linked list, 1 represents the second, and so on). It should return "None" if the index does not exist (e.g. index 2 is used when there are only two items, at indices 0 and 1, in the linked list).</li>
+
+</ul>
+
+To answer the question, consider and carry out the following:
+
+<ul>
+<li>Start with the "add" operation. To efficiently implement this (i.e. you want to avoid having to search all the way through the linked list to find its end) what variable does the linked list need to contain?</li>
+
+<li>What other variable must the linked list contain to be able to implement the "get" operation?</li>
+
+<li>Given these two variables, write the pseudocode for the "add" operation. Do you need to do anything special if the list is empty, as it will be initially?</li>
+
+<li>Now write the pseudocode for the "get" operation. Is this efficient, compared to an array or list?</li>
+
+<li>Can you think of any steps you can take to make the "get" operation a little more efficient?</li>
+
+</ul>
+
+</p>
+
+<p>
+
+<strong>Advanced</strong>: write pseudocode for a third operation, "insertAt". This should insert a node into the linked list containing some data, after a given index. So if index 2 is specified, the node would be added <em>after</em> index 2.
+
+</p>
+<p>If you're struggling with the pseudocode, try writing higher-level pseudocode, without the use of variables, first, as described above.</p>
+
+
+
+
+
 </body>
 </html>

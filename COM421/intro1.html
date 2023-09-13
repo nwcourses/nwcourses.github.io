@@ -1,39 +1,19 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 - Introduction</h1>
-<p>This week we will look at some very basic Python programs and introduce the general concept of <em>data structures</em>. We will also look at two simple data structure, the <em>array</em> and the <em>list</em>.</p>
-<h2 id="usingrepl">Using Repl</h2>
-<p>We will start with a demo of some very, very basic Python programming as it's possible you have not had your first practical COM411 class yet.  We will be using the <em>Repl</em> online development environment. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
-<p>You can login to Repl using either a Repl account or your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
-<p>Once you have created a Repl account or GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
-<p><img src="images/repl1.png" alt="Repl interface" /></p>
-<p>If you select the menu icon on the top left, you can select "New Repl". A Repl is a project - essentially, a single program. The idea is that you create a new Repl for each program you are going to write. You can then go back and view your previous Repls to load the code.</p>
-<p><img src="images/repl2.png" alt="New Repl" /></p>
-<p>Once you have done this, just enter the following Python code:</p>
-<pre><code class="python language-python">print("Hello World!")
-</code></pre>
-<p>Run the code and you should see the output appear in the console to the right:</p>
-<pre><code>Hello World!
-</code></pre>
-</p>
-<p><img src="images/repl3.png" alt="Repl Console Output" /></p>
-<h3>Variables</h3>
-<p>An important concept in programming is that of <em>variables</em>. A variable is a "box" which can be used to hold information for later use. For example here is a simple Python program which asks the user for their name and then greets them:
-<pre>
-first_name = input("Please enter your name:")
-print("Hello " + first_name)
-</pre>
-The program prompts the user for their name, with the <code>input()</code> statement. The name is read into a <em>variable</em> called <code>first_name</code>. The variable is a "pointer" to an area of computer memory where the name is stored. Later on in the program, if we want to reference the name the user entered, we use this variable <code>first_name</code> outside quotes. So the statement:
-<pre>print("Hello " + first_name)</pre>
-will print the text "Hello" plus the value of the variable <code>first_name</code>. Note how the variable is <em>outside quotes</em>. Any text <em>inside quotes</em> is displayed literally (e.g the text "Hello") but any text <em>outside quotes</em> is interpreted as a variable.</p>
-<p>The next example uses two variables, for the first name and the last name.
-<pre>
-first_name = input("Please enter your first name:")
-last_name = input("Please enter your last name:")
-print("Hello " + first_name +" " + last_name)
-</pre>
-The <code>print()</code> statement now displays the text "Hello", plus the <code>first_name</code> variable, plus a space, plus the <code>last_name</code> variable.</p>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 - Introduction to Data Structures</h1>
+<p>In this first week, we will introduce the general concept of <em>data structures</em>. We will also look at two simple data structure, the <em>array</em> and the <em>list</em>, and write some very basic Python code to create and use a list.</p>
 <h2 id="theimportanceofdatastructures">The importance of data structures</h2>
-<p>Having covered some very basic programming, we will now look at <em>data structures</em>. First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>, rather than a single item of data. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
-<p>To store multiple items in a computer program, we need to choose an appropriate <em>data structure</em>. A data structure is a programming construct which allows us to store multiple items. When dealing with data structures, an important thing to consider is <em>which is the most appropriate data structure for the problem we are trying to solve</em>? Certain data structures are more suited to specific types of problem, and we will be looking at this through the module.</p>
+<p>We will begin by taking a look at the concept of <em>data structures</em>. First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>, rather than a single item of data. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
+<p>To store multiple items in a computer program, we need to choose an appropriate <em>data structure</em>. A data structure is a programming construct which allows us to store multiple items of data. When dealing with data structures, an important thing to consider is <em>which is the most appropriate data structure for the problem we are trying to solve</em>? Certain data structures are more suited to specific types of problem, and we will be looking at this through the module. We will take a look at various data structures, from very basic ones to more advanced, specialised data structures, including:
+<ul>
+<li>Arrays</li>
+<li>Lists</li>
+<li>Linked lists</li>
+<li>Stacks</li>
+<li>Queues</li>
+<li>Hash tables</li>
+<li>Trees</li>
+</ul>
+As we do so, we will consider their advantages, and in some cases disadvantages, for particular tasks.
+</p>
 <h2 id="abasicdatastructurethearray">A basic data structure - the array</h2>
 <p>Let's start with the most basic data structure of all, the <em>array</em>. An array is a data structure which can hold more than one item of data, and can be thought of as a series of "boxes" which can hold data. With an array, the key thing is that <em>each box is adjacent to its neighbours in memory</em> which has some consequences in terms of efficiency which we will consider as we go on</p>
 <p>The diagram below shows an example of an array which holds the names of five items of fruit. </p>
@@ -61,29 +41,21 @@ we substitute the values into the equation we get:</p>
 we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
 numerical index</strong>.</p>
-<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
-<p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to soon, but for simplicity we're going to assume it's an array). We are creating an array called <code>people</code> to hold the names of members of a team. 
-<pre><code class="python language-python">
-print("Please enter the three people in your team")
-people = [None] * 3
-people[0] = input("Please enter the first person:")
-people[1] = input("Please enter the second person:")
-people[2] = input("Please enter the third person:")
-
-print("The first person is " + people[0])
-print("The second person is " + people[1])
-print("The third person is " + people[2])
-
+<h2 id="usingrepl">Coding lists</h2>
+<p>We will be using the <em>Repl</em> online development environment. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
+<p>You can login to Repl using either a Repl account or your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
+<p>Once you have created a Repl account or GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
+<p><img src="images/repl1.png" alt="Repl interface" /></p>
+<p>If you select the menu icon on the top left, you can select "New Repl". A Repl is a project - essentially, a single program. The idea is that you create a new Repl for each program you are going to write. You can then go back and view your previous Repls to load the code.</p>
+<p><img src="images/repl2.png" alt="New Repl" /></p>
+<p>Once you have done this, just enter the following Python code:</p>
+<pre><code class="python language-python">print("Hello World!")
+</code></pre>
+<p>Run the code and you should see the output appear in the console to the right:</p>
+<pre><code>Hello World!
 </code></pre>
 </p>
-<p>Note a couple of things:</p>
-<ul>
-<li>We define the array using the statement:
-<pre>people = [None] * 3</pre>
-<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create an array with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet"). There are other ways of creating an array, but for now we will focus on this method.</li>
-<li>Note the code: <code>people[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
-</ul>
-<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
+<p><img src="images/repl3.png" alt="Repl Console Output" /></p>
 <h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
 <p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
 <pre><code class="python language-python">people[3] = input("Please enter the fourth person:") 
@@ -133,6 +105,68 @@ Frances Freeman
 <p><img src="images/list.png" alt="Appending to a list" /></p>
 <p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
 <p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
+<h3 id="exercise2listscodecreatingasimpleprogrammakinguseofanlist">Creating a simple program making use of an list</h3>
+<p>Here is a program which makes use of an list. We are creating an list called <code>people</code> to hold the names of members of a team. 
+<pre><code class="python language-python">
+print("Please enter the three people in your team")
+people = [None] * 3
+people[0] = input("Please enter the first person:")
+people[1] = input("Please enter the second person:")
+people[2] = input("Please enter the third person:")
+
+print("The first person is " + people[0])
+print("The second person is " + people[1])
+print("The third person is " + people[2])
+
+</code></pre>
+</p>
+<p>Note a couple of things:</p>
+<ul>
+<li>We define the list using the statement:
+<pre>people = [None] * 3</pre>
+<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create an list with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet"). There are other ways of creating an list, but for now we will focus on this method.</li>
+<li>Note the code: <code>people[0]</code>. This is using an list <em>index</em> - remember we discussed list indices above. Specifically this code is retrieving the member of the list with index zero.</li>
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
+<h2>Further work - Looping through lists</h2>
+
+<p>In COM411 you will be introduced, in more detail than here, to the concept of "looping" to perform the same operation multiple times. However, because it's such a useful thing to do with data structures, I will give you a preview now of how to use <em>loops</em> to do something which each member of a list. (This work is not compulsory for this week, but is offered as an extra for those who have got through the basics).</p>
+<h3>The for (foreach) loop</h3>
+<p>
+If we have a data structure, we might well want to display all the items in that data structure. How this is done depends on the individual data structure that we're dealing with, but for a list in Python, it's actually quite easy. Here is a simple example:
+<pre>
+all_languages = ["Python", "JavaScript", "Java", "Kotlin"]
+for current_language in all_languages:
+    print("At university you will be studying " + current_language)
+</pre>
+Note how we create a list of languages (in this case, the languages that you will be studying while at university on the Software Engineering course) and store it in the variable "all_languages". sWe then use a so-called "for loop" to perform a particular block of code on <em>each</em> member of the list.
+
+<pre>for current_language in all_languages:</pre>
+
+This literally means "go through each language in the list 'all_languages' in turn, store the current language in the variable 'current_language', and perform the block of code below the 'for' statement for the variable 'current_language'. In other words, the print statement will be executed for EACH language in the list. Hence, this type of 'for' loop is also known as a 'for-each' loop.
+</p>
+<p>The diagram below shows how the 'for' loop is working:
+<br />
+<img src="../images/forloop.png" alt="Operation of for (for each) loop" />
+</p>
+<h3>The while loop</h3>
+<p>As well as using the 'for' loop, we can use another type of loop, the 'while' loop. This allows us to run the code while some condition is true. In data structures, 'while' loops are generally used with <em>indices</em>. Here is the previous example rewritten to use a 'while' loop:
+<pre>
+all_languages = ["Python", "JavaScript", "Java", "Kotlin"]
+current_index = 0
+while current_index &lt; len(all_languages):
+    print("At university you will be studying " + all_languages[current_index])
+    current_index += 1
+</pre>
+Note how we now declare a variable <code>current_index</code> to hold the current index we are dealing with, starting at 0. We then repeat the block of code below the <code>while</code> statement while a certain condition is true - in this case, while <code>current_index</code> is less than the length of the list.</p>
+<p>So, as a result, this block of code:
+<pre>print("At university you will be studying " + all_languages[current_index])
+current_index += 1</pre>
+will be repeated until <code>current_index</code> reaches the length of the list. In this code, we use the variable <code>current_index</code> to index the list and print out the value at that index in the list, and then increase <code>current_index</code> by one. So the first time this block of code runs, <code>current_index</code> will be 0, and it will display <code>Python</code>. The second time the block of code runs, <code>current_index</code> will be 1, and it will display <code>JavaScript</code>, and so on.</p>
+<p>The diagram below shows how the 'while' loop is working:
+<br />
+<img src="../images/whileloop.png" alt="Operation of a while loop with indices" />
+</p>
 <h2 id="exercises">Exercises</h2>
 <h3 id="exercise1arrayspaperbased">Exercise 1: Arrays: Paper-based</h3>
 <p>You are writing a program to store employees for a company. It's a small company, with only 10 employees. Try drawing, on paper, an array containing these 10 
@@ -166,5 +200,12 @@ draw the second array with the new values "JavaScript" and "Kotlin" inserted int
 </ul>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Exercise 3: Lists (code): Creating a simple program making use of a list</h3>
 <p>Write a program which creates a list with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the list appropriately.</p>
+<h3>Exercise 4: Looping through a list</h3>
+<p>Enhance your code to loop through the list. The code should output the list in this format:
+<pre>Jane Smith is an employee of Advanced Widgets Ltd.
+Tim Wilson is an employee of Advanced Widgets Ltd.</pre>
+(etc)
+</p>
+<p><em>Advanced</em>: Ask the user to enter a name. By looping through the employees and comparing each name to the name the user entered, the program should tell the user whether the name they entered is an employee of the company or not. You will need to use an <code>if</code> statement for this but it must also contain a loop. <strong>If you do this, you will have coded your first searching algorithm, albeit a basic and not-so-efficient one!</strong></p>
 </body>
 </html>

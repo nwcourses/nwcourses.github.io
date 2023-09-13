@@ -1,9 +1,8 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week2implementationofbasicdatastructures">Week 3: Implementation of Basic Data Structures</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week2implementationofbasicdatastructures">Week 3: Introduction to Object-Oriented Programming</h1>
 <h2 id="introduction">Introduction</h2>
-<p>Last week was a purely theoretical session in which we took a first look at some basic data structures, the <em>array</em>, the <em>linked list</em> and the <em>stack</em>. Today we will actually start implementing these in Python, beginning with the stack and continuing with the linked list.</p>
-<h2 id="introductiontopythonclassesandobjectsinthecontextofdatastructures">Introduction to Python classes and objects in the context of data structures</h2>
-<p>To effectively implement a data structure, such as a stack, requires the use of <em>classes and objects</em>. We are not going to cover this topic in any depth right now, as you will be introduced to it more fully in COM411. We are just going to look at as much as we need to, in order to understand how to create our own data structures.</p>
+<p>From next week onwards we will move on to actually implementing some data structures in Python, starting with the stack and the linked list. However, in order to do this effectively and cleanly, you need to be familiar with <em>object-oriented programming</em>. You will be introduced to this topic in more depth in COM411 later, but I will introduce this week just enough object-oriented programming for you to be able to code your own data structures.</p>
 <p>(Note that Python comes with an extensive range of built-in data structures, for example you can treat the standard <code>list</code> type as a stack and perform <code>push</code> and <code>pop</code> operations, but we are going to build them from scratch, in order to gain a deeper understanding of how the various data structures work.)</p>
+<h2>Classes and Objects</h2>
 <p>See <a href="https://docs.python.org/3/tutorial/classes.html">the Python documentation</a> for classes and objects.</p>
 <h3 id="whatisaclass">What is a class?</h3>
 <p>(<strong>This is a simplified explanation. More depth will be provided in COM411.</strong>)</p>
@@ -78,96 +77,38 @@ print(cat2.weight)
 <li>Create a <code>walk()</code> method inside the <code>Cat</code> class. This should reduce the cat's weight by one.</li>
 <li>Create a third cat, "Old Tom" with age 10 and weight 6. </li>
 <li>Make Old Tom eat, and make all three cats walk after they have eaten. After walking, display all three cats' weight again, to show that walking reduces the weight by one.</li></ul></li>
-<li><p>If you have looked at <code>if</code> statements already, change the <code>walk()</code> method so that the cat cannot walk if the weight is below 1. (The intention is to avoid starving the cat). </p></li>
+<li>Using an <code>if</code> statement, change the <code>walk()</code> method so that the cat cannot walk if the weight is below 1. (The intention is to avoid starving the cat). </li>
 </ol>
-<h2 id="implementingastackusingaclass">Implementing a Stack using a class</h2>
-<p>Having looked at a simple <code>Cat</code> class, we are now going to do something a bit more practical and look at how we might create a <code>Stack</code> class.
-Note that it does not actually act as
-a stack at the moment, but it provides the framework for how a stack operates;
-notice how it contains an array and <code>push()</code> and <code>pop()</code> methods.</p>
-<pre><code class="python language-python">class Stack:
-    def __init__(self):
-        self.internalArray = []
-
-    def push(self, item):
-        # Code to add an item to the stack will go here
-
-        pass # ends the method when it's empty
-
-    def pop(self):
-        # Code to remove an item from the top of the stack will go here 
-
-        pass # ends the method when it's empty
-
-    def __str__(self):
-        return self.internalArray.__str__()
-</code></pre>
-<p>How is this working?</p>
-<ul>
-<li><p>Note how we define three methods again. We have <code>push()</code> and <code>pop()</code> to define the most fundamental operations of a stack. The <code>__init__()</code> method for a stack will, like the cat equivalent, run when the stack is first created. We are using it to create the underlying array associated with the stack (see below for more detail).</p></li>
-<li><p>So, going back to <code>__init__()</code>, note how we are attaching an attribute <code>array</code> to the current object, with this code:</p></li>
-</ul>
-<pre><code class="python language-python">self.internalArray = []
-</code></pre>
-<p>Note the <code>[]</code> syntax. This creates an empty array. (Well actually, it doesn't; it creates an empty Python <em>list</em>, as we saw last week, but we are treating the list as an array.).</p>
-<ul>
-<li><p>Note how the <code>push()</code> method contains not just <code>self</code> but also another parameter, <code>item</code>. This is the item we want to add to the internal array.</p></li>
-<li><p>Note the fourth method, <code>__str__()</code>. This is another special method, rather like <code>__init__()</code>. This is a method which defines <em>how objects of a class are printed</em>. We might want to print our stack with:</p></li>
-</ul>
-<pre><code class="python language-python">print(stack)
-</code></pre>
-<p>What happens though when we try to print an object? By default we just get its memory address. Adding a <code>__str__()</code> method to a class allows us to return a string representation which can be understood. Here, we return the string representation of the internal array, so when we print the stack, we see the contents of the internal array.</p>
-<h3 id="exercise2">Exercise 2</h3>
+<h3>Exercise 2: Additional object-oriented programming exercise</h3>
+<p>Try out this additional exercise using classes and objects.</p>
 <ol>
-<li>Now create a separate program for your Stack. Write the <code>Stack</code> class as shown above, and try and complete the <code>push()</code> method of your <code>Stack</code> so that it takes the value passed to it, and appends it to the internal array. To do this you will need to use the list's <code>append()</code> method. Here is a simple example of appending to a list:</li>
-</ol>
-<pre><code class="python language-python">list1 = []
-list1.append("John")
-</code></pre>
-<ol start="2">
-<li>Test your <code>Stack</code> as follows by adding this code <em>below</em> the Stack class:</li>
-</ol>
-<pre><code class="python language-python">stack1 = Stack()
-stack1.push(1)
-stack1.push(4)
-stack1.push(9)
-print(stack1)
-</code></pre>
-<ol start="3">
-<li>Now write a <code>pop()</code> method. This should <code>return the last member of the internal array</code> and <code>remove it</code>. How do you do this? It's easier in Python than some other languages as Python features <em>negative indexing</em> in which index -1 always represents the <em>last</em> member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your <code>pop()</code> (remember to indent it appropriately!)</li>
-</ol>
-<pre><code class="python language-python">del self.internalArray[-1] # try to delete the last member of the array
-return self.internalArray[-1] # and return it so the outside world can access it
-</code></pre>
-<p>Does this work as you would expect a pop operation to? Test it by adding these lines to your test code (the code where you created the stack and pushed items
-onto it), which pops the stack twice and prints the value returned from each <code>pop()</code> operation:</p>
-<pre><code class="python language-python">popped1 = stack1.pop()
-print(popped1)
-popped2 = stack1.pop()
-print(popped2)
-</code></pre>
-<p>You will find it
-does not. Why? <strong>Try and fix the code yourself to get it to work!</strong></p>
-<ol start="4">
-<li>Create a <em>second</em> Stack object in your test code, and this time, push these
-items onto it:</li>
-</ol>
-<pre><code>Linux
-Windows
-Mac OS X
-</code></pre>
-<p>Again, print the stack and pop items off the stack. Does it work with strings as well as integers?</p>
-<ol start="5">
-<li><p>You need to display an error if you pop an empty stack.
-Using an <code>if</code> statement (you are doing these in COM411 this week), display an error message in <code>pop()</code> if the stack is empty.</p>
-<p>How can you tell whether the stack is empty? You can use the <code>len()</code> function.  <code>len()</code> gives you the length of an array or list, or string. For example, if
-<code>a</code> is an array or list, this <code>if</code> statement will test whether it is empty (has a length of 0).</p></li>
-</ol>
-<pre><code class="python language-python">if len(a) == 0:
-       print("a is empty")
-</code></pre>
-<ol start="6">
-<li>Create a <code>peek()</code> method for your Stack. Remember a <code>peek</code> operation should
-return the top item of the stack <em>without</em> removing it.</li>
-</ol>
-<p><strong>Advanced optional exercise</strong>: If you are coping with this module and COM411 well so far, and keen to do more programming, and want something to do in your own time, read about <em>exceptions</em> and handle the error instead by <em>raising an exception</em>. This would be how errors are handled in real-world implementations of stacks. Feel free to implement your stack using exceptions and send it to me for checking.</p></body></html>
+<li>Create a completely new class called <code>Student</code> to represent a student.
+Pass the following as parameters to the <code>__init__()</code> method, and initialise the appropriate attributes.
+	<ul>
+	<li><code>id</code>, representing the student's ID</li>
+	<li><code>name</code>, representing the student's name</li>
+	<li><code>course</code>, representing the student's course</li>
+	<li><code>mark</code>, the student's mark</li>
+	</ul>
+</li>
+<li>Give the <code>Student</code> class a <code>__str__()</code> method, which returns the student details as a string.</li>
+<li>Write some code to create 5 students within a loop. Create a <code>Student</code> object each time the loop runs, using details the user entered from the keyboard. Then, still within the loop, display each student by printing it.
+</li>
+<li>Add a <code>setMark()</code> method to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid. Return a boolean to indicate whether the method was successful or not: it should return <code>True</code> if the mark was valid and <code>False</code> otherwise.</li>
+<li>Add a <code>getGrade()</code> method to <code>Student</code>. This should return the student's grade as a <em>string</em> based on the mark, according to this scheme :
+    <ul>
+    <li>70+ : First</li>
+    <li>60-69 : 2/1</li>
+    <li>50-59 : 2/2</li>
+    <li>40-49 : Third</li>
+    <li>0-39 : Fail</li>
+    </ul>
+</li>
+
+<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
+
+<li>Change the <code>Student</code> <code>__init__()</code> method so that the mark is no longer passed in as a parameter, and instead, set to 0. The idea is that <code>setMark()</code> will be used instead to set the mark.</li>
+
+<li>Test out the above methods by modifying the loop so that the mark is passed in via the <code>setMark()</code> method. When all the details have been entered, print out the student's status (grade, and whether they passed or not) by calling the <code>getGrade()</code>, and the <code>didPass()</code> methods, and printing the return value of each.</li>
+</ul>
+</body></html>
