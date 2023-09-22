@@ -172,8 +172,11 @@ any errors that might occur.</p>
 
 <ul>
 
-<li>The stack, in this case, will be implemented using an internal array of a fixed size (so the stack has a fixed capacity). This will not be the case for all stacks, but you can assume it will be in this case.</li>
-
+<li>The stack, in this case, will be implemented using an <strong>internal array</strong> of a fixed size (so the stack has a fixed capacity). This will not be the case for all stacks, but you can assume it will be in this case. The stack can be visualised as below, note the affect of the <code>push</code> and <code>pop</code> operations on the internal array.
+<br />
+<img src="../images/stack_internal_array.png" alt="Stack implemented using an internal array of fixed size" />
+<br />
+</li>
 <li>The internal array will initially be empty: each position in the array will hold nothing (in Python this is represented by the value "None").</li>
 
 <li>The push operation should add data to the next available space in the array.</li>
