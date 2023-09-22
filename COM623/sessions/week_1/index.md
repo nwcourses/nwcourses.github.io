@@ -42,9 +42,10 @@ The bundle contains **minified** JavaScript (encoded and compressed JavaScript, 
 
 > > Figure 1, a typical single page web application architecture.
 
+
 ## Why do we even need Webpack?
 
-[Task 3-7 walkthrough Video](https://solent.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=92986265-8a7d-4278-a843-ac46013224aa&autoplay=false&offerviewer=true&showtitle=true&showbrand=false&start=0&interactivity=all)
+[Task 3-7 walkthrough Video](https://solent.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=92986265-8a7d-4278-a843-ac46013224aa&autoplay=false&offerviewer=true&showtitle=true&showbrand=false&start=0&interactivity=all) - note the questions are slightly different in the video as they have been modified for this year.
 
 >> Task 3 - 7 walk through
 
@@ -64,7 +65,73 @@ Let's explore the above ideas by starting this weeks practical - a todo list app
 
 ## More on Webpack
 
-You can read more about Webpack on the [COM620 notes](https://nwcourses.github.io/COM620/week4.html).
+*This additional information, which you may find useful, was not based on Joe Appleton's notes but has been taken from the [COM620 notes](https://nwcourses.github.io/COM620/week4.html).*
+
+### Running Webpack directly on the command line 
+
+Webpack can be installed with npm. As Webpack is a development tool, you want to install it globally, so that it is accessible to all applications on your system and all users. The -g option does this. (Normally, NPM packages are only installed locally into the project that needs them, within the project's `node_modules` folder).
+
+```
+npm install -g webpack webpack-cli
+```
+
+Here is the most simple usage:
+
+```
+npx webpack index.js
+```
+
+This will take the file index.js, and any modules it uses (along with any modules used by those modules) and prepare a single output file - a bundle - which will, by default, be placed in the dist subfolder with the name main.js. This can then be used directly in the browser e.g:
+
+```html
+<script type='text/javascript' src='dist/bundle.js'></script>
+```
+
+One key advantage of using a bundler like Webpack is that the bundler automatically includes third-party NPM packages in the bundle, if they are imported in your code using the package name e.g.:
+
+### Webpack configuration
+
+Due to time constraints, we will only take a brief look at Webpack configuration. By default, Webpack will place its output in the file main.js within the dist folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.
+
+However it is possible to configure Webpack to change this behaviour, and this is done via the webpack.config.js configuration file. This is a file, itself written in JavaScript, which allows you to modify Webpack's default behaviour. Here is an example:
+
+```js
+const path = require('path');
+
+module.exports = {
+    mode: 'development',
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    }
+};
+```
+
+What is this doing?
+
+- `mode` can be either development or production. This impacts upon the amount of minifying that takes place (less in development, more in production; debugging is easier with an unminified bundle).
+
+- We specify the application's entry point (the JavaScript file where your application starts running) as ./index.js (index.js in the current folder). This means you can run Webpack with
+
+```
+npx webpack
+```
+
+rather than
+
+```
+npx webpack ./index.js
+```
+
+because the configuration file has told Webpack that the entry point of the application will be `./index.js`.
+
+We then specify some output options. Firstly, the path is the folder where the output bundle will be placed. Here, we are specifying the output is the dist subfolder of the current folder, and the filename is bundle.js. So, the resulting bundle will be named bundle.js and not main.js. In fact, bundle.js is a better name as main.js is often used for the file containing the main JavaScript code, as an alternative to index.js.
+
+The optimization options allow us to specify various ways in which the output will be optimised. Here, we are turning minification off by setting the minimize option to false. This can be useful for debugging, as you will not get helpful error messages with a minified bundle file.
 
 ## TASK 2 
 
@@ -202,13 +269,13 @@ Destructuring is a further concept that is used widely in modern JavaScript. Let
 
 - I've defined a function (`Todo`) here, using the lambda syntax. It is often called an arrow function. We looked at these last year in COM518.
 
-- The `Todo` function takes some text and a unique ID, and returns an HTML string containing the Todo item formatted as HTML. It contains a simple close button, taking the form of a `span` containing the letter `X`. Later on we will add an event handler to this, to to make that specific todo item disappear.
+- The `Todo` function takes some text and a unique ID as parameters, and returns an HTML string containing the Todo item formatted as HTML. It contains a simple close button, taking the form of a `span` containing the letter `X`. Later on we will add an event handler to this, to to make that specific todo item disappear when it is clicked. **Note how the `span` has an ID based on the todo item's numerical ID, we will need this later to identify which item was clicked.**
 
 - Add code to your `main.js` to import the default export (the `Todo` function) from `todo.js` into your `main.js`, in a similar way to how youj imported the todos array from `todolist.js`.
 
 ## Array Operations
 
-You should know what an array is - it is a data structure represented by `[]`. We have already used arrays, our todo list is an array of object literals:
+You should know what an array is - it is a data structure represented by `[]` which can be used to contain multiple items of data. We have already used arrays, our todo list is an array of object literals:
 
 ```js
 const todos = [
@@ -227,7 +294,7 @@ const todos = [
 ];
 ```
 
-Arrays, come with inbuilt operations that we can run on them. For instance, `todos.reverse()` will reverse the array for us. Some of the most useful features are operations that allow us to loop through the entire array and construct a new array. A slightly odd concept, however, one you will become very familiar with. Some key operations are `map`, `reduce`, `filter` and `find`. 
+Arrays, come with inbuilt operations that we can run on them. For instance, `todos.reverse()` will reverse the array for us. Some of the most useful features are operations that allow us to loop through the entire array and construct a new array by applying a function to each member of the array. A slightly odd concept, however, one you will become very familiar with. Some key operations are `map`, `reduce`, `filter` and `find`. 
 
 Let's consider `map` in the context of our todo list. `map` allows us to apply a specific operation to each member of an array and generate an output array.
 
@@ -237,9 +304,8 @@ const newArrayJustText = todos.map((item) => item.text);
 console.log(newArrayJustText); //  ['Complete Android Assessment','Organise Social Event'];
 ```
 
-As you can see, `map()` is a function that takes, as an argument, a function. The function, on each iteration, gets passed an array element. The function then returns the `text` property of each item in the array, so the output array contains only the `text` properties of each item. 
+As you can see, `map()` is a function that takes, as a parameter, another function. This second function, on each iteration, gets passed an array element. The function then returns the `text` property of each item in the array, so the output array contains only the `text` properties of each item. 
 
-:::tip
 
 ## TASK 5 
 
@@ -253,7 +319,6 @@ document.querySelector(".list").innerHTML = htmlList;
 - As if by magic you now have a todo list, because each item in the array is **mapped to the return value of the `Todo()` function with the `text and `id` of eah item passed in as arguments**.
 - Can you see the annoying comma that is printed to the DOM ? - work out how to remove this.
 
-:::
 
 ## Spread Operator
 
@@ -278,7 +343,6 @@ The above operates in a strange way, can you see why?
 
 It is because we create **two references to the same data in memory**. `array_1` and `array_2` are both referring to the area of memory storing the array. So if we push to `array_2`, the value actually gets added to `array_1` and `array_2` because they are pointing to the same data!
 
-:::
 
 To make a copy of an array we can use the spread operator `...` . This is how it is used:
 
