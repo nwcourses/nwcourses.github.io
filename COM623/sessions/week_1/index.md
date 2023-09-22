@@ -19,7 +19,7 @@ These should be available on the university computers.
 
 - [You will need to ensure you have the version control tool Git installed](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)    
 - You will need to ensure that you have installed [node.js](https://nodejs.org/en/)
-- While you can use any text editor for this session, I recommend that you install [VS Code](https://code.visualstudio.com/download)
+- While you can use any text editor for this session, a commonly-used IDE is [VS Code](https://code.visualstudio.com/download).
 
 ## TASK 1 
 
@@ -45,9 +45,9 @@ The bundle contains **minified** JavaScript (encoded and compressed JavaScript, 
 
 ## Why do we even need Webpack?
 
-[Task 3-7 walkthrough Video](https://solent.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=92986265-8a7d-4278-a843-ac46013224aa&autoplay=false&offerviewer=true&showtitle=true&showbrand=false&start=0&interactivity=all) - note the questions are slightly different in the video as they have been modified for this year.
+[Use of package.json and Webpack walkthrough Video](https://solent.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=92986265-8a7d-4278-a843-ac46013224aa&autoplay=false&offerviewer=true&showtitle=true&showbrand=false&start=0&interactivity=all) - note the content of `package.json` is slightly different in the video as it has been updated, but the principles are the same.
 
->> Task 3 - 7 walk through
+>> package.json and Webpack 
 
 To understand why we need a tool such as Webpack, we must first consider a modern web application architecture and the practical goals of this module.
 
@@ -147,7 +147,7 @@ and instructions to process CSS and image imports (see `rules` within `module`).
 ## TASK 2 
 
 - Clone the following repository `https://github.com/nwcourses/todo-list-tutorial`
-- Open the resulting `todo-list-tutorial` in VS code
+- Open the resulting `todo-list-tutorial` in VS code or another environment
 - Install the dependencies, `npm install`
 - Open `package.json` and work out how to run the defined scripts to:
   - run project in development mode
@@ -164,12 +164,13 @@ Once you've done this, you can run the project with:
 ```
 npm run start
 ```
-
-This will start Webpack's inbuilt server (`webpack-dev-server`) to run your application, the server will serve pages from the `dist` folder. This is configured in `webpack.config.js`, as discussed above. 
+As you can probably see from `package.json`, this will start Webpack's inbuilt server (`webpack-dev-server`) to run your application, the server will serve pages from the `dist` folder. This is configured in `webpack.config.js`, as discussed above
 
 ## ES6 modules
 
-[ES6 modules Video](https://solent.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=47179bca-5915-40c7-a6fd-ac4601322510&autoplay=false&offerviewer=true&showtitle=true&showbrand=false&start=0&interactivity=all)
+[Exercise walkthrough video](https://solent.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=47179bca-5915-40c7-a6fd-ac4601322510&autoplay=false&offerviewer=true&showtitle=true&showbrand=false&start=0&interactivity=all)
+
+*Note that some things have changed for this year compared to what is in the video, for example we are now using `npm run start` to start the Webpack dev server, not `npm run dev-server`.*
 
 ES6 modules allow us to comparmentalise our code into reusable components - let's explore this idea that is used heavily in modern JavaScript development.
 
