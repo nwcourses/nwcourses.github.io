@@ -56,8 +56,48 @@ numerical index</strong>.</p>
 </code></pre>
 </p>
 <p><img src="images/repl3.png" alt="Repl Console Output" /></p>
+<h3>Variables</h3>
+<p>An important concept in programming is that of <em>variables</em>. A variable is a "box" which can be used to hold information for later use. For example here is a simple Python program which asks the user for their name and then greets them:
+<pre>
+first_name = input("Please enter your name:")
+print("Hello " + first_name)
+</pre>
+The program prompts the user for their name, with the <code>input()</code> statement. The name is read into a <em>variable</em> called <code>first_name</code>. The variable is a "pointer" to an area of computer memory where the name is stored. Later on in the program, if we want to reference the name the user entered, we use this variable <code>first_name</code> outside quotes. So the statement:
+<pre>print("Hello " + first_name)</pre>
+will print the text "Hello" plus the value of the variable <code>first_name</code>. Note how the variable is <em>outside quotes</em>. Any text <em>inside quotes</em> is displayed literally (e.g the text "Hello") but any text <em>outside quotes</em> is interpreted as a variable.</p>
+<p>The next example uses two variables, for the first name and the last name.
+<pre>
+first_name = input("Please enter your first name:")
+last_name = input("Please enter your last name:")
+print("Hello " + first_name +" " + last_name)
+</pre>
+The <code>print()</code> statement now displays the text "Hello", plus the <code>first_name</code> variable, plus a space, plus the <code>last_name</code> variable.</p>
+<h2>Exploring arrays</h2>
+<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
+<p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to soon, but for now, <strong>I'd like you to assume it's an array</strong>. We are creating an array called <code>people</code> to hold the names of members of a team. 
+<pre><code class="python language-python">
+print("Please enter the three people in your team")
+people = [None] * 3
+people[0] = input("Please enter the first person:")
+people[1] = input("Please enter the second person:")
+people[2] = input("Please enter the third person:")
+
+print("The first person is " + people[0])
+print("The second person is " + people[1])
+print("The third person is " + people[2])
+
+</code></pre>
+</p>
+<p>Note a couple of things:</p>
+<ul>
+<li>We define the array using the statement:
+<pre>people = [None] * 3</pre>
+<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create an array with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet"). There are other ways of creating an array, but for now we will focus on this method.</li>
+<li>Note the code: <code>people[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
 <h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
-<p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
+<p>Now, imagine you want to add two more entries to the array. <em>Before trying it</em>, do you think this would work?</p>
 <pre><code class="python language-python">people[3] = input("Please enter the fourth person:") 
 people[4] = input("Please enter the fifth person:")
 </code></pre>
@@ -80,8 +120,8 @@ people[4] = input("Please enter the fifth person:")
 </ul>
 <p>This is shown in the diagram below, which returns to the original Python code example, in which team members were added to an array. Imagine we have an array with three team members, and we want to add two more members to the team. Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
 <p><img src="images/array_extension_1.png" alt="Array extension" /></p>
-<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage of arrays: insertion difficult</h3>
-<p>Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
+<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage of arrays: insertion into the middle difficult</h3>
+<p>Above we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
 For example, imagine we had an array of contacts that we wished to keep in 
 alphabetical order, e.g:</p>
 <pre><code>Alex Acland
@@ -106,7 +146,7 @@ Frances Freeman
 <p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
 <p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
 <h3 id="exercise2listscodecreatingasimpleprogrammakinguseofanlist">Creating a simple program making use of an list</h3>
-<p>Here is a program which makes use of an list. We are creating an list called <code>people</code> to hold the names of members of a team. 
+<p>Here is a reminder of the program we wrote above using an array.
 <pre><code class="python language-python">
 print("Please enter the three people in your team")
 people = [None] * 3
@@ -119,17 +159,18 @@ print("The second person is " + people[1])
 print("The third person is " + people[2])
 
 </code></pre>
-</p>
-<p>Note a couple of things:</p>
-<ul>
-<li>We define the list using the statement:
-<pre>people = [None] * 3</pre>
-<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create an list with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet"). There are other ways of creating an list, but for now we will focus on this method.</li>
-<li>Note the code: <code>people[0]</code>. This is using an list <em>index</em> - remember we discussed list indices above. Specifically this code is retrieving the member of the list with index zero.</li>
-</ul>
-<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
-<h2>Further work - Looping through lists</h2>
+The key thing to note is, actually, <strong><code>people</code> is NOT an array!</strong>. It's actually a <em>list</em>, and thus <strong>can</strong> be resized.  add new elements to a list, we use <code>append</code>. This will perform the process above, in which the list's internal array is resized, for us automatically:
+<pre>
+people.append("Tim Jones")
+people.append("Jane Smith")
 
+// This will print out "Tim Jones" and "Jane Smith"
+print("The fourth person is " + people[3])
+print("The fifth person is " + people[4])
+</pre>
+</p>
+<h2>Advanced - Looping through lists</h2>
+<p><strong>This section is not compulsory for the moment. It is provided if you want to get ahead.</strong></p>
 <p>In COM411 you will be introduced, in more detail than here, to the concept of "looping" to perform the same operation multiple times. However, because it's such a useful thing to do with data structures, I will give you a preview now of how to use <em>loops</em> to do something which each member of a list. (This work is not compulsory for this week, but is offered as an extra for those who have got through the basics).</p>
 <h3>The for (foreach) loop</h3>
 <p>
@@ -199,13 +240,13 @@ draw the second array again, with the existing members "C++", "Java", "PHP" and 
 draw the second array with the new values "JavaScript" and "Kotlin" inserted into the two spaces in the array.</li>
 </ul>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Exercise 3: Lists (code): Creating a simple program making use of a list</h3>
-<p>Write a program which creates a list with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the list appropriately.</p>
-<h3>Exercise 4: Looping through a list</h3>
+<p>Write a program which creates a list with the 10 employees mentioned in Exercise 1. The 10 names should be specified in your code - do not read them in from the user. Display "Jane Smith" and "Mike Watson" by indexing the list appropriately.</p>
+<h3>Advanced Exercise: Looping through a list</h3>
 <p>Enhance your code to loop through the list. The code should output the list in this format:
 <pre>Jane Smith is an employee of Advanced Widgets Ltd.
 Tim Wilson is an employee of Advanced Widgets Ltd.</pre>
 (etc)
 </p>
-<p><em>Advanced</em>: Ask the user to enter a name. By looping through the employees and comparing each name to the name the user entered, the program should tell the user whether the name they entered is an employee of the company or not. You will need to use an <code>if</code> statement for this but it must also contain a loop. <strong>If you do this, you will have coded your first searching algorithm, albeit a basic and not-so-efficient one!</strong></p>
+<p><em>More advanced</em>: Ask the user to enter a name. By looping through the employees and comparing each name to the name the user entered, the program should tell the user whether the name they entered is an employee of the company or not. You will need to use an <code>if</code> statement for this but it must also contain a loop. <strong>If you do this, you will have coded your first searching algorithm, albeit a basic and not-so-efficient one!</strong></p>
 </body>
 </html>
