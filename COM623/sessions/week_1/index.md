@@ -49,7 +49,7 @@ The bundle contains **minified** JavaScript (encoded and compressed JavaScript, 
 
 >> Task 3 - 7 walk through
 
-To understand why we need a tool such as Webpack, we must first consider a modern web application architecture and the practical goals of this unit.
+To understand why we need a tool such as Webpack, we must first consider a modern web application architecture and the practical goals of this module.
 
 Figure 1, represents the overarching practical project that we will be working on throughout these sessions. We are going to be creating this application on a **single page**. This type of application architecture is appropriately known as a single page application (SPA).
 
@@ -133,6 +133,17 @@ We then specify some output options. Firstly, the path is the folder where the o
 
 The optimization options allow us to specify various ways in which the output will be optimised. Here, we are turning minification off by setting the minimize option to false. This can be useful for debugging, as you will not get helpful error messages with a minified bundle file.
 
+### The webpack.config.js of the TODO application
+
+The `webpack.config.js` of the TODO application (see Task 2, below) is a little more complex as it includes instructions to start Webpack's inbuilt development server, `webpack-dev-server` from the `dist` folder. 
+
+```
+devServer: {
+  static: './dist'
+}
+```
+and instructions to process CSS and image imports (see `rules` within `module`).
+
 ## TASK 2 
 
 - Clone the following repository `https://github.com/nwcourses/todo-list-tutorial`
@@ -143,8 +154,18 @@ The optimization options allow us to specify various ways in which the output wi
   - create a development build
   - create a production build
 
+Build the project in development mode.
 
-If you open up `index.html` there is simply a placeholder div, `<div id="app"></div>` for our application. Such a set up is typical of a SPA, we have a single element that the entire application is injected into.
+If you open up `index.html` (inside `dist`) there is simply a placeholder div, `<div id="app"></div>` for our application. Such a set up is typical of a SPA, we have a single element that the entire application is injected into.
+
+
+Once you've done this, you can run the project with:
+
+```
+npm run start
+```
+
+This will start Webpack's inbuilt server (`webpack-dev-server`) to run your application, the server will serve pages from the `dist` folder. This is configured in `webpack.config.js`, as discussed above. 
 
 ## ES6 modules
 
@@ -248,12 +269,10 @@ alt="background"
 
 Destructuring is a further concept that is used widely in modern JavaScript. Let's explore this idea with a further exercise.
 
-### Tip
-
 - It would be nice to not have the majority of our functionality in `main.js` and instead, separate it out into different modules. With this in mind, let's create a separate file that is responsible for rendering a single todo item on our todo list.
   Create a new file `todo.js`.
 
-- Add the following to `todo.js` : `
+- Add the following to `todo.js` : 
 
   ```js
   const Todo = (text, id) => `<div class="outer-item" id="outer-item-${id}" >
@@ -316,7 +335,7 @@ let htmlList = todos.map((item) => Todo(item.text, item.id));
 document.querySelector(".list").innerHTML = htmlList;
 ```
 
-- As if by magic you now have a todo list, because each item in the array is **mapped to the return value of the `Todo()` function with the `text and `id` of eah item passed in as arguments**.
+- As if by magic you now have a todo list, because each item in the array is **mapped to the return value of the `Todo()` function with the `text` and `id` of each item passed in as parameters**.
 - Can you see the annoying comma that is printed to the DOM ? - work out how to remove this.
 
 
@@ -337,7 +356,7 @@ console.log(array_2);
 ```
 
 
-## TASK 6 
+### Copying an array with the spread operator
 
 The above operates in a strange way, can you see why?
 
@@ -383,7 +402,7 @@ function render(todos) {
     // substr() allows us to do this.
     //
     // FOR YOU TO DO: explain what filter() is doing and explain why we are
-    // calling render() again (Ex7)
+    // calling render() again (Task 6)
     render(tds.filter((item) => e.target.id.substr(5) != item.id));
   };
 
@@ -406,7 +425,7 @@ function render(todos) {
 }
 ```
 
-## TASK 7 
+## TASK 6 
 
 - Write down on paper what you believe `filter` and `forEach` are doing in the code above and explain why we are calling `render()` again inside `handleCloseClick()`.
 - Complete the todo list application so we can add new todos. You need to add a form with text fields and a button, create a new todo item, add it to the array of todos, and then re-render the page by calling `render()` again.
