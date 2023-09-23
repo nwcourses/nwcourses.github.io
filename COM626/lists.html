@@ -238,14 +238,17 @@ class MyAdapter(val titles: List&lt;String&gt;,
     <li><em>Title</em>: Web Application Development, <em>Description:</em> Learn about web application development, including web APIs, JSON and AJAX.</li>
     </ul>
 </li>
-<li><strong>More advanced:</strong> Modify your exercise from last week (to search for all songs by a given artist by connecting to a web API) so that the search results appear in a RecyclerView, with each list item containing:
+<li><strong>More advanced:</strong> Modify your exercise from last year to search for all songs by a given artist by connecting to a web API, so that the search results appear in a RecyclerView. If you do not have it, please clone this repository containing a working solution:
+<pre>https://github.com/nwcourses/NetworkComm</pre>
+Each list item in the RecyclerView should contain:
     <ul>
     <li>The song title as the title;</li>
     <li>The artist and year as the description.</li>
     </ul>
-You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON.<br />
+You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON. <strong>Hint:</strong> you can use <code>map()</code> to do this.<br />
 <strong>Note that if you update your adapter with new data (i.e. new song details when doing a new search) you need to call the adapter's <code>notifyDataSetChanged()</code> method to inform the adapter that the data has changed and it needs to be redrawn. For example:</strong>
 <pre>myRecyclerView.adapter.notifyDataSetChanged()</pre>
+You will also need to download the Node.js based MAD song server from last year, and run it. Download from <a href='../COM527/madsongserver.zip'>here</a>.
 </li>
 <li>Modify your answer to add a callback function when a list item is pressed. This callback can be passed in to to the adapter as a lambda function. The callback should simply display the details of the selected song as a Toast.</li>
 </ol> 
