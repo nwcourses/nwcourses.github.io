@@ -125,17 +125,6 @@ one position.</p>
 <p>We'd therefore need to implement this using a loop within a loop. The outer
 loop would be the successive iterations, whereas the inner loop would be used to perform the swapping operations of <em>one</em> particular iteration of the algorithm.</p>
 <p><strong>It should be noted that on the first iteration of the bubble sort, the largest value will be correctly in place at the end of the list. So on the second iteration, we do not need to consider the last position in the index; for example if there are 5 values, we only need to consider 4 in the second iteration. Similarly, at the end of the second iteration, the second-biggst value will be correctly placed, so on the third iteration we do not need to consider the final two values of the list.</strong></p>
-<h3 id="pseudocode">Pseudocode</h3>
-<p>A common way to represent the logic of an algorithm before actually writing it
-is known as <em>pseudocode</em>. Pseudocode looks like real code but written in
-English (or whatever language you are using) statements rather than a specific
-programming language. For example, pseudocode for bubble sort might look like
-this.</p>
-<pre><code>For i = 0 to number of itens in list minus one (outer loop)
-    For j = 0 to number of items in list minus the iteration number of the outer loop (inner loop)
-        If item at j is greater than item at j+1
-            Swap items at j and j+1
-</code></pre>
 <h4 id="swappingvariables">Swapping variables</h4>
 <p>Bubble sort (and many other sorts) require variables to be <em>swapped</em>. How
 can we do this? We would use code such as this, involving the <em>creation of a temporary variable</em>.</p>
@@ -153,13 +142,17 @@ of <code>a</code> anywhere else, so when we execute the statement <code>b = a</c
 The use of a temporary variable, as in the correct example, means we can
 store <code>a</code> before assigning the variable <code>a</code> to the value of <code>b</code>, which means
 we do not lose the original value of <code>a</code>.</p>
+<h4>Swapping shortcut in Python</h4>
+<p>However, in Python there is a shortcut for swapping variables which does this for us:
+<pre>a,b = b,a</pre>
+</p>
 <h3 id="exercise1">Exercise 1</h3>
 <p>On paper, continue the iterations of bubble sort to sort the values. After how many iterations are the values completely sorted?</p>
 <p>How could we express the time taken in terms of <code>n</code>, i.e. the number of items
 in the list?</p>
 <p>What, therefore, would be the complexity in Big O notation of this algorithm, where <code>n</code> is the number of values in the list? </p>
 <h3 id="exercise2">Exercise 2</h3>
-<p>Using the pseudocode for bubble sort, plus the code for swapping variables, above, have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place.</p>
+<p>Have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place. <strong>If you are struggling, try writing it in pseudocode first.</strong></p>
 <h2 id="efficientsearchingavoidingbruteforcealgorithms">Efficient searching - avoiding brute-force algorithms</h2>
 <p>As we saw above, searching through a list is an <code>O(n)</code> operation, as the worst-case scenario performance will be linearly proportional to the length of the list. We have to loop through each member of the list until we find the item that we are looking for, which, if near the end of the list, may take some time. </p>
 <p>This approach is known as <em>brute-force</em>. Brute-force algorithms attempt to find an answer through testing every possibility (here, every item in the list) and do not try to use any optimisations or more efficient techniques. Another example of a brute-force algorithm would be trying to find the factors of a number (factors of a number are every integer that the number can be divided by to give a further integer, for example the factors of 24 are 2, 3, 4, 6, 8 and 12). What we could do in a brute-force algorithm is to divide the number by every integer from 2 to the number to see if we get an integer as a result. This works, but is not efficient (<code>O(n)</code> with respect to the number). </p>
@@ -214,7 +207,11 @@ as 64, and imagine it's a worst-case scenario, where we have to narrow down to o
 <p>So the length of the portion under search decreases from 64-32-16-8-4-2-1 in each iteration of the list. In other words, assuming the list length is an exact power of two, the number of iterations will be <code>log n + 1</code> (+1 because we also check a list of length 1 as well as the various powers of two; the lengths in each subsequent iteration are 2^6, 2^5, 2^4, 2^3, 2^2, 2^1 and 2^0 - i.e. 1). But as we saw last week, we only need to take the most significant term of the complexity and can discard the <code>+1</code> (as we are interested in the general behaviour of algorithms at large <code>n</code>, not the <em>exact</em> complexity) - giving us <code>O(log n)</code>.</p>
 <p>Likewise, for a value <code>n</code> between <code>2^p</code> and <code>2^(p+1)</code>, the number of iterations will be <code>p-1</code>, or <code>log(floor(n))-1</code> - but again we can simplify to <code>O(log n)</code>. (For example, try repeating the above on a list of length 63, a value between 32 and 64, and you find that only six iterations are needed, as the length of the portion being searched will decrease 63-31-15-7-3-1).</p>
 <h3>Exercise 3</h3>
-<p>Implement binary search in Python. If you are struggling, try using pseudocode first.</p>
+<ol>
+<li>What variables are needed for a binary search algorithm?</li>
+<li>Binary search should be implemented using a <code>while</code> loop. What condition, involving the variables in question 1, will be true when the binary search ends? This condition should be used in your <code>while</code> loop.</li>
+<li>Implement binary search in Python. If you are struggling, try using pseudocode first.</li>
+</ol>
 <h2 id="furtherreading">Further reading</h2>
 <ul>
 <li><a href="https://www.toptal.com/developers/sorting-algorithms">Toptal, Sorting Algorithms Animations</a></li>
