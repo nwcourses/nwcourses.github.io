@@ -263,22 +263,22 @@ class TreeNode:
 </li>
 <li>Create a BinaryTree class with one attribute, <em>root</em> (the root
 node of the tree) 
-and two methods: insert(), which adds an int value to 
+and two methods: insertNode(), which adds a value to 
 the tree, and
-print_from(), which prints out a part of the tree starting at a given node.</li>
-<li>Implement an <em>insert()</em> method in BinaryTree. 
+printFrom(), which prints out a part of the tree starting at a given node. These two methods should initially be blank (e.g. containing just <code>pass</code>).</li>
+<li>Implement the <em>insertNode()</em> method in BinaryTree. 
 This should take one parameter: the value to insert, 
 and do the following:
     <ul>
     <li>If the root node already exists, insert the value into the root
-    node by calling the root node's <em>insert()</em> method, see below. This
+    node by calling the root node's <em>setChild()</em> method, see below. This
     will recursively search the tree for an appropriate node to add the value,
     as discussed above.  </li>
     <li>If it doesn't exist, create the root node and set the root node's
     value to the value passed in.</li>
     </ul>
 </li>
-<li>Write an <em>insert()</em> method in the <em>TreeNode</em> class. This 
+<li>Write an <em>setChild()</em> method in the <em>TreeNode</em> class. This 
 should:
         <ul>
         <li>See if the value is less than or greater than the current
@@ -288,7 +288,7 @@ should:
         create a node storing the value
         passed in. If there is a left child node, then we'll have to pass the
         value onto it. So, recursively
-        call the <em>insert()</em> method on the left node. The effect of this
+        call the <em>setChild()</em> method on the left node. The effect of this
         will be to search the tree to find a suitable node to insert the 
         value.</li>
         <li>If the value is greater than the current value, do the same but
@@ -297,16 +297,15 @@ should:
     </li> 
     </ul>
 </li>
-<li>Implement the <em>print_from()</em> method. This should take a 
-parameter which represents the node to start printing from,
+<li>Implement a <em>printFrom()</em> method in <em>BinaryTree</em>. This should take a parameter which represents the node to start printing from,
 initially the root node.
     <ul>
     <li>Declare a variable which represents the 
     current node. Set this initially to the root node.</li>
-    <li>Recursively call <em>print_from()</em> on the left node, if the
+    <li>Recursively call <em>printFrom()</em> on the left node, if the
     left node exists (i.e. is not None)</li>
     <li>Print the value in the node.</li>
-    <li>Recursively call <em>print_from()</em> on the right node, if the
+    <li>Recursively call <em>printFrom()</em> on the right node, if the
     right node exists (i.e. is not None)</li>
     </ul>
 This will print the whole tree, and nicely illustrates the power of recursion!
