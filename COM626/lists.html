@@ -24,14 +24,14 @@ android:layout_width="match_parent"
 android:layout_height="0px" 
 app:layout_constraintBottom_toBottomOf="parent"
 app:layout_constraintTop_toTopOf="parent"
-android:id="@+id/poiListView"/&gt;</pre>
+android:id="@+id/moduleListView"/&gt;</pre>
 </li>
 <li>When using a recycler view you have to specify its layout using
 a LayoutManager, e.g. <em>LinearLayoutManager</em> will specify that the
 items are arranged linearly (vertically):
 <pre>// This code is in the onCreate() of the Activity
-val poiListView = findViewById&lt;RecyclerView&gt;(R.id.poiListView)
-poiListView.layoutManager = LinearLayoutManager(this)</pre>
+val moduleListView = findViewById&lt;RecyclerView&gt;(R.id.moduleListView)
+moduleListView.layoutManager = LinearLayoutManager(this)</pre>
 </li>
 <li>To use RecyclerView you must include it in your build.gradle 
 dependencies, as it's a Jetpack library:
@@ -68,9 +68,9 @@ data set.</li>
 </ul>
 </li>
 <li>Link the Adapter to your recycler view, e.g. if <em>MyAdapter</em> is
-your adapter class and <em>poiListView</em> is a variable containing your 
+your adapter class and <em>moduleListView</em> is a variable containing your 
 RecyclerView, you could add code such as this to the <em>onCreate()</em> of your Activity to link the Adapter to the RecyclerView:
-<pre>poiListView.adapter = MyAdapter(..)</pre>
+<pre>moduleListView.adapter = MyAdapter(..)</pre>
 </li>
 </ul>
 <h3>Full example of adapter</h3>
@@ -96,8 +96,8 @@ class MyAdapter(val titles: List&lt;String&gt;,
         // Inflate the child elements of the View and store them as properties,
         // so we have easy access to them later
 
-        val tvName = itemView.findViewById(R.id.poiName) as TextView
-        val tvDescription = itemView.findViewById(R.id.poiDescription) as TextView
+        val tvName = itemView.findViewById(R.id.moduleName) as TextView
+        val tvDescription = itemView.findViewById(R.id.moduleDescription) as TextView
     }
 
     // onCreateViewHolder() - called when a ViewHolder is first created.
@@ -170,9 +170,9 @@ android:layout_width="match_parent"
 android:layout_height="wrap_content"&gt;
 
 &lt;TextView android:layout_width="match_parent" 
-android:layout_height="wrap_content" android:id="@+id/poiName" android:textSize="12pt" /&gt;
+android:layout_height="wrap_content" android:id="@+id/moduleName" android:textSize="12pt" /&gt;
 
-&lt;TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/poiDescription" android:textSize="10pt" /&gt;
+&lt;TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/moduleDescription" android:textSize="10pt" /&gt;
 
 &lt;/LinearLayout&gt;</pre>
 </li>
@@ -204,8 +204,8 @@ class MyAdapter(val titles: List&lt;String&gt;,
     RecyclerView.Adapter&lt;RecyclerView.ViewHolder&gt;() {
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvName = itemView.findViewById(R.id.poiName) as TextView
-        val tvDescription = itemView.findViewById(R.id.poiDescription) as TextView
+        val tvName = itemView.findViewById(R.id.moduleName) as TextView
+        val tvDescription = itemView.findViewById(R.id.moduleDescription) as TextView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType:Int) : RecyclerView.ViewHolder {
@@ -245,7 +245,12 @@ Each list item in the RecyclerView should contain:
     <li>The song title as the title;</li>
     <li>The artist and year as the description.</li>
     </ul>
-You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON. <strong>Hint:</strong> you can use <code>map()</code> to do this.<br />
+You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to pass two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON. 
+	<ul>
+	<li><strong>Hint:</strong> you can use <code>map()</code> to do this: see <a href='https://nwcourses.github.io/COM527/topic1a.html'>the additional Week 1 notes from last year.</a></li>
+	<li><strong>If you use my example code, or you used GSON, your life is easier because you have a <code>Song</code> class that you can use in your adapter. So your adapter should just contain a single list: a list of Song objects. You can obtain the title, artist and year from each Song in the list.</strong>
+	</li>
+	</ul>
 <strong>Note that if you update your adapter with new data (i.e. new song details when doing a new search) you need to call the adapter's <code>notifyDataSetChanged()</code> method to inform the adapter that the data has changed and it needs to be redrawn. For example:</strong>
 <pre>myRecyclerView.adapter.notifyDataSetChanged()</pre>
 You will also need to download the Node.js based MAD song server from last year, and run it. Download from <a href='../COM527/madsongserver.zip'>here</a>.
