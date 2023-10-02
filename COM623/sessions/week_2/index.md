@@ -10,16 +10,16 @@ By the end of this week you should be able to address the following questions:
 
 - What is JSX?
 
-- How can we iterate over a list to output components?
-
 - How do you create a compositional component and what is the point?
+
+- What is React state? (we will explore this more next week)
 
 
 ## Why React
 
 React is one of the leading JavaScript libraries for building web user interfaces.
 
-According to the [React](https://reactjs.org/) documentation, "it makes it painless to create interactive UIs." Having used React in a production business environment I certainly agree with this sentiment.
+According to the [React](https://reactjs.org/) documentation, "it makes it painless to create interactive UIs." 
 
 Speaking broadly, React offers the following benefits:
 
@@ -358,4 +358,78 @@ export default Tile;
 
 The goal of tile is to wrap it around another element or component, it would work like this: `<Tile> <SomeElement/> </Tile>`. This can be achieved by taking advantage of the fact that React injects `<SomeElement/>` into the 'children' property of our `props` object. More generally, the `children` property of the `props` is **an array of all the child components of a given React component**.
 
+### Exercise 6
+
 See if you can work out how to update `<Welcome>` so `<Tile>` is wrapped around it.
+
+## Introduction to React State
+
+React components use the concept of state. A React component can store data it needs to do its job in a group of state variables, which can be retrieved when methods of the component are called. This is central to how React works. We store the application's data in its state, and describe the components to be rendered using a mix of HTML and state variables. The result will be that when we update the state, the application will be automatically re-rendered to use the current values stored in the state. Thus, we do not have to manually update the UI each time the application's data changes. 
+
+For example here is a simple component which allows the user to enter a name and updates a greeting message with the most recent name that was entered. The name is stored in **state**.
+
+```javascript
+import React from 'react';
+
+function InteractiveGreeting() {
+
+    const [name,setName] = React.useState("No name");
+
+    return(
+        <div>
+        <h2>Enter your name</h2>
+        <input id='txtName' />
+        <div id='hello'>Hello {name}</div>
+        <input type='button' value='update' onClick={updateStateName} />
+        </div>
+    );
+
+    function updateStateName() {
+        setName(document.getElementById('txtName').value);
+    }
+}
+
+export default InteractiveGreeting;
+
+```
+To explore this in detail:
+The line:
+
+```javascript
+const[name, setName] = React.useState("No name");
+```
+
+sets up a state property called `name` and sets it up to initially contain the value "No name". It also creates a function `setName()` which is used to update the state; this function is created for you automatically in the background. `React.useState()` always returns an array containing a state variable and a matching function to update it. Note the destructuring syntax:
+
+```javascript
+const [name, setName] = ....;
+```
+
+This causes the array returned by React.useState() to be destructured into two individual variables, `name` and `setName`.
+
+Multiple state variables can be setup in this way, and each state variable has a corresponding set method to update that state variable.
+Note how the content of the `div` with the ID `hello` is set to the state variable `name`. The interesting thing here is that whenever the `name` property of the state changes, the `div` will be automatically updated, as `name` always refers to the current state. This shows how state can be more useful than just storing the name in a regular variable, in which case this auto-update would not happen. Essentially we are **binding** the `div` to the state variable `name`, ensuring that the `div` is always displaying the current name.
+
+But how do we update the state? Hopefully you can see that we handle a click event on the button within the component, and call a custom function `updateStateName()` when it's clicked. If you look at this function (within our component), you can see that it uses `setName()` - the setter function we obtained from `React.useState()` - to update the state to the contents of the form field with the ID `txtName`.
+
+So the end result will be that the `div` keeps in sync with whatever the user enters in the text field. This automatic update of the UI to reflect current state is possibly the most fundamental principle of React.
+
+### Event handling the React way
+
+The above example included code to handle a click event on a button. In React, the convention used for event handling is to set up an event handler in the HTML rather than using `addEventListener()`. This is done in a component's JSX, not the HTML of the web page, so the actual main HTML page remains free of JavaScript.
+
+Note also how the event is onClick, not onclick; React uses the convention for event handling of capitalising the first letter of the event type.
+
+The handler for `onClick` is the `updateStateName` function: as `updateStateName` is a variable within JSX, we have to surround it with braces.
+
+```html
+<input type='button' value='update' onClick={updateStateName} />
+```
+
+
+### Exercise 7
+
+Try out the above example.
+- Change the `InteractiveGreeting` component so the default name is passed through as a prop.
+- Also allow the contents of the `h2` heading to be specified as a second prop.
+
