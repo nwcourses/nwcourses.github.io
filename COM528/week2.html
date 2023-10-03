@@ -35,7 +35,7 @@ public class Cat
         this.weight--;
     }
 
-    public void display()
+    public String toString()
     {
         System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
     }
@@ -56,17 +56,17 @@ public class CatApp
         Cat clyde = new Cat ("Clyde", 2, 5);
         Cat binnie = new Cat ("Binnie", 5, 4);
         
-        clyde.display();
-        binnie.display();
+        System.out.println(clyde);
+        System.out.println(binnie);
         
         clyde.walk();
         binnie.walk();
         
-        clyde.display();
-        binnie.display();
+        System.out.println(clyde);
+        System.out.println(binnie);
         
         clyde.walk();
-        clyde.display();
+        System.out.println(clyde);
     }
 }
 </pre>
@@ -74,6 +74,16 @@ public class CatApp
 <p>This is common practice and is known as <em>encapsulation</em>. Encapsulation means to keep the inner workings of the class hidden from the outside world, and control access to those inner workings
 by means of the methods, which act as "gateways" between the outside world and the interior of the class.
 </p>
+<h4>Use of toString()</h4>
+<p>Note that the <code>display()</code> method has been replaced by a <code>toString()</code> method. What does this do? It <em>returns</em> the details of the cat as a String, rather than printing it. Why is that better? It gives more flexibility to the code using the class: it allows the code using the Cat class (<code>CatApp</code> in this case) to choose how to display it, which may not be via <code>System.out.println</code>. For example, a Java web application (which we are looking at later) does not use <code>System.out.println()</code> to display things.</p>
+<p>Note also how we are printing the cats directly:
+<pre>
+System.out.println(clyde);
+System.out.println(binnie);
+</pre>
+When we do this, <code>toString()</code> is used to figure out how to display the cat (or, in general, whatever object we're trying to print).</p>
+<p>For the flexibility reason above, <strong>you should in general use <code>toString()</code> rather than trying to write methods which print to the console.</strong>. It allows your code to be used in non-console environments, e.g. web or Android.</p>
+<h4>Why perform encapsulation?</h4>
 <p>Why is encapsulation performed? Consider this new version of the Cat class:
 <pre>
 public class Cat
@@ -101,7 +111,7 @@ public class Cat
         
     }
 
-    public void display()
+    public String toString()
     {
         System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
     }
@@ -171,7 +181,7 @@ public class Cat
         
     }
 
-    public void display()
+    public String toString()
     {
         System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
     }
@@ -284,7 +294,7 @@ public class Cat
         }
     }
 
-    public void display()
+    public String toString()
     {
         System.out.println("Name: " + this.name + " Age: " + this.age + " Weight: " + this.weight);
     }
@@ -299,9 +309,9 @@ public class CatAppWithParameters
         Cat sniffy = new Cat ("Sniffy", 10, 10);
         
         sniffy.walk (5);
-        sniffy.display();
+        System.out.println(sniffy);
         sniffy.walk (3);
-        sniffy.display();
+        System.out.println(sniffy);
     }
 }
 </pre>
@@ -357,9 +367,9 @@ public class Vehicle
         System.out.println(&quot;Moving along...&quot;);
     }
 
-    public void print()
+    public String toString()
     {
-        System.out.println( &quot;Make : &quot; + make + &quot;\nTop speed: &quot; + 
+        return( &quot;Make : &quot; + make + &quot;\nTop speed: &quot; + 
             topSpeed + &quot;\nno. wheels: &quot; + nWheels);
     }
 }
@@ -408,15 +418,14 @@ public class Car extends Vehicle
         engineRunning = false;
     }
 
-    <em>// Print the car. Note the use of super.print() to</em>
-    <em>// call the superclass (Vehicle) version of print() to print the</em>
+    <em>// Return string representing the car. Note the use of super.toString() to</em>
+    <em>// call the superclass (Vehicle) version of toString() to print the</em>
     <em>// make, top speed and number of wheels.</em>
-    public void print()
+    public String toString() 
     {
-        super.print();
-        System.out.println(&quot; Engine running? 
+        return super.toString() + " Engine running? 
                     &quot; + engineRunning + &quot;\nEngine capacity: &quot; +
-                            engineCapacity);
+                            engineCapacity;
     }
 }
 </pre>
@@ -440,12 +449,11 @@ public class Bike extends Vehicle
         this.nGears = nGearsIn;
     }
 
-    public void print()
+    public String toString() 
     {
-       super.print();
-       System.out.println(&quot; Off road? &quot; + 
+       return super.toString() + &quot; Off road? &quot; + 
                             isOffRoad + &quot;\nNo. Gears: &quot; +
-                            nGears);
+                            nGears;
     }
 }
 
@@ -456,8 +464,8 @@ public class InheritanceTestApp
         Car c= new Car(&quot;Ford&quot;,120,2000);
         Bike b = new Bike(&quot;Raleigh&quot;,30,true,27);
 
-        c.print();
-        b.print();
+        System.out.println(c);
+        System.out.println(b);
 
         c.move();
         c.start();
@@ -485,8 +493,8 @@ public class InheritanceTestApp
     passed to <code>super()</code>: because we always pass 4 for the number of wheels, the
     <code>nWheels</code> attribute will always be initialised to 4 for Cars.</li>
     <li>We do something similar in Bike, but in this case, we always pass 2 for the number of wheels.</li>
-    <li>Notice also how we call the superclass version of print() in the
-    subclass version using <code>super.print()</code></li>
+    <li>Notice also how we call the superclass version of toString() in the
+    subclass version using <code>super.toString()</code></li>
     </ul>
 </p>
 
@@ -506,9 +514,9 @@ This will mean that:
     will be called, because we did not override it in Bike</li>
     </ul>
 </p>
-<p>In the same way, <code>print()</code> is overridden in both Car and Bike. However, unlike for 
-<code>move()</code>, the overridden version of <code>print()</code> calls the original, Vehicle version of
-<code>print()</code> using the super keyword: <code>super.print();</code>.</p>
+<p>In the same way, <code>toString()</code> is overridden in both Car and Bike. However, unlike for 
+<code>move()</code>, the overridden version of <code>toString()</code> calls the original, Vehicle version of
+<code>toString()</code> using the super keyword: <code>super.toString();</code>.</p>
 <h3>Abstract classes</h3>
 <p>You also met <em>abstract classes</em> in COM411. An abstract class is a class that will never be instantiated; it serves only to be the superclass of inherited classes, and to provide common data and methods. Abstract classes typically contain <em>abstract methods</em>, which are methods containing no code; they will be overridden in subclasses. For example we could have an <code>Animal</code> abstract class with a <code>makeNoise()</code> abstract method (as there is no default noise made by a generic Animal!):
 <pre>
@@ -557,13 +565,17 @@ public class Dog extends Animal
 </p>
 <h2>Exercises</h2>
 <ol>
-<li>Update your Cat project from last week to use the "Passing parameters to methods" example, above. Also add your <code>eat()</code> method, from last week, to it. Modify the Cat's <code>eat()</code> method so that the weight can never go above 20. Print a suitable error
+<li>Update your Cat project from last week by adding the <code>walk()</code> method from the "Passing parameters to methods" example, above, to your <code>Cat</code> class. Also modify the Cat's <code>eat()</code> method so that the weight can never go above 20. Print a suitable error
 message if an attempt is made to increase the weight beyond that amount.</li>
+
+<li>Change the <code>display()</code> method to a <code>toString()</code> method, as in the example above.</li>
 
 <li>Modify your Cat's <code>eat()</code> method further, so that it now takes a parameter of <code>amount</code>.
 The weight should increase by the specified amount.</li>
 
 <li>Return to your Student project from last week. Add three simple getter methods, <code>getName()</code>, <code>getCourse()</code> and  <code>getMark()</code> method to your <code>Student</code> class. These should simply return the appropriate attribute.</li>
+
+<li>Change <code>printDetails()</code> to a <code>toString()</code> method which returns the details as a string.</li>
 
 <li>Add a <code>setMark()</code> method to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid.</li>
 
@@ -579,7 +591,9 @@ The weight should increase by the specified amount.</li>
 
 <li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
 
-<li>Change the <code>Student</code> constructor so that the mark is no longer passed in as a parameter, and instead, set to 0. The idea is that <code>setMark()</code> will be used instead to set the mark.</li>
+<li>Change the <code>Student</code> constructor so that the mark is no longer passed in as a parameter, and instead, set the mark to 0. The idea is that <code>setMark()</code> will be used instead to set the mark later</li>
+
+<li>Replace the <code>printDetails()</code> method with a <code>toString()</code> method.</li>
 
 <li>Test out the above methods by modifying the <code>main()</code> method of your existing program so that:
 
