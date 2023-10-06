@@ -30,7 +30,7 @@ Provisional, subject to change.
 | ---- | -------------------------------------------- |
 | Week | Topic                                        |
 | 1    | [The latest version of JavaScript](sessions/week_1/)             |
-| 2 .  | Introduction to React                        |
+| 2 .  | [Introduction to React](sessions/week_2/)                       |
 | TBC  | Further React                                |
 | TBC  | Next.js                                      |
 | TBC  | Firebase                                     |
