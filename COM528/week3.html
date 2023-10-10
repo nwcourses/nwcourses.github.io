@@ -35,9 +35,9 @@ public class Product
         quantityInStock = quantityIn;
     }
     
-    public void print()
+    public String toString() 
     {
-        System.out.println("Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock);
+        return "Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock;
     }
 }
 </pre>
@@ -63,7 +63,7 @@ public class ArrayListApp
         for(int count=0; count&lt;products.size(); count++)
         {
             Product currentProduct = products.get(count);
-            currentProduct.print();
+            System.out.println(currentProduct);
         }
     }
 }
@@ -112,13 +112,13 @@ public class ArrayListExample1
         
         for(int count=0; count&lt;products.size(); count++)
         {
-            products.get(count).print();
+            System.out.println(products.get(count));
         }
     }
 }
 </pre>
 Note how, rather than creating three variables <code>product1</code>, <code>product2</code> and <code>product3</code>, we <em>create the product objects and add them to the array list in one statement</em>. This is perfectly acceptable as the <code>add()</code> method of the ArrayList is expecting a <code>Product</code> object as a parameter - and we are giving it one.</p>
-<p>Note also how we combine two statements into one in the for loop. Rather than storing the current member of the ArrayList in a variable called <code>currentProduct</code> and then calling the <code>print()</code> method on <code>currentProduct</code>, we call the <code>print()</code> method directly on the return value of <code>products.get(count)</code>. Since <code>products.get(count)</code> gives us a Product object, this is, again, acceptable.</p>
+<p>Note also how we combine two statements into one in the for loop. Rather than storing the current member of the ArrayList in a variable called <code>currentProduct</code> and then print it directly using the return value of <code>products.get(count)</code>. Since <code>products.get(count)</code> gives us a Product object, this is, again, acceptable.</p>
 <h2>Aggregation</h2>
 
 <p>So far we have considered single objects, or objects within arrays or ArrayLists. However, real object-oriented systems typically have <em>many objects interacting with one another</em>. A common scenario is to have <em>objects within other objects</em> and this is called <em>aggregation</em>. </p>
@@ -145,20 +145,21 @@ public class Product
         quantityInStock = quantityIn;
     }
     
-    public void print()
+    public String toString() 
     {
-        System.out.println("Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock);
+        return "Name=" + name + " Price=" + price + " Quantity in stock=" + quantityInStock;
     }
     
-    public void sell()
+    public boolean sell()
     {
         if(quantityInStock &gt; 0)
         {
             quantityInStock--;
+            return true;
         }
         else
         {
-            System.out.println("Insufficient quantity in stock");
+            return false;
         }
     }
     
@@ -202,17 +203,16 @@ public class Shop
         return null;
     }
     
-    public void sellProduct (String productName)
+    public boolean sellProduct (String productName)
     {
         Product p = this.searchForProduct (productName);
         if (p != null)
         {
-            p.sell();
-            p.print();
+            return p.sell();
         }
         else
         {
-            System.out.println("No product with that name");
+            return false;
         }
     }
 }
@@ -228,9 +228,11 @@ public class ShopTestApp
         shop.addProduct (new Product ("Cheese", 1.99, 10));
         shop.addProduct (new Product("Milk", 0.50, 20));
         shop.addProduct (new Product("Bread", 1.19, 15));
-        
-        shop.sellProduct("Cheese");
-        shop.sellProduct("Spam");
+       
+        boolean cheeseSellStatus = shop.sellProduct("Cheese"); 
+        System.out.println(cheeseSellStatus ? "Cheese sold" : "Cheese could not be sold");
+        boolean spamSellStatus = shop.sellProduct("Spam"); 
+        System.out.println(spamSellStatus ? "Spam sold" : "Spam could not be sold");
     }
 }
 </pre>
@@ -262,15 +264,22 @@ How is this working?
     </li>
     </ul>
 </p>
+<h3>Returning boolean status codes to indicate success or failure</h3>
+<p>You'll also notice in the above code that <code>sell()</code> and <code>sellProduct()</code> do not use a <code>System.out.println</code> to inform the user of success or otherwise. Instead, they <em>return a boolean</em>. This boolean status code is then used in the <code>main()</code> to print an appropriate message.</p>
+<p><strong>Why is this done?</strong> It's the same reason we used <code>toString()</code> last week. It increases the <strong>reusability</strong> of our code, in that it can now be used in non-console applications such as web applications or Android apps, where <code>System.out.println()</code> cannot be used. The equivalent of <code>main()</code> in these apps could test the boolean return code and display an appropriate message in an appropriate format. Also it means that different console-mode applications which use our code can display their own message rather than a hard-coded message within <code>Product</code> or <code>Shop</code>.</p>
+<p>Also note this code in the <code>main()</code>:
+<pre>boolean cheeseSellStatus = shop.sellProduct("Cheese"); 
+System.out.println(cheeseSellStatus ? "Cheese sold" : "Cheese could not be sold");</pre>
+What is this? It is a concise version of an <code>if</code> statement using the <em>ternary operator</em> (?). It means: if <code>cheeseSellStatus</code> is <code>true</code>, print "Cheese sold", otherwise, print "Cheese could not be sold".</p>
 <h2>Exercises</h2>
 <ol>
 <li><em>ArrayLists:</em> Return to your <code>Student</code> example from previous weeks. In your <code>main()</code>, create a <code>ArrayList</code> of students, and in the loop, add each <code>Student</code> objects to the <code>ArrayList</code> as soon as you create it. Then, when all students have been entered, write a second loop to loop through the array list and display each student in turn.</li>
 <li><em>Aggregation:</em> Create a completely new project (<code>AggregationApp</code>), and add your <code>Student</code> class to it, as well as a main class. Rather like the <code>Shop</code> in the example, create a <code>University</code> class. The <code>University</code> should contain, as an attribute, an <code>ArrayList</code> of <code>Student</code>s. The <code>University</code> should include these methods:
-	<ul>
-	<li><code>enrolStudent()</code> - this should add a new student to the university by adding it to the array list.</li>
-	<li><code>findStudentById()</code> - this should find a single student by student ID. If no student with that ID can be found, it should return <code>null</code>.</li>
-	<li><code>findStudentsByName()</code> - this should find <em>all</em> students that have a particular name. It should return an <code>ArrayList</code> of all matching students. To do this, you will need to declare an <code>ArrayList</code> in the method, loop through all students, and add any students with that name to the <code>ArrayList</code> before returning it at the end.</li>
-	</ul>
+    <ul>
+    <li><code>enrolStudent()</code> - this should add a new student to the university by adding it to the array list.</li>
+    <li><code>findStudentById()</code> - this should find a single student by student ID. If no student with that ID can be found, it should return <code>null</code>.</li>
+    <li><code>findStudentsByName()</code> - this should find <em>all</em> students that have a particular name. It should return an <code>ArrayList</code> of all matching students. To do this, you will need to declare an <code>ArrayList</code> in the method, loop through all students, and add any students with that name to the <code>ArrayList</code> before returning it at the end.</li>
+    </ul>
 In your <code>main()</code>, create a <code>University</code> object. Then, develop a simple menu-driven application to add and search for students. The menu should look like this:
 <pre>
 1. Add a student
@@ -279,11 +288,11 @@ In your <code>main()</code>, create a <code>University</code> object. Then, deve
 4. Quit
 </pre>
 You will need a <code>String</code> variable to read in the user's menu choice. Add a <code>while</code> loop which keeps looping until this variable has the value "4". Inside the loop, test which option the user entered, and either:
-	<ul>
-	<li> add a student (by reading in the student details, creating a <code>Student</code> object and adding it to the <code>University</code>),</li>
-	<li>search for a student using their ID (printing out the found student), or</li>
-	<li>search for all students with a given name, printing out the results.</li>
-	</ul>
+    <ul>
+    <li> add a student (by reading in the student details, creating a <code>Student</code> object and adding it to the <code>University</code>),</li>
+    <li>search for a student using their ID (printing out the found student), or</li>
+    <li>search for all students with a given name, printing out the results.</li>
+    </ul>
 </li>
 </ol>
 
