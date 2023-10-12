@@ -57,7 +57,7 @@ function InteractiveGreeting() {
 export default InteractiveGreeting; 
 ```
 
-Note how the text field now has an `onChange` event handler, which is the updateStateName()` method of the component. In `updateStateName()` we use the `setName()` method, remember that when we create the hook we obtain a series of variables, the state variable and a setter to update the state with.
+Note how the text field now has an `onChange` event handler, which is the `updateStateName()` function of the component. In `updateStateName()` we use the `setName()` method, remember that when we create the hook we obtain a series of variables, the state variable and a setter to update the state with.
 
 Note that you must use the setter method to update the state; do not modify the state variable directly.
 
@@ -94,7 +94,7 @@ import React from 'react';
 
 let taskId = 1;
 
-function TodoComponent({store}) {
+function TodoComponent({title}) {
     const [todo, setTodo] = React.useState([]);
 
 
@@ -103,7 +103,7 @@ function TodoComponent({store}) {
     return (
             <div>
 
-            <h1>{store}</h1>
+            <h1>{title || 'My Todo List'}</h1>
 
             <div>
             <h2>Add something to your todo list</h2>
@@ -169,6 +169,7 @@ We will illustrate this with a simpler example. This example contains three comp
 - a `GreetingComponent` to show a greeting to the user (using the name input in the `InputComponent`);
 - an `AppComponent` to manage the application as a whole and to store the state. The name entered in the `InputComponent` will be "lifted up" to the `AppComponent`.
 
+#### AppComponent
 
 ```javascript
 import React from 'react';
@@ -192,6 +193,7 @@ function AppComponent({title, defaultName}) {
 export default AppComponent;
 ```
 
+#### InputComponent
 
 ```javascript
 import React from 'react';
@@ -216,6 +218,8 @@ function InputComponent({title, passBackUserInput}) {
 export default InputComponent;
 ```
 
+#### GreetingComponent
+
 ```javascript
 import React from 'react';
 
@@ -229,6 +233,8 @@ export default GreetingComponent;
 ```
 
 What is happening here? The diagram gives a general idea:
+
+![Lifting up state](../../../images/liftingstate.png)
 
 Firstly note the parent component, `AppComponent`. Note that the parent component stores the name in its state. Note how the name is passed down to the two sub-components, `InputComponent` and `GreetingComponent`, as their props. In a similar way to the text field value being tightly bound to the state, this will tightly bind the props of the sub-components to the state of the parent.
 
