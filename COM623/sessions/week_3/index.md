@@ -225,7 +225,7 @@ import React from 'react';
 
 function GreetingComponent({name}) {
     return (
-        <div style={{border: '1px solid black'}}>{name}</div>
+        <div>{name}</div>
     )
 }
 
@@ -258,6 +258,6 @@ Thus, this prop, i.e. `passBackUserInput()`, can be called as a method from the 
 ```
 https://hikar.org/webapp/temp/artist/Beatles
 ```
-Using a combination of lifting up state and AJAX (see [last year](https://nwcourses.github.io/COM528) ) write a React app containing one component allowing the user to enter an artist, and another component to display the results.
+Using a combination of lifting up state and AJAX (see [last year](https://nwcourses.github.io/COM518) ) write a React app containing one component allowing the user to enter an artist, and another component to display the results.
 
 
