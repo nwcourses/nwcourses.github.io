@@ -70,6 +70,31 @@ cat2.eat()
 <pre><code class="python language-python">print(cat1.weight)
 print(cat2.weight)
 </code></pre>
+<h3>Methods with Parameters</h3>
+<p>
+<pre><code class="python language-python">class Cat:
+    def __init__(self, name, age, weight):
+        self.name = name
+        self.age = age
+        self.weight = weight
+
+    def eat(self, <em>amount</em>):
+        self.weight += amount
+</code></pre>
+In many cases, we need to <em>pass information in to a method</em> to tell it what to do. For example, it would be useful if we could tell the <code>eat()</code> how much food the cat needs to eat. We do this by specifying one or more <em>parameters</em> in the method, separated by commas. So:
+<pre>def eat(self, amount)</pre>
+includes a parameter <code>amount</code> specifying how much food the cat should eat. We then use that in our statement to increase the weight, by increasing it by <code>amount</code>:
+<pre>self.weight += amount</pre>
+When calling the method, we then specify the parameter, e.g:
+<pre>
+cat1 = Cat("Flathead", 3, 4)
+cat2 = Cat("Cupra", 2, 3)
+cat1.eat(<em>3</em>)
+cat2.eat(<em>2</em>)
+print(cat1.weight)
+print(cat2.weight)
+</pre>
+</p>
 <h3 id="exercise1">Exercise 1</h3>
 <ol>
 <li><p>Try out this example. Once it's working, do the following:</p>
