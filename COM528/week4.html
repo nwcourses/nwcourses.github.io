@@ -14,7 +14,7 @@
 <h2>What we will cover this week</h2>
 <ul>
 <li>What is Analysis and Design?</li>
-<li>What are UML and ICONIX?</li>
+<li>What is UML?</li>
 <li>Domain Models and Class Diagrams</li>
 <li>Use Case Diagrams and Use Case Texts</li>
 </ul>
@@ -51,10 +51,11 @@ before coding it. These diagrammatic tools include (but are not restricted to):
     <li>Sequence diagrams</li>
     </ul>
 <p>UML is <em>not</em> an analysis and design process; rather it is a set of
-tools which can aid us in that process. It can be used in various different analysis and design techniques, such as <em>ICONIX</em>, discusssed below.</p>
+tools which can aid us in that process. It can be used in various different analysis and design techniques, such as <em>ICONIX</em>, discussed in a later week.</p>
 </div>
 
 
+<!--
 <div>
 <h3>The ICONIX process</h3>
 <p>ICONIX is a formal method to move from an initial description of a problem to code, making use of various analysis and design diagrams - many of which are part of UML. The ICONIX process takes the general form shown in the diagram below. The key thing is that there are two paths: a <em>code-oriented</em> path and a <em>user-oriented</em> path. In the former, we consider the system from a <em>code</em> point of view (e.g. class diagrams) and in the latter, we consider the system from a <em>user</em> point of view (e.g. use cases). Furthermore, the analysis carried out in the user-oriented path can be used to update the code-oriented artefacts such as the class diagram; we will see this later when we look at robustness diagrams.
@@ -64,11 +65,12 @@ tools which can aid us in that process. It can be used in various different anal
 Ref: Rosenberg/Scott "Applying Use Case Driven Object Modeling with UML", but modified</p>
 </ul>
 </div>
+-->
 
 <div>
 <h2>The problem statement</h2>
 
-<p>The ICONIX process (and many other analysis and design processes) starts with a <em>problem statement</em>.  This is a written description of what is required of the application, and will typically be produced by gathering requirements from the target users. Here is an example:
+<p>Analysis and design starts with a <em>problem statement</em>.  This is a written description of what is required of the application, and will typically be produced by gathering requirements from the target users. Here is an example:
 <pre>There is a requirement for a software application to allow a university 
 to manage its undergraduate and masters students and modules. Each student and 
 module is identified by a unique ID. University admins need to be able to look 
@@ -206,10 +208,17 @@ class and subclasses</li>
 </div>
 
 <div>
+<h2>Inheritance in class diagrams</h2>
+<p>Inheritance in class diagrams is shown via an open arrow pointing at the superclass, for example:
+<br />
+<img src="../images/inheritance.png" alt="Inheritance in a class diagram" />
+</p>
+</div>
+
+<div>
 <h2>Use cases</h2>
-<p>The other step we need to take is <em>use-case analysis</em>.
-This takes a different approach to the problem compared to the
-domain model by considering the system from a <em>user</em> point of view.  For example, we consider questions such as:
+<p><em>We may return to this in a later week, depending on how you are progressing.</em></p>
+<p>The other step we need to take as an initial analysis and design step is <em>use-case analysis</em>.  This takes a different approach to the problem compared to the domain model by considering the system from a <em>user</em> point of view; i.e. <em>thinking about how the user will interact with the system</em>.  For example, we consider questions such as:
 	<ul>
 	<li>Who are the users?</li>
 	<li>How are they able to interact with the system?</li>
@@ -469,15 +478,16 @@ At step 7: New details are not valid (e.g. blank strings)
 <p>Look at this problem statement:
 <pre>
 There is a requirement for a piece of software to manage bands and bookings for
-a live music venue. This is to be made available on the web. Customers should 
-be able to view all events, search for and book events, as well as cancel 
-bookings, on the web. Venue staff should also be able to perform these tasks on
-behalf of customers when they book over the phone. Venue staff should be able 
-to add and cancel events. 
+a live music venue. Customers should be able to view all events, search for and book events, as well as cancel bookings, on the web. Customers can also call the venue to book over the phone: venue staff should also be able to perform these tasks on behalf of customers when they book over the phone. Venue staff should be able to add and cancel events. 
 </pre>
 <ol>
 <li>Create a domain model for this problem statement.</li>
 <li>Add some likely attributes and methods to the domain model to produce a class diagram.</li>
+<li>Before moving onto use cases, ensure you have finished Questions 1-11 of Week 2, and the whole of Week 3. You need all these for the first assignment (the group project).</li>
+</ol>
+<h3>Use cases - do if you have time</h3>
+<p>It's more important to be up to date with weeks 1-3, as discussed above. However if you have finished everything, you may move on to use cases. If not, you will get the opportunity to return to use cases later in the module.</p>
+<ol>
 <li>Draw a use-case diagram based on this problem statement.</li>
 <li>Pick two use cases from the use case diagram (one of which should involve a search, and another of which should involve adding something) and produce use-case texts.</li>
 </ol>
