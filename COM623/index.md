@@ -29,9 +29,10 @@ Provisional, subject to change.
 |      |                                              |
 | ---- | -------------------------------------------- |
 | Week | Topic                                        |
-| 1    | [The latest version of JavaScript](sessions/week_1/)             |
-| 2 .  | [Introduction to React](sessions/week_2/)                       |
-| 3 .  | [More on React State](sessions/week_3/)                       |
+| 1    | [The latest version of JavaScript](week_1/)             |
+| 2 .  | [Introduction to React](week_2/)                       |
+| 3 .  | [More on React State](week_3/)                       |
+| 4 .  | [Further State, Refs, Effects](week_4/)                       |
 | TBC  | Further React                                |
 | TBC  | Next.js                                      |
 | TBC  | Firebase                                     |
