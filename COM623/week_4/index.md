@@ -390,7 +390,13 @@ What is this empty array? It's an array of dependencies: a series of props which
 ## Exercise
 
 - Re-write the first example, which counts the number of renderings, so that the number of renderings is stored in a ref rather than a global variable.
-- Return to your exercise from last week in which you created two separate "work" and "leisure" todo lists. Add functionality to the parent component (e.g. a button) to swap the order in which they are rendered, using keys.
+- **UPDATED for clarity** : Create a new version of your exercise from last week in which you created two separate "work" and "leisure" todo lists. This new version should have a slightly simpler structure:
+
+	- A parent component, containing two Todo List components as described below;
+	- Two Todo List components, one for work and one for leisure. These should be simpler than in the exercise last week: they should include the input form and the todo list in *one* component rather than separating the input and display functionality into separate components.
+
+	- Add functionality to the parent component (e.g. a button) to swap the order in which the two Todo lists are rendered, using keys.
+
 - Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parentcomponent updates.
 - Try out the Leaflet map example above. You'll need to link Leaflet to your HTML `head` section:
 
