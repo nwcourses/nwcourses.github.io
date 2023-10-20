@@ -292,13 +292,14 @@ function LeafletMap({lat1, lon1}) {
     });
 
 
+    // You'll need to set the dimensions of 'div1' in your CSS
     return(
         <div>
         Lat: <input id='lat' />
         Lon: <input id='lon' />
         <input type='button' value='go' onClick={setPos} />
         <p>Map centred at: {lat} {lon}</p>
-        <div id="div1" style=&#123;&#123;width: "800px", height:"600px"&#125;&#125;></div>
+        <div id="div1"></div>
         </div>
     );
     
@@ -359,16 +360,17 @@ function LeafletMap2({lat1, lon1}) {
             setLat(centre.lat);
             setLon(centre.lng);
         });
-    },<em>[]</em>);
+    },[]);
 
 
+    // You'll need to set the dimensions of 'div1' in your CSS
     return(
         <div>
         Lat: <input id='lat' />
         Lon: <input id='lon' />
         <input type='button' value='go' onClick={setPos} />
         <p>Map centred at: {lat} {lon}</p>
-        <div id="div1" style=&#123;&#123;width: "800px", height:"600px"&#125;&#125;></div>
+        <div id="div1"></div>
         </div>
     );
     
