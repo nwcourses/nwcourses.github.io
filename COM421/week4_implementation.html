@@ -1,6 +1,86 @@
 <!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Week 4 - Implementing Stacks and Linked Lists</h1>
 <h2>Introduction</h2>
 <p>In week 2 you worked out the logic of stacks and linked lists using <em>pseudocode</em>. Now that you have been introduced to object-oriented programming, you are in a position to actually start coding classes to represent stacks and linked lists.</p>
+<h2>Pseudocode solutions</h2>
+<p>Here are some solutions for the stack and linked list pseudocode from week 2, which you can use this week in preference to your own, should you wish to:
+<pre>
+STACK
+=====
+
+The stack will need various variables:
+
+1. the internal array ("array")
+2. the index to add the current item of data to. ("index")
+3. the total capacity of the internal array ("capacity")
+
+Push pseudocode:
+----------------
+
+Takes one parameter, "item", the item we wish to add.
+
+If index is less than capacity
+    Set position "index" within the internal_array to "item"
+    Increase "index" by one
+Else 
+    Inform user that the stack is full
+
+
+Pop pseudocode:
+---------------
+
+Pops the top item from the stack and returns it.
+
+If "index" is 0
+    Inform the user that the stack is empty
+Else
+    Set the array at index-1 to "None"
+    Reduce "index" by one
+    Return the value that was removed from the stack
+
+
+//////////////////////////////////////////////////////////////////
+
+LINKED LIST
+===========
+
+The linked list will need to hold these items of data:
+
+- the start node ("start")
+- the end node ("end")
+
+Add pseudocode:
+---------------
+
+Adds an item to the end of the linked list.
+
+Takes one parameter, "item", the item we wish to add.
+
+Create a new node, containing the item
+Link the existing last node forward to the new node
+Link the new node backward to the existing last node
+Set the last node to the new node
+
+Get pseudocode:
+---------------
+
+Looks up an item by index.
+
+Takes one parameter, "index", the index we wish to look up.
+Returns the item at that index.
+
+Set variable "current_node" equal to the start node 
+Set variable "current_index" equal to 0
+
+While "current_index" is not equal to "index"
+    Move "current_node" on by one by following the link to the next node
+    If "current_node" is None
+        Display an error to indicate that the index could not be found
+        Return None from our get() method/function to indicate to the main code that the index could not be found.
+    Increase "current_index" by one
+
+Return the value within "current_node"
+</pre>
+</p>
 <h2 id="implementingastackusingaclass">Implementing a Stack using a class</h2>
 <p>Having looked at a simple <code>Cat</code> class, we are now going to do something a bit more practical and look at how we might create a <code>Stack</code> class.
 Note that it does not actually act as
@@ -40,13 +120,13 @@ notice how it contains an array and <code>push()</code> and <code>pop()</code> m
 <p>What happens though when we try to print an object? By default we just get its memory address. Adding a <code>__str__()</code> method to a class allows us to return a string representation which can be understood. Here, we return the string representation of the internal array, so when we print the stack, we see the contents of the internal array.</p>
 <h3 id="exercise2">Exercise 2</h3>
 <ol>
-<li>Now create a separate program for your Stack. Write the <code>Stack</code> class as shown above, and try and complete the <code>push()</code> method of your <code>Stack</code> so that it takes the value passed to it, and appends it to the internal array. To do this you will need to use the list's <code>append()</code> method. <strong>Use your pseudocode from Week 2 to help you.</strong> Here is a simple example of appending to a list:</li>
+<li>In a separate module (e.g <code>stack.py</code>), write the <code>Stack</code> class as shown above, and try and complete the <code>push()</code> method of your <code>Stack</code> so that it takes the value passed to it, and appends it to the internal array. To do this you will need to use the list's <code>append()</code> method. <strong>Use your pseudocode from Week 2 to help you (or my "model answer" pseudocode above).</strong> Here is a simple example of appending to a list:</li>
 </ol>
 <pre><code class="python language-python">list1 = []
 list1.append("John")
 </code></pre>
 <ol start="2">
-<li>Test your <code>Stack</code> as follows by adding this code <em>below</em> the Stack class:</li>
+<li>Test your <code>Stack</code> as follows by adding this code in a <code>main.py</code>: 
 </ol>
 <pre><code class="python language-python">stack1 = Stack()
 stack1.push(1)
@@ -55,7 +135,7 @@ stack1.push(9)
 print(stack1)
 </code></pre>
 <ol start="3">
-<li><strong>Again with the help of your pseudocode from Week 2</strong>, write a <code>pop()</code> method. This should <code>return the last member of the internal array</code> and <code>remove it</code>. How do you do this? It's easier in Python than some other languages as Python features <em>negative indexing</em> in which index -1 always represents the <em>last</em> member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your <code>pop()</code> (remember to indent it appropriately!)</li>
+<li><strong>Again with the help of your pseudocode from Week 2, or my pseudocode above</strong>, write a <code>pop()</code> method. This should <code>return the last member of the internal array</code> and <code>remove it</code>. How do you do this? It's easier in Python than some other languages as Python features <em>negative indexing</em> in which index -1 always represents the <em>last</em> member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your <code>pop()</code> (remember to indent it appropriately!)</li>
 </ol>
 <pre><code class="python language-python">del self.internalArray[-1] # try to delete the last member of the array
 return self.internalArray[-1] # and return it so the outside world can access it
@@ -93,8 +173,7 @@ return the top item of the stack <em>without</em> removing it.</li>
 </ol>
 <p><strong>Advanced optional exercise</strong>: If you are coping with this module and COM411 well so far, and keen to do more programming, and want something to do in your own time, read about <em>exceptions</em> and handle the error instead by <em>raising an exception</em>. This would be how errors are handled in real-world implementations of stacks. Feel free to implement your stack using exceptions and send it to me for checking.</p>
 <h2 id="implementingalinkedlistusingclasses">Implementing a linked list using classes</h2>
-<p>We'll now move on to implementing the other data structure we looked at in week 2 - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require a bit more effort to implement. In particular, we will now need <em>two</em> classes,
-not one.</p>
+<p>We'll now move on to implementing the other data structure we looked at in week 2 - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require a bit more effort to implement. In particular, we will now need <em>two</em> classes, not one. Put each class in its own file and import them into your <code>main.py</code>.</p>
 <ul>
 <li><p>a <code>Node</code> class to represent an individual node. Each item of data is contained within a <em>node</em>, along with the links to the previous and next item. </p></li>
 <li><p>a <code>LinkedList</code> class to represent the linked list as a whole. Remember that
@@ -103,7 +182,7 @@ list.</p></li>
 </ul>
 <h3 id="exercise1createanodeclass">Exercise 1: Create a Node class</h3>
 <ol>
-<li>Create a <em>new</em> Repl project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init__()</code> method which looks like this:</li>
+<li>Create a <em>new</em> PyCharm project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init__()</code> method which looks like this:</li>
 </ol>
 <pre><code class="python language-python">def __init__(self, data):
        self.data = data
@@ -120,7 +199,7 @@ newNode.prev = self
 </code></pre>
 <ol start="3">
 <li><p>Add a <code>__str__()</code> method to Node which returns a string containing the value associated with the node.</p></li>
-<li><p>Create some test code which creates two nodes, <code>n1</code> and <code>n2</code>, for example;</p></li>
+<li><p>Create some test code in <code>main.py</code> which creates two nodes, <code>n1</code> and <code>n2</code>, for example;</p></li>
 </ol>
 <pre><code class="python language-python">n1 = Node("Fred")
 n2 = Node("Tom")
@@ -137,19 +216,19 @@ n2.next
 </code></pre>
 <h3 id="exercise2creatingthelinkedlistitself">Exercise 2: Creating the linked list itself</h3>
 <p>We have now created our <code>Node</code> class. We are now going to use it in a complete <code>LinkedList</code> class which will allow you to add nodes to a linked list, and access the linked list's first and last members.</p>
-<p><em>You can do this exercise in the same file as Exercise 1.</em> </p>
+<p>Create a separate file for your <code>LinkedList</code> class and import it into <code>main.py</code> again. You will need to import <code>Node</code> into <code>LinkedList</code>.</p>
 <ol>
 <li><p>Create a LinkedList class. Its <code>__init__()</code> method should initialise two attributes, <code>self.first</code> and <code>self.last</code> to <code>None</code>. (These are the references to the first and last node in the list).</p></li>
-<li>Add an <code>add()</code> method to your linked list. This should add a <code>Node</code> to your linked list. <strong>Use the pseudocode from Week 2 to help you.</strong></li>
+<li>Add an <code>add()</code> method to your linked list. This should add a <code>Node</code> to your linked list. <strong>Use the pseudocode from Week 2, or my pseudocode above, to help you.</strong></li>
 <li>Add a <code>get()</code> method to your linked list. This should take an index as a parameter, i.e. write it as:</li>
 </ol>
 <pre><code class="python language-python">def get(self, index):
 </code></pre>
-<p>and should search the linked list for the node at that index. Having found it, it should return it. <strong>Use your pseudocode from week 2 to help you.</strong></p>
+<p>and should search the linked list for the node at that index. Having found it, it should return it. <strong>Use your pseudocode from week 2, or my pseudocode above, to help you.</strong></p>
 <ol start="4">
 <li><p>Test out your linked list by creating three <code>Node</code> objects and adding them to your <code>LinkedList</code>. Once you've added them, try searching for them within the linked list using their index. </p></li>
 <li><p>Try searching for an index which does not exist in the linked list, such as index 10 for example. Is the error handled correctly?</p></li>
-<li><p><strong>More advanced</strong>: Add functionality to insert a new element into the middle of the linked list. The method should take two parameters: the index to insert the data, and the data to be inserted. <strong>Again use your pseudocode from week 2 to help you.</strong></li>
+<li><strong>More advanced</strong>: Add functionality to insert a new element into the middle of the linked list. The method should take two parameters: the index to insert the data, and the data to be inserted. <strong>Write pseudocode first if that helps you.</strong></li>
 </ol>
 </body>
 </html>
