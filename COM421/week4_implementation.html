@@ -135,11 +135,7 @@ stack1.push(9)
 print(stack1)
 </code></pre>
 <ol start="3">
-<li><strong>Again with the help of your pseudocode from Week 2, or my pseudocode above</strong>, write a <code>pop()</code> method. This should <code>return the last member of the internal array</code> and <code>remove it</code>. How do you do this? It's easier in Python than some other languages as Python features <em>negative indexing</em> in which index -1 always represents the <em>last</em> member of an array or list (and -2 represents the second-to-last, and so on). Try adding this code to your <code>pop()</code> (remember to indent it appropriately!)</li>
-</ol>
-<pre><code class="python language-python">del self.internalArray[-1] # try to delete the last member of the array
-return self.internalArray[-1] # and return it so the outside world can access it
-</code></pre>
+<li><strong>Again with the help of your pseudocode from Week 2, or my pseudocode above</strong>, write a <code>pop()</code> method. 
 <p>Does this work as you would expect a pop operation to? Test it by adding these lines to your test code (the code where you created the stack and pushed items
 onto it), which pops the stack twice and prints the value returned from each <code>pop()</code> operation:</p>
 <pre><code class="python language-python">popped1 = stack1.pop()
@@ -147,6 +143,7 @@ print(popped1)
 popped2 = stack1.pop()
 print(popped2)
 </code></pre>
+</p>
 <p>You will find it
 does not. Why? <strong>Try and fix the code yourself to get it to work!</strong></p>
 <ol start="4">
@@ -161,12 +158,8 @@ Mac OS X
 <ol start="5">
 <li><p>You need to display an error if you pop an empty stack.
 Using an <code>if</code> statement (you are doing these in COM411 this week), display an error message in <code>pop()</code> if the stack is empty.</p>
-<p>How can you tell whether the stack is empty? You can use the <code>len()</code> function.  <code>len()</code> gives you the length of an array or list, or string. For example, if
-<code>a</code> is an array or list, this <code>if</code> statement will test whether it is empty (has a length of 0).</p></li>
+<p>How can you tell whether the stack is empty?</p>
 </ol>
-<pre><code class="python language-python">if len(a) == 0:
-       print("a is empty")
-</code></pre>
 <ol start="6">
 <li>Create a <code>peek()</code> method for your Stack. Remember a <code>peek</code> operation should
 return the top item of the stack <em>without</em> removing it.</li>
