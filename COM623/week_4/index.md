@@ -397,20 +397,29 @@ What is this empty array? It's an array of dependencies: a series of props which
 
 	- Add functionality to the parent component (e.g. a button) to swap the order in which the two Todo lists are rendered, using keys.
 
-- Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parentcomponent updates.
-- Try out the Leaflet map example above. You'll need to link Leaflet to your HTML `head` section:
+- Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates.
+
+- Try out the Leaflet map example above. You'll need to link Leaflet to your HTML `head` section (see below).
+
+- Enhance your Leaflet map so that the user can search for a place over AJAX by connecting to this web API: `https://opentrailview.org/nomproxy.php?q=place_name
+`, where `place_name` is the place to search for. When the AJAX search has completed, set the `lat` and `lon` inside the state to be the latitude and longitude of the first result within the JSON returned by the API.
+
+#### HTML needed for Leaflet map
 
 ```html
 <link rel='stylesheet' href='https://unpkg.com/leaflet@1.7.1/dist/leaflet.css'/>
 <script type='text/javascript' src='https://unpkg.com/leaflet@1.7.1/dist/leaflet.js'></script>
+<style>
+#map1 { width:800px; height: 600px; }
+</style>
 ```
 
-- Enhance your Leaflet map so that the user can search for a place over AJAX by connecting to this web API: 
+#### Advanced exercise
 
+**Advanced**: If you get that done, develop the map application so you have a `SearchResults` component (within the parent component) which should list all results (not just the first). Each result should have a button labelled "Go to this location" which, when clicked, should set the latitude and longitude of the map to that location.
+
+Here is an example of some JSX showing how you could pass parameters into an `onClick` handler. You could set the `onClick` handler to be an arrow function, and then inside the arrow function, call another function (`goTo()` here) which moves the map to the specified location.
+
+```html
+<input type='button' onClick={() => { goTo(result.lat,result.lon) } } />
 ```
-https://opentrailview.org/nomproxy.php?q=place_name
-``` 
-
-where `place_name` is the place to search for. When the AJAX search has completed, set the `lat` and `lon` inside the state to be the latitude and longitude of the first result within the JSON returned by the API.
-
-- If you get that done, develop the map application so you have a parent component, a map component, a component to input a place to search for, and a `SearchResults` component which should list all results (not just the first). Each result should have a button labelled "Go to this location" which, when clicked, should set the latitude and longitude of the map to that location.
