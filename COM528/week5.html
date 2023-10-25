@@ -259,27 +259,50 @@ In fact you can turn any HTML page into a JSP by changing its suffix to .jsp and
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;Hello World!&lt;/h1&gt;
-        &lt;p&gt;the time is &lt;%= new Date() %&gt; &lt;/p&gt;
+        &lt;p&gt;the time is 
+        &lt;%
+        Date d = new Date();
+        out.println(d);
+        %&gt; 
+        &lt;/p&gt;
     &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
 You should now see the date and time printed out and every time you refresh the page, the milliseconds should increment.</p>
+
 <p>Note that:
 <ul>
 <li>In JSPs <code>&lt;%</code> and <code>%&gt;</code> are escape characters which indicate the intervening lines are JSP specific and are not included in the generated HTML.  Usually we write Java code between these characters in a JSP page.</li>
-<li>The <code><%= %></code> directive tells the server that Java code between the <%= %> will produce a string to include in the page.</li>
+<li><code>out.println()</code> writes out content to the page (or more technically, the HTTP response).</li>
 <li>The <pre><%@ page import="java.util.Date" %></pre> directive imports a class (in this case java.util.Date) in a similar way to the Java import directive in a normal Java class file.</li>
 </ul>
 </p>
+<p>Here is a more concise example of the same code:
+<pre><code>&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@ page import="java.util.Date" %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;JSP Page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Hello World!&lt;/h1&gt;
+        &lt;p&gt;the time is &lt;%= new Date() %&gt; &lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>The <code><%= %></code> directive tells the server that Java code between the <%= %> will produce a string to include in the page.</p>
 <h3 id="5querystrings">5. Query strings</h3>
 <p>Modify the JSP page from the previous exercise and add this line, below the line which displays the time.
-<pre><code class="html language-html">&lt;%
+<pre><code class="html language-html">
+&lt;%
 String fName = request.getParameter("firstName");
+out.println("Hello " + fName);
 %&gt;
-&lt;p&gt;Hello &lt;strong&gt; &lt;%=fName %&gt;&lt;/strong&gt;&lt;/p&gt;
 </code></pre>
 </p>
-<p>What is this doing? <code>request</code> is a global variable within the JSP which is an object representing the HTTP request coming in from a client. The <code>getParameter()</code>  method of the <code>request</code> object retrieves a named parameter called <code>firstName</code>, sent from the client. We save it in a variable called <code>fName</code>. We then leave JSP, go into plain HTML again, before <strong>re-entering JSP</strong> to display the variable <code>fName</code> with strong highlighting.</p>
+<p>What is this doing? <code>request</code> is a global variable within the JSP which is an object representing the HTTP request coming in from a client. The <code>getParameter()</code>  method of the <code>request</code> object retrieves a named parameter called <code>firstName</code>, sent from the client. We save it in a variable called <code>fName</code>.</p>
 <p>How can you send this parameter to a JSP? There are several ways. The simplest way is to append the parameter to the end of the URL as a <em>query string</em>.</p>
 <p>After re-compiling and deploying your revised application, alter the URL in the browser to:
 <pre><code class="html language-html">http://localhost:8080/webExercise1/newjsp.jsp?firstName=John
@@ -335,9 +358,8 @@ String fName = request.getParameter("firstName");
     // Was a parameter submitted? If so, the parameter will be non-null
     if (fName != null)
     {
-%&gt;
-        &lt;p&gt;Hello &lt;%=fName %&gt; !&lt;/p&gt;
-        &lt;p&gt;&lt;a href='./selfsubmitting.jsp'&gt;Go back to form&lt;/a&gt;&lt;/p&gt;
+		out.println("&lt;p&gt;Hello " + fName  + "&lt;/p&gt;");
+        out.println("&lt;p&gt;&lt;a href='./selfsubmitting.jsp'&gt;Go back to form&lt;/a&gt;&lt;/p&gt;");
 &lt;%
     }
     else
