@@ -358,9 +358,8 @@ out.println("Hello " + fName);
     // Was a parameter submitted? If so, the parameter will be non-null
     if (fName != null)
     {
-		out.println("&lt;p&gt;Hello " + fName  + "&lt;/p&gt;");
+        out.println("&lt;p&gt;Hello " + fName  + "&lt;/p&gt;");
         out.println("&lt;p&gt;&lt;a href='./selfsubmitting.jsp'&gt;Go back to form&lt;/a&gt;&lt;/p&gt;");
-&lt;%
     }
     else
     {
@@ -411,8 +410,8 @@ Note how, in this example, we try to read in the parameter <code>firstName</code
 <ol>
 <li>Write a JSP which reads this form and displays the contents of each form field.</li>
 <li>Modify your answer so that you copy the <code>Student</code> class from weeks 2 and 3 into your project (plus the <code>Undergraduate</code> and <code>Masters</code> classes if you got that far). In the JSP, create a Student object using the data read in. Initially, ignore the student type (just assume the student will be an <code>Undergraduate</code> if you completed the inheritance hierarchy).
-	<ul>
-	<li>To do this, you will need to add your <code>Student</code> class to the <code>java</code> folder within your project's hierarchy, as shown below with <code>Cat.java</code>:
+    <ul>
+    <li>To do this, you will need to add your <code>Student</code> class to the <code>java</code> folder within your project's hierarchy, as shown below with <code>Cat.java</code>:
 <br />
 <img src="../images/adding_classes_to_jsp_project.png" alt="Adding classes to JSP project" />
 <br />
@@ -421,10 +420,9 @@ You can then import them from your JSP by using the project's package (<code>com
 If you encounter problems, try doing Clean and Build on your project (right-click on the project name).</li>
 </ul>
 </li>
-<li>Can the Student's <code>printDetails()</code> method be used to output the student data on the JSP? Can you now see the general problem with classes representing the application's data including code to write to, and read from, the console?</li>
-<li>Create a <code>toString()</code> instead. This should <strong>return</strong> the same data that is printed out with the <code>printDetails()</code> method, Can this be used in both a console application and a JSP?</li>
+<li>Ensure your <code>Student</code> class has a <code>toString()</code> which <strong>returns</strong> the student data.</li>
 <li>Output the student to the JSP using its <code>toString()</code> method.</li>
-<li>You'll note that <code>setMark()</code> has a similar problem, in that if the mark is invalid, it displays an error message to the console. How can you modify it so that a JSP is able to output the error to the user?</li>
-<li>Modify your code so that it creates the appropriate type of student depending on what the user entered in the <code>studentType</code> drop-down list.</li>
+<li>You'll note that <code>setMark()</code> may have a similar problem, in that if the mark is invalid, it displays an error message to the console. If so, how can you modify it so that a JSP is able to output the error to the user?</li>
+<li>Modify your code so that it creates the appropriate type of student (undergraduate or masters) depending on what the user entered in the <code>studentType</code> drop-down list. You will need to complete Question 12 from Week 2 in order to do this.</li>
 </ol>
 </body></html>
