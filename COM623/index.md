@@ -33,8 +33,9 @@ Provisional, subject to change.
 | 2 .  | [Introduction to React](week_2/)                       |
 | 3 .  | [More on React State](week_3/)                       |
 | 4 .  | [Further State, Refs, Effects](week_4/)                       |
-| TBC  | Further React                                |
-| TBC  | Next.js                                      |
-| TBC  | Firebase                                     |
-| 12 . | Assessment Support                           |
+| 5 .  | [React Hooks](week_5/)                       |
+| 6-8  | Next.js                                      |
+| 9-10  | Firebase                                     |
+| 11 . | Progressive Web Applications                 |
+| 12 | Assessment Support                           |
 
