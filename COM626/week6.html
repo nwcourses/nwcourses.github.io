@@ -272,7 +272,7 @@ val file = "${getExternalFilesDir(Environment.DIRECTORY_PICTURES)}/test.jpg"
 val outputOptions: ImageCapture.OutputFileOptions =
 	ImageCapture.OutputFileOptions.Builder(File(file)).build()
 </pre>
-and then use <code>outputOptions</code> as shown on the original example. You will also need to give your app the <code>WRITE_EXTERNAL_STORAGE</code> permission, both in the manifest and as a runtime permission check.
+and then use <code>outputOptions</code> as shown on the original example. You will also need to give your app the <code>WRITE_EXTERNAL_STORAGE</code> permissionin the manifest.
 </li>
 </ul>
 </li>
