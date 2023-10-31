@@ -10,8 +10,8 @@
 <p>Today we will take a look at <em>session variables</em> and how we can use them in JSP. We will also look at using <em>hidden fields</em> to pass information from page to page. Before we do this, however, we will quickly recap on the exercise from last week.</p>
 <hr />
 <h2>Recap - last week's exercise and removing dependency on the console</h2>
-<p>Before we begin the new material from last week, I want to make one or two points which might be helpful for completing last week's exercise. Remember that your original Student class from weeks 1-3 had a <code>printDetails()</code> method, which displayed the details on the console (with <code>System.out.println()</code>). However this is of little use in JSP. With JSP, we output to an HTML page, not to the console, so any <code>System.out.println()</code> statements will be lost.</p>
-<p>It is much better to <em>return</em> the information with a <code>toString()</code> method, e.g:
+<p>Before we begin the new material from last week, I want to make one or two revision points. Remember that your original Student class from weeks 1-3 had a <code>printDetails()</code> method, which displayed the details on the console (with <code>System.out.println()</code>). However this is of little use in JSP. With JSP, we output to an HTML page, not to the console, so any <code>System.out.println()</code> statements will be lost.</p>
+<p>As we have seen in <a href='week2.html'>Week 2</a>, it is much better to <em>return</em> the information with a <code>toString()</code> method, e.g:
 <pre>
 public class Student
 {
@@ -27,6 +27,10 @@ System.out.println(student);
 </pre>
 while in JSP we could do:
 <pre>&lt;%=student %&gt;</pre>
+or
+<pre>
+out.println(student);
+</pre>
 </p>
 <p>Similarly, the <code>Student</code>'s <code>getMark()</code> method should return a <code>boolean</code>, rather than outputting a message to the console. Once again, both a console-mode application and a JSP could both call <code>getMark()</code> and handle the boolean return value in their own way.</p>
 <p>This is an example of the concept of <strong>separation of concerns</strong>: splitting our program into different components to handle different aspects of the system. Our data classes (such as <code>Student</code>) should focus on the data alone, and not focus on input or output. Other classes (such as a class with a <code>main()</code> for a console application, or a JSP) should focus on the input and output. By doing so, the data classes become <em>reusable</em> in different types of application.</p>
@@ -218,12 +222,11 @@ This operation is called a <em>type cast</em>. The issue is that sessions can st
     &lt;br /&gt;
     &lt;h2&gt;Names so far..&lt;/h2&gt;
     &lt;%
-    // Loop through all the names in the array list
+    // Loop through all the names in the array list and display them
+    // &lt;br /&gt; means "line break" (start new line) in HTML
     for(String currentName: sessionNames) 
     {
-        %&gt;
-        &lt;%=currentName%&gt;&lt;br /&gt;
-        &lt;%
+        out.println(currentName + "&lt;br /&gt;";
     }
 %&gt;
 </pre>
