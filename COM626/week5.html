@@ -63,7 +63,7 @@ because frequently, the same <code>SensorEventListener</code> listens out for ev
 <pre>
 class SensorActivity: AppCompatActivity(), SensorEventListener {
 
-    lateinit var accel: Sensor
+    var accel: Sensor? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -240,8 +240,8 @@ to calculate the orientation (incomplete!)</h3>
 <pre>
 class SensorActivity: AppCompatActivity(), SensorEventListener {
 
-    lateinit var accel: Sensor
-    lateinit var magField: Sensor
+    var accel: Sensor? = null
+    var magField: Sensor? = null
 
 
     // Arrays to hold the current acceleration and magnetic field sensor values
