@@ -9,7 +9,7 @@
 <h1>Mobile Development and 3D Graphics - Part 7</h1>
 <h1>Introduction to OpenGL on Android (Practical Part)</h1>
 </div>
-<p><strong>Important!</strong> In this first week on OpenGL, we will not be dealing with the difference world and eye coordinates in our code. Instead the camera will be placed at the origin, facing negative z, so world and eye coordinates will be equivalent. Furthermore, we will not yet be applying any sense of perspective, so all shapes we draw will have a <code>z</code> coordinate of 0.</p>
+<p><strong>Important!</strong> In this first week on OpenGL, we will not be dealing with the difference between world and eye coordinates in our code. Instead the camera will be placed at the origin, facing negative z, so world and eye coordinates will be equivalent. Furthermore, we will not yet be applying any sense of perspective, so all shapes we draw will have a <code>z</code> coordinate of 0.</p>
 <h2>Components of an Android OpenGL Application</h2>
 <p>An Android OpenGL application includes the following components:
     <ul>
@@ -282,7 +282,7 @@ second argument <em>3</em> is the number of vertices in total.</li>
 <h3>Extending the example to drawing two triangles</h3>
 <p>The previous example could be extended very easily to draw two triangles.
 The only differences are that we would fill the buffer with 6 points rather
-than 3, and change the gl.drawArrays() call to reflect this:
+than 3, and change the <code>gpu.drawBufferedTriangles()</code> call to reflect this:
 <pre>gpu.drawBufferedTriangles(0, 6)</pre>
 The method will know to treat each set of three vertices as
 a separate triangle.</p>
@@ -294,6 +294,8 @@ of the second triangle), and the number of vertices to draw is 3.</p>
 
 
 <h2>Exercise</h2>
+
+<p><strong>TODO world and eye coordinates paper exercise.</strong></p>
 
 <p>We are going to develop a simple OpenGL application to draw first one, then
 two red triangles, and finally two triangles in different colours. </p>
