@@ -67,12 +67,12 @@ A matrix which has <em>no effect</em> on the input vector is called an <em>ident
 [g h i] [G H I]   [gA+hD+iG gB+hE+iH gC+hF+iI]
 </pre>
 The value at position <code>(row, col)</code> of the output matrix consists of each value of row <code>row</code> from the first matrix multiplied by the corresponding value of column <code>col</code> from the second matrix and summed together. So, for example:
-	<ul>
-	<li>The value at position <code>(row=0,col=0)</code> in the output matrix consists of each value of row <code>0</code> from the first matrix multiplied by the corresponding value of column <code>0</code> from the second matrix and summed together.</li>
-	<li>The value at position <code>(row=0,col=1)</code> in the output matrix consists of each value of row <code>0</code> from the first matrix multiplied by the corresponding value of column <code>1</code> from the second matrix and summed together.</li>
-	<li>The value at position <code>(row=1,col=0)</code> in the output matrix consists of each value of row <code>1</code> from the first matrix multiplied by the corresponding value of column <code>0</code> from the second matrix and summed together.</li>
-	<li>The value at position <code>(row=1,col=2)</code> in the output matrix consists of each value of row <code>1</code> from the first matrix multiplied by the corresponding value of column <code>2</code> from the second matrix and summed together.</li>
-	</ul>
+    <ul>
+    <li>The value at position <code>(row=0,col=0)</code> in the output matrix consists of each value of row <code>0</code> from the first matrix multiplied by the corresponding value of column <code>0</code> from the second matrix and summed together.</li>
+    <li>The value at position <code>(row=0,col=1)</code> in the output matrix consists of each value of row <code>0</code> from the first matrix multiplied by the corresponding value of column <code>1</code> from the second matrix and summed together.</li>
+    <li>The value at position <code>(row=1,col=0)</code> in the output matrix consists of each value of row <code>1</code> from the first matrix multiplied by the corresponding value of column <code>0</code> from the second matrix and summed together.</li>
+    <li>The value at position <code>(row=1,col=2)</code> in the output matrix consists of each value of row <code>1</code> from the first matrix multiplied by the corresponding value of column <code>2</code> from the second matrix and summed together.</li>
+    </ul>
 </p>
 <p>Hopefully you can work out from the above that in matrix multiplication, <em>the order of multiplication matters</em>. So A*B is not the same as B*A. The result of multiplying the two matrices above in the reverse order would be different:
 <pre>
@@ -295,10 +295,10 @@ void main (void) {
 <li>Add code to your <code>onSurfaceChanged()</code> method to calculate the projection matrix each time the dimensions of the <code>GLSurfaceView</code> change.
 <pre>
 override fun onSurfaceChanged(unused: GL10, w: Int, h: Int) {
-	GLES20.glViewport(0, 0, w, h)
-	val hfov = 60.0f
-	val aspect : Float = w.toFloat()/h
-	projectionMatrix.setProjectionMatrix(hfov, aspect, 0.001f, 100f)
+    GLES20.glViewport(0, 0, w, h)
+    val hfov = 60.0f
+    val aspect : Float = w.toFloat()/h
+    projectionMatrix.setProjectionMatrix(hfov, aspect, 0.001f, 100f)
 
 }
 </pre>
@@ -378,6 +378,7 @@ The effect of <code>translate()</code> will be to convert it to:
 <li><strong>What effect do you get, and why?</strong> Try using a range of different <code>z</code> translations, between -2 and +2, see what effect it has, and try to explain your observations. We will go over this in class.</li>
 </ol>
 
+<!--
 <h3>Discussion from Question 7 of above exercise</h3>
 <p>Now we have completed this week, I have added a discussion on this. You will note that setting the <code>z</code> translation to -1 makes the <em>triangles appear smaller</em>. Why is this? The diagram below helps explain it:
 <br />
@@ -385,7 +386,7 @@ The effect of <code>translate()</code> will be to convert it to:
 <br />
 The <code>-1</code> does <em>not</em> define the <code>z</code> coordinate of the camera. It defines the <strong>translation needed to convert world to eye coordinates</strong>. If this translation is -1, it means that the <code>z</code> coordinate of the camera must be <em>+1</em>. This is because, by definition, the camera is at the <em>origin</em> in eye coordinates. So the translation required to translate the camera from a <em>world</em> <code>z</code> coordinate of <code>cz</code> to zero must always be <code>-cz</code>. Or, looking at it the other way round, the world coordinate of the camera for a given world to eye translation of <code>dz</code> will be <code>-dz</code>. So here, if the translation <code>dz</code> is -1, the <code>z</code> coordinate of the camera must be +1. (The same principles also apply in the <code>x</code> and <code>y</code> directions).</p>
 <p>You can also see from the diagram above that, when we move the camera to a <code>z</code> of +1, the distance to the two triangles <em>increases</em> by one unit (as they both have negative <code>z</code> coordinates) so the eye <code>z</code> coordinates of each will become one unit more negative (-3 to -4 and -6 to -7 for the red and yellow triangle respectively).</p>
-
+-->
 
 <h2>3D Worlds in OpenGL</h2>
 
@@ -408,11 +409,11 @@ OpenGL?</p>
 Enhance the app, so that it allows the user to move the camera one unit in the x, y and z directions, either positive or negative. Use the 6 buttons on your UI (provided by the code in the repository) to do this.  You will need to:
     <ul>
     <li>store the position of the camera as a three-member float array <code>cameraPos</code>, as shown above.</li>
-	<li>ensure that, each time <code>onDrawFrame()</code> is called, the view matrix is <em>re-initialised to an identity matrix</em>. This is to ensure that, when the matrix is translated with <code>Matrix.translateM()</code>, it is relative to the identity matrix and not relative to its previous value.</li>
+    <li>ensure that, each time <code>onDrawFrame()</code> is called, the view matrix is <em>re-initialised to an identity matrix</em>. This is to ensure that, when the matrix is translated with <code>GLMatrix.translate()</code>, it is relative to the identity matrix and not relative to its previous value.</li>
     <li>write a set of methods in your renderer class to move the camera in the appropriate direction.
     Each of these will need to <em>update the <code>cameraPos</code> float array accordingly</em></li>
-	<li>call these methods from the appropriate button (do this inside the main activity).</li>
-	<li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>Matrix.translateM()</code></em>. (How would you do this?)</li>
+    <li>call these methods from the appropriate button (do this inside the main activity).</li>
+    <li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>GLMatrix.translate()</code></em>. (How would you do this?)</li>
     </ul>
 </p>
 

@@ -96,15 +96,15 @@ Note here:
 <p>In order to make using OpenGL easier, I have created an Android library, `OpenGLWrapper`, which makes writing basic OpenGL applications simpler. The raw OpenGL library requires you to make many method calls, some of which require many parameters to be passed which do not change 99% of the time. `OpenGLWrapper` makes the process of basic OpenGL development simpler.</p>
 
 <p>To use:
-	<ul>
-	<li>Clone the repository from GitHub: <pre>https://github.com/nickw1/OpenGLWrapper</pre></li>
-	<li>Build the project in Android Studio.</li>
-	<li>This will produce an Android library file (an <em>AAR file</em>). It will be created in this location in the project: <pre>app/build/outputs/aar/app-debug.aar</pre></li>
-	<li>Create a new Android Studio project for your own OpenGL application, containing the <code>GLSurfaceView</code> as described above, as well as a <code>MainActivity</code>.</li>
-	<li>Copy the AAR file from the OpenGLWrapper project into the <code>libs</code> folder inside <code>app</code> in your own project.</li>
-	<li>Add it as a dependency in build.gradle in your own project:<pre>implementation files('libs/app-debug.aar')</code></li>
-	<li>Your project is now setup to use OpenGLWrapper. Its classes are in the <code>freemap.openglwrapper</code> package and must be imported from here.</li>
-	</ul>
+    <ul>
+    <li>Clone the repository from GitHub: <pre>https://github.com/nickw1/OpenGLWrapper</pre></li>
+    <li>Build the project in Android Studio.</li>
+    <li>This will produce an Android library file (an <em>AAR file</em>). It will be created in this location in the project: <pre>app/build/outputs/aar/app-debug.aar</pre></li>
+    <li>Create a new Android Studio project for your own OpenGL application, containing the <code>GLSurfaceView</code> as described above, as well as a <code>MainActivity</code>.</li>
+    <li>Copy the AAR file from the OpenGLWrapper project into the <code>libs</code> folder inside <code>app</code> in your own project.</li>
+    <li>Add it as a dependency in build.gradle in your own project:<pre>implementation files('libs/app-debug.aar')</code></li>
+    <li>Your project is now setup to use OpenGLWrapper. Its classes are in the <code>freemap.openglwrapper</code> package and must be imported from here.</li>
+    </ul>
 </p>
 
 <h3>Loading in shaders</h3>
@@ -132,25 +132,35 @@ void main(void)
 </p>
 
 <p>You then need to <em>compile the shaders</em> into native GPU machine code. This is relatively easy with OpenGLWrapper. Add the following to the template code above:
-	<ul>
-	<li>You need to create an object of class <code>GPUInterface</code>. This class effectively acts as an interface to the GPU, and you use it to communicate with the shaders.
-	<pre>val gpu = GPUInterface("DefaultShaderInterface")</prre>
-	</li>
-	<li>In your <code>onSurfaceCreated()</code>, compile and link the shaders:
-	<pre>gpu.loadShaders(context.assets, "vertex.glsl", "fragment.glsl")</pre>
-	assuming that <code>vertex.glsl</code> and <code>fragment.glsl</code> are the filenames of your vertex shader and fragment shader, respectively. Note that <code>context.assets</code> references your project's assets, within the <code>assets</code> folder; as we saw above, the shader source code is placed within the assets.</li>
-	</ul>
+    <ul>
+    <li>You need to create an object of class <code>GPUInterface</code>. This class effectively acts as an interface to the GPU, and you use it to communicate with the shaders.
+    <pre>val gpu = GPUInterface("DefaultShaderInterface")</pre>
+    </li>
+    <li>In your <code>onSurfaceCreated()</code>, compile and link the shaders, being careful to trap errors:
+    <pre>
+try {
+    val success = gpu.loadShaders(context.assets, "vertex.glsl", "fragment.glsl")
+    if (!success) {    
+        Log.e("OpenGLBasic", gpu.lastShaderError)
+    }
+} catch (e: IOException) {
+    Log.e("OpenGLBasic", e.stackTraceToString())
+}</pre>
+    assuming that <code>vertex.glsl</code> and <code>fragment.glsl</code> are the filenames of your vertex shader and fragment shader, respectively. Note that <code>context.assets</code> references your project's assets, within the <code>assets</code> folder; as we saw above, the shader source code is placed within the assets.</li>
+    <li>Note that loading shaders might generate an <code>IOException</code> if the files do not exist. Note how we catch the <code>IOException</code> above, and display the error to the log.</li>
+    <li>Also, if there is an error in the shaders, the compiling and linking process (see below) will fail. This will cause <code>gpu.loadShaders()</code> to return false, so if false is returned, we log the most recent shader error.</li>
+    </ul>
 </p>
 
 <h4>Compiling and Linking shader code</h4>
 <p>What is actually going on inside <code>loadShaders()</code>?
-	<ul>
-	<li>Firstly, both shaders are loaded from the assets into two string variables (one for the vertex shader, one for the fragment shader)</li>
-	<li>Secondly, each shader is <em>compiled</em> into GPU machine code.</li>
-	<li>Having compiled the vertex and fragment shaders, they are <em>linked</em> into a usable <em>shader program</em>. The <code>GPUInterface</code> class contains within it a reference to this shader program. </li>
-	<li>We then must call <code>gpu.select()</code> to specify that we want to use this shader program, not another one. It is possible for a single OpenGL application to have several shader programs which we can switch between; we would create several <code>GPUInterface</code> objects if we wanted to do this. In fact, when it comes to adding a camera feed to our application, we will do this.</li>
-	<li>We setup our shaders in <code>onSurfaceCreated()</code>, as we only need to do it once. Compiling and linking them each time we render a frame would be extremely inefficient.</li>
-	</ul>
+    <ul>
+    <li>Firstly, both shaders are loaded from the assets into two string variables (one for the vertex shader, one for the fragment shader)</li>
+    <li>Secondly, each shader is <em>compiled</em> into GPU machine code.</li>
+    <li>Having compiled the vertex and fragment shaders, they are <em>linked</em> into a usable <em>shader program</em>. The <code>GPUInterface</code> class contains within it a reference to this shader program. </li>
+    <li>We then must call <code>gpu.select()</code> to specify that we want to use this shader program, not another one. It is possible for a single OpenGL application to have several shader programs which we can switch between; we would create several <code>GPUInterface</code> objects if we wanted to do this. In fact, when it comes to adding a camera feed to our application, we will do this.</li>
+    <li>We setup our shaders in <code>onSurfaceCreated()</code>, as we only need to do it once. Compiling and linking them each time we render a frame would be extremely inefficient.</li>
+    </ul>
 
 
 <h3>Setting up a vertex buffer</h3>
@@ -158,15 +168,12 @@ void main(void)
 Remember from the discussion above that the vertex data needs to be sent to the GPU in a <em>buffer</em>.  Here is how to create a buffer:
 <ul>
 <li>Declare a variable of type <code>FloatBuffer?</code> in your <code>OpenGLView.Renderer</code> object and set it to null. It will be initialised later.</li>
-<li>Inside <code>onSurfaceCreated()</code>, create a float array of the vertices you want to store in the buffer, and create the buffer using the <code>OpenGLUtils.makeFloatBuffer()</code> method:
+<li>Inside <code>onSurfaceCreated()</code>, create a float array of the vertices you want to store in the buffer, and create the buffer using the <code>OpenGLUtils.makeFloatBuffer()</code> method. The example below creates a buffer with three vertices making up a triangle, with coordinates (0,0,0) , (1,0,0) and (0, 1, 0).
 <pre>
 val vertices = floatArrayOf(
                 0f, 0f, 0f,
                 1f, 0f, 0f,
-                0.5f, 1f, 0f,
-                0f, 0f, 0f,
-                -1f, 0f, 0f,
-                -0.5f, -1f, 0f
+                0f, 1f, 0f
             )
 
 fbuf = OpenGLUtils.makeFloatBuffer(vertices)
@@ -191,16 +198,16 @@ a "handle" on it to allow Kotlin to manipulate it, and then link this
 <code>val handle = gpu.getAttribLocation("aVertex")</code>
 The name of the shader variable needs to be passed to <code>gpu.getAttribLocation()</code>.
 Here is a code example, which
-stores the handle in the variable <em>refaVertex</em> (note how we use
+stores the handle in the variable <em>ref_aVertex</em> (note how we use
 the <em>shaderProgram</em> variable which we created when we compiled and linked the shader).
 <pre>
 // Create a reference to the attribute variable aVertex
-val refaVertex = gpu.getAttribLocation("aVertex")
+val ref_aVertex = gpu.getAttribLocation("aVertex")
 </pre>
 </p>
 <p>We can also get a handle on uniform variables. Remember from the discussion above that a uniform variable is a variable whose values do not vary from vertex to vertex.  A good example of a uniform variable is a colour (assuming the shape is of a uniform colour). GLES20.glGetUniformLocation() works in exactly the same way as GLES20.glGetAttribLocation() e.g.
 <pre>
-val refuColour = gpu.getUniformLocation("uColour")
+val ref_uColour = gpu.getUniformLocation("uColour")
 </pre>
 Having obtained a reference to the uniform variable from outside our shader, we
 then need to send data to it.
@@ -208,8 +215,8 @@ The method <code>gpu.setUniform4FloatArray()</code> can be used to send a 4-memb
 The array's <em>4</em> members include red, green, blue and alpha - i.e. transparency - components.
 Here is an example. Note how we pass in the reference to the shader variable and the array we want
 to send. 
-<pre>val colour = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
-gpu.setUniform4FloatArray(refuColour, colour)</pre>
+<pre>val red = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f)
+gpu.setUniform4FloatArray(ref_uColour, red)</pre>
 </p>
 
 
@@ -229,7 +236,7 @@ Here is how to do this.
 shader variable will receive the data. 
 To do this, we use
 <code>specifyBufferedDataFormat()</code>:
-<pre>gpu.specifyBufferedDataFormat(refaVertex, fbuf, 0)</pre>
+<pre>gpu.specifyBufferedDataFormat(ref_aVertex, fbuf, 0)</pre>
 This is an interesting function as it takes several arguments:
     <ul>
     <li>Firstly, the handle on the shader attribute variable - this is needed
@@ -253,14 +260,14 @@ This is an interesting function as it takes several arguments:
     greater than 12 as each record would contain not only the 12 bytes for
     the vertex coordinates but also additional data. In such a case, any data
     for each record after the initial 12 bytes would be discarded as we have 
-	told <em>glVertexAttribPointer()</em> with the second and third arguments
+    told <em>glVertexAttribPointer()</em> with the second and third arguments
     that we have 3 components per vertex
     and each component occupies 4 bytes. This is shown below.
     <br />
     <img src="../images/stride.png" 
     alt="Tightly-packed and non-tightly-packed
     vertex data" /></li>
-	<li>The method also takes optional fourth and fifth arguments for the start index of the data in the buffer, and the number of values per vertex (e.g. 3 for 3D, 2 for 2D) but in our case we can just use the defaults.</li>
+    <li>The method also takes optional fourth and fifth arguments for the start index of the data in the buffer, and the number of values per vertex (e.g. 3 for 3D, 2 for 2D) but in our case we can just use the defaults.</li>
     </ul>
 </li>
 <li>Finally we draw the triangle. This works by passing each vertex in the
@@ -288,31 +295,25 @@ of the second triangle), and the number of vertices to draw is 3.</p>
 <h2>Exercise</h2>
 
 <p>We are going to develop a simple OpenGL application to draw first one, then
-two red triangles. </p>
+two red triangles, and finally two triangles in different colours. </p>
 
 <ol>
-<li>Start with the template above, containing an activity, a GLSurfaceView and a Renderer.</li>
-<li>Add the methods provided above to compile and link the shaders, and to initialise a vertex buffer using a float array of coordinates.</li>
+<li>Start with the template above, containing an activity, and a GLSurfaceView/Renderer.</li>
 <li>Add attributes to your OpenGLView / Renderer:
     <ul>
-    <li><code>shaderProgram</code> : an <code>Int</code>, containing a reference to the shader program. Initialise it to -1. If the shader program is created successfully, it will be a positive integer, so later on you can test whether the shader program was compiled and linked successfully by testing that this variable is at least 1.</li>
+    <li><code>gpu</code> : a <code>GPUInterface</code>, allowing you to compile and communicate with shaders running on the GPU, as described above.</li>
     <li><code>vertexBuffer</code> : a nullable <code>FloatBuffer</code>. This will contain the vertices when loaded.</li>
-    <li>Two strings, one for each shader source. The shader code is provided above.</li>
     </ul>
 </li>
-<li>In <code>onSurfaceCreated()</code>, compile and link your shaders, and load the vertex buffer. The vertex buffer should contain these vertices:
-<pre>x=0, y=0, z=0
-x=1, y=0, z=0
-x=0, y=1, z=0</pre>
-</li>
-<li>In <code>onDrawFrame()</code>, add the code to link your Kotlin variables (the buffer and the drawing colour) to the shader and draw the vertices (see the section "Drawing bufered data", above). The triangle should be drawn in red.</li>
+<li>In <code>onSurfaceCreated</code>, add the methods provided above to load the shaders, and to initialise a vertex buffer using a float array of coordinates. Use the coordinates given above initially.</li>
+<li>In <code>onDrawFrame()</code>, add the code (shown above) to obtain references to the shader variables (current vertex and colour), send a colour (red) over to the fragment shader, specify the buffered data format, and actually draw the triangle in the buffer. </li>
 <li>Modify your example to draw a second red triangle (as well as the first).
 The second triangle should have the coordinates
 <pre>x=0, y=0, z=0
 x=-1, y=0, z=0
 x=0, y=-1, z=0</pre>
 </li>
-<li>Make the second triangle appear in yellow.</li>
+<li>Make the first triangle appear in blue (red 0, green 0, blue 1, alpha 1) and the second in yellow (red 1, green 1, blue 0, alpha 1).</li>
 </ol>
 
 </body>
