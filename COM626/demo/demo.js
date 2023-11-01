@@ -180,15 +180,15 @@ function move() {
 
 function update() {
     document.getElementById('position').innerHTML = `<p>Camera position (world coords): ${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)}</p>`;
-    let worldHtml = 'BOX WORLD COORDS: <ul>' + boxPos.map( (pos,i) => `<li>${cols[i]}: ${pos.x}, ${pos.y}, ${pos.z}</li>` ).join("") + '</ul>'
+//    let worldHtml = 'BOX WORLD COORDS: ' + boxPos.map( (pos,i) => `>${cols[i][0]}: [${pos.x}, ${pos.y}, ${pos.z}]`).join(";  ");
     let eyePos = [
         boxPos[0].clone().applyMatrix4(camera.matrixWorldInverse),
         boxPos[1].clone().applyMatrix4(camera.matrixWorldInverse),
         boxPos[2].clone().applyMatrix4(camera.matrixWorldInverse),
     ];
 
-    let eyeHtml = 'BOX EYE COORDS: <ul>' + eyePos.map( (pos,i) => `<li>${cols[i]}: ${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)}</li>` ).join("") + '</ul>';
-    document.getElementById('position').innerHTML += `<br />${worldHtml}`;
+    let eyeHtml = 'BOX EYE COORDS: ' + eyePos.map( (pos,i) => `<span style='color: white; font-weight: bold; background-color: ${cols[i]}'>${cols[i][0]}: [${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)}]</span>` ).join(";  "); 
+//    document.getElementById('position').innerHTML += `<br />${worldHtml}`;
     document.getElementById('position').innerHTML += `<br />${eyeHtml}`;
 
     canvas2.setPosition(camera.position.x, camera.position.z, bearing);
