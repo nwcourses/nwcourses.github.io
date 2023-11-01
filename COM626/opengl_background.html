@@ -1,0 +1,242 @@
+<html>
+<head>
+<title>3D Graphics with OpenGL</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 7</h1>
+<h1>Introduction to OpenGL on Android</h1>
+</div>
+<p><em>OpenGL</em> is the standard API for cross-platform 3D graphics.
+With OpenGL you can create hardware-accelerated 3D graphics on a range of
+operating systems, including Windows, Linux, Mac OS X and Android. OpenGL takes advantage of a machine's Graphics Processing Unit (GPU) for fast rendering. 
+In OpenGL, 3D shapes are made up of of individual <em>triangles</em>, each of which has three <em>vertices</em> (points making up the triangle).</p>
+<h2>Important OpenGL concepts</h2>
+<h3>OpenGL coordinate system</h3>
+<p>Since OpenGL is a 3D API, it uses three coordinates: x, y and z. It's 
+important to realise that <em>x increases to the right, and y increases upwards</em>, This is 
+different to the situation in 2D computer graphics, where y increases 
+downwards - but is the same as in standard maths.</p>
+<p>Because this is 3D graphics, we have a third axis, the z axis. You can
+think of this as pointing out at you from the screen, so that positive z
+coordinates are "in front of the screen" and negative z coordinates are
+"behind the screen". This is shown in the diagram below. </p>
+<p><img src="../images/defaultview.png" alt="OpenGL default view" /></p>
+<h2>OpenGL and OpenGL ES</h2>
+<p><em>OpenGL ES</em> is a version of OpenGL optimised for devices with
+limited resources, such as mobile devices (although these days many mobile
+devices have capabilities comparable with traditional desktop machines!)
+OpenGL ES programming is slightly different to standard OpenGL:
+it is somewhat more complex but more efficient. There are various versions of
+OpenGL ES: we will use OpenGL ES 2.0 as it provides what we need.</p>
+<p>The API is significantly different to standard OpenGL. Drawing shapes takes
+on a different approach: rather than drawing each triangle individually,
+all vertices making up a complex shape are sent direct to the graphics card
+at once, in a <em>buffer</em>, for fast, efficient drawing.</p>
+<h3>The world and eye coordinate systems</h3>
+<p>When working with OpenGL, we have two coordinate systems. An OpenGL application typically comprises a virtual <em>world</em> which we can wander around, as a player in a game or a user of a VR or AR app. <em>World coordinates</em> define the position of objects within this virtual world. We also have the <em>eye coordinate</em> system. This describes the coordinates of objects <em>with respect to the user's current view of the world</em>, which may not be the same. We expand upon the difference below.</p>
+<p>Typically, the coordinates of 3D objects in an OpenGL application will be specified in our code, or more commonly, in an external data source such as a file or the web.
+The coordinates of these objects are with respect to our virtual <em>world</em>, and can be thought of as the &quot;true&quot; coordinates of the objects within our 3D world - thus they are <em>world coordinates</em>. They define the absolute position of each object in our virtual world - in that respect they are conceptually similar to latitude and longitude. However, our <em>view</em> of
+the coordinates might be different. Imagine the origin of the 3D world is
+the central room in a 3D game. We might not be at that position in the world, 
+we might be in a completely different room, and furthermore,
+we might not be looking down the negative z-axis as in the default view.
+We might be looking in a direction aligned at 45 degrees to both the x and
+z axes, as shown in the diagram below. Additionally, we might be on a slope,
+in which case, the up direction does not correspond to the y axis.</p>
+<p><img src='../images/fig4.png' alt='Rotated coordinate system'/></p>
+<p>The current on-screen 3D coordinates of a given object, with respect to the user's current view, are the <em>eye coordinates</em> of that object. The eye coordinate (0,0,0) is always the user's position within the world. <strong>And in eye coordinates, we are always facing negative <code>z</code>, with <code>x</code> increasing to the right and <code>y</code> increasing upwards</strong>, even if we are not facing negative <code>z</code> in world coordinates.</p>
+<p>When <em>rendering</em> 3D shapes, we use <em>eye coordinates</em>, because we want to render them with respect to the <em>current view</em>. Thus we have a problem, because the shapes will typically be stored in a file or on the web as <em>world coordinates</em>. So we have to define a <em>transformation</em> to convert the world coordinates to eye coordinates. This transformation has two components:
+	<ul>
+	<li>A translation, to translate the coordinates from the world system to the eye system.</li>
+	<li>A rotation, to rotate the field of view from the direction currently being faced in world coordinates into facing negative z in eye coordinates.</li>
+	</ul>
+This is explored in the following section.
+</p>
+<h3>The camera</h3>
+<p>In many 3D applications, we want to allow the user to navigate through a 3D world, e.g. (as we have seen) a game or a VR or AR app. In these cases, we define the objects making up the world (which might include 3D buildings, terrain, points of interest, etc) in our code as world coordinates. We then define a <em>camera</em>, which represents the user's position in the world and the direction in which they are facing. Such a camera would have a set of world coordinates defining its position within the world, as well as a rotation. Such a camera, representing the user's position, is known as a <em>first-person camera</em>; other types of camera also exist which present a view of the world from the perspective of something other than the user (e.g. from the perspective of a certain room in a game, or a non-player character).</p>
+<p>The <em>world coordinates</em> of the camera would vary, as the camera moves round the world. However, because a first-person camera represents the user's position, its <em>eye coordinates</em> will <em>always</em> be x=0, y=0, z=0.</p>
+<h4>Translating and rotating the camera</h4>
+<p>As seen above, the camera has a position and rotation. In more detail, it has: 
+	<ul>
+	<li>A defined position in the world (cx, cy, cz), as world coordinates;</li>
+	<li>A defined set of <em>rotations</em> about each of the three axes in our
+	world (x, y and z)</li>
+	</ul>
+By default, the camera is placed at the world origin (cx=0, cy=0, cz=0) and 
+faces negative z. In this default position, world coordinates are equal to
+eye coordinates. However we can move the camera around the world (e.g. a
+player moving around in a game) and rotate it so it faces a direction other 
+than negative z. The diagram below (which ignores y coordinates, for 
+simplicity, in other words it shows the <em>xz-plane</em> - the flat surface on which every point has y=0) illustrates two such operations:
+	<ul>
+	<li>Firstly, the camera is translated so that it is at position cx=0, cz=+2;
+	</li>
+	<li>Secondly, the camera is rotated by 90 degrees anticlockwise.</li>
+	</ul>
+</p>
+<p>
+<img src="../images/world_and_eye_coords_2.png" alt="Moving a camera around, showing the relation between world and eye coordinates" />
+</p>
+<p>We are going to examine how the <em>eye coordinates</em> of points A and B
+change as we move the camera.
+	<ul>
+	<li>Initially, the eye coordinates of A and B are equal to their world
+	coordinates, as the camera is at the default position;</li>
+	<li>When we move the camera to cx=0, cz=+2, the <em>difference in z
+	coordinates between the camera and the two points increases from 2 to 4.</em>. In other words, <em>with respect to the camera</em>, or in <em>eye coordinates</em> A and B both have z coordinates of -4. The camera is at cz=+2, and still facing negative z, so points A and B both have z coordinates of -4 as they are both in front of the camera and four units away in the <em>z</em> direction. The <em>world</em> z coordinates of A and B, by contrast, are still -2: world coordinates do not change unless the objects move to a different position within the world (e.g. a monster moving in a game)</li>
+	<li>We then <em>rotate</em> the camera by 90 degrees anticlockwise. This is done <em>around the y-axis</em> as shown in the diagram below:
+<br />
+<img src="../images/plane.png" alt="xz-plane and rotating around the y-axis" />
+<br />By doing this, the camera is now facing <em>-x</em> in <em>world</em> coordinates. However, in <em>eye</em> coordinates, the camera is still facing -z, as it always does this by definition.</li>
+	<li>As a result, A and B are now both to the <em>right</em> of the camera, rather than in front of it. They are still both 4 units away from the camera, as the camera <em>position</em> has not changed (only its rotation), but since they are 4 units <em>to the right</em> of the camera (rather than in front), the <em>eye x coordinate</em> of both is +4 (rather than the eye z coordinate being -4 as was the case originally). Remember that by definition, in eye coordinates, positive x is always to the right.</li>
+	<li>The <em>eye z coordinates</em> of A and B will now differ, as A is now in front of the camera and B is behind the camera. Consequently, A will have a negative eye z coordinate and B will have a positive eye z coordinate. As both A and B are two units distance along the eye z axis, it follows that the eye z coordinate of A will be -2 and the eye z coordinate of B will be +2.</li>
+	</ul>
+</p>
+<h4>Don't get confused by the word "camera"!</h4>
+<p>It's important to not get confused by the terminology here. The first-person OpenGL camera is <strong>not</strong> the same as the actual hardware camera used to take pictures on the device. When we move onto AR, we will use the term "hardware camera" to distinguish the physical camera from the OpenGL camera.</p>
+<h3>World and Eye Coordinates Demo</h3>
+<p>See <a href='demo/'>here</a>.</p>
+<h3>Matrices</h3>
+<p>Many of you will have come across <em>matrices</em> in the past, at
+school or college. <em>Matrices</em> are two-dimensional arrays of numbers which are most commonly used to represent geometric transformations which can be applied to shapes (both 2D and 3D), such as rotation, translation, magnification, stretch and shear. There are also other, more specialised, applications of matrices in science and maths - but these are out of the scope of this module. We will not go into the maths of matrices in great detail, but you need to be aware that a matrix represents a geometric transformation of some kind, such as translation or rotation. You also need to be aware of various matrices which exist within OpenGL which are involved in the rendering process. We will expand upon matrices a little next week.</p>
+<h4>The view matrix</h4>
+<p>OpenGL defines a matrix which specifies the transformation between the
+world coordinates and the eye coordinates.  This is called the <em>view matrix</em>.  Every time you do a translation or rotation in code, the view matrix
+is multiplied by the matrix which defines that rotation/translation. Then
+finally the coordinates specified in code (the world coordinates) are multiplied by the view matrix to give the coordinates with respect to the user's current view.</p> 
+<h4>The projection matrix</h4>
+<p>The other type of matrix which is used in OpenGL is the <em>projection matrix</em>. This transforms the coordinates of shapes to add a sense of perspective, in other words it makes nearby shapes appear larger and further-away shapes appear smaller. So, shapes with eye z coordinates close to 0 (e.g. -1, -2) will appear relatively large, whereas shapes with negative z coordinates further from 0 (-10, -20, etc) will appear smaller. Without the projection matrix, no perspective is applied and shapes would appear the same size irrespective of their eye z coordinate. <strong>In fact, the exercises this week will not involve the projection matrix, and therefore, even though you will be doing some OpenGL programming the shapes you draw will appear flat, without a sense of perspective.</strong></p>
+<h2>Architecture of a Android OpenGL ES 2.0 application</h2>
+<p>An Android OpenGL ES 2.0 application consists of:
+    <ul>
+    <li>Standard Android code to process user events and communicate
+    with servers if necessary</li>
+    <li><em>Shaders</em> running on the GPU to control rendering</li>
+    </ul>
+</p>
+<p>Android OpenGL ES 2.0 applications thus take place partly on the CPU 
+and partly in the GPU (via shaders). A Android OpenGL ES 2.0 application
+generally works in this way:
+    <ul>
+    <li>Kotlin or Java responds to user events by changing variables
+    holding the position of objects in the 3D scene, or the user's
+    current position in the world and the direction they are facing;</li>
+    <li>These changes are then communicated to shaders on the GPU which
+    actually do the rendering</li>
+    </ul>
+</p>
+<h2>Shaders</h2>
+<p><em>This discussion applies to OpenGL ES in general; not just Android OpenGL ES 2.0.</em></p>
+<p>Android OpenGL ES 2.0 (and all OpenGL ES 2.0 implementations) require the use of 
+<em>shaders</em>. Shaders are small programs, written in a C-like language,
+<em>GLSL</em> (GL Shader Language),
+which run on the graphics card (GPU) and specify how vertices, and thus
+shapes, appear on the screen (position, colour, lighting, textures etc).
+A shader-based OpenGL application will consist of a CPU based program plus
+a series of shaders running on the GPU. The CPU program passes information
+to the shaders through a process known as the <em>rendering pipeline</em>.</p>
+<h3>Types of shader</h3>
+<p>There are two types of shader:
+    <ul>
+    <li><em>Vertex shaders</em>: specify where vertices appear on the screen, in particular, how they are transformed from world space to eye space and how perspective is applied.</li>
+    <li><em>Fragment (or pixel) shaders</em>: determine how individual
+    <em>pixels</em> appear on-screen (colour, lighting effects, etc)</li>
+    </ul>
+Vertex shaders run <em>before</em> fragment shaders in the rendering
+process (called the <em>rendering pipeline</em>). This is illustrated in the diagram below:</p>
+<p><img src="../images/renderingpipeline_java.png" 
+alt="The rendering pipeline" /></p>
+<h3>Shader variables</h3>
+<p>There are three classes:
+    <ul>
+    <li><em>Attribute</em> variables: for quantities which vary for each
+    vertex (e.g. vertex position)</li>
+    <li><em>Uniform</em> variables: for quantities which remain the same
+    per render (e.g. the matrix representing the current rotation/translation
+    of the scene, the drawing colour)</li>
+    <li><em>Varying</em> variables (to be covered later)</li>
+    </ul>
+</p>
+<h4>Example of a vertex shader</h4>
+<pre>
+attribute vec4 aVertexPosition;
+void main(void)
+{
+    gl_Position = aVertexPosition;
+}
+</pre>
+<ul>
+<li>This shader sets the position of the current vertex
+(<em>gl_Position</em>; this is a built-in GLSL variable) to the
+attribute variable <em>aVertexPosition</em>.</li>
+<li>The attribute variable <em>aVertexPosition</em> (data type <em>vec4</em>;
+this is an inbuilt GLSL data type) will contain the current position from the
+vertex buffer;each vertex from the buffer in turn is sent to the vertex
+shader.</li>
+<li>In our Kotlin code we link the buffer with the <em>aVertexPosition</em>
+variable, as we will see later.</li>
+<li>This example does not apply the view or perspective matrix: we will look at these
+below.</li>
+</ul>
+<h4>Example of a fragment shader</h4>
+<p>
+<pre>
+void main (void)
+{
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+</pre>
+<ul>
+<li>
+This is a simple fragment shader. All we do is set the colour of the current
+fragment (area of pixels on the screen surrounding a given vertex) to red
+(RGB 1,0,0; the fourth argument is the <em>alpha</em> - transparency -
+component)</li>
+<li><em>gl_FragColor</em> is an inbuilt GLSL variable representing the 
+current fragment colour. Note the use of <em>vec4</em> again.</li>
+</ul>
+</p>
+
+<!--
+<h4>A vertex shader using the view and perspective matrices</h4>
+<p>
+<pre>
+attribute vec4 aColour, aVertex;
+uniform mat4 uMv, uPersp;
+
+void main(void)
+{
+    gl_VertexPosition = uPersp*uMv*aVertex;
+
+}
+</pre>
+<ul>
+<li>Note how in this vertex shader we calculate the vertex position
+on-screen (eye coordinates) by multiplying the input vertex position
+(world coordinates; from the data model) by the view and
+perspective matrices. We need to convert the input vertex position from
+a 3-element to a 4-element vector due to the way the view and
+perspective matrices are stored in memory (they are 4x4 matrices;
+4x4 matrices allow the combination of a rotation and 
+translation in one operation)</li>
+-->
+<h4> A fragment shader using a user-defined colour</h4>
+<p>In this example we read in the colour from the uniform variable
+<em>uColour</em>.
+<pre>
+precision mediump float;
+uniform vec4 uColour;
+
+void main(void)
+{
+    gl_FragColor = uColour;
+}
+</pre>
+Note the three lines at the top, which specify that we are using high-precision floats.
+This is needed if you pass across variable colours to the fragment shader.
+</p>
+
+</body>
+</html>

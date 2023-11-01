@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>3D Graphics with OpenGL</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>Mobile Development and 3D Graphics - Part 7</h1>
+<h1>Introduction to OpenGL on Android (Practical Part)</h1>
+</div>
+<h2>Components of an Android OpenGL Application</h2>
+<p>An Android OpenGL application includes the following components:
+    <ul>
+    <li>A <em>GLSurfaceView</em>. This is a View which will display your OpenGL scene.</li>
+    <li>A class implementing the interface <em>GLSurfaceView.Renderer</em>, which contains your actual 3D rendering.  This can either be the GLSurfaceView, or, if desired, a separate class to separate out the 3D rendering code from general code for managing a View. This contains a number of methods which must be implemented, which handle different aspects of the rendering process.</li>
+    </ul>
+</p>
+<h3>Methods of GLSurfaceView.Renderer</h3>
+<p>You need to provide implementations of these three methods.
+<ul>
+<li><em>onSurfaceCreated(unused: GL10, config: EGLConfig)</em> -
+this runs when the OpenGL scene is first created. Setup code typically goes in here.</li>
+<li><em>onDrawFrame(unused: GL10)</em> -
+this runs each time we want to draw a new frame, e.g. when we update the
+OpenGL scene with new objects or move around in the world.</li>
+<li><em>onSurfaceChanged(unused: GL10, width: Int, height: Int)</em> -
+this runs whenever the dimensions of the view are changed (e.g. change from
+landscape to portrait)</li>
+</ul>
+</p>
+    
+<h2>Absolute basic example</h2>
+
+<p>Here is an absolute basic example of an Android OpenGL application. It does not draw any graphics; it just shows you how you setup the OpenGL environment, and initialises a black screen ready for rendering 3D content. First we would have a main activity, as always:
+<pre>
+package com.example.opengl
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class MyActivity: AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle) {
+        val glView = OpenGLView(this)
+        setContentView(glView)
+    }
+}
+</pre>
+We create an object of class <code>OpenGLView</code> which extends from <code>GLSurfaceView</code> (see below) and make this the main view of our activity. Now we move on to the <code>OpenGLView</code> object:
+<pre>
+package com.example.opengl
+
+import android.opengl.GLSurfaceView
+import android.content.Context
+
+class OpenGLView(ctx: Context)  :GLSurfaceView(ctx), GLSurfaceView.Renderer {
+    init {
+        setEGLContextClientVersion(2) // specify OpenGL ES 2.0
+        setRenderer(this) // set the renderer for this GLSurfaceView
+    }
+
+    // We initialise the rendering here
+    override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
+        // Set the background colour (red=0, green=0, blue=0, alpha=1) 
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+
+        // Enable depth testing - will cause nearer 3D objects to automatically
+        // be drawn over further objects
+        GLES20.glClearDepthf(1.0f)
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+    }
+
+    // We draw our shapes here
+    override fun onDrawFrame(unused: GL10) {
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+    }
+
+    // Used if the screen is resized
+    override fun onSurfaceChanged(unused: GL10, w: Int, h: Int) {
+        GLES20.glViewport(0, 0, w, h)
+    }
+}
+</pre>
+Note here:
+    <ul>
+    <li>In the <code>init</code> block, we specify that we are using OpenGL ES version 2.0 with
+    <code>setEGLContextClientVersion(2)</code> and then specify that the current object will act
+    as the renderer with <code>setRenderer(this)</code>.</li>
+    <li>In <em>onSurfaceCreated()</em> we set the background colour to black (red 0, green 0, blue 0 and alpha - i.e transparency - 1, indicating fully opaque)</li>
+    <li>Also in <em>onSurfaceCreated()</em> we clear the <em>depth buffer</em> and turn depth testing on. The depth buffer is an OpenGL feature which stores the "depth" of objects, i.e. the distance from the viewing position. This allows OpenGL to automatically work out whether one object is behind another, and not draw it if so.</li>
+    <li>In <em>onDrawFrame()</em>, all we do for the moment is blank the screen. Drawing will go here later.</li>
+    <li>In <em>onSurfaceChanged()</em> we adapt our view to the new width and height of the screen (these might change by rotating the device from portrait to landscape or vice-versa).  Later on we will explore the perspective matrix: this basically sets the perspective of our view so that further-away objects appear smaller than nearby ones.</li>
+    </ul>
+    
+<h3>Using OpenGLWrapper</h3>
+<p>In order to make using OpenGL easier, I have created an Android library, `OpenGLWrapper`, which makes writing basic OpenGL applications simpler. The raw OpenGL library requires you to make many method calls, some of which require many parameters to be passed which do not change 99% of the time. `OpenGLWrapper` makes the process of basic OpenGL development simpler.</p>
+
+<p>To use:
+	<ul>
+	<li>Clone the repository from GitHub: <pre>https://github.com/nickw1/OpenGLWrapper</pre></li>
+	<li>Build the project in Android Studio.</li>
+	<li>This will produce an Android library file (an <em>AAR file</em>). It will be created in this location in the project: <pre>app/build/outputs/aar/app-debug.aar</pre></li>
+	<li>Create a new Android Studio project for your own OpenGL application, containing the <code>GLSurfaceView</code> as described above, as well as a <code>MainActivity</code>.</li>
+	<li>Copy the AAR file from the OpenGLWrapper project into the <code>libs</code> folder inside <code>app</code> in your own project.</li>
+	<li>Add it as a dependency in build.gradle in your own project:<pre>implementation files('libs/app-debug.aar')</code></li>
+	<li>Your project is now setup to use OpenGLWrapper. Its classes are in the <code>freemap.openglwrapper</code> package and must be imported from here.</li>
+	</ul>
+</p>
+
+<h3>Loading in shaders</h3>
+<p>The code above obviously does not do anything. To get it to draw shapes, we
+first of all need to define our vertex and fragment shaders. Where do we store our shaders? There is no standard way, but a common place to store them is within the <code>assets</code> folder of an Android project. You need to create two files, one for the vertex shader and one for the fragment shader, and save them in <code>assets</code> with extension <code>.glsl</code>.
+</p>
+<p>First the vertex shader:
+<pre>
+attribute vec4 aVertex;
+void main(void)
+{
+    gl_Position = aVertex;
+}
+</pre>
+</p>
+<p>Then the fragment shader:
+<pre>
+precision mediump float;
+uniform vec4 uColour;
+void main(void)
+{
+    gl_FragColor = uColour;
+}
+</pre>
+</p>
+
+<p>You then need to <em>compile the shaders</em> into native GPU machine code. This is relatively easy with OpenGLWrapper. Add the following to the template code above:
+	<ul>
+	<li>You need to create an object of class <code>GPUInterface</code>. This class effectively acts as an interface to the GPU, and you use it to communicate with the shaders.
+	<pre>val gpu = GPUInterface("DefaultShaderInterface")</prre>
+	</li>
+	<li>In your <code>onSurfaceCreated()</code>, compile and link the shaders:
+	<pre>gpu.loadShaders(context.assets, "vertex.glsl", "fragment.glsl")</pre>
+	assuming that <code>vertex.glsl</code> and <code>fragment.glsl</code> are the filenames of your vertex shader and fragment shader, respectively. Note that <code>context.assets</code> references your project's assets, within the <code>assets</code> folder; as we saw above, the shader source code is placed within the assets.</li>
+	</ul>
+</p>
+
+<h4>Compiling and Linking shader code</h4>
+<p>What is actually going on inside <code>loadShaders()</code>?
+	<ul>
+	<li>Firstly, both shaders are loaded from the assets into two string variables (one for the vertex shader, one for the fragment shader)</li>
+	<li>Secondly, each shader is <em>compiled</em> into GPU machine code.</li>
+	<li>Having compiled the vertex and fragment shaders, they are <em>linked</em> into a usable <em>shader program</em>. The <code>GPUInterface</code> class contains within it a reference to this shader program. </li>
+	<li>We then must call <code>gpu.select()</code> to specify that we want to use this shader program, not another one. It is possible for a single OpenGL application to have several shader programs which we can switch between; we would create several <code>GPUInterface</code> objects if we wanted to do this. In fact, when it comes to adding a camera feed to our application, we will do this.</li>
+	<li>We setup our shaders in <code>onSurfaceCreated()</code>, as we only need to do it once. Compiling and linking them each time we render a frame would be extremely inefficient.</li>
+	</ul>
+
+
+<h3>Setting up a vertex buffer</h3>
+<p>
+Remember from the discussion above that the vertex data needs to be sent to the GPU in a <em>buffer</em>.  Here is how to create a buffer:
+<ul>
+<li>Declare a variable of type <code>FloatBuffer?</code> in your <code>OpenGLView.Renderer</code> object and set it to null. It will be initialised later.</li>
+<li>Inside <code>onSurfaceCreated()</code>, create a float array of the vertices you want to store in the buffer, and create the buffer using the <code>OpenGLUtils.makeFloatBuffer()</code> method:
+<pre>
+val vertices = floatArrayOf(
+                0f, 0f, 0f,
+                1f, 0f, 0f,
+                0.5f, 1f, 0f,
+                0f, 0f, 0f,
+                -1f, 0f, 0f,
+                -0.5f, -1f, 0f
+            )
+
+fbuf = OpenGLUtils.makeFloatBuffer(vertices)
+</pre>
+</li>
+
+<li>We would setup our buffers in <code>onSurfaceCreated()</code>, as we only need to do it once. Doing it each time we render a frame would be very inefficient.</li>
+</ul>
+
+<h3>Drawing buffered data</h3>
+
+<p>Having setup our buffers we need to draw the shape(s) they contain in <code>onDrawFrame()</code>.
+To do this we need to <em>send the buffered data to the GPU</em> and
+<em>tell the GPU about the format of our data</em>. How do we do that?</p>
+
+<h4>Accessing the shader from Kotlin</h4>
+<p>The next thing we need to do is to link our buffer data to a shader variable, so that the shader can process each vertex in the buffer in turn.
+To be able to use a shader variable from Kotlin, we need to get
+a "handle" on it to allow Kotlin to manipulate it, and then link this
+"handle" to our vertex data. To obtain the "handle", we can use the method
+<em>getAttribLocation()</em>, e.g.
+<code>val handle = gpu.getAttribLocation("aVertex")</code>
+The name of the shader variable needs to be passed to <code>gpu.getAttribLocation()</code>.
+Here is a code example, which
+stores the handle in the variable <em>refaVertex</em> (note how we use
+the <em>shaderProgram</em> variable which we created when we compiled and linked the shader).
+<pre>
+// Create a reference to the attribute variable aVertex
+val refaVertex = gpu.getAttribLocation("aVertex")
+</pre>
+</p>
+<p>We can also get a handle on uniform variables. Remember from the discussion above that a uniform variable is a variable whose values do not vary from vertex to vertex.  A good example of a uniform variable is a colour (assuming the shape is of a uniform colour). GLES20.glGetUniformLocation() works in exactly the same way as GLES20.glGetAttribLocation() e.g.
+<pre>
+val refuColour = gpu.getUniformLocation("uColour")
+</pre>
+Having obtained a reference to the uniform variable from outside our shader, we
+then need to send data to it.
+The method <code>gpu.setUniform4FloatArray()</code> can be used to send a 4-member array (hence the 4 in the method name) to the shader, containing the drawing colour.
+The array's <em>4</em> members include red, green, blue and alpha - i.e. transparency - components.
+Here is an example. Note how we pass in the reference to the shader variable and the array we want
+to send. 
+<pre>val colour = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
+gpu.setUniform4FloatArray(refuColour, colour)</pre>
+</p>
+
+
+
+<h4>Drawing the shapes</h4>
+<p>Now onto the actual drawing itself. Our example buffer above contains six vertices, making up two triangles - so we are going to draw those triangles.
+Having placed the vertices in a buffer and obtained a handle on the
+shader variable which will contain each vertex, we can now actually draw
+the shape. <strong>Drawing a shape is performed by specifying a buffer
+or buffers to use (we could have one buffer for vertices and another for
+colours, for example) and then telling Android OpenGL ES 2.0 what format
+the buffer data is in and what shader variable should receive the buffered
+data.</strong>
+Here is how to do this. 
+<ul>
+<li>We need to tell Android OpenGL ES 2.0 what format the data is in, and what
+shader variable will receive the data. 
+To do this, we use
+<code>specifyBufferedDataFormat()</code>:
+<pre>gpu.specifyBufferedDataFormat(refaVertex, fbuf, 0)</pre>
+This is an interesting function as it takes several arguments:
+    <ul>
+    <li>Firstly, the handle on the shader attribute variable - this is needed
+    as we need to specify the shader variable to send the vertex data to;</li>
+    <li>Secondly, the actual buffer containing the vertices;</li> 
+    <li>Next is the <em>stride</em>. This is the number of bytes in between
+    each record (each vertex here). Each vertex will occupy
+    the number of components
+    per vertex (3) multiplied by the number of bytes per component (4 since
+    we are dealing with FLOATs), i.e. 12. However, here we have used the 
+    value 0 rather than 12. Why is this?
+    Zero is a special value
+    to indicate that each vertex coordinate record is immediately followed by
+    another vertex coordinate
+    record. Would this not always be the case? It need not
+    be: it would be possible to have a single buffer
+    containing not just x,y,z coordinate data for each vertex but also other 
+    data (e.g. the RGB colour of the current vertex),
+    in which case the stride - the difference in bytes 
+    between the start of the first vertex and the next  - would be
+    greater than 12 as each record would contain not only the 12 bytes for
+    the vertex coordinates but also additional data. In such a case, any data
+    for each record after the initial 12 bytes would be discarded as we have 
+	told <em>glVertexAttribPointer()</em> with the second and third arguments
+    that we have 3 components per vertex
+    and each component occupies 4 bytes. This is shown below.
+    <br />
+    <img src="../images/stride.png" 
+    alt="Tightly-packed and non-tightly-packed
+    vertex data" /></li>
+	<li>The method also takes optional fourth and fifth arguments for the start index of the data in the buffer, and the number of values per vertex (e.g. 3 for 3D, 2 for 2D) but in our case we can just use the defaults.</li>
+    </ul>
+</li>
+<li>Finally we draw the triangle. This works by passing each vertex in the
+selected buffer to the shader in turn, loading each vertex into the 
+currently-selected shader variable:
+<pre>gpu.drawBufferedTriangles(0, 3)</pre>
+The first argument <em>0</em> is the index of the first vertex, and the 
+second argument <em>3</em> is the number of vertices in total.</li>
+</ul>
+</p>
+<h3>Extending the example to drawing two triangles</h3>
+<p>The previous example could be extended very easily to draw two triangles.
+The only differences are that we would fill the buffer with 6 points rather
+than 3, and change the gl.drawArrays() call to reflect this:
+<pre>gpu.drawBufferedTriangles(0, 6)</pre>
+The method will know to treat each set of three vertices as
+a separate triangle.</p>
+<p>Another example:
+<pre>gpu.drawBufferedTriangles(3, 3)</pre>
+If the buffer had at least 6 vertices (i.e. at least 2 triangles), this would
+draw <em>the second triangle only</em> because the start vertex is 3 (the first vertex
+of the second triangle), and the number of vertices to draw is 3.</p>
+
+
+<h2>Exercise</h2>
+
+<p>We are going to develop a simple OpenGL application to draw first one, then
+two red triangles. </p>
+
+<ol>
+<li>Start with the template above, containing an activity, a GLSurfaceView and a Renderer.</li>
+<li>Add the methods provided above to compile and link the shaders, and to initialise a vertex buffer using a float array of coordinates.</li>
+<li>Add attributes to your OpenGLView / Renderer:
+    <ul>
+    <li><code>shaderProgram</code> : an <code>Int</code>, containing a reference to the shader program. Initialise it to -1. If the shader program is created successfully, it will be a positive integer, so later on you can test whether the shader program was compiled and linked successfully by testing that this variable is at least 1.</li>
+    <li><code>vertexBuffer</code> : a nullable <code>FloatBuffer</code>. This will contain the vertices when loaded.</li>
+    <li>Two strings, one for each shader source. The shader code is provided above.</li>
+    </ul>
+</li>
+<li>In <code>onSurfaceCreated()</code>, compile and link your shaders, and load the vertex buffer. The vertex buffer should contain these vertices:
+<pre>x=0, y=0, z=0
+x=1, y=0, z=0
+x=0, y=1, z=0</pre>
+</li>
+<li>In <code>onDrawFrame()</code>, add the code to link your Kotlin variables (the buffer and the drawing colour) to the shader and draw the vertices (see the section "Drawing bufered data", above). The triangle should be drawn in red.</li>
+<li>Modify your example to draw a second red triangle (as well as the first).
+The second triangle should have the coordinates
+<pre>x=0, y=0, z=0
+x=-1, y=0, z=0
+x=0, y=-1, z=0</pre>
+</li>
+<li>Make the second triangle appear in yellow.</li>
+</ol>
+
+</body>
+</html>
