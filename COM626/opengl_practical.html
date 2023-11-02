@@ -112,6 +112,16 @@ Note here:
 <p>The code above obviously does not do anything. To get it to draw shapes, we
 first of all need to define our vertex and fragment shaders. Where do we store our shaders? There is no standard way, but a common place to store them is within the <code>assets</code> folder of an Android project. You need to create two files, one for the vertex shader and one for the fragment shader, and save them in <code>assets</code> with extension <code>.glsl</code>.
 </p>
+<p>You have to create the <code>assets</code> folder yourself. Right-click on the "app" folder and then select "New" and "Directory", as shown below:
+<br />
+<img src="../images/android_studio_create_dir.png" alt="Create directory in Android Studio" />
+<br />
+</p>
+<p>You will then end up with an <code>assets</code> folder. You should then right click on the <code>assets</code> folder and create two new files, <code>vertex.glsl</code> and <code>fragment.glsl</code> for your two shaders:
+<br />
+<img src="../images/android_assets.png" alt="Android assets folder" />
+</p>
+
 <p>First the vertex shader:
 <pre>
 attribute vec4 aVertex;
