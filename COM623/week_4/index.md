@@ -385,7 +385,7 @@ function LeafletMap2({lat1, lon1}) {
 
 export default LeafletMap2;
 ``` 
-What is this empty array? It's an array of dependencies: a series of props which will trigger a re-run of the effect if they change. You can fill this array with such props if you want re-running the effect to be triggered if any props change. If the array is empty, however, you are specifying that the effect should *never* be re-run: only run once when the component first loads.
+What is this empty array? It's an array of dependencies: a series of props or state variables which will trigger a re-run of the effect if they change. You can fill this array with such props/state variables if you want re-running the effect to be triggered if any props/state variables change. If the array is empty, however, you are specifying that the effect should *never* be re-run: only run once when the component first loads.
 
 ## Exercise
 
@@ -397,7 +397,7 @@ What is this empty array? It's an array of dependencies: a series of props which
 
 	- Add functionality to the parent component (e.g. a button) to swap the order in which the two Todo lists are rendered, using keys.
 
-- Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates.
+- Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates if the <code>artist</code> state variable updates.
 
 - Try out the Leaflet map example above. You'll need to link Leaflet to your HTML `head` section (see below).
 
