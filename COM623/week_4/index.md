@@ -332,6 +332,11 @@ Instead, we can create an `effect`. An effect is a function which we might want 
 
 Note how in our effect, we check that the map (a ref) is `null`. If it's `null`, it means we haven't initialised it yet so we initialise it. If not, we do nothing. Effects run **each time the component is rendered**, so we have to ensure that we do not re-initialise the map each time the component is rendered, which would be very wasteful and would also constantly reset the map to its default location.
 
+### Effects and async/await
+
+You cannot make an effect an `async` function. If you wish to do asynchronous tasks (e.g. AJAX) from an effect directly, you should use the `then`-based syntax  for promises instead. See [WAD week 3](https://nwcourses.github.io/COM518/topic3.html).
+
+
 ### Running effects just once - on initialisation
 
 The example above showed one way to prevent effects running on each render, by setting up a ref and checking whether it's `null`. However, there is a second, automatic, way of doing this. We can pass an empty array as the second parameter to `React.useEffect()`. This will cause the effect to run just once, on startup. The example below is the Leaflet map example re-written to do this:
@@ -385,7 +390,7 @@ function LeafletMap2({lat1, lon1}) {
 
 export default LeafletMap2;
 ``` 
-What is this empty array? It's an array of dependencies: a series of props or state variables which will trigger a re-run of the effect if they change. You can fill this array with such props/state variables if you want re-running the effect to be triggered if any props/state variables change. If the array is empty, however, you are specifying that the effect should *never* be re-run: only run once when the component first loads.
+What is this empty array? It's an array of dependencies: a series of props or state variables which will trigger a re-run of the effect if they change. You can fill this array with such props or state variables if you want re-running the effect to be triggered if any props or state variables change. If the array is empty, however, you are specifying that the effect should *never* be re-run: it should only run once when the component first loads.
 
 ## Exercise
 
@@ -397,7 +402,7 @@ What is this empty array? It's an array of dependencies: a series of props or st
 
 	- Add functionality to the parent component (e.g. a button) to swap the order in which the two Todo lists are rendered, using keys.
 
-- Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates if the <code>artist</code> state variable updates.
+- Complete Question 4 from last week (AJAX music search), ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates if the <code>artist</code> state variable updates. **IMPORTANT**: you should ensure that the effect only runs if the <code>artist</code> state variable changes. If you do not, your application might make repeated requests to the Hikar server, which could trigger your IP address getting banned from making requests to the server due to security software installed on it. If you're not sure about this, please contact me.
 
 - Try out the Leaflet map example above. You'll need to link Leaflet to your HTML `head` section (see below).
 

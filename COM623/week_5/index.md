@@ -451,7 +451,7 @@ const ajaxHook = useAjax("URL");
 ```
 The custom Hook should store the AJAX results in state, and should be triggered by an `onChange` event on any form field. Test it out from a component which connects to the music search API (see exercises from week 3) when a user types an artist into a search form. The component should display the AJAX results stored in state within the Hook.
 
-3. Try enhancing the mapping example to show all the results on the map as markers (this will be in your Effect, not the Memo). To be able to clear all markers (which you will do if you do a new search) you need to create a Leaflet *layer group*. Example of creating a layer group and adding it to a map:
+3. Try enhancing the mapping example to show all the results on the map as markers (this will be in your Effect). To be able to clear all markers (which you will do if you do a new search) you need to create a Leaflet *layer group*. Example of creating a layer group and adding it to a map:
 ```javascript
 const layerGroup = L.layerGroup().addTo(map);
 ```
