@@ -410,7 +410,7 @@ What is this empty array? It's an array of dependencies: a series of props which
 <link rel='stylesheet' href='https://unpkg.com/leaflet@1.7.1/dist/leaflet.css'/>
 <script type='text/javascript' src='https://unpkg.com/leaflet@1.7.1/dist/leaflet.js'></script>
 <style>
-#map1 { width:800px; height: 600px; }
+#div1 { width:800px; height: 600px; }
 </style>
 ```
 
