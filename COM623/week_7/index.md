@@ -240,22 +240,26 @@ http://localhost:3000/search?artist=Oasis
 
 Note how the component receives a *prop* called `searchParams`. This is an object containing all the query string parameters sent to the component. We can access each individual query string parameter by using the corresponding property in the `searchParams` prop, e.g. `searchParams.artist` for the parameter `artist`.
 
-#### Exercise
+### Exercise 1
 
-Add a title to the query string and display it, you use the ampersand & to separate query string parameters.
+Change your code so that it will interpret a second query string parameter `title` and display it as well as the artist.
 
+Hint: to pass in two query string parameters, separate them with an ampersand &, e.g:
+```
+http://localhost:3000/search?artist=Oasis&title=Wonderwall
+```
 
 #### Including parameters in the route
 
-The method for including parameters which you are familiar with through Express is to include the parameters in the route directly, e.g.
+Alternatively, as you have seen when working with Express, you may pass the parameters through the route, e.g.:
 
 ```
 http://localhost:3000/artistSearch/Oasis
 ```
 
-How can we do this? Again we make folders for each part of the route. So in this example, we would make an `artistSearch` folder and then a folder for the artist parameter within the `artistSearch` folder.
+How can we do this? 
 
-How can we make folders for parameters? We name the folder so that it begins and ends with square brackets, e.g. `[artist]`. This indicates that the folder is intended to represent a parameter called `artist` within the route. You can create such a folder in the normal way:
+We need to **make a folder** for the artist parameter, in the same way that we make folders for the static part of the route such as `artistSearch`. To indicate that the folder represents a parameter, we name it so that it begins and ends with square brackets, e.g. `[artist]`. You can create such a folder in the normal way:
 
 ```
 mkdir [artist]
@@ -278,17 +282,16 @@ export default Page;
 
 Note that it's almost the same as the query string version, but we use the `params` prop rather than `searchParams`. Note we use `params.artist` to match the name of the parameter (`artist`): note how we named the parameter folder `[artist]` when creating our folders.
 
-#### Exercise
+### Exercise 2
 
-Route with both artist and title e.g.
-
+Create a component to handle a route with both artist and title e.g.
 ```
 http://localhost:3000/artist/[artist]/title/[title]
 ```
 
-It should display both artist and title.
+Like the query string exercise above, it should display both the artist and the title.
 
-### Exercise - connecting to a database
+### Exercise 3 - connecting to a database
 
 The exercise allows you to turn the previous examples into something useful by connecting them to a database.
 - Create a `resources` folder as a sub-folder of your overall project folder.
@@ -357,7 +360,7 @@ There is nothing new about the above, however if you place it in an appropriate 
 
 *See [here](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) for more detail.*
 
-Next.js uses its own approach to JSON APIs, known as **route handlers**. In the appropriate route folder, you create a file called `route.js`. Note that there **must** not already be an `app.js` in the same folder. 
+Next.js uses its own approach to JSON APIs, known as **route handlers**. In the appropriate route folder, you create a file called `route.js`. Note that there **must** not already be a `page.js` in the same folder. 
 
 Typically, a folder called `api`, within the `app` folder, would be used to store JSON APIs. Here is an example which would work with the above AJAX front end if it were placed in a folder `poi` within the `api` folder within `app`:
 
@@ -454,3 +457,9 @@ Note how the form action is, rather than a URL, the `createPOI()` function. So w
 Inside the `createPOI()` function, we read the form data that was sent using the `formData` parameter. This is a parameter of type `FormData`, which is a standard JavaScript object (not part of Next.js or React) allowing you to read form data that was sent. Note how we retrieve each item of form data with the `get()` method, passing in the ID of the form field as an argument.
 
 Note also how we use `redirect()` to redirect the user back to the route when the POI has been added, which will reload the form into the client.
+
+
+### Exercise 4
+
+- By developing an API route handler, implement an AJAX-based song search (by artist) using your HitTastic! SQLite database.
+- Create a form allowing the user to add a new song to the database and a server action to actually add the song to the database. 
