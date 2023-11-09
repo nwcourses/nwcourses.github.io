@@ -34,8 +34,8 @@ Provisional, subject to change.
 | 3 .  | [More on React State](week_3/)                       |
 | 4 .  | [Further State, Refs, Effects](week_4/)                       |
 | 5 .  | [React Hooks](week_5/)                       |
-| 6-8  | Next.js                                      |
-| 9-10  | Firebase                                     |
-| 11 . | Progressive Web Applications                 |
-| 12 | Assessment Support                           |
+| 7 | [Intro to Next.js](week_7/)                                       |
+| 8-9  | Next.js                                     |
+| 10-11  | Firebase                                     |
+| 12 | PWAs/Assessment Support                           |
 

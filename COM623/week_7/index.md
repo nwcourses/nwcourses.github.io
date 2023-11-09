@@ -2,7 +2,7 @@
 
 ## What is Next.js?
 
-Next.js (see [here](https://nextjs.org) is a framework for building React-based client-server web applications. With Next.js, you can develop both the client and the server parts of your application without having to use any other frameworks or libraries aside from React and ReactDOM. Next.js makes it easy to develop common application features such as routing and form submissions. With Next.js we can develop an application which consists of both client-side and server-side React components (it is possible to process React components on the server using Node.js). It also comes with an inbuilt, Node.js based server, so when you run a Next.js application, a server is automatically started.
+Next.js (see [here](https://nextjs.org) ) is a framework for building React-based client-server web applications. With Next.js, you can develop both the client and the server parts of your application without having to use any other frameworks or libraries aside from React and ReactDOM. Next.js makes it easy to develop common application features such as routing and form submissions. With Next.js we can develop an application which consists of both client-side and server-side React components (it is possible to process React components on the server using Node.js). It also comes with an inbuilt, Node.js based server, so when you run a Next.js application, a server is automatically started.
 
 Next.js offers the facility to *build your project into a bundle* without having to execute the Webpack commands or configure Babel. This is done with the custom [Next.js Compiler](https://nextjs.org/docs/architecture/nextjs-compiler). It is all done as part of the `next` command-line utility which comes with Next.js.
 
@@ -387,7 +387,7 @@ We would, just like non-API routes, need to create a folder representing the typ
 ```javascript
 import Database from 'better-sqlite3';
 
-export function GET(request, {params}`) {
+export function GET(request, {params}) {
     const url = new URL(request.url);
     const db = new Database(`${process.cwd()}/assets/poi.db`);
     const stmt = db.prepare("SELECT * FROM pointsofinterest WHERE type=?");
@@ -438,6 +438,9 @@ The server action itself is in another file, `createpoi.js`, in the same folder 
 
 ```jsx
 "use server"
+
+import Database from 'better-sqlite3';
+import { redirect } from 'next/navigation';
 
 async function createPOI(formData) {
     const db = new Database(`${process.cwd()}/assets/pointsofinterest.db`);
