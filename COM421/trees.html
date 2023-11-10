@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 7</title>
+<title>Topic 8</title>
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
 <style type='text/css'>
 .draft { background-color: red; color:white}
 </style>
 </head>
 <body>
-<h1>Topic 7 - Binary Trees</h1> 
+<h1>Topic 8 - Binary Trees</h1> 
 <h2>Trees</h2>
 <p>A <em>tree</em> is a commonly-used data structure to represent data
 in a hierarchical manner. An example of a tree is shown below:
@@ -310,10 +310,9 @@ initially the root node.
     </ul>
 This will print the whole tree, and nicely illustrates the power of recursion!
 </li>
-</ul>
+</ol>
 <h2 id="treesearching">Tree searching</h2>
-<p>We can efficiently search a <em>tree</em> by virtue of its structure. There are two 
-general techniques for searching a tree:</p>
+<p>We can efficiently search a <em>tree</em> by virtue of its structure. There are two general techniques for searching a tree:</p>
 <ul>
 <li><p><em>Depth-first search</em>. This uses the recursive tree traversal technique we have examined already above, starting at the root node and then
 recursively descending into the child nodes. When the search term is found, we will return it. If the tree is not sorted, we need to keep track of which nodes have been visited and which have not, so we can explore the whole tree. </p></li>
@@ -323,11 +322,10 @@ organised as below:</p></li>
 </ul>
 <p><img src="images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
 <p>we would first consider node A (the first level), then nodes B and C (the second level), then nodes D, E, F and G (the third level).</p>
-<p>Breadth-first search has various applications in route-finding, so by covering it now, we will prepare ourselves for the graphs and route-finding topic in Week 10. </p>
 
 <h3 id="binarysearchtreedepthfirst">Binary search tree (depth-first)</h3>
 <p>This uses the technique we have seen already to search a tree for a given key (index), namely recursion. We recursively search each successive child node, starting at the root node, until we find the key we are looking for. </p>
-<p>For the search to be efficient, we need the tree to be <em>sorted</em>. We have seen already in topic 6 how to add items to a tree in sorted order. The search technique can be considered a specific case of depth-first search in which the tree is sorted and thus we know whether to select the left or right child node, and can ignore the other. For general depth-first search, we cannot guarantee this, and we will need to "backtrack" along branches of the tree to ensure all nodes are visited. In fact depth-first search is a general technique that works on graphs - to be covered in week 10 - as well as trees. As we will see, graphs are usually not sorted in any way.</p>
+<p>For the search to be efficient, we need the tree to be <em>sorted</em>. We have seen already in topic 6 how to add items to a tree in sorted order. The search technique can be considered a specific case of depth-first search in which the tree is sorted and thus we know whether to select the left or right child node, and can ignore the other. For general depth-first search, we cannot guarantee this, and we will need to "backtrack" along branches of the tree to ensure all nodes are visited. In fact depth-first search is a general technique that works on graphs - to be covered later - as well as trees. As we will see, graphs are usually not sorted in any way.</p>
 <p>To search a sorted binary tree we need to:</p>
 <ul>
 <li>Start at the root node and test that first. Return the value if the key matches.</li>
@@ -393,7 +391,7 @@ organised as below:</p></li>
 </tbody>
 </table>
 <h3 id="breadthfirstsearch">Breadth-first search</h3>
-<p>We will now look at breadth-first search in some detail. It is of note that breadth-first search does <em>not require recursion</em>.</p>
+<p>This section covers breadth-first search in some detail. It is of note that breadth-first search does <em>not require recursion</em>.</p>
 <p>Note the order again in which we consider our nodes: A (the root node) first, followed by B and C (the root's child nodes), followed by D, E, F, and G (the child nodes of B and C).</p>
 <p>Our aim is to try and search for a value in the tree. How might we do this?
 We check A first, adding it to a collection of nodes to be considered.</p>
