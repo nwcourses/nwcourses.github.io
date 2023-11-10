@@ -1,495 +1,269 @@
 <!DOCTYPE html>
 <html><head>
-<title>Topic 7: Robustness diagrams and Sequence diagrams</title>
+<title>Topic 7: Design Patterns: Coupling, Cohesion and Separation of Concerns</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../css/dfti0910.css">
 </head><body>
 <div class="titlebox">
-<h1>Topic 7: Analysis and Design II: Robustness and Sequence Diagrams</h1>
+<h1>Topic 7: Design Patterns: Coupling, Cohesion and Separation of Concerns</h1>
 </div>
 
+<p><strong>Note</strong>: this topic is a <em>lecture-only</em> topic. There is no accompanying practical. This is to allow you all to catch up with Week 7, which only a few of you have completed.</p>
 <div>
-<h2>Robustness Diagrams</h2>
+<h2>Credits for this week's notes</h2>
 <ul>
-<li>What are robustness diagrams?</li>
-<li>Why are they used?</li>
-<li>Robustness diagram notation</li> 
+<li><em>Many of today's notes are based on the originals by
+a former member of staff John Flackett, but reworded</em></li>
+</ul>
+</div>
+
+
+<div>
+<h2>What is a design pattern?</h2>
+<p>A software pattern is:</p>
+<ul>
+<li>A documented solution to a commonly-encountered software design problem</li>
+<li>Helps allocates responsibilities for different tasks amongst your classes</li>
+<li>Following design patterns leads to reusable, maintainable code</li> 
 </ul>
 </div>
 
 <div>
-<h3>Bridging the gap between the User and the Code</h3>
-<p>We have already seen that the domain model represents classes in the system, while use-cases analyse the application from a user interaction point
-of view. However, we need to <em>bridge the gap between these two aspects of the system</em>, the user interaction, and the potential classes. <em>Robustness diagrams</em> allow us to do this by considering what classes from the domain model are needed for each step of each use-case.  See Rosenberg and Stephens, "Use Case Driven Object Modeling with UML - Theory and Practice" (2013), p101-2</p>
+<h2>General good design principles</h2>
+<p>Following patterns is a way to ensure that your code follows
+general <em>good design principles</em>:</p>
 <ul>
-<li>Robustness diagrams are an alternative, graphical way to depict the use cases. They help you think about how the steps of the use case will interact with
-the domain model classes.</li>
-<li>They also act as a "sanity check" on use cases - drawing out the use case in a graphical form can help us check that the original use case text was sensible (Rosenberg and Stephens, p104)</li>
-<li>They can aso enable you to discover new classes in the system (Rosenberg and Stephens, p106)</li>
+<li><em>Reusability</em>: ability to reuse classes in other applications</li>
+<li><em>Maintainability</em>: patterns enhance clarity of code, and therefore make it
+easier to maintain</li>
+<li><em>Overall system robustness</em> - patterns help avoid 
+situations where changes in one class lead to changes in the whole system</li>
 </ul>
 </div>
 
 <div>
-<h3>Robustness Diagram Notation</h3>
-<p>Robustness diagrams use three different symbols to represent different aspects of the system:
-<br />
-<img src="../images/robustness2.png" alt="Robustness Diagram Notation"/></p>
+<h2>Low coupling</h2>
 <ul>
-<li><em>Boundary Objects</em>: Represent interaction between the user and
-the system, e.g. GUI elements, web forms</li>
-<li><em>Entity Objects</em>: Represent classes within the system, e.g.
-University or Student</li>
-<li><em>Controllers</em>: Represent system actions within the program </li>
-</ul>
-</div>
-
-<div>
-<h3>Robustness Diagram Rules</h3>
-<p>Robustness diagrams must follow certain interaction rules, described below:
-<ul>
-<li><em>Boundary objects</em> can only talk to controllers</li>
-<li><em>Entity objects</em> can only talk to controllers</li>
-<li><em>Controllers</em> can talk to boundary objects, entity objects and
-other controllers</li>
-</ul>
-</p>
-</div>
-
-<div>
-<h3>How to Create a Robustness Diagram</h3>
-<ul>
-<li>Go through your use-case text one step at a time</li>
-<li>Whenever the actor interacts with the system, we need a boundary object (typically a GUI)</li>
-<li>Each system response step in the use-case text typically becomes a controller in the robustness diagram</li>
-<li>For each controller, you need to <em>consider what entity objects might
-be required</em> to carry out that action</li>
-</ul>
-</div>
-
-<div>
-<h3>Example: Enrol student</h3>
-
-<p>We will now look at a robustness diagram for the "enrol student" use case. The use-case text is repeated below, from week 4.</p>
-<table>
-
-<tr>
-<th>Step</th>
-<th>Actor action</th>
-<th>System response</th>
-</tr>
-
-<tr>
-<td>1</td>
-<td>The use case begins when the admin staff selects to
-enrol a new student.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>-</td>
-<td>System prompts the user for the student  details (name, address, date of
-birth, course)</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>The user enters the details specified in step 2.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>4</td>
-<td>-</td>
-<td>System checks validity of details, e.g. date of birth is sensible</td>
-</tr>
-
-<tr>
-<td>5</td>
-<td>-</td>
-<td>System allocates student ID for new student</td>
-</tr>
-
-<tr>
-<td>6</td>
-<td>-</td>
-<td>System enrols student in university</td>
-</tr>
-
-<tr>
-<td>7</td>
-<td>-</td>
-<td>System confirms enrolment is successful</td>
-</tr>
-
-</table>
-
-</div>
-
-<div>
-<h4>The robustness diagram for Enrol student</h4>
-<p><img src="../images/robustness_enrol_student.drawio.png" 
-alt="Robustness Diagram: Enrol student" /></p>
-</div>
-
-<p>The diagram is derived from the use-case text as follows:
-
-
-<ul>
-<li>We start with the use-case text and work out which objects (boundary, entity and control) are needed at each stage</li>
-<li>The first three steps are just actor-UI interaction and need little consideration: we just show a link between the actor and the UI boundary object</li>
-<li><em>Check validity of details</em> does not require interaction with any of the objects from the domain model (University, Student, Course) as it will be a simple <code>if</code> statement to check that the student details are not blank, year of birth is sensible, etc.</li>
-<li><em>Allocate student ID</em> is a control object; this will allocate a unique ID for the new student. To do this task, we need to know what IDs have already been allocated, so we need to talk to an object which contains all the existing students. This will be the University object. Therefore, this object needs to talk to the University entity object.</li>
-<li><em>Create Student</em> requires creation of a new Student object. So we would need to talk to the Student entity object.</li>
-<li><em>Add student to University</em> will need to add the new Student to the University object. This will change the state of the University, so we need to talk to the University entity object.</li>
-<li>We then just display a confirmation, so we talk to a boundary object representing the confirmation UI.</li>
-</ul>
-
-</p>
-
-<div>
-<h3>Example: Edit student details</h3>
-<p>Here is a second example, again the use-case text is repeated from week 4.
-</p>
-
-<table>
-
-<tr>
-<th>Step</th>
-<th>Actor action</th>
-<th>System response</th>
-</tr>
-
-<tr>
-<td>1</td>
-<td>The use case begins when the admin staff selects to
-edit the student details</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>-</td>
-<td>System prompts the user for the student ID</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>The member of staff enters the student ID.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>4</td>
-<td>-</td>
-<td>System searches for the student with that ID</td>
-</tr>
-
-<tr>
-<td>5</td>
-<td>-</td>
-<td>System displays details of that student in editable text boxes</td> 
-</tr>
-
-<tr>
-<td>6</td>
-<td>The admin staff changes the details.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>7</td>
-<td>-</td>
-<td>System checks that the new details are valid (e.g. no blank strings)</td>
-</tr>
-
-<tr>
-<td>8</td>
-<td>-</td>
-<td>System updates details of the student</td>
-</tr>
-
-</table>
-
-</div>
-
-
-<div>
-<h4>The Robustness Diagram</h4>
-<p><img src="../images/robustness_edit_student.drawio.png" 
-alt="Robustness Diagram: Edit student" /></p>
-</div>
-
-<ul>
-<li>Again, the first three steps are just actor-UI interaction and need little consideration: we just show a link between the actor and the UI boundary object</li>
-<li><em>Find the student by ID</em> will need to use an object with a record of <em>all</em> the students. Only the University has this, so we will need to talk to the University object.</li>
-<li><em>Retrieve the details of the found student</em> is the next control object. We need to display the student details on the UI, so we will need to talk to another boundary object, but we will also need to talk to the Student entity object so that we can retrieve the individual attributes of the student (name, course etc) via a series of getter methods.</li>
-<li><em>Allocate student ID</em> is a control object; this will allocate a unique ID for the new student. To do this task, we need to know what IDs have already been allocated, so we need to talk to an object which contains all the existing students. This will be the University object. Therefore, this object needs to talk to the University entity object.</li>
-<li>We then validate the new student details; again this is can just be done via an if statement and does not need to involve any of the classes from the domain model.</li>
-<li>Finally we actually update the details: this will involve updating the details of the Student object, therefore we need to talk to the Student entity object.</li>
-</ul>
-
-<h3>Discovering new entity objects</h3>
-<ul>
-<li>During the process of drawing up a robustness diagram, you may
-discover <em>new entity objects</em> by performing the robustness analysis</li>
-<li>One example from the above use-cases (enrolling a student, and changing student details) could be a <code>StudentDetailsValidator</code> class, in which we validate the student details within its own class; this might be necessary as it could be a relatively complex process (e.g. check the date of birth is valid, check the course exists, etc).</li>
-<li>Thus, one of the effects of robustness analysis is to increase the number
-of objects in the domain model</li>
-<li>Updated robustness diagrams with the <code>StudentDetailsValidator</code> are shown below, firstly enrol student:
-<br />
-<img src="../images/robustness_enrol_student.2.drawio.png" alt="Updated enrol student robustness with StudentDetailsValidator" />
+<li>Perhaps one of the most fundamental concepts in object-orientated design
 </li>
-<li>Next, edit student:
-<br />
-<img src="../images/robustness_edit_student.2.drawio.png" alt="Updated edit student robustness with StudentDetailsValidator" />
-<br />
+<li>Low coupling means to minimise the dependency a class has on other classes
+</li>
+<li>This maximises its <em>reusability</em></li>
+<li>It also makes the code easier to read, and, therefore, maintain</li>
+</ul>
+</div>
+
+<div>
+<h3>What is wrong with dependency on other classes?</h3>
+<ul>
+<li>Harder to reuse
+    <ul>
+    <li>If class A depends on class B, we cannot reuse it in a scenario where
+    we don't need class B</li>
+    </ul>
+</li>
+<li>Harder to understand in isolation
+    <ul>
+    <li>It is harder to figure out the inner workings of a class which depends 
+    on other classes, compared to a class which does not</li>
+    </ul>
+</li>
+<li>Changes in other classes force changes in the class
+    <ul>
+    <li>If class A depends on class B, and the public methods in class B
+    change, we have to change class A</li>
+    </ul>
 </li>
 </ul>
 </div>
 
-<hr />
-
 <div>
-<h2>Sequence diagrams</h2>
-<p>Having linked the use-cases to the domain model classes with robustness diagrams, the next stage is to move to a more detailed design, in which we work out what <em>methods</em> might be in the system, <em>which classes they belong to</em> and <em>what order each method should be called</em>. The <em>sequence diagram</em> allows us to do this: sequence diagrams show all the components in the system and their interactions (in the form of method calls), focusing on the order (sequence) in which they are called. Once a sequence diagram is completed, the methods shown on it can be used to enhance or correct the class diagram, to produce a finalised, accurate class diagram from which coding can begin.</p>
-
-<div>
-<h3>How to draw a sequence diagram</h3>
+<h3>Minimise, do not necessarily eliminate, dependencies</h3>
 <ul>
-<li>We start with the robustness diagram. When we did the robustness diagram, we worked out what classes from the domain model are required for each step in the use case</li>
-<li>Each interaction between a control object in the
-robustness diagram and a domain model object roughly translates to a 
-<em>method call</em></li>
-<li>Because we worked out the classes needed for each step of the use case in 
-the robustness diagram, the robustness diagram makes the process much easier
+<li>Obviously sometimes a class has to depend on another class
+    <ul>
+    <li>notably if a class has attributes which are themselves classes</li>
+    <li>e.g. a <code>Cinema</code> class which contains an array of three <code>Screen</code> objects</li>
+    <li>Here the <code>Cinema</code> depends on the <code>Screens</code>, which is sensible</li>
+    <li>However, if a <code>Cinema</code> depended on a <code>CarPark</code> class, that would minimise the reusability of the <code>Cinema</code></li>
+    <li>What if you wanted to have a <code>Cinema</code> with no <code>CarPark</code>?</li>
+    </ul>
 </li>
-<li>This should be done for alternative courses as well as the normal course 
-of events - though often, it may be trivial for alternative courses of
-action</li>
+<li><em>Think of real-world analogies, would the real world object the class
+is modelling exhibit such a dependency?</em></li>
+</ul>
+</div>
+
+<div>
+<h3>Coupling example - College, Course and Student</h3>    
+<ul>
+<li>Scenario: software to manage enrolments onto courses offered by a college</li>
+<li>We need to write code to add a student to a course</li>
+</ul>
+</div>
+
+<div>
+<h3>High coupling design (bad)</h3>    
+<ul>
+<li>
+<pre> class Student
+{
+    College college;
+    ArrayList&lt;Course&gt; courses;
+
+    public Student(College collegeIn)
+    {
+        college = collegeIn;
+        courses = new ArrayList&lt;Course&gt;();
+    }
+    
+    public void enrolOn(String courseID)
+    {
+        Course course = college.findCourseById(courseID);
+        courses.add(course);
+    }
+}
+</pre>    
+</li>
+<li>In this example, the <code>Student</code> depends on the <code>College</code> class</li>
+<li>The Student's <code>enrolOn()</code> method takes a course ID and uses the <code>College</code> to find the <code>Course</code> with that ID, and then the <code>Student</code> adds that <code>Course</code> to its list of courses</li>
+<li>The <code>Student</code> becomes dependent on <code>College</code></li>
+<li>This is bad, because it is an <em>unnecessary</em> dependency, as we will see with the 
+low-coupling design, and means that the Student class could not be used without a <code>College</code></li>
+<li>Examples where we might want to use students and courses without a college include:
+    <ul>
+    <li>a company which organises courses for its employees (who would be the students), such as IT or first-aid courses</li>
+    <li>individuals or organisations who set up their own private courses, independent of a college</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>An even worse example</h3>    
+<ul>
+<li>
+<pre> class Student
+{
+    College college;
+    ArrayList&lt;Course&gt; courses;
+
+    public Student(College collegeIn)
+    {
+        college = collegeIn;
+        courses = new ArrayList&lt;Course&gt;();
+    }
+    
+    public void enrolOnCourse()
+    {
+        Scanner scanner = new Scanner(System.in);
+        String courseID = scanner.nextLine();
+        Course course = college.getCourse(courseID);
+        courses.add(course);
+    }
+}
+</pre>    
+</li>
+<li>In this example, we are reading in the course ID from the <em>keyboard</em>
+rather than sending it in as a parameter</li>
+<li>This is <em>very bad practice</em> as it is coupling a data class (the Student) to the console (Scanner is used to read in from the console) which means that <em>enrolOnCourse()</em> could not be used in a non-console application (such as a JSP application or mobile app)</li>
+<li>Input from, and out to, particular user interfaces should be done in the user interface code (e.g. main class, or JSP) so that the data classes can be used with <em>any user interface</em></li>
 </ul>
 </div>
 
 
 <div>
-<h3>Notation</h3>
+<h3>Low coupling alternative</h3>
+<p><code>Student</code> no longer depends on <code>College</code> in this example</p>
+<pre> 
+
+class Student
+{
+    ArrayList&lt;Course&gt; courses;
+
+    public Student()
+    {
+        courses = new ArrayList&lt;Course&gt;();
+    }
+    
+    public void enrolOn(Course course)
+    {
+        courses.add(course);
+    }
+}</pre>
 <ul>
-<li>Sequence diagrams show the interaction between actors and classes in the 
-system, in <em>sequence</em> (hence the name)</li>
-<li>Each component (actor, class) is shown as a vertical <em>lifeline</em> representing its time span</li>
-<li>We say that one class (class A) sends another class (class B) a 
-<em>message</em></li>
-<li>The sequence diagram shows how control flows from one component to another ((e.g. actor to class, or class to another class). A vertical box on a given lifeline is known as an <em>activation</em> and represents a continuous flow of control in one component (equivalent to a method).</li>
-<li>In code, this translates to class A calling a method of class B</li>
-<li>A solid arrow on the line connecting the two classes shows the direction of 
-the ssage</li>
-<li>Sometimes one class sends itself a message (a <em>self-call</em>)</li>
-<li>Return values (return messages) are shown by a dotted line</li>
+<li>The <code>Student no longer needs the College</code></li>
+<li>Rather than passing in a course ID (which needs a <code>College</code> to look up the <code>Course</code> with that ID) we pass in the <code>Course</code> object directly to <code>enrolOn()</code></li>
 </ul>
 </div>
 
 <div>
-<h3>Example 1 - Enrol student</h3>
-<p><img src="../images/sequence_enrol_student.drawio.png" alt="Enrol student - sequence diagram" /></p>
+<h3>Coupling and user interfaces - summary</h3>
 <ul>
-<li>The first two things that need to be done are to check that details
-entered in the GUI and to check that the date of birth was valid
+<li>You should design your data classes (e.g. <code>University</code> or <code>Student</code> in the week 3 exercise)  so that they are <em>independent</em> of your GUI</li>
+<li>Allows the data classes to be reused with a different UI (console, web, desktop GUI, Android app)</li>
+<li>Avoid all references to the GUI in data classes</li>
+<li>Similarly, avoid console output (<code>System.out.println()</code>) as this couples your data classes to the console
 	<ul>
-	<li>The GUI does not need to communicate with any other classes to 
-	do this, so we have a &quot;circular&quot; arrow to show that the
-	GUI class is <em>sending a message to itself</em> - a <em>self-call</em></li>
-	<li>Each check can be done by a method of the GUI class,
-	<em>checkDetails()</em></li>
+	<li>Use return values to indicate success or otherwise, e.g. boolean return values, or <code>null</code> to indicate an error if a method returns an object, instead</li> 
 	</ul>
 </li>
-<li>At this point, control has transferred from the actor to the GUI, so all the following methods will be called <em>from the GUI</em></li>
-<li>The GUI then needs to send a message to allocate a student ID.
-	<ul>
-	<li>We worked out in the robustness diagram that University should be
-	responsible for allocating a student ID</li>
-	<li>This means that <em>the University class will need a method to allocate a student ID and return it</em></li>
-	<li>So, in the sequence diagram, <em>we send a message to the University class to allocate an ID</em>. We name our new method <code>allocateStudentId()</code></li>
-	<li>This method will <em>return</em> a student ID, so we show that as a <em>return message</em> (dotted line, going the other way)</li>
-	<li>This method would be added to the class diagram, if it is not there already</li>
-	</ul>
-</li>
-<li>The GUI then needs to send a message to create a new Student object.
-	<ul>
-	<li>We have seen from the robustness diagram that this is the responsibility of the Student class; we are calling its constructor.</li>
-	<li>Again we <em>return</em> an object; this time the student object just created.</li>
-	</ul>
-</li>
-<li>Finally the GUI sends a message to add the student we have created to the system
-	<ul>
-	<li>This will involve sending a message to the University object, as the University holds all Student objects. Again we worked this out with the robustness diagram.</li>
-	<li>We name the method to do this <code>addStudent()</code>, and again add it to the class diagram if it is not there already</li>
-	</ul>
-</li>
+<li>By keeping the data classes free of UI code, we are following the software engineering principle of <strong>separation of concerns</strong>, which states that you should separate out different functions of the system (UI, data) into different classes</li>
+</ul>
+</div>
+
+
+<div>
+<h2>High Cohesion pattern</h2>
+<ul>
+<li>A <em>highly cohesive</em> class is one where the responsibilities are
+all closely related, and focused on one thing</li>
+<li>It has a small number of methods, with highly related functionality</li>
+<li>It does the job it's supposed to do, and nothing else!</li>
 </ul>
 </div>
 
 <div>
-<h3>Example 2 - Edit student details</h3>
-<p>
-<img src="../images/sequence_edit_student.drawio.png" alt="Search for member sequence diagram" />
-</p>
+<h3>Example of a high cohesion pattern</h3>
 <ul>
-<li>First the GUI communicates with the University retrieve a student 
-with a given ID
-	<ul>
-	<li>The GUI needs to send a message to University, because
-	University is responsible for retrieving a member by ID (we would work
-	this out on the robustness diagram)</li>
-	</ul>
+<li>Imagine a student records system application</li>
+<li>A <em>low cohesion</em> system might have one big <code>StudentRecordsSystem</code> class which does <em>all</em> the work</li>
+<li>A <em>high cohesion</em> system, by contrast, would have a series of
+smaller classes, all focused on one particular job, e.g.:
+    <ul>
+    <li> <code>Student</code> to represent a student</li>
+    <li> <code>Course</code> to represent a course</li>
+    <li> <code>University</code> to manage the system as a whole</li>
+    </ul>
 </li>
-<li>Once we've retrieved the member, we then need to retrieve its details
-to display on the GUI 
-	<ul> 
-	<li>This is shown on the sequence diagram by the GUI sending a
-	<em>getDetails()</em> message to a <em>specific</em> Student, foundStudent. Here, <code>getDetails()</code> is shorthand for a series of getter methods, to retrieve each individual detail (name, course, etc).</li>
-	<li>Note how we use <em>foundStudent: Student </em> in
-	the sequence diagram, this is to show we are communicating with a
-	<em>specific Student</em>,identified by the variable foundStudent in the previous step</li>
-	</ul>
-</li>
-<li>We then send a message back to the actor to prompt them for the new details</li>
-<li>Once the new details are received, we need to update them within the foundStudent object. So the GUI sends a message to foundStudent to update the details, by calling a <code>setDetails()</code> method.</li>
+<li>This means that the individual classes could be re-used in other applications, and by separating out code into individual classes, makes the application easier to read, and thus maintain</li>
 </ul>
 </div>
 
-<h3>Alternative courses of action on a sequence diagram</h3>
-<p>You can also show alternative courses of action on a sequence diagram. This sis done by means of a UML <em>frame</em>. This has a label (<code>alt</code> for alternative courses of action) together with two or more sections, each representing an alternative course of action, and separated by a dotted line. Each section is annotated with the condition which must hold true for that course of action to run. Here is an example:
-<br />
-<img src='../images/sequence_edit_student_with_alt_action.drawio.png' alt='Sequence diagram showing alternative courses of action' />
-</p>
-<h3>Preparing a sequence diagram in diagrams.net</h3>
-<p>Please see this <a href='https://www.diagrams.net/blog/sequence-diagrams'>blog article</a> for more detail on preparing a sequence diagram in diagrams.net.</p>
-<h2>Exercise</h2>
+<div>
+<h3>Another example of a high cohesion pattern: web communication</h3>
+<ul>
+<li>Imagine a ticket-office booking application at a railway station which allows the member of staff to look up train times for a passenger</li>
+<li>The train times might be stored on a database on a web-server machine</li>
+<li>There are two parts to this:
+    <ul>
+    <li>Communicate across the web to the web-server and obtain the train times data</li>
+    <li>Interpret the train times (which will be delivered in a particular text-based format, such as JSON or XML) and integrate them in the GUI</li>
+    </ul>
+</li>
+<li>A <em>low-cohesion</em> design would have one big class for both these 
+tasks (web communication, interpreting the data)</li>
+<li>A <em>high-cohesion</em> design would have <em>one class for the web communication</em> and
+<em>one class for interpreting the data</em></li>
+<li>Why is this beneficial? Main point is we could <em>use one without the other</em>
+    <ul>
+    <li>Imagine the train times were stored in a text file on the local machine, rather than on a 
+    web-server. We could then use
+    the data-interpreting class without the web communication class</li>
+    <li>Imagine that the format of the data changed (e.g. XML to JSON). We could then use the web communication class and substitute the original data-interpreting class with another</li>
+    <li>Imagine that bookings were stored on the web-server. We could then use the web-communication class to make bookings as well as look up train times</li>
+    </ul>
+</li>
+</ul>
+</div>
 
-<p>Below is a domain model and two use case texts for the live music venue scenario, introduced in week 4. 
-	<ol>
-	<li>Prepare a robustness diagram for "add an event".</li>
-	<li>Prepare a sequence diagram for "add an event".</li>
-	<li>Prepare a robustness diagram for "book an event".</li>
-	<li>Prepare a sequence diagram for "book an event".</li>
-	</ol>
-</p>
-
-<h3>Domain model</h3>
-<p>
-<img src='../images/week4domainmodel.drawio.png' alt='Week 4 class diagram solution' />
-</p>
-<h3>Use-case text: Add an event (easy)</h3>
-
-
-<table>
-
-<tr>
-<th>Step</th>
-<th>Actor action</th>
-<th>System response</th>
-</tr>
-
-<tr>
-<td>1</td>
-<td>The use case begins when an administrator selects to
-add an event</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>-</td>
-<td>System prompts the administrator for the event details</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>The administrator enters the event details</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>4</td>
-<td>-</td>
-<td>System checks there is no event already on that date at that time</td>
-</tr>
-
-<tr>
-<td>5</td>
-<td>-</td>
-<td>System creates event with the entered details</td> 
-</tr>
-
-<tr>
-<td>6</td>
-<td>-</td>
-<td>System adds the event to the venue.</td>
-</tr>
-
-</table>
-
-<h3>Use-case text: Book an event (harder)</h3>
-
-<table>
-
-<tr>
-<th>Step</th>
-<th>Actor action</th>
-<th>System response</th>
-</tr>
-
-<tr>
-<td>1</td>
-<td>The use case begins when a customer selects to
-book an event</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>-</td>
-<td>System prompts the customer for the event name</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>The customer enters the event name.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>4</td>
-<td>-</td>
-<td>System searches for the event(s) with that name</td>
-</tr>
-
-<tr>
-<td>5</td>
-<td>-</td>
-<td>System displays details of all matching events</td> 
-</tr>
-
-<tr>
-<td>6</td>
-<td>The customer chooses an event from the list.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>7</td>
-<td>-</td>
-<td>System checks the event is not fully booked</td>
-</tr>
-
-<tr>
-<td>8</td>
-<td>-</td>
-<td>System books the event for the customer</td>
-</tr>
-
-</table>
-
-
-</body>
-</html>
