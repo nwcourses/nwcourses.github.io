@@ -1,38 +1,7 @@
 <!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="topic8efficientsearchingalgorithms">Topic 9: Further searching and searching algorithms</h1>
 <h2 id="introduction">Introduction</h2>
-<p>This week we will continue with our look at algorithms by examining some further algorithms, including <em>selection sort</em> and <em>insertion sort</em>. We will also cover approaches for searching <em>trees</em> (which we did earlier), including breadth-first search and depth-first-search. This topic will prepare us for looking at graphs in the final week.</p>
+<p>This week we will continue with our look at algorithms by examining some further algorithms, including <em>selection sort</em> and <em>insertion sort</em>. We will also look at the more efficient but more complex <em>quick sort</em>.</p>
 <h2>Further Sorting Algorithms</h2>
-<h3 id="selectionsort">Selection sort</h3>
-<p>Selection sort is another sorting algorithm which is conceptually simple but (relatively) inefficient. Nonetheless it has some advantages over bubble sort,
-in particular, the number of swap operations is minimised (of order <code>O(n)</code> rather than <code>O(n^2)</code>), and will be used as another example of a sorting algorithm.</p>
-<h4 id="howdoesselectionsortwork">How does selection sort work?</h4>
-<p>We once again have an outer loop. This loops through each member of the list
-(apart from the last). Within the outer loop we have an inner loop which 
-compares the current member with each of the remaining members in turn. The
-lowest remaining member is found, and if this is lower than the current
-member, the current member and this lowest member is swapped.</p>
-<p>See the diagram below, which is based from notes provided by my former colleague Brian Dupée, which were in turn sourced from the site sorting-algorithms.com (this site still exists, provided by Toptal, but does not appear to contain these resources anymore)</p>
-<p><img src="images/selection_sort.png" alt="Selection Sort" /></p>
-<p>It is of interest what this algorithm's time complexity equals, as it raises
-an important conceptual point about the Big O notation. If you imagine 
-sorting 5 values, what needs to be done?</p>
-<ul>
-<li>The outer loop needs to perform <code>n-1</code>, or 4 swaps.</li>
-<li>The number of operations the inner loop needs to do, depends on where
-we are in the outer loop. So for the first iteration of the outer loop, we
-will need to loop through members 1-4 (starting at 0 for the first member) and
-compare them with member 0. For the second iteration, we need to loop through
-members 2-4 and compare them with member 1. For the third iteration, we loop
-through members 3 and 4 and compare them with member 2, and for the fourth
-iteration, we compare member 4 with member 3.</li>
-</ul>
-<p>So the total number of operations for a 5-member list is 4+3+2+1, or more generally for an <code>n</code>-member list, the number of operations is the sum of all the numbers from 1 to <code>n</code>. This value is equal to <code>(n + n^2) / 2</code>.</p>
-<p>This is an equation of quadratic form, as it can be expressed instead as <code>0.5n^2 + 0.5n</code>. So with large <code>n</code> values the <code>n^2</code> term will dominate, and thus, this is an <code>O(n^2)</code> class of algorithm, i.e. less efficient. It is not quite as inefficient as bubble sort, particularly given that less swaps are involved (swapping is a relatively expensive operation as it requires a temporary variable to be created), but it can still potentially be improved.</p>
-<p>A less mathematical way of thinking about it is to consider the fact that there are <em>two loops, one within another</em>. Algorithms of this form - even if one of the loops does not iterate through the entire list - will generally be <code>O(n^2)</code>.</p>
-<p>When swapping numbers, swapping is not particularly computationally
-expensive. However, if the two values are complex objects which take time to 
-initialise, then the fact that we need to create a temporary variable can
-mean a swap is expensive. So in cases like this, selection sort is particularly favoured over bubble sort.</p>
 <h3 id="insertionsort">Insertion sort</h3>
 <p>A third type of simple sort, with complexity <code>O(n^2)</code> in many cases, but occasionally <code>O(n)</code> (see below), is the <em>insertion sort</em>. This is shown on the diagram below.</p>
 <p><img src="images/insertion_sort.png" alt="Insertion sort" /></p>
@@ -49,125 +18,206 @@ multiple members, of the sorted part of the list which are <em>greater</em> than
 <p>Note that we can perform a useful "trick" here which can prevent us having to do the inner loop at all. If the last value of the sorted part of the list - which will be the value immediately to the left (i.e one index below) the "divider", is <em>less</em> than the "divider", then we <strong>know</strong> that the "divider" is already in its correct position. This is because the sorted part of the list is sorted, and the highest value within the sorted part will be immediately to the left of the "divider". So if the "divider" is greater than this value, we do not to move it. Thus, we do not need an inner loop.</p>
 <p><strong>You should always be on the lookout for "tricks" like this when designing algorithms. Is there something about the data which means that, in some cases, we can avoid having to perform computationally expensive operations like an additional loop, and therefore reduce the complexity of the algorithm?</strong></p>
 <p>The consequence of this is that if the list is "almost sorted", then the complexity will be closer to <code>O(n)</code> than <code>O(n^2)</code>, as in most cases, we will not need an inner loop. So if, for whatever reason, we know that our list is almost sorted already, an insertion sort is a strongly favoured choice.</p>
-<h2 id="treesearching">Tree searching</h2>
-<p>We can efficiently search a <em>tree</em> by virtue of its structure. There are two 
-general techniques for searching a tree:</p>
+<h3>Exercise</h3>
+<p>Have a go at coding <em>either</em> selection sort <em>or</em> insertion sort.</p>
+<h2 id="introduction">More advanced but more efficient sorting algorithms.</h2>
+<p>We have covered some basic sorting algorithms, such as bubble sort, selection sort and insertion sort. However, we saw that their efficiency could be better, being <code>O(n^2)</code> in the worst case. We will look at one improved sorting algorithm, <em>quicksort</em>. An alternative, <em>merge sort</em> is provided as extra reading.</p>
+<p>These algorithms use <em>recursion</em>. Please see <a href="trees.html">the trees topic</a> for a reminder on recursion.</p>
+<h2 id="quicksort">Quicksort</h2>
+<h3> id="warning">Warning!</h3>
+<p>This is a more advanced topic which is not compulsory for passing the
+assignment, but might be useful for higher marks. It's included here to give 
+those of you who are coping reasonably well with the module an idea on how more advanced and efficient sorting algorithms work.</p>
+<p>If you need to catch up with previous weeks, please do this first!</p>
+<h3>Intro to quicksort</h3>
+<p>Quicksort is the first of the two algorithms. It works by recursively <em>partitioning</em> the list into two sections, or <em>partitions</em>, either side of an element we call the <em>pivot</em>. </p>
+<p>An arbitrary element (e.g. the last, the middle, or the first) is picked as the pivot, and then the <em>partitioning phase</em> begins. The aim of the partitioning phase is to rearrange the list so that it all the elements less than the pivot element are to its left, and all elements greater than the pivot element are to its right. To do this, the partitioning phase re-arranges the list, performing a series of swaps so it is ordered correctly.</p>
+<p>The general procedure is shown below.</p>
+<p><img src="images/qsort1.png" alt="Quicksort - high level overview" /></p>
+<p>Next stage is to recursively perform the quicksort again on the partition <em>before</em> the pivot, and the partition <em>after</em> the pivot - as the elements in each partition will not be sorted yet, all we know is that the pivot is in the correct place. Each partition will have the algorithm applied to it (so that each parititon will have its own pivot, and the partition will be sorted into the sub-partition less than the partition's pivot, the partition's pivot, and the sub-partition greater than the pivot).</p>
+<p>The procedure continues until the entire list is sorted.</p>
+<p>This is a very high level overview and the implementation details are not obvious at this stage. We have to consider the <em>partitioning</em> stage (working out which elements are less than, and which greater than, the pivot) in more detail. There are various approaches to this; we will use the Hoare partitioning algorithm.</p>
+<h3 id="thehoarepartitioningalgorithm">The Hoare partitioning algorithm</h3>
+<p>Described on <a href="https://en.wikipedia.org/wiki/Quicksort">Wikipedia</a> and cross-checked against various academic sources including this one from <a href="https://cs.stanford.edu/people/eroberts/courses/soco/projects/2008-09/tony-hoare/quicksort.html#algorithm">Stanford University</a>.</p>
+<p>The Hoare algorithm (developed by Tony Hoare) works by having two "fingers" 
+(<em>term "finger" from notes by Brian Dupée, which were in turn sourced from the site sorting-algorithms.com</em>)
+pointing to the start of the list and end of the list. We move the first "finger", referenced by the variable <code>i</code> forwards and the second "finger", referenced by the variable <code>j</code>, backwards, until <code>i</code> points to something <strong>GREATER THAN OR EQUAL</strong> TO the pivot and <code>j</code> points to something <strong>LESS THAN OR EQUAL TO</strong> the pivot.</p>
+<p>As we move each "finger" forward and back, we test whether any valuse need to be swapped. If the value at <code>i</code> is greater than the value at <code>j</code>, and <code>i</code> is still to the left of <code>j</code>, then we know that the values are in the wrong order and we swap them.</p>
+<p>When <code>i</code> and <code>j</code> point to the same element (the pivot) or cross over (<code>j</code> is to the left of <code>i</code>), then we know that we have done all the swaps we can, because <code>i</code> will have scanned all values greater than the pivot which were to the left of the pivot (and have now been swapped), and <code>j</code> will have scanned all values less than the pivot which were to the right of the pivot (and have now been swapped).</p>
+<p>We return the new pivot position (which will be either <code>j</code> or <code>i</code> - often they will point to the same value) so we can continue the operation recursively.</p>
+<p>The algorithm is shown on the diagram below.</p>
+<p><img src="images/qsort2.png" alt="Quicksort - Hoare partitioning algorithm" /></p>
+<p>The quicksort function then:</p>
 <ul>
-<li><p><em>Depth-first search</em>. This uses the recursive tree traversal technique we have examined already in <a href="week6.html">Week 6</a>, starting at the root node and then
-recursively descending into the child nodes. When the search term is found, we will return it. If the tree is not sorted, we need to keep track of which nodes have been visited and which have not, so we can explore the whole tree. </p></li>
-<li><p><em>Breadth-first search</em>. Rather than recursively descending the tree, we
-instead we consider each <em>level</em> one at a time. So if we have a tree 
-organised as below:</p></li>
+<li>gets a new pivot by calling the Hoare partitioning algorithm;</li>
+<li>recursively calls quicksort on the section left of the pivot and section right of the pivot.</li>
 </ul>
-<p><img src="images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
-<p>we would first consider node A (the first level), then nodes B and C (the second level), then nodes D, E, F and G (the third level).</p>
-<p>Breadth-first search has various applications in route-finding, so by covering it now, we will prepare ourselves for the graphs and route-finding topic in Week 10. </p>
-<h3 id="breadthfirstsearch">Breadth-first search</h3>
-<p>We will now look at breadth-first search in some detail. It is of note that breadth-first search does <em>not require recursion</em>.</p>
-<p>Note the order again in which we consider our nodes: A (the root node) first, followed by B and C (the root's child nodes), followed by D, E, F, and G (the child nodes of B and C).</p>
-<p>Our aim is to try and search for a value in the tree. How might we do this?
-We check A first, adding it to a collection of nodes to be considered.</p>
-<pre><code>[A]
-</code></pre>
-<p>If A doesn't match, we move on to its child nodes - B and C - and remove A from the collection of nodes to be considered. So, once we've considered and rejected A, the collection will contain B and C.</p>
-<pre><code>[B C]
-</code></pre>
-<p>If B doesn't match, then we know we might need to consider <em>its</em> child nodes (D and E) so we add them to the collection of nodes. Because we are doing a <em>breadth first</em> search, though, and considering the tree "level by level", D and E must be added to the collection of nodes to be searched <em>after</em> C - because when we consider B, we will not have considered C yet, and C is on the same level as B. So after considering B, we remove it fron the collection of nodes to be considered - so we are left with:</p>
-<pre><code>[C D E]
-</code></pre>
-<p>Next we consider C. If C doesn't match, then we know we might need to consider <em>its</em> child nodes (F and G) so we add them to the collection of nodes to be considered. Because we consider each level left-to-right, these should again be added to the collection <em>after</em> D and E. If C doesn't match, again we remove it, so at this stage, the collection of nodes to be considered will be:</p>
-<pre><code>[ D E F G ]
-</code></pre>
-<p>Hopefully you can see that it has linear <code>O(n)</code> complexity, dependent on the number of nodes, and thus is not especially efficient when it comes to simple trees. The use of breadth-first search becomes more apparent when we look at graphs; I am introducing the algorithm here so that you understand it when we begin the graphs topic.</p>
-<h4 id="whichdatastructuretouseforthenodestobeprocessed">Which data structure to use for the nodes to be processed?</h4>
-<p>We use a <em>queue</em> here, because with the breadth-first search, we process the nodes in the order they are added. In other words, the node we add first is the node we process first. We can use the standard library collection <code>collections.deque</code> to do this. A <em>deque</em> is a double-ended queue: a queue which you can add to and remove from both the front and back of. However, here we are just using it as a regular queue.</p>
-<p>Here is an example of using a deque as a regular queue. Note how we use <code>append()</code> to add to the deque, and <code>popleft()</code> to remove from it.</p>
-<pre><code>import collections
+<p>The recursion will stop when the found pivot position is either at the start or the end of the list, as that means all members are before or after.</p>
+<p>Quicksort is rather difficult to figure out from scratch so I will present some Python-like pseudocode of the Hoare algorithm below. This can be found in multiple places on the web including <a href="https://en.wikipedia.org/wiki/Quicksort">Wikipedia</a>; as always you should always double-check anything on Wikipedia against other sources to check it's accurate.</p>
+<pre><code>function hoare_partition(data, start, end)
+    Let i = start
+    Let j = end
+    Let pivot = midpoint of list # this is arbitrary
 
-q = collections.deque([])
-q.append(123)
-q.append(456)
-q.append(789)
-print(q.popleft())
-print(len(q))
+    While true # this will loop forever
+
+        Increase i until we find a number equal to or greater than number at pivot position
+        Decrease j until we find a number equal to or less than number at pivot position
+
+        # At this point, the numbers pointed to by i and j will be in the 'wrong' 
+        # part of the list, so swap them, unless i and j are equal or have crossed over, 
+        # in which case we have finished this run
+
+        # If i and j haven't crossed over yet, swap the numbers
+        If i is less than j
+            Swap the numbers
+        else
+            return j  # i and j have crossed over. Use j as the new pivot - could also use i
 </code></pre>
-<h3 id="usingtreestostorekeyvaluepairs">Using trees to store key/value pairs</h3>
-<p>I have said several times that we test whether each node 'matches'. What exactly do we mean by this? We'd typically use a tree to store and efficiently search for data as an alternative to hash tables. In other words, each node would contain a key/value pair, such as "1smitj01"/"John Smith" for the key and value respectively in a student records system. In Python, this would probably be stored as a tuple (if we didn't want to change the values) or two-member list (if we did). So we could search the tree for a given key (index), and test each node we find in breadth-first (or depth-first) search to see if its key is the key we are searching for. If it is, then we return the value.</p>
-<h3 id="binarysearchtreedepthfirst">Binary search tree (depth-first)</h3>
-<p>This uses the technique we have seen already to search a tree for a given key (index), namely recursion. We recursively search each successive child node, starting at the root node, until we find the key we are looking for. </p>
-<p>For the search to be efficient, we need the tree to be <em>sorted</em>. We have seen already in topic 6 how to add items to a tree in sorted order. The search technique can be considered a specific case of depth-first search in which the tree is sorted and thus we know whether to select the left or right child node, and can ignore the other. For general depth-first search, we cannot guarantee this, and we will need to "backtrack" along branches of the tree to ensure all nodes are visited. In fact depth-first search is a general technique that works on graphs - to be covered in week 10 - as well as trees. As we will see, graphs are usually not sorted in any way.</p>
-<p>To search a sorted binary tree we need to:</p>
+<p>We also need a "master" quicksort function which will recursively call itself.
+This expects our list, a partition start index (initially the start of the list), and a partition end index (initially the end of the list) as parameters and:</p>
 <ul>
-<li>Start at the root node and test that first. Return the value if the key matches.</li>
-<li>If the root node key is less than the key we are searching for, descend to the right node, otherwise descend to the left node.</li>
-<li>Repeat the process recursively until the key matches; when that happens, return the value.</li>
+<li>returns immediately if the end index is not after the start index. This means that, due to recursion, we have got a partition of length 1 and the process stops. </li>
+<li>Otherwise:<ul>
+<li>uses Hoare partitioning to partition the list and find a pivot</li>
+<li>recursively call the "master" function passing in the partition <em>before</em>
+the pivot</li>
+<li>recursively call the "master" function passing in the partition <em>after</em>
+the pivot</li></ul></li>
 </ul>
-<p>Hopefully you can see that the complexity is of <code>O(log n)</code> form and it scales well to large values of <code>n</code>, the number of items stored in the tree.</p>
+<h3>Progressive sorting of quicksort</h3>
+<p>The diagram below shows how, with each run of the Hoare partitioning algorithm, the list is progressively sorted into place.
+<br />
+<img src="../images/quicksort.png" alt="Quicksort" />
+</p>
+<h3 id="complexityofquicksort">Complexity of quicksort</h3>
+<p>The complexity of quicksort can be as low as <code>O(n^2)</code> in unusual cases but on average <code>O(n log n)</code>(<a href="https://www.khanacademy.org/computing/computer-science/algorithms/quick-sort/a/analysis-of-quicksort">Khan Academy</a>). The maths behind calculating this complexity is quite advanced but is discussed at length in this article.</p>
+<br />
+<h2 id="mergesort">Further Reading: Merge sort</h2>
+<p>Reference: <a href="https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/overview-of-merge-sort">Khan Academy</a></p>
+<p>Merge sort is another more advanced sort which continuously splits the list
+into equal parts until single elements are produced. For example, a list of
+length 8 would be split into two parts of length 4, then four parts of length
+2, then eight single-item lists. Or, a list of length 10 would be split into
+two parts of length 5, then each part would be split into two parts of length
+2 and 3, then each length 2 part would be split into two parts of length 1
+while the length 3 part would be split into one part of length 1 and another
+of length 2, the latter of which would be split again. This is shown on the
+diagram below; the split phase is shown by the stages using red lines.</p>
+<p><img src="images/mergesort.png" alt="Merge sort" /></p>
+<p>Once a split has happened, the components are recombined in sorted order.
+So a split of a 2-member part into two 1-member parts would be recombined
+into a 2-member part, but in sorted order. If a 3-member part was split into
+1-member parts and 2-member parts, these would be recombined into a 3-member
+part, but again in sorted order. So the list gradually reassembles itself
+into its full length, but this time in sorted order. This is shown on the
+same diagram above; the merge phase is shown by the stages using blue lines.</p>
+<p>How do we merge two parts so that they are
+in sorted order? The algorithm is as below.
+Also see <a href="https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/linear-time-merging">Khan Academy</a> for a detailed explanation.</p>
+<pre><code>combine(listA, listB):
+
+    Set counterA to 0
+    Set counterB to 0
+
+    sorted_list = []
+
+    while counterA not beyond end of listA and counterB not beyond end of listB
+        if listA[counterA] &lt; listB[counterB]
+            Add listA[counterA] to sorted_list
+            Increase counterA by 1
+
+        else if listB[counterB] &lt; listA[counterA]
+            Add listB[counterB] to sorted_list
+            Increase counterB by 1
+
+    # At this point we will have added all elements from ONE of the two lists
+    # to the output list but not the other
+
+    if counterA is not beyond end of list A
+        Add all remaining elements from list A
+    else if counterB is not beyond end of list B
+        Add all remaining elements from list B
+
+    Return sorted_list
+</code></pre>
+<p>Why does this work? Let's consider merging the two 2-member lists
+[2 5] and [3 4]. A very important point is that <strong>when merging lists, we know
+that the previous lists will already be sorted from the previous run of
+the merge algorithm.</strong></p>
 <ul>
-<li>If the tree has one level (a root only), we search one node.</li>
-<li>If the tree has two levels (three members), we search two nodes.</li>
-<li>If the tree has three levels (seven members), we search three nodes.</li>
-<li>If the tree has four levels (15 members), we search four nodes.</li>
+<li>The while loop continues running until we reach the end of the shorter
+list. Here, both lists are the same length anyway</li>
+<li>The first time the loop runs, we compare the first members of each list
+and add the <em>lowest</em> to the output list. Here, 2 is lower than 3, so we
+add 2.</li>
+<li>This will move the counter on one place for the first list, but keep it
+the same place for the second list. This is what we want, as we no longer
+need to consider the first member of the first list (as it's been placed in
+our output list), but we do need to consider the first member of the second 
+list.</li>
+<li>So the second time the loop runs, we compare the second member of the first
+list (5) with the first member of the second (3).  This time, it's the member
+in the second list which is lowest, so we add it to the output list:</li>
 </ul>
-<p>The table below shows the relation between the number of nodes in a sorted and balanced binary tree, and the number of searches. (A <em>balanced</em> tree is one in which the data is evenly added to the left and right sides of the tree. There are techniques for ensuring this, but we will not have time to cover these in this module; I will leave this up to you to research).</p>
-<table>
-<thead>
-<tr>
-<th>Number of nodes</th>
-<th>Number of searches</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>1</td>
-</tr>
-<tr>
-<td>3</td>
-<td>2</td>
-</tr>
-<tr>
-<td>7</td>
-<td>3</td>
-</tr>
-<tr>
-<td>15</td>
-<td>4</td>
-</tr>
-<tr>
-<td>31</td>
-<td>5</td>
-</tr>
-<tr>
-<td>63</td>
-<td>6</td>
-</tr>
-<tr>
-<td>127</td>
-<td>7</td>
-</tr>
-<tr>
-<td>255</td>
-<td>8</td>
-</tr>
-<tr>
-<td>511</td>
-<td>9</td>
-</tr>
-<tr>
-<td>1023</td>
-<td>10</td>
-</tr>
-</tbody>
-</table>
-<h2>Exercises</h2>
-<p>I would advise using the first 90 minutes to do Exercise 1, and the second to do Exercise 2.</p>
-<h3 id="exercise1">Exercise 1</h3>
-<p>Implement <em>either</em> selection <em>or</em> insertion sort. Use pseudocode to help you. If you finish one, try the other.</p>
-<h3 id="exercise2">Exercise 2</h3>
-<p>Start with either your own tree from the trees topic (if you have completed the week 6 exercise) or the pre-written tree solution at <a href="https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py">GitHub</a></p>
-<ol>
-<li>Implement <em>either</em> breadth-first <em>or</em> depth-first search using the tree (for now return True or False depending on whether the number is in the tree or not).</li>
-<li>If you finish question 1, implement the other search.</li>
-</ol>
-<p>Again, you may find that <em>pseudocode</em> helps you.</p></body></html>
+<pre><code>Output list = [2 3]
+</code></pre>
+<p>and move the counter for the second list on one place.</p>
+<ul>
+<li>The third time the loop runs, we compare the second member of the first list
+(5) with the second member of the second list (4). Again, the member in the
+second list is lower, so we add it to the output list:</li>
+</ul>
+<pre><code>Output list = [2 3 4]
+</code></pre>
+<p>At this point, the counter for the second list will be beyond the end of the
+second list, so the loop exits. However, we still have one member (5) to be
+considered from the first list, so we add the remainder of the longer list
+elements (5) to the output list. (It's possible the two lists would be of
+unequal length, e.g. a 3-member list and a 2-member list; this last stage
+would also ensure that all un-added members from the longer list would be added)</p>
+<h3 id="recursiveapproachtomergesort">Recursive approach to merge sort</h3>
+<p>The entire merge sort algorithm is handled with a recursive function. This
+recursive function takes a list to be split as a parameter, and:</p>
+<ul>
+<li>Returns immediately if the list is of length 1, as no further splitting
+needs to be done.</li>
+<li>Otherwise:<ul>
+<li>Splits the list in two equal or nearly-equal parts</li>
+<li>Calls the recursive function again with each subpart of the list</li>
+<li>Merges the return values of each recursive function call in sorted order (see above for details)</li>
+<li>Returns the merged list</li></ul></li>
+</ul>
+<h3 id="complexityofmergesort">Complexity of merge sort</h3>
+<p>The complexity of merge sort is <code>O(n log n)</code>. See <a href="https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/analysis-of-merge-sort">here</a> for a detailed explanation.</p>
+<h3 id="exercisepaper">Exercise (paper)</h3>
+<p>I believe that you will get a better understanding of quicksort, which is a rather complex operation, by doing a paper exercise first. 
+Here is a list of numbers.</p>
+<pre><code>[22,56,1,59,38,7,15,17,33]
+</code></pre>
+<p>On paper, perform quicksort on these numbers. Ensure you show all steps.
+Use the middle element of the list as the initial pivot (i.e. 38).
+It might take you a while as there will be multiple recursive stages!</p>
+<h3 id="exercisecode">Exercise (code)</h3>
+<p>If you finish, have a go at implementing quicksort in code, using the
+pseudocode above to help you.</p>
+<p>If you finish that, have a go at implementing merge sort. Hint: you should include three functions:
+	<ol>
+	<li>A function to split a list into two. You can use range indexing to easily do this:
+	<pre>
+	midpoint = math.floor(len(data)/2)
+	first_half = data[:midpoint] # up to but not including midpoint
+	second_half = data[midpoint:] # from midpoint onwards
+	return [first_half, second_half] # return a list of the two sublists
+	</pre>
+	</li>
+	<li>A function to combine two lists. See the explanation above for how to do this.</li>
+	<li>A recursive mergesort function to control the whole process. This should take the list to sort as a parameter and then:
+		<ul>
+		<li>Split the list using your splitting function;</li>
+		<li>Test if the length of each sublist is more than one. If so, recursively call your mergesort function and pass the sublist to it. This will have the effect of recursively splitting the list until it can be split no further.</li>
+		<li>Combine the return values of the two recursive mergesort calls, and return the combined list from the mergesort function.</li>
+		</ul>
+	</li>
+	</ol>
+</p>

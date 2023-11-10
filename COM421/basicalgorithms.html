@@ -1,11 +1,11 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="topic7algorithmsintroduction">Topic 8: Algorithms Introduction</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="topic7algorithmsintroduction">Topic 7: Algorithms Introduction</h1>
 <p>We are now going to start looking at <em>algorithms</em>. An algorithm is, as we
 have seen, a clearly-defined solution to a particular problem, which follows
 a series of clearly-specified steps. Common examples of algorithms include
 sorting collections of data, or searching for an item in a collection of
 data.</p>
 <p>We will start by looking at algorithm <em>efficiency</em> using the <em>Big O</em>
-notation, and then look at some sorting algorithms, comparing their 
+notation, and then look at some sorting and searching algorithms, comparing their 
 efficiency.</p>
 <h2 id="algorithmefficiencythebigonotation">Algorithm efficiency: the "Big O" notation</h2>
 <p>When designing algorithms, we need some measure of how <em>complex</em> an
@@ -153,6 +153,39 @@ in the list?</p>
 <p>What, therefore, would be the complexity in Big O notation of this algorithm, where <code>n</code> is the number of values in the list? </p>
 <h3 id="exercise2">Exercise 2</h3>
 <p>Have a go at coding bubble sort in Python. You should create a list of numbers to sort, and once the algorithm has finished, print the list to test whether the sort has taken place. <strong>If you are struggling, try writing it in pseudocode first.</strong></p>
+<h2 id="selectionsort">Selection sort</h2>
+<p>Selection sort is another sorting algorithm which is conceptually simple but (relatively) inefficient. Nonetheless it has some advantages over bubble sort,
+in particular, the number of swap operations is minimised (of order <code>O(n)</code> rather than <code>O(n^2)</code>), and will be used as another example of a sorting algorithm.</p>
+<h4 id="howdoesselectionsortwork">How does selection sort work?</h4>
+<p>We once again have an outer loop. This loops through each member of the list
+(apart from the last). Within the outer loop we have an inner loop which 
+compares the current member with each of the remaining members in turn. The
+lowest remaining member is found, and if this is lower than the current
+member, the current member and this lowest member is swapped.</p>
+<p>See the diagram below, which is based from notes provided by my former colleague Brian Dupée, which were in turn sourced from the site sorting-algorithms.com (this site still exists, provided by Toptal, but does not appear to contain these resources anymore)</p>
+<p><img src="images/selection_sort.png" alt="Selection Sort" /></p>
+<p>It is of interest what this algorithm's time complexity equals, as it raises
+an important conceptual point about the Big O notation. If you imagine 
+sorting 5 values, what needs to be done?</p>
+<ul>
+<li>The outer loop needs to perform <code>n-1</code>, or 4 swaps.</li>
+<li>The number of operations the inner loop needs to do, depends on where
+we are in the outer loop. So for the first iteration of the outer loop, we
+will need to loop through members 1-4 (starting at 0 for the first member) and
+compare them with member 0. For the second iteration, we need to loop through
+members 2-4 and compare them with member 1. For the third iteration, we loop
+through members 3 and 4 and compare them with member 2, and for the fourth
+iteration, we compare member 4 with member 3.</li>
+</ul>
+<p>So the total number of operations for a 5-member list is 4+3+2+1, or more generally for an <code>n</code>-member list, the number of operations is the sum of all the numbers from 1 to <code>n</code>. This value is equal to <code>(n + n^2) / 2</code>.</p>
+<p>This is an equation of quadratic form, as it can be expressed instead as <code>0.5n^2 + 0.5n</code>. So with large <code>n</code> values the <code>n^2</code> term will dominate, and thus, this is an <code>O(n^2)</code> class of algorithm, i.e. less efficient. It is not quite as inefficient as bubble sort, particularly given that less swaps are involved (swapping is a relatively expensive operation as it requires a temporary variable to be created), but it can still potentially be improved.</p>
+<p>A less mathematical way of thinking about it is to consider the fact that there are <em>two loops, one within another</em>. Algorithms of this form - even if one of the loops does not iterate through the entire list - will generally be <code>O(n^2)</code>.</p>
+<p>When swapping numbers, swapping is not particularly computationally
+expensive. However, if the two values are complex objects which take time to 
+initialise, then the fact that we need to create a temporary variable can
+mean a swap is expensive. So in cases like this, selection sort is particularly favoured over bubble sort.</p>
+<h3>Exercise 2</h3>
+<p>Have a go at implementing selection sort in Python.</p>
 <h2 id="efficientsearchingavoidingbruteforcealgorithms">Efficient searching - avoiding brute-force algorithms</h2>
 <p>As we saw above, searching through a list is an <code>O(n)</code> operation, as the worst-case scenario performance will be linearly proportional to the length of the list. We have to loop through each member of the list until we find the item that we are looking for, which, if near the end of the list, may take some time. </p>
 <p>This approach is known as <em>brute-force</em>. Brute-force algorithms attempt to find an answer through testing every possibility (here, every item in the list) and do not try to use any optimisations or more efficient techniques. Another example of a brute-force algorithm would be trying to find the factors of a number (factors of a number are every integer that the number can be divided by to give a further integer, for example the factors of 24 are 2, 3, 4, 6, 8 and 12). What we could do in a brute-force algorithm is to divide the number by every integer from 2 to the number to see if we get an integer as a result. This works, but is not efficient (<code>O(n)</code> with respect to the number). </p>
