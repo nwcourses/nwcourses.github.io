@@ -333,7 +333,7 @@ function Page() {
 
     const [pois, setPOIs] = React.useState([]);
 
-    const poisJSX = pois.map (poi => <li key={poi.ID}>{poi.name} {poi.type}</li>;
+    const poisJSX = pois.map (poi => <li key={poi.ID}>{poi.name} {poi.type}</li>);
 
     async function search() {
         const type = document.getElementById('poiType').value;
