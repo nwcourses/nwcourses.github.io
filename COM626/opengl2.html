@@ -328,6 +328,7 @@ gpu.sendMatrix(ref_uProjMatrix, projectionMatrix)</pre>
     </ul>
 </p>
 <h3>Exercise - View and Projection Matrices</h3>
+<!--
 <p>Start with this repository:
 <pre>https://github.com/nwcourses/OpenGL01</pre>
 This is a solution to last week's work, but with an enhanced GUI containing
@@ -377,6 +378,8 @@ The effect of <code>translate()</code> will be to convert it to:
 </li>
 <li><strong>What effect do you get, and why?</strong> Try using a range of different <code>z</code> translations, between -2 and +2, see what effect it has, and try to explain your observations. We will go over this in class.</li>
 </ol>
+-->
+<p>Will appear here.</p>
 
 <!--
 <h3>Discussion from Question 7 of above exercise</h3>
@@ -397,18 +400,20 @@ OpenGL?</p>
 
 <h3>Express your objects in world coordinates</h3>
 
-<p>In this sort of application, all the objects in the world - as well as the camera - need to be stored in world coordinates. We then define a view matrix to transform the world coordinates to eye coordinates based on <em>the position of the camera</em>. We will need a <code>cameraPos</code> variable to represent the current camera position in x, y and z coordinates, i.e.:
-<pre>val cameraPos = FloatArray(3)</pre>
+<p>In this sort of application, all the objects in the world - as well as the camera - need to be stored in world coordinates. We then define a view matrix to transform the world coordinates to eye coordinates based on <em>the position of the camera</em>. We will need a <code>Camera</code> object. part of the OpenGLWrapper library, to represent the current camera position in x, y and z coordinatesand rotation in degrees. The camera can be created as follows:
+<pre>val camera = Camera(x, y, z)</pre>
+where x, y and z represent the initial position.
 </p>
 <p>Try answering this question. If the camera position is at x=0, y=0, z=100 in world coordinates, and facing towards negative z, what translation do we need to do (expressed as a translation vector) to transform our world coordinates into eye coordinates for that position? (Think about your observations in the final question of Exercise 1).</p>
 
 
 <h3>Exercise 2</h3>
-
+<p>Will appear here.</p>
+<!--
 <p>
 Enhance the app, so that it allows the user to move the camera one unit in the x, y and z directions, either positive or negative. Use the 6 buttons on your UI (provided by the code in the repository) to do this.  You will need to:
     <ul>
-    <li>store the position of the camera as a three-member float array <code>cameraPos</code>, as shown above.</li>
+    <li>store the position of the camera as a <code>Camera</code> object, as shown above.</li>
     <li>ensure that, each time <code>onDrawFrame()</code> is called, the view matrix is <em>re-initialised to an identity matrix</em>. This is to ensure that, when the matrix is translated with <code>GLMatrix.translate()</code>, it is relative to the identity matrix and not relative to its previous value.</li>
     <li>write a set of methods in your renderer class to move the camera in the appropriate direction.
     Each of these will need to <em>update the <code>cameraPos</code> float array accordingly</em></li>
@@ -416,6 +421,7 @@ Enhance the app, so that it allows the user to move the camera one unit in the x
     <li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>GLMatrix.translate()</code></em>. (How would you do this?)</li>
     </ul>
 </p>
+-->
 
 </body>
 </html>
