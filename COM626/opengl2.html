@@ -328,10 +328,117 @@ gpu.sendMatrix(ref_uProjMatrix, projectionMatrix)</pre>
     </ul>
 </p>
 <h3>Exercise - View and Projection Matrices</h3>
-<!--
-<p>Start with this repository:
-<pre>https://github.com/nwcourses/OpenGL01</pre>
-This is a solution to last week's work, but with an enhanced GUI containing
+<p>Add this layout to your app:
+<pre>
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"&gt;
+
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/minusX"
+        android:text="@string/minusX"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/plusX" /&gt;
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/plusX"
+        android:text="@string/plusX"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/minusX"
+        app:layout_constraintRight_toLeftOf="@id/minusY" /&gt;
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/minusY"
+        android:text="@string/minusY"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/plusX"
+        app:layout_constraintRight_toLeftOf="@id/plusY" /&gt;
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/plusY"
+        android:text="@string/plusY"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/minusY"
+        app:layout_constraintRight_toLeftOf="@id/minusZ" /&gt;
+
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/minusZ"
+        android:text="@string/minusZ"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/plusY"
+        app:layout_constraintRight_toLeftOf="@id/plusZ" /&gt;
+
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/plusZ"
+        android:text="@string/plusZ"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/minusZ"
+        app:layout_constraintRight_toRightOf="parent"  /&gt;
+
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/rotateClockwise"
+        android:text="@string/rotateClockwise"
+        app:layout_constraintTop_toBottomOf="@id/plusX"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/rotateAnticlockwise"  /&gt;
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/rotateAnticlockwise"
+        android:text="@string/rotateAnticlockwise"
+        app:layout_constraintTop_toBottomOf="@id/plusX"
+        app:layout_constraintLeft_toRightOf="@id/rotateClockwise"
+        app:layout_constraintRight_toLeftOf="@id/cameraForward"  /&gt;
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/cameraForward"
+        android:text="@string/cameraForward"
+        app:layout_constraintTop_toBottomOf="@id/plusX"
+        app:layout_constraintLeft_toRightOf="@id/rotateAnticlockwise"
+        app:layout_constraintRight_toLeftOf="@id/cameraBack" /&gt;
+    &lt;Button
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:id="@+id/cameraBack"
+        android:text="@string/cameraBack"
+        app:layout_constraintTop_toBottomOf="@id/plusX"
+        app:layout_constraintLeft_toRightOf="@id/cameraForward"
+        app:layout_constraintRight_toRightOf="parent"  /&gt;
+
+    &lt;com.example.opengl01.OpenGLView
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:id="@+id/glview"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/minusX" /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</pre>
+and change your main activity to use this layout. Also change your OpenGLView to have different parameters:
+<pre>
+class OpenGLView(ctx: Context, aset: AttributeSet)  :GLSurfaceView(ctx, aset) {
+</pre>
+which is necessary to load the OpenGLView from XML.</p>
+
+<p>This is an enhanced GUI containing
 buttons allowing you to move the camera around. This will be used for a 
 later exercise.</p>
 <ol>
@@ -378,8 +485,6 @@ The effect of <code>translate()</code> will be to convert it to:
 </li>
 <li><strong>What effect do you get, and why?</strong> Try using a range of different <code>z</code> translations, between -2 and +2, see what effect it has, and try to explain your observations. We will go over this in class.</li>
 </ol>
--->
-<p>Will appear here.</p>
 
 <!--
 <h3>Discussion from Question 7 of above exercise</h3>
@@ -408,8 +513,6 @@ where x, y and z represent the initial position.
 
 
 <h3>Exercise 2</h3>
-<p>Will appear here.</p>
-<!--
 <p>
 Enhance the app, so that it allows the user to move the camera one unit in the x, y and z directions, either positive or negative. Use the 6 buttons on your UI (provided by the code in the repository) to do this.  You will need to:
     <ul>
@@ -421,7 +524,6 @@ Enhance the app, so that it allows the user to move the camera one unit in the x
     <li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>GLMatrix.translate()</code></em>. (How would you do this?)</li>
     </ul>
 </p>
--->
 
 </body>
 </html>
