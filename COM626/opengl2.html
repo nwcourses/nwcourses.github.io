@@ -328,7 +328,7 @@ gpu.sendMatrix(ref_uProjMatrix, projectionMatrix)</pre>
     </ul>
 </p>
 <h3>Exercise - View and Projection Matrices</h3>
-<p>Add this layout to your app:
+<p>Add this layout to your app (you will need to add appropriate string resources for the buttons):
 <pre>
 &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -388,40 +388,8 @@ gpu.sendMatrix(ref_uProjMatrix, projectionMatrix)</pre>
         app:layout_constraintLeft_toRightOf="@id/minusZ"
         app:layout_constraintRight_toRightOf="parent"  /&gt;
 
-    &lt;Button
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:id="@+id/rotateClockwise"
-        android:text="@string/rotateClockwise"
-        app:layout_constraintTop_toBottomOf="@id/plusX"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/rotateAnticlockwise"  /&gt;
-    &lt;Button
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:id="@+id/rotateAnticlockwise"
-        android:text="@string/rotateAnticlockwise"
-        app:layout_constraintTop_toBottomOf="@id/plusX"
-        app:layout_constraintLeft_toRightOf="@id/rotateClockwise"
-        app:layout_constraintRight_toLeftOf="@id/cameraForward"  /&gt;
-    &lt;Button
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:id="@+id/cameraForward"
-        android:text="@string/cameraForward"
-        app:layout_constraintTop_toBottomOf="@id/plusX"
-        app:layout_constraintLeft_toRightOf="@id/rotateAnticlockwise"
-        app:layout_constraintRight_toLeftOf="@id/cameraBack" /&gt;
-    &lt;Button
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:id="@+id/cameraBack"
-        android:text="@string/cameraBack"
-        app:layout_constraintTop_toBottomOf="@id/plusX"
-        app:layout_constraintLeft_toRightOf="@id/cameraForward"
-        app:layout_constraintRight_toRightOf="parent"  /&gt;
-
-    &lt;com.example.opengl01.OpenGLView
+    &lt;!-- you may need to change the package --&gt;
+    &lt;com.example.opengl1.OpenGLView
         android:layout_width="0px"
         android:layout_height="0px"
         android:id="@+id/glview"
