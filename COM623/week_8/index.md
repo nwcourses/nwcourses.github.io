@@ -18,7 +18,7 @@ There is no single way of doing this but according to the Next.js documentation 
 
 You can import these with paths relative to the top-level folder of your app, e.g.
 
-```
+```javascript
 import 'app/ui/addsong.js';
 ```
 
@@ -74,7 +74,7 @@ we can save it in the `ui` folder, allowing us to include it in another componen
 
 We can then include it as follows:
 
-```
+```jsx
 import AddPoi from 'app/ui/addpoi';
 
 function Page() {
@@ -348,7 +348,7 @@ You can see how we wrap `SlowComponent` with a `Suspense` component with a `fall
 
 We will now look at some techniques for building a larger application, with several inter-linked components. You might, for example, want to build a shopping application in which you can buy a product by clicking on a "buy" button. Or, a points of interest application in which you can review, or "like", a particular POI. The key feature of this type of application is the user selects a given entity (product, POI, etc) and performs an operation on it.
 
-Server actions would be ideal to perform the operation (e.g. buy, like, etc). Also, server components are the most convenient way of doing the initial search for products, Pois etc. However, remember that server actions can *only be called from client components*. So how can we get round this?
+Server actions would be ideal to perform the operation (e.g. buy, like, etc). Also, server components are the most convenient way of doing the initial search for products, POIs etc. However, remember that server actions can *only be called from client components*. So how can we get round this?
 
 There are various approaches including:
 
@@ -371,7 +371,7 @@ function SearchResults({type}) {
     const results = stmt.all(type);
 
     const output = results.map ( poi => <PoiDetails poi={poi} /> );
-    return <div><h2>Search for Pois of type {type}</h2><ul>{output}</ul></div>;
+    return <div><h2>Search for POIs of type {type}</h2><ul>{output}</ul></div>;
 }
 
 export default SearchResults;
@@ -494,13 +494,13 @@ function likePoi(prevState, id) {
 
 Some of our components have featured testing for errors. However Next.js comes with some standard error-handling features, including:
 
-- providing an `errors.js` component to be displayed whenever an error is thrown (e.g. via an exception)
+- providing an `error.js` component to be displayed whenever an error is thrown (e.g. via an exception)
 
 - providing custom 404 Not Found components via `not-found.js`.
 
-We'll look at each of these in turn. Here is a page which searches for Pois by type.
+We'll look at each of these in turn. Here is a page which searches for POIs by type.
 
-```
+```jsx
 import Database from 'better-sqlite3';
 import { notFound } from 'next/navigation';
 
@@ -557,3 +557,88 @@ function NotFound() {
 
 export default NotFound;
 ```
+
+## Exercise
+
+- Ensure you have completed the exercises from last week.
+
+- Develop a layout for HitTastic! which will apply to all routes and subroutes of `hittastic. This should include these links within a sidebar:
+
+	- `/hittastic` : main HitTastic! page, including some information about HitTastic!
+	- `/hittastic/search` : search for a song.
+	- `/hittastic/add` : add a song.
+
+Use the `Link` component for the links, and use this CSS to setup a sidebar and main content area:
+
+```css
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+#container {
+    min-height: 100%;
+    height: 100%;
+    border: 1px solid white;
+    font-size: 80%;
+}
+#nav {
+    float: left;
+    width: 20%;
+    background-color: black;
+    color: white;
+    height: 100%;
+}
+
+
+#main {
+    background-color: #00ffff;
+    color: black;
+    float: right;
+    width: 80%;
+    height: 100%;
+}
+
+a {
+    color: white;
+}
+
+#main a {
+    color: blue;
+}
+```
+
+Create the `search` and `add` routes (you can use the work from last week to do this). Test it out, and go to the Developer Tools and specifically the Network Tab. Turn off "XHR" (AJAX) requests (so they cannot be seen) and navigate between the three routes. Do the requests appear in the Network tab?
+
+- Implement streaming for `hittastic` and all sub-routes, using a `loading.js` file. To prove it works, try writing a component with a path `/hittastic/slow` which simulates a slow loading, as follows, and link it to your sidebar.
+
+```jsx
+async function Page() {
+
+    // the pauser() function returns a promise which resolves with a timeout function which runs the "resolve" function after a given number of milliseconds. This will have an effect of pausing for that time.
+    function pauser(milliseconds) {
+
+        return new Promise( resolve => {
+            setTimeout(resolve, milliseconds);
+        } );
+    }
+
+    // await the resolution of this promise in 3000 milliseconds
+    await pauser(3000);
+    return <p>Content loaded!</p>;
+
+}
+
+export default Page;
+```
+
+- Rewrite your "add song" functionality to use AJAX and `useFormState()`. Display the success, or otherwise, of the "add song" server action in the front-end UI via state. Include a check to make sure that the song details are not blank in the server action, and return an appropriate object to update the state with the error if so. Place your server action inside an `actions` folder within `app`.
+
+- Rewrite your Search functionality as follows:
+
+    - it should use three components, one page component, for the search form and one for the search results, with the search form component editing the query string and reloading the page, as shown in the example above. The search and search results components should be within the `ui` folder within `app`.
+
+    - it should throw an error if the artist is blank (""). Write a custom `error.js` component to handle this error.
+
+    - it should then include a Buy button for each song. This Buy button should contact a `buySong` server action which reduces the quantity by one. The `buySong` action should check whether the song with that ID exists, communicating the error to the client if not. If successful it should do a SELECT statement to find the new quantity, and communicate that to the client. The client should then do a live-update of the new quantity.
+
