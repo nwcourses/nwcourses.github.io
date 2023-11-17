@@ -101,7 +101,6 @@ First of all the `AjaxAddPoi` component, which we would place inside `ui`:
 ```jsx
 "use client"
 
-import { redirect } from 'next/navigation';
 import {useFormState} from 'react-dom';
 import createPoi from 'app/actions/createPoi';
 
@@ -218,7 +217,6 @@ The example shows the use of the `next/navigation` module to allow the URL to be
 We will start with the `page.js`: 
 
 ```jsx
-import React from 'react';
 import Search from 'app/ui/search';
 import SearchResults from 'app/ui/searchresults';
 
@@ -244,7 +242,6 @@ We'll now look at the `Search` component. This gathers the point of interest typ
 ```jsx
 'use client';
 
-import React from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 function Search({params}) {
