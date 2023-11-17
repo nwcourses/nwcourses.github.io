@@ -63,16 +63,16 @@ So, <code>T</code> is multiplied by <code>P<sub>world</sub></code>, to produce a
 	in degrees. 0 should represent the default of looking down the z axis towards negative z, and it should
 	increase anticlockwise and decrease clockwise. Use values in the range -180 &gt; 0 &gt; 180.</li>
 	<li>Add anticlockwise and clockwise rotation buttons to the user interface. When the user presses these, call
-	appropriate methods to increase the <em>float</em> attribute in your OpenGLView appropriately, using a step
-	of 10 degrees.</li>
-	<li>Alter your code in <code>onDrawFrame()</code> to apply the rotation in addition to the translation. You need to use the <code>Matrix.rotateM()</code> method:
-	<pre>Matrix.rotateM(matrix, offset, angle, x, y, z)</pre>
+	appropriate methods rotate the camera appropriately, using a step
+	of 10 degrees:
+	<code>camera.rotate(angle)</code>
+	</li>
+	<li>Alter your code in <code>onDrawFrame()</code> to apply the rotation in addition to the translation. You need to use <code>Camera</code>'s <code>rotate()</code> method to specify the rotation required to convert world to eye coordinates by a given angle (anticlockwise=positive, clockwise=negative):
+	<pre>matrix.rotateAboutAxis(worldToEyeAngle, 'y')</pre>
 	What are the arguments?
 		<ul>
-		<li>First argument is the matrix to be rotated;</li>
-		<li>Second argument is the offset into the array where the matrix begins (usually 0);</li>
-		<li>Third argument is the angle to rotate (degrees);</li>
-		<li>Fourth, fifth and sixth arguments define the axis to rotate around (x, y and z respectively). Note that you can rotate around any arbitrary axis, not just the x, y and z axes. Here, we wish to rotate around the y axis, so would supply the values <code>0</code>, <code>1</code> and <code>0</code> respectively.</li>
+		<li>First argument is the angle to rotate to convert world to eye coordinates (degrees). <strong>What will this be here?</strong></li>
+		<li>Second argument is the axis to rotate around. Here, we wish to rotate around the y axis.</li>
 		</ul>
 	</li>
 	<li>Try it out.</li>
