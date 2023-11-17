@@ -226,9 +226,9 @@ function Page({searchParams}) {
 
     return (
         <div>
-        <h1>Searching for {searchParams.poi}</h1>
+        <h1>Searching for {searchParams.type}</h1>
         <Search />
-        <SearchResults poi={searchParams.poi} />
+        <SearchResults type={searchParams.type} />
         </div>
     );
 }
@@ -254,7 +254,7 @@ function Search({params}) {
     const { replace } = useRouter();
 
     async function handleSearch() {
-        const poi = document.getElementById('type').value;
+        const type = document.getElementById('type').value;
         const params = new URLSearchParams(searchParams);
         params.set('type', type);
         replace(`${pathname}?${params.toString()}`);
@@ -291,17 +291,7 @@ function SearchResults({type}) {
 export default SearchResults;
 ```
 
-You can see how this takes in an poi, performs an SQL query and returns JSX of the results.
-
-## Sub-layouts
-
-How route groups can share layouts...
-
-
-### Exercise
-
-Make links to all the routes you made last week and this week from your main page. View them on the Developer Tools Network tab and see that they are XHR (AJAX) based.
-
+You can see how this takes in a poi, performs an SQL query and returns JSX of the results.
 
 ## Streaming
 
