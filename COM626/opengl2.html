@@ -487,7 +487,7 @@ Enhance the app, so that it allows the user to move the camera one unit in the x
     <li>write a set of methods in your renderer class to move the camera in the appropriate direction.
     Each of these will need to <em>update the <code>cameraPos</code> float array accordingly</em></li>
     <li>call these methods from the appropriate button (do this inside the main activity).</li>
-    <li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>GLMatrix.translate()</code></em>. (How would you do this?)</li>
+    <li>In your <code>onDrawFrame()</code>, after initialising the view matrix as an identity matrix, use the camera position to <em>set the view matrix appropriately using <code>GLMatrix.translate()</code></em>. The <code>Camera</code> has a <code>position</code> attribute with <code>x</code>,<code>y</code> and <code>z</code> properties.  (How would you do this?)</li>
     </ul>
 </p>
 

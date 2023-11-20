@@ -56,12 +56,10 @@ To prove that this corresponds to translation first, we then expand the equation
 Look at where the original point in world coordinates, <code>P<sub>world</sub></code>, is in this expression. It is being multiplied by the <em>translation matrix, <code>T</code></em>. Thus, the point is being <em>translated first</em> if the <em>rotation matrix is the first thing specified in our code</em>. This becomes clearer if we use brackets in the expression to show exactly what is multiplied by what:
 <pre>P<sub>eye</sub> = R * (T  * P<sub>world</sub>)</pre>
 So, <code>T</code> is multiplied by <code>P<sub>world</sub></code>, to produce an output (translated) point, then <code>R</code> is multiplied by that output point to produce a second point, which is our final point in eye coordinates. This corresponds to the desired order shown on the diagram above: translation and then rotation. So we have proved that <strong>if we want the point to be translated and then rotated when calculating the eye coordinates, we must specify the rotation matrix first, and then the translation matrix, when calculating the view matrix to use.</strong></p>
-<h3>Exercise: setting your code up to handle rotation</h3>
+<h3>Exercise 1: setting your code up to handle rotation</h3>
 <p>Return to your app from last week, in which you could move round the world in x, y and z directions. You are now going to add a rotation facility to it, to allow the user to rotate the camera. To do this:
 	<ul>
-	<li>Add a <em>float</em> attribute to your OpenGLView representing the current rotation of the camera
-	in degrees. 0 should represent the default of looking down the z axis towards negative z, and it should
-	increase anticlockwise and decrease clockwise. Use values in the range -180 &gt; 0 &gt; 180.</li>
+	<li>Note your <code>camera</code> object has a <code>rotation</code> attribute. This represents rotation around the y axis. 0 represents the default of looking down the z axis towards negative z, and it increases anticlockwise and decrease clockwise. It uses values in the range -180 &gt; 0 &gt; 180.</li>
 	<li>Add anticlockwise and clockwise rotation buttons to the user interface. When the user presses these, call
 	appropriate methods rotate the camera appropriately, using a step
 	of 10 degrees:
