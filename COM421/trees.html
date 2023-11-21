@@ -421,14 +421,10 @@ print(len(q))
 </code></pre>
 <h3 id="usingtreestostorekeyvaluepairs">Using trees to store key/value pairs</h3>
 <p>I have said several times that we test whether each node 'matches'. What exactly do we mean by this? We'd typically use a tree to store and efficiently search for data as an alternative to hash tables. In other words, each node would contain a key/value pair, such as "1smitj01"/"John Smith" for the key and value respectively in a student records system. In Python, this would probably be stored as a tuple (if we didn't want to change the values) or two-member list (if we did). So we could search the tree for a given key (index), and test each node we find in breadth-first (or depth-first) search to see if its key is the key we are searching for. If it is, then we return the value.</p>
-<h2>Exercises</h2>
-<p>I would advise using the first 90 minutes to do Exercise 1, and the second to do Exercise 2.</p>
-<h3 id="exercise1">Exercise 1</h3>
-<p>Implement <em>either</em> selection <em>or</em> insertion sort. Use pseudocode to help you. If you finish one, try the other.</p>
 <h3 id="exercise2">Exercise 2</h3>
 <p>Start with either your own tree from the trees topic (if you have completed the week 6 exercise) or the pre-written tree solution at <a href="https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py">GitHub</a></p>
 <ol>
-<li>Implement <em>either</em> breadth-first <em>or</em> depth-first search using the tree (for now return True or False depending on whether the number is in the tree or not).</li>
+<li>Implement <em>either</em> depth-first <em>or</em> breadth-first search using the tree (for now return True or False depending on whether the number is in the tree or not).</li>
 <li>If you finish question 1, implement the other search.</li>
 </ol>
 </body>
