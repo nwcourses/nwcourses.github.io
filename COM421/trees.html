@@ -91,7 +91,7 @@ the root node to get to the node containing the number 20. 1 is less than
 number 17. 1 is less than 17, so 1 is placed in the left child node
 of the node containing the number 17.</p>
 <p><img src="images/tree7.png" alt="Tree stage 7" /></p>
-<h3>Exercise</h3>
+<h3>Exercise 1</h3>
 <p>On paper, create a binary tree containing these numbers in order:
 <pre> 389 843 9 8934 1 83 23 1124 532</pre>
 </p>
@@ -250,7 +250,7 @@ for directory in os.walk("src"):
     print(directory)
 </pre>
 Each directory is represented as a three-member tuple, containing the directory name, a list of subdirectories, and list of files.</p>
-<h3>Exercise: Creating a Binary Tree and using it to sort some data</h3>
+<h3>Exercise 2: Creating a Binary Tree and using it to sort some data</h3>
 <ol>
 <li>Create a TreeNode data structure to represent a single node in a tree:
 <pre>
@@ -421,11 +421,12 @@ print(len(q))
 </code></pre>
 <h3 id="usingtreestostorekeyvaluepairs">Using trees to store key/value pairs</h3>
 <p>I have said several times that we test whether each node 'matches'. What exactly do we mean by this? We'd typically use a tree to store and efficiently search for data as an alternative to hash tables. In other words, each node would contain a key/value pair, such as "1smitj01"/"John Smith" for the key and value respectively in a student records system. In Python, this would probably be stored as a tuple (if we didn't want to change the values) or two-member list (if we did). So we could search the tree for a given key (index), and test each node we find in breadth-first (or depth-first) search to see if its key is the key we are searching for. If it is, then we return the value.</p>
-<h3 id="exercise2">Exercise 2</h3>
-<p>Start with either your own tree from the trees topic (if you have completed the week 6 exercise) or the pre-written tree solution at <a href="https://raw.githubusercontent.com/nwcourses/nwcourses.github.io/master/COM421/solutions/tree.py">GitHub</a></p>
+<h3 id="exercise3">Exercise 3</h3>
+<p>Start with your own tree from above.
 <ol>
 <li>Implement <em>either</em> depth-first <em>or</em> breadth-first search using the tree (for now return True or False depending on whether the number is in the tree or not).</li>
 <li>If you finish question 1, implement the other search.</li>
 </ol>
+</p>
 </body>
 </html>
