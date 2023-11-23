@@ -296,3 +296,6 @@ and not
 
 `/hittastic/(main)/search`
 
+## Exercises 
+
+Will appear by the Friday afternoon session.
