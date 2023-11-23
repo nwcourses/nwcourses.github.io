@@ -41,6 +41,8 @@ Here, `Page` is a server component (which is the default) but `<ClientComponent>
 The `ClientComponent` might look like this:
 
 ```jsx
+"use client"
+
 function ClientComponent() {
     return <h2>This component is running on the client!</h2>;
 }
@@ -56,6 +58,8 @@ As we have also seen last week, when we use `useFormState()` with server actions
 What about the opposite case, though, where we might want to embed a server component inside a client component? For example:
 
 ```jsx
+"use client"
+
 import ServerComponent from 'app/ui/servercomponent';
 
 function ClientComponent() {
@@ -166,6 +170,7 @@ async function login(formData) {
     const username = formData.get("username");
     if(username=="admin" && formData.get("password")=="password") {
         session.username = username;
+        await session.save(); // must save the session after setting it
     }
 
     // Other code omitted...
@@ -180,7 +185,8 @@ Later we can retrieve the session again, eg.
 ```
 const session = await getIronSession(cookies(), { password, cookieName } );
 if(session.username) {
-    // we are logged in 
+    // we are potentially logged in if the username field is present - check 
+    // the database to see if the user is actually logged in (see below)
 } else {
     // we are not logged in
 }
@@ -188,9 +194,23 @@ if(session.username) {
 
 In a full example you would check the username and password against a database. To handle logouts you can either `unset` the session property (e.g. `session.username`) or set it to `null`. 
 
-Note however that this renders the cookie liable to tampering on the client side (e.g. adding the username back in) so further checks need to be added. If we just grant access by checking for the existence of the `username` property, it's conceivable that it will exist due to client-side tampering, so we should also store the current login status of a user in the database table, as described on the `iron-session` documentation. 
+### Adding login status to the database
+
+Note that simply checking for `session.username` renders the cookie liable to tampering on the client side (e.g. adding the username back in to the cookie) so further checks need to be added. If we just grant access by checking for the existence of the `username` property, it's conceivable that it will exist due to client-side tampering, so we should also store the current login status of a user in the database table, as described on the `iron-session` documentation. 
 
 So when the user logs in, we set a flag in the database to `true` to indicate that they have authenticated successfully, and when they log out, we set the flag back to `false` to indicate that this username should no longer have access to private resources. So if the cookie contains a `username` property, we check the database to see whether that user is currently logged in (is the flag `true`?), and only grant access if they are.
+
+This shows the structure of the users table. (In a production application the password would of course be encrypted)
+
+
+|username|password|loggedin|
+|--------|--------|--------|
+|fred    |fred123 |false   |
+|jane    |jane123 |true    |
+|james   |james123|true    |
+|tina    |tina123 |false   |
+
+In this example, users `jane` and `james` are logged in.
 
 ### Checking the session 
 
