@@ -168,9 +168,7 @@ Note how we have two calls to <code>gpu.specifyBufferedDataFormat()</code>, one 
 
 <p><strong>You'll need to update the OpenGLWrapper library in order to use <code>GPUInterface.drawElements()</code>. Pull the latest version from GitHub, within Android Studio, and build it. Again name the <code>.aar</code> a slightly different name to avoid caching issues.</strong></p>
 
-<p>Modify your cube-drawing application so that the first cube has the bottom four vertices
-in red and top four in yellow, and the second cube has the bottom four vertices in blue and the
-top four in green.</p>
+<p>Modify your cube-drawing application so that the one of the cubes uses different colours for the 8 vertices, e.g: red, yellow, red, yellow for the top 4 vertices and blue, green, blue, green for the bottom 4. You will need to create a new vertex and fragment shader to handle this. Because you are using a different shader program, you will need to create two <code>GPUInterface</code> objects.
 
 <h2>Taking it further - models</h2>
 <p>More complex shapes, representing real-world objects, are typically represented by <em>models</em>. These are typically created by specialist modelling software and saved asexternal files containing the vertices and vertex indices (as well as other properties such as textures - to be covered next time). Common model formats include:
