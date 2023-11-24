@@ -5,7 +5,7 @@
 <link rel='stylesheet' type='text/css' href='../css/android.css' />
 <style>
 img {
-	border: 1px solid black;
+    border: 1px solid black;
 }
 </style>
 </head>
@@ -49,27 +49,22 @@ array (of <em>short</em>s this time, rather than <em>float</em>s) and create the
 the array:
 <pre>
 val indices = shortArrayOf( 0,1,2, 2,3,0 )
-val ibuf = ByteBuffer.allocateDirect(indices.size*Short.SIZE_BYTES)
-ibuf.order(ByteOrder.nativeOrder())
-val indexbuffer: ShortBuffer = ibuf.asShortBuffer()
-indexbuffer.put(indices)
-indexbuffer.position(0)
+val indexBuffer = OpenGLUtils.makeShortBuffer(indices)
 </pre>
-Then, when you draw the shape, you use <em>GLES20.glDrawElements()</em> rather than
-<em>GLES20.glDrawArrays()</em>:
-<pre>GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices)</pre>
-where <em>indices</em> is your index buffer.</p>
-
+Then, when you draw the shape, you use <code>GPUInterface.drawIndexedBufferedData()</code> rather than <code>GPUInterface.drawBufferedTriangles()</code>:
+<pre>gpu.drawIndexedBufferedData(vertexBuffer, indexBuffer, stride, ref_aVertex)</pre>
+where <code>vertexBuffer</code> is your vertex buffer, <code>indexBuffer</code> your index buffer, <code>stride</code> the stride (see week 7 notes and week 8 lab video), and <code>ref_aVertex</code> is your reference to the vertex attribute shader variable.</p>
+<p>Note that we do not need to use <code>GPUInterface.specifyBufferedDataFormat()</code> with <code>GPUInterface.drawIndexedBufferedData()</code> as it's called for us.</p>
 <h3>Mixing indexed and non-indexed shapes</h3>
 
-<p>Through multiple calls to <code>GLES20.glVertexAttribPointer()</code> and <code>GLES20.glDrawElements()</code> / <code>GLES20.glDrawArrays()</code> you can mix indexed and non-indexed shapes in the same scene, e.g.:
-<pre>GLES20.glVertexAttribPointer(ref_aVertex, 3, GLES20.GL_FLOAT, false, 0, vertexBufferIndexed)
-GLES20.glUniform4fv(ref_uColour, 1, colour1, 0)
-GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexBuffer.limit(), GLES20.GL_UNSIGNED_SHORT, indexBuffer)
+<p>Through multiple calls to <code>GPUInterface.drawIndexedBufferData()</code> and <code>GPUInterface.drawBufferedTriangles()</code> you can mix indexed and non-indexed shapes in the same scene, e.g.:
+<pre>gpu.setUniform4FloatArray(ref_uColour, colour1)
+gpu.drawIndexedBufferedData(indexedVertexBuffer, indexBuffer, stride, ref_aVertex)
 
-GLES20.glVertexAttribPointer(ref_aVertex, 3, GLES20.GL_FLOAT, false, 0, vertexBufferWithNoIndices)
-GLES20.glUniform4fv(ref_uColour, 1, colour2, 0)
-GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3)</pre>
+gpu.specifyBufferedDataFormat(ref_aVertex, nonIndexedVertexBuffer, stride)
+gpu.setUniform4FloatArray(ref_uColour, colour2)
+gpu.drawBufferedTriangles(0, 3)
+</pre>
 </p>
 <h3>Exercise 1 - creating a square</h3>
 
@@ -87,14 +82,14 @@ This is a square made up of two triangles, but four vertices in total. Try drawi
     <ul>
     <li>Create a <code>Cube</code> class. It should take the x,y and z world coordinates of the bottom left of the cube as parameters. In the <code>init</code> block, create a vertex buffer with these 8 vertices, where <em>x</em>, <em>y</em> and <em>z</em> are the bottom left world coordinates:
         <ul>
-		<li>x, y+0.5, z</li>
-		<li>x+0.5, y+0.5, z</li>
-		<li>x+0.5, y+0.5, z+0.5</li>
-		<li>x, y+0.5, z+0.5</li>
-		<li>x, y, z</li>
-		<li>x+0.5, y, z</li>
-		<li>x+0.5, y, z+0.5</li>
-		<li>x, y, z+0.5</li>
+        <li>x, y+0.5, z</li>
+        <li>x+0.5, y+0.5, z</li>
+        <li>x+0.5, y+0.5, z+0.5</li>
+        <li>x, y+0.5, z+0.5</li>
+        <li>x, y, z</li>
+        <li>x+0.5, y, z</li>
+        <li>x+0.5, y, z+0.5</li>
+        <li>x, y, z+0.5</li>
         </ul>
     </li>
     <li>Also create an appropriate index buffer to draw all the triangles making up the outer faces of the cube. Ensure the triangles are drawn anticlockwise! Use the diagram of the cube, above, to help you here, and feel free to sketch out each face of the cube on paper if you feel that will help you. Store the vertex and index buffers as attributes of your Cube.</li>
@@ -111,7 +106,7 @@ This is a square made up of two triangles, but four vertices in total. Try drawi
 }
     </pre>
     </li>
-    <li>Write a <code>render()</code> method inside the <code>Cube</code> class. This should call <code>GLES20.glVertexAttribPointer()</code> and <code>GLES20.glDrawElements()</code> appropriately, using the vertex and index buffers.</li>
+    <li>Write a <code>render()</code> method inside the <code>Cube</code> class. This should call <code>GPUInterface.drawIndexedBufferedData()</code> appropriately, using the vertex and index buffers.</li>
     <li>Test it out by drawing two cubes at (3,0,0) and (-3,0,0).
     Colour one red and the other yellow.</li>
     </ul>
@@ -126,48 +121,52 @@ are nearest.</p>
 <img src='../images/stride.png' alt='Vertices and colours in the same buffer' />
 </p>
 <h3>Shaders using a colour buffer</h3>
-<p> Here is an example of a shader which will do this:
+<p>Here is an example of a shader which will do this. First the vertex shader:
 <pre>
-val vertexShader =
-                "attribute vec4 aVertex, aColour;\n" +
-                        "varying vec4 vColour;\n" +
-                        "uniform mat4 uPerspMtx, uMvMtx;\n" +
-                        "void main(void)\n" +
-                        "{\n"+
-                        "gl_Position = uPerspMtx * uMvMtx * aVertex;\n" +
-                        "vColour = aColour;\n" +
-                        "}\n"
-val fragmentShader =
-                        "precision mediump float;\n" +
-                                "varying vec4 vColour;\n" +
-                                "void main(void)\n"+
-                                "{\n"+
-                                "gl_FragColor = vColour;\n" +
-                                "}\n";
+attribute vec4 aVertex, aColour;
+varying vec4 vColour;
+uniform mat4 uPerspMtx, uMvMtx;
+void main(void) {
+    gl_Position = uPerspMtx * uMvMtx * aVertex;
+    vColour = aColour;
+}
+</pre>
+Then the fragment shader:
+<pre>
+precision mediump float;
+varying vec4 vColour;
+void main(void) {
+    gl_FragColor = vColour;
+}
 </pre>
 Note how we now have an attribute variable <em>aColour</em> representing the colour of each vertex. This can be linked to a buffer in the same way that <em>aVertex</em> is linked to a buffer of vertices. Note that this is in the vertex shader; this might seem odd as it is the <em>fragment shader</em> which specifies the colours of pixels making up our shape. However, <em>we cannot pass attribute variables directly to the fragment shader</em>, due to the OpenGL rendering pipeline they must be passed to the vertex shader first. Since the vertex shader does not deal with colours, we need to <em>pass it on</em> to the fragment shader. To do this, we store it in a <em>varying</em> variable called <code>vColour</code> (varying variables are used to pass information from the vertex to the fragment shader) and then retrieve and use this variable in the fragment shader.</p>
+
+<p><strong>Note:</strong> In recent versions of GLSL, <code>varying</code> variables have been deprecated. However the primary version documented on the Android documentation is still GLSL 1 (used by OpenGL ES 2.0) to maximise device support, as not all devices support newer versions - e.g. see <a href='https://developer.android.com/develop/ui/views/graphics/opengl/draw'>here</a>. Indeed <a href='https://developer.android.com/develop/ui/views/graphics/opengl'>the Android documentation</a> stagtes that OpenGL ES 2.0 (hence GLSL 1) is "the recommended API version to use with current Android devices". So we will continue to use <code>varying</code> variables here as they are part of GLSL 1.</p>
+
+<p><strong>Further note:</strong> From Android 13 there is also the new <em>Android Graphics Shading Language</em>. See <a href='https://developer.android.com/develop/ui/views/graphics/agsl'>here</a>. This is based on GLSL 1 to maximise compatibility, though has some important differences.</p>
 
 <h3>Passing colour buffers to the shader</h3>
 
 <p>Here is an example of some code to send a colour buffer (as well as vertex and index buffers) to a shader. We are going to use a single buffer for both vertices and colours, as introduced in Week 7. 
 <pre>
 val stride = 24 // because one record contains vertices (12 bytes) and colours (12 bytes)
-val attrVarRef= GLES20.glGetAttribLocation(shaderProgram, "aVertex")
-GLES20.glEnableVertexAttribArray(attrVarRef)
-val colourVarRef = GLES20.glGetAttribLocation(shaderProgram, "aColour")
-GLES20.glEnableVertexAttribArray(colourVarRef)
+val attrVarRef= gpu.getAttribLocation("aVertex")
+val colourVarRef = gpu.getAttribLocation("aColour")
 
-vertexAndColourBuffer.position(0)
-GLES20.glVertexAttribPointer(attrVarRef, 3, GLES20.GL_FLOAT, false, stride, vertexAndColourBuffer)
-vertexAndColourBuffer.position(3)
-GLES20.glVertexAttribPointer(colourVarRef, 3, GLES20.GL_FLOAT, false, stride, vertexAndColourBuffer)
-
-GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.limit(), GLES20.GL_UNSIGNED_SHORT, indices)
+gpu.specifyBufferedDataFormat(attrVarRef, vertexAndColourBuffer, stride, 0)
+gpu.specifyBufferedDataFormat(colourVarRef, vertexAndColourBuffer, stride, 3)
+gpu.drawElements(indices)
 </pre>
-Note how we have two calls to <code>GLES20.glVertexAttribPointer()</code>, one for the vertices and one for the colours. The stride is set as 24 in both cases, because the gap in bytes between one record (whether that be vertices or colours) is 24 bytes: 3 floats for the vertices, and 3 floats for the colours (6 floats) multiplied by the size of a float in bytes (4).
+
+Note how we have two calls to <code>gpu.specifyBufferedDataFormat()</code>, one for the vertices and one for the colours. The stride is set as 24 in both cases, because the gap in bytes between one record (whether that be vertices or colours) is 24 bytes: 3 floats for the vertices, and 3 floats for the colours (6 floats) multiplied by the size of a float in bytes (4).
 </p>
-<p>To differentiate between the vertices and colours we set the <code>position</code> of the buffer to the appropriate index before we call <code>GLES20.glVertexAttribPointer()</code>. So when the position is 0, we will be pointing at the first vertex, and when the position is 3, we will be pointing at the first colour.</p>
+<p>To differentiate between the vertices and colours we set the <code>position</code> of the buffer to the appropriate index as a fourth parameter to <code>GPUInterface.specifyBufferedDataFormat().</code> So when the position is 0, we will be pointing at the first vertex, and when the position is 3, we will be pointing at the first colour.</p>
+
+<p>Also note the different way of actually doing the drawing this time, using <code>GPUInterface.drawElements()</code>. This takes an index buffer as an argument and is intended to be called if <code>GPUInterface.specifyBufferedDataFormat()</code> was used rather than <code>GPUInterface.drawIndexedBufferedData()</code>.</p>
+
 <h3>Exercise</h3>
+
+<p><strong>You'll need to update the OpenGLWrapper library in order to use <code>GPUInterface.drawElements()</code>. Pull the latest version from GitHub, within Android Studio, and build it. Again name the <code>.aar</code> a slightly different name to avoid caching issues.</strong></p>
 
 <p>Modify your cube-drawing application so that the first cube has the bottom four vertices
 in red and top four in yellow, and the second cube has the bottom four vertices in blue and the
