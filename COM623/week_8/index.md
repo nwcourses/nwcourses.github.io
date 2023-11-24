@@ -140,7 +140,7 @@ async function createPoi(prevState, formData) {
     if (formData.get("location")=="" || formData.get("type")=="") {
         return { status: "Blank Data" };
     }
-    const info = stmt.run([formData.get('location'), formData.get('type'));
+    const info = stmt.run(formData.get('location'), formData.get('type'));
     return { status: "OK", id: info.lastInsertRowid };
 } 
 
