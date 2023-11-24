@@ -40,7 +40,7 @@ The index buffer contains the <em>indices</em> of each vertex that will be drawn
 <p>Hopefully it should be obvious that repeating indices is a good deal less wasteful of memory than repeating the vertices themselves! The indices are typically stored as <em>short ints</em> (data type <em>short</em>, occupying 2 bytes) whereas a vertex stores three <em>floats</em>, i.e.
 it occupies 12 bytes in total.</p>
 
-<p>One thing to bear in mind is that you should define your triangles so that the vertices are specified in <em>anticlockwise</em> order. If you do not do this, OpenGL will not deal with hidden faces (i.e. a face which is currently invisible due to being behind another) correctly.</p>
+<p>One thing to bear in mind is that you should define your triangles so that the vertices are specified in <em>anticlockwise</em> order. In more complex shapes, e.g. cubes, OpenGL uses this to determine which is the front face and which is the back face - the front face will be the one with the coordinates specified in anticlockwise order. You can choose not to show the back face with <em>back face culling</em>. This concept is known as <em>winding order</em>.</p>
 
 <h3>Setting up an index buffer</h3>
 
