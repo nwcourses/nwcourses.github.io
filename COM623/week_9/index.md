@@ -298,4 +298,12 @@ and not
 
 ## Exercises 
 
-Will appear by the Friday afternoon session.
+Using the material from this week, develop a login system for HitTastic! You should use the `ht_users` table in [this version of wadsongs.db](wadsongs.db) to validate users. Ensure that you use the `loggedin` column as described above when logging in and when checking whether a user has access.
+
+Prevent access to all pages within `/hittastic` and its subroutes (ensure all your previous work is inside the `/hittastic` folder) *except* `/hittastic/login` which should contain a login form. 
+
+Use a server action to do your login, and use either middleware or simple "if" statements to check whether a user is logged in.
+
+Create a "Logout" component containing a "Logout" button (and nothing else). This should connect to a server action which logs the user out.
+
+Use the sidebar-based layout from last week for all pages except the login page. Also, ensure the logout button does not appear in the login page. Use route groups for this.
