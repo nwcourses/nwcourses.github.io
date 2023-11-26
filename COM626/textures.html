@@ -28,44 +28,40 @@ img {
     </ul>
 </p>
 
-<h2>Creating a texture in the OpenGL view</h2>
+<h2>Creating a texture</h2>
 
-<h3>Initialising a texture ID</h3>
+<p>We first need to <em>create a texture</em>, then bind it to an on-GPU <em>texture unit</em> (see below) and, if we want to stream the camera feed into the texture, create a <em>SurfaceTexture</em> (also see below).</p>
+
+<h3>Initialising a texture</h3>
 
 <p>
 In our OpenGL renderer, we need to <em>create a texture</em>.
-We use <code>GLES20.glGenTextures()</code> to do this. This typically goes in the <code>onSurfaceCreated()</code>:
+We use <code>OpenGLUtils.genTexture()</code> to do this. This typically goes in the <code>onSurfaceCreated()</code>:
 <pre>
-val textureId = IntArray(1)
-GLES20.glGenTextures(1, textureId, 0)
+val textureId = OpenGLUtils.genTexture()
 </pre>
-What this is doing is <em>generating a texture ID</em>. A texture ID is a unique ID number representing a particular texture. To discuss the code in detail, we first create a one-member array to hold the texture ID: <pre>val textureId = IntArray(1)</pre>
-then generate the texture ID:
-<pre>GLES20.glGenTextures(1, textureId, 0)</pre>
-then, as long as the texture ID allocated is not 0 (which indicates an error),
-we initialise the texture (this code is also in <code>onSurfaceCreated()</code>):
+What this is doing is <em>generating a texture ID</em>. A texture ID is a unique ID number representing a particular texture. Before we use it further, we have to check it's not zero; if <code>OpenGLUtils.genTexture()</code> returns zero, it means it failed to generate the texture successfully.
+</p>
+<h3>Binding a texture to a texture unit</h3>
+<p>The next step is to bind the texture to a specific on-GPU <em>texture unit</em>. A texture unit, of which more than one is available, is a specific piece of hardware which deals with processing textures. We can do this with <code>OpenGLUtils.bindTextureToTextureUnit()</code> as shown below. This code is also in <code>onSurfaceCreated()</code>.
 <pre>
-if (textureId[0] != 0) {
-    GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
-    GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId[0])
+if (textureId != 0) {
+    OpenGLUtils.bindTextureToTextureUnit(textureId, GLES20.GL_TEXTURE0, OpenGLUtils.GL_TEXTURE_EXTERNAL_OES)
 
-    cameraFeedSurfaceTexture = SurfaceTexture(textureId[0])
-
-
-    // Compile and link the shaders for textures (see below)
-
-    // Create the vertex and index buffers for the texture rectangle (see below)
-
-    // Call the texture callback (see below)
+    // further code continues here...
 } 
 </pre>
-We select the active <em>GPU texture unit</em> and then bind the texture ID to it.  Note the <code>GL_TEXTURE0</code> refers to the first on-GPU <em>texture unit</em> (ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>); this is <em>different</em> to the texture ID which is a CPU (Kotlin) based value.  There are multiple texture units, <code>GL_TEXTURE1</code> is the second, <code>GL_TEXTURE2</code> is the third, etc.
-So, to summarise, this code is associating the GPU texture unit 0 with the texture ID we generated earlier.
+Note the <code>GL_TEXTURE0</code> refers to the first on-GPU texture unit (ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>). Note that the texture unit - a piece of GPU hardware for processing textures - is <em>different</em> to the texture ID which is a CPU (Kotlin) based value representing the texture.  There are multiple texture units available, <code>GL_TEXTURE1</code> is the second, <code>GL_TEXTURE2</code> is the third, etc.
 </p>
+<p>The final argument is the texture type. Normally this will be <code>GLES20.GL_TEXTURE_2D</code> (e.g. if we are loading a texture from a file) but in the case of the camera feed, the format is a bit different so we have to use <code>OpenGLUtils.GL_TEXTURE_EXTERNAL_OES)</code>.
+<h3>Creating a SurfaceTexture</h3>
+<p>Once we've created a texture and bound it to a texture unit, we then need to create a <code>SurfaceTexture</code> object, using the texture ID. This allows us to stream the camera feed into the texture.
+<pre>surfaceTexture = SurfaceTexture(textureId)</pre>
 
-<h3>Setting up texture objects</h3>
+<h2>Setting up textures on the shader</h2>
 
 <p>Once we have initialised a texture, we need to specify how it will be applied to a shape.This is done on the GPU using shaders, as described below.</p>
+
 <h3>S and T coordinates</h3>
 <p>
 Textures are defined using so-called S and T coordinates.
@@ -101,40 +97,44 @@ T coordinate = 2/2 = 1
 <br />
 <img src="../images/texcoords.png" alt="Texture coordinates" />
 </p>
-Here is an example of a shader which will do this:
+Here is an example of a shader which will do this. First the vertex shader:
 <pre>
-val texVertexShader = "attribute vec4 aVertex;\n" +
-                   "varying vec2 vTextureValue;\n" +
-                   "void main (void)\n" +
-                   "{\n" +
-                   "gl_Position = aVertex;\n" +
-                   "vTextureValue = vec2(0.5*(1.0 + aVertex.x), 0.5*(1.0 + aVertex.y));\n" +
-                   "}\n"
+attribute vec4 aVertex;
+varying vec2 vTextureValue;
 
-val texFragmentShader = "#extension GL_OES_EGL_image_external: require\n" +
-                   "precision mediump float;\n" +
-                   "varying vec2 vTextureValue;\n" +
-                   "uniform samplerExternalOES uTexture;\n" +
-                   "void main(void)\n" +
-                   "{\n" +
-                   "gl_FragColor = texture2D(uTexture,vTextureValue);\n" +
-                   "}\n";
+void main (void)
+{
+    gl_Position = aVertex;
+    vTextureValue = vec2(0.5*(1.0 + aVertex.x), 0.5*(1.0 + aVertex.y));
+}
+</pre>
+then the fragment shader:
+<pre>
+#extension GL_OES_EGL_image_external: require
+precision mediump float;
+
+varying vec2 vTextureValue;
+uniform samplerExternalOES uTexture;
+
+void main(void)
+{
+    gl_FragColor = texture2D(uTexture,vTextureValue);
+}
 </pre>
 Note how this shader is taking in the vertices as an attribute variable (as before) - this would store the current vertex of the shape we're drawing. Also note the:
 <pre>varying vec2 vTextureValue;</pre>
 This represents the S and T coordinates of the texture that we want to map the current vertex to.  It is a <em>varying</em> variable: as we have seen, varying variables are used to pass information from the vertex to the fragment shader. 
 So in the vertex shader we set the eye coordinate position to the vertex (assuming no view/projection transform) and then do the maths (as shown above) to calculate the texture coordinate from the vertex coordinates.</p>
 
-<p>Then in the fragment shader we set the <code>gl_FragColor</code> to a colour taken from the texture.  Note the uniform variable <code>uTexture</code>, of the slightly cryptic type <code>samplerExternalOES</code>, represents the actual texture itself. We use the <code>texture2D</code> function to pull the correct drawing colour at the current S and T coordinate (which we calculated from the vertex position in the vertex shader) from the texture image.</p>
+<p>Then in the fragment shader we set the <code>gl_FragColor</code> to a colour taken from the texture.  Note the uniform variable <code>uTexture</code>, of the slightly cryptic type <code>samplerExternalOES</code>, represents the actual texture itself. A <em>sampler</em> is an object which samples pixels from the texture and projects them onto the shape we're drawing. We use the <code>texture2D</code> function to pull the correct drawing colour at the current S and T coordinate (which we calculated from the vertex position in the vertex shader) from the texture image.</p>
 
 <h3>Linking the texture ID to the shader</h3>
-<p>We need to link texture unit 0 (see above) to the shader variable representing the texture, <em>uTexture</em>:
+<p>We need to link texture unit 0 (see above) to the shader variable representing the texture, <code>uTexture</code>:
 <pre>
-val refShaderVar = GLES20.glGetUniformLocation(shaderProgram, "uTexture")
-GLES20.glUniform1i(refShaderVar, 0)
+val refTextureUnit = gpuTexture.glGetUniformLocation("uTexture")
+gpuTexture.setUniformInt(refTextureUnit, 0)
 </pre>
-This code (which should come at the end of <code>onSurfaceCreated()</code>) is similar to what you have seen before: we first get a reference to the shader variable, and then set it to 0, for GPU texture unit 0.  This will associate GPU texture unit 0 with the <em>uTexture</em> shader variable.</p>
-<p>The <code>1i</code> in <code>glUniform1i()</code> refers to the fact that the shader variable is an integer, and there's only one (compare <code>glUniform4fv()</code> for an array of 4 floats)</p>
+<code>gpuTexture</code> is a <code>GPUInterface</code>  object representing the texture shaders. This code (which should come at the end of <code>onSurfaceCreated()</code>) is similar to what you have seen before: we first get a reference to the shader variable, and then set it to 0, for GPU texture unit 0.  This will associate GPU texture unit 0 with the <em>uTexture</em> shader variable.</p>
 <h2>Linking the OpenGL texture and the camera</h2>
 <p>We have considered how to create textures in general, but we have not yet looked at how to link textures to the camera. Our aim is to stream the camera feed (obtained using CameraX) into our texture. To do this we make use of a <code>SurfaceTexture</code> object. <code>SurfaceTexture</code>s are used for this purpose: to stream graphics into an OpenGL texture.</p>
 <p>The relation between the different components of the system are shown below:
@@ -270,31 +270,28 @@ Note that OpenGL has inbuilt <em>depth testing</em>. Depth testing invoves check
 <h2>Loading textures from file</h2>
 <p>You might also want to texture <em>individual shapes</em> with textures loaded in from <em>file</em>. The code below shows how you can achieve this:
 <pre>
+
 val texFile = "texture.png"
-val textureId = IntArray(1)
-GLES20.glGenTextures(1, textureId, 0)
-if (textureId[0] != 0) {
-    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId[0])
-    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
-    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
-    val options = BitmapFactory.Options().apply { inScaled = false }
-    val inputStream = ctx.assets.open(texFile)
-    val bmp = BitmapFactory.decodeStream(inputStream, null, options)
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0)
-    bmp?.recycle()
-
-    // Now bind the texture ID to a texture unit as before, and send the texture unit to your shader...
+try {
+    val textureId = OpenGLUtils.loadTextureFromFile(ctx.assets, texFile) 
+    if (textureId != 0) {
+        // Now bind the texture ID to a texture unit as before, and send the texture unit to your shader...
+    } else {
+        // display error
+    }
+} catch(e: Exception) {
+    // handle IOException if texture.png is not found
 }
-
 </pre>    
-How is this code working?
+How is the <code>OpenGLUtils.loadTextureFromFile()</code> method working behind the scenes?
 <ul>
-<li>We create a texture ID, as before, and set it as the active texture with <code>GLES20.glBindTexture()</code>.</li>
-<li>The <code>GLES20.glTexParameteri()</code> calls set up <em>magnification and minification filters</em>. For information on this, please see <a href='https://nwcourses.github.io/COM620/week3.html'>here</a>.</li>
-<li>We then open an image from the app's <code>assets</code>. <code>assets</code> is an optional folder within your project (within <code>app/src/main</code>) containing external assets your app needs, such as images.</li>
-<li>We then decode the bitmap (decompress the PNG format into a raw bitmap) and, using <code>GLUtils.texImage2D()</code>, associate it with the currently active texture (the texture ID we allocated earlier). Finally, once the bitmap has been loaded into the texture, we free memory by recycling it.</li>
+<li>It creates a texture ID, as before.</li>
+<li>It set up <em>magnification and minification filters</em>. For information on this, please see <a href='https://nwcourses.github.io/COM620/week3.html'>here</a>.</li>
+<li>It then opens an image from the app's <code>assets</code>.</li>
+<li>It then decodes the bitmap (decompress the PNG format into a raw bitmap) andassociates it with the currently active texture (the texture ID we allocated earlier).</li>
+<li>Finally, once the bitmap has been loaded into the texture, it frees memory by recycling it.</li>
 </ul>
-
+</p>
 </body>
 </html>
 
