@@ -66,6 +66,11 @@ gpu.setUniform4FloatArray(ref_uColour, colour2)
 gpu.drawBufferedTriangles(0, 3)
 </pre>
 </p>
+<h3>Note - dealing with multiple nullable objects</h3>
+
+<p>You will now have several nullable objects including multiple vertex and index buffers. How can you do this without it being cumbersome? The best way is probably to do one <code>if</code> statement which null-checks <em>all</em> the buffers. However, if you try to use the buffers without a null-safety operator inside this <code>if</code> statement, you will perhaps surprisingly still get a compiler error. The reason is that multiple threads might be operating on these variables and in theory, another thread might change them back to null again. In your case, this is not happening, so you can explicitly tell the Kotlin compiler that you know a variable is non-null with the <em>non-null assertion operator</em> <code>!!</code>, e.g.:
+<pre>fbuf!!</pre>
+</p>
 <h3>Exercise 1 - creating a square</h3>
 
 <p>You are now going to use indices to create a class to represent a 3D cube (cube).  First, try setting up a vertex buffer with these coordinates:
