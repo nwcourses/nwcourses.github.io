@@ -18,17 +18,15 @@ multiple members, of the sorted part of the list which are <em>greater</em> than
 <p>Note that we can perform a useful "trick" here which can prevent us having to do the inner loop at all. If the last value of the sorted part of the list - which will be the value immediately to the left (i.e one index below) the "divider", is <em>less</em> than the "divider", then we <strong>know</strong> that the "divider" is already in its correct position. This is because the sorted part of the list is sorted, and the highest value within the sorted part will be immediately to the left of the "divider". So if the "divider" is greater than this value, we do not to move it. Thus, we do not need an inner loop.</p>
 <p><strong>You should always be on the lookout for "tricks" like this when designing algorithms. Is there something about the data which means that, in some cases, we can avoid having to perform computationally expensive operations like an additional loop, and therefore reduce the complexity of the algorithm?</strong></p>
 <p>The consequence of this is that if the list is "almost sorted", then the complexity will be closer to <code>O(n)</code> than <code>O(n^2)</code>, as in most cases, we will not need an inner loop. So if, for whatever reason, we know that our list is almost sorted already, an insertion sort is a strongly favoured choice.</p>
-<h3>Exercise</h3>
-<p>Have a go at coding <em>either</em> selection sort <em>or</em> insertion sort.</p>
 <h2 id="introduction">More advanced but more efficient sorting algorithms.</h2>
 <p>We have covered some basic sorting algorithms, such as bubble sort, selection sort and insertion sort. However, we saw that their efficiency could be better, being <code>O(n^2)</code> in the worst case. We will look at one improved sorting algorithm, <em>quicksort</em>. An alternative, <em>merge sort</em> is provided as extra reading.</p>
-<p>These algorithms use <em>recursion</em>. Please see <a href="trees.html">the trees topic</a> for a reminder on recursion.</p>
 <h2 id="quicksort">Quicksort</h2>
 <h3> id="warning">Warning!</h3>
 <p>This is a more advanced topic which is not compulsory for passing the
 assignment, but might be useful for higher marks. It's included here to give 
 those of you who are coping reasonably well with the module an idea on how more advanced and efficient sorting algorithms work.</p>
 <p>If you need to catch up with previous weeks, please do this first!</p>
+<p>These algorithms use <em>recursion</em>. Please see <a href="trees.html">the trees topic</a> for a reminder on recursion.</p>
 <h3>Intro to quicksort</h3>
 <p>Quicksort is the first of the two algorithms. It works by recursively <em>partitioning</em> the list into two sections, or <em>partitions</em>, either side of an element we call the <em>pivot</em>. </p>
 <p>An arbitrary element (e.g. the last, the middle, or the first) is picked as the pivot, and then the <em>partitioning phase</em> begins. The aim of the partitioning phase is to rearrange the list so that it all the elements less than the pivot element are to its left, and all elements greater than the pivot element are to its right. To do this, the partitioning phase re-arranges the list, performing a series of swaps so it is ordered correctly.</p>
@@ -201,6 +199,7 @@ It might take you a while as there will be multiple recursive stages!</p>
 <h3 id="exercisecode">Exercise (code)</h3>
 <p>If you finish, have a go at implementing quicksort in code, using the
 pseudocode above to help you.</p>
+<p>If you find quicksort daunting, have a go at coding insertion sort. If you successfully complete quicksort, try out insertion sort as well.</p>
 <p>If you finish that, have a go at implementing merge sort. Hint: you should include three functions:
 	<ol>
 	<li>A function to split a list into two. You can use range indexing to easily do this:
