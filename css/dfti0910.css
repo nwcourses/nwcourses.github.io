@@ -80,6 +80,7 @@ pre
     border-style: solid;
     background-color: white;
 	padding: 5px;
+    overflow: auto;
 }
 
 pre.vector {
