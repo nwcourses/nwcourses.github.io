@@ -217,7 +217,6 @@ will bind the band read in from the HTML form (this example is JSP) to the first
 This returns back a <code>ResultSet</code>: a collection of all the matching rows from the table.</li>
 <li>We then <em>loop through</em> the <code>ResultSet</code> by repeatedly calling <code>next()</code> on it. This retrieves the current row within the result set and moves onto the next row. When there are no more rows to retrieve, <code>next()</code> will return <code>false</code>, so the loop will stop.</li>
 <li>We then obtain the values within each column of the current row, using the <code>ResultSet</code>'s <code>getString()</code> method. This takes the column name as an argument, e.g <code>rs.getString("date")</code> to retrieve the value in the <code>date</code> column.</li>
-<li>Note also how we can output data to the HTML page in JSP using <code>out.println()</code>. I haven't introduced this before, though it is used in the Week 5 solution.</li>
 </ul>
 </p>
 
@@ -630,7 +629,7 @@ Delete the &lt;dependencies&gt; and &lt;build&gt; sections completely, and repla
 <p>Now you can start developing the project:
     <ol>
     <li>Note that you will need to import the various JDBC classes. They are all in the <code>java.sql</code> package, e.g. <code>java.sql.Connection</code> or <code>java.sql.SQLException</code>.</li>
-    <li>Copy the <code>index.html</code> from week 6 to it (this contains a form allowing the user to add a student), and also add this additional form, allowing the user to search for a student by name:
+    <li>Copy the <code>index.html</code> from week 5 to it (this contains a form allowing the user to add a student), and also add this additional form, allowing the user to search for a student by name:
     <pre>
 &lt;form method="get" action="search.jsp"&gt;
 Student name: &lt;input name="studentName" /&gt;
