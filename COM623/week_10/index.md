@@ -259,6 +259,12 @@ The imports below will cover everything we will do. Note how we have to import f
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, writeBatch, getDoc } from "firebase/firestore";
 ```
 
+### Create your Firestore object
+
+```javascript
+const db = getFirestore(app);
+```
+
 ### Search
 
 To search for data, you use the `getDocs()` function. This returns a `QuerySnapshot`: an object containing a series of `DocumentSnapshot`s returned by the query.
