@@ -43,7 +43,11 @@ val textureId = OpenGLUtils.genTexture()
 What this is doing is <em>generating a texture ID</em>. A texture ID is a unique ID number representing a particular texture. Before we use it further, we have to check it's not zero; if <code>OpenGLUtils.genTexture()</code> returns zero, it means it failed to generate the texture successfully.
 </p>
 <h3>Binding a texture to a texture unit</h3>
-<p>The next step is to bind the texture to a specific on-GPU <em>texture unit</em>. A texture unit, of which more than one is available, is a specific piece of hardware which deals with processing textures. We can do this with <code>OpenGLUtils.bindTextureToTextureUnit()</code> as shown below. This code is also in <code>onSurfaceCreated()</code>.
+<p>The next step is to bind the texture to a specific on-GPU <em>texture unit</em>. A texture unit, of which more than one is available, is a specific piece of hardware which deals with processing textures. The diagram illustrates this:
+<br />
+<img src="../images/textureunits.png" alt="Texture units" />
+<br />
+ We can do this with <code>OpenGLUtils.bindTextureToTextureUnit()</code> as shown below. This code is also in <code>onSurfaceCreated()</code>.
 <pre>
 if (textureId != 0) {
     OpenGLUtils.bindTextureToTextureUnit(textureId, GLES20.GL_TEXTURE0, OpenGLUtils.GL_TEXTURE_EXTERNAL_OES)
@@ -53,7 +57,7 @@ if (textureId != 0) {
 </pre>
 Note the <code>GL_TEXTURE0</code> refers to the first on-GPU texture unit (ref: <a href='https://www.khronos.org/opengles/sdk/1.1/docs/man/glActiveTexture.xml'>here</a>). Note that the texture unit - a piece of GPU hardware for processing textures - is <em>different</em> to the texture ID which is a CPU (Kotlin) based value representing the texture.  There are multiple texture units available, <code>GL_TEXTURE1</code> is the second, <code>GL_TEXTURE2</code> is the third, etc.
 </p>
-<p>The final argument is the texture type. Normally this will be <code>GLES20.GL_TEXTURE_2D</code> (e.g. if we are loading a texture from a file) but in the case of the camera feed, the format is a bit different so we have to use <code>OpenGLUtils.GL_TEXTURE_EXTERNAL_OES)</code>.
+<p>The final argument is the texture type. Normally this will be <code>GLES20.GL_TEXTURE_2D</code> (e.g. if we are loading a texture from a file) but in the case of the camera feed, the format is a bit different so we have to use <code>OpenGLUtils.GL_TEXTURE_EXTERNAL_OES)</code>.</p>
 <h3>Creating a SurfaceTexture</h3>
 <p>Once we've created a texture and bound it to a texture unit, we then need to create a <code>SurfaceTexture</code> object, using the texture ID. This allows us to stream the camera feed into the texture.
 <pre>surfaceTexture = SurfaceTexture(textureId)</pre>
