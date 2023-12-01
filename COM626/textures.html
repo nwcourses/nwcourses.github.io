@@ -147,7 +147,7 @@ gpuTexture.setUniformInt(refTextureUnit, 0)
 </p>
 <h3>Creating our SurfaceTexture in our OpenGL code</h3>
 <p>We create the surface texture from our texture ID:
-<pre>cameraFeedSurfaceTexture = SurfaceTexture(textureId[0])</pre>
+<pre>cameraFeedSurfaceTexture = SurfaceTexture(textureId)</pre>
 </p>
 <h3>Sending the SurfaceTexture to the main activity</h3>
 <p>Once we've created a <code>SurfaceTexture</code> from our texture ID, we send it to the main activity, so that the main activity can use it to stream the camera into. This might be done via a callback function, specified as a parameter to the <code>Renderer</code>:
@@ -236,17 +236,18 @@ This can be done as follows in the <em>AndroidManifest.xml</em>:
 </pre>
 </p>
 
-<h2>Exercise</h2>
+<h2>Exercise 1</h2>
 
-<p>Develop an app which shows the camera feed on the OpenGL view as a texture. Use this template from GitHub <code>https://github.com/nwcourses/TextureStarter</code> as a starting point.  Make sure the CAMERA permission is added to your manifest.</p>
+<p>Add code to your existing app to show the camera feed on the OpenGL view as a texture. Make sure the CAMERA permission is added to your manifest. <strong>Does it work as expected? We will discuss this in class; as soon as we have, I will add the discussion to the notes.</strong></p>
+<!--
 <p>You will find the image comes out <em>upside down</em>. This is because images are arranged in memory from
 top to bottom, but the T coordinate of a texture increases from bottom to top.
 Change your shader to fix this!</p>
+-->
 
-<h2>Overlaying OpenGL 3D objects on an OpenGL camera-feed texture</h2>
+<h2>Exercise 2 - Overlaying OpenGL 3D objects on an OpenGL camera-feed texture</h2>
 
-<p>
-An augmented-reality application will need to overlay a regular 3D view on top of a camera-feed texture.
+<p>After completing Exercise 1, your 3D shapes will disappear. How can we fix this? An augmented-reality application will need to overlay a regular 3D view on top of a camera-feed texture.
 How is this done?
 </p>
 
@@ -266,10 +267,6 @@ Note that OpenGL has inbuilt <em>depth testing</em>. Depth testing invoves check
 <li>Initialise the view matrix to an identity matrix, do any rotation and translation required, and pass the view and projection matrices to your regular shader, as normal.</li>
 <li>Render your 3D scene as normal.</lik>
 </ul>
-
-<h2>Exercise 2</h2>
-  
-<p>Try combining your OpenGL triangle (or, if you're feeling ambitious, box) drawing exercise with your camera feed.</p>
 
 <h2>Loading textures from file</h2>
 <p>You might also want to texture <em>individual shapes</em> with textures loaded in from <em>file</em>. The code below shows how you can achieve this:

@@ -38,5 +38,5 @@ Provisional, subject to change.
 | 8 | [Further Next.js](week_8/)                                       |
 | 9  | [Next.js Part 3](week_9/)                                     |
 | 10-11  | Firebase                                     |
-| 12 | PWAs/Assessment Support                           |
+| 12 | Firebase/Assessment Support                           |
 

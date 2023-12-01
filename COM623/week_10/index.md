@@ -9,6 +9,7 @@ This week we will introduce the world of serverless systems by taking a look at 
 ## Essential Reading
 
 [Firebase Authentication](https://firebase.google.com/docs/auth/web/start)
+[Firebase JavaScript API reference](https://firebase.google.com/docs/reference/js)
 
 ## Firebase
 
@@ -29,10 +30,7 @@ Firebase, and other infrastructure as a service platform, delegate the need to m
 
 The purpose of this task is simply to set up a firebase account, create a project and register your first application - it is much easier than it sounds.
 
-First of all go to the Firebase homepage.
-
-[Create a Firebase Account](https://firebase.google.com/)
-
+First of all go to the [Firebase homepage](https://firebase.google.com/). Make sure you're logged in with your Google (GMail) account (create one if you do not have one already).
 
 ![Firebase Main Page](../../images/firebase1.png)
 
@@ -71,6 +69,12 @@ Install with `npm install`. This is using Webpack Dev Server so run with `npm st
 
 Create an `index.js` file containing the sample code containing your Firebase configuration, shown above.
 
+We first need to create a Firebase app (of type `FirebaseApp`) with:
+
+```javascript
+const app = initializeApp(firebaseConfig);
+```
+
 ## Firebase Auth
 
 The first Firebase product we will use is *Firebase Auth*. Firebase Auth gives you a standard secure and flexible cloud authentication service. You can choose to either use standard email/password authentication or third-party providers such as Google, Facebook, GitHub, etc.
@@ -90,7 +94,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 ```
 This imports various functions we will use.
 
-To start using Firebase Auth we use the `getAuth()` function. This gives us an auth object.
+To start using Firebase Auth we use the `getAuth()` function. This gives us an object of type `Auth` which is our general authentication manager. 
 
 ```javascript
 const auth = getAuth();
@@ -110,7 +114,7 @@ try {
 }
 
 ```
-This function takes our original auth object, an email and a password as parameters and returns a promise which will resolve once the user has been added to Firebase. It resolves with an object representing the user credentials. This contains a user object `user` which itself contains a `uid` property containing a unique ID for this user.
+This function takes our original `Auth` object, an email and a password as parameters and returns a promise which will resolve once the user has been added to Firebase. It resolves with an object of type `UserCredential` representing the user credentials. This contains an object of type `User` (the `user` property) which itself contains a `uid` property containing a unique ID for this user.
 
 If there are any errors with the signup process (these can include invalid email address or insufficiently complex password) the promise will reject and the catch block will run.
 
@@ -131,7 +135,7 @@ try {
 
 ### Logging out
 
-Logging out is very easy, just use the `signOut()` method of the auth object:
+Logging out is very easy, just use the `signOut()` method of the `Auth` object:
 
 
 ```javascript
@@ -158,11 +162,11 @@ onAuthStateChanged(auth, user => {
     }
 });
 ```
-The callback receives the original auth object and a `user` object representing the currently logged-in user. This will be null if the user is logged out. In this example, we include logic to show or hide the login and logout buttons appropriately. If the user has logged in we show the logout button and hide the loginbn button, while if they have logged out we do the reverse.
+The callback receives the original `Auth` object and a `user` object representing the currently logged-in user. This will be null if the user is logged out. In this example, we include logic to show or hide the login and logout buttons appropriately. If the user has logged in we show the logout button and hide the loginbn button, while if they have logged out we do the reverse.
 
 ### Detecting if a user is logged in at any time
 
-We may wish to detect, at any time (not just when the user logs in or logs out), whether the user is currently logged in. We can use the `currentUser` property of the auth object to do this. It will be null if the user is not logged in. For example:
+We may wish to detect, at any time (not just when the user logs in or logs out), whether the user is currently logged in. We can use the `currentUser` property of the `Auth` object (type `User`) to do this. It will be null if the user is not logged in. For example:
 
 ```javascript
 document.getElementById('btnAccessProtectedResource').addEventListener("click", e => {
@@ -176,6 +180,11 @@ document.getElementById('btnAccessProtectedResource').addEventListener("click", 
 
 This example also shows how you can get information about the logged-in user: the `currentUser` object includes `email` and `displayName` properties.
 
+### Further reading - Third party providers
+
+As well as simple email/password authentication, you can use Firebase Auth to implement authentication with a third party provider such as GitHub, Google, Facebook, etc.
+
+See TODO 
 
 ## Cloud Firestore
 
@@ -202,7 +211,7 @@ You also need to set the *rules* for accessing the Firestore database. One of th
 
 ![Cloud Firestore Rules](../../images/firebase_firestore_rules.png)
 
-Note the rules include `allow read` and `allow write` specifiers, to control access to read and write operations respectively. By default both are set to `false` for security reasons. However the settings above are good for a basic web app: reading data does not require authentication, while writing data requires the user to be authenticated (note that `request.auth` is the auth object from Firebase Auth).
+Note the rules include `allow read` and `allow write` specifiers, to control access to read and write operations respectively. By default both are set to `false` for security reasons. However the settings above are good for a basic web app: reading data does not require authentication, while writing data requires the user to be authenticated (note that `request.auth` is the `Auth` object from Firebase Auth).
 
 We can setup more detailed authentication control.
 
