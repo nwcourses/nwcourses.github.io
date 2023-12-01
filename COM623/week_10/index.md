@@ -1,6 +1,6 @@
 # Week 10 - Introduction to Firebase
 
-**NOTE: Currently incomplete.**
+**NOTE: If read before class may be prone to late changes.**
 
 *(Credits: notes partly taken from the originals from Joe Appleton, with amendments and additional information added)*
 
@@ -69,7 +69,7 @@ Install with `npm install`. This is using Webpack Dev Server so run with `npm st
 
 Create an `index.js` file containing the sample code containing your Firebase configuration, shown above.
 
-We first need to create a Firebase app (of type `FirebaseApp`) with:
+We then need to create a Firebase app (of type `FirebaseApp`) with:
 
 ```javascript
 const app = initializeApp(firebaseConfig);
@@ -184,23 +184,52 @@ This example also shows how you can get information about the logged-in user: th
 
 As well as simple email/password authentication, you can use Firebase Auth to implement authentication with a third party provider such as GitHub, Google, Facebook, etc.
 
-See TODO 
+For example, see the docs on [GitHub authentication](https://firebase.google.com/docs/auth/web/github-auth) for the steps to undertake. You need to:
+
+- add GitHub authentication as an option in the Firebase console, and 
+- register your Firebase app as a client app on GitHub.
+
+Once done, the code to sign in is as easy as:
+
+```javascript
+ try {
+	// Brings up a GitHub popup to sign in
+    const result = await signInWithPopup(auth, provider);
+
+	// Get credentials
+    const credential = GithubAuthProvider.credentialFromResult(result);
+
+	// A GitHub access token, which you can use if you want to interact with GitHub
+    const token = credential.accessToken;
+
+	// A User object representing the GitHub user
+    const user = result.user;
+} catch(error) {
+    alert(`${error.code} ${error.message}`);
+}
+```
 
 ## Cloud Firestore
 
-We will also start looking at *Cloud Firestore* - Firebase's cloud database solution. 
+We will also start looking at *Cloud Firestore* - Firebase's cloud database solution. This week we will look at basic search and insert and next week we will look at more advanced queries such as update and delete.
 
-*Below text from Joe Appleton, previous module leader*
+Cloud Firestore is an example of a *NoSQL* database. NoSQL databases are databases which use methods other than SQL to access. A common type of NoSQL database is a *document database*, and Firestore is one such example. Document databases consist of:
 
-Cloud Firestore is a NoSQL, document-oriented database. There are three main types of NoSQL-databases: document-based, column-based and graph-base. Cloud Firestore is of the document-based variety.
+- `documents` representing specific records. These are stored in a JavaScript )bject-like structure with properties (equivalent to columns in an SQL database). Each document has a unique ID which can be used to access it, the equivalent of a primary key in a relational database. Documents can contain nested objects (maps; [see the documentation](https://firebase.google.com/docs/firestore/data-model).
 
-In a document-based database, your application's data is stored in documents in a JSON like structure. Documents live in collections. If you come from a relational database world, collections are like tables. If your application requires it, you can also structure sub-collections within documents. We will explore how this works through examples. 
+- `collections` containing multiple documents. These are the equivalent of tables in SQL databases.
+
+If you have done MongoDB before, you might recognise this arrangement. See [the data model documentation](https://firebase.google.com/docs/firestore/data-model) for more detail.
+
+### Essential reading
+
+[Cloud Firestore on Firebase docs](https://firebase.google.com/docs/firestore/quickstart#web-modular-api)
 
 ### Accessing the Cloud Firestore from the Firebase Console
 
 Once you've added the Cloud Firestore to the Firebase Console you can access the data within it by clicking **Firestore Database** from the sidebar. The diagram below shows this. It shows :
 
-- a collection called `songs`, containing
+- a collection called `songs`, containing...
 - a series of documents, each indexed by a unique ID. On the right hand side the document data of one example (representing Whatever by Oasis) is shown.
 
 You can manage data by adding and removing it via this web interface, but more normally you would do it from a client app.
@@ -213,7 +242,15 @@ You also need to set the *rules* for accessing the Firestore database. One of th
 
 Note the rules include `allow read` and `allow write` specifiers, to control access to read and write operations respectively. By default both are set to `false` for security reasons. However the settings above are good for a basic web app: reading data does not require authentication, while writing data requires the user to be authenticated (note that `request.auth` is the `Auth` object from Firebase Auth).
 
-We can setup more detailed authentication control.
+We can setup more detailed authentication control. See [the Firebase documentation](https://firebase.google.com/docs/rules/manage-deploy#use_the_firebase_console) for more detail on rules.
+
+### Imports
+
+The imports below will cover everything we will do. Note how we have to import from `firebase/firestore` rather than `firebase/auth`.
+
+```javascript
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, writeBatch, getDoc } from "firebase/firestore";
+```
 
 ### Search
 
