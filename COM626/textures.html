@@ -252,7 +252,9 @@ How is this done?
 </p>
 
 <ul>
-<li>Have separate shaders for the camera feed and for your regular OpenGL scene.</li>
+<li>Have separate shaders for the camera feed and for your regular OpenGL scene. Make sure you select the texture's <code>GPUInterface</code> before using it:
+<pre>gpuTexture.select()</pre>
+</li>
 <li>You first draw your texture. Remember this does not need a view or projection matrix.
 Note that OpenGL has inbuilt <em>depth testing</em>. Depth testing invoves checking whether objects are in front of others, and only drawing an object if it is currently visible. This can cause problems when using a camera texture, as the camera texture will be closer to the OpenGL camera than any 3D objects (as its <code>z</code> coordinate is 0), so by default it will hide those 3D objects. So, before drawing the camera feed, you need to disable depth testing.
 <pre>GLES20.glDisable(GLES20.GL_DEPTH_TEST)</pre>
@@ -261,8 +263,8 @@ Note that OpenGL has inbuilt <em>depth testing</em>. Depth testing invoves check
 <li>Enable depth testing again:
 <pre>GLES20.glEnable(GLES20.GL_DEPTH_TEST)</pre>
 </li>
-<li>Switch to using your regular shader with <code>GLES20.glUseProgram()</code>, passing in the shader program ID as parameter e.g.:
-<pre>GLES20.glUseProgram(shaderProgram)</pre>
+<li>Switch to using your regular shader with <code>gpu.select()</code>, passing in the shader program ID as parameter e.g.:
+<pre>gpu.select()</pre>
 </li>
 <li>Initialise the view matrix to an identity matrix, do any rotation and translation required, and pass the view and projection matrices to your regular shader, as normal.</li>
 <li>Render your 3D scene as normal.</lik>
