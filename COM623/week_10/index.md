@@ -124,7 +124,7 @@ try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     // We can get the user object again if we need it
     const user = userCredential.user;
-    alert('Logged in successfully!');
+    alert(`Logged in successfully! Email=${user.email}`);
 } catch(error)  {
     alert(`ERROR: Code: ${error.code}, full message: ${error.message}`);
 }
@@ -144,6 +144,15 @@ try {
 }
 ```
 
+### Adding a display name
+
+To add a display name (real name, e.g. Alan Smith) you can update the user profile. This can be done immediately after the code to signup a user:
+
+```javascript
+const profile = await updateProfile(user, {
+    displayName: name
+});
+```
 
 ### Detecting changes in authentication state
 
