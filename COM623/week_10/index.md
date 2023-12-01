@@ -1,15 +1,13 @@
 # Week 10 - Introduction to Firebase
 
-**NOTE: If read before class may be prone to late changes.**
-
 *(Credits: notes partly taken from the originals from Joe Appleton, with amendments and additional information added)*
 
 This week we will introduce the world of serverless systems by taking a look at *Firebase*.
 
 ## Essential Reading
 
-[Firebase Authentication](https://firebase.google.com/docs/auth/web/start)
-[Firebase JavaScript API reference](https://firebase.google.com/docs/reference/js)
+- [Firebase Authentication](https://firebase.google.com/docs/auth/web/start)
+- [Firebase JavaScript API reference](https://firebase.google.com/docs/reference/js)
 
 ## Firebase
 
@@ -215,7 +213,7 @@ We will also start looking at *Cloud Firestore* - Firebase's cloud database solu
 
 Cloud Firestore is an example of a *NoSQL* database. NoSQL databases are databases which use methods other than SQL to access. A common type of NoSQL database is a *document database*, and Firestore is one such example. Document databases consist of:
 
-- `documents` representing specific records. These are stored in a JavaScript )bject-like structure with properties (equivalent to columns in an SQL database). Each document has a unique ID which can be used to access it, the equivalent of a primary key in a relational database. Documents can contain nested objects (maps; [see the documentation](https://firebase.google.com/docs/firestore/data-model).
+- `documents` representing specific records. These are stored in a JavaScript object-like structure with properties (equivalent to columns in an SQL database). Each document has a unique ID which can be used to access it, the equivalent of a primary key in a relational database. Documents can contain nested objects (maps; [see the documentation](https://firebase.google.com/docs/firestore/data-model)).
 
 - `collections` containing multiple documents. These are the equivalent of tables in SQL databases.
 
@@ -309,8 +307,58 @@ try {
     alert(e);
 }
 ```
-The return value of `addDoc()` is a `DocumentReference` object: a reference to a specific document. To obtain the `Document` object (containing the actual data, accessible via `data()`) from a `DocumentReference`, we use `getDoc()` e.g.:
-```javascript
-const docum = await getDoc(docRef);
+The return value of `addDoc()` is a `DocumentReference` object: a reference to a specific document. 
+
+## Exercise
+
+Clone this repository: 
+```
+https://github.com/nwcourses/FirebaseStarter
+```
+This contains a `package.json` and `webpack.config.js` setup to install Firebase and to run your project with Webpack Dev Server. To install:
+```
+npm install
+```
+and to start the server:
+```
+npm start
 ```
 
+There is an `index.html` within `dist` with various forms set up.
+
+### Firebase Auth
+
+1. Ensure you have created a Firebase project, enabled Firebase Auth and Cloud Firestore, and added a web application to your project.
+
+2. Create an `index.js` inside the root folder of the project and add the Firebase config generated from the Firebase console for your project.
+
+3. Complete the code to sign up a user. Ensure that the success, or otherwise, of the operation is displayed inside the `signupStatus` div. Remember you'll need to add an event listener to the appropriate button in order to run code when the button is clicked, see below.
+
+4. Test the signup form with an invalid email address, a password of less than 7 characters, and finally with valid details. Go onto the Firebase console and verify that, in the latter case, a user was signed up.
+
+5. Complete the code to login a user. Ensure that the success, or otherwise, of the operation is displayed inside the `loginStatus` div. Try it out, both with a valid user and an invalid user. If successful, display the user's email via a `Logged in as...` message.
+
+6. Modify your signup code to set the user's display name, using the example shown in the notes.
+
+7. Add code to handle changes in authentication state, as shown above. This should behave as follows:
+
+	- When a user has logged in, hide the login form and show the logout button and `firestore` div (this contains forms to interact with the Firestore database).
+	- When a user has logged out, show the login form and hide the logout button and `firestore` div.
+
+### Firestore
+
+If you finish the above exercise on Firebase Auth, start this Firestore exercise. If not, you can continue next week.
+
+1. Create a new collection called `songs` on Firestore via the Firebase Console.
+
+2. Add code to read data from the "add song" form. It should create a new document storing that song and add it to the `songs` collection.
+
+3. Add code to read the artist from the "search" form. It should query the Firestore database to find all songs by that artist, and display the results in the `searchresults` div.
+
+### Reminder - handling button click events
+
+```javascript
+document.getElementById("....").addEventListener("click", e => {
+    // ...
+});
+```
