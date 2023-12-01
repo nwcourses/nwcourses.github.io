@@ -191,16 +191,16 @@ Once done, the code to sign in is as easy as:
 
 ```javascript
  try {
-	// Brings up a GitHub popup to sign in
+    // Brings up a GitHub popup to sign in
     const result = await signInWithPopup(auth, provider);
 
-	// Get credentials
+    // Get credentials
     const credential = GithubAuthProvider.credentialFromResult(result);
 
-	// A GitHub access token, which you can use if you want to interact with GitHub
+    // A GitHub access token, which you can use if you want to interact with GitHub
     const token = credential.accessToken;
 
-	// A User object representing the GitHub user
+    // A User object representing the GitHub user
     const user = result.user;
 } catch(error) {
     alert(`${error.code} ${error.message}`);
@@ -252,7 +252,7 @@ import { getFirestore, collection, addDoc, getDocs, query, where, doc, writeBatc
 
 ### Search
 
-To search for data, you use the `getDocs()` function. This returns a `QuerySnapshot`: an object containing a set of documents returned by the query.
+To search for data, you use the `getDocs()` function. This returns a `QuerySnapshot`: an object containing a series of `DocumentSnapshot`s returned by the query.
 
 ```javascript
 try {
@@ -261,10 +261,11 @@ try {
     if(querySnapshot.empty) {
         alert("No results!");
     } else {
-        querySnapshot.forEach( doc => {
-            const data = doc.data();
-            html += `${doc.id} : ${data.title} by ${data.artist}, year ${data.year}<br />`;
-        });
+        const html =  querySnapshot.docs.map ( doc => {
+                const data = doc.data();
+                return `${data.title} ${data.artist}`;
+            } ).join("<br />");
+        document.getElementById("...").innerHTML = html;
     }
 } catch(e) {
     alert(e);
@@ -342,8 +343,8 @@ There is an `index.html` within `dist` with various forms set up.
 
 7. Add code to handle changes in authentication state, as shown above. This should behave as follows:
 
-	- When a user has logged in, hide the login form and show the logout button and `firestore` div (this contains forms to interact with the Firestore database).
-	- When a user has logged out, show the login form and hide the logout button and `firestore` div.
+    - When a user has logged in, hide the login form and show the logout button and `firestore` div (this contains forms to interact with the Firestore database).
+    - When a user has logged out, show the login form and hide the logout button and `firestore` div.
 
 ### Firestore
 
