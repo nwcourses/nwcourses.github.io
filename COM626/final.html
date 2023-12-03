@@ -17,39 +17,53 @@ img {
 <h2>Introduction</h2>
 <p>We have now covered almost everything necessary to build a location-based AR application on Android. There are just a small number of things necessary now to complete the picture.</p>
 
+<h2>Relating our OpenGL world to the real world</h2>
 
+<p>We have dealt with OpenGL world coordinates. How do we relate these to the <em>real</em> world, i.e. the directions north, south, east and west? There is no "single right way" to do it; the idea is to adopt a convention and stick to it. Since, in the sensor API, an angle of 0 represents North, we are going to adopt a convention of <em>setting North to be equivalent to negative <code>z</code></em>, because negative <code>z</code> represents an angle of 0 in OpenGL. In full, we will adopt this system:
+	<ul>
+	<li>North is negative <code>z</code>, south is positive <code>z</code>;</li>
+	<li>West is negative <code>x</code>, east is positive <code>x</code>;</li>
+	<li>Down is negative <code>y</code>, up is positive <code>y</code>;</li>
+	</ul>
+Doing this makes it relatively easy to convert the matrix obtained from the Sensor API into a view matrix suitable for OpenGL, but we need to do two things first:
+	<ul>
+	<li>Remap the coordinate system (see <a href='week5.html'>Week 5</a>) to reflect the fact that we will be in landscape orientation, not portrait;</li>
+	<li>Correct the sensor matrix to reflect the fact that the device will be upright rather than lying flat.</li>
+	</ul>
+</p>
 <h2>Passing the orientation matrix into OpenGL</h2>
 
-<p>Remember in the <a href='week5.html'>sensors topic</a> we covered how to obtain the azimuth, pitch and roll of the device. We also covered how to obtain an <em>orientation matrix</em> representing the current device orientation. The good news is that this orientation matrix <em>can (almost) be used as the view matrix</em> in OpenGL, though note that you will probably need to remap the coordinate system to translate from portrait to landscape (again, see <a href='week5.html'>the sensors topic</a>).</p>
+<p>Remember in the <a href='week5.html'>sensors topic</a> we covered how to obtain the azimuth, pitch and roll of the device. We also covered how to obtain an <em>orientation matrix</em> representing the current device orientation. The good news is that this orientation matrix <em>can (almost) be used as the view matrix</em> in OpenGL, though note that, as said above, you will need to <em>remap the coordinate system to translate from portrait to landscape</em> (again, see <a href='week5.html'>the sensors topic</a>), and separately <em>correct the sensor matrix</em> for OpenGL (see below).</p>
 
 <p>So how can this be implemented?
 <ul>
-<li>Your renderer class needs an additional array to represent the latest sensor readings:
-<pre>private var lastOrientMtx = FloatArray(16)</pre>
-</li>
 <li>
-It also needs a setter method to update this matrix with the latest sensor matrix (obtained elsewhere in your code, from the Sensor API):
-<pre>
-fun setOrientMtx(orientMtx: FloatArray) {
-    lastOrientMtx = orientMtx.clone()
-}
-</pre>
+Remap the coordinate system for the sensor orientation matrix (see week 5)
 </li>
-<li>and in <code>onDrawFrame()</code>, you need to set the view matrix to a clone of <code>lastOrientMtx</code>, and then translate it by the negative of the current camera position, as before:
-<pre>
-// This should be placed where your current code to setup the view matrix is placed, in onDrawFrame()
-viewMtx = lastOrientMtx.clone()
-Matrix.translateM(
-    viewMtx, 0, -cameraPos.x, -cameraPos.y, -cameraPos.z
-)
-</pre>
+<li>Add an <code>orientationMatrix</code> property to your <code>GLSurfaceView.Renderer</code> (in the <code>OpenGLView</code> in your case) representing the current orientation matrix from the sensors. When a new sensor reading is obtained, recreate this matrix:
+<pre>glView.orientationMatrix = GLMatrix(remappedSensorMatrix)</pre>
+</li>
+<li>and in <code>onDrawFrame()</code>, you need to initialise the view matrix to a clone of the orientation matrix, rather than the identity matrix:
+<pre>viewMatrix = orientationMatrix.clone()</pre>
+</li>
+</ul>
+<h3>Correcting the sensor matrix</h3>
+<p>You then need to <em>correct the sensor matrix</em>. Why is this necessary? The diagram below shows this:
+<br />
+<img src="../images/sensorcorrect.png" alt="Correcting the sensor matrix" />
+<br />
+Remember that the Sensor API assumes that the device is lying <em>flat</em> on a horizontal surface, with the <code>z</code> axis intersecting the device's surface vertically, the <code>x</code> axis the "long" axis (in landscape) and the <code>y</code> axis the "short" axis (in landscape) - as shown in the top picture in the diagram. This corresponds to what we want in OpenGL.</p>
+<p> However in an AR application we will be holding the device upright (not flat), again typically in landscape mode - as shown in the bottomp picture in the diagram. In the Sensor API, <code>z</code> is always "up". So in this orientation, the <code>y</code> axis will now be intersecting the device, and the <code>z</code> axis will be the short axis (because the device is being held vertically, and in the sensor API, the<code>z</code> axis is always vertical with respect to the world). However this coordinate system (shown in blue) does not match the OpenGL world coordinate system we are using (shown in green), in which <code>y</code> is vertical,<code>z</code> is north-south and <code>x</code> is east-west. So we have to *correct the sensor matrix* to account for this, by swapping <code>y</code> and <code>z</code>, and negating <code>z</code>. This is just a simple call:
+<pre>viewMatrix.correctSensorMatrix()</pre>
 </li>
 </ul>
 
 <h2>Projecting from latitude/longitude to a metre-based coordinate system</h2>
 <p>
-Latitude and longitude cannot be mapped directly to OpenGL coordinates, because latitude and longitude are designed for a spherical surface, such as the Earth, but OpenGL assumes that the units for the x, y and z directions are equal. So we need to convert latitude and longitude into coordinates expressed in a standard distance unit, such as <em>metres</em>. This involves performing a mathematical transformation known as a <em>projection</em>, in which the Earth (a sphere, more or less) is projected onto a flat surface. The projection being used is the <em>Spherical Mercator</em> projection, which works reasonably well for most places (the units do not exactly equal metres, but it's good enough for a typical AR application) However it is heavily distorted towards the poles and not recommended for far northern latitudes.
+How do we actually get world coordinates though? We cannot use latitude and longitude, because latitude and longitude are designed for a spherical surface, such as the Earth, but OpenGL assumes that the units for the x, y and z directions are equal. So we need to convert latitude and longitude into coordinates expressed in a standard distance unit, such as <em>metres</em>. This involves performing a mathematical transformation known as a <em>projection</em>, in which the Earth (a sphere, more or less) is projected onto a flat surface. The projection being used is the <em>Spherical Mercator</em> projection, which works reasonably well for most places (the units do not exactly equal metres, but it's good enough for a typical AR application) However it is heavily distorted towards the poles and not recommended for far northern latitudes.
 </p>
+
+<p>Spherical Mercator therefore does not use latitude and longitude. Instead it uses <em>eastings and northings</em>: basically, the distance in metres (more or less) east or north of a specific origin point, respectively. This origin is usually the intersection of the equator and Prime Meridian, however in our case, to make the numbers more manageable, the origin will be at the university, instead. So the university will have an easting of 0 and northing of 0. Points east of the university will have a positive easting, and points north of the university will have a positive northing.</p>
 
 <p>
 I have now added a library to do this conversion on the website, which you can download <a href='PROJ/PROJ-v2.zip'>here</a>. It contains these classes:
@@ -59,12 +73,12 @@ I have now added a library to do this conversion on the website, which you can d
 
 <li><code>LonLat</code> - a class representing a longitude and latitude, Has 'lon' and 'lat' attributes.</li>
 
-<li><code>EastNorth</code> - a class representing a metre-based point, defined by eastings and northings. Eastings and northings are (approximately, not exactly, but good enough for our purposes here) metres east and north of a particular point, or world origin. Here, the world origin is Solent University. So if you convert the longitude and latitude of Solent into an EastNorth (easting and northing), it will give you zero for both the easting and northing. Points east of Solent have positive eastings and points north of Solent have positive northings. Has 'easting' and 'northing' attributes.
+<li><code>EastNorth</code> - a class representing a metre-based point, defined by eastings and northings. Eastings and northings are (approximately, not exactly, but good enough for our purposes here) metres east and north of a particular point, or world origin. Here, the world origin is Solent University. So if you convert the longitude and latitude of Solent into an <code>EastNorth</code> (easting and northing), it will give you zero for both the easting and northing. Points east of Solent have positive eastings and points north of Solent have positive northings. Has 'easting' and 'northing' attributes.
 </li>
 
 <li><code>Algorithms</code> - includes a method to calculate the distance between two latitude/longitude pairs.</li>
 
-<li><code>Main</code> - contains some test code (currently commented out) showing you how you can use the SphericalMercatorProjection to project LonLat points into EastNorth, and unproject EastNorth points back into LonLat.</li>
+<li><code>Main</code> - contains some test code (currently commented out) showing you how you can use the <code>SphericalMercatorProjection</code> to project <code>LonLat</code> points into <code>EastNorth</code>, and unproject <code>EastNorth</code> points back into <code>LonLat</code>.</li>
 
 </ul>
 
@@ -73,20 +87,16 @@ You can just add these classes to your assignment project (feel free to put them
 </p>
 
 <p>
-Note the relation between EastNorth and OpenGL x, y and z coordinates. Due to differences between the OpenGL matrix and the sensor matrix, the coordinate system as rotated as shown below:
-<br />
-<img src="../images/sensorworld.png" alt="Coordinate system from sensor-derived matrices" />
-<br />
-So: 
+Note the relation between EastNorth and OpenGL <code>x</code>, <code>y</code> and <code>z</code> coordinates. 
 <ul>
 <li>
-OpenGL x world coordinates are equivalent to eastings.
+OpenGL <code>x</code> world coordinates are equivalent to eastings.
 </li>
 <li>
-OpenGL y world coordinates are equivalent to northings (note this important difference from the usual world coordinates setup, in which y is normally used for altitude)
+OpenGL <code>y</code> coordinates are equivalent to altitude (which we are ignoring)
 </li>
 <li>
-OpenGL z coordinates are equivalent to altitude (which we are ignoring; again note the difference from the usual world coordinates setup)
+OpenGL <code>z</code> world coordinates are equivalent to the <em>negative</em> of northings. As discussed above, <em>northings increase northwards</em>, however in OpenGL <em>north is equivalent to negative z</em>. Thus, we have to set the z world coordinates to the <em>negative</em> of the northings.
 </li>
 </ul>
 
@@ -114,8 +124,8 @@ url.httpGet().responseJson { request, response, result -&gt;
 
 <h2>Exercise</h2>
 
-<p>You can use today to either catch up with last week, or ask questions about the assignment. However you might also want to try this exercise.</p>
-<p>Try adding the Sensor API to your existing OpenGL application, and pass in the orientation matrix from the Sensor API to your Renderer. If you are on landscape you will need to remap the coordinate system.</p>
+<p>Try adding the Sensor API to your existing OpenGL application, and pass in the orientation matrix from the Sensor API to your Renderer. Use landscape orientation and ensure you remap the coordinate system and correct the sensor matrix, as described above.</p> 
+
 </body>
 </html>
 
