@@ -135,7 +135,7 @@ So in the vertex shader we set the eye coordinate position to the vertex (assumi
 <h3>Linking the texture ID to the shader</h3>
 <p>We need to link texture unit 0 (see above) to the shader variable representing the texture, <code>uTexture</code>:
 <pre>
-val refTextureUnit = gpuTexture.glGetUniformLocation("uTexture")
+val refTextureUnit = gpuTexture.getUniformLocation("uTexture")
 gpuTexture.setUniformInt(refTextureUnit, 0)
 </pre>
 <code>gpuTexture</code> is a <code>GPUInterface</code>  object representing the texture shaders. This code (which should come at the end of <code>onSurfaceCreated()</code>) is similar to what you have seen before: we first get a reference to the shader variable, and then set it to 0, for GPU texture unit 0.  This will associate GPU texture unit 0 with the <em>uTexture</em> shader variable.</p>
@@ -150,8 +150,8 @@ gpuTexture.setUniformInt(refTextureUnit, 0)
 <pre>cameraFeedSurfaceTexture = SurfaceTexture(textureId)</pre>
 </p>
 <h3>Sending the SurfaceTexture to the main activity</h3>
-<p>Once we've created a <code>SurfaceTexture</code> from our texture ID, we send it to the main activity, so that the main activity can use it to stream the camera into. This might be done via a callback function, specified as a parameter to the <code>Renderer</code>:
-<pre>class OpenGLRenderer(val textureAvailableCallback: (SurfaceTexture) -&gt; Unit) : GLSurfaceView.Renderer</pre>
+<p>Once we've created a <code>SurfaceTexture</code> from our texture ID, we send it to the main activity, so that the main activity can use it to stream the camera into. This might be done via a callback function:
+<pre>class OpenGLView(ctx: Context, val textureAvailableCallback: (SurfaceTexture) -&gt; Unit) : GLSurfaceView(ctx), GLSurfaceView.Renderer</pre>
 So we pass our <code>SurfaceTexture</code> to this callback once we've created it:
 <pre>textureAvailableCallback(cameraFeedSurfaceTexture!!)</pre>
 Note that the <code>!!</code> states that we know, in this case, that the texture will never be null. (The <code>SurfaceTexture</code> in this case would be likely declared as a nullable, because it should be null before it's setup).
