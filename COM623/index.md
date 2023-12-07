@@ -19,7 +19,7 @@ There are two assessments that will allow me to gauge how well you have done.
 - **1.Analysis and design Report**
 - **2.Implementation with accompanying Report**
 
-These will be provided during term.
+These are on SOL.
 
 ## Topics
 
@@ -38,6 +38,7 @@ Provisional, subject to change.
 | 8 | [Further Next.js](week_8/)                                       |
 | 9  | [Next.js Part 3](week_9/)                                     |
 | 10  | [Intro to Firebase](week_10/)                                     |
-| 11  | Further Firebase                                     |
-| 12 | Firebase/Assessment Support                           |
+| 11  | [Further Firebase](week_11/)                                     |
+| 12 | [Firebase/Assessment Support - INCOMPLETE](week_12/)  |
+
 
