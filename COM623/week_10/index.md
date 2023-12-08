@@ -278,7 +278,7 @@ try {
     } else {
         const html =  querySnapshot.docs.map ( doc => {
                 const data = doc.data();
-                return `${data.title} ${data.artist}`;
+                return `${doc.id} : ${data.title} ${data.artist}`;
             } ).join("<br />");
         document.getElementById("...").innerHTML = html;
     }
@@ -287,6 +287,8 @@ try {
 }
 ```
 Note how we can loop through the documents in the `QuerySnapshot` using `forEach`. Each time the `forEach` arrow function is called, the current document (`doc`) will be supplied as a parameter. We can then obtain the data associated with the current document using `doc.data()`.
+
+Note how the `id` belongs to the *document*, not the data.
 
 This example returns *all* data. In many cases however, we want to obtain only certain data, i.e. do a query. For example:
 
