@@ -193,6 +193,79 @@ public class EventTest {
 <br />
 <img src="../images/netbeans_test_folder.png" alt="Netbeans test folder" />
 </p>
+<h3>Setup and Teardown</h3>
+<p>We can write special code to perform common operations before <em>each test</em> or before <em>all tests</em>, and corresponding code to perform common operations <em>after</em> each test and all tests. The former is known as <em>setup</em> and the latter is known as <em>teardown</em>.</p>
+<p>Why is this useful? It allows us to create a common system containing a number of objects, and objects within objects, which will be used to run all tests starting from the same state. So for example we can setup a shop containing multiple products, and run each test on the shop in this state.</p>
+<p>We can use a number of annotations to do this:    
+    <ul>
+    <li><code>@BeforeEach</code> - specifies a method to run before <em>each test.</em></li>
+    <li><code>@BeforeAll</code> - specifies a method to run before <em>all tests.</em></li>
+    <li><code>@AfterEach</code> - specifies a method to run after <em>each test.</em></li>
+    <li><code>@AfterAll</code> - specifies a method to run after <em>all tests.</em></li>
+    </ul>
+</p>
+<p>For example, we could set up a Shop with Products in a <code>@BeforeEach</code> annotated method:
+<pre>
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+public class ProductTest {
+    
+    Shop shop;
+    Product p1, p2; 
+    
+    @BeforeEach
+    public void setupShop() {
+        shop = new Shop();
+        p1 = new Product("1278", "Bread", "Organic Bread Ltd", 0.79);
+        p2 = new Product("5901", "Cheese", "Griswold Farms Ltd", 1.79); 
+        shop.addProduct(p1);
+        shop.addProduct(p2);
+    }
+
+    @Test
+    public void testFindProductById() {
+        Product p = shop.findProductById("1278");
+        assertEquals(p, p1);
+    }
+    ...
+</pre>
+</p>
+<h4>@BeforeAll</h4>
+<p>When is <code>@BeforeAll</code> useful? It's useful for expensive operations, which we want to run only once, before all tests are run (as opposed to each individual test). A good example would be connecting to the database. The <code>@BeforeAll</code> method has to be marked as <code>static</code>, indicating that it applies to the test class as a whole, rather than specific instances of it. This also means that any object(s) that the method need to be declared as <code>static</code>. An example is given below; this also shows the use of <code>@AfterAll</code> to implement a tear-down method to close the connection.
+<pre>
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class ProductTest {
+
+    static Connection connection = null;
+
+    @BeforeAll
+    public static void setupConnection() {    
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite:....");
+        } catch (SQLException e) {
+            // ...
+        }
+    }
+
+    @AfterAll
+    public static void tearDownConnection() {
+        try {
+            if(connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            // ...
+        }
+    ...
+</pre>
+</p>
 <h3>Parameterised Tests</h3>
 <p>Often, tests differ only in the parameter we are supplying to the method. You can see this above in the tests within <code>EventTest</code>; most only differ by the amount of tickets we are supplying.  Clearly this is rather inefficient. It would be better if we could run a single test with
 one or more <em>parameters</em> - and luckily we can. The example below has a single test, <code>testSellMultipleValues()</code>
@@ -242,10 +315,10 @@ public class ParamItemTest {
     member of <code>testData</code> is an array with one member - the parameter to test.</li>
     <li>We then come to the test itself, the <code>testSellMultipleValues()</code> method. This is annotated with <code>@ParameterizedTest</code> to indicate that it's a parameterised test, and another annotation <code>@MethodSource</code> to indicate where the test data is coming from. <pre>@MethodSource(value="testData")</pre> indicates the data is coming from a method called <code>testData()</code>. The current item from the test data is passed to the <code>testSellMultipleValues()</code> method; it will be an int array (<code>int[]</code>) containing one single value.</li>
     <li>The test method creates an Event with 100 tickets, and then tries to sell the number of tickets defined by the current parameter (i.e. -1, 1 or 2, with a different value for each run of the test). We then work out the expected number of tickets after the sale. This will either be:
-	<ul>
-	<li>the maximum tickets minus the parameter (if the parameter is 1 or more);</li>
-	<li>or the maximum tickets (if the parameter is less than 1), because numbers of tickets less than 1 should be treated as invalid and thus the number of tickets after the attempted sale will not change.</li>
-	</ul>
+    <ul>
+    <li>the maximum tickets minus the parameter (if the parameter is 1 or more);</li>
+    <li>or the maximum tickets (if the parameter is less than 1), because numbers of tickets less than 1 should be treated as invalid and thus the number of tickets after the attempted sale will not change.</li>
+    </ul>
  Note how we do this with the <em>ternary operator</em> (?), which is a short-hand way of doing a conditional statement:
     <pre>int expectedTickets = data[0] &gt; 0 ? maxTickets - parameter : maxTickets;</pre>
     This is saying "if <code>data[0]</code> (i.e. the number of tickets we want to sell) is greater than 0, set <code>expectedTickets</code> to <code>maxTickets - data[0]</code>, otherwise set it to <code>maxTickets</code>".</li>
@@ -376,12 +449,12 @@ public class VenueTest {
 <p>Clone this repository from GitHub:
 <pre>https://github.com/nwcourses/COM528</pre>
 This contains the solutions to previous exercises, but also a project called <code>UniversityForTesting</code>, which you should use for this exercise. It contains a modified version of the Week 3 solution. Look at the classes within the project.</p>
-<p>Develop a series of unit tests for both the <code>Student</code> class and the <code>University</code> class, and run them.</p>
+<p>Develop a series of unit tests for both the <code>Student</code> class and the <code>University</code> class, and run them. You should include both normal and error conditions in the tests. In the latter case, check that the expected error occurs if you try to pass invalid data into the relevant methods.</p>
 <p>Please note:
-	<ul>
-	<li>Ensure you build your project by right clicking on the project name and selecting <em>Build with Dependencies</em>.</li>
-	<li>To run the tests, right click on the project and select <em>Test</em>.</li>
-	</ul>
+    <ul>
+    <li>Ensure you build your project by right clicking on the project name and selecting <em>Build with Dependencies</em>.</li>
+    <li>To run the tests, right click on the project and select <em>Test</em>.</li>
+    </ul>
 </p>
 <h2>References</h2>
 <p><a href="http://www.vogella.com/articles/JUnit/article.html">Lars Vogel's tutorial on JUnit</a> </p>
