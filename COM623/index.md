@@ -39,6 +39,6 @@ Provisional, subject to change.
 | 9  | [Next.js Part 3](week_9/)                                     |
 | 10  | [Intro to Firebase](week_10/)                                     |
 | 11  | [Further Firebase](week_11/)                                     |
-| 12 | [Firebase/Assessment Support - INCOMPLETE](week_12/)  |
+| 12 | [Firebase/Assessment Support](week_12/)  |
 
 
