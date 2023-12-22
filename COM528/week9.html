@@ -176,11 +176,11 @@ Note the <code>try</code> and <code>catch</code> is followed by a third type of 
 <h3>Connecting to the database</h3>
 <p>First of all, use the driver to make the connection to the SQLite database:
 <pre>Class.forName("org.sqlite.JDBC");
-Connection conn = DriverManager.getConnection("jdbc:sqlite:venue.db");</pre>
+Connection conn = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\yourusername\\venue.db");</pre>
 The first statement (<code>Class.forName("org.sqlite.JDBC");</code> ensures the driver is loaded by referencing one of the classes within it (<code>org.sqlite.JDBC</code>). Without this statement, the driver may not be loaded.</p>
 <p>Then we obtain a connection to a database, using the JDBC API. All supported databases would use <pre>DriverManager.getConnection()</pre> as it's a standard JDBC call, however the connection details (the <em>connection string</em>) would be different. Note that here, the connection string is:
-<pre>jdbc:sqlite:venue.db</pre>
-The <code>jdbc:</code> denotes the protocol, which confirms we are using JDBC. The next part of the string is the specific database we are using: <code>sqlite</code> here. The final part of the string is the <code>.db</code> file storing the database. This will be loaded from the <code>CATALINA_BASE</code> directory bydefault, unless a full path is specified. Also, the <code>.db</code> file will be created if it doesn't already exist.</p>
+<pre>jdbc:sqlite:C:\\users\\yourusername\\venue.db</pre>
+The <code>jdbc:</code> denotes the protocol, which confirms we are using JDBC. The next part of the string is the specific database we are using: <code>sqlite</code> here. The final part of the string is the <code>.db</code> file storing the database. This will be loaded from the <code>CATALINA_BASE</code> directory bydefault, unless a full path is specified, as it is here. Also, the <code>.db</code> file will be created if it doesn't already exist. Finally, note that you need to use a double-backslash to denote the Windows directory-separator backslash, as by default, backslashes are used for escape sequences, e.g. <code>\n</code>..</p>
 
 <h3>Using Statements</h3>
 
@@ -466,7 +466,7 @@ try
 {
     // Connect to database
     Class.forName("org.sqlite.JDBC");
-    conn = DriverManager.getConnection("jdbc:sqlite:venue.db");
+    conn = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\yourusername\\venue.db");
 
     // Create the DAO
     EventDao dao = new EventDao(conn, "event");
