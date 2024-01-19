@@ -12,14 +12,14 @@
 <h2>Introduction</h2>
 
 <p>In this week's topic you will be introduced to the concept of
-<strong>web APIs</strong>. You will get an initial idea of why they are useful, and will start to write a simple web API using Node.js and Express. You will also be introduced to <em>goormIDE</em>, a cloud-based environment which you can use to develop Node applications.</p>
+<strong>web APIs</strong>. You will get an initial idea of why they are useful, and will start to write a simple web API using Node.js and Express.</p>
 
 <h2>Is HTML always the best output format?</h2>
 <p>Think about the work you did last year in Web Technologies, in which you wrote a simple Node/Express server to search a database table and display the results using EJS. You generated <em>HTML</em> as the output format, so that the results look good in a browser.</p>
 <p>The problem with HTML, however, is that it is a format <em>specific to a browser</em>. This is fine if we are simply writing a website to be viewed by an end-user in a browser. But the end-user is not the only potential user of the data. <em>Other applications</em> might want to make use of the content, for example a weather app running on Android or iOS might want to access weather forecasts from a weather website. Apps do not typically use HTML, they use their own user interface, so it would be better if our server delivered the data as <em>raw data</em>, without any presentation or formatting. An example of a raw data format is <em>JSON</em>, which you saw last year in COM419. Raw data could then be easily processed by <em>any front end</em>, for example:
     <ul>
     <li>An AJAX application. As you saw last year, AJAX applications send requests to servers, and in many cases, the server sends back raw data, such as JSON, which can then be <em>parsed</em> and integrated into the AJAX front-end.</li>
-    <li>A smartphone app, as we have seen.</li>
+    <li>A smartphone app (such as an Android app), as we have seen.</li>
     <li>A third-party website, which might want to use data provided by our server. For example, a tourist website for a particular city might want to display a weather forecast for that city, using a server which provides weather information. This would be easier if the weather server sent back raw data, rather than HTML. With HTML, the relevant data (the weather forecast) would have to be extracted from an HTML page (containing formatting, styling etc) which would be difficult to parse compared to concise, well-structured raw data such as JSON.</li>
     </ul>
 </p>
@@ -53,7 +53,7 @@ electronic maps are typically stored in a database, which contains information a
 <h3>Raw data is easier to parse</h3>
 
 <p>
-Web APIs obviously send back information to their clients, but as we have seen, a raw data format such as JSON is preferred to HTML. Why is this? HTML is not considered a good idea because it contains not only data, but also page structure information (headings, paragraphs, tables etc). A client website using the web API, or an app, might wish to arrange the information in a different way. </p>
+Web APIs obviously send back information to their clients, but as we have seen, a raw data format such as JSON is preferred to HTML. Why is this? HTML is not considered a good idea because it contains not only data, but also page structure information (headings, paragraphs, tables etc). A client website using the web API, or an app, might wish to arrange the information in a different way. <strong>We will look at this practically next week.</strong></p>
 <p>So what we want is a format which represents the data, and the data alone. There are a number of formats we can use, including JSON (JavaScript Object Notation), and also <em>XML</em> (eXtensible Markup Language). In this module we will focus on JSON, because it's the leading format, it is easy to generate on the server and to parse (interpret) on the client, and you have met it already.</p>
 <h3>JSON - JavaScript Object Notation - Revision</h3>
 <p>JSON uses JavaScript syntax (hence the name) to represent data as it gets sent across the web. As you saw last year, JavaScript uses curly brackets {} to represent objects (similar to Python dictionaries in the sense that they consist of key/value pairs, though you can also add <em>methods</em> to objects) and square brackets [] to represent arrays. So with JSON we reuse this syntax to represent data, using curly brackets {} to represent a single entity (such as a person, a song or a film) and square brackets [] to represent a collection of entities (i.e. an <em>array</em> of entities).</p>
@@ -135,207 +135,359 @@ without any parameters supplied.</p>
 HTTP response. In this example we call the <code>send()</code> method of the
 response object to send back <em>Hello World from Express!</em> to the 
 client.</p>
+<p>Here is an example of an Express server with two routes:
+<pre>
+// app.mjs - use .mjs extension as ECMAScript 6 modules are used
+
+import express from 'express';
+const app = express();
+
+app.get('/', (req,res)=&gt; {
+    res.send('Hello World from Express!');
+});
+
+app.get('/time', (req, res) =&gt; {
+	res.send(`There have been ${Date.now()} milliseconds since 1/1/70.`);
+});
+
+app.listen(3000);
+</pre>
+There are two routes, a default (or <em>root</em> route) which sends back a Hello World message, and a <code>/time</code> route which displays the number of milliseconds since the start of 1970.</p>
+<p>These would be accessed with:
+<pre>http://localhost:3000</pre>
+for the <em>root</em> route, and
+<pre>http://localhost:3000/time</pre>
+for the time route.</p>
 <h3>Running the server</h3>
 <p>Remember that you use the <code>node</code> command to run a Node application. So if the above basic Express app is saved as <code>app.mjs</code>, you would run it with:
 <pre>node app.mjs</pre>
 This will run the server continuously in the background. To stop the server, you need to press <code>Control-C</code>. You must do this if you change the server code as the server will not automatically reload if you change it!
 </p>
-<h3 id='basicroutes'>Multiple routes - example</h3>
-<p>Here is an example which sets up two separate routes:
-<pre>
-import express from 'express';
-const app = express();
-
-
-app.get('/hello', (req,res)=&gt; {
-    res.send('Hello World!');
-});
-
-
-app.get('/time', (req,res)=&gt; {
-    res.send(`There have been ${Date.now()} milliseconds since 1/1/70.`);
-});
-app.listen(3000);
-</pre>
-This example sets up two routes <code>/hello</code> and <code>/time</code>, to handle the corresponding endpoints. The first will send back 'Hello World!' and the second will send back the number of milliseconds since January 1st 1970. 
-</p>
-<p>Note that the <code>/time</code> route uses the <em>backtick syntax</em>, which may be new to you. If we use backticks (`) for strings, we can <em>embed expressions directly in the string by surrounding the expression with curly brackets { } and preceding the curly brackets with a dollar sign $</em>. This avoids us having to use string concatenation with the + operator and leads to more concise syntax. So note how we embed the expression <code>Date.now()</code>, which gets the current time in milliseconds, in the string by surrounding it with curly brackets and preceding it with a dollar sign:
-<pre>`There have been ${Date.now()} milliseconds since 1/1/70.`</pre>
-</p>
-
-<h3>URL parameters</h3>
-<p>Express allows us to easily specify URL parameters. A parameter is a value within a URL which the server will process. So for example we might have an <code>/artist</code> route which takes an artist as a parameter. This route would match both of the endpoints below; <code>Oasis</code> and <code>Madonna</code> are the parameters to the same <code>/artist</code> route.
-<pre>
-http://localhost:3000/artist/Oasis
-http://localhost:3000/artist/Madonna
-</pre>
-You set up the route to contain named parameters and
-then you can use these named parameters in your JavaScript. This example 
-greets a user, with the name supplied as a parameter:
-<pre>
-import express from 'express';
-const app = express();
-
-
-app.get('/greet/:personName', (req,res)=&gt; {
-    res.send(`Hello ${req.params.personName}!`);
-});
-
-
-app.listen(3000);
-</pre>
-Note how this will setup the route <code>/greet</code> followed
-by a parameter <code>:personName</code>
-representing a person name. So URLs such as
-<pre>
-http://localhost:3000/greet/John
-http://localhost:3000/greet/Jane
-</pre>
-will be matched, and the greeting with the specified name will be sent back. These two examples will respond with:
-<pre>Hello John!
-Hello Jane!</pre>
-respectively.
-</p>
+<h2>Node and SQLite</h2>
+<h3>Downloading and using SQLite</h3>
+<p>Last year you used the <em>SQLite</em> relational database: if you remember, SQLite uses flat files rather than working with a full client-server database system.
+You can download SQLite <a href='https://www.sqlite.org/download.html'>here</a>. You can query and manipulate an SQLite database via the console-based <code>sqlite3</code> tool, documented <a href='https://www.sqlite.org/cli.html'>here</a> and downloadable <a href='https://www.sqlite.org/download.html'>here</a> along with the SQLite libraries. You can also upload a <code>.db</code> database to the online "fiddle" tool <a href='https://sqlite.org/fiddle/index.html'>here</a> and enter SQL statements to query and manipulate the database.</p>
+<p><a href='https://sqlitestudio.pl'>SQLite Studio</a> allows you to manage an SQLite database graphically.</p>
+<h3>Using SQLite from Node.js</h3>
+<p>We are going to look now at how you can connect to an SQLite
+database from Node.js. There are various
+modules available to do the job, including <code>better-sqlite3</code> which we will use as it is straightforward and, according to its developers, gives better performance than some alternatives. Documentation is available
+    <a href='https://npmjs.com/package/better-sqlite3'>here</a></p>
 <p>
-To access the named parameter from the JavaScript code, use the <code>req.params</code> object with the name of the parameter.
-So in this example <code>req.params.personName</code>
-will reference the <code>:personName</code> parameter and the server will send back a response containing "Hello" plus the person name supplied as a parameter.</p>
-<h2>Outputting JSON from an Express server</h2>
-<p>Having covered some basic Node/Express revision, we will now look at how we can <em>generate JSON</em> from an Express server.</p>
-<p>
-Here is an example to generate JSON from a JavaScript array. To send back JSON to the client, we use <code>res.json()</code> rather than <code>res.send()</code>. Remember that in JavaScript we use the square brackets [ and ] to define arrays.
+To install, use <code>npm</code> as for last week from the command prompt, e.g:
 <pre>
-import express from 'express';
-const app = express();
-
-app.get('/jsonExample', (req, res) =&gt; {
-    const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    res.json(monthLengths);
-});
-
-app.listen(3000);
-</pre>
-This will produce the JSON below when the <code>jsonExample</code> endpoint is requested:
-<pre>
-[ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
+npm install better-sqlite3 
 </pre>
 </p>
-<p>Here is an example showing an <em>object</em>: 
+
+<p>Here is a simple example. You need to import the <code>Database</code> class from the <code>better-sqlite3</code> module and then create a <code>Database</code> object using your <code>.db</code> file:
 <pre>
-import express from 'express';
-const app = express();
+import Database from 'better-sqlite3';
+const db = new Database('mydatabase.db'); 
 
-app.get('/jsonExample2', (req, res) =&gt; {
-    const obama = {"name" : "Barack Obama",
-                    "age" : 56,
-                    "nationality" : "US",
-                    "job" : "US President 2008-16" };
-    res.json(obama);
-});
-
-app.listen(3000);
+// Rest of the code follows...
 </pre>
-This would give the JSON below when the <code>jsonExample2</code> endpoint is requested:
+</p>
+<h2>Web API Development with Node and Express</h2>
+<p>Having revised some topics from last year we will now focus on how we can develop <em>Web APIs</em> with Node and Express. As we saw above, Web APIs are in fact very similar to standard web applications - but they deliver a <em>pure data</em> format, such as <em>JSON</em>, back to the client.</p>
+<p>Individual routes within a Web API are known as <em>API endpoints</em>. So we could have one API endpoint for looking up all songs by a particular artist, one API endpoint for buying a song, one API endpoint for adding a new song, and so on.</p>
+<h3>REST - Representational State Transfer - An introduction</h3>
+<p>It is a very common pattern in web development to develop a web API with
+a series of endpoints which manipulate the database in various ways, using
+HTTP methods appropriately for different operations. For example, if we
+are <em>searching</em> the database with a SELECT query, we use a <em>GET</em>
+method. If we are <em>updating</em> or <em>inserting</em> data, we use a
+<em>POST</em> method and if we are <em>deleting</em> data, we use a 
+<em>DELETE</em> method. We can set these methods up in Express easily:
 <pre>
-{"name" : "Barack Obama", "age" : 56, "nationality" : "US", "job": "US President 2008-16"}
+app.get('/endpoint1', ....);    // GET request
+app.post('/endpoint2', ....);   // POST request
+app.delete('/endpoint3', ....); // DELETE request
 </pre>
-and finally here is an example showing an array of objects: 
-<pre>
-import express from 'express';
-const app = express();
-
-const politicians = [
-
-       {
-        "name" : "Barack Obama",
-        "age" : 56,
-        "nationality" : "US",
-        "job" : "US President 2008-16" 
-       },
-
-       {
-        "name" : "Donald Trump",
-        "age" : 75,
-        "nationality" : "US",
-        "job" : "US President 2016-20" 
-       },
-            
-       {
-        "name" : "Joe Biden",
-        "age" : 79,
-        "nationality" : "US",
-        "job" : "US President 2020-" 
-       }
-                     
-];
-
-app.get('/jsonExample3', (req, res) =&gt; {
-    res.json(politicians);
-});
-
-app.listen(3000);
-</pre>
-This will produce this JSON when the <code>jsonExample3</code> endpoint is requested:
-<pre>
-[
-    {
-        "name" : "Barack Obama", 
-        "age" : 56, 
-        "nationality" : "US", 
-        "job": "US President 2008-16"
-    },
-    {
-        "name" : "Donald Trump", 
-        "age" : 75, 
-        "nationality" : "US",  
-        "job": "US President 2016-20" 
-    },
-    {
-        "name" : "Joe Biden", 
-        "age" : 79, 
-        "nationality" : "US",  
-        "job": "US President 2020-" 
-    }
-]
-</pre>
-The simple rule is that JavaScript arrays will map to JSON arrays, and JavaScript objects will map to JSON objects.</p>
-<h3>Setting the correct content type</h3>
-<p>A server should let clients know that JSON is coming back from the server, so that the client knows that they need to process the response as JSON, rather than something else.  For example, web browsers will format the JSON nicely to make it easier to test and debug a web API. To do this the <code>Content-Type</code> HTTP header must be set to <code>application/json</code>. <em>The great thing if you are using Express, however, is that <code>res.json()</code> will set the content type correctly for you.</em></p>
-<h2>Exercise 1</h2>
-<p><strong>NOTE the following</strong>:
+We can also use various HTTP methods <em>from within our Express server</em> 
+to signal different types of error, e.g.
     <ul>
-    <li>To test, you may need to install the JSONViewer plugin, from <a href="https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh?hl=en"> the Chrome web store</a>. This will format the JSON nicely so it's easy to see the output.</li>
-    <li>Some of these may be very easy if you have done the database module last term. So feel free to skip Questions 1, 2 and 4 if you are confident with them: they are mostly intended for revision for those of you who have not done any Node since your first-year module. (You will need question 3 for later exercises, so please complete it even if you consider it very easy).</li>
+    <li>404 Not Found - if we are trying to search for something which could
+    not be found in the database;</li>
+    <li>400 Bad Request - if the format of the HTTP request was invalid in
+    some way;</li> 
+    <li>500 Internal Server Error - if an internal error on the server
+    occurs, for example the database server is not running.
     </ul>
+We can send back different HTTP status codes from Express with the
+<code>status()</code> method, eg.:
+<pre>res.status(404);</pre>
+This pattern, of:
+    <ul>    
+    <li>using API endpoints which logically represent the data we are trying
+    to retrieve (e.g <code>/songs/Oasis</code> to represent all songs by
+    Oasis);</li>
+    <li>using HTTP methods appropriately depending on what operation is
+    being performed;</li>    
+    <li>and sending back appropriate HTTP status codes to indicate different
+    types of error;</li>
+    </ul>
+is a key feature of the <em>REST</em> (Representational State Transfer) pattern for developing web APIs. REST has other key principles such as <em>statelessness</em>, but we will not look at these right now.</p>
+<h3>Writing API endpoints which communicate with SQLite using the better-sqlite3 module</h3>
+<p>We will now go through a series of example API endpoints using various methods, and which communicate with an SQLite database. You have already worked with SQLite databases from Node and Express. This year we are using a different module, <code>better-sqlite3</code>, but the style of code is similar.</p>
+<h4>SELECT</h4>
+<p>The code below is a <em>snippet</em> of code showing an
+API endpoint as part of an Express REST Web API. It perfoms an SQL 
+statement to find all students with the last name matching the
+<code>lastname</code> parameter to the Express route, so that for example:
+<pre>https://url-of-your-server.example.com/students/Smith</pre>
+would find all students with the last name Smith.
+<pre>
+app.get('/students/:lastname', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare("SELECT * FROM students WHERE lastname=?");
+        const results = stmt.all(req.params.lastname);
+        res.json(results);
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
+});
+</pre>
+<p>We first create a <em>prepared statement</em> using the <code>prepare()</code> method of our database object. A prepared statement is a statement which has parameters <em>bound</em> to it, and then is <em>compiled</em> into a binary form which can be stored in memory and rapidly executed by the database. The advantage of a prepared statement is that once compiled, it can be rapidly executed again and again by the database if our application performs the same query multiple times. Prepared statements also prevent a certain type of security exploit known as <em>SQL injection</em>, in which a database can be compromised by the user entering fragments of SQL into a form which combine with existing SQL code in the JSP. We will look at SQL injection in more detail later in the module.</li>
+<li>Note how the SQL contains placeholders for bound parameters, using question marks <code>?</code> We bind data to each placeholder when we execute the statement. To execute a SELECT statement we use the <code>all()</code> method of our prepared statement object, and pass the bound parameters as arguments. So here:
+<pre>const results = stmt.all(req.params.lastname);</pre>
+will bind the <code>lastname</code> parameter of the route to the first placeholder. The result will be that we query the database for all students with that last name.</p> 
+<p>The <code>all()</code> method returns <em>an array of all matching rows from the database, as an array of JavaScript objects</em>. We send back that array as  <em>JSON</em>, using <code>res.json()</code>, which we saw last week.</p>
+<p>Note also the use of a <code>try</code>/<code>catch</code> block. Those of you who have studied OODD (which I believe is everyone this year) will have seen this already. Basically we are <em>try</em>ing to do something, and if it fails, we <em>catch</em> the error (<em>exception</em>) in the <em>catch block</em>. So, if there was an error, we send back a JSON object containing an <em>error</em> property with a value of the error that occurred, and also send back an HTTP status code of 500 (Internal Server Error) which, by convention, is used if the server encountered an internal error which was not caused by a user mistake. 
 </p>
-<h3>Questions</h3>
+<p>This version returns <em>all</em> students in the database. Note that in this case, we don't need to specify a parameter to the the query, so <code>stmt.all()</code> takes no arguments.
+<pre>app.get('/students', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare("SELECT * FROM students");
+        const results = stmt.all();
+        res.json(results);
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
+});
+</pre></p>
+<h4>UPDATE</h4>
+<p>Performing an UPDATE statement uses the same approach. Here is a route which could be used to <em>buy a product with a given ID</em> by reducing its quantity in stock by one. <strong>Note how this route has a method of POST, following the REST principles discussed above.</strong>
+<pre>
+app.post('/products/:id/buy', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare('UPDATE products SET quantity=quantity-1 WHERE id=?');
+        const info = stmt.run(req.params.id);
+        if(info.changes == 1) {
+            res.json({success:1});
+        } else {
+            res.status(404).json({error: 'No product with that ID'});
+        }
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
+});
+</pre>
+Note that we use <code>run()</code>, rather than <code>all()</code>, with a statement which <em>updates</em> the database.
+We use a try/catch block, as for the <em>SELECT</em> example. Also, we check the <code>changes</code> property of the <code>info</code> object returned from the query. This contains the number of rows affected by the SQL statement. If one row was updated, we send back a JSON success message. If not, the reason will be that there is no product with that ID. By convention, following the principles of REST, if we cannot find what we are looking for in a route, we send back the HTTP status code 404 (Not Found).</p>
+<p>Note how the route contains the ID as a <em>parameter</em> (<code>:id</code>). You looked at this last year: parameters allow you to pass information into the route via the URL. So for example, the URL:
+<pre>http://localhost:3000/products/201/buy</pre>
+would pass a parameter of <code>201</code> into the route. The parameter <code>:id</code> would have the value 201. Also remember how we use <code>req.params</code> to access parameters, so <code>req.params.id</code> represents the <code>:id</code> parameter.</p>
+<h4>DELETE</h4>
+<p>DELETE is similar to UPDATE. As we saw above, a route which results in the deletion of data makes use of the HTTP <em>DELETE</em> method.
+<pre>
+app.delete('/products/:id/buy', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare('DELETE FROM products WHERE id=?');
+        const info = stmt.run(req.params.id);
+        if(info.changes == 1) {
+            res.json({success:1});
+        } else {
+            res.status(404).json({error: 'No product with that ID'});
+        }
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
+});
+</pre>
+Note how again we check the <code>changes</code> property of the results
+to check whether it found the record to delete. Note also how the DELETE route takes in the ID as a parameter.</p>
+<!-- todo week 2
+<h4>INSERT</h4>
+<p>Insertion is discussed below, as there is something else we need to 
+consider first: <em>the nature of POST requests</em> and <em>how to send POST data to the server.</em></p>
+<h3>POST requests</h3>
+<p>With POST requests, we often need to <em>send data to the server</em>, for example when creating a new product in a products database for a shop, we might need to send the name, manufacturer and price. This is done by <em>embedding the data in the request body</em>, often as JSON, but also as key-value pairs. Last week we considered HTTP requests. Let's see
+an example of an HTTP POST request with embedded data:
+<pre>
+POST /product/create HTTP/1.1
+Host: www.solent-e-stores.com
+Content-Type: application/json
+
+{"name":"Corn Flakes","manufacturer":"Smith Emporium","price":1.29}  
+</pre>
+Note how we are sending <em>POST</em> data to <code>/product/create</code> and note how the HTTP <em>request</em> has a <code>Content-Type</code> of <code>application/json</code> (we covered MIME types last week). This is now telling the <em>server</em> (not the client) that what is being sent is JSON.</p>
+<p>Note also how the <em>request body</em> begins after the headers, with a gap
+of one line. Note here, how the request body contains a JSON object containing
+details of a product.</p>
+<p>How can we read the request body from an Express application? 
+When you wish to access the request body in your routes, you use
+the <code>req.body</code> object. Here is an example of a 
+<code>/product/create</code> route which reads JSON from the request body
+and performs an SQL INSERT statement with it:
+<pre>
+app.use(express.json()); // necessary to read JSON data from the request body
+
+app.post('/product/create', (req, res) =&gt; {
+    try {
+        const stmt = db.prepare('INSERT INTO products(name, manufacturer, price) VALUES (?,?,?)');
+
+        const info = stmt.run(req.body.name, req.body.manufacturer, req.body.price);
+        res.json({id: info.lastInsertRowid});
+    } catch(error) {
+        res.status(500).json({ error: error });
+    }
+});
+</pre>
+Note how the <code>info</code> object has a <code>lastInsertRowid</code> property representing the primary key (ID) allocated to the new record. So if the operation was successful, we send back JSON containing the ID, which can then be used by the client.</p>
+-->
+<h3>Testing HTTP request methods other than GET</h3>
+<p>One question remains. How can you <em>test out</em> these methods?
+With GET methods, it's simple; you simply request
+the desired API endpoint in your browser and the appropriate route will
+be executed. However, with other methods, such as POST and DELETE, it's more
+difficult, as browsers always send GET requests when you type in a URL.</p>
+<h4>Option One - RESTer</h4>
+<p>There are various third-party tools which can be used to test out APIs.  A particularly useful one is <em>RESTer</em>, which is strongly recommended if using your own computer. However <strong>please note this is not available on the university computers</strong> and cannot be installed due to the controlled environment. This is a browser extension which allows you to simulate HTTP requests and is available for <a href='https://chrome.google.com/webstore/detail/rester/eejfoncpjfgmeleakejdcanedmefagga'>Chrome</a> and <a href='https://addons.mozilla.org/en-US/firefox/addon/rester/'>Firefox</a>. To install RESTer, visit either of these links and follow the instructions, and RESTer will be installed to your browser.</p>
+<p>RESTer has an interface as shown below:
+<br />
+<img src="../images/rester1.png" alt="RESTer interface" />
+<br />
+Note how RESTer allows you to specify, amongst other things:
+    <ul>
+    <li>the HTTP method to use;</li>
+    <li>the URL to request;</li>
+    <li>the <em>headers</em> and <em>body</em> of the request. (to be covered next week)`
+    </ul>
+In the example above, a GET request is being made to the URL <code>https://url_of_your_server.example.com/artist/Oasis</code>. Note how the response is shown below the controls, showing the status code, the response headers and the response body.</p>
+<!--
+<p>The screenshot below shows how you can add headers to the HTTP request by selecting the <em>Headers</em> tab. Here we have specified the <code>Content-Type</code> as <code>application/json</code>:
+<br />
+<img src="../images/rester2.png" alt="Setting content type in RESTer" />
+<br />
+You can also add data to the request body. This is shown below, note how we have added JSON describing a song. (Prize to anyone who can guess why I have chosen this particular song...)
+<br />
+<img src="../images/rester3.png" alt="Setting request body in RESTer" />
+<br />
+-->
+RESTer also allows you to test error conditions: if you supply invalid 
+request data and your web API checks for this, then you will get a non-200
+status code returned.</p>
+<h4>Option Two - REST Tester</h4>
+<p>If you are on the university computers, you will be unable to use RESTer, but can use an alternative - more basic - tool called <em>REST Tester</em>. This can be downloaded from GitHub:
+<pre>git clone https://github.com/nickw1/resttest.git</pre>
+Download this, change to its installation folder:
+<pre>cd resttest</pre>
+and then install the dependencies:
+<pre>npm install</pre>
+and run, e.g.:
+<pre>node app.mjs</pre>
+or use PM2 (<a href='#pm2'>below</a>).
+The application will run on port 3200, so you can access via:
+<pre>http://localhost:3200</pre>
+It is shown below:
+<br />
+<img src="../images/resttester.png" alt="REST Tester" />
+</p>
+<h2>Exercises</h2>
+<p><strong>Important!</strong>As we need to devote part of the lab session in Week 1 to the introductory lecture, it is possible that you will not finish these, so time is allocated in Week 2 for you to finish them. In subsequent weeks the arrangement will bt the same as OODD: the background behind each topic will be covered in a lecture, which can be viewed as a live Teams session (time TBC) or as a recording in your own time.</p>
 <ol>
-<li>On your local machine, create the simple Hello World Express example above. Run it, and request it from your browser to show that it works.</li>
-<li>Add the <code>/time</code> route from the second example, and again request it from your browser. Refresh your browser to prove that the number of milliseconds increases as time passes.</li>
-<li>Add an <em>artist</em> route to your server.
-The <em>artist</em> route should take parameter for the artist
-name and the application should respond to the request with a message displaying the artist the user requested. So, if the user requested:
-<pre>http://localhost:3000/artist/Oasis</pre> 
-it should send back the message 
-<pre>You are searching for songs by Oasis</pre>
+<li><strong>Revision/checking that your environment works</strong>: Create the simple Hello World Express example above. Run it, and request it from your browser to show that it works. Then, add :
+	<ul>
+	<li>the <code>/time</code> route shown above to your Express server and test that.</li>
+	<li>a <code>/greet</code> route which takes a name as a parameter and responds with "Hello" plus the name supplied.</li>
+	</ul>
 </li>
-<li>Make the application also respond to URLs of this form:
-<pre>http://localhost:3000/artist/(the artist)/song/(the song)</pre>
-by specifying parameters for both artist and song. So, for example, if the user requested:
-<pre>http://localhost:3000/artist/Oasis/song/Wonderwall</pre>
-it would send back: 
-<pre>You are searching for Wonderwall by Oasis</pre>
+<li>Use this <a href='wadsongs.db'>db file</a> for your database.
+Develop a simple REST API in Node and Express with endpoints to: 
+    <ul>
+    <li>GET: search for all songs by a given artist;</li>
+    <li>GET: search for all songs with a given title;</li>
+    <li>GET: search for songs by artist AND title (i.e. both must match);</li>
+    <li>GET: find a song with a given ID</li>
+    <li>POST: buy a physical copy of song</li>
+    <li>DELETE: delete a song with a given ID</li>
+    </ul>
 </li>
-<li>You are now going to create a route which <em>generates JSON</em>. In your Express application, at the start of the script (<em>before</em> any routes), create a JavaScript array of objects containing an array of songs. Each song should have fields for title, artist, year and chart position. If you need some inspiration, look at <a href='https://en.wikipedia.org/wiki/List_of_best-selling_singles_in_the_United_Kingdom'>this Wikipedia page</a> which lists the biggest selling UK singles of all time (look at "Best-selling singles based on paid-for purchases" to see the songs). You need only include about 5 songs, but try and include two by the same artist. Then, create a <code>topSongs</code> route, which returns the songs to the client as JSON. Again, test it in your browser.</li>
-<li><em>More advanced:</em> Modify your <code>artist</code> route to filter the array of songs by the <code>artist</code> parameter passed in, and return the filtered results as JSON, so only songs by that artist are returned to the client.
-To do this efficiently in JavaScript, you can use the <code>filter()</code> method which filters an array based on a certain condition. The example below would specifically find all songs called 'Crazy' (note how we convert the requested title to lower case, so we can handle requests containing the word 'Crazy' in either lower case, upper case or a mixture of both): 
-<pre>const matchingSongs = allSongs.filter ( song =&gt; song.title.toLowerCase() == 'crazy' );</pre>
-</li>
-<li>Add an additional route to find all songs in a given date range: 
-<pre>/from/:year1/to/:year2</pre>
-The route should filter the array to show only those songs released between 
-the given years, and again return the results as JSON.
-</li>
+<li>Test the GET endpoints in the browser, <strong>and the POST and DELETE endpoints in RESTer, if on your own computer, or with REST Tester if not.</strong></li>
+<!-- to be done in week 2
+<li><strong>More advanced</strong>: Create a <code>public</code> folder, and in it, create a static HTML page containing a field for the artist and a button. When the user clicks the button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. In this client-side code, <code>window.location</code> to redirect the browser, e.g.
+<pre>window.location = `https://url-of-your-server.example.com/.....`; // for you to complete!</pre>
+Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>For both questions, use Express to serve the static page. You can do this by adding the line:</strong>
+<pre>app.use(express.static('public'));</pre>
+This will tell Express to serve all content in the <code>public</code> folder as static pages. So to access the file <code>file.html</code> inside the <code>public</code> folder from the browser, you can access it via <code>https://url-of-your-server.example.com/file.html</code>.</li>
+-->
 </ol>
+<hr />
+<h2 id='pm2'>Keeping a Node app running - PM2 - Node process manager</h2>
+<p>A useful thing to know is <em>how to keep a Node app running</em> when it has been started. This is obviously important on a live server, where we will want to restart the app if it crashes for any reason. So far, you have just started Node apps from the command-line, e.g:
+<pre>node app.mjs</pre>
+and then stopped then with Control-C. Obviously though, this is not 
+satisfactory for a production app, which needs to be running all the time.
+</p>
+<p>So we need some kind of software to keep our Node server running 
+continuously. There are various options available, including <a href=''>Nodemon</a>, together with the software we will examine, <em><code>pm2</code></em> (see <a href='http://pm2.keymetrics.io'>here</a>). <code>pm2</code>
+is a process manager typically used with Node applications, though it
+can also be used to manage other background processes.
+With <code>pm2</code>, you can launch a Node process in the background, stop it, start it and monitor how it is running. Furthermore if the process crashes, <code>pm2</code> will restart it, which is again essential on a production server.</p>
+<p>It can be installed with npm. Unlike the other NPM packages we have looked at so far, you will want to install it <em>globally</em> so that it is available to all applications and all users on your system. For example this command will 
+install it globally for all users if you are logged in as a user with admin 
+privileges on a Linux system (<code>sudo</code> means "run with root, or admin privileges", and <code>-g</code> indicates to install it globally):
+<pre>sudo npm install -g pm2</pre>
+Or, if you do not have admin privileges, you can make <code>pm2</code> available
+to all applications owned by your user by omitting the <code>sudo</code>:
+<pre>npm install -g pm2</pre>
+</p>
+<h3>Using pm2</h3>
+<p>To start a given Node server with <code>pm2</code> you use this command:
+<pre>pm2 start name_of_file.mjs</pre>
+Here is an example. Note the <code>cat</code> command on a Linux system
+shows the contents of the file, this has been done to show the source code
+of ths server:
+<br />
+<img src='../images/pm2_1.png' alt='Starting a process with pm2' />
+<br />
+As can hopefully be seen, this server runs on port 3000, and we have started
+it. Note that it has been allocated a process ID of 0, which we can use later
+to stop the process.</p>
+<p>The screenshot below shows starting a second process. Note that the second server runs on a different port, 3001, which allows both processes to run at the same time.
+<br />
+<img src='../images/pm2_2.png' alt='Starting a second process with pm2' />
+<br />
+Once we've started a process, we can then stop it using 
+<pre>pm2 stop process_name_or_process_ID</pre>
+So in the example below, we stop the second process, using its process ID (1):
+<br />
+<img src='../images/pm2_3.png' alt='Stopping a process using its ID' />
+<br />
+We can then restart the process. In the example below, we restart the second server using its process <em>name</em>, rather than its ID:
+<br />
+<img src='../images/pm2_4.png' alt='Restarting a process using its name' />
+<br />
+We can completely remove a process from the list with <code>pm2 delete</code>. So the example below stops, and completely removes from the list, the second server.
+<br />
+<img src='../images/pm2_5.png' alt='Deleting a process' />
+<br />
+The next example shows how to start a process with a custom name (<code>SecondServer</code>). This is done using the <code>--name</code> option to <code>pm2.</code>
+<br />
+<img src='../images/pm2_6.png' alt='Starting a process with a custom name' />
+<br />
+Note how the second server has an ID of 2. This is because it is a <em>brand new process</em>: process 1 was deleted and removed from the list.
+</p>
+<h3>Watch mode</h3>
+<p>The above example also shows how to start a process in <strong>watch mode</strong>. Wtch mode will <strong>automatically restart the server if changes are made</strong>, which is very useful during development, as you do not have to keep stopping and restarting your server if you make changes. As can be seen in the example, the <code>--watch</code> option is used to add the process in watch mode:
+<pre>pm2 start server2.mjs <strong>--watch</strong> --name SecondServer</pre>
+</p>
+<h3>Listing all processes</h3>
+<p>You can also list all processes managed with <code>pm2</code> without having to perform another operation. Just use <code>pm2 list</code>, e.g.: 
+<br />
+<img src='../images/pm2_7.png' alt='Listing all processes' />
+<br />
+</p>
 </body>
-</html
+</html>
