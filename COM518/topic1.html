@@ -291,7 +291,7 @@ would pass a parameter of <code>201</code> into the route. The parameter <code>:
 <h4>DELETE</h4>
 <p>DELETE is similar to UPDATE. As we saw above, a route which results in the deletion of data makes use of the HTTP <em>DELETE</em> method.
 <pre>
-app.delete('/products/:id/buy', (req, res) =&gt; {
+app.delete('/products/:id', (req, res) =&gt; {
     try {
         const stmt = db.prepare('DELETE FROM products WHERE id=?');
         const info = stmt.run(req.params.id);
