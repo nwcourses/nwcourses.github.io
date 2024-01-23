@@ -21,12 +21,12 @@ Kotlin code can be mixed with Java code in one application</li>
 </ul>
 <hr><h2>Some Kotlin features</h2>
 <ul>
-<li><em>Null safety</em>: language features to helo guard against the
+<li><em>Null safety</em>: language features to help guard against the
 dreaded NullPointerException!</li>
 <li><em>Type inference</em>: type of variables can be inferred by what they
-are initialised to</li>
+are initialised to, so you don't need to explicitly declare the data type</li>
 <li><em>Lambda functions</em>: anonymous functions which can be passed as
-arguments to other functions (a la JavaScript)</li>
+arguments to other functions (similar to arrow functions in JavaScript)</li>
 <li><em>Data classes</em>: concisely create classes which represent data and
 do not need methods</li>
 <li><em>Extension functions</em>: add a single function (method) to an
@@ -153,8 +153,10 @@ Kotlin:
         "B" -&gt; println("2.1")
         "C" -&gt; println("2.2")
         "D" -&gt; println("Third")
-        "F" -&gt; { println("Fail")
-                println("Please resit in the summer.") }
+        "F" -&gt; { 
+            println("Fail")
+            println("Please resit in the summer.") 
+        }
         else -&gt; println("Invalid grade $grade.")
     }
 }
@@ -296,7 +298,7 @@ obviously does not do anything interesting</li>
 note that <em>readLine()</em> returns a nullable String (<em>String?</em>):
 <pre>fun main (args: Array&lt;String&gt;) {
     println("Please enter a number:")
-    val str1 = readLine() // this might return null
+    val str1 = readLine() // this might return null, e.g. if we are in a non-console environment
 
     // Elvis: Set a EITHER to the return value of toInt(), or 0 if str1 is null
     val a = str1?.toInt() ?: 0
@@ -699,5 +701,5 @@ more concise?</li>
 <li>Answer will be given out in class!</li>
 </ul>
 <h2>Further reading</h2>
-<p>I have prepared some notes on additional basic Kotlin topics, including inheritance and map data structures. There is unfortunately no time in the lecture to cover these, but <a href='topic1a.html'>please read the notes here</a>.</p>
+<p>I have prepared some notes on additional basic Kotlin topics, including inheritance and map data structures. We may be able to cover these at the start of the lab session. If not, <a href='topic1a.html'>please read the notes here</a>.</p>
 </body></html>
