@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/android.css">
+</head><body>
+<h2>1. Hello World.</h2>
+
+<p>
+For this introductory, non-Android Kotlin session, we are going to be using Android Studio, as it allows us to write console programs as well as Android apps. Launch Android Studio and then create a new project. Ensure you select <em>No activity</em>, as shown below:
+<br />
+<img src="../images/android_studio_console_create.png" alt="Creating an empty project" />
+<br />
+The project will be initialised but will have no source code files. You will need to add a Kotlin source code file to the project, do this as shown below:
+
+<br />
+<img src="../images/android_studio_add_file.png" alt="Adding a file to your project" />
+<br />
+Then, compile and run the Kotlin program by right-clicking on it. The output will appear at the bottom of the screen.
+<br />
+<img src="../images/android_studio_console_kotlin.png" alt="Compiling and running a Kotlin program" />
+<br />
+</p> 
+
+<h2>2. Loops and ifs – basic</h2>
+
+<ul>
+<li>Create a new program, ex2.kt. The program should ask the user to
+input their name and then should print it 10 times.</li>
+<li>Modify the program so that it also asks how many times they want to display
+their name. HINT: readLine() might return null. See the section “A practical example, and introducing Elvis”</li>
+</ul>
+
+
+
+
+<h2>3. Looping through an array</h2>
+
+<ul>
+<li>
+Create a new program which stores an array of your
+avourite music artists.
+the program should then prompt the user to ask the user to input an artist
+name. Use a loop to keep prompting the user until they guess one of the correct artists.
+
+</li>
+</ul>
+
+<h2>4. when</h2>
+
+<p>Write a program which uses a "when" statement to print the grade (A, B, C, D, E,
+or F) equivalent to a given percentage. Make the 'when' act as an expression,
+i.e. you should get it to return a value and then print that value.
+Grades are as follows:
+<pre>
+A - 70-100
+B - 60-69
+C - 50-59
+D - 40-49
+E - 30-39
+F – 0-29
+</pre>
+
+The program should also display "Error - invalid percentage" if the percentage is
+below 0 or greater than 100.
+
+Hint: you can use the "in" keyword with a range (e.g. 1..10) as a condition inside
+"when".
+</p>
+
+
+<h2>Classes and objects (do in your own time if necessary)</h2>
+
+<p>
+Create a Car class. It should have properties for make, model, engine capacity
+(cc), top speed, and current speed (mph or km/h - up to you). The first four
+should be passed in via the constructor.
+Set the current speed to 0 when the car initialises.
+Add accelerate() and decelerate() methods. These should increase and decrease
+the speed by a value passed into the method as a parameter. decelerate()
+should ideally check to make sure that the speed doesn't go below 0 and
+accelerate() should ideally check to make sure that the speed doesn't go above
+the top speed.
+Add a toString() method to return a string representation of the car. You need to
+use the override keyword with this, because it’s overriding the superclass
+method, i.e.
+<pre>
+override fun toString(): String {...
+}
+</pre>
+Write a main() function. In main(), try creating two car objects. Display the car
+objects, accelerate them, display them again, decelerate them again, and
+display them once more
+</p>
+
+<h2>6. Inheritance (advanced; do in your own time if necessary)</h2>
+
+<p>
+You need to look at the further notes to answer this question.
+Create an inheritance hierarchy involving employees, programmers and
+managers.
+<ul>
+<li>
+The Employee class should have attributes for name, job title and salary.</li>
+<li>
+The Programmer class, inheriting from Employee, should in addition have an
+attribute for favourite language (which should be a String) and current project (a
+String).</li>
+<li>
+The Manager class, also inheriting from Employee, should in addition attributes
+for companyCar (a Car - borrow the class from the previous exercise) and
+number of shares in the company.</li>
+</ul>
+Give each class a printDetails() method which prints the full details of objects of
+that class.
+Write a main() function to test your inheritance hierarchy.
+</p>
+<p>
+Enhancement: change Programmer so that the favourite language string is
+replaced by an array of strings for multiple favourite languages (e.g. Kotlin, Java,
+PHP, Python and JavaScript).
+</p>
+
+
+</body>
+</html>
