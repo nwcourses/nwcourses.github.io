@@ -5,12 +5,16 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head>
 <body>
-<div class="titlebox"><h1>Topic 2: Node.js and databases</h1></div>
-<h2>Databases - revision</h2>
-<p>You have already worked with SQL databases in your first year. As you
-should remember from your databases module, data is stored in <em>tables</em> with <em>columns</em>, and we get data out of the database using <em>queries</em> . These queries are written in <em>Structured Query Language (SQL)</em>.</p>
+<div class="titlebox"><h1>Topic 2: More on Web APIs</h1></div>
+<p>This week we will look at a few more Web API-related topics, including:
+	<ul>
+	<li>Databases as a client-server system</li>
+	<li>More detail on REST</li>
+	<li>Sending data to a server through the request body with POST and PUT requests</li>
+	</ul>
+</p>
 <h2>Databases as a client-server system</h2>
-<p>Database systems consist of two components, the <em>server</em> and
+<p>We are using SQLite in this module. However in production web applications, you typically use a full <em>database server</em>, such as MySQL or Oracle. We will not be using a database server in this module, but it's helpful to be clear of their architecture as you will likely work with it in a production app. Server-based database systems consist of two components, the <em>server</em> and
 the <em>client</em>:
 <br/>
 <img src="../images/db1.png" alt="Database as client/server system"/></li>
@@ -24,7 +28,7 @@ the <em>client</em>:
     </ul>
 </p>
 <h3>The database client</h3>
-<p>Users do not typically interact directly with the database server. Instead, they interact with a <em>database client</em> - a piece of software which communicates with the database server by connecting to it, sending SQL queries, and processing the response. When developing web applications, your software (for example, your Node.js server, or an Apache server running a language such as PHP) would act as the database client. Additionally, a wide range of administration software for database servers is available, allowing developers to control the database via a user-friendly interface. These include:
+<p>Users do not typically interact directly with the database server. Instead, they interact with a <em>database client</em> - a piece of software which communicates with the database server by connecting to it, sending SQL queries, and processing the response. When developing web applications, your software (for example, your Node.js server) would act as the database client. Additionally, a wide range of administration software for database servers is available, allowing developers to control the database via a user-friendly interface. These include:
     <ul>
     <li>PHPMyAdmin (web-based interface to MySQL)</li>
     <li><code>mysql</code> command line tool (command-prompt-based interface to MySQL)</li>
@@ -46,153 +50,117 @@ user's web browser, but the <em>client</em> with respect to the database server:
 <li>Send the results, formatted in HTML, back to the browser</li>
 </ol>
 </p>
-<h2>Installing and using a database</h2>
-<p>Due to problems connecting to Goorm currently (meaning that it will be difficult to use MySQL), we are going to focus on <em>SQLite</em>. This is not a full client-server system (there is no SQLite server) but instead uses a simple flat file (with a <code>.db</code> extension) to store the data. Nonetheless, SQLite still allows you to use SQL to communicate with the database via Express routes, which is the basis of developing a database-driven web API.</p>
-<h3>More on SQLite</h3>
-<p><em>SQLite</em> (see <a href="http://www.sqlite.org">sqlite.org</a>)
-is a simple on-board client-side database which does not require a full
-database management system setup (like MySQL or Oracle) and its attendant client-server architecture. SQLite databases can be easily embedded into any Java application, whether that be a web application, a console application, a desktop GUI Java application or an Android app. SQLite databases are stored as simple files, with a <code>.db</code> extension. You can download SQLite <a href='https://www.sqlite.org/download.html'>here</a>. You can query and manipulate an SQLite database via the console-based <code>sqlite3</code> tool, documented <a href='https://www.sqlite.org/cli.html'>here</a> and downloadable <a href='https://www.sqlite.org/download.html'>here</a> along with the SQLite libraries. You can also upload a <code>.db</code> database to the online "fiddle" tool <a href='https://sqlite.org/fiddle/index.html'>here</a> and enter SQL statements to query and manipulate the database.</p>
-<h2>Node and SQLite</h2>
-<p>We are going to look now at how you can connect to an SQLite
-database from Node.js. As you might guess from last week, there are various
-modules available to do the job, including <code>better-sqlite3</code> which we will use as it is straightforward and, according to its developers, gives better performance than some alternatives. Documentation is available
-    <a href='https://npmjs.com/package/better-sqlite3'>here</a></p>
-<p>
-To install, use <code>npm</code> as for last week from the command prompt, e.g:
+<h2>REST - Representational State Transfer - more detail</h2>
+
+<p>We started to look at Representational State Transfer, or REST, last week - but this week we will discuss it in more detail. REST is not a technology, but
+<em>an architecture for web APIs</em>. The idea centres around using clear, highly-descriptive
+URLs to represent each <em>real-world entity</em> that our web application needs to deal with 
+(e.g. a song, a list of all songs by a given artist, a flight, a 
+biography of an actor, etc). For example we could have these URLs:
 <pre>
-npm install better-sqlite3 
+http://www.hittastic.com/artist/Oasis
+http://www.hittastic.com/biography/Madonna
+http://www.solentairways.com/flight/SA101
+http://www.solentairways.com/flights/June/1/Southampton/New_York
 </pre>
 </p>
-
-<p>Here is a simple example. You need to import the <code>Database</code> class from the <code>better-sqlite3</code> module and then create a <code>Database</code> object using your <code>.db</code> file:
-<pre>
-import Database from 'better-sqlite3';
-const db = new Database('mydatabase.db'); 
-
-// Rest of the code follows...
-</pre>
-</p>
-<h3>REST - Representational State Transfer - An introduction</h3>
-<p>It is a very common pattern in web development to develop a web API with
-a series of endpoints which manipulate the database in various ways, using
-HTTP methods appropriately for different operations. For example, if we
-are <em>searching</em> the database with a SELECT query, we use a <em>GET</em>
-method. If we are <em>updating</em> or <em>inserting</em> data, we use a
-<em>POST</em> method and if we are <em>deleting</em> data, we use a 
-<em>DELETE</em> method. We can set these methods up in Express easily:
-<pre>
-app.get('/endpoint1', ....);    // GET request
-app.post('/endpoint2', ....);   // POST request
-app.delete('/endpoint3', ....); // DELETE request
-</pre>
-We can also use various HTTP methods <em>from within our Express server</em> 
-to signal different types of error, e.g.
+<p>In REST, these URLs are called <em>resources</em>.
+REST has the following key principles:
     <ul>
-    <li>404 Not Found - if we are trying to search for something which could
-    not be found in the database;</li>
-    <li>400 Bad Request - if the format of the HTTP request was invalid in
-    some way;</li> 
-    <li>500 Internal Server Error - if an internal error on the server
-    occurs, for example the database server is not running.
+    <li>Use of clear, unchanging and descriptive
+    URLs to represent real-world items or entities(as in the example above);</li>
+      <li>The URL should produce the data expected of it, e.g 
+    <em>http://www.solentairways.com/flight/SA101</em> should return data representing
+    Solent Airways flight SA101</li>
+    <li>The ability to send different instructions to the URL to make it behave in different
+    ways, i.e. we can send a URL one type of instruction to retrieve data and another type
+    to modify data associated with that URL.</li>
+    <li>Statelessness</li> 
     </ul>
-We can send back different HTTP status codes from Express with the
-<code>status()</code> method, eg.:
-<pre>res.status(404);</pre>
-This pattern, of:
-    <ul>    
-    <li>using API endpoints which logically represent the data we are trying
-    to retrieve (e.g <code>/songs/Oasis</code> to represent all songs by
-    Oasis);</li>
-    <li>using HTTP methods appropriately depending on what operation is
-    being performed;</li>    
-    <li>and sending back appropriate HTTP status codes to indicate different
-    types of error;</li>
-    </ul>
-is a key feature of the <em>REST</em> (Representational State Transfer)
-pattern for developing web APIs. An API which follows these principles
-(plus some others) is known as a REST API. (There is more to REST, the former Level 6 WAD module <a href='https://nwcourses.github.io/wad/wad2.html'>gives some information here</a>).</p>
-<h3>Performing SQL queries with the better-sqlite3 module</h3>
-<h4>SELECT</h4>
-<p>The code below is a <em>snippet</em> of code showing a
-route handler as part of an Express application. It performs an SQL 
-statement to find all students with the last name matching the
-<code>lastname</code> parameter to the Express route, so that for example:
-<pre>https://url-of-your-server.example.com/students/Smith</pre>
-would find all students with the last name Smith.
-<pre>
-app.get('/students/:lastname', (req, res) =&gt; {
-    try {
-        const stmt = db.prepare("SELECT * FROM students WHERE lastname=?");
-        const results = stmt.all(req.params.lastname);
-        res.json(results);
-    } catch(error) {
-        res.status(500).json({ error: error });
-    }
-});
-</pre>
-<p>We first create a <em>prepared statement</em> using the <code>prepare()</code> method of our database object. A prepared statement is a statement which has parameters <em>bound</em> to it, and then is <em>compiled</em> into a binary form which can be stored in memory and rapidly executed by the database. The advantage of a prepared statement is that once compiled, it can be rapidly executed again and again by the database if our application performs the same query multiple times. Prepared statements also prevent a certain type of security exploit known as <em>SQL injection</em>, in which a database can be compromised by the user entering fragments of SQL into a form which combine with existing SQL code in the JSP. We will look at SQL injection in more detail later in the module.</li>
-<li>Note how the SQL contains placeholders for bound parameters, using question marks <code>?</code> We bind data to each placeholder when we execute the statement. To execute a SELECT statement we use the <code>all()</code> method of our prepared statement object, and pass the bound parameters as arguments. So here:
-<pre>const results = stmt.all(req.params.lastname);</pre>
-will bind the <code>lastname</code> parameter of the route to the first placeholder. The result will be that we query the database for all students with that last name.</p> 
-<p>The <code>all()</code> method returns <em>an array of all matching rows from the database, as an array of JavaScript objects</em>. We send back that array as  <em>JSON</em>, using <code>res.json()</code>, which we saw last week.</p>
-<p>Note also the use of a <code>try</code>/<code>catch</code> block. Those of who who have studied OODD will have seen this already. Basically we are <em>try</em>ing to do something, and if it fails, we <em>catch</em> the error in the <em>catch block</em>. So, if there was an error, we send back a JSON object containing an <em>error</em> property with a value of
-the error that occurred, and also send back an HTTP status code of 500
-(Internal Server Error) which, by convention, is used if the server
-encountered an internal error which was not caused by a user mistake. 
 </p>
-<p>This version returns <em>all</em> students in the database. Note that in this case, we don't need to specify a parameter to the the query, so <code>stmt.all()</code> takes no arguments.
-<pre>app.get('/students', (req, res) =&gt; {
-    try {
-        const stmt = db.prepare("SELECT * FROM students");
-        const results = stmt.all();
-        res.json(results);
-    } catch(error) {
-        res.status(500).json({ error: error });
-    }
-});
-</pre></p>
-<h4>UPDATE</h4>
-<p>Performing an UPDATE statement uses the same approach. Here is a route which could be used to <em>buy a product with a given ID</em> by reducing its quantity in stock by one. <strong>Note how this route has a method of POST, following the REST principles discussed above.</strong>
+<h3>Clean and unchanging URLs</h3>
+<p>A key principle of REST, illustrated by the examples above,
+is that of <em>clean, unchanging URLs</em>. Why is this useful?
+URLs which show the real location on the server, or the server-side
+technology used (e.g. the fact that it's a PHP 
+script) are prone to continuous change, for example, if the script is moved
+to a different directory or we switch server-side scripting technology.
+This causes problems in bookmarking and linking to such pages, and also,
+if the URLs represent web APIs, means that developers of client 
+applications have to update their client code to point to the new URL.</p>
+<p>With REST, we hide the implementation details with a simple, clean and
+easily-remembered URL, and define how this URL is <em>mapped</em> to the
+real, underlying location of the script on the server. 
+For example, rather than a style (which should be familiar from OODD) such as
+<pre>http://www.hittastic.com/searchForMusic.jsp?title=Wonderwall&amp;artist=Oasis</pre>
+we could use:
+<pre>http://www.hittastic.com/Oasis/Wonderwall</pre>
+The web server software would convert this REST-style URL to the real, underlying script.</p>
+<p>If we changed the underlying URL, i.e. the location of the actual server
+side script on the server, all we'd need to do is change the mapping
+of our clean, easily remembered, publicly-visible, "REST-style" URL to the real underlying URL, 
+and clients of the web API could continue to use our web API unchanged with the same 
+publicly-visible URL as before; they wouldn't have to alter their
+code to reflect the new underlying URL. We could even change the 
+server-side implementation technology (e.g. PHP to ASP) without having
+to change the publicly-visible URL: once again we would only have to change
+the mapping from the publicly-visible URL to the underlying URL.</p>
+<p>Furthermore, this allows us to easily 
+ <em>swap between dynamically and statically generated data</em>. Imagine the 
+ URL
+below points at a static (i.e. not dynamically generated) JSON file on the server representing all Oasis hits.
 <pre>
-app.post('/products/:id/buy', (req, res) =&gt; {
-    try {
-        const stmt = db.prepare('UPDATE products SET quantity=quantity-1 WHERE id=?');
-        const info = stmt.run(req.params.id);
-        if(info.changes == 1) {
-            res.json({success:1});
-        } else {
-            res.status(404).json({error: 'No product with that ID'});
-        }
-    } catch(error) {
-        res.status(500).json({ error: error });
-    }
-});
+http://www.hittastic.com/artist/Oasis
 </pre>
-Note that we use <code>run()</code>, rather than <code>all()</code>, with a statement which <em>updates</em> the database.
-We use a try/catch block, as for the <em>SELECT</em> example. Also, we check the <code>changes</code> property of the <code>info</code> object returned from the query. This contains the number of rows affected by the SQL statement. If one row was updated, we send back a JSON success message. If not, the reason will be that there is no product with that ID. By convention, following the principles of REST, if we cannot find what we are looking for in a route, we send back the HTTP status code 404 (Not Found).</p>
-<h4>DELETE</h4>
-<p>DELETE is similar to UPDATE. As we saw above, a route which results in the deletion of data makes use of the HTTP <em>DELETE</em> method.
+By changing the server configuration, we could easily change this URL to point to a server side script which
+dynamically generates the data from a database. So in summary, <em>REST style URLs provide a clean and
+unchanging interface to data supplied by our server</em> and there is <em>no need to change the URL depending
+on how the data associated with that URL is generated</em>.
+</p>
+<p>The practical details of how to actually set up REST-style URLs to point to given
+scripts will be discussed towards the end of this week's notes.</p>
+<h3>REST and HTTP</h3>
+<p>With REST, we send <em>different types of messages</em> to <em>the same URL</em> to make it
+do different things, e.g. retrieve data or change the state of the item represented by the URL. 
+For example if we had the URL:
 <pre>
-app.delete('/products/:id/buy', (req, res) =&gt; {
-    try {
-        const stmt = db.prepare('DELETE FROM products WHERE id=?');
-        const info = stmt.run(req.params.id);
-        if(info.changes == 1) {
-            res.json({success:1});
-        } else {
-            res.status(404).json({error: 'No product with that ID'});
-        }
-    } catch(error) {
-        res.status(500).json({ error: error });
-    }
-});
+http://www.solentairways.com/flight/SA101
 </pre>
-Note how again we check the <code>changes</code> property of the results
-to check whether it found the record to delete.</p>
-<h4>INSERT</h4>
-<p>Insertion is discussed below, as there is something else we need to 
-consider first: <em>the nature of POST requests</em> and <em>how to send POST data to the server.</em></p>
-<h3>POST requests</h3>
+we could send one type of message (let's call it a "get" message)
+to to the URL to retrieve the details about flight SA101, and another type
+of message (let's call it a "put" message)
+to update the details (e.g. departure time) of flight SA101, 
+and a third type (let's call it a "delete" message) to delete flight SA101.</p>
+<p>But what form do these messages take? We could use query string
+parameters to inform the script of the message type. However, like custom
+error codes, this could be seen as reinventing the wheel.
+Last week we looked at <em>HTTP methods</em> and encountered the recommendation
+to send GET requests when retrieving data or POST requests when adding or modifying
+data. REST combines this concept in conjunction with the "one URL per real world entity"
+concept already introduced. So you could send a GET request to the <em>SA101</em> URL above
+to retrieve data about flight SA101, or a POST request to modify data about SA101.</p>
+<p>However, in addition to GET and POST,
+REST uses a couple of <em>additional</em> and less-commonly-encountered
+HTTP methods: <em>PUT</em> and <em>DELETE</em>. In REST, <em>PUT</em> differs from <em>POST</em> in that PUT is used to <em>modify</em> data while POST is used to <em>add</em> new data. DELETE requests, unsurprisingly, are used to delete data.</p>
+<p>REST takes the view that HTTP methods and status codes are under-used
+and can be exploited in web APIs, as described below.</p>
+<h4>REST and HTTP methods</h4>
+<p>
+As mentioned above, the idea is that one single web resource (URL) can be used for retrieving, 
+adding, and deleting data associated with a particular item, e.g. a 
+particular song in the HitTastic! database. What we can do is to do different
+things with the song depending on the type of HTTP method we use to 
+communicate with the URL. In general we:
+    <ul>
+    <li>Use the GET method to retrieve data associated with a URL;</li>
+    <li>Use the PUT method to modify data associated with a URL;</li>
+    <li>Use the DELETE method to delete data associated with a URL;</li>
+    <li>Use the POST method to create a brand new server resource e.g. a new song.</li>
+    </ul>
+</p>
+<h3>REST and statelessness</h3>
+<p>Another feature of REST is <em>statelessness</em>, which involves not storing application state (such as sessions) on the server but instead passing it between server and client. This makes each API endpoint more <em>loosely-coupled</em>: it does not depend on a previous endpoint which might have stored application state in a session. Many contemporary web applications do this, for example rather than storing the username on the server, authentication is done via <em>tokens</em> which are passed between server and client.</p>
+<h2>Sending data to the server via the request body</h2>
 <p>With POST requests, we often need to <em>send data to the server</em>, for example when creating a new product in a products database for a shop, we might need to send the name, manufacturer and price. This is done by <em>embedding the data in the request body</em>, often as JSON, but also as key-value pairs. Last week we considered HTTP requests. Let's see
 an example of an HTTP POST request with embedded data:
 <pre>
@@ -226,28 +194,60 @@ app.post('/product/create', (req, res) =&gt; {
 });
 </pre>
 Note how the <code>info</code> object has a <code>lastInsertRowid</code> property representing the primary key (ID) allocated to the new record. So if the operation was successful, we send back JSON containing the ID, which can then be used by the client.</p>
-<h3>Testing HTTP request methods other than GET</h3>
-<p>One question remains. How can you <em>test out</em> these methods?
-With GET methods, it's simple (we did it last week); you simply request
-the desired API endpoint in your browser and the appropriate route will
-be executed. However, with other methods, such as POST and DELETE, it's more
-difficult, as browsers always send GET requests when you type in a URL.</p>
+<h3>PUT requests</h3>
+<p>When you are sending data to the server through the request body which is intended to <em>update</em> a record, you should, according to the principles of REST, use a <em>PUT</em> request. PUT requests work in a very similar way to POST requests: data is read from the request body and then used to update data. For example, this is a PUT endpoint which can be used to update a student's name and course:
+<pre>
+app.put('/student/:id', (req, res) =&gt;{
+    try {
+        const stmt = db.prepare('UPDATE students SET name=?,course=? WHERE id=?');
+        const info = stmt.run(req.body.name, req.body.course, req.params.id);
+        res.status(info.changes ? 200:404).json({success: info.changes ? true: false});
+    } catch(error) {
+        res.status(500).json({error: error});
+    }
+});
+</pre>
+</p>
+<h3>URL-encoded form data</h3>
+<p>JSON is not the only way to send data to the server via the request body. In classic, non-AJAX applications, data is sent as <em>URL-encoded form data</em>: a series of key-value pairs separated by the ampersand character (&amp;). In OODD you looked at forms with a method of <em>POST</em>, e.g.:
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;Add a student&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Add a student record&lt;/h1&gt;
+
+
+        &lt;form action="./addStudent.jsp" method="post"&gt;
+            &lt;p&gt;Student name:&lt;input type="text" name="studentName" value="" /&gt;&lt;/p&gt;
+            &lt;p&gt;Student course:&lt;input type="text" name="studentCourse" value="" /&gt;&lt;/p&gt;
+            &lt;p&gt;Student mark:&lt;input type="text" name="studentMark" value="" /&gt;&lt;/p&gt;
+            &lt;p&gt;Student type:
+            &lt;select name='studentType'&gt;
+            &lt;option&gt;Undergraduate&lt;/option&gt;
+            &lt;option&gt;Masters&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;/p&gt;
+            &lt;input type="submit" value="Register student!" /&gt;
+        &lt;/form&gt; 
+        &lt;br /&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</pre>
+Remember we had a form with fields for name, course, mark and student type. How is this actually sent to the server? The HTTP POST request looks something like this:
+<pre>POST ./addStudent.jsp HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+studentName=Tim&amp;studentCourse=Computing&amp;studentMark=80&amp;studentType=undergraduate</pre>
+Note how the student details are sent through the HTTP request as a series of key-value pairs, with the keys corresponding to the form field names and the values corresponding to the details the user entered. Also note the <code>Content-Type</code> of <code>application/x-www-form-urlencoded</code>, which tells the server that it is receiving URL-encoded form data, rather than JSON.
+</p>
+<p>An Express server can interpret URL-encoded form data and place it in <code>req.body</code> by adding the line:
+<pre>app.use(express.urlencoded({extended:false}));</pre>
+</p>
+<h3>Testing HTTP POST and PUT requests which accept data in the request body</h3>
+<p>You can once again use RESTer or REST Tester to do this. Importantly, you must <em>tell the server the content type of the request being sent</em>. This is done by specifying the content type of the <em>request</em> (rather than the response). For example, if you are sending JSON through the request body, you must set the <code>Content-Type</code> header to <code>application/json</code>. This is how the server knows that JSON is being sent to it, and thus can process it appropriately.</p>
 <h4>RESTer</h4>
-<p>There are various third-party tools which can be used to test out APIs.  A particularly useful one
-is <em>RESTer</em>, but <strong>please note this is not available on the university computers</strong>. This is a browser extension
-which allows you to simulate HTTP requests and is available for
-<a href='https://chrome.google.com/webstore/detail/rester/eejfoncpjfgmeleakejdcanedmefagga'>Chrome</a> and <a href='https://addons.mozilla.org/en-US/firefox/addon/rester/'>Firefox</a>. To install RESTer, visit either of these links and follow the instructions, and RESTer will be installed to your browser.</p>
-<p>RESTer has an interface as shown below:
-<br />
-<img src="../images/rester1.png" alt="RESTer interface" />
-<br />
-Note how RESTer allows you to specify, amongst other things:
-    <ul>
-    <li>the HTTP method to use;</li>
-    <li>the URL to request;</li>
-    <li>the <em>headers</em> and <em>body</em> of the request.
-    </ul>
-In the example above, a GET request is being made to the URL <code>https://url_of_your_server.example.com/artist/Oasis</code>. Note how the response is shown below the controls, showing the status code, the response headers and the response body.</p>
 <p>The screenshot below shows how you can add headers to the HTTP request by selecting the <em>Headers</em> tab. Here we have specified the <code>Content-Type</code> as <code>application/json</code>:
 <br />
 <img src="../images/rester2.png" alt="Setting content type in RESTer" />
@@ -259,47 +259,13 @@ You can also add data to the request body. This is shown below, note how we have
 RESTer also allows you to test error conditions: if you supply invalid 
 request data and your web API checks for this, then you will get a non-200
 status code returned.</p>
-<h4>Alternative to RESTer - REST Tester</h4>
-<p>If you are on the university computers, you will be unable to use RESTer, but can use an alternative - more basic - tool called <em>REST Tester</em>. This can be downloaded from GitHub:
-<pre>git clone https://github.com/nickw1/resttest.git</pre>
-Download this, change to its installation folder:
-<pre>cd resttest</pre>
-and then install the dependencies:
-<pre>npm install</pre>
-and run, e.g.:
-<pre>node app.mjs</pre>
-or use PM2 (<a href='topic11.html'>Week 11</a>).
-The application will run on port 3200, so you can access via:
-<pre>http://localhost:3200</pre>
-It is shown below:
+<h4>REST Tester</h4>
+<p>REST Tester also allows you to send POST data through the request body, as you should be able to easily see from the interface. You must also set the content type of the request.
 <br />
 <img src="../images/resttester.png" alt="REST Tester" />
 </p>
 <h2>Exercises</h2>
-<ol>
-<li>Clone <code>mysqlview</code> from GitHub. This is a very simple database viewer and editor which supports MySQL and SQLite, and can be used to view your database:
-<pre>https://github.com/nickw1/mysqlview</pre>
-I will demonstrate the use of this in class (it will be recorded)
-</li>
-<li>Use this <a href='wadsongs.db'>db file</a> for your database.
-Develop a simple REST API in Node and Express with endpoints to: 
-    <ul>
-    <li>GET: search for all songs by a given artist;</li>
-    <li>GET: search for all songs with a given title;</li>
-    <li>GET: search for songs by artist AND title (i.e. both must match);</li>
-    <li>GET: find a song with a given ID</li>
-    <li>POST: buy a physical copy of song</li>
-    <li>DELETE: delete a song with a given ID</li>
-    <li>POST: add a new song; specify all columns in the database except the ID which is auto-created</li> 
-    </ul>
-</li>
-<li>Test the GET endpoints in the browser, <strong>and the POST and DELETE endpoints in RESTer, if on your own computer, or with an REST Tester if not. For the "add song" endpoint, you will need to specify the song as JSON in the request body, and set the content type to <code>application/json</code></strong>; see above.</li>
-<li><strong>More advanced</strong>: Create a <code>public</code> folder, and in it, create a static HTML page containing a field for the artist and a button. When the user clicks the button, some JavaScript <em>on the client</em> should run, to read the artist the user entered in the text field and redirect the user to the web API endpoint for searching by artist. In this client-side code, <code>window.location</code> to redirect the browser, e.g.
-<pre>window.location = `https://url-of-your-server.example.com/.....`; // for you to complete!</pre>
-Once you've done that, add a further two fields (for title an artist) and second button to the static HTML page, and add some further client-side JavaScript to redirect the user to the artist-and-title endpoint. <strong>For both questions, use Express to serve the static page. You can do this by adding the line:</strong>
-<pre>app.use(express.static('public'));</pre>
-This will tell Express to serve all content in the <code>public</code> folder as static pages. So to access the file <code>file.html</code> inside the <code>public</code> folder from the browser, you can access it via <code>https://url-of-your-server.example.com/file.html</code>.</li>
-</ol>
+<p>Will appear here.</p>
 </body>
 </html>
 

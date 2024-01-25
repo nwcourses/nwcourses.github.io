@@ -192,12 +192,13 @@ const db = new Database('mydatabase.db');
 <p>Having revised some topics from last year we will now focus on how we can develop <em>Web APIs</em> with Node and Express. As we saw above, Web APIs are in fact very similar to standard web applications - but they deliver a <em>pure data</em> format, such as <em>JSON</em>, back to the client.</p>
 <p>Individual routes within a Web API are known as <em>API endpoints</em>. So we could have one API endpoint for looking up all songs by a particular artist, one API endpoint for buying a song, one API endpoint for adding a new song, and so on.</p>
 <h3>REST - Representational State Transfer - An introduction</h3>
+<p><em>You should revise <a href='../COM528/week5.html#http'>HTTP requests and responses from OODD</a> before looking at this topic.</em></p>
 <p>It is a very common pattern in web development to develop a web API with
 a series of endpoints which manipulate the database in various ways, using
 HTTP methods appropriately for different operations. For example, if we
 are <em>searching</em> the database with a SELECT query, we use a <em>GET</em>
 method. If we are <em>updating</em> or <em>inserting</em> data, we use a
-<em>POST</em> method and if we are <em>deleting</em> data, we use a 
+<em>POST</em> method (or a <em>PUT</em> method - we will cover these next week) and if we are <em>deleting</em> data, we use a 
 <em>DELETE</em> method. We can set these methods up in Express easily:
 <pre>
 app.get('/endpoint1', ....);    // GET request
@@ -227,7 +228,7 @@ This pattern, of:
     <li>and sending back appropriate HTTP status codes to indicate different
     types of error;</li>
     </ul>
-is a key feature of the <em>REST</em> (Representational State Transfer) pattern for developing web APIs. REST has other key principles such as <em>statelessness</em>, but we will not look at these right now.</p>
+is a key feature of the <em>REST</em> (Representational State Transfer) pattern for developing web APIs. REST has other key principles such as <em>statelessness</em>; we will look at these in more detail next week.</p>
 <h3>Writing API endpoints which communicate with SQLite using the better-sqlite3 module</h3>
 <p>We will now go through a series of example API endpoints using various methods, and which communicate with an SQLite database. You have already worked with SQLite databases from Node and Express. This year we are using a different module, <code>better-sqlite3</code>, but the style of code is similar.</p>
 <h4>SELECT</h4>
@@ -307,45 +308,6 @@ app.delete('/products/:id', (req, res) =&gt; {
 </pre>
 Note how again we check the <code>changes</code> property of the results
 to check whether it found the record to delete. Note also how the DELETE route takes in the ID as a parameter.</p>
-<!-- todo week 2
-<h4>INSERT</h4>
-<p>Insertion is discussed below, as there is something else we need to 
-consider first: <em>the nature of POST requests</em> and <em>how to send POST data to the server.</em></p>
-<h3>POST requests</h3>
-<p>With POST requests, we often need to <em>send data to the server</em>, for example when creating a new product in a products database for a shop, we might need to send the name, manufacturer and price. This is done by <em>embedding the data in the request body</em>, often as JSON, but also as key-value pairs. Last week we considered HTTP requests. Let's see
-an example of an HTTP POST request with embedded data:
-<pre>
-POST /product/create HTTP/1.1
-Host: www.solent-e-stores.com
-Content-Type: application/json
-
-{"name":"Corn Flakes","manufacturer":"Smith Emporium","price":1.29}  
-</pre>
-Note how we are sending <em>POST</em> data to <code>/product/create</code> and note how the HTTP <em>request</em> has a <code>Content-Type</code> of <code>application/json</code> (we covered MIME types last week). This is now telling the <em>server</em> (not the client) that what is being sent is JSON.</p>
-<p>Note also how the <em>request body</em> begins after the headers, with a gap
-of one line. Note here, how the request body contains a JSON object containing
-details of a product.</p>
-<p>How can we read the request body from an Express application? 
-When you wish to access the request body in your routes, you use
-the <code>req.body</code> object. Here is an example of a 
-<code>/product/create</code> route which reads JSON from the request body
-and performs an SQL INSERT statement with it:
-<pre>
-app.use(express.json()); // necessary to read JSON data from the request body
-
-app.post('/product/create', (req, res) =&gt; {
-    try {
-        const stmt = db.prepare('INSERT INTO products(name, manufacturer, price) VALUES (?,?,?)');
-
-        const info = stmt.run(req.body.name, req.body.manufacturer, req.body.price);
-        res.json({id: info.lastInsertRowid});
-    } catch(error) {
-        res.status(500).json({ error: error });
-    }
-});
-</pre>
-Note how the <code>info</code> object has a <code>lastInsertRowid</code> property representing the primary key (ID) allocated to the new record. So if the operation was successful, we send back JSON containing the ID, which can then be used by the client.</p>
--->
 <h3>Testing HTTP request methods other than GET</h3>
 <p>One question remains. How can you <em>test out</em> these methods?
 With GET methods, it's simple; you simply request
