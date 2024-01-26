@@ -7,11 +7,11 @@
 <body>
 <div class="titlebox"><h1>Topic 2: More on Web APIs</h1></div>
 <p>This week we will look at a few more Web API-related topics, including:
-	<ul>
-	<li>Databases as a client-server system</li>
-	<li>More detail on REST</li>
-	<li>Sending data to a server through the request body with POST and PUT requests</li>
-	</ul>
+    <ul>
+    <li>Databases as a client-server system</li>
+    <li>More detail on REST</li>
+    <li>Sending data to a server through the request body with POST and PUT requests</li>
+    </ul>
 </p>
 <h2>Databases as a client-server system</h2>
 <p>We are using SQLite in this module. However in production web applications, you typically use a full <em>database server</em>, such as MySQL or Oracle. We will not be using a database server in this module, but it's helpful to be clear of their architecture as you will likely work with it in a production app. Server-based database systems consist of two components, the <em>server</em> and
@@ -102,7 +102,7 @@ of our clean, easily remembered, publicly-visible, "REST-style" URL to the real 
 and clients of the web API could continue to use our web API unchanged with the same 
 publicly-visible URL as before; they wouldn't have to alter their
 code to reflect the new underlying URL. We could even change the 
-server-side implementation technology (e.g. PHP to ASP) without having
+server-side implementation technology (e.g. JSP to Node.js) without having
 to change the publicly-visible URL: once again we would only have to change
 the mapping from the publicly-visible URL to the underlying URL.</p>
 <p>Furthermore, this allows us to easily 
@@ -135,13 +135,10 @@ and a third type (let's call it a "delete" message) to delete flight SA101.</p>
 parameters to inform the script of the message type. However, like custom
 error codes, this could be seen as reinventing the wheel.
 Last week we looked at <em>HTTP methods</em> and encountered the recommendation
-to send GET requests when retrieving data or POST requests when adding or modifying
+to send GET requests when retrieving data, POST requests when adding, or PUT requests (see below) for modifying
 data. REST combines this concept in conjunction with the "one URL per real world entity"
 concept already introduced. So you could send a GET request to the <em>SA101</em> URL above
-to retrieve data about flight SA101, or a POST request to modify data about SA101.</p>
-<p>However, in addition to GET and POST,
-REST uses a couple of <em>additional</em> and less-commonly-encountered
-HTTP methods: <em>PUT</em> and <em>DELETE</em>. In REST, <em>PUT</em> differs from <em>POST</em> in that PUT is used to <em>modify</em> data while POST is used to <em>add</em> new data. DELETE requests, unsurprisingly, are used to delete data.</p>
+to retrieve data about flight SA101, or a PUT request to modify data about SA101.</p>
 <p>REST takes the view that HTTP methods and status codes are under-used
 and can be exploited in web APIs, as described below.</p>
 <h4>REST and HTTP methods</h4>
@@ -265,7 +262,72 @@ status code returned.</p>
 <img src="../images/resttester.png" alt="REST Tester" />
 </p>
 <h2>Exercises</h2>
-<p>Will appear here.</p>
+<h3>Part 1</h3>
+<p>Add the following routes to your Web API from last week, and test them with RESTer or REST Tester.
+<ul>
+<li>A <em>GET</em> route to look up a song by ID;</li>
+<li>A <em>POST</em> route to add a new song;</li>
+<li>A <em>PUT</em> route to change the quantity and price of an existing song.</li>
+</ul>
+Test the last two using RESTer or REST Tester.</p>
+<h3>Part 2</h3>
+<p>This exercise is designed to show you how useful Web APIs are compared to standard HTML websites. Hopefully, you created a one-page "fan site" for one of your favourite artists in your own time before the class. If you didn't, do it now. It need only be HTML, but should set the colour and perhaps the font using CSS - enough to give it a distinctive style. You are going to use your Web API from week 1 to display all the songs of that artist on the "fan site".</p>
+<ol>
+<li>Add this following new route to your Express server <em>before any of your other routes</em>:
+<pre>
+app.get('/artist/:artist.html', (req, res) =&gt; {
+    const stmt = db.prepare('SELECT * FROM wadsongs WHERE artist=?');
+    const results = stmt.all(req.params.artist);
+    const songsHTML = results.map ( song =&gt; `${song.title} by ${song.artist}, year ${song.year}, quantity ${song.quantity}, price ${song.price}`).join('&lt;br /&gt;');
+    res.send(`&lt;div style='background-color: blue; color: white'&gt;${songsHTML}&lt;/div&gt;`);
+});
+</pre>
+What is this doing? It's a route which returns the search results as <em>HTML</em>, not JSON. It does this by using the <code>map()</code> function to convert the array of objects returned from <code>stmt.all()</code> into an array of HTML strings containing details of each song. This array is then combined into a single string of HTML using the <code>join()</code> function and sent back to the client. Note that the route is <code>:artist.html</code> so can be accessed by following the artist name with <code>.html</code>. In other words it looks, from the URL, like an HTML page, but is actually a dynamic route. Nonetheless the URL is a clean and logical URL representing a real-world entity, so is very much REST-compliant.</li>
+<li>Test it out, e.g. by requesting a URL such as:
+<pre>http://localhost:3000/artist/Oasis.html</pre>
+</li>
+<li>Now call it from your "fan site" and see what you get. You'll need to write a separate Express server on your "fan site", running on a different port. Use EJS to do this, together with <code>node-fetch</code> to call the route from a Node application. <code>node-fetch</code> is a module to perform fetch requests from Node (rather than client-side JavaScript). You'll need to install it (<code>npm i node-fetch</code>). Here is an example:
+<pre>
+import fetch from 'node-fetch';
+
+app.get('/', (req, res) =&gt; {
+    const response = fetch("http://localhost:3000/artist/your-artist.html")
+        .then(response =&gt; response.text())
+        .then(text =&gt; {
+            res.render('index', {songs: text})
+        });
+});
+</pre>
+You saw this kind of code last year when you looked at AJAX.</li>
+<li><strong>Important!</strong> To render the HTML in the fan site, use:
+<pre>&lt;%-songs%&gt;</pre>
+i.e. use <em>-</em>, not <em>=</em>. This is to prevent EJS encoding the HTML, which means the HTML will be interpreted as HTML, and not text.</li>
+<li>What does it look like? Would you say it looks appealing to the end-user?</li>
+<li>Now do the same thing with the JSON API and extract the title and artist from it. You can use <code>response.json()</code> to obtain the JSON as an object, e.g:
+<pre>
+import fetch from 'node-fetch';
+
+app.get('/', (req, res) =&gt; {
+    const response = fetch("http://localhost:3000/artist/your-artist")
+        .then(response =&gt; response.json())
+        .then(songs =&gt; {
+            res.render('index', {songs: songs})
+        });
+});
+</pre>
+and then loop through the array of song objects in your EJS to display each song. <strong>To loop through your object in EJS, use code such as that given below</strong>. This uses a <code>forEach()</code> to loop through each song in the array, and display each property of each song.
+<pre>
+&lt;%
+songs.forEach ( song =&gt;{
+    %&gt;
+    Title: &lt;%=song.title %&gt; <br />
+    Repeat for artist etc.
+    &lt;%
+});
+%&gt;
+</pre>
+ Is the result better, compared to just "dumping" the HTML into the fan site?
+</li>
+</ol>
 </body>
 </html>
-
