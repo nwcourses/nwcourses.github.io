@@ -382,7 +382,7 @@ Add a new line to <code>strings.xml</code>:<pre>&lt;string name="helloworld"&gt;
 </pre>
 (Sorry if I have got the Greek wrong!). 
 </p>
-<p>Now try changing <em>Hello World</em> in the code example above to <code>R.string.helloworld</code>. This will read the appropriate string from the <code>strings.xml</code> file.</p>
+<p>Now try changing <em>Hello World</em> in the code example above to <code>resources.getString(R.string.helloworld)</code>. This will read the appropriate string from the <code>strings.xml</code> file.</p>
 <p>As well as strings, the <em>res</em> folder can contain other types of resource. These include layout files (we can define our layout in XML; we will look at this in a future week), application menus (which we will come onto a bit later on) and images. When you distribute an app, all the resources are packed into one file along with your actual code.</p>
 <h4>The auto-generated R.java file</h4>
 <p>You might be a bit puzzled as to the meaning of the <em>R</em> in the code you added above, i.e.
