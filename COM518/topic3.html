@@ -388,9 +388,6 @@ Content-Type: application/json
 </pre>
 Note how we specify the <code>Content-Type</code> in the <em>request</em> as an HTTP header, just like in the response. Also note how the JSON data is embedded within the request body, with a blank line separating the headers and the body, just as for the request. The <code>Content-Type</code> tells the <em>server</em> to expect JSON.</p>
 <h2>Exercises</h2>
-<p>Will appear here</p>
-<!--
-<p><strong>IMPORTANT! Please ensure that you complete last week's exercises up to question 3 first.</strong></p> 
 <p>Your aim is to develop <em>HitTastic!</em>, a website allowing users to
 search for, and buy, music. You are going to develop a front-end for 
 HitTastic! and connect it to your Node server that you wrote last week.</p>
@@ -401,12 +398,9 @@ HitTastic! and connect it to your Node server that you wrote last week.</p>
     <li>a button, which when clicked, will connect, via AJAX, to your server;</li>
     <li>and a &lt;div&gt; to display the results.</li>
     </ul>
-<strong>Place this page in a <code>public</code> folder, and use <code>express.static()</code> - see above - so that you can access it via your Node server</strong>. So, for example, if your file is <code>hittastic.html</code> you would access it with a URL similar to: 
+<strong>Place this page in a <code>public</code> folder, and use <code>express.static('public')</code> - see above - so that you can access it via your Node server</strong>. So, for example, if your file is <code>hittastic.html</code> you would access it with a URL similar to: 
 <pre>http://localhost:3000/hittastic.html</pre>
-</li>
-<li>In a separate JavaScript file on the front-end (client side, i.e. save it in <code>public</code>), write an AJAX request function which connects to your <code>/artist</code> API endpoint from topic 2. You should <em>parse</em> the JSON returned.  Place the results within the &lt;div&gt;. Remember that you can use <em>innerHTML</em> to fill a page element, e.g:
-<pre>document.getElementById("div1").innerHTML = "New content!";</pre></li>
-<li>Add a new HTML page containing a form to allow the user to add a new song. When the user clicks the button on the form, an AJAX POST request should be sent to your "add song" route from Week 2.</li>
+</li> <li>In a separate JavaScript file on the front-end (client side, i.e. save it in <code>public</code>), write an AJAX request function which connects to your <code>/artist</code> API endpoint from topic 2. You should <em>parse</em> the JSON returned.  Place the results within the &lt;div&gt;. Remember that you can use <em>innerHTML</em> to fill a page element, e.g: <pre>document.getElementById("div1").innerHTML = "New content!";</pre></li> <li>Add a new HTML page containing a form to allow the user to add a new song. When the user clicks the button on the form, an AJAX POST request should be sent to your "add song" route from Week 2.</li>
 <li>Add error-checking to the "add song" route so that if any of the POST data is blank ("") it sends back a 400 Bad Request. Adapt the AJAX code to test for a 400 HTTP status code and display an error, via an alert box, if so.</li>
 </ol>
 <h3>Further questions</h3>

@@ -414,60 +414,6 @@ public final class R {
 </pre>
 Notice that it contains several static variables. These are identifiers which your Kotlin or Java code can use to access the XML, for example <em>R.layout.activity_main</em> has the hex value <em>0x7f030000</em> which is a "handle" for the activity_main.xml resource file. Every time you add a resource to an Android app, your <em>R.java</em> will automatically be updated and you will be able to use static attributes of <em>R</em> in your Java code to access different resources. Never edit R.java directly by the way, the system will always do it for you!
 </p>
-<!--
-<p>Note the font size, it's not just a number but a number with <code>.sp</code> appended. This is another example of an <em>extension function</em> on <code>Int</code>, as we saw above, but what does <code>.sp</code> mean?</p>
-
-
-<p>Before discussing <code>sp</code>, we will discuss the similar <code>dp</code> unit. What is the <code>dp</code> unit? 
-<ul>
-<li>A <code>dp</code> is a density-independent pixel, a virtual pixel, corresponding to varying numbers of real pixels, which ensures that page elements occupy the same dimensions on the screen across different devices.</li>
-<li>Why do we need to do this? Different devices have different <em>pixel density</em>, in other words they contain varying numbers of pixels within a given distance on the screen, such as one millimetre or one inch. An inch is an older unit of distance still used to measure pixel density; one inch equals approximately 2.5cm. High-density screens have many pixels within a given distance, while low-density screens have less. Thus, density-independent pixels account for different pixel density of screens to ensure consistent appearance across different devices). If we used regular pixels for the width or height, UI elements would occupy different proportions of the screen on different devices.</li>
-<li>Density-independent pixels correspond exactly to pixels at a pixel density of 160 pixels per inch. If the density is greater than that, one density-independent pixel will occupy more than one real pixel, while if it is less, one dp will occupy less than one real pixel. See <a href='https://developer.android.com/training/multiscreen/screendensities'>the Android documentation</a> for more information on density-independent pixels, as well as this <a href='https://developer.android.com/design/ui/mobile/guides/layout-and-content/grids-and-units'>documentation on units of distance in Android in general</a>.</li>
-</ul>
-</p>
-
-<p>What then are <code>sp</code>? These are <em>scalable pixels</em>, which are basically the same as density-independent pixels, but they adapt to the user's chosen font size as well as the pixel density and thus should be used for specifying font size.</p>
--->
-<!--
-<h4>Modifiers</h4>
-<p>We can modify the appearance of UI elements with <em>modifiers</em> which allow you to control such things as padding, borders, etc. Modifiers are optional in some cases but compulsory in others. Modifiers are compulsory in the case of the <code>Spacer</code>, which is an element used to provide space between other elements. Here is the previous example with a <code>Spacer</code>:
-<pre>package com.example.jetpackcompose3 
-
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import android.os.Bundle
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-
-class MainActivity : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setContent {
-            TwoTexts()
-        }
-    }
-
-    @Composable
-    fun TwoTexts() {
-        Column {
-            Text("Hello World!", color = Color.red, fontStyle=FontStyle.Italic, fontSize=24.sp, fontFamily=FontFamily.Serif)
-            Spacer(Modifier.height(32.dp))
-            Text("Welcome to Android Development", fontWeight=FontWeight.Bold, fontSize=18.sp)
-        }
-    }
-}</pre>
-This creates a spacer with a height of 32 density independent pixels (see above).</p>
--->
 <h3>Events and State</h3>
 
 <p>Many UI elements in Jetpack Compose come with an accompanying <em>event handler</em>, which runs when the user interacts with it. Examples include <code>Button</code> (which comes with a click handler) and <code>TextField</code> (which comes with an <code>onValueChange</code> event handler to handle the text in the text field changing). We will now start building a <code>GreetingBox</code> which allows the user to enter their name and displays "Hello" plus their name.
