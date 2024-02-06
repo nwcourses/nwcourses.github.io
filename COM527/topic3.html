@@ -78,7 +78,7 @@ This creates a spacer with a height of 32 density independent pixels (see above)
 
 <p>Other modifiers allow us to specify <em>padding</em> (the space between the border of a UI element and its content) or an element's <em>border</em>. For example, this surrounds a <code>GreetingComponent</code> component with a 2 dp wide blue border and with <em>padding</em> of 16dp between the border and the content. Note how <code>Modifier</code> contains many methods to modify different aspects of the element, and note how they can all be chained together.
 <pre>
-Greeting(
+GreetingComponent(
     Modifier.border(BorderStroke(2.dp, Color.Blue))
             .padding(16.dp)
 )
@@ -205,7 +205,18 @@ This example shows:
 </p>
 
 <h2>Exercise 1</h2>
-<p>Will appear here.</p>
+<ol>
+<li>Modify your exercise last week (the feet to metres converter) so that the composable has a 4dp wide red border with a padding of 20dp.</li>
+<li>Create a new project and copy the code of your main activity into it. Apply your application's pre-generated <em>theme</em> to it. Add a <code>Surface</code> and place your feet-to-metres converter composable within the surface.</li>
+<li><strong>A bit harder!</strong> Try making the <code>TextField</code> occupy the whole width of the device.</li>
+<li>Now try putting the <code>TextField</code> and <code>Button</code> (to clear the value) on the same line. The button should have 8dp padding. Hint: use a <code>Row</code> to contain both elements. It should look something like this:
+<br />
+<img src="../images/oneline.png" alt="Messaging example" />
+<br />
+</li>
+<li>Enhance the previous question so that the <code>TextField</code> and <code>Button</code> have a width proportion of 2:1, so that the text field has twice the width of the button. Hint: you can use <code>Modifier.weight()</code> to do this. Give the text field a weight of 2.0f (i.e. a <code>Float</code>) and the button a weight of 1.0f.</li>
+</ol>
+
 <h2>Implementing Lists of Data - A Discussion Exercise</h2>
 
 <p>You may be able to figure out how to create a <em>list</em> of data. We will discuss this <em>as an exercise in class</em>. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list.</p>
@@ -229,34 +240,28 @@ LazyColumn {
 </pre>
 Note how <code>items()</code> takes the list of items to render as its first parameter and another lambda as its last parameter. This lambda specifies how each item in the list of data should be transformed into a Compose element. So here, each item in the list is transformed to a <code>Text</code> element containing its details.</p>
 
-<!--
-<h3>Advanced exercise</h3>
-<p>Messaging app, with simulated two users?</p>
-<p>Switch or checkbox?</p>
-<p>Left and right justification?</p>
--->
-
 <h2>Advanced exercise</h2>
-<p>Will appear here.</p>
-<!--
-<p>Have a go at implementing a prototype of a simple messaging application using Jetpack Compose (which lacks the communication-between-two-users aspect!). It should:
+<p>Have a go at implementing a prototype of a simple messaging application using Jetpack Compose (lacking the communication-between-two-users aspect!). It should look something like this:
+<br />
+<img src="../images/messaging_example.png" alt="Messaging example" />
+<br />
+It should:
 <ul>
 <li>contain a <code>TextField</code> allowing the user to enter a message;</li>
 <li>contain a button which adds the message to a list of messages;</li>
-<li>messages should alternate between being displayed on the left and the right of the screen, and alternate between being coloured with <code>MaterialTheme.colorScheme.secondary</code> and <code>MaterialTheme.colorScheme.primary</code>.
+<li>messages should alternate between being displayed on the left and the right of the screen, and alternate between being coloured with <code>MaterialTheme.colorScheme.surface</code> and <code>MaterialTheme.colorScheme.primary</code>.
 </li>
 <li>Try and figure out how to lay this out realistically. Some hints:
 	<ul>
 	<li>Use a <code>Row</code> to contain each message.</li>
 	<li><code>Row</code> takes, as a named parameter, <code>horizontalArrangement</code> which can be set to <code>Arrangement.End</code> (items are added to the end of the row) or <code>Arrangement.Start</code> (items are added to the start). Set it appropriately for each message.</li>
-	<li>The <code>Row</code> should contain a separate <code>Surface</code> to contain the message. The idea of a separate <code>Surface</code> is that it can e styled separately to the main <code>Surface</code>. Set its colour as described above.</li>
-	<li>To prevent messages occupying the whole width of the screen, give each message a <em>padding</em>. Messages on the left should have the <em>end padding</em> (padding on the right) set to 30dp, and messages on the right should have the <em>start padding</em> (padding on the left) set to 30dp. You can set individual paddings by passing named parameters to <code>Modifier.padding</code>, e.g:
+	<li>The <code>Row</code> should contain a separate <code>Surface</code> to contain the message. The idea of a separate <code>Surface</code> is that it can e styled separately to the main <code>Surface</code>. Set its colour as described above and give it a <code>shadowElevation</code> of 5dp.</li>
+	<li>To prevent messages occupying the whole width of the screen, give each <code>Surface</code> a <em>padding</em>. Messages on the left should have the <em>end padding</em> (padding on the right) set to 30dp, and messages on the right should have the <em>start padding</em> (padding on the left) set to 30dp. You can set individual paddings by passing named parameters to <code>Modifier.padding</code>, e.g:
 <pre>Modifier.padding(start = ..., end = ...)</pre></li>
 	<li>The <code>Surface</code> should contain a <code>Text</code> with the appropriate message. What colour should the text be set to?</li>
 	<li>Can you also use padding on the <code>Text</code>?</li>
 	</ul>
 </li>
 </ul>
--->
 </body>
 </html>
