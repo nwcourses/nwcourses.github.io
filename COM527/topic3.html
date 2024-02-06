@@ -10,12 +10,12 @@
 <div class='titlebox'>
 <h1>MAD Topic 3 : Further Jetpack Compose, including Material Design and Theming</h1>
 </div>
-<p>We will look at:	
-	<ul>
-	<li>Some further introductory Jetpack Compose topics, including <em>modifiers</em> and units of measurement for fonts and screen elements</li>
-	<li>Styling and Theming apps: Material Design and Themes</li>
-	<li>Creating Lists (partly done as a discussion exercise)</li>
-	</ul>
+<p>We will look at:    
+    <ul>
+    <li>Some further introductory Jetpack Compose topics, including <em>modifiers</em> and units of measurement for fonts and screen elements</li>
+    <li>Styling and Theming apps: Material Design and Themes</li>
+    <li>Creating Lists (partly done as a discussion exercise)</li>
+    </ul>
 </p>
 <h2>Further introductory Jetpack Compose topics</h2>
 <h3>Units of Measurement</h3>
@@ -26,7 +26,11 @@ What does the font size <code>24.sp</code> mean? It's not just a number but a nu
 <p>Before discussing <code>sp</code>, we will discuss the similar <code>dp</code> unit. What is the <code>dp</code> unit? 
 <ul>
 <li>A <code>dp</code> is a <em>density-independent pixel</em>: a virtual pixel, corresponding to varying numbers of real pixels, which ensures that page elements occupy the same dimensions on the screen across different devices.</li>
-<li>Why do we need to do this? Different devices have different <em>pixel density</em>, in other words they contain varying numbers of pixels within a given distance on the screen, such as one millimetre or one inch. An inch is an older unit of distance still used to measure pixel density; one inch equals approximately 2.5cm. High-density screens have many pixels within a given distance, while low-density screens have less. Thus, density-independent pixels account for different pixel density of screens to ensure consistent appearance across different devices). If we used regular pixels for the width or height, UI elements would occupy different proportions of the screen on different devices.</li>
+<li>Why do we need to do this? Different devices have different <em>pixel density</em>, in other words they contain varying numbers of pixels within a given distance on the screen, such as one centimetre or one inch (approximately 2.5cm). High-density screens have many pixels within a given distance, while low-density screens have less. Thus, density-independent pixels account for different pixel density of screens to ensure consistent appearance across different devices). If we used regular pixels for the width or height, UI elements would occupy different proportions of the screen on different devices. This is shown below:
+<br />
+<img src="../images/dp.png" alt="Density-independent pixels" />
+<br />
+</li>
 <li>Density-independent pixels correspond exactly to pixels at a pixel density of 160 pixels per inch. If the density is greater than that, one density-independent pixel will occupy more than one real pixel, while if it is less, one dp will occupy less than one real pixel. See <a href='https://developer.android.com/training/multiscreen/screendensities'>the Android documentation</a> for more information on density-independent pixels, as well as this <a href='https://developer.android.com/design/ui/mobile/guides/layout-and-content/grids-and-units'>documentation on units of distance in Android in general</a>.</li>
 </ul>
 </p>
@@ -72,29 +76,33 @@ class MainActivity : ComponentActivity() {
 }</pre>
 This creates a spacer with a height of 32 density independent pixels (see above).</p>
 
-<p>Other modifiers allow us to specify <em>padding</em> (the space between the border of a UI element and its content) or an element's <em>border</em>. For example, this surrounds a <code>FeetToMetresConverter</code> component (from last week's exercise) with a 2 dp wide blue border and with padding of 16dp between the border and the content. Note how <code>Modifier</code> contains many methods to modify different aspects of the element, and note how they can all be chained together.
+<p>Other modifiers allow us to specify <em>padding</em> (the space between the border of a UI element and its content) or an element's <em>border</em>. For example, this surrounds a <code>GreetingComponent</code> component with a 2 dp wide blue border and with <em>padding</em> of 16dp between the border and the content. Note how <code>Modifier</code> contains many methods to modify different aspects of the element, and note how they can all be chained together.
 <pre>
-FeetToMetresConverter(
+Greeting(
     Modifier.border(BorderStroke(2.dp, Color.Blue))
             .padding(16.dp)
 )
 </pre>
-Our <code>FeetToMetresConverter</code> would now need to take a modifier as a parameter. This would then be passed onto the <code>Column</code> which sets the layout within the feet to metres converter.
+Our <code>GreetingComponent</code> would now need to take a modifier as a parameter. This would then be passed onto the <code>Column</code> which sets the layout within the greeting component. 
 <pre>
 @Composable
-fun FeetToMetresConverter(<em>mod: modifier</em>) {
-	var feetState by remember { mutableStateOf(0.0) }
-	Column(<em>mod</em>) {
-		...
-	}
+fun GreetingComponent(<em>mod: Modifier</em>) {
+    var name by remember { mutableStateOf("") }
+    Column(<em>mod</em>) {
+        ...
+    }
 }
 </pre>
 </p>
 
+<hr />
+
 <h2>Material Design</h2>
 
 <p><em>Material Design</em> (see <a href='https://material.io'>the website</a>) is a published design philosophy which is adopted as the recommended standard in Android development. It revolves around the idea of screen surfaces being composed of <em>material</em> which has certain visual and behavioural properties, for example the ability to cast shadows when raised, and only UI elements at the top of a stack of elements being able to receive events. Material Design specifies a range of standard UI components, such as buttons, text fields and many others. Following the Material Design philosophy allows the development of clean-looking, usable and intuitive apps.</p>
-<p>Material Design has a range of key aspects, with three particularly important ones including:
+
+
+<p>Material Design has a range of key aspects, with three particularly important components including:
 <ul>
 <li><em>Colour</em>. A Material Design UI consists of a series of pre-defined colours, each used for specific roles. For example one colour will be used for UI elements such as buttons, another for text, another for the navigation bar, and so on.  More detail at <href='https://m3.material.io/styles/color/roles'>material.io</a>.
 </li>
@@ -105,37 +113,41 @@ fun FeetToMetresConverter(<em>mod: modifier</em>) {
 <li><em>Shape</em>. Material Design provides a range of <em>shapes</em> for components. These describe the extent of rounded corners, which can range from None (rectangular) to full (fully-rounded corners). Shapes are described <a href='https://m3.material.io/styles/shape/overview'>here</a>. </li>
 </ul>
 
-<p>Through colour, typography and shape, Material Design  helps you design appealing and consistent UIs. It provides recommendations on which types of element should look similar in terms of colour, typography and shape. Thus by setting the properties of these colour, typography and shape classes you can ensure a consistent look and feel across similar elements, enhancing usability and aesthetics of the app.
+<p>Through colour, typography and shape, Material Design  helps you design appealing and consistent UIs. How can it do this?
+</p>
+<p>When designing a UI, you need to think about <strong>classifying your UI elements</strong> in terms of which should be particularly prominent to the user and which can be less prominent because they are less critical to the functionality of the app. This helps you break down the UI into different <em>classes</em> of component. The idea is that you style components of the same importance class similarly.</p>
+<p>So for example prominent UI controls such as buttons should all have the same style (same colour and/or typography). Rather than using a random mix of styles in your app, with multiple different colours and fonts, you define colours and fonts for each class of UI element and apply them appropriately. So for colour for example, you create a palette of colours for your app and apply colours from this palette appropriately for different classes of UI element.</p>
+<p>So in summary, by setting the properties of these colour, typography and shape classes you can ensure a consistent look and feel across similar elements, enhancing usability and aesthetics of the app.
 </p>
 
-<h4>More detail on colour roles</h4>
+<h3>More detail on colour roles</h3>
 <p>Material Design features a number of so-called <em>colour roles</em>. These are described <a href='https://m3.material.io/styles/color/roles'>here</a>. Colour roles include, amongst others:
-	<ul>
-	<li><em>Primary</em> : used for particularly prominent components such as particularly prominent buttons.</li>
-	<li><em>Secondary</em> : used for less prominent components.</li>
-	<li><em>Tertiary</em> : used for components which you want to highlight, to stand out from the general UI.</li>
-	<li><em>On-primary, on-secondary, and on-tertiary</em>. Used for content displayed on top of primary, secondary, and tertiary colours respectively, such as text.</li>
-	<li><em>Surface</em> - used for background colour on a <code>Surface</code>. We will discuss <code>Surface</code> below.</li>
-	<li><em>Container colours</em> - primary container, secondary container, etc. Designed for the fill colour for particularly prominent foreground elements which contain content of some kind. Container colours also have equivalent <em>on</em> colours e.g. <em>On-primary container</em> for text on a primary container.</li>
-	</ul>
+    <ul>
+    <li><em>Primary</em> : used for particularly prominent components such as particularly prominent buttons.</li>
+    <li><em>Secondary</em> : used for less prominent components.</li>
+    <li><em>Tertiary</em> : used for components which you want to highlight, to stand out from the general UI.</li>
+    <li><em>On-primary, on-secondary, and on-tertiary</em>. Used for content displayed on top of primary, secondary, and tertiary colours respectively, such as text.</li>
+    <li><em>Surface</em> - used for background colour on a <code>Surface</code>. We will discuss <code>Surface</code> below.</li>
+    <li><em>Container colours</em> - primary container, secondary container, etc. Designed for the fill colour for particularly prominent foreground elements which contain content of some kind. Container colours also have equivalent <em>on</em> colours e.g. <em>On-primary container</em> for text on a primary container.</li>
+    </ul>
 So to design the colour scheme for a Material Design app, you should pick appropriate colours for these colour roles, and ensure you pick the correct colour role for a given component.</p>
 
-<h4>More detail on typography</h4>
+<h3>More detail on typography</h3>
 
 <p>Just as for colour roles, Material Design offers a range of typography classifications. See <a href='https://m3.material.io/styles/typography/overview'>here</a> and <a href='https://m3.material.io/styles/typography/applying-type'>here</a> for more detail. The descriptions below are paraphrased from the second of these two articles.
-	<ul>
-	<li><em>Headline</em> - for emphasising particularly important sections of text (just like a news headline).
-	<li><em>Title</em> - for titles (e.g. of a section of a document) or text of similar importance.</li>
-	<li><em>Body</em> - used for paragraphs of text.</li>
-	<li><em>Label</em> - used for text purely for labelling items, such as components. A good example, quoted in the article linked to above, is text on a button.</li>
-	</ul>
+    <ul>
+    <li><em>Headline</em> - for emphasising particularly important sections of text (just like a news headline).
+    <li><em>Title</em> - for titles (e.g. of a section of a document) or text of similar importance.</li>
+    <li><em>Body</em> - used for paragraphs of text.</li>
+    <li><em>Label</em> - used for text purely for labelling items, such as components. A good example, quoted in the article linked to above, is text on a button.</li>
+    </ul>
 Within each category, you can specify large, medium or small variants. The concept is again like colour. By defining certain fonts for each typography type, you are ensuring a consistent appearance across UI elements of the same type or class.</p>
 
 <h2>Using Material Design in Jetpack Compose</h2>
 <p>Having considered some of the absolute basics of Material Design, we will now see how we can use Material Design in a Jetpack Compose app.</p>
 <h3>Setting up Material Design in Jetpack Compose</h3>
 
-<p>Jetpack Compose integrates very well with Material Design and in fact supports the latest Material Design standard, version 3. Jetpack Compose allows you to define a <em>theme</em>, which is a collection of colours, typographies and shapes which will be applied to your Compose app. Android Studio pre-generates logic to create your theme for you.</p>
+<p>Jetpack Compose integrates very well with Material Design and in fact supports the latest Material Design standard, version 3. Jetpack Compose allows you to define a <em>theme</em>, which is a collection of colours and typographies which will be applied to your Compose app. Android Studio pre-generates logic to create your theme for you.</p>
 
 <p>Below shows the location of the pre-generated theme files for your project. They are within the <code>ui.theme</code> subpackage:
 <br />
@@ -149,7 +161,7 @@ Within each category, you can specify large, medium or small variants. The conce
 <pre>
 setContent {
     ComposeExample2Theme {
-        Text("etc")
+        Text("Some text")
         TextField(...)
     }
 }
@@ -159,12 +171,12 @@ All composables inside the theme will have the theme applied to them.</p>
 <h4>Setting theme colours and fonts</h4>
 
 <p>Material Design components will use default settings appropriate to that component. You can also, however. access the theme's colour and typography via the <code>MaterialTheme</code> class. This has a <code>colorScheme</code> property to access the colour roles, and a <code>typography</code> property to access the various font styles. For example:
-	<ul>
-	<li><code>MaterialTheme.colorScheme.primary</code> for the primary colour;</li>
-	<li><code>MaterialTheme.colorScheme.onSecondary</code> for the on-secondary colour;</li>
-	<li><code>MaterialTheme.typography.titleLarge</code> for the Large Title font;</li>
-	<li><code>MaterialTheme.typography.bodySmall</code> for the Small Body trxt font.</li>
-	</ul>
+    <ul>
+    <li><code>MaterialTheme.colorScheme.primary</code> for the primary colour;</li>
+    <li><code>MaterialTheme.colorScheme.onSecondary</code> for the on-secondary colour;</li>
+    <li><code>MaterialTheme.typography.titleLarge</code> for the Large Title font;</li>
+    <li><code>MaterialTheme.typography.bodySmall</code> for the Small Body text font.</li>
+    </ul>
 </p>
 <h3>Using a Surface</h3>
 
@@ -178,8 +190,9 @@ import your.package.ComposeExample2Theme // replace "your.package" and the proje
 setContent {
     ComposeExample2Theme {
         Surface(modifier=Modifier.fillMaxSize(),shape=MaterialTheme.Shapes.large, shadowElevation=1.dp) {
-        Text("etc")
-        TextField(...)
+            Text("Some text")
+            TextField(...)
+       }
     }
 }
 </pre>
@@ -191,6 +204,8 @@ This example shows:
     </ul>
 </p>
 
+<h2>Exercise 1</h2>
+<p>Will appear here.</p>
 <h2>Implementing Lists of Data - A Discussion Exercise</h2>
 
 <p>You may be able to figure out how to create a <em>list</em> of data. We will discuss this <em>as an exercise in class</em>. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list.</p>
@@ -209,204 +224,39 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
 LazyColumn {
-	items(listItems) { curItem -&gt; Text(curItem) }
+    items(listItems) { curItem -&gt; Text(curItem) }
 }
 </pre>
 Note how <code>items()</code> takes the list of items to render as its first parameter and another lambda as its last parameter. This lambda specifies how each item in the list of data should be transformed into a Compose element. So here, each item in the list is transformed to a <code>Text</code> element containing its details.</p>
 
+<!--
 <h3>Advanced exercise</h3>
 <p>Messaging app, with simulated two users?</p>
-<p>Switch or checkbox or something?</p>
+<p>Switch or checkbox?</p>
 <p>Left and right justification?</p>
+-->
 
-
-
+<h2>Advanced exercise</h2>
+<p>Will appear here.</p>
 <!--
-<h3>Android Jetpack</h3>
-<p>The first example of libraries we will look at is <em>Android Jetpack</em>. Jetpack libraries are developed by the Android dev team but are separate to the mmain Android API. It is currently recommended, when developing for Android, to make use of Jetpack. Jetpack is a collection of libraries that add more specialised, and recently-developed, features to Android. Before API level 28, these features were included as part of the core Android API. However, because many new features were added to Android after API leve 22 (Android 5.x upwards) at a time when many devices were still running older versions of Android, a problem arose in that many devices could not use these newer features by default. Consequently, the <em>appcompat</em> library was maintained to provide these new features to older Android versions, however because new features were added all the time, it became rather unmanageable.</p>
-<p>Consequently, Jetpack was created. The philosophy of Jetpack is to focus the core Android API on the core, less-frequently-updated features and add the newer, more specialised, more rapidly-changing features in separate <em>Jetpack libraries</em>. This allows older devices to support new features in a "clean" way: an older version of the core API can work together with the latest versions of Jetpack libraries to produce an app with many new and interesting features but which can run on older Android versions. Jetpack libraries belong to <code>androidx</code> packages.</p>
-<p>The use of Jetpack also cuts down the size of the app if not all Jetpack features are desired, as we only link in those Jetpack libraries we need.</p>
-
-<p>Examples of Jetpack components include:
-    <ul>
-    <li>The AppCompat (backwards-compatibility) library</li>
-    <li>ConstraintLayout (which we have explored above)</li>
-    <li>RecyclerView: a memory-efficient approach to creating lists and other views of data (to be covered later)</li>
-    <li>KTX: a series of components which allow Android development using Kotlin language features</li>
-    <li>CameraX: an easy-to-use camera API</li>
-    <li>Fragments (to be covered later)</li>
-    <li>Lifecycle: for managing Android component lifecycle</li>
-    <li>Full list <a href='https://developer.android.com/jetpack#foundation-components'>here</a>.</li>
-    </ul>
-</p>
-<p>Jetpack libaries need to be added to the <code>dependencies</code> section of your app's <em>build.gradle</em>. Some are added already: if you look at the <em>build.gradle</em> example above, all the dependencies beginning with <code>androidx</code> are Jetpack libraries, for example the AppCompat and ConstraintLayout libraries:
-<pre>implementation 'androidx.appcompat:appcompat:1.2.0'
-implementation 'androidx.constraintlayout:constraintlayout:2.0.4'</pre>
-</p>
-<h3>Minimum, compilation and target SDK versions</h3>
-<p>The next thing we are going to look at in the build.gradle are the <code>sdkVersion</code> specifiers. Note the three lines showing <code>compileSdkVersion</code>, <code>minSdkVersion</code> and <code>targetSdkVersion</code>. What do these represent?
-    <ul>
-    <li><code>minSdkVersion</code> is the easiest of the three to understand. It represents the minimum API level needed to run your application. So for example if <code>minSdkVersion</code> is 19, then your app will only run on Android 4.4 (KitKat) upwards, because API level 19 is equivalent to KitKat.</li>
-    <li><code>compileSdkVersion</code> represents the API the software is <em>compiled against</em>. If you use features from a recent API level, but the <code>compileSdkVersion</code> is lower, then your code <em>will not compile</em> because your code is being compiled against an older version of the API, one without the recent features. Note that if, on the other hand, you set the <code>compileSdkVersion</code> to a <em>recent</em> version of Android and use features from a recent API level (e.g. API 30) then try to run it on a device running an <em>older</em> version of Android, the code will crash with a runtime error. (However, in Android Studio, the <em>lint</em> code analysis tool will pick up attempts to use recent API features if the <code>minSdkVersion</code> is below the API level needed for the feature).</li>
-    <li><code>targetSdkVersion</code> represents the SDK the app is <em>targeting</em>. This defines <em>what standards will be followed</em> when you build your project; in other words, are you using the recommended features of an up-to-date version of Android or an older one? For example, occasionally Android API features are marked as <em>deprecated</em> (outdated) at a certain API level (for example 26), because it is recommended you replace the feature with a newer approach to doing the same task. If your <code>targetSdkVersion</code> is that API level (26 for example) or higher, and you try to use the deprecated feature, you will get a warning. However, if your <code>targetSdkVersion</code> is lower than this (25 or less, for example), you will not. <br />As another example, from API level 23 upwards, <em>runtime permission handling</em> was introduced, in which users must grant an app permission to perform sensitive operations (e.g. take pictures) when the app is run. If the <code>targetSdkVersion</code> is 23 or more, you will not be able to perform sensitive operations in your code without runtime permission checking - the app will crash with a SecurityException. (Again, the lint tool will detect this in Android Studio before you attempt to deploy it). If, however, the <code>targetSdkVersion</code> is 22 or less, you will not have to implement runtime permission checking, even if running on a device running Marshmallow (API 23) or greater.<br />That said, it is not wise to remove deprecation warnings, or the need to use newer development approaches (such as runtime permission checking), simply by dropping the <code>targetSdkVersion</code>. This is a signal that your app is using outdated APIs, which may be completely dropped in the future; and furthermore, to publish on Google Play, the <code>targetSdkVersion</code> needs to be recent - usually the version before the current version, so currently 29 - otherwise it cannot be published).</li>
-    </ul>
-<h3>Third-party libraries</h3>
-<p>We can also make use of <em>third-party</em> libraries in our apps by
-adding them to <em>build.gradle</em> as dependencies. These are libraries
-developed by people other than the Android developer team. We are going to
-look at a <em>mapping</em> library called <em>osmroid</em>.</p>
-<p>We are going to add the <em>osmdroid</em> mapping library to our app as an example of a dependency. This will allow us to add a map to our main activity. It can be added to the <code>dependencies</code> section of the app's <em>build.gradle</em> as an additional dependency:
-<pre>
-<strong>implementation</strong> 'org.osmdroid:osmdroid-android:6.1.0'
-</pre>
-</p>
-<p>Where is the OSMDroid library coming from? If you have used a build system
-such as Maven in standard Java, you might recognise the technique used. It
-downloads the OSMDroid library from an <em>online repository of Java
-libraries</em>. The specific repository used by default is <em>Bintray JCenter</em>, which can be found <a href='https://bintray.com/bintray/jcenter'>here</a>. Another common repository (which you will have come across if you have studied OODD) is <a href="https://search.maven.org">Maven Central</a>.</p>
-<p> Once the dependency has been
-downloaded, it will be saved on your computer so that it will not need to
-be downloaded next time you open the project.</p>
-<p>The repositories used are specified in the <em>project build.gradle</em>
-file (the other one; the first build.gradle in the project view of Android Studio); you'll notice the <em>jcenter()</em> line in there which specifies that JCenter is being used.</p>
-<h3>More on osmdroid</h3>
-<p>Most location-based apps include a map as the content view of their main activity.  Android comes with inbuilt map functionality via Google Maps; however to use Google Maps you need to obtain an API key and it comes with some restrictions so we are going to use an alternative mapping library: <em>osmdroid</em>, available <a href='http://www.github.com/osmdroid/osmdroid'>here</a>. (A <em>library</em> is a collection of Java classes with related functionality, such as mapping). As a Java library, you can use it in a Kotlin app.</p>
-<p>osmdroid is a third-party open source library which uses
-maps from the <a href='http://www.openstreetmap.org'>OpenStreetMap</a> project. OpenStreetMap is a global
-project to provide free and open mapping data which anyone can contribute to;
-see <a href='http://www.openstreetmap.org'>the website</a> for more details. In using
-osmdroid, you will also see how to add external libraries to an Android project.
-</p>
-<h3>Latitude and Longitude</h3>
-<p>In order to understand location-based applications, it is important
-to understand the coordinate system used on the earth. The most common
-coordinate system uses <em>latitude and longitude</em>. Latitude is a measure
-of how far north or south you are: the equator is at 0 degrees,
-while the North Pole is at 90 degrees North, we are at about 50 and Spain
-is at about 40. Longitude is a measure of how far east or west you are:
-0 degrees of longitude is referred to as the <em>Prime Meridian</em>
-(or <em>Greenwich Meridian</em>) and passes through Greenwich, London. 
-By contrast Germany is located
-between approximately 7 degrees and 15 degrees East, while New York is at
-74 degrees West and the west coast of North America at approximately 120
-degrees West.</p>
-<p><img src="../images/latlon.png" alt="Latitude and longitude" /></p>
-<p>So a given point on the earth can be defined via its latitude and
-longitude. The university is at approximately, 50.9 North (latitude) and 1.4 West (longitude). By convention, latitudes north of the equator and longitudes
-east of Greenwich are treated as positive, so we can also define our
-position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
-<h3>Mapping code</h3>
-<p>Here is a sample app using the OSMDroid Android API
-Copy-and-paste this code into your <em>Mapping</em> project's <code>MainActivity.kt</code>.
-</ul>
-<pre>
-package com.example.mapping
-
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.preference.PreferenceManager
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // This line sets the user agent, a requirement to download OSM maps
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-
-        setContentView(R.layout.activity_main)
-        val map1 = findViewById&lt;MapView&gt;(R.id.map1)
-        map1.controller.setZoom(14.0)
-        map1.controller.setCenter(GeoPoint(51.05, -0.72))
-
-    }
-}
-</pre>
-</p>
-<p>The main XML layout file is here. Copy and paste it into <code>activity_main.xml</code>.
-<pre>
-&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"&gt;
-&lt;org.osmdroid.views.MapView
-    android:layout_width="match_parent" 
-    android:layout_height="match_parent" 
-    android:enabled="true"
-    android:clickable="true"
-    android:id="@+id/map1"
-    tilesource="Mapnik"
-    /&gt;
-&lt;/LinearLayout&gt;
-</pre>
-</p>
-<p>Note how this is working:
+<p>Have a go at implementing a prototype of a simple messaging application using Jetpack Compose (which lacks the communication-between-two-users aspect!). It should:
 <ul>
-<li>In the XML layout, we add a component of type <em>MapView</em>, but because
-MapView is not part of the standard Android library, we have to include its 
-complete qualified name, including the package it belongs to, i.e.
-<em>org.osmdroid.views.MapView</em>.</li>
-<li>The main activity is actually quite straightforward. We obtain the MapView
-using its ID (as we have done with other components before) and then set the    
-zoom level (16; higher numbers are zoomed in further) 
-and the centre point of the map, in latitude and longitude.
-For more on latitude and longitude, see
-<a href='http://www.free-map.org.uk/course/wad_new/webmapping.php'>here</a>.
-For more on zoom levels, see <a href="#zoomdetail">below</a>, and
-<a href=
-'http://code.google.com/apis/maps/documentation/javascript/v2/overlays.html#Google_Maps_Coordinates'>
-Google's article on zoom levels</a>. 
+<li>contain a <code>TextField</code> allowing the user to enter a message;</li>
+<li>contain a button which adds the message to a list of messages;</li>
+<li>messages should alternate between being displayed on the left and the right of the screen, and alternate between being coloured with <code>MaterialTheme.colorScheme.secondary</code> and <code>MaterialTheme.colorScheme.primary</code>.
+</li>
+<li>Try and figure out how to lay this out realistically. Some hints:
+	<ul>
+	<li>Use a <code>Row</code> to contain each message.</li>
+	<li><code>Row</code> takes, as a named parameter, <code>horizontalArrangement</code> which can be set to <code>Arrangement.End</code> (items are added to the end of the row) or <code>Arrangement.Start</code> (items are added to the start). Set it appropriately for each message.</li>
+	<li>The <code>Row</code> should contain a separate <code>Surface</code> to contain the message. The idea of a separate <code>Surface</code> is that it can e styled separately to the main <code>Surface</code>. Set its colour as described above.</li>
+	<li>To prevent messages occupying the whole width of the screen, give each message a <em>padding</em>. Messages on the left should have the <em>end padding</em> (padding on the right) set to 30dp, and messages on the right should have the <em>start padding</em> (padding on the left) set to 30dp. You can set individual paddings by passing named parameters to <code>Modifier.padding</code>, e.g:
+<pre>Modifier.padding(start = ..., end = ...)</pre></li>
+	<li>The <code>Surface</code> should contain a <code>Text</code> with the appropriate message. What colour should the text be set to?</li>
+	<li>Can you also use padding on the <code>Text</code>?</li>
+	</ul>
 </li>
 </ul>
-</p>
-<h3>The manifest file and Permissions</h3>
-<p>The manifest file is an XML file describing the app and its components
-(e.g. the activities making up the app), as well as the app
-<em>permissions</em> (see below). It is called <code>AndroidManifest.xml</code>
-and can be found in the <code>manifests</code> directory.</p>
-<p>Apps need to be granted <em>permissions</em> to perform sensitive 
-operations. Sensitive operations can include:
-    <ul>
-    <li><em>Using the internet</em> - because this might incur a cost to
-    the user, and have potential privacy/security concerns;</li>
-    <li><em>Tracking your location</em> - because this could be potentially
-    abused (e.g. by stalkers)</li>
-    <li><em>Reading from and writing to files</em> - again this has
-    security concerns.</li>    
-    </ul>
-</p>
-<p>We will look at permissions in more detail next time. For now, we just
-need to add one permission to the manifest file:
-    <ul>
-    <li>INTERNET - needed to download the maps from the internet</li>
-    </ul>
-So ensure your manifest file contains the following permissions. They should
-go <strong>before the &lt;application&gt; tag.</strong>
-<pre>
-&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
-</pre>
-</p>
-<h3>Exercise 2</h3>
-<ul>
-<li>Try the example above out. It should show a map of Fernhurst, West Sussex
-(about 30 miles/50km east of the university).</li>
-<li>Use the site <a href="http://www.informationfreeway.org">
-informationfreeway.org</a> to look up the latitude and longitude of your
-home town. Make the map centre on your home town instead.</li>
-</ul>
-<h3>Exercise 3</h3>
-<p>This exercise allows you to revise the previous topics.
-Enhance your
-app so that it has a UI with a layout similar to that shown below. <em>Create the XML by hand as a ConstraintLayout; do not use the UI designer.</em>
-<br />
-<img src="../images/consolidation_layout.png" alt="Consolidation exercise layout" 
-/>
-<br />
-When the user clicks "Go", the map should move to the latitude and longitude
-that the user entered in the two EditTexts.
-</p>
 -->
 </body>
 </html>
