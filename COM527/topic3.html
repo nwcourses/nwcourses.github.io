@@ -185,7 +185,7 @@ All composables inside the theme will have the theme applied to them.</p>
 <p>To use a Surface, simply wrap it round the other UI elements, e.g.
 <pre>
 import androidx.compose.material3.Surface
-import your.package.ComposeExample2Theme // replace "your.package" and the project name!
+import your.package.ui.theme.ComposeExample2Theme // replace "your.package" and the project name!
 
 setContent {
     ComposeExample2Theme {
@@ -208,6 +208,7 @@ This example shows:
 <ol>
 <li>Modify your exercise last week (the feet to metres converter) so that the composable has a 4dp wide red border with a padding of 20dp.</li>
 <li>Create a new project and copy the code of your main activity into it. Apply your application's pre-generated <em>theme</em> to it. Add a <code>Surface</code> and place your feet-to-metres converter composable within the surface.</li>
+<li>Add a button to your feet-to-metres converter which resets the feet to 0. This will be similar to the button in your greeting component.</li>
 <li><strong>A bit harder!</strong> Try making the <code>TextField</code> occupy the whole width of the device.</li>
 <li>Now try putting the <code>TextField</code> and <code>Button</code> (to clear the value) on the same line. The button should have 8dp padding. Hint: use a <code>Row</code> to contain both elements. It should look something like this:
 <br />

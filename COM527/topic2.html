@@ -191,6 +191,7 @@ import androidx.compose.material3.Text
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContent {
             Text("Hello World!")
         }
@@ -365,7 +366,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun TwoTextsStyled() {
         Column {
-            Text("Hello World!", color = Color.red, fontStyle=FontStyle.Italic, fontFamily=FontFamily.Serif)
+            Text("Hello World!", color = Color.Red, fontStyle=FontStyle.Italic, fontFamily=FontFamily.Serif)
             Text("Welcome to Android Development", fontWeight=FontWeight.Bold)
         }
     }
