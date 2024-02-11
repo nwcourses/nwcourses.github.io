@@ -1,19 +1,251 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html><html>
 <head>
-<title>MAD Topic 4: Android Permissions, GPS Location</title>
+<title>MAD Topic 4: XML Layouts, Views and Introduction to Mapping</title> 
 <link rel="stylesheet" type="text/css" href="../css/android.css" />
 </head>
-
 <body>
 <div class='titlebox'>
-<h1>MAD Topic 4: Android Permissions, More Mapping</h1> 
+<h1>MAD Topic 4 : XML Layouts, Views and Introduction to Mapping</h1>
 </div>
-<h2>Android Runtime Permissions</h2>
-<h3>Revision: The manifest file and Permissions</h3>
-<p>Last week you were very briefly introduced to <em>permissions</em>. 
-Apps need to be granted <em>permissions</em> to perform sensitive 
+<h2>Introduction</h2>
+<p>As you have seen in Weeks 2 and 3, <em>Jetpack Compose</em> is recommended as the contemporary standard in UI development. However you may still be exposed to the older approach to developing UIs using <em>XML layouts</em> and <em>Views</em>, so we will look at it here. In particular, you may find yourself working with other people's code, or third-party libraries, which uses this approach. Due to its use of <em>Views</em> (to be discussed below), this approach is know as the <em>Views</em> approach to UI development.</li>
+<h2>Views and XML Layouts</h2>
+<h3>Views</h3>
+<p>The <em>View</em> is the single most important concept in Views UI development. A <em>View</em> represents a visible component on the screen, such as a button, a text field or a label. <code>View</code> is an Android API class and all Views UI components are sub-classes of <code>View</code>, for example a Views <code>Button</code> (different to the Compose <code>Button</code>) is a subclass of <code>View</code>.</p>
+<p> Every Views Activity contains a View which is the "main component" of the screen, referred to as the <em>content view</em>. This is normally, but not always, a parent <code>View</code> which contains a series of other <code>View</code>s. In the example below, it's the simplest type of View: a <code>TextView</code>. A TextView is what it sounds like: a View which can contain text. So here, we create a TextView containing the text "Hello world" and make it the content view of our Activity.
+<pre>
+package com.example.myapp
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.TextView
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val tv = TextView(this)
+        setContentView(tv)
+    }
+}</pre>
+</p>
+<h3>XML Layouts</h3>
+<p>In Views development, we frequently we add components to the main screen programatically, as seen above. However we can cut down on the amount of setup code using <em>XML layouts</em> instead. With XML layouts, we define the layout of the content view of the Activity using <em>XML</em> tags. XML (eXtensible Markup Language) is a tag-based format for representing data, related to HTML.
+</p>
+<p>
+Here is an example of an XML based layout:<pre><code>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"&gt;
+&lt;TextView android:layout_width="wrap_content" 
+android:layout_height="wrap_content" android:text="@string/hello" /&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+To explain this:
+    <ul>
+    <li>The <code>LinearLayout</code> defines the view's layout. The layout specifies how the various components are arranged with respect to each other. LinearLayout indicated that components are placed adjacent to each other, either vertically or horizontally (depending on the <code>android:orientation</code> attribute)</li>
+
+    <li>We then add a TextView tag. Basically every Android UI class has corresponding tag of the same name.</li>
+    <li>The <code>android:layout_width</code> and <code>android:layout_height</code> attributes of the <code>TextView</code> describe how it fills its parent layout in the horizontal and vertical directions.  The most common values are <code>match_parent</code> and <code>wrap_content</code>. The former, as used here, means that the TextView entirely fills its parent (the LinearLayout), the result being that the TextView fills the entire screen.  The latter,<code>wrap_content</code>, means that <em>enough space to contain the content</em> (the text "Hello World" here) should be used.  </li>
+    <li>The <code>android:text</code> attribute specifies the text within the TextView.  Note however how we don't give it a straight value, we use <code>@string/hello</code>, which will represent an entry with a <code>name</code> of <code>hello</code> in the <code>strings.xml</code> file.
+    </ul>
+Where should the XML file be placed? It is found in the <em>application resources</em>,  which we have discussed already. Specifically it should be placed in the <code>layout</code> resources folder. If you create a <em>Views Activity</em> when choosing the project type in Android Studio, it will create a layout file, <code>activity_main.xml</code>, for you.</p>
+<p>As for other types of resource you access this through the auto-generated <code>R</code> class. So assuming the XML layout is in <code>activity_main.xml</code>, you can set the XML layout as the main content view of your activity with:
+<pre>setContentView(R.layout.activity_main)</pre>
+The complete code would be as follows:
+<pre>
+package com.example.myapp
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}</pre>
+</p>
+<h3>Event handling with Views activities</h3>
+<p>Here is an example of how events are handled in Views activities. It's the feet-to-metres exercise, but re-written for Views. Firstly, the XML layout:
+<pre>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"&gt;
+
+ &lt;EditText
+    android:layout_width="match_parent" 
+    android:layout_height="wrap_content" 
+    android:inputType="numberDecimal"
+    android:id="@+id/et1" /&gt;
+
+ &lt;Button 
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:id="@+id/btn1" 
+    android:text="@string/convertBtn" /&gt;
+
+ &lt;TextView 
+    android:layout_width="match_parent" 
+    android:layout_height="wrap_content" 
+    android:id="@+id/tv1"/&gt;
+
+&lt;/LinearLayout&gt;</pre>
+Note how this linear layout consists of an <code>EditText</code> (equivalent to a <code>TextField</code> in Compose), a <code>Button</code> and a <code>TextView</code>. Because the <code>orientation</code> of the <code>LinearLayout</code> is vertical, the elements will be stacked on top of each other (like a <code>Column</code> in Compose).</p>
+<p>Note also how each element has an <em>ID</em>. This allows us to access it from within Kotlin, rather like how we can access HTML elements from JavaScript using their ID.</p>
+<p>Here is the Kotlin code to interact with the elements in the layout. When the <code>Button</code> is pressed, it reads the feet from the <code>EditText</code> as a string, converts it to a double, converts it to metres and place the metres in the <code>TextView</code>.
+<pre>import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.view.View.OnClickListener
+import android.view.View
+import android.widget.TextView
+import android.widget.EditText
+
+class MainActivity : AppCompatActivity () {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)        
+        setContentView(R.layout.activity_main)
+        val b = findViewById&lt;Button&gt;(R.id.btn1)
+        b.setOnClickListener {
+            val et1 = findViewById&lt;EditText&gt;(R.id.et1)
+            val feet = et1.text.toString().toDouble()
+            val metres = feet*0.305
+            val tv1 = findViewById&lt;TextView&gt;(R.id.tv1)
+            tv1.text = "In metres that is: $metres"
+        }
+    }
+}
+</pre>
+<p>First of all note how we access the user interface components from Kotlin. We use code such as:
+<pre>val b = findViewById&lt;Button&gt;(R.id.btn1)</pre>
+Note how the <code>findViewById()</code> method takes in an ID and returns the corresponding component. The ID matches the IDs that we specified in the XML file; for instance, our button was given an ID of <code>btn1</code> so we reference it in code with <code>R.id.btn1</code>.</p>
+<h3>Event handling</h3>
+<p>To handle events such as button clicks, we specify an <em>event listener</em> function, which is typically a lambda. For a button, the event listener is specified with <code>setOnClickListener()</code>:
+<pre>
+b.setOnClickListener {
+    val et1 = findViewById&lt;EditText&gt;(R.id.et1)
+    val feet = et1.text.toString().toDouble()
+    val metres = feet*0.305
+    val tv1 = findViewById&lt;TextView&gt;(R.id.tv1)
+    tv1.text = "In metres that is: $metres"
+}
+</pre>
+When the button is clicked, the specified lambda function will run, and
+as you can see, the lambda first obtains the edit text
+element, and then reads the feet from it with
+<pre>val feet = et1.text.toString().toDouble()</pre>
+Note that the <code>.text</code> property of the edit text returns an object of type <code>Editable</code>. We then need to call <code>toString()</code> on the Editable to get the actual text out of the text field, and finally convert it to a <code>Double</code> using <code>toDouble()</code>.</p>
+<p>Then we convert the feet to metres and place the result in the TextView.</p> 
+<h2>Using Views from Jetpack Compose</h2>
+<p>Because Jetpack Compose is quite a recent development, there are many third-party libraries which use Views rather than Compose. You may want to use these libraries while still using Compose for your UI. You can do this with the <code>AndroidView</code> composable. <code>AndroidView</code> is used to make a composable from an existing <code>View</code>. We will look at the use of <code>AndroidView</code> a little later, but first we will take a look at <em>mapping</em> in Android apps. The mapping library that we are looking at makes use of Views, so it provides a perfect example of how to integrate Views-based libraries into a Compose application.</p>
+<h2>Introduction to Mapping</h2>
+<h3>Application builds - examining the build.gradle.kts file</h3>
+<p>Android projects use the build tool <a href='https://gradle.org'>Gradle</a> to build an executable Android app from your source code and resources. Gradle is rather like Maven, which most of you have met in OODD. Gradle uses a build file <em>build.gradle.kts</em> to tell it how to build the project. We are now going to take a look at the app's <em>build.gradle.kts</em> file and examine key features of this build file, namely how to include <em>third-party dependencies</em> (i.e. libraries) and <em>how to set the minimum, compilation and target API levels</em>.</p>
+<h4>Including third-party dependencies</h4>
+<p>Many Android apps depend on <em>third-party libraries</em> written by independent developers. Many of these are FOSS (free and open-source software) meaning, amongst other things, you can use them freely in your own projects. Dependencies are added to the <em>build.gradle.kts</em> file.</p>
+<p>You should link third-party dependencies to your app via the <em>dependencies</em> section of the <em>build.gradle.kts</em> file. <em>build.gradle.kts</em> is a build file: a set of instructions used by <em>Gradle</em> to create your app from your code and any third-party libraries it may require. Gradle is a standalone tool (can be used outside Android Studio, so you can build your apps with Gradle and without Studio if you wish), but is included within Android Studio.</p>
+<p>Note there are two <em>build.gradle.kts</em> files, one for the whole project and one for your app specifically. It is the latter (the <em>app</em> build.gradle; the <em>second</em> one as seen in Android Studio) that you need to edit in most cases. The <em>dependencies</em> section of an app build.gradle.kts is shown below.
+</p>
+<p>
+<img src="../images/buildgradle_dependencies.png" alt="app build.gradle.kts file - dependencies" />
+</p>
+<p>To use mapping, we need to include a third-party mapping library,
+specifically <em>osmdroid</em>.</p>
+<p>We are going to add the <em>osmdroid</em> mapping library to our app as an example of a dependency. This will allow us to add a map to our main activity. It can be added to the <code>dependencies</code> section of the app's <em>build.gradle.kts</em> as an additional dependency:
+<pre>
+<strong>implementation</strong> ("org.osmdroid:osmdroid-android:6.1.17")
+</pre>
+</p>
+<p>Where is the osmdroid library coming from? If you have used a build system
+such as Maven in standard Java, you might recognise the technique used. It
+downloads the osmdroid library from an <em>online repository of Java
+libraries</em>. There are two repositories used: Google's own, and <a href="https://search.maven.org">Maven Central</a>, the standard one Maven also uses. Additional repositories can be specified in the <code>settings.gradle.kts</code> file.</p>
+<p> Once the dependency has been
+downloaded, it will be saved on your computer so that it will not need to
+be downloaded next time you open the project.</p>
+<h3>More on osmdroid</h3>
+<p>Most location-based apps include a map as the content view of their main activity.  Android comes with inbuilt map functionality via Google Maps; however to use Google Maps you need to obtain an API key and it comes with some restrictions so we are going to use an alternative mapping library: <em>osmdroid</em>, available <a href='http://www.github.com/osmdroid/osmdroid'>here</a>. (A <em>library</em> is a collection of Java classes with related functionality, such as mapping). As a Java library, you can use it in a Kotlin app.</p>
+<p>osmdroid is a third-party open source library which uses
+maps from the <a href='http://www.openstreetmap.org'>OpenStreetMap</a> project. OpenStreetMap is a global
+project to provide free and open mapping data which anyone can contribute to;
+see <a href='http://www.openstreetmap.org'>the website</a> for more details. In using
+osmdroid, you will also see how to add external libraries to an Android project.
+</p>
+<h3>Latitude and Longitude</h3>
+<p>In order to understand location-based applications, it is important
+to understand the coordinate system used on the earth. The most common
+coordinate system uses <em>latitude and longitude</em>. Latitude is a measure
+of how far north or south you are: the equator is at 0 degrees,
+while the North Pole is at 90 degrees North, we are at about 50 and Spain
+is at about 40. Longitude is a measure of how far east or west you are:
+0 degrees of longitude is referred to as the <em>Prime Meridian</em>
+(or <em>Greenwich Meridian</em>) and passes through Greenwich, London. 
+By contrast Germany is located
+between approximately 7 degrees and 15 degrees East, while New York is at
+74 degrees West and the west coast of North America at approximately 120
+degrees West.</p>
+<p><img src="../images/latlon.png" alt="Latitude and longitude" /></p>
+<p>So a given point on the earth can be defined via its latitude and
+longitude. The university is at approximately, 50.9 North (latitude) and 1.4 West (longitude). By convention, latitudes north of the equator and longitudes
+east of Greenwich are treated as positive, so we can also define our
+position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
+<h3>Mapping code</h3>
+<p>Here is a sample app using the osmdroid Android API using Views.
+<pre>
+package com.example.mapping
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.preference.PreferenceManager
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // This line sets the user agent, a requirement to download OSM maps
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+
+        val map1 = MapView(this) 
+        map1.setCenter(GeoPoint(51.05, -0.72))
+        map1.setZoom(14.0)
+        map1.setClickable(true)
+        map1.setTileSource(TileSourceFactory.MAPNIK)
+        setContentView(map1)
+    }
+}
+</pre>
+</p>
+<p>Note how this is working:
+<ul>
+<li>We create a <code>MapView</code> object. This is a View representing the map.</li>
+<li>The remaining code is actually quite straightforward. We set the    
+zoom level (14; higher numbers are zoomed in further) 
+and the centre point of the map, in latitude and longitude. We also make the map clickable (so the user can interact with it) and set the <em>tile source</em> (the source of the map; osmdroid can use many different maps). Here we are using a MAPNIK map, which is the default style of OpenStreetMap map.
+For more on zoom levels, see 
+<a href='https://developers.google.com/maps/documentation/javascript/coordinates'>Google's article on zoom levels</a>. 
+</li>
+</ul>
+<h4>Using <code>apply()</code></h4>
+<p>Note how we repeatedly refer to the <code>map1</code> object when calling the methods to set the map properties. This arguably makes the code a little repetitive. We can avoid this with a <em><code>apply()</code></em> call. <code>apply()</code> allows us to define a lambda, inside which <code>this</code> refers to a particular object. So we could use, in this case, <code>this.setCenter()</code>, <code>this.setZoom()</code> etc. However, because <code>this</code> is optional when calling methods, we could simply use <code>setCenter()</code> and <code>setZoom()</code>. Here is an example of the code above rewritten to use <code>apply()</code>:
+<pre>
+val map1 = MapView(this) 
+map1.apply {
+    controller.setCenter(GeoPoint(51.05, -0.72))
+    controller.setZoom(14.0)
+    setClickable(true)
+    setTileSource(TileSourceFactory.MAPNIK)
+}
+setContentView(map1)
+</pre>
+Note how <code>map1</code> is the subject of the <code>apply()</code> call. So inside the <code>apply()</code> lambda, <code>this</code> refers to the <code>map1</code> object. But, as said above, we can omit <code>this</code> and write the method calls without any object.
+</p>
+<h3>The manifest file and Permissions</h3>
+<p>Mapping apps need to obtain the map tiles from the internet. To do this, we need to add the <em>internet permission</em>. The manifest file is an XML file describing the app and its components (e.g. the activities making up the app), as well as the app <em>permissions</em> (see below). It is called <code>AndroidManifest.xml</code> and can be found in the <code>manifests</code> directory.</p>
+<p>Apps need to be granted <em>permissions</em> to perform sensitive 
 operations. Sensitive operations can include:
     <ul>
     <li><em>Using the internet</em> - because this might incur a cost to
@@ -23,443 +255,67 @@ operations. Sensitive operations can include:
     <li><em>Reading from and writing to files</em> - again this has
     security concerns.</li>    
     </ul>
-The permissions an app needs are specified in the <em>AndroidManifest.xml</em> file, within the <em>manifests</em> directory, before the <code>&lt;application&gt;</code> tag. For example, to specify that we need internet permission, we
-would add the line:
-<pre>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</pre>
 </p>
-<h3>The classic permissions model</h3>
-<p>Before Android 6, permissions were specified at <em>install time</em>, so a user was informed what permissions an app needed when they installed the app.
-However, this model had some disadvantages. It is not very flexible; a user might want to use <em>some</em> sensitive permissions but turn others  for example, it might be that a user wishes to use all features of a mapping app except location tracking</p>
-<h3>Runtime Permissions</h3>
-<p>Android 6 (API level 23) uses a runtime permissions model, in which permissions can be turned on and off at run time, rather than install time.  With Android 6 permissions, you can grant an app certain permissions but not others, at run time. You can also turn permissions on and off at any time via the device's Settings.</p>
-<p>To enforce the use of Android 6 permissions, the <code>targetSdkVersion</code> of your app must be at least 23; we looked at <code>targetSdkVersion</code> last week.</p>
-<h3>Using the Android 6 permissions model</h3>
-<ul>
-<li>You must still declare the permissions you need in the manifest file</li>
-<li>In addition, you now need to include logic in your application to perform checks on whether the appropriate permission has been granted. For example, before attempting to obtain the device's location using the GPS chip, your code needs to check whether the GPS permission has been granted by the user or not, and if it hasn't, the app needs to request the permission by asking the user whether they want to grant it.</li>
-</ul>
-<h4>Dangerous permissions</h4>
-<p>Certain permissions in Android are more sensitive than others, these are
-called <em>dangerous permissions</em>.  Dangerous permissions include location, using the GPS (for privacy reasons), camera (even more so) and file I/O
-(because of the risk of a rogue app reading private data on your device).
-It is <em>these dangerous permissions</em> which require runtime permission checking, and these permissions which can be turned on or off in the Settings.</p>
-<p>Less sensitive permissions, such as internet, can be done purely via the manifest, as before; these do <em>not</em> need runtime permission checking.</p>
-<p>See <a href="https://developer.android.com/guide/topics/permissions/overview">this documentation on the Android site</a></p>
-<h4>What happens from the user point of view?</h4>
-<ul>
-<li>When a user runs an app which uses dangerous permissions, a dialog is presented to the user, asking them whether they wish to grant or deny that permission (or strictly speaking, that permission group - see below)</li>
-<li>If a user presses 'grant', code associated with granting the permission (see below) will run</li>
-</ul>
-<p>As well as granting the permission at runtime, a user can grant permission by going into the phone's Settings, selecting "Apps" and then the appropriate app, and then turning the appropriate setting on. A user can also revoke the permission through the Settings.</p>
-</ul>
-<h3>Implementation details</h3>
-<h4>Checking whether a permission has been granted</h4>
-<p>You use the <code>checkSelfPermission()</code> call for this, though it is recommended to use  <code>ContextCompat.checkSelfPermission()</code> from the Jetpack AppCompat library, to allow your code to run on older devices.
-<p>Here is an example of checking for the <code>READ_EXTERNAL_STORAGE</code> (read files on the device) permission. You can imagine that this is in <code>onCreate()</code> for now, but later, when we consider the <em>activity lifecycle</em>, you will see somewhere better to put it.
+<p>We will look at permissions in more detail next time. For now, we just
+need to add one permission to the manifest file:
+    <ul>
+    <li>INTERNET - needed to download the maps from the internet</li>
+    </ul>
+So ensure your manifest file contains the following permissions. They should
+go <strong>before the &lt;application&gt; tag.</strong>
 <pre>
-// imagine this code is in your onCreate() for now
-if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-{ 
-    // read from file...
-  
-} else {
-    // request the 'READ_EXTERNAL_STORAGE' permission
+&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+</pre>
+</p>
+<h2>Back to using Views from Compose: Creating a Map Composable</h2>
+<p>Having now looked at mapping, we can create a Composable to contain an osmdroid map as an example of using Views in Compose. How do we do this in general?
+We make use of the <code>AndroidView</code> composable. This is a composable designed precisely for the purpose of including Views inside a Compose layout. When creating an <code>AndroidView</code> you should specify two parameters:    
+    <ul>
+    <li>The <em><code>factory</code></em>. This is a function which should create and return the View you wish to include in the Compose layout, such as a <code>MapView</code>.</li>
+    <li>The <em><code>update</code></em> function. This code is called whenever the composable is re-rendered, for example because state changes. In here you would set any properties of the View that might need to change.</li>
+    </ul>
+Here is an example <code>MapComposable</code> which is a composable wrapping a <code>MapView</code>:
+<pre>
+@Composable
+fun MapComposable(geoPoint: GeoPoint) {
+
+    AndroidView(
+        factory = { ctx -&gt;
+            // This line sets the user agent, a requirement to download OSM maps
+            Configuration.getInstance()
+                .load(ctx, PreferenceManager.getDefaultSharedPreferences(this))
+
+            MapView(ctx).apply {
+                setClickable(true)
+                setMultiTouchControls(true)
+                setTileSource(TileSourceFactory.MAPNIK)
+                controller.setZoom(14.0)
+            }
+        },
+
+        update = { view -&gt;
+            view.controller.setCenter(geoPoint)
+        }
+    )
 }
 </pre>
-Note how checkSelfPermission() takes the permission we are interested in (READ_EXTERNAL_STORAGE) as an argument.</p>
-<p>This method will return one of these constants:
-    <ul>
-    <li><code>PackageManager.PERMISSION_GRANTED</code> if the permission has already been granted by the user;</li>
-    <li><code>PackageManager.PERMISSION_DENIED</code> if not.</li>
-    </ul>
-If you are targeting API level 23 and above, Android Studio's <em>lint</em> tool will produce an error if you leave this check out (and if you disable the <em>lint</em> tool, the app will crash at runtime with a SecurityException)</p>
-<h4>Granting permissions in your code</h4>
-<p>If <em>checkSelfPermission()</em> returns <em>PackageManager.PERMISSION_DENIED</em>, then you should request that permission from the user in your code.
-Use <code>ActivityCompat.requestPermissions()</code> to request a particular permission. Again, this uses the Jetpack AppCompat library, to provide support to older devices. Here is an example:
-<pre>ActivityCompat.requestPermissions(this, arrayOf&lt;String&gt;(Manifest.permission.READ_EXTERNAL_STORAGE ), 0)</pre>
-<p>Note how we put the requested permissions (there can be more than one) in a String array. Note also <em>the code of 0 passed as the third argument</em>.  The <em>onRequestPermissionsResult()</em> callback uses the code to determine which permission request it is processing.  In <code>onRequestPermissionsResult()</code>, you would perform the requested sensitive operation (e.g. listen for GPS position) if the appropriate permission was granted.</p>
-<p>It is important to note that this will not immediately grant the permission. It <em>requests permission from the user</em>. It will bring up a dialog warning the user which permissions the app wants, and give the user the option to either grant or deny the request. When the user has done this, a callback function (<code>onRequestPermissionsResult()</code>) will be run, to be discussed next.</p>
-<h4>Example of onRequestPermissionsResult() callback</h4>
-<p>As discussed above, the <code>onRequestPermissionsResult()</code> callback runs when the permissions have been granted (or denied) by the user. An example of this method is shown below; it would be added to your <em>Activity</em>:
-<pre>
-// add as a method of your Activity
-override fun onRequestPermissionsResult(requestCode:Int, permissions:Array&lt;String&gt;, grantResults: IntArray) {
-    when(requestCode) {
-        0 -&gt; {
-            if(grantResults.isNotEmpty() &amp;&amp; grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // now open the file 
-            } else {
-                // user has denied file read permission so inform them that the app will not be able to read files 
-            }
+This might be used from our main layout as follows. Note how we are storing the current latitude and longitude (a <code>GeoPoint</code>) in state:
+<pre>setContent {
+    MappingComposeTheme {
+        Surface {
+            var geoPoint: GeoPoint by remember { mutableStateOf(GeoPoint(51.05, -0.72)) }
+            MapComposable(geoPoint)
         }
     }
-  
 }</pre>
-Note the three parameters to the method:
-<ul>
-<li><em>requestCode</em> is the code mentioned in 
-<em>requestPermissions()</em> above, so we can check which permission request we are processing.</li>
-<li>permissions is our array of permissions 
-(we are not using this here as we are using the request code to work out which permission we are granting)</li>
-<li><em>grantResults</em> is an array of the results for each permission being granted;
- Here it only has one member as we only requested one permission (file read). 
- The values within this array will either be 
- <em>PackageManager.PERMISSION_GRANTED</em> or 
- <em>PackageManager.PERMISSION_DENIED</em>. </li>
- </ul>
-If a permission has been granted, you might implement code which relies on that permission being granted such as turning on a LocationListener to listen for GPS updates.</p>
- <h3>General logic for using dangerous permissions</h3>
-<p>A good approach is to <em>put the code which checks for, and
-uses,  a dangerous permission in its own method</em>.  That way, once the permission has been granted, we can call this method again, and this time, the dangerous operation will run as the permission is now granted</p>
-<p>For example, in the code below, <code>readFromFile()</code> tries to read from file, but checks that the permission has been granted first, and if it hasn't, it requests it:
-<pre>fun readFromFile() {
-    // is the permission granted yet?
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-        // ... actual code to open and read from a file 
-    } else {
-        // request the permission
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)    
-    }
-}</pre>
-In a simple activity, this could be called in <code>onCreate()</code>, though it could potentially be placed anywhere in our app where we need to perform the operation:
-<pre>override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    // do other setup stuff ...
-    readFromFile()
-}</pre>
-The corresponding <code>onRequestPermissionsResult()</code> runs when the permission has been granted (or denied) by the user. If it was granted, we call <code>readFromFile()</code> again:
-<pre id='onrequestpermissionsresult'>
-override fun onRequestPermissionsResult(requestCode:Int, permissions:Array&lt;String&gt;, grantResults: IntArray) {
-    when(requestCode) {
-        0 -&gt; {
-            if(grantResults.isNotEmpty() &amp;&amp; grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                readFromFile() 
-            } else {
-                // user has denied file read permission so inform them that the app will not be able to read files via an AlertDialog
-                AlertDialog.Builder(this)
-                    .setPositiveButton("OK", null) // add an OK button with an optional event handler
-                    .setMessage("You will be unable to read from file.") // set the message
-                    .show() // show the dialog
-            }
-        }
-    }
-  
-}</pre>
-Note how we call <code>readFromFile()</code> again when the user has granted file read permission. This time, as the permission has been granted, the app will actually be able to read from the file.</p>
-<h3>Example runtime permissions starter code (NEW 21/02/23)</h3>
-<p>There is now a starter project on <a href='https://github.com/nwcourses/PermissionsStarter'>GitHub</a>:
-<pre>https://github.com/nwcourses/PermissionsStarter</pre>
-This is the example we went through at the end of Week 3.
-</p>
-<h3>Using runtime permissions on devices running older versions of Android</h3>
-<p>As long as we manage runtime permissions via the Jetpack AppCompat library (as we did in the examples above), code using runtime permissions will compile and run on these old versions of Android, as long as our <code>targetSdkVersion</code> is at least 23. However, that the user will not actually be prompted to grant permissions on a pre-Android 6 device; it will fall back to install-time
-permissions
+Note how the <code>MapComposable</code> contains an <code>AndroidView</code>. To explore the <code>AndroidView</code> in more detail:
     <ul>
-    <li>Using Jetpack AppCompat for permission handling simply allows runtime permission code to <em>compile and run</em> on such devices</li>
+    <li>The <code>factory</code>, a lambda, is run when the layout is first created. It takes one parameter <code>ctx</code>. This is a <code>Context</code>, a standard Android class which represents primary application components such as Activities. Here, the context <code>ctx</code> will represent the activity, but it can represent other components in some situations. The context is typically needed for creating the View: note how we pass it into the <code>MapView</code> in this case.</li>
+    <li>Note how we create the MapView and call <code>apply()</code> to set its properties. However we <em>do not store it in a variable</em> as we automatically obtain a reference to it in the <code>update</code> method (see below).</li>        <li>Remember that the <em>final statement in a lambda represents the return value</em>. Here, the code to create the <code>MapView</code> is the final statement in the lambda, so the <code>MapView</code> will be returned from the factory in this case. This is what we must do: <strong>we must return the View from the factory function.</strong></li>
+    <li>Note also the <code>update</code> parameter. This is also a function: this function runs each time a composable is re-rendered, for example the state changes. In here, you make changes to the underlying View which may need to be made if the state changes. The <code>update</code> function takes the View that we returned from the <code>factory</code> as a parameter (<code>view</code> in the example), so here the parameter will represent the MapView. In this example, we might store the current latitude and longitude in state, in a <code>GeoPoint</code> object. This object is passed into our <code>MapComposable</code> from state, so will change when the state changes.</li>
     </ul>
 </p>
-<h2>Location</h2>
-<p>Having covered runtime permission handling, we are now going to look at a key piece of functionality which <em>uses</em> it; obtaining your current <em>location</em>. Many of the most interesting mobile apps are <em>location-based apps</em>, in other words, the app is sensitive to the user's location on earth. We might, for instance, have an app which displays a map of your current location. Or an app which looks up the nearest pubs, bus stops or railway stations. Such apps send the user's <em>location</em> to a web server, which then delivers data near that location. Most smartphones contain a <em>GPS chip</em> which obtains the device's location by communicating with Global Positioning System (GPS) satellites: the same mechanism used in car satnav systems. So, since location is
-so important in mobile app development, we are going to look at it now.</p>
-<h3>Ethical issues with geolocation</h3>
-<p>There are important ethical issues when it comes to location. Potentially,
-a malicious app could gather your location and send it to a server with a user's personal details, which could allow the user to be tracked without their consent. For this reason, location tracking is treated as a dangerous permission and must be granted by the user at runtime.</p>
-<p>Furthermore, it is recommended to create an explicit privacy policy on
-your app's website (which can be linked to from Google Play) which spells
-out to users why the app needs location information and what will be done
-with it.</p>
-<h4>Adding location permission to the manifest file</h4>
-<p>There are two permissions for location: <code>ACCESS_FINE_LOCATION</code> for accurate (GPS) position, and <code>ACCESS_COARSE_LOCATION</code> (for less-accurate (wifi and cell-tower) position. As for any permission (dangerous and non-dangerous), you need to add the appropriate permission to the manifest:
-<pre>&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;</pre>
-</p>
-<h3>Basic use of Geolocation</h3>
-<p>This <em>incomplete</em> example shows how to obtain your location. Note
-that a fully-working example would also need to request the <code>ACCESS_FINE_LOCATION</code> permission at runtime, using the technique described above.
-<pre>package com.example.nickw.location
-
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.location.LocationManager
-import android.location.LocationListener
-import android.location.Location
-import android.content.Context
-import android.widget.Toast
-
-// Use commas to separate superclasses and interfaces (extends and implements)
-class MainActivity : AppCompatActivity(), LocationListener 
-{
-    // Add runtime permission handling, as described above (for you to do!!!)
-
-    // this method should be called:
-    // - if ACCESS_FINE_LOCATION permission is already granted
-    // - as soon as a user has granted ACCESS_FINE_LOCATION permission
-    fun requestLocation() {
-       
-        if(GPS permission granted) { // for you to complete!!! 
-            // note the use of 'as' to perform type casting in Kotlin
-            // getSystemService() returns a superclass type of LocationManager,
-            // so we need to cast it to LocationManager.
-            val mgr=getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-
-            // Distance (third argument) is float.
-            // In Kotlin we must explicitly use "f" to specify it's a float
-            mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0f,this)
-        }
-    }  
-    
-    override fun onLocationChanged(newLoc: Location) {
-        Toast.makeText (this, "Location=${newLoc.latitude},${newLoc.longitude}", Toast.LENGTH_LONG).show()
-    }
-    
-    override fun onProviderDisabled(provider: String) {
-        Toast.makeText (this, "Provider disabled", Toast.LENGTH_LONG).show()
-    }
-
-    override fun onProviderEnabled(provider: String) {
-        Toast.makeText (this, "Provider enabled", Toast.LENGTH_LONG).show()
-    }
-    
-    // Deprecated at API level 29, but must still be included, otherwise your
-    // app will crash on lower-API devices as their API will try and call it
-    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-    
-    }
-}</pre>
-This code sample shows how to use the Location API. It will listen to the device's GPS and update the main content view with the current latitude and longitude (position on earth). So how does it work? The key thing is that there are three main components involved in obtaining your location: 
-<ul>
-<li>the <em>location provider</em> (representing the actual provider of your location, such as the GPS, WiFi network or cell tower network). A string is used to refer to the provider.</li>
-<li>the <em>location manager</em> (class LocationManager) which controls access to the provider, allowing you to set such things as frequency of updates;</li>
-<li>the <em>location listener</em> (the object which handles location updates, so that every time the GPS location changes, for example, code in the location listener will run to react to the change in location).
-</li>
-</ul>
-</p>
-<p>
-To go through the code above in more detail:
-<ul>
-<li>First we obtain a LocationManager. We do not instantiate a LocationManager
-object; instead we ask the system to obtain the default location manager for
-us with:
-<pre>val mgr: LocationManager = getSystemService(Context.LOCATION_SERVICE)</pre>
-</li>
-<li>We then ask the location manager to update the app with new location informatiom, using:
-<pre>mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this)</pre>
-Note the parameters:
-    <ul>
-    <li>The first parameter specifies we are using a GPS provider (we could, alternatively, request a network provider - e.g. WiFi/cell tower - instead with
-    <em>LocationManager.NETWORK_PROVIDER</em>), though these are less accurate.</li>
-    <li>The second parameter specifies the frequency of updates in milliseconds (0 means update as frequently as possible);</li>
-    <li>The third parameter specifies the minimum distance we must travel, in metres, before an update is obtained (again 0 means update as frequently as possible);</li>
-    <li>The fourth parameter specifies the <em>LocationListener</em> object which will process the location updates received - here it is <em>this</em>, i.e the current Activity will act as the LocationListener.</li>
-    </ul>
-</li>
-<li>A LocationListener is any object which <em>implements the LocationListener interface</em> e.g.
-<pre>public class MainActivity : AppCompatActivity(), <em>LocationListener</em></pre>.</li>
-</ul>
-</p>
-<p>In a <em>LocationListener</em>, you must provide four methods to handle different location events:
-    <ul>
-    <li><em>onLocationChanged()</em>, which takes a Location object as a parameter. This runs when a new location is received from the provider.</li>
-    <li><em>onProviderDisabled()</em> and <em>onProviderEnabled()</em>, which run when you physically disable, or re-enable, that provider (e.g the GPS) from your device.  Often you can leave these blank but if you want specific behaviour to occur when the user switches the GPS on and off, you would write it here.</li>
-    <li><em>onStatusChanged()</em> which runs when then status of the location provider changes, e.g. we lose the GPS signal. Again, this can be left blank for simple applications. In fact, this method is deprecated in API level 29 (the <a href='https://developer.android.com/reference/android/location/LocationListener#onStatusChanged(java.lang.String,%20int,%20android.os.Bundle)'>documentation</a> states that "providers can be considered as always in the Location.Provider#AVAILABLE state", i.e. you can assume that the provider is always available, so it is rather unclear as to what happens if you lose GPS signal!). However, despite it being deprecated, you should still implement it, otherwise your app will crash on lower-API devices. This is because a device running an older version of Android might try to call this method at runtime, and if it is not present, you will get a runtime crash due to the method not being present in the compiled bytecode.</li>
-    <li>For more on these methods, see
-    <a href="http://developer.android.com/reference/android/location/LocationListener.html">the API documentation</a>.</li>
-    </ul>
-</p>
-<p>The<em>onLocationChanged()</em> method takes a single parameter - a <em>Location</em> object representing our current location. It has two properties, <em>latitude</em> and <em>longitude</em>, for getting the actual latitude and longitude. So, in this app, we simply display the current latitude and longitude with what is called a <em>Toast</em>. A Toast is a temporary message which appears as an overlay on the screen. To create and show a Toast we do:
-<pre>Toast.makeText (this, message, length).show()</pre>
-<em>this</em> refers to the activity. <em>length</em> can either be 
-Toast.LENGTH_SHORT or Toast.LENGTH_LONG.</p>
-<h4>Testing with a virtual device</h4>
-<p>If you do not have a real device, or are located indoors (as you will probably be during the class; indoor GPS signals are not reliable) it is possible to test it in a development environment (with a GPS provider) by sending "virtual" locations to the emulator.</p> 
-<p>This is quite straightforward. Click on the three dots (...) at the bottom of the controls of the virtual device (to the right of the screen). This will take you to a dialog showing a map, by default located in Silicon Valley, California. You can change location by moving the map or searching for locations
-and then clicking "SET LOCATION".  This will send a virtual GPS signal to the device, containing the latitude and longitude entered. </p>
-<p>This is shown below:
-<br />
-<img src='../images/extendedcontrols.png' alt='Emulator extended controls' />
-</p>
-<h2>Map Markers</h2>
-<p>This topic is relatively easy compared to some of the recent topics but is a useful topic to know if you are developing any sort of geographically-aware app: the ability to add <em>markers</em> to a mapping application. Many geographically-aware apps show points of interest as <em>markers</em> on the map. </p>
-
-<h3>How to code markers in osmdroid</h3>
-<h4>Adding markers to a map</h4>
-<p>The example below shows how to add markers to a map:
-<pre>
-package com.example.basicmapapp
-
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.preference.PreferenceManager
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.ItemizedIconOverlay
-import org.osmdroid.views.overlay.OverlayItem
-
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // This line sets the user agent, a requirement to download OSM maps
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-
-        setContentView(R.layout.activity_main)
-        val map1 = findViewById&lt;MapView&gt;(R.id.map1)
-        map1.controller.setZoom(14.0)
-        map1.controller.setCenter(GeoPoint(51.05, -0.72))
-
-        val items = ItemizedIconOverlay(this, arrayListOf&lt;OverlayItem&gt;(), null)
-        val fernhurst = OverlayItem("Fernhurst", "Village in West Sussex", GeoPoint(51.05, -0.72))
-        val blackdown = OverlayItem("Blackdown", "highest point in West Sussex", GeoPoint(51.0581, -0.6897))
-        items.addItem(fernhurst)
-        items.addItem(blackdown)
-        map1.overlays.add(items)
-    }
-}
-</pre>
-Note what we are doing here. There are two key classes:
-    <ul>
-    <li><em>OverlayItem</em>, representing an individual marker, and 
-    </li>
-    <li>
-    <em>ItemizedIconOverlay</em>, representing a <em>layer</em> of markers.</li>
-    </ul>
-How does the code work?
-    <ul>
-    <li>We create an <em>ItemizedIconOverlay</em> object. An <em>overlay</em> is a separate layer on top of the map, which can
-    be used to display markers (and other overlays such as lines and polygons).</li>
-    <li>The ItemizedIconOverlay constructor takes three parameters:
-        <ul>
-        <li>The current activity (<em>this</em>);</li>
-        <li>A blank ArrayList to hold the individual OverlayItems;</li>
-        <li>A marker gesture listener. This is a listener object which listens out for taps or presses on the markers and reacts
-        to them. This is set to <em>null</em> for now.</li>
-        </ul>
-    </li>
-    <li>Each marker is an <em>OverlayItem</em> object</li> 
-    <li>We then create an OverlayItem, using a given location, a title ("Fernhurst" here) and a snippet (a short description))
-    description ("Village in West Sussex" here):
-    <pre>OverlayItem fernhurst = OverlayItem("Fernhurst", "Village in West Sussex", GeoPoint(51.05, -0.72))</pre></li>
-    <li>
-    We add the OverlayItem to the overlay:
-    <pre>items.addItem(fernhurst)</pre>
-    </li>
-    <li>We then add the overlay to the list of overlays on the MapView:
-    <pre>mv.overlays.add(item)</pre>
-    </li>
-    </ul>
-</p>
-<h3>Custom markers</h3>
-<p>So far we have used the built-in osmdroid marker. However we can use
-<em>custom markers</em> for our app. Here is how we do this with the <em>fernhurst</em> OverlayItem:
-<pre>fernhurst.setMarker(ContextCompat.getDrawable(this, R.drawable.marker))</pre>
-</p>
-<p>Note how the <em>setMarker()</em> method takes the parameter
-    <pre>ContextCompat.getDrawable(this, R.drawable.marker)</pre>
-    This is an object of type <em>Drawable</em> representing the marker icon. We obtain a <em>Drawable</em> by supplying
-    the resource ID <em>R.drawable.marker</em> as a parameter to <em>getDrawable()</em>. The resource ID
-    <em>R.drawable.marker</em> points to an image <em>marker.png</em> 
-    in the <em>drawable</em>
-    folder (the folder storing drawables, i.e. images and icons)
-    within the <em>res</em> folder of the project. </p>
 <h2>Exercises</h2>
-<ol>
-<li>Add runtime permission checking to the basic Location example above, to turn it into a fully working app. To prevent too many <code>Toast</code>s appearing on top of each other, I would advise using a 5-second update interval for GPS, i.e.:
-<pre>mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, <em>5000</em>, 0f, this)</pre>
-</li>
-<li>Extend your map app from last week (Exercise 2) so that it requests GPS permission and, once permission is granted, it starts listening for GPS updates.
-When a GPS update is received, set the centre of the map to the current GPS
-position.</li>
-<li>Try the following to test it:
-<ul><li>Run the app. Grant the permission. Use the emulator controls to set the location. Does it work?</li>
-<li>Press the Back button on the app to quit it. Go to the settings and turn the permission off. Run the app again by clicking its icon on the device's home screen. It will ask you to grant the permission again. Deny it this time. Use the emulator controls to set the location. Now does it work?</li>
-<li>Press the Back button once more to quit the app, and try running it again by clicking its icon on the device's home screen. What happens now?</li>
-</ul>
-</li>
-<li>Enhance the app so that when the GPS position is obtained, add a marker to the map at this position.
-</li>
-<li>Find points of interest in your home town (such as pubs, churches, restaurants, sports grounds, etc) in your home town, and add markers to each. Test it out by setting the fake GPS position in the emulator to your home town.</li>
-<li>Use different markers for different point of interest types. There are some sample markers <a href="https://www.free-map.org.uk/fm/icons">here</a>.</li>
-<li>If you finish, look at the further reading below, and make an <a href='#onrequestpermissionsresult'>AlertDialog</a> appear when the user taps on each marker, displaying its name and description.</li>
-</ol>
-<hr />
-<h2>Further reading: Marker events</h2>
-<p>We probably want something to happen when we tap on a marker, for example display details of that marker. How do we do this?
-We have to create an <em>OnItemGestureListener</em> object to listen to tap events, i.e. the user tapping items on the overlay, or
-long press events, i.e. the user pressing on the item for a second or two:
-<pre>
-package com.example.basicmapapp
-
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.preference.PreferenceManager
-import android.widget.Toast
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.ItemizedIconOverlay
-import org.osmdroid.views.overlay.OverlayItem
-
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // This line sets the user agent, a requirement to download OSM maps
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-
-        setContentView(R.layout.activity_main)
-        val map1 = findViewById<MapView>(R.id.map1)
-        map1.controller.setZoom(14.0)
-        map1.controller.setCenter(GeoPoint(51.05, -0.72))
-
-        <em>val markerGestureListener = object:ItemizedIconOverlay.OnItemGestureListener&lt;OverlayItem&gt;
-        {
-            override fun onItemLongPress(i: Int, item:OverlayItem ) : Boolean
-            {
-                Toast.makeText(this@MainActivity, item.snippet, Toast.LENGTH_SHORT).show()
-                return true
-            }
-
-            override fun onItemSingleTapUp(i: Int, item:OverlayItem): Boolean
-            {
-                Toast.makeText(this@MainActivity, item.snippet, Toast.LENGTH_SHORT).show()
-                return true
-            }
-        }</em>
-
-        val items = ItemizedIconOverlay(this, arrayListOf&lt;OverlayItem&gt;(), <em>markerGestureListener</em>)
-        val fernhurst = OverlayItem("Fernhurst", "Village in West Sussex", GeoPoint(51.05, -0.72))
-        val blackdown = OverlayItem("Blackdown", "highest point in West Sussex", GeoPoint(51.0581, -0.6897))
-        items.addItem(fernhurst)
-        items.addItem(blackdown)
-        map1.overlays.add(items)
-    }
-    
-}
-</pre>
-The new code is highlighted. Note how we create an object <code>markerGestureListener</code> which is an object which implements the interface <code>ItemizedIconOverlay.OnItemGestureListener&lt;OverlayItem&gt;</code>. Note that <code>markerGestureListener</code> is the single instance of an <em>anonymous class</em>: an object which extends an abstract class or implenents an interface without having to create a new class, which could be considered overkill as we are just creating a single instance.
-</p>
-<p>
-This is a listener object - an event handler - which responds to user interaction with the items on the layer. You must provide the methods:
-    <ul>
-    <li> <code>onItemSingleTapUp()</code> - an event handler method containing code to run if the user taps any overlay item on the overlay, and</li>
-    <li> <code>onItemLongPress()</code> - an event handler method containing code to run if the user long-presses any item on the overlay.</li>
-    </ul>
-</p>
-<p>These two methods each take two parameters, the index of the OverlayItem within the overlay, and the
-OverlayItem itself which was tapped.</p>
-<p>In each method, we make a Toast using that overlay item:
-<pre>Toast.makeText(this@MainActivity, item.snippet, Toast.LENGTH_SHORT).show()</pre>
-<code>snippet</code> gives us the description of that overlay item (e.g. "Village in West Sussex" for Fernhurst).
-We can also use <code>title</code> to get the title of the overlay item.</p>
-    
-<p>To link the listener to the overlay layer, you provide it as the third parameter (this was null in the first example) to the 
-ItemizedIconOverlay:
-<pre>
-items = ItemizedIconOverlay&lt;OverlayItem&gt;(this, arrayListOf&lt;OverlayItem&gt;(), <em>markerGestureListener</em>)
-</pre>
-</p>
+<p>Will appear here.</p>
 </body>
 </html>
