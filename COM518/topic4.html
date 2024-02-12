@@ -180,7 +180,7 @@ what's going on - try it as you do the exercise for this week - right click on a
 page - including any dynamically-created elements.</p>
 <h2 id="binding">Binding</h2>
 <p>So far, we have been mostly using anonymous arrow functions as our 
-event handlers, such as for button clicks. However, it's possible you might want to write a library of reusable JavaScript functions to perform certain tasks, and in this case, you would use named rather than anonymous functions. So you could have a function to like a product from a store, such as:
+event handlers, such as for button clicks. However, it's possible you might want to connect multiple page elements to the same event handler, and in this case, you would use a named rather than an anonymous event handler function. A good example could be the "like" functionality, which could be linked to both a "Like" button and a "thumbs-up" image. You could have a function to like a product, such as:
 <pre>
 function likeProduct(productID) {
     // send a request to the server to like the product with that ID
@@ -188,7 +188,9 @@ function likeProduct(productID) {
 </pre>
 You could then supply this function to a button's <code>addEventListener()</code> as a callback function, e.g.:
 <pre>document.getElementById('likeButton').addEventListener("click", likeProduct);</pre>
-This would indicate that <code>likeProduct()</code> would be called <strong>when the button is pressed, at some future point in time</strong>. However, how might you pass across the product ID? You might possibly think you could do something like this:
+and
+<pre>document.getElementById('thumbsUpImage').addEventListener("click", likeProduct);</pre>
+This would indicate that <code>likeProduct()</code> would be called <strong>when the button or "thumbs up" image is clicked, at some future point in time</strong>. However, how might you pass across the product ID? You might possibly think you could do something like this:
 <pre>document.getElementById('likeButton').addEventListener("click", likeProduct(productID));</pre>
 However, this code would be <em>wrong</em>. This code will call <code>likeProduct()</code> <strong>immediately</strong>, not when the button is pressed. Why?
 When a function is specified with parentheses, e.g. <code>likeProduct(productID)</code>, it is <strong>immediately called</strong>. By contrast, <code>likeProduct</code> <em>without</em> parentheses merely supplies the function as an argument, without calling it. It will be called at some future point in time, i.e. when the button is clicked.</li>
