@@ -317,5 +317,34 @@ Note how the <code>MapComposable</code> contains an <code>AndroidView</code>. To
 </p>
 <h2>Exercises</h2>
 <p>Will appear here.</p>
+<!--
+<p>Before attempting these exercises, ensure that you complete <strong>Exercise 1 and the lists exercise from last week</strong>. You do not, however, have to complete the advanced (messaging) exercise.</p>
+<ol>
+<li>Create a simple Views application containing an <code>EditText</code>, <code>Button</code> and <code>TextView</code>. The <code>EditText</code> should allow the user to enter their name. When the user clicks the button, the <code>TextView</code> should greet the user by name by displaying "Hello" plus the name entered in the <code>EditText</code>. Use the feet to metres Views examples, above, for guidance.</li>
+<li>Using <code>AndroidView</code>, create a working Compose application showing an osmdroid map. Position it to latitude 50.9, longitude -1.4.</li>
+<li>You are now going to make the map application more interesting by allowing the user to enter a latitude and longitude in two <code>TextField</code>s. Create a Compose layout with:
+	<ul>
+	<li>a row at the top, containing the two text fields and a button;</li>
+	<li>your map composable (from question 2) occupying the rest of the screen space.</li>
+	</ul>
+The intended layout is shown below:
+<br />
+<img src="../images/map_controls_at_top.png" alt="Map layout with controls at top" />
+<br />
+The application should include these state variables:
+	<ul>
+	<li>most recently entered latitude and longitude (both strings);</li>
+	<li>current position (a <code>GeoPoint</code> - part of osmdroid).</li>
+	<li>When the user enters a latitude and longitude in the text fields, the latitude or longitude (as appropriate) state variable should be updated. When the user clicks the button, the <code>GeoPoint</code> should be updated appropriately.</li>
+	<li>Ensure the map updates when the <code>GeoPoint</code> changes.</li>
+	<li><strong>Advanced:</strong> Read ahead on the <code>Box</code> composable in <a href='topic5.html'>Topic 5</a> and try altering the layout so that the row containing the text fields and buttons is at the <em>bottom</em> of the screen. The intended layout is as follows:
+<br />
+<img src="../images/map_controls_at_bottom.png" alt="Map layout with controls at bottom" />
+<br />
+	</li>
+	</ul>
+</li>
+</ol>
+-->
 </body>
 </html>

@@ -218,11 +218,50 @@ This example shows:
 <li>Enhance the previous question so that the <code>TextField</code> and <code>Button</code> have a width proportion of 2:1, so that the text field has twice the width of the button. Hint: you can use <code>Modifier.weight()</code> to do this. Give the text field a weight of 2.0f (i.e. a <code>Float</code>) and the button a weight of 1.0f.</li>
 </ol>
 
-<h2>Implementing Lists of Data - A Discussion Exercise</h2>
+<h2>Implementing Lists of Data</h2>
 
-<p>You may be able to figure out how to create a <em>list</em> of data. We will discuss this <em>as an exercise in class</em>. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list.</p>
+<p>You may be able to figure out how to create a <em>list</em> of data. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list.</p>
 
-<p>After we have done this discussion exercise, we will start implementing it. You may encounter one or two problems along the way, but we will discuss these. After the class, notes will appear on how to do this, but they are not there just yet!</p>
+<h3>Creating Lists</h3>
+<p>You would implement a list by <em>storing a list of data in state</em>. You might think you could do something like this:
+<pre>@Composable
+ShoppingList {
+    var list by remember { mutableStateOf(mutableListOf&lt;String&gt;()) }
+    var currentItem by remember { mutableStateOf("") }
+
+    TextField(value=currentItem, onValueChange = { currentItem=it } )
+    Button(onClick = { list.add(currentItem) } ) { Text("Add Item") }
+
+    list.forEach {
+        Text(it)
+    }
+}</pre>
+Note how we have a text field which allows you to enter a shopping list item, which is stored in the <code>currentItem</code> state variable. When the button is clicked, the current item is added to the list. As it's a mutable list, you might think this would work.
+</p>
+<p><strong>However</strong> it does not work. The reason is that <strong>composables are only re-rendered if the state variables change.</strong> Here, when we add a new item to the list, the list becomes one element longer but the actual list variable is the same variable, referring to the same location in memory. To trigger a re-render when a new list item is added, we have to <strong>create a new list, add the item to that, and then reset the list state variable to the new list.</strong> This will change the state variable and force a re-render. Here is an example which does that:
+<pre>@Composable
+ShoppingList {
+    var list by remember { mutableStateOf(<em>listOf</em>&lt;String&gt;()) }
+    var currentItem by remember { mutableStateOf("") }
+
+    TextField(value=currentItem, onValueChange = { currentItem=it } )
+    Button(onClick = { 
+        var tempList = list.toMutableList()
+        tempList.add(currentItem) 
+        list = tempList
+    } ) { Text("Add Item") }
+
+    list.forEach {
+        Text(it)
+    }
+}</pre>
+Note here how:
+    <ul>
+    <li>The list state variable is now an <em>immutable</em> list.</li>
+    <li>When we add an item to the list, we create a <em>mutable</em> copy of the list using <code>toMutableList()</code></li>
+    <li>We add the item to this mutable copy (<code>tempList</code>) and reset the original state list to the mutable copy.</li>
+    </ul>
+</p>
 
 <h3>Lazy Lists</h3>
 
@@ -240,7 +279,8 @@ LazyColumn {
 }
 </pre>
 Note how <code>items()</code> takes the list of items to render as its first parameter and another lambda as its last parameter. This lambda specifies how each item in the list of data should be transformed into a Compose element. So here, each item in the list is transformed to a <code>Text</code> element containing its details.</p>
-
+<h2>Exercise 2 - Lists</h2>
+<p>Implement the shopping list application described above in full. Ensure there is also a "Clear" button to clear the list.</p>
 <h2>Advanced exercise</h2>
 <p>Have a go at implementing a prototype of a simple messaging application using Jetpack Compose (lacking the communication-between-two-users aspect!). It should look something like this:
 <br />
@@ -253,15 +293,15 @@ It should:
 <li>messages should alternate between being displayed on the left and the right of the screen, and alternate between being coloured with <code>MaterialTheme.colorScheme.surface</code> and <code>MaterialTheme.colorScheme.primary</code>.
 </li>
 <li>Try and figure out how to lay this out realistically. Some hints:
-	<ul>
-	<li>Use a <code>Row</code> to contain each message.</li>
-	<li><code>Row</code> takes, as a named parameter, <code>horizontalArrangement</code> which can be set to <code>Arrangement.End</code> (items are added to the end of the row) or <code>Arrangement.Start</code> (items are added to the start). Set it appropriately for each message.</li>
-	<li>The <code>Row</code> should contain a separate <code>Surface</code> to contain the message. The idea of a separate <code>Surface</code> is that it can e styled separately to the main <code>Surface</code>. Set its colour as described above and give it a <code>shadowElevation</code> of 5dp.</li>
-	<li>To prevent messages occupying the whole width of the screen, give each <code>Surface</code> a <em>padding</em>. Messages on the left should have the <em>end padding</em> (padding on the right) set to 30dp, and messages on the right should have the <em>start padding</em> (padding on the left) set to 30dp. You can set individual paddings by passing named parameters to <code>Modifier.padding</code>, e.g:
+    <ul>
+    <li>Use a <code>Row</code> to contain each message.</li>
+    <li><code>Row</code> takes, as a named parameter, <code>horizontalArrangement</code> which can be set to <code>Arrangement.End</code> (items are added to the end of the row) or <code>Arrangement.Start</code> (items are added to the start). Set it appropriately for each message.</li>
+    <li>The <code>Row</code> should contain a separate <code>Surface</code> to contain the message. The idea of a separate <code>Surface</code> is that it can e styled separately to the main <code>Surface</code>. Set its colour as described above and give it a <code>shadowElevation</code> of 5dp.</li>
+    <li>To prevent messages occupying the whole width of the screen, give each <code>Surface</code> a <em>padding</em>. Messages on the left should have the <em>end padding</em> (padding on the right) set to 30dp, and messages on the right should have the <em>start padding</em> (padding on the left) set to 30dp. You can set individual paddings by passing named parameters to <code>Modifier.padding</code>, e.g:
 <pre>Modifier.padding(start = ..., end = ...)</pre></li>
-	<li>The <code>Surface</code> should contain a <code>Text</code> with the appropriate message. What colour should the text be set to?</li>
-	<li>Can you also use padding on the <code>Text</code>?</li>
-	</ul>
+    <li>The <code>Surface</code> should contain a <code>Text</code> with the appropriate message. What colour should the text be set to?</li>
+    <li>Can you also use padding on the <code>Text</code>?</li>
+    </ul>
 </li>
 </ul>
 </body>
