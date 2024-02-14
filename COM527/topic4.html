@@ -284,7 +284,7 @@ fun MapComposable(geoPoint: GeoPoint) {
         factory = { ctx -&gt;
             // This line sets the user agent, a requirement to download OSM maps
             Configuration.getInstance()
-                .load(ctx, PreferenceManager.getDefaultSharedPreferences(this))
+                .load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
 
             MapView(ctx).apply {
                 setClickable(true)
@@ -320,6 +320,7 @@ Note how the <code>MapComposable</code> contains an <code>AndroidView</code>. To
 <p>Before attempting these exercises, ensure that you complete <strong>Exercise 1 and the lists exercise from last week</strong>. You do not, however, have to complete the advanced (messaging) exercise.</p>
 <ol>
 <li>Create a simple Views application containing an <code>EditText</code>, <code>Button</code> and <code>TextView</code>. The <code>EditText</code> should allow the user to enter their name. When the user clicks the button, the <code>TextView</code> should greet the user by name by displaying "Hello" plus the name entered in the <code>EditText</code>. Use the feet to metres Views examples, above, for guidance.</li>
+<li>Try out the simple Views-based mapping example above.</li>
 <li>Using <code>AndroidView</code>, create a working Compose application showing an osmdroid map. Position it to latitude 50.9, longitude -1.4.</li>
 <li>You are now going to make the map application more interesting by allowing the user to enter a latitude and longitude in two <code>TextField</code>s. Create a Compose layout with:
 	<ul>
