@@ -225,7 +225,7 @@ This example shows:
 <h3>Creating Lists</h3>
 <p>You would implement a list by <em>storing a list of data in state</em>. You might think you could do something like this:
 <pre>@Composable
-ShoppingList {
+fun ShoppingList() {
     var list by remember { mutableStateOf(mutableListOf&lt;String&gt;()) }
     var currentItem by remember { mutableStateOf("") }
 
@@ -240,7 +240,7 @@ Note how we have a text field which allows you to enter a shopping list item, wh
 </p>
 <p><strong>However</strong> it does not work. The reason is that <strong>composables are only re-rendered if the state variables change.</strong> Here, when we add a new item to the list, the list becomes one element longer but the actual list variable is the same variable, referring to the same location in memory. To trigger a re-render when a new list item is added, we have to <strong>create a new list, add the item to that, and then reset the list state variable to the new list.</strong> This will change the state variable and force a re-render. Here is an example which does that:
 <pre>@Composable
-ShoppingList {
+fun ShoppingList() {
     var list by remember { mutableStateOf(<em>listOf</em>&lt;String&gt;()) }
     var currentItem by remember { mutableStateOf("") }
 

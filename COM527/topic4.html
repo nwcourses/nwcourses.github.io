@@ -211,8 +211,8 @@ class MainActivity : AppCompatActivity() {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
 
         val map1 = MapView(this) 
-        map1.setCenter(GeoPoint(51.05, -0.72))
-        map1.setZoom(14.0)
+        map1.controller.setCenter(GeoPoint(51.05, -0.72))
+        map1.controller.setZoom(14.0)
         map1.setClickable(true)
         map1.setTileSource(TileSourceFactory.MAPNIK)
         setContentView(map1)
@@ -317,8 +317,6 @@ Note how the <code>MapComposable</code> contains an <code>AndroidView</code>. To
     </ul>
 </p>
 <h2>Exercises</h2>
-<p>Will appear here.</p>
-<!--
 <p>Before attempting these exercises, ensure that you complete <strong>Exercise 1 and the lists exercise from last week</strong>. You do not, however, have to complete the advanced (messaging) exercise.</p>
 <ol>
 <li>Create a simple Views application containing an <code>EditText</code>, <code>Button</code> and <code>TextView</code>. The <code>EditText</code> should allow the user to enter their name. When the user clicks the button, the <code>TextView</code> should greet the user by name by displaying "Hello" plus the name entered in the <code>EditText</code>. Use the feet to metres Views examples, above, for guidance.</li>
@@ -346,6 +344,5 @@ The application should include these state variables:
 	</ul>
 </li>
 </ol>
--->
 </body>
 </html>
