@@ -330,15 +330,27 @@ include CSS inside your bundle for easy distribution. See the
     </ul>
 </p>
 <p>These two modules are Webpack addons known as <em>loaders</em>.</p>
-<p>The code below, when added to webpack.config.js, tells Webpack to use these two modules when processing the input JavaScript. What it's saying is, if the filename ends with .css, use the modules css-loader and style-loader to load the CSS, inject it into your code, and include it in the bundle.</code>
-<pre>
- module: {
+<p>The highlighted code below, when added to webpack.config.js, tells Webpack to use these two modules when processing the input JavaScript. 
+<pre>const path = require('path');
+
+module.exports = {
+    mode: 'development',
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    },
+    <strong>module: {
         rules: [
             // If it's CSS, process using CSS loaders
-            { test: /\.css/i, use: ['style-loader', 'css-loader'] }
+            { test: /\.css/i, use: ['style-loader', 'css-loader'] },
         ]
-    },
-</pre>
+    },</strong>
+};</pre>
+What the highlighted code is doing is specifying <em>rules</em> for Webpack. If the filename ends with <code>.css</code>, use the modules <code>css-loader</code> and <code>style-loader</code> to load the CSS, inject it into your code, and include it in the bundle.</p>
 <h2>Leaflet coding examples</h2>
 <p>Having looked at modules, we can now examine some Leaflet example code.
 We will be using OpenStreetMap as the mapping provider.</p>
@@ -505,16 +517,31 @@ marker.bindPopup("My Location");
 <h2>Further reading</h2>
 <p>Please see <a href='furthermapping.html'>here</a> for further reading on mapping, including polygons and lines and styling features.</p>
 <h2>Exercises</h2>
-<p>Will appear here.</p>
-<!--
 <p><strong>IMPORTANT! Please add your mapping code (HTML, JavaScript) to the <code>public</code> folder of your existing Express application and access it via Express</strong>, e.g.:
 <pre>http://localhost:3000/mapapp.html</pre>
 This is because JavaScript modules can only be accessed if a server is running.</p>
 <h3>Exercise 1</h3>
 <ol>
+<li>Create a <code>package.json</code> with dependencies. Place this in the top-level folder of your project. Include the following dependencies:
+	<ul>
+	<li><code>express</code>, at least version 4.18.2;</li>
+	<li><code>better-sqlite3</code>, at least version 9.4.1;</li>
+	<li><code>leaflet</code>, at least version 1.9.4.</li>
+	</ul>
+and the following dev dependencies:
+	<ul>
+	<li><code>webpack</code>, at least version 5.90.1;</li>
+	<li><code>webpack-cli</code>, at least version 5.1.4;</li>
+	<li><code>css-loader</code>, at least version 6.10.0;</li>
+	<li><code>style-loader</code>, at least version 3.3.4.</li>
+	</ul>
+Install all dependencies with:
+<pre>npm install</pre>
+</li>
+<li>Write a <code>webpack.config.js</code>, which is similar to the example above.</li>
 <li>New York is at longitude 74 West, latitude 40.75 North (more or less).
 Change the example above so that it's centred on New York, at zoom level 
-13.</li>
+13. Build a bundle using Webpack.</li>
 <li>Find the latitude and longitude of your home town 
 (e.g. google it) and change the example
 so it's centred on your home town.</li>
@@ -532,11 +559,7 @@ containing text entered by the user. Use a prompt box to read information in fro
 </li>
 </ol>
 <h3>Exercise 3 - Connecting to a web API and displaying markers</h3>
-<p><strong>Important:</strong> If you are using `mysqlview`, please update it to the latest version before doing this exercise. The latest version fixes one or two bugs. On the command prompt, go to the folder containing it, and enter:
-<pre>git pull</pre>
-</p>
-<p>This <a href='wadsongs.db'>updated HitTastic! database</a> contains a table called <code>artists</code> which stores the latitude and longitude of the home towns of selected artists, in addition to the <code>wadsongs</code>. Download this, and replace your existing <code>wadsongs.db</code> with it.
-</p>
+<p>The database you've been working with contains a table called <code>artists</code> which stores the latitude and longitude of the home towns of selected artists, in addition to the <code>wadsongs</code>.</p>
 <ul>
 <li>Extend your Express server to add an additional route <code>/hometown/:artist</code> which looks up the hometown of a particular artist. It should return
 a JSON object containing the hometown name, latitude and longitude, or a 404 if the requested artist cannot be found in the <code>artists</code> table.</li>
@@ -560,7 +583,6 @@ the name of the home town of the artist should be shown in a popup.</li>
 </li>
 <li>Add a marker to your map <strong>when the response is received from the server, and only if a 200 is returned</strong>.</li>
 </ul>
--->
 </body>
 </html>
 
