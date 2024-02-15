@@ -1,0 +1,563 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<title>Topic 5: Modules, Bundlers, Web Mapping with OpenStreetMap and Leaflet</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 5: Modules, Bundlers, Web Mapping with OpenStreetMap and Leaflet</h1>
+</div>
+<p>This week we will look at web <em>mapping</em> with the <em>Leaflet</em> library. We will also look at JavaScript <em>modules</em> and incorporating <em>dependencies</em> into client-side applications with <em>bundlers</em>.</p>
+<h2>Introduction</h2>
+<p>Websites and smartphone apps which show maps are very common these days.
+Many such sites use commercial mapping providers such as Google Maps and
+the like. However, such providers place restrictions on their users
+and the maps are often generic and do not show information for specialised
+users such as walkers and cyclists.</p>
+<p><em>OpenStreetMap</em> is a project to produce free, editable maps of
+the entire world. Users can contribute their own mapping data and the
+data can be used for free by anyone; see 
+<a href='http://www.openstreetmap.org'> the OpenStreetMap site</a> for more 
+details. Users typically survey a road or path with a GPS device, such as
+a smartphone, and then draw the road or path on top of their GPS trace
+using editing software.
+The fact that the data is free means that developers can use it
+for their own pruposes, for instance, create their own maps or develop
+routing applications.</p>
+<p><em><a href='http://leafletjs.com'>Leaflet</a></em> 
+is an open-source JavaScript mapping library which
+offers similar functionality to commercial web mapping services such as
+Google Maps. It allows you to embed a "slippy" map into a web page.
+However, unlike these other services, Leaflet can be used to display 
+maps from <em>a whole range</em> of map providers, including, but not 
+restricted to, OpenStreetMap.</p>
+<h2>Latitude and Longitude</h2>
+<p>In order to understand location-based applications, it is important
+to understand the coordinate system used on the earth. The most common
+coordinate system uses <em>latitude and longitude</em>. Latitude is a measure
+of how far north or south you are: the equator is at 0 degrees,
+while the North Pole is at 90 degrees North, we are at about 50 and Spain
+is at about 40. Longitude is a measure of how far east or west you are:
+0 degrees of longitude is referred to as the <em>Prime Meridian</em>
+(or <em>Greenwich Meridian</em>) and passes through Greenwich, London. 
+By contrast Germany is located
+between approximately 7 degrees and 15 degrees East, while New York is at
+74 degrees West and the west coast of North America at approximately 120
+degrees West.</p>
+<p><img src="../images/latlon.png" alt="Latitude and longitude" /></p>
+<p>So a given point on the earth can be defined via its latitude and
+longitude. We are at, approximately, 50.9 North (latitude) and 1.4 West
+(longitude). By convention, latitudes north of the equator and longitudes
+east of Greenwich are treated as positive, so we can also define our
+position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
+<h2>Projections</h2>
+<p>An important consideration when doing web mapping is that
+<em>the earth is not flat</em> (it's more or less a sphere) while
+<em>maps are flat</em>. To display a curved surface on a flat piece
+of paper or computer screen, we need to do a <em>projection</em> and
+mathematically transform the latitude and longitude to coordinates suitable
+for representation on a flat surface. Why is this?
+Imagine any printed map of the earth. The map is equal width everywhere, from
+far northern areas such as Greenland or north Norway, to the equator. This
+does not match reality; since the earth is (more or less) a sphere, 
+the circumference of the earth will be much greater at the equator than 
+those far northern
+areas - indeed, at the poles, the circumference of the earth is zero!</p>
+<p>For this reason, latitude and longitude must be transformed
+to so called <em>projected coordinates</em> if we want to represent them on
+a flat surface, such as a computer screen.  
+The details of exactly how this projection is done is 
+out of scope of this unit, but it is something to be aware of if you aim
+to do more with web mapping. Leaflet makes it easy for us by doing the
+transformation automatically.</p>
+<p>The most common
+projection used with web mapping is informally
+referred to as the "Google Projection" (more formally, a type
+of <em>Spherical Mercator</em>), so called because Google Maps
+popularised it. </p>
+<p><img src="../images/projection.png" 
+alt="Projecting sphere onto flat surface" /></p>
+<h3>Details on the "Google Projection"</h3>
+<p>If you are interested, this is how the "Google Projection" works. It
+consists of a series of <em>zoom levels</em>, with 0 the most zoomed out and
+successive levels progressively zoomed in. How does this work? Basically,
+zoom level 0 is defined as a flat map of the entire world, occupying 
+256x256 pixels, so that 360 degrees of longitude becomes 256 pixels and 
+180 degrees of latitude becomes 256 pixels, as shown below:
+<br />
+<img src="../images/zoom0.png" alt="Google Projection zoom level 0" /><br />
+Each successive zoom level zooms in by a factor of 2 in
+both directions, so
+that at zoom level 1, there are four 256x256 pixel tiles, each covering
+a quarter of the earth (N of the equator and W of the Prime Meridian;
+N of the equator and E of the Prime Meridian; 
+S of the equator and W of the Prime Meridian and
+S of the equator and E of the Prime Meridian): 
+<br />
+<img src="../images/zoom1.png" alt="Google Projection zoom level 1" /><br />
+With progressive zoom
+levels, we continue zooming in by a factor of 2, so that zoom level 2 has
+16 tiles (4x4), zoom level 3 has 64 (8x8), and so on. Each tile has
+an x and y coordinate where x=0 represents the leftmost column of tiles,
+y=0 represents the topmost row of tiles, and the tile with x=0 y=0 
+represents the top left tile (x=1 y=0 represents the second tile on the
+top row, and so on)</p>
+<p><em>Images from OpenStreetMap, (c) OSM contributors,
+licenced under CC-by-SA (not ODBL as they are old images)</em></p>
+<p>Before looking at Leaflet, we need to take a look at JavaScript (ECMAScript 6) <em>modules</em> as they provide a way of using third-party libraries such as Leaflet from client-side JavaScript code.</p>
+<h2>ECMAScript 6 Modules</h2>
+<p>So far, we have written our JavaScript in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes, in a separate file called a <em>module</em>, which can be <em>imported</em> from your main server file.</p>
+<p>There are two approaches for implementing modules, <em>CommonJS modules</em> and <em>ECMAScript 6 modules</em>. ECMAScript 6 modules are a web standard, and are increasingly well supported, so we will use ECMAScript 6 modules.</p> 
+
+<h3 id="anexampleecmascript6module">An example ECMAScript 6 module</h3>
+<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module. <strong>Modules can be used in both Node.js and client-side, in-browser, JavaScript.</strong>
+</p>
+<p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension (JavaScript module) rather than <code>.js</code>. You must use this convention from Node.js, and it is optional in browsers.</p>
+<pre><code class="javascript language-javascript">
+// Module mymaths.mjs
+
+function square(n) {
+    return n * n;
+}
+
+function cube(n) {
+    return n * n * n;
+}
+
+export { square, cube };
+</code></pre>
+<p>Note how this module contains two functions, <code>square()</code> and <code>cube()</code>, which calculate the square and the cube of of a number, respectively. However the interesting thing is the statement at the end:</p>
+<pre><code class="javascript language-javascript">export { square, cube };
+</code></pre>
+<p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>mymaths.mjs</code>.</p>
+<h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
+<p>We've created a simple module, but how might we use it from another file?
+We need to <code>import</code> the functions that have been exported. This could be done from your main server in a Node/Express example, or from browser-based JavaScript. Here's an example of using the module from the main file of a client-side JavaScript application. This is often named <code>index.mjs</code> by convention.</p>
+<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
+
+// Import the two functions from the module. 
+// Note the './' before 'mymaths.mjs'. This means 'the current folder'
+import { square, cube } from './mymaths.mjs';
+
+const a = square(3);
+console.log(`The square of 3 is : ${a}`);
+
+const b = cube(2);
+console.log(`The cube of 2 is : ${b}`);
+</code></pre>
+<p>Note how we have to <em>import</em> the functions from the module before we can use
+them. This makes for easier-to-read code as we can tell exactly where the
+two functions <code>cube()</code> and <code>square()</code> have come from.</p>
+<h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
+<p>To actually make this code run in a browser, we need to link it to an HTML web page which can be executed from the browser.</p> 
+<p>In a browser, we link a module in the same way as a regular JavaScript file, except we use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file, <code>index.mjs</code>, is itself a module. It's the 'main module' of the application and it's using another module, <code>mymaths.mjs</code>. We have actually seen this already, in week 3. For example:</p>
+<pre><code class="html language-html">&lt;html&gt;
+&lt;head&gt;
+&lt;script type='module' src='index.mjs'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+...
+</code></pre>
+<p>A critical point is that <strong>you have to access your site via a web server</strong> to use modules. You can use your own Express server, or if you want to test quickly, you can easily set up a web server in the current folder with:
+<pre>npx http-server</pre>
+and then access pages on port 8080, e.g:
+<pre>http://localhost:8080/index.html</pre>
+</p>
+<h3 id="example2onlyimportingsomefunctions">Example 2: Only importing some functions</h3>
+<p>It's possible to only import <em>some</em> functions from a module. For instance this version of our <code>index.mjs</code> code:</p>
+<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
+
+// Import cube() (only) from the module. 
+import { cube } from './mymaths.mjs';
+
+// Call the cube() function from the module
+const a = cube(3);
+console.log(`The cube of 3 is : ${a}`);
+
+// This will not work now, as square() was not imported from the module
+const b = square(4);
+console.log(`The square of 4 is : ${b}`);
+</code></pre>
+<h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
+<p>It can be a little messy to import each function
+separately. It would be nicer if we could <em>collect together all module
+exports as a single object</em> when we import them. This approach is frequently used with libraries, such as three.js. This version of <code>index.mjs</code> shows this:</p>
+<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
+
+// Import the two functions from the module into a module object 'MyModule'
+import * as MyModule from './mymaths.mjs';
+
+// Call the functions from the module
+
+const a = MyModule.square(3);
+console.log(`The square of 3 is : ${a}`);
+const b = MyModule.cube(4);
+console.log(`The cube of 4 is : ${b}`);
+</code></pre>
+<p>Note how this differs from the first two examples. First, consider the
+<code>import</code> statement:</p>
+<pre><code class="javascript language-javascript">import * as MyModule from './mymaths.mjs';
+</code></pre>
+<p>Rather than importing each function separately, they are all being imported
+as a single <em>module object</em>, MyModule. You can reference each exported 
+function by referencing the module object name, then a dot, then the function
+name, for example <code>MyModule.cube(...)</code>. </p>
+<p>(To relate this to object-oriented programming, which we did in your web module last year and you may have done COM528, <code>MyModule</code> is an <em>object</em> and <code>cube()</code> is a <em>method</em> of that object).</p>
+<h3 id="example4defaultexport">Example 4: Default export</h3>
+<p>If your module only needs to export one function or object, you can declare
+this as the <em>default export</em>. This is another way of achieving the effect of the previous example, with all exports from a module packaged into a single
+object. However, with a default export, we group everything together as an object when <em>exporting</em>, rather than when importing. So here is an example of the module using a default export:</p>
+<pre><code class="javascript language-javascript">function _cube(name) {
+    return n*n*n; 
+}
+
+function _square(n) {
+    return n*n;
+}
+
+const exportedObject = {
+    cube: _cube,
+    square1: _square,
+    PI: 3.141592654
+};
+
+export default exportedObject;
+</code></pre>
+<p>This exports a default object with two fields: The <em>cube</em> field is set
+equal to the function <code>_cube()</code> (note that an underscore is a convention in JavaScript for a 'private' or 'internal function), and the <em>square</em> field is set equal to the function <code>_square()</code>.</p>
+<p>We can then use the default export in our main module using:</p>
+<pre><code class="javascript language-javascript">import MyDefaultObject from './mymaths.mjs';
+</code></pre>
+<p>This will import the <em>default</em> export from the module as <code>MyDefaultObject</code>, so we can then call the methods with:</p>
+<pre><code class="javascript language-javascript">const a = MyDefaultObject.cube(4);
+const b = MyDefaultObject.square(9);
+</code></pre>
+and we can also use the constant <code>PI</code>, as that is included in the exported object:
+<pre>console.log(MyDefaultObject.PI);</pre>
+</p>
+<h3>What about <code>npm</code> modules?</h3>
+<p>You've already been introduced to <code>npm</code> modules as the standard approach to add dependencies (third-party libraries) to a Node project. <code>npm</code> modules also exist for the client-side, in other words you can incorporate them into client-side JavaScript code. So you can install them with <code>npm</code>, e.g.:
+<pre>npm install leaflet</pre>
+and specify them in your <code>package.json</code>.  However you cannot simply use code such as : 
+<pre>import "leaflet";</pre>
+to import Leaflet, for example. The browser is unable to resolve <code>npm</code> packages in this way. Instead, you must use third-party tools called <em>bundlers</em>.</p>
+<h2>Bundlers</h2>
+<p>So what do we do? We cannot use package names in our imports, because they are only supported by Node.js, not in browsers. This is where <em>bundlers</em> come to the rescue.</p>
+<p>A <em>bundler</em> is a piece of software which will take <em>many</em> source JavaScript files (your own files and imports from <code>npm</code> modules) and generate a single <em>bundle</em> (typically named bundle.js) as the output. The bundle can then be included into a web browser in the normal way (without <code>type=module</code>).
+</p>
+<p> One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>. Webpack can be installed with npm.  As Webpack is a <em>development</em> tool, you want to install it <em>globally</em>, so that it is accessible to all applications on your system and all users. The <code>-g</code> option does this. (Normally, <code>npm</code> packages are only installed locally into the project that needs them, within the project's <code>node_modules</code> folder).</p>
+<pre><code>npm install -g webpack webpack-cli
+</code></pre>
+</p>
+<p>It's better to incorporate them into your <code>package.json</code>, e.g here is a <code>package.json</code> which specifies Leaflet as a dependency and Webpack as a <em>dev dependency</em>:
+<pre>
+{
+    "dependencies": { 
+        "leaflet": "1.9.4",
+    },
+    "devDependencies": {
+        "webpack": "5.90.1",
+        "webpack-cli": "5.1.4"
+    }
+}
+</pre>
+Note that the two components of Webpack, <code>webpack</code> and <code>webpack-cli</code>, are specified as <code>devDependencies</code>. This means that they are only needed for development, not the application itself.</p>
+<p>Here is the most simple usage:</p>
+<pre><code>npx webpack index.js
+</code></pre>
+<p>This will take the file index.js, and any modules it uses (along with any
+modules used by those modules) and prepare a single output file - a <em>bundle</em> - which will, by default, be placed in the <code>dist</code> subfolder.
+This can then be used directly in the browser, e.g if the file is <code>bundle.js</code> you would use:</p>
+<pre><code class="html language-html">&lt;script type='text/javascript' src='dist/bundle.js' defer&gt;&lt;/script&gt;
+</code></pre>
+<p>(<strong>Note the <code>defer</code> prevents the bundle loading until the page has been loaded.  If you do not do this, the bundle will be loaded before the page, which means if you try to access HTML elements from your JavaScript, you will get errors relating to <code>null</code> elements.</strong>)</p>
+<p>One key advantage of using a bundler like Webpack is that
+<em>the bundler automatically includes third-party <code>npm</code> packages</em> in the
+bundle, if they are imported in your code using the package name e.g.:</p>
+<pre><code class="javascript language-javascript">import 'leaflet';
+</code></pre>
+<p>which will import Leaflet.</p>
+<h3 id="webpackconfiguration">Webpack configuration</h3>
+<p>Due to time constraints, we will only take a brief look at Webpack configuration, enough to build a project making use of three.js and its add-ons. By default, Webpack will place its output in the file <code>main.js</code> within the <code>dist</code> folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.</p>
+<p>However it is possible to configure Webpack to change this behaviour, and
+this is done via the <code>webpack.config.js</code> configuration file. This is a 
+file, itself written in JavaScript, which allows you to modify Webpack's
+default behaviour. Here is an example:</p>
+<pre><code class="javascript language-javascript">const path = require('path');
+
+module.exports = {
+    mode: 'development',
+    entry: './index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+    optimization: {
+        minimize: false
+    }
+};
+</code></pre>
+<p>What is this doing?</p>
+<ul>
+<li><code>mode</code> can be either <code>development</code> or <code>production</code>. This impacts upon the amount of minifying that takes place (less in development, more in production; debugging is easier with an unminified bundle)</li>
+<li>We specify the application's entry point (the JavaScript file where your
+application starts running) as <code>./index.js</code> (<code>index.js</code> in the current folder).
+This means you can run Webpack with</li>
+</ul>
+<pre><code class="javascript language-javascript">npx webpack
+</code></pre>
+<p>rather than</p>
+<pre><code class="javascript language-javascript">npx webpack ./index.js
+</code></pre>
+<p>because the configuration file has told Webpack that the entry point of the
+application will be <code>./index.js</code>. </p>
+<ul>
+<li>We then specify some output options. Firstly, the <code>path</code> is the folder where the output bundle will be placed. Here, we are specifying the output is the <code>dist</code> subfolder of the current folder, and the filename is <code>bundle.js</code>. So, the resulting bundle will be named <code>bundle.js</code>. If you do not specify the bundle name, it will use the default name, which is <code>main.js</code>. But in fact, bundle.js is a better name as it more clearly states that it's a bundle.</li>
+<li>The <code>optimization</code> options allow us to specify various ways in which the output will be optimised. Here, we are turning <em>minification</em> - the process of compressing JavaScript code to less readable but smaller code by renaming all variables and functions to short names and removing spaces - off by setting the <code>minimize</code> option to <code>false</code>. This is not ideal for a production app but is very useful for debugging, as you will not get helpful error messages with a minified bundle file.</li>
+</ul>
+<p>There are many other things you can do with Webpack, for example you can
+include CSS inside your bundle for easy distribution. See the
+<a href="https://webpack.js.org">website</a> for more detail.</p>
+<h3>Including CSS in Webpack</h3>
+<p>You can even use Webpack to include CSS in the bundle, and import the CSS from your JavaScript. To do this, you must add two new dependencies: <code>style-loader</code> and <code>css-loader</code>. Both are available as <code>npm</code> modules. What do these do?
+    <ul>
+    <li><code>css-loader</code> interprets <code>import</code> statements referencing CSS files so that the CSS files are read;</li>
+    <li><code>style-loader</code> then "injects" the CSS code read from <code>css-loader</code> into your code, and thus into the bundle.</li>
+    </ul>
+</p>
+<p>These two modules are Webpack addons known as <em>loaders</em>.</p>
+<p>The code below, when added to webpack.config.js, tells Webpack to use these two modules when processing the input JavaScript. What it's saying is, if the filename ends with .css, use the modules css-loader and style-loader to load the CSS, inject it into your code, and include it in the bundle.</code>
+<pre>
+ module: {
+        rules: [
+            // If it's CSS, process using CSS loaders
+            { test: /\.css/i, use: ['style-loader', 'css-loader'] }
+        ]
+    },
+</pre>
+<h2>Leaflet coding examples</h2>
+<p>Having looked at modules, we can now examine some Leaflet example code.
+We will be using OpenStreetMap as the mapping provider.</p>
+<h3>Hello World in Leaflet</h3>
+<p>This is a basic example which creates a map. First the JavaScript:
+<pre>
+import 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+            
+map.setView([50.908,-1.4], 14);
+</pre>
+Then the HTML:
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Leaflet Example&lt;/title&gt;
+&lt;script type='text/javascript' src='dist/bundle.js' defer&gt;&lt;/script&gt;
+&lt;body&gt;
+&lt;h1&gt;Leaflet Test&lt;/h1&gt;
+&lt;div id="map1" style="width:800px; height:600px"&gt; &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p>
+<p>Note the following:
+    <ul>
+    <li>We link in the bundle as seen in the Webpack discussion above.</li>
+    as an external JavaScript file.</li> 
+    <li>We use <code>import</code> to link in both Leaflet and the Leaflet CSS file; this is necessary to position the tiles correctly.</li>
+    <li>Note how the HTML contains a <em>div</em> with an ID of <em>map1</em>.
+    This will hold our map.</li>
+    <li>Moving onto the JavaScript init() function, where we write our
+    custom code:
+        <ul>
+        <li>We first create a map object (the variable <em>map</em>, an object
+        of type <em>L.Map</em> created with the <em>L.map()</em> method), 
+        and associate it with <em>div1</em>;</li>
+        <li>Next we set up a map <em>layer</em>. Leaflet maps consist of
+        several <em>layers</em>. This allows us, for instance, to overlay, 
+        the locations of points of interest on top of an underlying map.
+        Here, the layer is a <em>TileLayer</em>, a layer of map tiles.
+        The map tiles come from the server <em>tile.openstreetmap.org</em>.
+        The x, y and z in the URL relate to the "Google" tiling scheme,
+        see above; z is the zoom level. Leaflet will automatically work
+        out the correct values to place in here.</li>
+        <li>Having created the layer, we add it to the map
+        (<em>addTo(map)</em>).</li>
+        <li>Finally, we set the latitude and longitude of the centre of the
+        map, here latitude=50.908, longitude=-1.4. We pass the latitude
+        and longitude in as a two-member <em>array</em>.</li>
+        <li>Note how, when we set the centre of the map, we specify the
+        <em>zoom level</em> (see discussion of "Google" tiling scheme,
+        above). 13 and 14 are good ones to start with; try
+        experimenting with different values.</li>
+        </ul>
+    </li>
+    </ul>
+</p>
+<h3>Adding features</h3>
+<p>Most web maps have some kind of <em>overlay</em> on the base map,
+for example a series of markers plotting the locations of pubs, cafes or
+other points of interest. We can even draw vector shapes (lines, polygons,
+circles) and add them to the map. This example creates a map and adds a 
+feature to it:
+<pre>
+import 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+
+const pos = [50.908, -1.4];            
+map.setView(pos, 14);
+
+L.marker(pos).addTo(map);
+</pre>
+</p>
+<p>Hopefully this code is obvious. We simply create a marker at the
+specified position (<em>L.marker</em> takes an array of two members,
+latitude and longitude), and add it to the map.</p>
+<h3>Events</h3>
+<p>In a mapping application, we commonly need to respond to user 
+<em>events</em>, for instance we might want something to happen if the user
+clicks on the map (such a display a new marker, for instance) or if the user
+finishes dragging the map to a new location 
+(we might want to load markers from a server, for instance). It is easy
+to attach events in Leaflet, here is an example:
+<pre>
+import 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+            
+map.setView([50.908, -1.4], 14);
+map.on("click", e =&gt; {
+    // "e.latlng" is an object (of type L.LatLng) representing the mouse click 
+    // position
+    // It has two properties, "lat" is the latitude and "lng" is the longitude.
+    alert(`You clicked at:${e.latlng.lat} ${e.latlng.lng}`);
+});
+
+
+</pre>
+We use the <em>on()</em> method of the map to attach an event handler to the
+map. The <em>on()</em> method takes two parameters: the event type and
+the event handler function. A full list of event types can be found on the
+<a href="https://leafletjs.com/reference-1.7.1.html#map-event">
+Leaflet website</a>.</p>
+<p>In the event-handling function itself (<em>an arrow function</em>), we use
+the event object <em>e</em> to obtain details about the event (in this case,
+we are interested in the click position). The event object <em>e</em> is
+automatically passed to the event handler function by the Leaflet library.
+The event object has a <em>latlng</em> property, representing the position
+of the mouse click, which is an object of the type <em>L.LatLng</em>. This in 
+turn has two properties, <em>lat</em> and <em>lng</em> representing the actual
+latitude and longitude.</p>
+<h3>Popups</h3>
+<p>One commonly-encountered feature of web mapping is <em>popups</em>, in
+which the user can click on a marker and be presented with additional 
+information on that feature. These are easy to do in Leaflet: we simply
+call the <em>bindPopup()</em> method of the feature to attach a popup to
+that feature. <em>bindPopup()</em> takes one parameter, the text (you can
+include HTML tags) to appear in the popup. Here is an example. 
+Note how you have to store the 
+marker in a variable so that you can then call bindPopup():
+<pre>
+import 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const map = L.map ("map1");
+
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
+
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+
+const pos = [50.908, -1.4];            
+map.setView(pos, 14);
+
+const marker = L.marker(pos).addTo(map);
+marker.bindPopup("My Location");
+</pre>
+</p>
+<h2>Further reading</h2>
+<p>Please see <a href='furthermapping.html'>here</a> for further reading on mapping, including polygons and lines and styling features.</p>
+<h2>Exercises</h2>
+<p>Will appear here.</p>
+<!--
+<p><strong>IMPORTANT! Please add your mapping code (HTML, JavaScript) to the <code>public</code> folder of your existing Express application and access it via Express</strong>, e.g.:
+<pre>http://localhost:3000/mapapp.html</pre>
+This is because JavaScript modules can only be accessed if a server is running.</p>
+<h3>Exercise 1</h3>
+<ol>
+<li>New York is at longitude 74 West, latitude 40.75 North (more or less).
+Change the example above so that it's centred on New York, at zoom level 
+13.</li>
+<li>Find the latitude and longitude of your home town 
+(e.g. google it) and change the example
+so it's centred on your home town.</li>
+</ol>
+<h3>Exercise 2</h3>
+<ol>
+<li>Add a marker on your map from Exercise 1 on your home town.</li>
+<li>Combine the marker and mouse click event examples, above,
+so that by clicking on the 
+map, you add a marker to the map at that position.
+</li>
+<li>Using a prompt box to read the text in, bind a popup to the marker 
+containing text entered by the user. Use a prompt box to read information in from the user, e.g:
+<pre>const text = prompt('Please enter some text');</pre>
+</li>
+</ol>
+<h3>Exercise 3 - Connecting to a web API and displaying markers</h3>
+<p><strong>Important:</strong> If you are using `mysqlview`, please update it to the latest version before doing this exercise. The latest version fixes one or two bugs. On the command prompt, go to the folder containing it, and enter:
+<pre>git pull</pre>
+</p>
+<p>This <a href='wadsongs.db'>updated HitTastic! database</a> contains a table called <code>artists</code> which stores the latitude and longitude of the home towns of selected artists, in addition to the <code>wadsongs</code>. Download this, and replace your existing <code>wadsongs.db</code> with it.
+</p>
+<ul>
+<li>Extend your Express server to add an additional route <code>/hometown/:artist</code> which looks up the hometown of a particular artist. It should return
+a JSON object containing the hometown name, latitude and longitude, or a 404 if the requested artist cannot be found in the <code>artists</code> table.</li>
+<li>Modify your HitTastic! AJAX page (Sessions 3 and 4) so that as well as a 
+"Search" button, there is a "Where is this artist from?" button. This should 
+connect to a <em>new JavaScript function</em>
+which sends an AJAX request to this route. 
+ Also modify your code from your AJAX exercise so
+that it initialises a Leaflet map. 
+</li>
+<li>In the AJAX callback, parse the JSON returned so that a 
+marker is shown on the map for that artist, and the map is centred at 
+the artist's hometown. When the marker is clicked,
+the name of the home town of the artist should be shown in a popup.</li>
+</ul>
+<h3>Exercise 4 - adding data to a web API via a map interface</h3>
+<ul>
+<li>Add a <em>new</em> route to your server, to <em>add</em> a new home town to the database. The route should take, as POST data, the latitude, longitude, artist name, and home town name.</li>
+<li> In your client-side code, when the user clicks on the map, send a POST request to this route, containing the required information. Use the map click position for the latitude and longitude, and read the artist name and location via prompt boxes, e.g:
+<pre>const artist = prompt('Please enter an artist name');</pre>
+</li>
+<li>Add a marker to your map <strong>when the response is received from the server, and only if a 200 is returned</strong>.</li>
+</ul>
+-->
+</body>
+</html>
+
