@@ -182,7 +182,7 @@ console.log(`The square of 4 is : ${b}`);
 <h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
 <p>It can be a little messy to import each function
 separately. It would be nicer if we could <em>collect together all module
-exports as a single object</em> when we import them. This approach is frequently used with libraries, such as three.js. This version of <code>index.mjs</code> shows this:</p>
+exports as a single object</em> when we import them. This approach is frequently used with libraries. This version of <code>index.mjs</code> shows this:</p>
 <pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
 
 // Import the two functions from the module into a module object 'MyModule'
@@ -218,7 +218,7 @@ function _square(n) {
 
 const exportedObject = {
     cube: _cube,
-    square1: _square,
+    square: _square,
     PI: 3.141592654
 };
 
@@ -239,18 +239,24 @@ and we can also use the constant <code>PI</code>, as that is included in the exp
 <h3>What about <code>npm</code> modules?</h3>
 <p>You've already been introduced to <code>npm</code> modules as the standard approach to add dependencies (third-party libraries) to a Node project. <code>npm</code> modules also exist for the client-side, in other words you can incorporate them into client-side JavaScript code. So you can install them with <code>npm</code>, e.g.:
 <pre>npm install leaflet</pre>
-and specify them in your <code>package.json</code>.  However you cannot simply use code such as : 
+and specify them in your <code>package.json</code>, e.g:
+<pre>{
+    "dependencies": {
+        "leaflet": "1.9.4"
+    }
+}</pre>
+However you cannot simply use code such as : 
 <pre>import "leaflet";</pre>
-to import Leaflet, for example. The browser is unable to resolve <code>npm</code> packages in this way. Instead, you must use third-party tools called <em>bundlers</em>.</p>
+to import Leaflet, for example. The browser is unable to resolve <code>npm</code> packages in this way. Instead, you must use third-party tools called <em>bundlers</em> to be able to use client-side <code>npm</code> packages in a working application.</p>
 <h2>Bundlers</h2>
 <p>So what do we do? We cannot use package names in our imports, because they are only supported by Node.js, not in browsers. This is where <em>bundlers</em> come to the rescue.</p>
-<p>A <em>bundler</em> is a piece of software which will take <em>many</em> source JavaScript files (your own files and imports from <code>npm</code> modules) and generate a single <em>bundle</em> (typically named bundle.js) as the output. The bundle can then be included into a web browser in the normal way (without <code>type=module</code>).
+<p>A <em>bundler</em> is a piece of software which will take <em>many</em> source JavaScript files (your own files and imports from <code>npm</code> modules) and generate a single <em>bundle</em> (typically named <code>bundle.js</code>) as the output. The bundle can then be included into a web browser in the normal way (without <code>type=module</code>).
 </p>
-<p> One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>. Webpack can be installed with npm.  As Webpack is a <em>development</em> tool, you want to install it <em>globally</em>, so that it is accessible to all applications on your system and all users. The <code>-g</code> option does this. (Normally, <code>npm</code> packages are only installed locally into the project that needs them, within the project's <code>node_modules</code> folder).</p>
+<p> One of these tools is <a href="https://webpack.js.org"><strong>Webpack</strong></a>. Webpack can be installed with npm; there are two packages you need, <code>webpack</code> and <code>webpack-cli</code>.  As Webpack is a <em>development</em> tool, you want to install it <em>globally</em>, so that it is accessible to all applications on your system and all users. The <code>-g</code> option does this. (Normally, <code>npm</code> packages are only installed locally into the project that needs them, within the project's <code>node_modules</code> folder).</p>
 <pre><code>npm install -g webpack webpack-cli
 </code></pre>
 </p>
-<p>It's better to incorporate them into your <code>package.json</code>, e.g here is a <code>package.json</code> which specifies Leaflet as a dependency and Webpack as a <em>dev dependency</em>:
+<p>It's better, though, to incorporate them into your <code>package.json</code>, e.g here is a <code>package.json</code> which specifies Leaflet as a dependency and Webpack as a <em>dev dependency</em>:
 <pre>
 {
     "dependencies": { 
@@ -264,11 +270,8 @@ to import Leaflet, for example. The browser is unable to resolve <code>npm</code
 </pre>
 Note that the two components of Webpack, <code>webpack</code> and <code>webpack-cli</code>, are specified as <code>devDependencies</code>. This means that they are only needed for development, not the application itself.</p>
 <p>Here is the most simple usage:</p>
-<pre><code>npx webpack index.js
-</code></pre>
-<p>This will take the file index.js, and any modules it uses (along with any
-modules used by those modules) and prepare a single output file - a <em>bundle</em> - which will, by default, be placed in the <code>dist</code> subfolder.
-This can then be used directly in the browser, e.g if the file is <code>bundle.js</code> you would use:</p>
+<pre>npx webpack index.js</pre>
+<p>This will take the file <code>index.js</code>, and any modules it uses (along with any modules used by those modules) and prepare a single output file - a <em>bundle</em> - which will, by default, be placed in the <code>dist</code> subfolder.  This can then be used directly in the browser, e.g if the file is <code>bundle.js</code> you would use:</p>
 <pre><code class="html language-html">&lt;script type='text/javascript' src='dist/bundle.js' defer&gt;&lt;/script&gt;
 </code></pre>
 <p>(<strong>Note the <code>defer</code> prevents the bundle loading until the page has been loaded.  If you do not do this, the bundle will be loaded before the page, which means if you try to access HTML elements from your JavaScript, you will get errors relating to <code>null</code> elements.</strong>)</p>
@@ -279,7 +282,7 @@ bundle, if they are imported in your code using the package name e.g.:</p>
 </code></pre>
 <p>which will import Leaflet.</p>
 <h3 id="webpackconfiguration">Webpack configuration</h3>
-<p>Due to time constraints, we will only take a brief look at Webpack configuration, enough to build a project making use of three.js and its add-ons. By default, Webpack will place its output in the file <code>main.js</code> within the <code>dist</code> folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.</p>
+<p>Due to time constraints, we will only take a brief look at Webpack configuration, enough to build a project making use of Leaflet. By default, Webpack will place its output in the file <code>main.js</code> within the <code>dist</code> folder, and it will also minify the code, in other words convert it into an unreadable but compact form for distribution.</p>
 <p>However it is possible to configure Webpack to change this behaviour, and
 this is done via the <code>webpack.config.js</code> configuration file. This is a 
 file, itself written in JavaScript, which allows you to modify Webpack's
