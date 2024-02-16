@@ -5,10 +5,10 @@
 </head>
 <body>
 <div class='titlebox'>
-<h1>MAD Topic 5 : Permissions and GPS, Box Layouts</h1>
+<h1>MAD Topic 5 : Box Layouts; Kotlin Getters and Setters; Introduction to Delegates</h1>
 </div>
 
-<p><strong>Please note that Topic 5 is not yet complete</strong>. Part of the content, on Box layouts, has been pre-prepared to allow you to do the more advanced exercise in Topic 4.</p>
+<p><strong>Important!</strong> This week has been deliberately kept "light" in order to allow you to catch up. We will cover <em>box</em> layouts in Jetpack Compose, and one or two outstanding general Kotlin topics.</p>
 
 <h2>Box Layouts</h2>
 <p>Imagine you want to display a map <em>above</em> a row containing text fields and a button to set the location. If you think about it, this isn't so easy. If you specify the modifier for the map to be <code>Modifier.fillMaxSize()</code>, it will occupy the whole of the screen and there will be no room for the row. If you add the row first, it will appear on top of the screen.</p>
@@ -16,24 +16,50 @@
 <p>In a <code>Box</code>, we can specify the <em>alignment</em> of the composables within the box. Here is an example:
 <pre>Box(Modifier.fillMaxSize()) {
     Button(
-        { }, modifier =
-        Modifier.align(Alignment.BottomCenter)
-    ) { Text("Bottom") }
+        onClick = { }, modifier =
+            Modifier.align(Alignment.BottomStart)
+        ) { Text("Bottom Start") }
 
     Button(
-        { }, modifier =
-        Modifier.align(Alignment.TopCenter)
+        onClick = { }, modifier =
+            Modifier.align(Alignment.BottomCenter)
+        ) { Text("Bottom") }
+
+    Button(
+        onClick = { }, modifier =
+            Modifier.align(Alignment.BottomEnd)
+    ) { Text("Bottom End") }
+
+
+    Button(
+        onClick = { }, modifier =
+            Modifier.align(Alignment.CenterStart)
+    ) { Text("Centre Start") }
+
+    Button(
+        onClick = { }, modifier =
+            Modifier.align(Alignment.Center)
+    ) { Text("Centre") }
+
+    Button(
+        onClick = { }, modifier =
+            Modifier.align(Alignment.CenterEnd)
+    ) { Text("Centre End") }
+
+    Button(
+        onClick = { }, modifier =
+            Modifier.align(Alignment.TopStart)
+    ) { Text("Top Start") }
+
+    Button(
+        onClick = { }, modifier =
+            Modifier.align(Alignment.TopCenter)
     ) { Text("Top") }
 
     Button(
-        { }, modifier =
-        Modifier.align(Alignment.BottomStart)
-    ) { Text("Bottom Start") }
-
-    Button(
-        { }, modifier =
-        Modifier.align(Alignment.CenterEnd)
-    ) { Text("Centre End") }
+        onClick = { }, modifier =
+            Modifier.align(Alignment.TopEnd)
+    ) { Text("Top End") }
 }</pre>
 </p>
 <p>This layout would look something like this:
@@ -55,12 +81,135 @@ Note how we use the <code>align()</code> method of our <code>Modifier</code> for
 </p>
 <h3>BoxWithConstraints</h3>
 <p>The <code>BoxWithConstraints</code> is an enhanced <code>Box</code> which allows us to obtain the <code>Box</code>'s width and height from within it. Why is this useful? It makes it easier to create layouts which adapt to the screen size. For example, in our mapping application we might want to set the height of the row containing the text fields and buttons to 80dp. How big must the map be in this case? You want it to occupy the <em>remainder</em> of the screen. To calculate this, you subtract the height of the row (80dp) from the <em>total</em> height. Inside a <code>BoxWithConstraints</code>, you can use:
-	<ul>
-	<li><code>this.maxWidth</code> to obtain the total width;</li>
-	<li><code>this.maxHeight</code> to obtain the total height.</li>
-	</ul>
+    <ul>
+    <li><code>this.maxWidth</code> to obtain the total width;</li>
+    <li><code>this.maxHeight</code> to obtain the total height.</li>
+    </ul>
 These give a value in <code>dp</code> so you can subtract the height of the controls row, also in <code>dp</code>, to obtain a height in <code>dp</code> for the map. You can then call <code>Modifier.height()</code> to set the height of the map to this calculated height.
 </p>
+<h2>Further general Kotlin features</h2>
+<p>We will use this opportunity to introduce one or two further general Kotlin features which you may find useful.</p>
+<h3>Making our code more concise with Kotlin getters and setters</h3>
+<p>Kotlin features a more concise and flexible approach to
+<em>getters and setters</em> compared to Java.
+Rather than using explicit getter and setter methods, Kotlin's approach is to
+define <em>properties</em> (attributes) and then define how each
+property can be read and written.</p>
+<p>For example, imagine a Time class in which you wanted to
+ensure that incorrect times could not be set. What you could do is define two properties <code>hours</code> and <code>minutes</code>, but write <em>custom setters</em> which prevent the hours and minutes being set to incorrect values.
+write access:
+<pre>class Time  {
+    var hours: Int = 0
+        set(newHours: Int) {
+            if(newHours in 0..23) {
+                field = newHours
+            }
+        }
+    var minutes: Int = 0
+        set(newMinutes: Int) {
+            if(newMinutes in 0..59) {
+                field = newMinutes
+            }
+        }
+
+    override fun toString(): String {
+        return "$hours:$minutes"
+    }
+}
+
+fun main() {
+    val t = Time()
+    t.hours = 23
+    t.minutes = 48
+    println(t)
+    t.hours = 24
+    println(t)
+    t.minutes = 60
+    println(t)
+}</pre>
+Note how we declare two properties, <code>hours</code> and <code>minutes</code> and give each a default value of 0. However, note how we then define a <em><code>set()</code></em> method, which is <em>indented one level from the property</em>. This is a <strong>custom setter</strong>, which controls how the property can be updated. Each custom setter takes a parameter representing the new value, and then checks it to ensure that it's within the correct range. If it is, we set the underlying <strong>field</strong> (the actual value of the property) to the new value. Note that <code>field</code> is a keyword in Kotlin, which represents the underlying value of a property.</p>
+<p>The <code>main()</code> demonstrates the use of the custom setters. We create a <code>Time</code> object then set its hours and minutes to a sensible value (23 hours and 48 minutes). We then try to set the hours to 24 (invalid) and print the time object, and set the minutes to 60 (invalid) an print the time object again. The output will be as follows:
+<pre>23:48
+23:48
+23:48</pre>
+So you can see that the custom setters, with validation, have prevented the <code>Time</code> object being set to an invalid time.</p>
+<h4>Private setters</h4>
+<p>In some circumstances we might want to prevent a property from being updated from outside the class. An example might be a student ID in a <code>Student</code> class, as this should never change. We could just make it a <code>private</code> property, but the outside world would then not be able to <em>read</em> it. What we want is for <strong>the outside world to be able to read the student ID, but not change it</strong>. We can use a <em>private setter</em> for this:
+<pre>class Student(studentIdIn: String, var name: String, var course: String) {
+    var id = studentIdIn
+        private set
+
+    override fun toString(): String {
+        return "$studentId: $name, studying $course"
+    }
+}
+
+fun main() {
+    var student = Student("1smitj01", "James Smith", "Web Design")
+    student.course = "Software Engineering" // OK
+    println(student.id) // OK - can read student ID from outside
+    student.id="2smitj02" // cannot modify ID from outside due to private setter
+}</pre>
+</p>
+<h3>Delegated properties</h3>
+<p>You will have seen this syntax when declaring state variables in Compose:
+<pre>var name: String <em>by remember</em> { mutableStateOf("") }</pre>
+What exactly does the <code>by remember</code> mean? It's a Kotlin feature known as <em>delegated properties</em>. Delegated properties, like custom getters and setters, allow you to <em>customise</em> what happens when you retrieve or update a property (attribute) of an object. They do it with a <em>delegate</em> class; see the <a href='https://kotlinlang.org/docs/delegated-properties.html'>documentation</a> for details. So delegates are rather like custom getters and setters, but rather than simply customising the getter and setter, you <em>delegate</em> the job of getting and setting a property to <strong>an entirely separate class</strong> - the delegate - which can give more flexibility in some situations. The <code>by</code> keyword specifies that we will be using a delegate. In the case of state variables, <code>remember</code> is the delegate.</p>
+<p> Here is an example: 
+<pre>package com.example.delegates1
+
+import kotlin.reflect.KProperty
+
+class Student (var name: String, var course: String) {
+    var mark: Int by MarkDelegate()
+
+    override fun toString(): String {
+        return "Student $name on $course with mark $mark"
+    }
+}
+
+class MarkDelegate(private var controlledProperty: Int = 0) {
+    operator fun getValue(thisRef: Any?, property: KProperty&lt;*&gt;) : Int{
+        return controlledProperty
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty&lt;*&gt;, newValue: Int) {
+        if(newValue in 0..100) {
+           controlledProperty = newValue
+        } else {
+            println("Cannot set ${property.name} to $newValue for $thisRef")
+        }
+    }
+}
+
+
+fun main (args: Array<String>) {
+    val john = Student("John", "Software Engineering")
+    john.mark = 101
+    println(john)
+    john.mark = 83
+    println(john)
+    john.mark = -1
+    println(john)
+}</pre>
+Note how we are declaring a property <code>mark</code> inside the <code>Student</code> class but declaring it with <code>by MarkDelegate()</code>. This means that the <code>MarkDelegate</code> class will be responsible for handling retrieving the value of, and setting the value of, the <code>mark</code> property. <code>MarkDelegate</code> is thus a <em>delegate</em>. A delegate should contain two methods, <code>getValue()</code> and <code>setValue()</code>, which retrieve and update the associated value. Note also how the delegate class takes the property that it's controlling as a parameter:
+<pre>class Mark(<em>private var controlledProperty: Int=0</em>)</pre>
+If you look at <code>getValue()</code>, it's just returning the mark, so no custom behaviour occurs if we simply retrieve the value (e.g. by printing it). However <code>setValue()</code> is more interesting. Note how it take the new value as a parameter (<code>newValue</code>). The <code>setValue()</code> checks that the new value is in the range 0 to 100, and only updates the mark to the value if it is. So in other words, marks below 0 or above 100 will be rejected. So if we try to set the mark to any value less than 0 or greater than 100, it will not be updated. Note that the <code>thisRef</code> parameter in <code>setValue()</code> and <code>getValue()</code> refers to the object that the delegated property belongs to. Also the <code>property</code> parameter represents the property being controlled, and the property's name can be retrieved with <code>property.name</code>. Therefore the output of this program will be as follows:
+<pre>Cannot set mark to 101 for Student John on course Software Engineering with mark 0
+Student John on course Software Engineering with mark 0
+Student John on course Software Engineering with mark 83
+Cannot set mark to -1 for Student John on course Software Engineering with mark 83
+Student John on course Software Engineering with mark 83</pre>
+When we try to set the mark to 101 or -1, it's rejected. However when we set the mark to 83, it's accepted.</p>
+<h2>Exercises</h2>
+<ol>
+<li>Ensure that you <strong>catch up with unfinished work.</strong></li>
+<li>Try altering the layout of your mapping application so that the row containing the text fields and buttons to allow the user to enter a latitude and longitude is at the <em>bottom</em> of the screen. The intended layout is as follows:
+<br />
+<img src="../images/map_controls_at_bottom.png" alt="Map layout with controls at bottom" />
+<br />
+</li>
+</ol>
 </body>
 </html>
 
