@@ -337,11 +337,7 @@ The application should include these state variables:
 	<li>current position (a <code>GeoPoint</code> - part of osmdroid).</li>
 	<li>When the user enters a latitude and longitude in the text fields, the latitude or longitude (as appropriate) state variable should be updated. When the user clicks the button, the <code>GeoPoint</code> should be updated appropriately.</li>
 	<li>Ensure the map updates when the <code>GeoPoint</code> changes.</li>
-	<li><strong>Advanced:</strong> Read ahead on the <code>Box</code> composable in <a href='topic5.html'>Topic 5</a> and try altering the layout so that the row containing the text fields and buttons is at the <em>bottom</em> of the screen. The intended layout is as follows:
-<br />
-<img src="../images/map_controls_at_bottom.png" alt="Map layout with controls at bottom" />
-<br />
-	</li>
+	<li><strong>Important!</strong> Ensure the row containing the text field and button has a <code>zIndex</code> specified in the <code>Modifier</code> and set to <code>2.0f</code>. <code>zIndex</code> represents vertical height and ensures that the row will stack on top of the map; unfortunately OSMDroid maps appear to overflow the space allocated to their parent <code>Composable</code> and occupy the rest of the screen.</li>
 	</ul>
 </li>
 </ol>
