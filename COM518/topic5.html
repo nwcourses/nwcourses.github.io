@@ -444,6 +444,19 @@ L.marker(pos).addTo(map);
 <p>Hopefully this code is obvious. We simply create a marker at the
 specified position (<em>L.marker</em> takes an array of two members,
 latitude and longitude), and add it to the map.</p>
+<h4>Using markers in Webpack-based applications</h4>
+<p>If you are using Webpack with Leaflet, the markers are not loaded automatically. You need to import the marker icon from your JavaScript as follows:
+<pre>import markerIcon from "leaflet/dist/images/marker-icon.png";</pre>
+This loads the marker icon from the Leaflet NPM package into the variable <code>markerIcon</code>. YOu then need to specify that this loaded icon will be the default icon for markers, with:
+<pre>L.Marker.prototype.setIcon(L.icon({
+  iconUrl:markerIcon
+}));</pre>
+You also need to tell Webpack how to process imports of images. This can be done by adding this additional rule to the <code>rules</code> section:
+<pre>{
+	test: /\.png/i,
+	type: 'asset/resource'
+}</pre>
+This will tell Webpack to treat imports of PNG images as <em>resources</em>, which means they are loaded into memory ready to use.</p>
 <h3>Events</h3>
 <p>In a mapping application, we commonly need to respond to user 
 <em>events</em>, for instance we might want something to happen if the user
