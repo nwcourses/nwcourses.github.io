@@ -291,9 +291,9 @@ default behaviour. Here is an example:</p>
 
 module.exports = {
     mode: 'development',
-    entry: './index.js',
+    entry: './public/index.js',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public/dist'),
         filename: 'bundle.js'
     },
     optimization: {
@@ -305,7 +305,7 @@ module.exports = {
 <ul>
 <li><code>mode</code> can be either <code>development</code> or <code>production</code>. This impacts upon the amount of minifying that takes place (less in development, more in production; debugging is easier with an unminified bundle)</li>
 <li>We specify the application's entry point (the JavaScript file where your
-application starts running) as <code>./index.js</code> (<code>index.js</code> in the current folder).
+application starts running) as <code>./public/index.js</code> (<code>index.js</code> in the public folder within the current folder).
 This means you can run Webpack with</li>
 </ul>
 <pre><code class="javascript language-javascript">npx webpack
@@ -316,7 +316,7 @@ This means you can run Webpack with</li>
 <p>because the configuration file has told Webpack that the entry point of the
 application will be <code>./index.js</code>. </p>
 <ul>
-<li>We then specify some output options. Firstly, the <code>path</code> is the folder where the output bundle will be placed. Here, we are specifying the output is the <code>dist</code> subfolder of the current folder, and the filename is <code>bundle.js</code>. So, the resulting bundle will be named <code>bundle.js</code>. If you do not specify the bundle name, it will use the default name, which is <code>main.js</code>. But in fact, bundle.js is a better name as it more clearly states that it's a bundle.</li>
+<li>We then specify some output options. Firstly, the <code>path</code> is the folder where the output bundle will be placed. Here, we are specifying the output is the <code>dist</code> subfolder of the <code>public</code> folder within the current folder, and the filename is <code>bundle.js</code>. So, the resulting bundle will be named <code>bundle.js</code>. If you do not specify the bundle name, it will use the default name, which is <code>main.js</code>. But in fact, bundle.js is a better name as it more clearly states that it's a bundle.</li>
 <li>The <code>optimization</code> options allow us to specify various ways in which the output will be optimised. Here, we are turning <em>minification</em> - the process of compressing JavaScript code to less readable but smaller code by renaming all variables and functions to short names and removing spaces - off by setting the <code>minimize</code> option to <code>false</code>. This is not ideal for a production app but is very useful for debugging, as you will not get helpful error messages with a minified bundle file.</li>
 </ul>
 <p>There are many other things you can do with Webpack, for example you can
@@ -335,9 +335,9 @@ include CSS inside your bundle for easy distribution. See the
 
 module.exports = {
     mode: 'development',
-    entry: './index.js',
+    entry: './public/index.js',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public/dist'),
         filename: 'bundle.js'
     },
     optimization: {
