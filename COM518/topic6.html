@@ -18,7 +18,36 @@ is a JavaScript framework, originally developed by Facebook, which allows comple
 <p>For example, we could have a component representing a clock, which consists of a &lt;div&gt; containing the current time. Or we could have a component for an AJAX search, consisting of the
 text field to enter the search term, the search button and the &lt;div&gt; to display the search results.</p>
 
-<h2 id="creating-your-first-react-app">Creating your first React app</h2>
+<h2 id="exploring-react---hello-world">Exploring React - Hello World</h2>
+
+<p>Here is a React <code>Hello World</code> application:</p>
+
+<pre>import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(&lt;h1&gt;Hello World!&lt;/h1&gt;);</pre>
+
+<p>If you look at this code, you should notice that the <code>render()</code> method, on the last line, takes a string of HTML which is not in quotes. What is this? It’s <strong>JSX</strong>.</p>
+
+<h3 id="jsx">JSX</h3>
+
+<p>With React, we use an extension of JavaScript called JSX (see the React documentation). JSX allows us to embed HTML elements within JavaScript code which can simplify coding a component if it contains large amounts of static HTML and only a small amount of variable data. You will see examples of JSX below. Because JSX is not native JavaScript, it needs to be converted to standard JavaScript using Babel. We discussed this process above.</p>
+
+<h3 id="explanation-of-the-code">Explanation of the code</h3>
+
+<p>So what's the code example above doing?</p>
+
+<ul>
+  <li>
+    <p>First of all we create a root element for our React app. This is done with the <code>createRoot()</code> method, part of <code>ReactDOM</code>. This takes an existing HTML element as an argument - here, the element with the ID of <code>root</code></p>
+  </li>
+  <li>
+    <p>We then call the <code>render()</code> method of our root elementand specify something which looks like a string of HTML, but does not have the quotes. This is <strong>JSX</strong>. So here the React code will render an H1 heading reading Hello World inside the element with the ID of <code>root</code>.</p>
+  </li>
+</ul>
+
+<h2 id="creating-your-first-react-app">Building your first React app</h2>
 
 <p>Formerly, the recommended way of creating a React app was with <a href="https://create-react-app.dev">create-react-app</a>, which automatically downloads dependencies and writes build scripts for you. However <code>create-react-app</code> is no longer maintained and therefore its use is not recommended. It still works, but it may break in the future.</p>
 
@@ -32,7 +61,7 @@ text field to enter the search term, the search button and the &lt;div&gt; to di
 
 <p>Babel is a <em>transpiler</em>: a piece of software which converts between different JavaScript versions. Why is this useful? First of all it allows the newest versions of JavaScript, which may not be supported by older browsers, to be <em>transpiled</em> into older versions which browsers do support. Formerly, Babel was used extensively to transpile ECMAScript 6 upwards into the older version of JavaScript, ECMAScript 5, when the former was not widely supported. Now it is less used for this purpose as ECMAScript 6 and higher are widely supported by browsers.</p>
 
-<p>In the context of React, Babel is important. With React, we write out code using an extension of JavaScript, <em>JSX</em>, which we will look at below. JSX is not natively supported by browsers so we need to transpile it using Babel into standard JavaScript.</p>
+<p>In the context of React, Babel is important. JSX is not natively supported by browsers so we need to transpile it using Babel into standard JavaScript.</p>
 
 <h4 id="the-packagejson">The package.json</h4>
 
@@ -119,34 +148,6 @@ module.exports = {
 </p>
 <p>This tells Babel which transformations to enable. The <code>env</code> transformation is the standard newer-to-older JavaScript transformation, while the <code>react</code> transformation allows transformation of React (JSX) code into standard JavaScript.</p>
 
-<h2 id="exploring-react---hello-world">Exploring React - Hello World</h2>
-
-<p>If you look inside the <code>src</code> folder of the <code>react-starter</code> example, you can see <code>index.js</code>, containing a React <code>Hello World</code> application:</p>
-
-<pre>import React from 'react';
-import ReactDOM from 'react-dom/client';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(&lt;h1&gt;Hello World!&lt;/h1&gt;);</pre>
-
-<p>If you look at this code, you should notice that the <code>render()</code> method, on the last line, takes a string of HTML which is not in quotes. What is this? It’s <strong>JSX</strong>.</p>
-
-<h3 id="jsx">JSX</h3>
-
-<p>With React, as hinted above, we use an extension of JavaScript called JSX (see the React documentation). JSX allows us to embed HTML elements within JavaScript code which can simplify coding a component if it contains large amounts of static HTML and only a small amount of variable data. You will see examples of JSX below. Because JSX is not native JavaScript, it needs to be converted to standard JavaScript using Babel. We discussed this process above.</p>
-
-<h3 id="explanation-of-the-code">Explanation of the code</h3>
-
-<p>So what's the code example above doing?</p>
-
-<ul>
-  <li>
-    <p>First of all we create a root element for our React app. This is done with the <code>createRoot()</code> method, part of <code>ReactDOM</code>. This takes an existing HTML element as an argument - here, the element with the ID of <code>root</code></p>
-  </li>
-  <li>
-    <p>We then call the <code>render()</code> method of our root elementand specify something which looks like a string of HTML, but does not have the quotes. This is <strong>JSX</strong>. So here the React code will render an H1 heading reading Hello World inside the element with the ID of <code>root</code>.</p>
-  </li>
-</ul>
 
 <p><strong>To be continued.</strong></p>
 </body>
