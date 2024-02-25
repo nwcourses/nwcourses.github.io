@@ -1,381 +1,361 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Mobile Application Development: Part 6: Persistence I - Preferences</title>
+<title>MAD Topic 6: Android Permissions, GPS, ViewModel</title>
 <link rel="stylesheet" type="text/css" href="../css/android.css" />
-</head></p>
+</head>
+
 <body>
 <div class='titlebox'>
-<h1>Mobile Application Development - Part 6</h1>
-<h1>Persistence I - Preferences (plus <code>lateinit</code>)</h1>
+<h1>MAD Topic 6: Android Permissions, GPS, ViewModel</h1> 
 </div>
-<p>In this section we will:
+<h2>Android Runtime Permissions</h2>
+<h3>Revision: The manifest file and Permissions</h3>
+<p>Last week you were very briefly introduced to <em>permissions</em>. 
+Apps need to be granted <em>permissions</em> to perform sensitive 
+operations. Sensitive operations can include:
     <ul>
-    <li>Look at Kotlin's <code>lateinit</code> keyword and how it is useful in Android</li>
-    <li>Look at preferences and how to write a preferences XML file</li>
-    <li>Look at how to access preferences from Kotlin code</li>
-    <li>Look at the Android activity lifecycle</li>
+    <li><em>Using the internet</em> - because this might incur a cost to
+    the user, and have potential privacy/security concerns;</li>
+    <li><em>GPS for tracking your location</em> - because this could be potentially
+    abused (e.g. by stalkers)</li>
+    <li><em>Reading from and writing to files</em> - again this has
+    security concerns.</li>    
+    <li><em>Using the camera and microphone.</em></li>
     </ul>
+The permissions an app needs are specified in the <em>AndroidManifest.xml</em> file, within the <em>manifests</em> directory, before the <code>&lt;application&gt;</code> tag. For example, to specify that we need internet permission, we
+would add the line:
+<pre>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</pre>
 </p>
-<h2>First - lateinit</h2>
-<p>Before we start on the main topic of preferences, I want to use this opportunity to introduce the Kotlin <code>lateinit</code> keyword. Imagine we want to initialise our map object in <code>onCreate()</code> and then access it from other methods in our main activity. How could we do this?
-    <ul>
-    <li>We could make our map a local variable in <code>onCreate()</code>, e.g.:
-    <pre>val map = findViewById&lt;MapView&gt;(R.id.map1)</pre>
-    However this has the disadvantage that we would have to find the map using <code>findViewById()</code> <em>again</em> if we wanted to use it in other methods of the activity, which is inefficient.</li>
-    <li>Could we initialise it directly inside the class body, outside of any particular method? For example:
-<pre>class MainActivity: AppCompatActivity() {
-    val map = findViewById&lt;MapView&gt;(R.id.map1)
-
-    override fun onCreate(....) {
-        ....
-    }
-        </pre>
-        Unfortunately this would <em>not</em> work. We can only initialise variables which reference UI elements from <code>onCreate()</code> onwards, when the UI has been fully initialised.</li>
-            <li>We could make it a nullable, and then initialise it in <code>onCreate()</code>, e.g.
-<pre>class MainActivity: AppCompatActivity() {
-    var map : MapView? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        map = findViewById&lt;MapView&gt;(R.id.map1)
-        ....
-    }
-</pre>
-        This works, however because the <code>map</code> variable is nullable, we have to do null-safety checks throughout our code when using it.
-        </li>
-        </ul>
-        </p>
-        <p>As an alternative, we can use <code>lateinit</code>. In cases, such as this, we need to use a variable which <strong>we know will never be null</strong> (so we don't make it nullable) but <strong>we cannot initialise it when the class is first created</strong>. This is common in Android development, where frequently, we can only create objects in <code>onCreate()</code>, once the activity is fully initialised. So in these cases, we declare the variables <code>lateinit</code> to indicate that they will be initialised later, after the class is first created:
-<pre>class MainActivity: AppCompatActivity() {
-    <em>lateinit var</em> map : MapView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        map = findViewById&lt;MapView&gt;(R.id.map1)
-        // Now we can use 'map' without null safety checks...
-    }
-</pre>
-</p>
-<hr />
-<h2>Persistence</h2>
-<p
-<p>To <em>persist</em> data means to preserve data across multiple executions of the application. For example the first time you run an app you might enter your username
-and password to log on to a web server. The next time you run the app, you'll probably want your login details to be remembered. So we need some method of
-<em>persisting</em> data between individual uses of the app. There are a number of different mechanisms we can use, including:
-    <ul>
-    <li>Preferences</li>
-    <li>Using the <em>savedInstanceState</em> Bundle</li>
-    <li>File I/O</li>
-    <li>On-device databases, e.g. SQLite</li>
-    <li>Storing data on a web server</li>
-    </ul>
-Today we will look at <em>preferences</em> and in a future topic we will start to look at <em>databases</em>.  We will look at web communication a bit later in the unit.  
-</p>
-<h2>Preferences</h2>
-<p>Frequently a user might want to select <em>preferences</em> in an app. For example, they might want to select their preferred language or login details. Android makes this easy for us through the use of <em>preferences</em>. Preferences are selected by the user in a <em>PreferenceScreen</em> which can be defined in an XML file much like layouts can. In Kotlin code, you can then write a <em>PreferenceFragment</em>: a sub-component of an Activity designed specifically for displaying a PreferenceScreen.</p>
-<h3>Adding a preferences XML file to your project</h3>
+<h3>The classic permissions model</h3>
+<p>Before Android 6, permissions were specified at <em>install time</em>, so a user was informed what permissions an app needed when they installed the app.
+However, this model had some disadvantages. It is not very flexible; a user might want to use <em>some</em> permissions but turn others off.  For example, if a user is installing a mapping app which allows the user to take photos, they might wish to use the GPS but not the camera, for privacy reasons.</p>
+<h3>Runtime Permissions</h3>
+<p>Android 6 (API level 23) uses a runtime permissions model, in which permissions can be turned on and off at run time, rather than install time.  With Android 6 permissions, you can grant an app certain permissions but not others, at run time. You can also turn permissions on and off at any time via the device's Settings.</p>
+<p>To enforce the use of Android 6 permissions, the <code>targetSdkVersion</code> of your app must be at least 23; we looked at <code>targetSdkVersion</code> last week.</p>
+<h3>Using the Android 6 permissions model</h3>
 <ul>
-<li>Open a new resource file as normal (highlight the <em>res</em> folder and choose
-<em>File-New-Android Resource file).</em></li>
-<li>In the dialog which appears, set up your preference file as shown in the diagram below:
-<br />
-<img src="../images/studioprefs.png" alt="Adding preferences file" />
-<br />
-</li>
-<li>A preferences file will then appear in the <em>xml</em> section of your resources:
-<br />
-<img src="../images/studioprefs2.png" alt="The preferences file within the xml section of the resources" />
-<br />
-</li>
+<li>You must still declare the permissions you need in the manifest file</li>
+<li>In addition, you now need to include logic in your application to perform checks on whether the appropriate permission has been granted. For example, before attempting to obtain the device's location using the GPS chip, your code needs to check whether the GPS permission has been granted by the user or not, and if it hasn't, the app needs to request the permission by asking the user whether they want to grant it.</li>
 </ul>
-<h3>Defining a PreferenceScreen in XML</h3>
-<p>The first thing we will look at is how to define a set of preferences in XML. There are a number of types of preference, we will look at:
-    <ul>
-    <li>EditTextPreference</li>
-    <li>CheckBoxPreference</li>
-    <li>ListPreference</li>
-    </ul>
-</p>
-<h4>EditTextPreference</h4>
-<p>The <em>EditTextPreference</em>  is one of the simplest types of preference. It allows the user to store a single value in a text field: 
-for example, if you wanted to store the default location of a map (as latitude and longitude) you could use two EditTextPreferences, one for the latitude and
-one for the longitude. Here is an example of a preferences XML file with two EditTextPreferences:<pre><code>&lt;PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"&gt;
-&lt;EditTextPreference android:key="lat" android:defaultValue="50.9" android:title="Latitude" android:summary="Latitude to show the map at initially." /&gt;
-&lt;EditTextPreference android:key="lon" android:defaultValue="-1.4" android:title="Longitude" android:summary="Longitude to show the map at initially." /&gt;
-&lt;/PreferenceScreen&gt;
-</code></pre>
-You can hopefully see that each preference is defined by an &lt;EditTextPreference&gt; tag and that each preference has a number of attributes:
-    <ul>
-    <li>The <em>key</em>. Uniquely identifies a preference. We use this to access <em>this particular preference</em> in code.</li>
-    <li>The <em>defaultValue</em>. Default value of the preference; will appear within the edit text the first time a user accesses the preferences.</li>
-    <li>The <em>title</em>. Used to label the preference on the preference screen.</li>
-    <li>The <em>summary</em>. Longer text which appears under the title, to explain in more detail what the preference is for.</li>
-    </ul>
-</p>
-<h4>CheckBoxPreference</h4>
-<p>The <em>CheckBoxPreference</em> is also quite easy to understand. A CheckBoxPreference is a boolean value, which can be set to either true
-(if the checkbox is selected) or false (if it isn't). It is typically used for "on/off" values, for example in an app which accesses the internet to
-automatically download data about surrounding restaurants and cafes (their location, food and drink available, etc), 
-the user might want to turn downloading on or off depending on whether they are 
-connected to a wifi network. The XML is also quite simple:<pre><code>&lt;PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"&gt;
-&lt;CheckBoxPreference android:key="autodownload" android:defaultValue="true" android:title="Auto-download" 
-android:summary="Auto-download nearby restaurant and cafe locations?" /&gt;
-&lt;/PreferenceScreen&gt;
-</code></pre>
-It can be seen that the XML is almost the same: the only differences are that it's a CheckBoxPreference and not an EditTextPreference, and that
-the default value is now a boolean meaning the preference will automatically be selected the first time the user runs the app.</p>
-<h4>ListPreference</h4>
-<p>The <em>ListPreference</em> is a bit more complex as it allows the user to pick from a list of values, typically presented as a set of
-radio buttons. The list of values has to be defined somewhere, and that place is the <em>arrays</em> resource file (array.xml). In a similar manner to
-strings.xml, array.xml is a convenient place to put all <em>arrays</em> that might be used in the UI. You can create the array.xml file by adding
-a <em>values XML file</em> to your project: right click on <em>res</em> and
-then create a new resource file, ensuring the type is <em>Values</em>. 
-<br />
-<img src="../images/studioprefs3.png" alt="Adding a values XML file" />
-<br />
-A ListPreference contains an <em>array</em> of values so 
-we store all the values in the array.xml file. Here is an example of an array.xml file which could be used for a ListPreference:<pre><code>&lt;resources&gt;
-    &lt;string-array name="pizzaFlavours"&gt;
-        &lt;item&gt;Cheese, Tomato and Mushroom&lt;/item&gt;
-        &lt;item&gt;Ham and Pineapple&lt;/item&gt;
-        &lt;item&gt;Hot n Spicy&lt;/item&gt;
-        &lt;item&gt;Seafood&lt;/item&gt;
-    &lt;/string-array&gt;
-    &lt;string-array name="pizzaFlavourCodes"&gt;
-        &lt;item&gt;CTM&lt;/item&gt;
-        &lt;item&gt;HP&lt;/item&gt;
-        &lt;item&gt;HS&lt;/item&gt;
-        &lt;item&gt;SF&lt;/item&gt;
-    &lt;/string-array&gt;
-&lt;/resources&gt;
-</code></pre>
-Note how this arrays XML file actually defines <em>two</em> arrays, with the &lt;string-array&gt; tag. (string-array as they are arrays of strings).
-    <ul>
-    <li>The <em>pizzaFlavours</em> array defines the text that will appear on the screen in the ListPreference;</li>
-    <li>The <em>pizzaFlavourCodes</em> array defines the <em>values</em> that will be passed through to the application, i.e. the values that the Kotlin code would actually see. Note how these are two- or three-letter
-    codes. These are easier to process in our app than text descriptions, which are prone to typos when testing for in code (missing spaces, punctuation, etc).</li>
-    </ul>
-</p>
-<p>
-If we now look at the preferences XML file for a ListPreference, note how this links to the arrays defined above:<pre><code>&lt;PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"&gt;
-&lt;ListPreference android:key="pizza" android:title="Pizza flavour" android:summary="Choose your pizza flavour."
-android:entries="@array/pizzaFlavours" android:entryValues="@array/pizzaFlavourCodes" /&gt;
-&lt;/PreferenceScreen&gt;
-</code></pre>
-Note how we define the ListPreference. Many of the attributes (key, title, summary) are as before; however
-note <em>android:entries</em> and <em>android:entryValues</em>. The former is a link to the array containing the entries that will appear on the screen
-(<em>@array/pizzaFlavours</em>) and the latter is a link to the actual values that will be carried through to the Kotlin code (<em>@array/pizzaFlavourCodes</em>).
-</p>
-<p>
-Note also how we refer to array XML resources in a similar way to strings; we use <em>@array/arrayname</em> to reference an array with a <em>name</em> of arrayname.
-Also note that in a real application, the <em>android:title</em> and <em>android:summary</em> would probably refer to entries in the strings.xml file, rather than
-hardcoded strings.
-</p>
-<h3>Defining an Activity to handle Preferences</h3>
-<p>To actually show these preferences in a real app, we need to create a <em>separate activity</em> to show the preferences. This needs to incorporate a <em>PreferenceFragment</em> (or more specifically, a <em>PreferenceFragmentCompat</em> for backwards-compatibility reasons), which is a sub-section of the Activity which will hold the preference options.  Here is an example:<pre><code>import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import androidx.preference.PreferenceFragmentCompat
-
-class MyPrefsActivity : AppCompatActivity() {
-    override fun onCreate (savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        supportFragmentManager.beginTransaction()
-            .replace(android.R.id.content, MyPrefsFragment())
-            .commit()
-    }
-}
-
-class MyPrefsFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(
-        savedInstanceState: Bundle?,
-        rootKey: String?
-    ) {
-        addPreferencesFromResource(R.xml.preferences)
-    }
-}
-</code></pre>
-Most of the work in setting up the preferences is done in the XML file
-so the activity code is relatively simple. It consists of two parts:
-    <ul>
-    <li>the activity itself, and</li>
-    <li>the preferences fragment.</li>
-    </ul>
-We will look at the <em>fragment</em> first, as it's the simplest component. We have not yet covered fragments (we will at the end of the module), but a fragment can be defined as a sub-section of an activity. It is possible for one activity to contain multiple fragments, all showing different components of the application (main screen, preferences, lists of options, etc).</p>
-<p>We override one method <code>onCreatePreferences()</code> which runs when the preference fragment loads. We simply
-add the preferences from the external resource referenced
-by <code>R.xml.<em>preferences</em></code> using the <code>addPreferencesFromResource()</code> method; <code>R.xml.preferences</code> corresponds to an XML file called <code><em>preferences</em>.xml</code>.
-</p>
-<p>We will now consider the <em>activity</em>. This is again fairly simple.
-It performs an operation known as a <em>fragment transaction</em>. Fragment transactions are used to replace one fragment with another. To perform a fragment transaction, we need to obtain a <em>FragmentManager</em> (<code>supportFragmentManager</code>), begin the transaction, perform the fragment eeplacement and then commit (save) the transaction. Here, we are replacing the contents of the activity (referenced by <code>android.R.id.content</code>) with an instance of our
-<code>MyPrefsFragment</code> class. So the main content of the activity will
-be set to our preferences fragment, which will contain the preferences.</p>
-<p>You should also add this additional dependency to your app's <em>build.gradle</em>:
-<pre>implementation 'androidx.preference:preference-ktx:1.1.1'</pre>
-This links in the Jetpack library for preferences.</p>
-<h3>The Android Activity Lifecycle</h3>
-<p>To understand how to read preferences correctly you need to have some
-understanding of the Android activity lifecycle.</p>
-<p>Mobile apps are not quite like standard desktop applications. In particular,
-<em>the application may be interrupted</em>, most commonly by the user
-answering a phone call. Also, users commonly switch from one app to another.
-Unless the user quits the app using the "back" button, when this happens
-<em>the original app is still runningin the background</em>.</p>
-<p> 
-To manage these possiblities, Android activities have a defined 
-<em>lifecycle</em>. The idea is to code activities to respond to the different
-points in the lifecycle. The lifecycle consists of a series of methods which run
-one after the other, as follows. When coding your app, you override whichever
-methods you want specific behaviour to occur at. With practically every
-activity, this includes <em>onCreate()</em>, but your activity might need
-to override the others too.
-</p>
-<p>
-<img src="../images/lifecycle.png" alt="The Android activity lifecycle" />
-</p>
-<p>It is described in full
-on the Android website, 
-<a href='http://developer.android.com/reference/android/app/Activity.html#ActivityLifecycle'>
-here</a>.</p>
-<p>
-The original article describes the lifecycle in full but to summarise,
-the following methods run when certain events occur:
-    <ul>
-    <li><em>onCreate()</em>: runs when the application is first launched.
-    Note also that certain actions, such as changing the device orientation,
-    can force <em>onCreate()</em> to run.</li>
-    <li><em>onStart()</em> and <em>onResume()</em>: both run when the activity becomes visible. This can either be when it first becomes visible, or becomes visible again after being hidden. For example, it will be called
-    after you return to the current Activity after using a completely different application, or after closing a second activity within the same application, e.g. a
-    preferences screen, causing the original activity to become visible again.
-    See the discussion of <code>onPause()</code> and <code>onStop()</code>, below, for the difference between the two.</li>
-    <li><em>onPause()</em>: when the activity pauses after being fully visible, and focused. This happens on shutdown of the activity, or when another activity comes in front of the current activity, <strong>including activities not occupying the whole of the screen.</strong></li>
-    <li><em>onStop()</em>: is called immediately after <code>onPause()</code> but <em>only</em> on shutdown, or if the activity coming in front of the current one <strong>occupies the whole of the screen</strong>. </li>
-    <li><code>onResume()</code> is the opposite of <code>onPause()</code> and <code>onStart()</code> is the opposite of <code>onStop()</code>. Thus, <code>onResume()</code> is called when the current activity becomes visible and focused again after removing an activity in front of it (or when launching the activity), <strong>including cases where the activity on top of the current activity, which has just been removed, does not occupy the whole of the screen</strong>. By contrast, <em>onStart()</em> is only called either on startup or when the activity on top of the current activity, now being removed, occupies the whole of the screen.</li>
-    <li><em>onDestroy()</em>: runs when the user dismisses the application. This will happen
-    when the user presses the Back button from the main activity. It can also be called under other
-    circumstances, e.g. Android kills the activity due to low memory, or when the user rotates the
-    device.</li>
-    </ul>
-</p>
-<p>The lifecycle can have important consequences for development. For example, in a mapping app you might want to stop GPS communication when the activity becomes invisible and start it again when it becomes visible again (to save battery), in which case you would stop the GPS in <em>onPause()</em> and start it in <em>onResume()</em>. If you did this in <em>onDestroy()</em> and <em>onCreate()</em> instead, the GPS would still be running if the activity was running but invisible, which for a mapping app would be unnecessary.</p>
-<p>The differences between <em>onStart()/onStop()</em> and <em>onResume()/onPause()</em> are quite subtle and need only be considered if you are writing activities which do not occupy the whole of the screen, which is not so common. In many cases, you can use either.</p> 
-<h3>Accessing Preferences from the App</h3>
-<p>The other thing we need to look at is <em>how to access the values of preferences from your Kotlin code</em>. This can be accomplished by means of the
-<em>PreferenceManager</em> class, which controlls access to the preferences, and <em>SharedPreferences</em> which represents a set of preferences. 
-Here is how you would read preferences. This code should be in your <em>main activity</em>, not the preferences activity.<pre><code>override fun onResume() {
-    super.onResume()
-    val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-    val lat = prefs.getString("lat", "50.9")?.toDouble() ?: 50.9
-    val lon = prefs.getString("lon", "-1.4")?.toDouble() ?: -1.4
-    val autodownload = prefs.getBoolean("autodownload", true) ?: true
-    val pizzaCode = prefs.getString("pizza", "NONE") ?: "NONE"
-
-    // do something with the preference data...
-}
-</code></pre>
+<h4>Dangerous permissions</h4>
+<p>Certain permissions in Android are more sensitive than others, these are
+called <em>dangerous permissions</em>.  Dangerous permissions include location, using the GPS (for privacy reasons), camera (even more so) and file I/O
+(because of the risk of a rogue app reading private data on your device).
+It is <em>these dangerous permissions</em> which require runtime permission checking, and these permissions which can be turned on or off in the Settings.</p>
+<p>Less sensitive permissions, such as internet, can be done purely via the manifest, as before; these do <em>not</em> need runtime permission checking.</p>
+<p>See <a href="https://developer.android.com/guide/topics/permissions/overview">this documentation on the Android site</a></p>
+<h4>What happens from the user point of view?</h4>
 <ul>
-<li>First of all, note how the code is in the <em>onResume()</em> method of your main activity.  Why is this? Remember from the section above on the Android activity lifecycle that the <em>onResume()</em> method is called when the activity re-appears, having been hidden. 
-When preferences are changed via a preference activity containing a PreferenceFragment, the user will most likely press the Back button to dismiss the preference activity containing a PreferenceFragment, resulting in the 
-main activity appearing again and therefore its <em>onResume()</em> method being called - so <em>onResume()</em> is a good place to put code to read 
-preferences. (You could also use <em>onStart()</em>, but as we saw above, <em>onResume()</em> is always called after <em>onActivityResult()</em>, which can make your application logic easier if you are dealing with multiple activities).</li>
-<li>Note how we obtain a <em>SharedPreferences</em> object by using <em>PreferenceManager.getDefaultSharedPreferences()</em>. This takes as a parameter
-a <em>Context</em> object. This object represents the context of the preferences; we can have preferences which relate to the application as a whole or
-to an individual activity. Here we use <em>getApplicationContext()</em> to indicate that we want the preferences relating to the application as a 
-whole, i.e. they can be accessed across all activities. Note that the Activity class is a subclass of <em>Context</em>, as is Application, the class representing
-the application as a whole. This means that the return value of <em>getApplicationContext()</em> could be either an Activity or an Application. In
-the case of <em>applicationContext</em> (a Kotlin property again; in Java we would need to use <em>getApplicationContext()</em>) it is the Application. Many UI elements, such as dialog boxes, require a Context of some kind (usually, but not always, an Activity) as 
-a parameter in the constructor, which represents the "parent" element of that UI element.</li>
-<li>Having got hold of the <em>SharedPreferences</em>, we then use <em>get</em> methods to obtain an individual preference. These <em>get</em> methods use the
-preference's <em>key</em> to look up that particular preference. Notice also how the <em>get</em> methods take a second parameter, which is the default value to
-use if that preference does not exist. Note also how the <em>EditTextPreference</em>s and the <em>ListPreference</em> return Strings, while the
-<em>CheckBoxPreference</em> returns a boolean.</li>
-<li>Note how we also have to use the Elvis operator, this is because the <code>getString()</code>, and <code>getBoolean()</code> methods could return null. This may seen strange as we give a default value, but it is due to the Android API being a Java API which we are using from Kotlin, and Java traditionally did not have a concept of nullability so the data type returned from these methods is nullable.</li>
+<li>When a user runs an app which uses dangerous permissions, a dialog is presented to the user, asking them whether they wish to grant or deny that permission (or strictly speaking, that permission group - certain permissions, such as reading files and writing files, are grouped together)</li>
+<li>If a user presses 'grant', code associated with granting the permission (see below) will run</li>
 </ul>
-</p>
-<h3>Preferences outside a Preference Screen</h3>
-<p>It is possible for an app to have <em>additional</em> preferences, outside those defined in the XML for the PreferenceScreen. One example might be an app which is 
-recording a trail of your position on the Earth using GPS; you might want to use this to record a walking or cycling route, for example. If the app is still recording when the app is closed down, you might want to save the recording status so that the next time the app starts up (which could be after powering the phone down and switching
-it back on again), the app can read the recording status from the preferences so that it continues recording if it was recording last time it was used. However, unlike
-preferences in a PreferenceScreen, these additional preferences will not automatically be saved when the app is destroyed. You instead need to make use of
-a <em>SharedPreferences.Editor</em> to save the preferences. For example:<pre><code>override fun onDestroy() {
-    super.onDestroy()
-    val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-    val editor = prefs.edit()
-    editor.putBoolean ("isRecording", isRecording)
-    editor.apply()
-}
-</code></pre>
-Note how the code is in the <em>onDestroy()</em> method; remember that <em>onDestroy()</em> is called when the app is destroyed, e.g. pressing the "back" button from the main activity or powering the phone down. Note also how we:
-    <ul>
-    <li>Obtain a SharedPreferences.Editor object using the <em>edit()</em> method of SharedPreferences;</li>
-    <li>Use an appropriate <em>put</em> method to set the preference. The first parameter is the preference key (which we would use again when reading the preference
-    back) and the second parameter is the variable we want to save in the preferences. Here, <em>isRecording</em> would probably be an attribute of the Activity which
-    represents whether we are recording a track.</li>
-    <li>Finally we <em>apply()</em> the changes to our preferences.</li>
-    </ul>
-With these sorts of additional preferences not controlled via a preference screen, we'd probably want to read them back in <em>onCreate()</em>, rather than 
-<em>onResume()</em>, as we only need to save the data in preferences in between executions of the activity. Remember from the activity lifecycle that the activity remains in memory when <em>onPause()</em> is called (e.g. when another activity comes in front of the original activity) so we can just save application state in attributes of the Activity object. It is only when the Activity is actually destroyed that we need to save the activity's state in preferences.
-</p>
-<h2>Exercise</h2>
-<ol>
-<li>To explore when the various lifecycle methods are called, add <code>onStart()</code>, <code>onResume()</code>, <code>onStop()</code>, <code>onPause()</code> and <code>onDestroy()</code> to <em>the main activity from last week's exercise</em>. In each method, as well as in <code>onCreate()</code>,
-display a <code>Log</code> message saying which method has
-been called. <em>All these methods should call the superclass version of the method, e.g <code>super.onResume()</code></em>. 
-For example: 
+<p>As well as granting the permission at runtime, a user can grant permission by going into the phone's Settings, selecting "Apps" and then the appropriate app, and then turning the appropriate setting on. A user can also revoke the permission through the Settings.</p>
+</ul>
+<h3>Implementation details</h3>
+<h4>Checking whether a permission has been granted</h4>
+<p>You use the <code>checkSelfPermission()</code> call for this, though it is recommended to use  <code>ContextCompat.checkSelfPermission()</code> from the Jetpack AppCompat library, to allow your code to run on older devices.
+<p>Here is an example of checking for the <code>ACCESS_FINE_LOCATION</code> (listen to GPS) permission. This is in a custom function called <code>checkPermissions()</code>, which would be called from  <code>onCreate()</code>.
 <pre>
-import android.util.Log
+fun checkPermissions() {
+    val requiredPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
-// ...
-
-override fun onResume() {
-    super.onResume()
-    // First argument is log tag, second argument is message (see below)
-    Log.d("lifecycle", "onResume")
+    if(checkSelfPermission(requiredPermission) == PackageManager.PERMISSION_GRANTED) { 
+        startGPS() // a function to start the GPS - see below
+    } else {
+        // Request the permission (see below for code)...
+    }
 }
 </pre>
-You can display <code>Log</code> messages with the <code>logcat</code> tool. Select <em>View-Tool Windows-Logcat</em> to view log messages. A window below your code, similar to that shown below will appear:
-<br />
-<img src='../images/logcat.png' alt='Logcat' />
-<br />
-You need to add a <em>filter</em> to filter log messages to only those you are interested in, such as log messages with a particular <em>log tag</em>. To do this, as shown on the diagram above, add a filter with a particular name, and in the filter settings, set it to filter only messages with a particular log tag (e.g. <code>lifecycle</code>).</p>
-<p>
-Test by launching your app, changing the mapping provider using the second activity, returning to the main activity, and then pressing the Back button to 
-quit the application entirely. <strong>Note how many times the lifecycle methods are called.</strong>
-</li>
-<li>The idea of this exercise is to develop a version of your mapping app which uses preferences, rather than a custom activity. 
-Add an extra menu item to last week's project to  launch the preferences, and add a preference activity containing a PreferenceFragment which includes the following:
+Note how checkSelfPermission() takes the permission we are interested in (ACCESS_FINE_LOCATION) as an argument.</p>
+<p>This method will return one of these constants:
     <ul>
-    <li>Current Latitude and Longitude of the map (EditTextPreference; incorporate the code provided above)</li>
-    <li>Default zoom level for the map (EditTextPreference)</li>
+    <li><code>PackageManager.PERMISSION_GRANTED</code> if the permission has already been granted by the user;</li>
+    <li><code>PackageManager.PERMISSION_DENIED</code> if not.</li>
     </ul>
-Add code in the <code>onResume()</code> to get these working. Once this is working,
-add the following further preference:
+If you are targeting API level 23 and above, Android Studio's <em>lint</em> tool will produce an error if you leave this check out (and if you disable the <em>lint</em> tool, the app will crash at runtime with a SecurityException)</p>
+<h4>Requesting permissions in your code</h4>
+<p>If <code>checkSelfPermission()</code> returns <code>PackageManager.PERMISSION_DENIED</code>, then you should request that permission from the user in your code. This is done using a <em>launcher</em>. A launcher is an Android API class which is used to launch a task which requires user interaction (such as a permissions dialog), and runs a <em>callback</em> function (typically a lambda function) once the user has performed the required interaction. The launcher is created with <code>registerForActivityResult()</code> with parameters of <code>ActivityResultContracts.RequestPermission()</code>, plus the lambda.
+<pre>val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted -&gt;
+    if(isGranted) {
+        startGPS() // A function to start the GPS - see below
+    } else {
+        // Permission not granted
+        Toast.makeText(this, "GPS permission not granted", Toast.LENGTH_LONG).show()
+    }
+}
+permissionLauncher.launch(requiredPermission)</pre>
+Note how in this example, we create a launcher called <code>permissionLauncher</code> and specify a lambda function which takes one parameter, <code>isGranted</code>. This lambda will run as soon as the user either grants or denies the permission. The <code>isGranted</code> parameter will be either true or false, as a result. So the lambda will include logic to start the GPS (if the permission was granted) or inform the user that the permission was not granted (if not). Note how we use a <code>Toast</code> here - a small popup message which appears on the screen above the UI. <code>Toast</code> takes this form:
+<pre>Toast.makeText (this, message, length).show()</pre>
+<code>this</code> refers to the activity. <code>length</code> can either be 
+Toast.LENGTH_SHORT or Toast.LENGTH_LONG.</p>
+<p>We actually launch the launcher with :
+<pre>permissionLauncher.launch(requiredPermission)</pre>
+</p>
+<p>We can request <em>multiple</em> permissions with <code>ActivityResultContracts.RequestMultiplePermissions()</code> and then pass an array of the required permissions to the launcher, e.g:
+<pre>permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA))</pre>
+</p>
+<h2>Location</h2>
+<p>Having covered runtime permission handling, we are now going to look at a key piece of functionality which <em>uses</em> it; obtaining your current <em>location</em>. Many of the most interesting mobile apps are <em>location-based apps</em>, in other words, the app is sensitive to the user's location on earth. We might, for instance, have an app which displays a map of your current location. Or an app which looks up the nearest pubs, bus stops or railway stations. Such apps send the user's <em>location</em> to a web server, which then delivers data near that location. Most smartphones contain a <em>GPS chip</em> which obtains the device's location by communicating with Global Positioning System (GPS) satellites: the same mechanism used in car satnav systems. So, since location is
+so important in mobile app development, we are going to look at it now.</p>
+<h3>Ethical issues with geolocation</h3>
+<p>There are important ethical issues when it comes to location. Potentially,
+a malicious app could gather your location and send it to a server with a user's personal details, which could allow the user to be tracked without their consent. For this reason, location tracking is treated as a dangerous permission and must be granted by the user at runtime.</p>
+<p>Furthermore, it is recommended to create an explicit privacy policy on
+your app's website (which can be linked to from Google Play) which spells
+out to users why the app needs location information and what will be done
+with it.</p>
+<h4>Adding location permission to the manifest file</h4>
+<p>There are two permissions for location: <code>ACCESS_FINE_LOCATION</code> for accurate (GPS) position, and <code>ACCESS_COARSE_LOCATION</code> (for less-accurate (wifi and cell-tower) position. As for any permission (dangerous and non-dangerous), you need to add the appropriate permission to the manifest:
+<pre>&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;</pre>
+</p>
+<h3>Basic use of Geolocation</h3>
+<p>This <em>incomplete</em> example shows how to obtain your location. Note
+that a fully-working example would also need to check whether the <code>ACCESS_FINE_LOCATION</code> permission has been granted at runtime, and request it if not, using the technique described above.
+<pre>package com.example.nickw.location
+
+class MainActivity : ComponentActivity(), LocationListener {
+
+    fun startGPS() {
+        val mgr = getSystemService(LOCATION_SERVICE) as LocationManager
+        mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this )
+    }
+
+    override fun onLocationChanged(location: Location) {
+          Toast.makeText(this, "Latitude: ${location.latitude}, Longitude: ${location.longitude}", Toast.LENGTH_LONG).show() 
+    }
+
+    override fun onProviderEnabled(provider: String) {
+          Toast.makeText(this, "GPS enabled", Toast.LENGTH_LONG).show() 
+
+    }
+
+    override fun onProviderDisabled(provider: String) {
+          Toast.makeText(this, "GPS disabled", Toast.LENGTH_LONG).show() 
+    }
+
+    // Deprecated at API level 29, but must still be included, otherwise your
+    // app will crash on lower-API devices as their API will try and call it
+    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+    
+    }
+}</pre>
+This code sample shows how to use the Location API. It will listen to the device's GPS and update the main content view with the current latitude and longitude (position on earth). So how does it work? The key thing is that there are three main components involved in obtaining your location: 
+<ul>
+<li>the <em>location provider</em> (representing the actual provider of your location, such as the GPS, WiFi network or cell tower network). A string is used to refer to the provider.</li>
+<li>the <em>location manager</em> (class LocationManager) which controls access to the provider, allowing you to set such things as frequency of updates;</li>
+<li>the <em>location listener</em> (the object which handles location updates, so that every time the GPS location changes, for example, code in the location listener will run to react to the change in location).
+</li>
+</ul>
+</p>
+<p>
+To go through the code above in more detail:
+<ul>
+<li>First we obtain a LocationManager. We do not instantiate a LocationManager
+object; instead we ask the system to obtain the default location manager for
+us with:
+<pre>val mgr: LocationManager = getSystemService(Context.LOCATION_SERVICE)</pre>
+</li>
+<li>We then ask the location manager to update the app with new location informatiom, using:
+<pre>mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this)</pre>
+Note the parameters:
     <ul>
-    <li>Map style - Regular or OpenTopoMap(use a ListPreference)</li>
+    <li>The first parameter specifies we are using a GPS provider (we could, alternatively, request a network provider - e.g. WiFi/cell tower - instead with
+    <em>LocationManager.NETWORK_PROVIDER</em>), though these are less accurate.</li>
+    <li>The second parameter specifies the frequency of updates in milliseconds (0 means update as frequently as possible);</li>
+    <li>The third parameter specifies the minimum distance we must travel, in metres, before an update is obtained (again 0 means update as frequently as possible);</li>
+    <li>The fourth parameter specifies the <em>LocationListener</em> object which will process the location updates received - here it is <em>this</em>, i.e the current Activity will act as the LocationListener.</li>
+    </ul>
+</li>
+<li>A LocationListener is any object which <em>implements the LocationListener interface</em> e.g.
+<pre>public class MainActivity : AppCompatActivity(), <em>LocationListener</em></pre>.</li>
+</ul>
+</p>
+<p>In a <em>LocationListener</em>, you must provide four methods to handle different location events:
+    <ul>
+    <li><em>onLocationChanged()</em>, which takes a Location object as a parameter. This runs when a new location is received from the provider.</li>
+    <li><em>onProviderDisabled()</em> and <em>onProviderEnabled()</em>, which run when you physically disable, or re-enable, that provider (e.g the GPS) from your device.  Often you can leave these blank but if you want specific behaviour to occur when the user switches the GPS on and off, you would write it here.</li>
+    <li><em>onStatusChanged()</em> which runs when then status of the location provider changes, e.g. we lose the GPS signal. Again, this can be left blank for simple applications. In fact, this method is deprecated in API level 29 (the <a href='https://developer.android.com/reference/android/location/LocationListener#onStatusChanged(java.lang.String,%20int,%20android.os.Bundle)'>documentation</a> states that "providers can be considered as always in the Location.Provider#AVAILABLE state", i.e. you can assume that the provider is always available, so it is rather unclear as to what happens if you lose GPS signal!). However, despite it being deprecated, you should still implement it, otherwise your app will crash on lower-API devices. This is because a device running an older version of Android might try to call this method at runtime, and if it is not present, you will get a runtime crash due to the method not being present in the compiled bytecode.</li>
+    <li>For more on these methods, see
+    <a href="http://developer.android.com/reference/android/location/LocationListener.html">the API documentation</a>.</li>
+    </ul>
+</p>
+<p>The<em>onLocationChanged()</em> method takes a single parameter - a <em>Location</em> object representing our current location. It has two properties, <em>latitude</em> and <em>longitude</em>, for getting the actual latitude and longitude. So, in this app, we simply display the current latitude and longitude with a <code>Toast</code>.</p>
+<h4>Testing with a virtual device</h4>
+<p>If you do not have a real device, or are located indoors (as you will probably be during the class; indoor GPS signals are not reliable) it is possible to test it in a development environment (with a GPS provider) by sending "virtual" locations to the emulator.</p> 
+<p>This is quite straightforward. Click on the three dots (...) at the top of the controls of the virtual device:
+<br />
+<img src='../images/extendedcontrols1.png' alt='Accessing emulator extended controls' />
+<br />
+ This will take you to a dialog showing a map, by default located in Silicon Valley, California. You can change location by moving the map or searching for locations
+and then clicking "Set Location.  This will send a virtual GPS signal to the device, containing the latitude and longitude entered.
+<br />
+<img src='../images/extendedcontrols2.png' alt='Emulator extended controls' />
+</p>
+<h2>Updating the UI using the GPS position</h2>
+<p>How might you set the position of an osmdroid map to the GPS position, or even simply display the latitude and longitude on the UI? This is a little tricky as the map position is stored in <em>state</em> in a Compose application, as we saw two weeks ago, and state cannot be accessed outside composables (the GPS code will be outside our composables). How then can we communicate the GPS coordinates to the state variable of a composable?</p>
+<p>The answer is to use a <strong>view model</strong> with <strong>live data</strong>.
+</p>
+
+<h2>The ViewModel</h2>
+
+<p> A common aim in object-oriented programming is to make all classes as concise, and focused on one thing, as possible. This makes the classes smaller and easier to understand, and thus maintain. A small, tightly-focused class (focused on one particular thing) has high <em>cohesion</em>. Achieving high cohesion is well-known good software engineering practice, as you should know from OODD.</p>
+<p>However, in Android development, if we are not careful our activities can quickly become very large and "bloated", and end up containing a lot of variables hoding the application's data and methods to manipulate that data. Thus they have low cohesion, as they are trying to do too many things. It would be better to try and <em>separate out the activity from its data</em> so that the activity only manages core operations (such as  <code>onCreate()</code> and setting up the UI) and have another class which stores the data.</p>
+<p>Luckily we can do this quite easily with Android thanks to the use of a <code>ViewModel</code> (see <a href="https://developer.android.com/topic/libraries/architecture/viewmodel">the Android documentation</a>). What is a <code>ViewModel</code>? It's an object which holds <em>the data which needs to be displayed by the application</em>, and is responsible for "preparing data for the UI" (<a href="https://developer.android.com/topic/libraries/architecture/viewmodel#implement">Android docs</a>), as part of the Model-View-ViewModel (MVVM) architecture, which we will return to in the database topic.</p>
+<p>As well as enabling higher cohesion, using a <code>ViewModel</code> in Android has the advantage that it is <em>persistent throughout the lifetime of the application</em>, even if other components such as activities are destroyed. An important feature of Android that might not be obvious is that <strong>an activity is destroyed and re-created when it's rotated</strong>. This can cause difficulties if you want to preserve data; by default, all data stored in an activity will be destroyed when it's rotated, as it belongs to a particular instance of the activity. If you use a <code>ViewModel</code> instead, the data will be preserved and will be accessible by the activity when it is re-created.</p>
+<p>Furthermore, use of a <code>ViewModel</code> allows data to be updated from non-UI parts of your application (e.g. the Location API as seen above) and then <em>observed</em> from your UI, such as Jetpack Compose. In this way, Compose UIs can be updated when data external to them, such as GPS location or a database, updates.</p>
+<p><img src="../images/viewmodel2.png" alt="ViewModel" /></p>
+
+<h3>Creating a ViewModel</h3>
+
+<p>Creating a <code>ViewModel</code> is quite easy. We need to ensure the <code>lifecycle-runtime-ktx</code> Jetpack library into our <code>build.gradle</code> dependencies, e.g: <pre>implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'</pre>
+and create a class inheriting from <code>androidx.lifecycle.ViewModel</code>.
+<pre>
+package com.example.viewmodel1
+
+import androidx.lifecycle.ViewModel
+
+class TestViewModel : ViewModel() {
+    var firstName = ""
+    var lastName = ""
+}
+</pre>
+This is creating a simple <code>ViewModel</code> to store someone's first and last name.</p>
+
+<h3>Using the ViewModel from an Activity</h3>
+
+<p>We then need to initialise the <code>ViewModel</code> from an <code>Activity</code>. The example below shows how to do this:
+
+<pre>
+class MainActivity :AppCompatActivity() {
+
+    val viewModel : TestViewModel by viewModels()
+
+    // ... class continues ...
+</pre>
+
+Note how we declare a variable <code>viewModel</code> within our activity, of class <code>TestViewModel</code> (our <code>ViewModel</code> class shown above). Note also how we initialise it with a <em>delegate</em> (see last week).</p>
+<h4>Updating the ViewModel and the UI</h4>
+<p>Later on, at any point, we can update the <code>ViewModel</code>'s data, e.g.
+<pre>
+viewModel.apply {
+    firstName = "Fred"
+    lastName = "Jones"
+}
+</pre>
+</p>
+<p>Clearly this is a very simple example, but for more complex apps, which need to store and display large amounts of data, a <code>ViewModel</code> makes sense. Furthermore, even in this simple example, a <code>ViewModel</code> can be advantageous, as the data remains in memory even when the device is rotated. If we simply stored the first name and last name in the activity, it would be lost when the device is rotated, as the activity (and all its data) is destroyed and re-created. The <code>ViewModel</code> by contrast is stored independently to the activity in memory.</p>
+
+<h2>Using LiveData with ViewModel</h2>
+
+<p>Commonly, <code>ViewModel</code> is used together with <strong><code>LiveData</code></strong>. A <code>ViewModel</code> can hold <code>LiveData</code> which is observed by an <code>Observer</code>. When the data changes, the <code>Observer</code> callback function - a lambda, typically - receives the altered data and uses it to update the UI. In a Compose application, a state variable would be updated with the altered live data from the view model.</p>
+<p>We will use location data as our example of <code>LiveData</code>.
+The latitude and longitude (from the Location API) will be stored in a <code>ViewModel</code> and made available as <code>LiveData</code> which the UI can then observe (so for example, a map can update with the latitude and longitude contained within the <code>LiveData</code>.)</p>
+<p>First the <code>ViewModel</code>, which contains a <code>LatLon</code> object and a <code>LiveData</code> object wrapping that <code>LatLon</code>:
+
+<pre>
+data class LatLon(val lat: Double, val lon: Double) // our LatLon class
+
+class LatLonViewModel: ViewModel() {
+    var latLon = LatLon(51.05, -0.72)
+        set(newValue) {
+            field = newValue
+            latLonLiveData.value = newValue
+        }
+
+    var latLonLiveData = MutableLiveData&lt;LatLon&gt;()
+}
+</pre>
+</p>
+<p>Note how we use a <em>custom setter</em> with the <code>latLon</code> object within the view model (we introduced these in topic 5). In the custom setter we update the live data as well as the <code>latLon</code> object itself. This ensures that the <em>live data</em> tracks the <code>latLon</code> object itself and keeps in sync with it.
+<pre>latLonLiveData.value = newValue</pre>
+</p>
+<p>
+We can then update the <code>latLon</code> in the view model from our <code>onLocationChanged()</code>, when the GPS location changes:
+<pre>latLonViewModel.latLon = LatLon(location.latitude, location.longitude)</pre>
+</p>
+<h3>Observing the LiveData</h3>
+<p>We observe the <code>LiveData</code> from our UI by calling its <code>observe()</code> method. <code>observe()</code> expects either an <code>Observer</code> object, or a lambda which will run whenever the live data changes:
+<pre>latLonViewModel.latLonLiveData.observe(this) {
+    // inside the lambda, "it" will be the LatLon being observed; use it to update the UI
+}</pre>
+</p>
+<h2>Map Markers</h2>
+<p>This topic is relatively easy compared to some of the recent topics but is important to know if you are developing any sort of geographically-aware app: the ability to add <em>markers</em> to a mapping application. Many geographically-aware apps show points of interest as <em>markers</em> on the map. </p>
+
+<h3>How to code markers in osmdroid</h3>
+<h4>Adding markers to a map</h4>
+<p>The incomplete example below (only relevant code is shown) demonstrates how to add markers to a map:
+<pre>
+import org.osmdroid.views.overlay.Marker // needed for marker
+
+AndroidView (
+
+    factory =  { ctx -&gt;
+           Configuration.getInstance()
+            .load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
+
+        val map1 = MapView(ctx).apply { 
+            setMultiTouchControls(true)
+            setTileSource(TileSourceFactory.MAPNIK)
+            controller.setZoom(14.0)
+        }
+        val marker = Marker(map1)
+        marker.apply {
+            position = GeoPoint(51.05, -0.72)
+            title = "Fernhurst, village in West Sussex"
+        }
+        map1.overlays.add(marker)
+        return map1
+    }
+    // ...
+}
+</pre>
+Note what we are doing here: 
+    <ul>
+    <li>We are creating a <code>Marker</code> and passing our map object into it:
+<pre>val marker = Marker(map1)</pre>
+</li>
+<li>
+We then use <code>apply()</code> to set various properties of the <code>Marker</code>:
+<pre>marker.apply {
+    position = GeoPoint(51.05, -0.72)
+    title = "Fernhurst, village in West Sussex"
+}</pre>
+</li>
+<li>The <code>title</code> will appear in a popup when the user presses the marker.</li>
+<li>Finally, we add it to the map's <em>overlays</em>. Overlays are items that can be added to the map, including markers, polylines and polygons.
+<pre>map1.overlays.add(marker)
+</li>
+</ul>
+<h3>Custom markers</h3>
+<p>So far we have used the built-in osmdroid marker. However we can use
+<em>custom markers</em> for our app. Here is how we do this :
+<pre>marker.apply {
+    icon = getDrawable(R.drawable.marker)
+}</pre>
+</p>
+<p>Note how the we use the method <code>getDrawable()</code>.
+This is an object of type <code>Drawable</code> representing the marker icon. We obtain a <code>Drawable</code> by supplying the resource ID <code>R.drawable.marker</code> as a parameter to <code>getDrawable()</code>. The resource ID
+    <code>R.drawable.marker</code> points to an image <code>marker.png</code> 
+    in the <code>drawable</code>
+    folder (the folder storing drawables, i.e. images and icons)
+    within the <code>res</code> folder of the project. </p>
+<h2>Exercises</h2>
+<ol>
+<li>Use the code examples above to produce a complete Jetpack Compose app which displays the current GPS latitude and longitude on-screen within <code>Text</code> composables. When the GPS position updates, the <code>Text</code> composables should update. You will need to use runtime permission checking, the Location API, and a <code>ViewModel</code> with <code>LiveData</code>.</li>
+<li>Extend the first question to include an osmdroid map. The centre of the map should be set to the GPS position.</li>
+<li>Find points of interest in your home town (such as pubs, churches, restaurants, sports grounds, etc) in your home town, and add markers to each. Test it out by setting the fake GPS position in the emulator to your home town.</li>
+<li>Use different markers for different point of interest types. There are some sample markers <a href="https://www.free-map.org.uk/fm/icons">here</a>.</li>
+<li><strong>Advanced:</strong> Store the points of interest in your <code>ViewModel</code> as a list of items and make them available as <code>LiveData</code>. Observe the <code>LiveData</code> from your UI and add markers for each point of interest in the <code>LiveData</code>.
+    <ul>
+    <li><em>Hint:</em> you can clear all overlays on a map with:
+    <pre>map.overlays.clear()</pre>
+    </li>
     </ul>
 </li>
 </ol>
-<!--
-<hr />
-<h2>Additional reading</h2>
-<p>This is not essential for the module but is provided for your own interest.
 </p>
-<h3>Saving Instance State</h3>
-<p>(ref: <a href='http://developer.android.com/training/basics/activity-lifecycle/recreating.html'>Recreating an Activity</a> on the Android site)</p>
-<p>The technique described in "Preferences outside a Preference Screen" above is necessary to save the activity's state where the user deliberately closes down the activity. However occasionally the system destroys your
-activity and restarts it again, for example if memory is low or if the user rotates the screen. In these cases, we can use the simpler method of 
-<em>saving instance state</em> to save the activity's data. To do this you need to implement an <em>onSaveInstanceState()</em> method:<pre><code>override fun onSaveInstanceState (savedInstanceState: Bundle) {
-    savedInstanceState.putBoolean("isRecording", isRecording)
-}
-</code></pre>
-Note how the method is automatically passed a <em>Bundle</em> object (a collection of indices and values); you use appropriate <em>put</em> methods to save data in this Bundle. You can then read it back in the <em>onCreate()</em> method; remember that <em>onCreate()</em> takes one parameter <em>savedInstanceState</em>, of data type <em>Bundle</em>. This is used to restore instance state.<pre><code>override fun onCreate (savedInstanceState: Bundle?) {
-    super.onCreate (savedInstanceState)
-    savedInstanceState?.apply {
-        isRecording = this.getBoolean ("isRecording")
-    }
-}
-</code></pre>
-Hopefully this code is self-explanatory: we read back the same boolean that we saved in the Bundle. Note though that we need to
-test for <em>savedInstanceState</em> being null; if the activity is started without any saved instance state (e.g. for the first time)
-the Bundle will be null.</p>
--->
-</p></body></html>
+</body>
+</html>
