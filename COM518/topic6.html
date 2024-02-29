@@ -13,14 +13,16 @@
 </div>
 
 <h2>What is React?</h2>
-<p>React (see <a href='https://reactjs.org'>reactjs.org</a>)
-is a JavaScript framework, originally developed by Facebook, which allows complex JavaScript applications to be written in modular, high-level, easy-to-read code.  React revolves around the concept of a <em>component</em>. A component is a subsection of a web page, consisting of multiple related HTML elements (e.g. &lt;div&gt;s, form fields and buttons), which all work together to perform a particular task.</p>
+<p>React (see <a href='https://reactjs.org'>reactjs.org</a> and <a href='https://react.dev'>react.dev</a>)
+is a JavaScript user interface library, originally developed by Facebook, which allows complex JavaScript user interfaces to be written in modular, high-level, easy-to-read code.  React revolves around the concept of a <em>component</em>. A component is a subsection of a web page, consisting of multiple related HTML elements (e.g. &lt;div&gt;s, form fields and buttons), which all work together to perform a particular item.</p>
 <p>For example, we could have a component representing a clock, which consists of a &lt;div&gt; containing the current time. Or we could have a component for an AJAX search, consisting of the
 text field to enter the search term, the search button and the &lt;div&gt; to display the search results.</p>
 
+<p>React is so-called because it allows us to develop <strong>reactive</strong> UIs, which automatically update when the application's data changes without us having to implement logic to re-build the UI when that data changes. It does this through the use of <em>state</em>, which will be described below.</p>
+
 <h2 id="exploring-react---hello-world">Exploring React - Hello World</h2>
 
-<p>Here is a React <code>Hello World</code> application:</p>
+<p>Here is the React <code>Hello World</code> application:</p>
 
 <pre>import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -28,11 +30,11 @@ import ReactDOM from 'react-dom/client';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(&lt;h1&gt;Hello World!&lt;/h1&gt;);</pre>
 
-<p>If you look at this code, you should notice that the <code>render()</code> method, on the last line, takes a string of HTML which is not in quotes. What is this? It’s <strong>JSX</strong>.</p>
+<p>If you look at this code, you should notice that the <code>render()</code> method, on the last line, takes a string of HTML which is not in quotes. What is this? It's <strong>JSX</strong>.</p>
 
 <h3 id="jsx">JSX</h3>
 
-<p>With React, we use an extension of JavaScript called JSX (see the React documentation). JSX allows us to embed HTML elements within JavaScript code which can simplify coding a component if it contains large amounts of static HTML and only a small amount of variable data. You will see examples of JSX below. Because JSX is not native JavaScript, it needs to be converted to standard JavaScript using Babel. We discussed this process above.</p>
+<p>With React, we use an extension of JavaScript called JSX (see the React documentation). JSX allows us to embed HTML elements within JavaScript code which can simplify coding a component if it contains large amounts of static HTML and only a small amount of variable data. You will see examples of JSX below. Because JSX is not native JavaScript, it needs to be converted to standard JavaScript using <em>Babel</em> - see below.</p>
 
 <h3 id="explanation-of-the-code">Explanation of the code</h3>
 
@@ -149,6 +151,325 @@ module.exports = {
 <p>This tells Babel which transformations to enable. The <code>env</code> transformation is the standard newer-to-older JavaScript transformation, while the <code>react</code> transformation allows transformation of React (JSX) code into standard JavaScript.</p>
 
 
-<p><strong>To be continued.</strong></p>
+<h3>Running Webpack in watch mode</h3>
+<p>One thing we didn't cover last time when looking at Webpack is how to <em>automatically regenerate the bundle</em> if any of the client-side code changes. You can do this by running Webpack in <em>watch mode</em>, e.g.:
+<pre>npx webpack --watch</pre>
+See <a href='https://webpack.js.org/guides/development/#using-watch-mode'>the documentation</a>. This is similar, in some ways, to PM2 in watch mode. However if you run Webpack in watch mode from the command prompt, you will be unable to enter any other commands as Webpack will be continuously running. So if you want to run any other commands you will need to open a separate command prompt.</p>
+
+<h2>React Components</h2>
+
+<p>As we've already briefly discussed above, React applications consist of a series of reusable <em>components</em>. A component is a user-interface element focused on one particular item, which can be <em>reused</em> in other applications. So we could for example have a clock component, or a login component, or a component which searches for music (via AJAX) and displays the results within the component.</p>
+
+<h3>A simple component</h3>
+
+<p>React components are written using <em>functions</em> which <em>return JSX</em>. Here is an example:
+
+<pre>import React from "react";
+
+function Greeting() {
+    return &lt;h1&gt;Hello from the Greeting component!&lt;/h1&gt;;
+}
+
+export default Greeting;</pre>
+
+Note how we write a function called <code>Greeting()</code> which returns JSX to display a paragraph containing the text "Hello!". Ideally, each React component should go in its own file (so this could be saved in <code>greeting.js</code>) and then imported into our application. To better organise our code, we can store it in a folder called <code>components</code> within our <code>public</code> filder. This allows us to reuse the component across multiple applications. Therefore, we are <em>exporting</em> the function so it can then be <em>imported</em> into other code.</p>
+
+<h3>Using the component in our app</h3>
+
+<p>To use a component, we incorporate it into JSX by writing a <em>tag</em> corresponding to the functio name. So we could incorporate the above component into JSX with the tag &lt;Greeting&gt;. Here is an example of an <code>index.js</code> making use of the component:
+
+<pre>
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Greeting from "./components/greeting.js";
+
+const root = ReactDOM.createRoot(
+    document.getElementById("root")
+);
+
+root.render(&lt;Greeting /&gt;);
+</pre>
+Note how we <em>import</em> the component from the appropriate module (<code>greeting.js</code> within the <code>components</code> folder) and pass in the &lt;Greeting&gt; tag into the <code>render()</code> function.</p>
+
+<h3>Props</h3>
+
+<p>In most cases, we need to <em>customise</em> the component. For example, we might want a greeting component to greet the user by name. How can we pass the name into the component? The answer is to use <em>props</em> - or properties. Props are specified in the same way as HTML attributes using key/value pairs in the tag, e.g.:
+
+<pre>root.render(&lt;Greeting person="John" /&gt;);</pre>
+
+Here, the <code>&lt;Greeting&gt;</code> component is being passed a <code>person</code> prop with a value of <code>"John"</code>.</p>
+
+<p>Here is how we could use the prop in the component:
+<pre>function Greeting(props) {
+    return &lt;p&gt;Hello {props.person}!&lt;/p&gt;;
+}
+
+export default Greeting;</pre>
+Note how we specify the props as a <em>parameter</em> to the function. This is an object containing all the props that were passed in; we access the individual prop using its name i.e. <code>props.person</code> and then include it in our JSX. Note how <strong>we can embed JavaScript expressions within JSX by surrounding them with curly brackets { and }</strong>. Unlike with backtick syntax, we do not need a dollar sign outside the curly brackets.</p>
+
+<p>Here is another example with <em>two</em> props:
+<pre>function Greeting(props) {
+    return &lt;p&gt;Hello {props.firstname} {props.lastname}!&lt;/p&gt;;
+}
+
+export default Greeting;</pre>
+which would be rendered, for example, as follows:
+<pre>root.render(&lt;Greeting firstname="John" lastname="Brown" /&gt;);</pre>
+</p>
+<h3>Object destructuring</h3>
+<p>We can use an alternative syntax for props as parameters using
+<em>object destructuring</em> This is a general JavaScript (<em>not</em> React specific) feature which allows us to allocate properties of a JavaScript object into variables of the same name. Here is a simple non-React example:
+<pre>
+function displaySong({title, artist}) {
+    console.log(`${title} ${artist}`);
+}
+
+const songObject = {
+    title: 'Wonderwall',
+    artist: 'Oasis'
+};
+
+displaySong(songObject);
+</pre>
+In this simpler example we create an object <code>songObject</code> containing two properties <code>title</code> and <code>artist</code>. We then pass this to the <code>displaySong()</code> function. However, note that <code>displaySong()</code> <em>destructures</em> the object into two variables, <code>title</code> and <code>artist</code>, corresponding to the properties of the same name. Likewise with React props, the props to a component become an object, which is then <em>destructured</em> in the component function.</p>
+<p>So we could write the above React example using destructuring as follows:
+<pre>function Greeting({firstname, lastname}) {
+    return &lt;p&gt;Hello {firstname} {lastname}!&lt;/p&gt;;
+}
+
+export default Greeting;</pre>
+Note how the two props <code>firstname</code> and <code>lastname</code> are destructured into the respective individual variables.</p>
+
+<!--
+<h3>Exercise 3</h3>
+<p>Change your code to use destructuring.</p>
+-->
+
+<h3>Inline Styles in React</h3>
+<p>An important point about JSX is that inline styles are specified with a different syntax.</p>
+
+<pre>&lt;p style={{ backgroundColor: 'yellow' }}&gt;</pre>
+The outer curly brackets indicate that we are embedding JavaScript within HTML within JSX, as before. The inner brackets indicate that we are defining a JavaScript object to represent the style, rather than ordinary CSS. The same rules as normal for accessing styles within JavaScript apply, i.e. style properties with dashes become camel case, for example <pre>background-color</pre> becomes <pre>backgroundColor</pre>.
+
+<!--
+Exercise 5
+In your Greeting component, add code to style the div according to a colour defined in a prop color. Modify your index.js so you pass the color prop into the component.
+-->
+
+
+<h2>Introduction to React State</h2>
+
+<p>React components use the concept of <em>state</em>. A React component can store data it needs to do its job in a group of state variables, which can be retrieved when methods of the component are called. This is central to how React works. We store the application's data in its state, and describe the components to be rendered using a mix of HTML and state variables. The result will be that when we update the state, the application will be automatically re-rendered to use the current values stored in the state. Thus, we do not have to manually update the UI each time the application's data changes.</p>
+
+<p>For example here is a simple component which allows the user to enter a name and updates a greeting message with the most recent name that was entered. The name is stored in state.</p>
+<pre>import React from 'react';
+
+function InteractiveGreeting() {
+
+    const [name,setName] = React.useState("No name");
+
+    return(
+        &lt;div&gt;
+        &lt;h2&gt;Enter your name&lt;/h2&gt;
+        &lt;input id='txtName' /&gt;
+        &lt;div&gt;Hello {name}&lt;/div&gt;
+        &lt;input type='button' value='update' onClick={updateStateName} /&gt;
+        &lt;/div&gt;
+    );
+
+    function updateStateName() {
+        setName(document.getElementById('txtName').value);
+    }
+}
+
+export default InteractiveGreeting;</pre>
+
+To explore this in detail: The line:
+<pre>const[name, setName] = React.useState("No name");</pre>
+sets up a state property called name and sets it up to initially contain the value "No name". It also creates a function setName() which is used to update the state; this function is created for you automatically in the background. React.useState() always returns an array containing a state variable and a matching function to update it. Note the destructuring syntax:
+<pre>const [name, setName] = ....;</pre>
+This causes the array returned by React.useState() to be destructured into two individual variables, <code>name</code> and <code>setName</code>.
+</p>
+
+<p>
+Multiple state variables can be setup in this way, and each state variable has a corresponding set method to update that state variable. Note how the content of the <code>div</code> is set to the state variable name. The interesting thing here is that whenever the <code>name</code> property of the state changes, the <code>div</code> will be automatically updated, as <code>name</code> always refers to the current state. This shows how state can be more useful than just storing the name in a regular variable, in which case this auto-update would not happen. Essentially we are <em>binding</em> the <code>div</code> to the state variable <code>name</code>, ensuring that the <code>div</code> is always displaying the current name.
+
+</p>
+
+<p>But how do we update the state? Hopefully you can see that we handle a click event on the button within the component, and call a custom function <code>updateStateName()</code> when it's clicked. If you look at this function (within our component), you can see that it uses <code>setName()</code> - the setter function we obtained from <code>React.useState()</code> - to update the state to the contents of the form field with the ID <code>txtName</code>.</p>
+
+<p>So the end result will be that the <code>div</code> keeps in sync with whatever the user enters in the text field. This automatic update of the UI to reflect current state is possibly the most fundamental principle of React.</p>
+
+<h2>Event handling the React way</h2>
+
+<p>The above example included code to handle a click event on a button. In React, the convention used for event handling is to set up an event handler in the HTML rather than using <code>addEventListener()</code>. This is done in a component's JSX, not the HTML of the web page, so the actual main HTML page remains free of JavaScript.</p>
+
+<p>Note also how the event is <code>onClick</code>, not <code>onclick</code>; React uses the convention for event handling of capitalising the first letter of the event type.</p>
+
+<p>The handler for <code>onClick</code> is the <code>updateStateName()</code> function: as <code>updateStateName</code> is a variable within JSX, we have to surround it with braces.</p>
+
+<pre>&lt;input type='button' value='update' onClick={updateStateName} /&gt;</pre>
+
+<h3>Implementing an onChange() event handler</h3>
+
+<p>Consider this new version of the InteractiveGreeting example. As well as displaying the name in the div it also displays it in the input box.
+
+
+<pre>import React from 'react';
+
+function InteractiveGreeting2() {
+
+    const [name,setName] = React.useState("No name");
+
+    return(
+        &lt;div&gt;
+        &lt;h2&gt;Enter your name&lt;/h2&gt;
+        &lt;input id='txtName' type='text' value={name} /&gt;
+        &lt;div&gt;Hello {name}&lt;/div&gt;
+        &lt;input type='button' value='update' onClick={updateStateName} /&gt;
+        &lt;/div&gt;
+    );
+
+    function updateStateName() {
+        setName(document.getElementById('txtName').value);
+    }
+}
+
+export default InteractiveGreeting2;</pre>
+</p>
+<p>
+If you try this out, you'll notice that it is impossible to change the text in the text field. Why is this? The text field is tightly bound to the name property of the state, so unless the state changes, the text field will not change. More generally, any element within the component which references the state is tightly bound to the state and will not change unless the state changes. To implement an editable text field, you need to implement an onChange() event handler on the text field to update the state. The next example shows this:
+<pre>import React from 'react';
+
+function InteractiveGreeting3() {
+
+    const [name,setName] = React.useState("No name");
+
+    return(
+        &lt;div&gt;
+        &lt;h2&gt;Enter your name&lt;/h2&gt;
+        &lt;input id='txtName' type='text' value={name} onChange={updateStateName} /&gt;
+        &lt;div&gt;Hello {name}&lt;/div&gt;
+        &lt;input type='button' value='update' onClick={updateStateName} /&gt;
+        &lt;/div&gt;
+    );
+
+    function updateStateName() {
+        setName(document.getElementById('txtName').value);
+    }
+}
+
+export default InteractiveGreeting3;</pre>
+</p>
+<p>
+Note how the text field now has an onChange event handler, which is the updateStateName() function of the component. In updateStateName() we use the setName() method, remember that when we create the hook we obtain a series of variables, the state variable and a setter to update the state with.
+</p>
+<p>Note that you must use the setter method to update the state; do not modify the state variable directly.</p>
+<h2 id="displaying-lists-in-react">Displaying lists in React</h2>
+
+<p>Often in React, you have to loop through an array or list of data, and generate JSX from the array (for example, create an HTML list from the array). The example below shows how to do this:
+<pre>....
+function ListComponent() 
+{
+    const modules = ["WAD", "OODD", "MAD", "Databases"];
+    const modulesList = modules.map(module =&gt; 
+          &lt;li key={module}&gt;{module}&lt;/li&gt;
+    );
+    return &lt;ul&gt;{modulesList}&lt;/ul&gt;;
+}
+.... </pre>
+</p>
+<p>Here we are performing a <em>mapping</em> to convert an input array into an output array using a transformation defined with an arrow function. See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">the Mozilla documentation</a> for more.</p>
+
+<p>Here we are mapping an array of modules into an array of <code class="language-plaintext highlighter-rouge">&lt;li&gt;</code> list items containing the module. This mapped array is stored in the variable <code class="language-plaintext highlighter-rouge">modulesList</code>. We are then returning a <code class="language-plaintext highlighter-rouge">&lt;ul&gt;</code> containing the list items from the component.</p>
+
+<p>Note also how each list item has a unique <em>key</em>, equal to the current module.  React uses this to keep track of which item in the list is which, if items in the list are modified or deleted. We don't do this here, but nonetheless you should always give items in a rendered list of items a unique key.</p>
+
+<h2 id="larger-example---to-do-list">Larger Example - Shopping Cart</h2>
+
+<p>The next example combines the discussion on state with the discussion on loops and arrays above, to implement a shopping cart by storing an array of items in state.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
+
+let itemId = 1;
+
+function ShoppingCart({store}) {
+    const [cart, setCart] = React.useState([]);
+
+
+    const cartHtml = cart.map ( item =&gt; &lt;li key={item.id}&gt;{item.name}&lt;/li&gt;);
+
+    return (
+            &lt;div&gt;
+
+            &lt;h1&gt;{store} Shopping Cart&lt;/h1&gt;
+
+            &lt;div&gt;
+            &lt;h2&gt;Add something to your shopping cart&lt;/h2&gt;
+            &lt;fieldset&gt;
+            &lt;input type='text' id='item' /&gt;
+            &lt;input type='button' value='Go!' onClick={addItem} /&gt;
+            &lt;/fieldset&gt;
+            &lt;/div&gt;
+
+            Here is your shopping cart:
+            &lt;ul&gt;
+            {cartHtml}
+            &lt;/ul&gt;
+
+            &lt;/div&gt;
+        );
+
+
+
+    function addItem() {
+        const items = structuredClone(cart);
+        const newItem = {
+            id: itemId++,
+            name: document.getElementById('item').value
+        };
+        items.push(newItem);
+        setCart(items);
+    }
+}
+
+export default CartComponent;
+</code></pre></div></div>
+
+<p>This is quite a bit more complex.</p>
+
+<p>Note how we:</p>
+
+<ul>
+  <li>Implement a method to add an item to the cart, <code class="language-plaintext highlighter-rouge">addItem()</code>. This runs when the user clicks the "add item" button.
+    <ul>
+      <li>In here we make a clone of the cart state object with <code class="language-plaintext highlighter-rouge">structuredClone()</code> (we cannot add directly to an array stored in state, we must make a clone, add to that, and reset the state to the clone).</li>
+      <li>We then create an object for the new item (<code class="language-plaintext highlighter-rouge">newItem</code>), containing fields for its ID and its name. The former is an auto-incrementing integer, the latter is what the user entered.</li>
+      <li>We then add the item to the clone of the cart (<code class="language-plaintext highlighter-rouge">items.push(newItem)</code>), before updating the cart variable in the state to the clone (with the new item added) with <code class="language-plaintext highlighter-rouge">setCart()</code>.</li>
+    </ul>
+  </li>
+  <li>Use the <code class="language-plaintext highlighter-rouge">map()</code> method of cart to convert it to an array of JSX, ready for rendering, as in the last example. Each cart item is converted to an HTML list item (<code class="language-plaintext highlighter-rouge">li</code>), containing the item's name.</li>
+</ul>
+<h3>Components must have a root element</h3>
+<p>Note that the JSX returned by a component function must have a 
+<em>single root element</em>. Here is an example, note that <code>MappingAppComponent</code> contains a <code>MapComponent</code> and a <code>PointsOfInterestListComponent</code> but also contains a <code>div</code> to contain them both as a root element for this component.
+<pre>
+function MappingAppComponent()  {
+    return (
+        &lt;div&gt;
+        &lt;MapComponent /&gt;
+        &lt;PointOfInterestListComponent /&gt;
+        &lt;/div&gt;
+    );
+}
+export default MappingAppComponent;
+</pre>
+</p>
+<h2>Further Reading on React website</h2>
+<ul>
+<li><a href='https://reactjs.org'>React website</a></li>
+<li><a href='https://react.dev'>React up-to-date documentation</a> using currently-recommended development practice</li>
+<li><a href='https://react.dev/learn/tutorial-tic-tac-toe'>React tutorial</a></li>
+</ul>
 </body>
 </html>
