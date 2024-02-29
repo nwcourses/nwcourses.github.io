@@ -157,6 +157,7 @@ module.exports = {
 <pre>npx webpack --watch</pre>
 See <a href='https://webpack.js.org/guides/development/#using-watch-mode'>the documentation</a>. This is similar, in some ways, to PM2 in watch mode. However if you run Webpack in watch mode from the command prompt, you will be unable to enter any other commands as Webpack will be continuously running. So if you want to run any other commands you will need to open a separate command prompt.</p>
 
+
 <h2>React Components</h2>
 
 <p>As we've already briefly discussed above, React applications consist of a series of reusable <em>components</em>. A component is a user-interface element focused on one particular item, which can be <em>reused</em> in other applications. So we could for example have a clock component, or a login component, or a component which searches for music (via AJAX) and displays the results within the component.</p>
@@ -192,7 +193,7 @@ root.render(&lt;Greeting /&gt;);
 </pre>
 Note how we <em>import</em> the component from the appropriate module (<code>greeting.js</code> within the <code>components</code> folder) and pass in the &lt;Greeting&gt; tag into the <code>render()</code> function.</p>
 
-<h3>Props</h3>
+<h2>Props</h2>
 
 <p>In most cases, we need to <em>customise</em> the component. For example, we might want a greeting component to greet the user by name. How can we pass the name into the component? The answer is to use <em>props</em> - or properties. Props are specified in the same way as HTML attributes using key/value pairs in the tag, e.g.:
 
@@ -241,10 +242,6 @@ In this simpler example we create an object <code>songObject</code> containing t
 export default Greeting;</pre>
 Note how the two props <code>firstname</code> and <code>lastname</code> are destructured into the respective individual variables.</p>
 
-<!--
-<h3>Exercise 3</h3>
-<p>Change your code to use destructuring.</p>
--->
 
 <h3>Inline Styles in React</h3>
 <p>An important point about JSX is that inline styles are specified with a different syntax.</p>
@@ -252,10 +249,7 @@ Note how the two props <code>firstname</code> and <code>lastname</code> are dest
 <pre>&lt;p style={{ backgroundColor: 'yellow' }}&gt;</pre>
 The outer curly brackets indicate that we are embedding JavaScript within HTML within JSX, as before. The inner brackets indicate that we are defining a JavaScript object to represent the style, rather than ordinary CSS. The same rules as normal for accessing styles within JavaScript apply, i.e. style properties with dashes become camel case, for example <pre>background-color</pre> becomes <pre>backgroundColor</pre>.
 
-<!--
-Exercise 5
-In your Greeting component, add code to style the div according to a colour defined in a prop color. Modify your index.js so you pass the color prop into the component.
--->
+
 
 
 <h2>Introduction to React State</h2>
@@ -301,7 +295,7 @@ Multiple state variables can be setup in this way, and each state variable has a
 
 <p>So the end result will be that the <code>div</code> keeps in sync with whatever the user enters in the text field. This automatic update of the UI to reflect current state is possibly the most fundamental principle of React.</p>
 
-<h2>Event handling the React way</h2>
+<h3>Event handling the React way</h3>
 
 <p>The above example included code to handle a click event on a button. In React, the convention used for event handling is to set up an event handler in the HTML rather than using <code>addEventListener()</code>. This is done in a component's JSX, not the HTML of the web page, so the actual main HTML page remains free of JavaScript.</p>
 
@@ -466,11 +460,48 @@ function MappingAppComponent()  {
 export default MappingAppComponent;
 </pre>
 </p>
-<h2>Further Reading on React website</h2>
+<hr />
+<h2>Exercises</h2>
+<p><strong>You should allow up to an hour to do Exercises 1-3 and two hours for Exercise 4, which requires you to create much more code from scratch.</strong></p>
+<h3>Exercise 1</h3>
+<p>Clone the repository:
+<pre>https://github.com/nwcourses/react-starter</pre>
+Build via Webpack and test the Hello World example out by starting the provided Express server.</p>
+<h3>Exercise 2</h3>
 <ul>
-<li><a href='https://reactjs.org'>React website</a></li>
-<li><a href='https://react.dev'>React up-to-date documentation</a> using currently-recommended development practice</li>
-<li><a href='https://react.dev/learn/tutorial-tic-tac-toe'>React tutorial</a></li>
+<li>Create the <code>Greeting</code> component above (the version with first name and last name props). Save it in a <code>components</code> folder within your <code>src</code> folder. Add a third prop, <code>age</code>, to the above component and pass in an age from <code>index.js</code>. Display the age in the component, e.g:
+<pre>Hello James, your age is 18!</pre>
+<strong>Ensure that you import the component from your <code>index.js</code>!</strong>
+</li>
+<li>Change your code to use destructuring.</li>
+<li><strong>Only do this if you complete the above in the first half hour</strong>. Try using the <em>ternary operator</em> (?) to display a different message within the component's JSX, either "You are an adult" or "You are not an adult", depending on whether the <code>age</code> state variable is 18+ or not. The ternary operator allows you to write a <em>ternary expression</em>, which is a shorthand version of an <code>if</code> statement. Here is a non-React example which displays a name, or an error if the user enters a blank string:
+<pre>const name = document.getElementById("txtName").value; 
+document.getElementById("message").innerHTML = (name == "" ? "ERROR: Please enter a name!" : `Hello ${name}`);</pre>
+In your case, however, you should include the ternary expression as an expression within your JSX. Note the general syntax of a ternary expression:
+<pre>condition ? result if condition is true: result if condition is false</pre>
+</li>
 </ul>
+<h3>Exercise 3</h3>
+<p>In your <code>Greeting</code> component from Exercise 2, add code to style the div according to a background colour defined in a prop <code>colour</code>. Modify your <code>index.js</code> so you pass the <code>colour</code> prop into the component.</p>
+<h3>Exercise 4 - AJAX search with React</h3>
+<p>Build a version of your HitTastic! AJAX site using React, step-by-step as follows:
+<ol>
+<li>Start your project with the <code>react-starter</code> project, as above.</li>
+<li>Now start working on your React code. Initially,
+create a single component with a search box for the artist, and a button, 
+similar to the <code>InteractiveGreeting3</code> example above. Also, include a state variable containing the current artist, and a message within a &lt;div&gt; telling the user what artist the user entered. In this message, display the artist from the state.</li>
+<li>Next, connect the button to an event handler function within the component. The event handler should store the artist the user entered in the state variable you created in the previous step.</li> 
+<li>Add another state variable to hold the AJAX search results. This should be an <em>array</em>, as in the shopping cart example above.</li>
+<li>Now enhance your event handler function to perform an AJAX request to your Session 1 web API (the search by artist route) and update the results &lt;div&gt; to contain the <em>raw JSON</em> from the server. How will you do this?
+	<ul>
+	<li><strong>Store the array of objects returned from the web API in the state variable you created in the previous step, and set the contents of the results &lt;div&gt; to this state variable, converted to a string using <code>JSON.stringify()</code>.</strong></li>
+	</ul>
+<li>Next, try displaying the search results in a user-readable form, rather than JSON.
+    <ul>
+    <li><em>Hint</em>: you will need to use <code>map()</code> to convert your array of objects to JSX in your component and return it, as shown in the shopping cart example above.</li>
+    </ul>
+</li>
+</ol>
+</p>
 </body>
 </html>
