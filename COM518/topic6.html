@@ -118,7 +118,7 @@ root.render(&lt;h1&gt;Hello World!&lt;/h1&gt;);</pre>
 <pre>const path = require('path');
 
 module.exports = {
-    entry: './public/index.js',
+    entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'public/dist'),
         filename: 'bundle.js'
@@ -140,6 +140,7 @@ module.exports = {
 }</pre>
 
 <p>We went through most of this last week. However note the <code>rules</code> section within <code>module</code>. We looked at this last week in the context of including CSS files and images with Webpack, and specifying custom loaders to handle these and include them in the bundle. Hopefully you can see that this is testing for files with extension <code>.js</code> or <code>.jsx</code>, and if they occur, handle them with the <code>babel-loader</code> (i.e. they will be transpiled with Babel). We also exclude the <code>node_modules</code> folder as we do not want to wastefully run Babel on any third-party libraries we are using, in which the JavaScript will already be suitable for bundling without the use of Babel.</p>
+<p>Note how the <code>index.js</code> is now placed within a <code>src</code> folder. This is a convention commonly used in Webpack-built JavaScript applications. The raw source code does not need to be delivered to the client (the browser), only the built bundle. So there is no need to place the source code inside <code>public</code>, whose role should be primarily to contain publicly-accessible code.</p>
 
 <h4 id="the-babelrc-file">The .babelrc file</h4>
 
@@ -172,7 +173,7 @@ function Greeting() {
 
 export default Greeting;</pre>
 
-Note how we write a function called <code>Greeting()</code> which returns JSX to display a paragraph containing the text "Hello!". Ideally, each React component should go in its own file (so this could be saved in <code>greeting.js</code>) and then imported into our application. To better organise our code, we can store it in a folder called <code>components</code> within our <code>public</code> filder. This allows us to reuse the component across multiple applications. Therefore, we are <em>exporting</em> the function so it can then be <em>imported</em> into other code.</p>
+Note how we write a function called <code>Greeting()</code> which returns JSX to display a paragraph containing the text "Hello!". Ideally, each React component should go in its own file (so this could be saved in <code>greeting.js</code>) and then imported into our application. To better organise our code, we can store it in a folder called <code>components</code> within our <code>src</code> filder. This allows us to reuse the component across multiple applications. Therefore, we are <em>exporting</em> the function so it can then be <em>imported</em> into other code.</p>
 
 <h3>Using the component in our app</h3>
 
