@@ -66,7 +66,7 @@ would navigate to the <code>settingsScreen</code> route, corresponding to the <c
 <pre>
 @Composable
 fun ComposableA(addPersonCallback: ()-&gt;Unit) {
-    Button(onClick = { addPersonCallback(name) } ) {
+    Button(onClick = { addPersonCallback() } ) {
         Text("Add Person")
     }
 }
@@ -83,7 +83,7 @@ fun ParentComposable() {
         composable("mainScreen") {
             ComposableA(addPersonCallback = {
                 navController.navigate("addPersonScreen")
-            }
+            })
         }
 
         composable("addPersonScreen") {
@@ -111,7 +111,7 @@ So if we wanted to navigate back to Composable A from Composable B when the user
 </p>
 
 <h3>Circular navigation</h3>
-<p>The documentation <a href='https://developer.android.com/guide/navigation/backstack/circular'>here</a> describes a common problem in navigation. As discussed in the documentation, if we have three composables on the back stack (A, B, and C) and the sequence of navigation is A to B to C, then back to A again, we might want to pop <strong>both B and C</strong> from the back stack when the user returns to A. How can we do that? As the article discusses, we can use <code>popUpTo()</code> to remove everything from the back stack up to the composable passed in as an argument. To do this we must supply a lambda as the final argument of <code>navigate()</code>, containing the <code>popUpTo()</code> call. So for example:
+<p>The documentation <a href='https://developer.android.com/guide/navigation/backstack/circular'>here</a> describes a common problem in navigation. As discussed in the documentation, if we have three composables on the back stack (A, B, and C) and the sequence of navigation is A to B to C, then back to A again, we might want to pop <strong>both B and C</strong> from the back stack when the user returns to A. How can we do that? We could call <code>popBackStack()</code> twice. But what if the user could also navigate from A to C, in which case we would only need to pop once. We clearly need some way of <em>removing all composables above composable A</em>. As the article discusses, we can use <code>popUpTo()</code> to remove everything from the back stack up to the composable passed in as an argument. To do this we must supply a lambda as the final argument of <code>navigate()</code>, containing the <code>popUpTo()</code> call. So for example:
 <pre>navController.navigate("composableA") {popUpTo("composableA")}</pre>
 will remove all composables from the back stack above the latest copy of <code>composableA</code>.</p>
 
