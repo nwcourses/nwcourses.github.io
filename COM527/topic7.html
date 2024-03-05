@@ -9,7 +9,111 @@
 <h1>Mobile Application Development - Part 7</h1>
 <h1>Navigation - Part 1</h1>
 </div>
+<h2>Introduction</h2>
+<p>This week will cover the use of the Navigation API (NavHost, NavGraph, NavController) to do basic navigation. Next week we will look at how we can create an App Bar and menu to enhance our navigation.</p>
+<h2>Navigation</h2>
+<p>So far we have just looked at simple Android apps with a single screen. However, most real-world Android apps will feature <em>multiple screens</em> allowing the user to perform multiple operations. For example one screen might include a map, another screen might include a form allowing the user to add a new point of interest, and a third screen might show the app's settings.</p>
+<p>How is this done? The previous approach was to use <em>multiple activities</em> for each screen, so that a secondary activity would be launched from the main activity. However it's now recommended to use the Android <em>navigation</em> API to navigate from one screen to another within <strong>a single activity</strong>. Luckily, Jetpack Compose works very well with the navigation API. With the navigation API and Compose, you define different composables in different screens, and host them in a <code>NavHost</code> - see below.</p>
 
-<p>This week will cover the use of the Navigation composables (NavHost, NavGraph, NavController) to do basic navigation. Topics such as the TopAppBar and NavigationDrawer will be covered in the following week.</p>
+<h2>The navigation API</h2>
+
+<p>The navigation API consists of a series of classes which work together to enable navigation. It is a separate library from Compose itself so must be included in your package.json (see <a href='https://developer.android.com/jetpack/compose/navigation'>the documentation</a>):
+<pre>implementation("androidx.navigation:navigation-compose:2.7.7")</pre>
+</p>
+<p>The navigation API consists of these key classes:
+    <ul>
+    <li><code>NavHost</code>: a "host" composable for your navigation. This contains all the composables for each screen within it.</li>
+    <li><code>NavGraph</code>: a data structure representing the different navigation destinations, known as <em>routes</em>. Each route has a name (in this respect, they are not unlike routes in web frameworks such as Express, for those of you who are familiar with web development.</li>
+    <li><code>NavController</code>: class to control the navigation. With the <code>NavController</code> you can navigate to other routes.</li>
+    </ul>
+</p>
+<h3>Setting up the navigation API</h3>
+<p>
+You need to make these imports:
+<pre>
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+</pre>
+<ul>
+<li>First, in your top-level composable (e.g. within your theme), set up a <code>NavController</code>:
+<pre>val navController = rememberNavController()</pre>
+This will setup a navigation controller and remember it if the screen rotates.</li>
+<li>Next, within your Composable hierarchy at the appropriate place (probably within your <code>Surface</code>, create a <code>NavHost</code> to host the composables:
+<pre>NavHost(navController=navController, startDestination="mainScreen") {
+    composable("mainScreen") {
+        MainScreenComposable()
+    }
+    composable("settingsScreen") {
+        SettingsComposable()
+    }
+}</pre>
+This sets up a <code>NavHost</code> associated with the given <code>NavController</code>. We specify a lambda to set up the <em>navigation graph</em>. Note that the navigation graph is setup using a series of calls to <code>composable()</code> each of which takes the <em>route</em> of that composable plus a lambda containing the appropriate composable for that route. So here we are specifying that:
+<ul>
+<li>The <code>mainScreen</code> route corresponds to the <code>MainScreenComposable()</code>;</li>
+<li>The <code>settingsScreen</code> route corresponds to the <code>SettingsComposable()</code>;</li>
+</ul>
+</li>
+<li>Later on, we can use the <code>navController</code> to navigate to a particular composable using its route, e.g:
+<pre>navController.navigate("settingsScreen")</pre>
+would navigate to the <code>settingsScreen</code> route, corresponding to the <code>SettingsComposable</code>. This might run, for example, in response to a button press or selecting a menu item.</li>
+</ul>
+
+<h3>How to structure the application - using callbacks to enable loose coupling</h3>
+<p><em>This is discussed <a href='https://developer.android.com/guide/navigation/use-graph/navigate'>in the Android documentation</a>; see "Expose events from your composables".</em></p>
+<p>An application making use of navigation would probably navigate to another composable by means of a button press or menu selection. How might we implement this? Let's say a press of a button from Composable A causes navigation to Composable B. We have a problem because the <code>navController</code> is not accessible in Composable A, only the top-level, parent composable. So we can't directly navigate to Composable B from Composable A. So how can we do it? We can define a <strong>callback function</strong> to perform the navigation. This callback function is defined in the parent composable but <em>passed into</em> any child composable that needs it. So in our example, we might define the callback in the <code>Surface</code> (which has access to the <code>navController</code>) but pass it into Composable A. When the button is clicked in Composable A, it will run the callback (because it was passed into Composable A as a parameter) without having any direct knowledge of what the callback is doing. Thus, Composable A becomes <em>loosely coupled</em>. It's not coupled to the parent composable because it doesn't have any direct reference to the parent's variables. It just has a callback, which could come from <em>any</em> application, and blindly calls the callback when the button is pressed.</p>
+<p>So Composable A might look like this:
+<pre>
+@Composable
+fun ComposableA(addPersonCallback: ()-&gt;Unit) {
+    Button(onClick = { addPersonCallback(name) } ) {
+        Text("Add Person")
+    }
+}
+</pre>
+Note how it takes a callback (which takes a string) as a parameter, and calls that callback when the button is pressed, passing back the name state variable.
+</p>
+<p>The parent composable could then pass the callback in to <code>ComposableA</code>, as follows:
+<pre>
+@Composable
+fun ParentComposable() {
+    val navController = rememberNavController()
+
+    NavHost(navController=navController) {
+        composable("mainScreen") {
+            ComposableA(addPersonCallback = {
+                navController.navigate("addPersonScreen")
+            }
+        }
+
+        composable("addPersonScreen") {
+            ComposableB()
+        }
+    }
+</pre>
+Note how when we set up <code>ComposableA</code> we pass in a callback which when called (when the button in <code>ComposableA</code> is pressed) we'll navigate to the composable with a route of <code>addPersonScreen</code>.
+</p>
+<h3>The back stack</h3>
+<p>When using the Navigation API, each new navigation is added to a <em>stack</em> of screens (see <a href='/COM421/intro2.html'>the COM421 notes on stacks</a>). Each time we navigate to a new composable, a new entry is added to the back stack, and when we press the "back" button, the top entry is removed from the back stack and we return to the previous composable.</p>
+<p>The back stack is shown below:
+<br />
+<img src="../images/backstack.png" alt="The back stack" />
+<br />
+</p>
+<p>This has some consequences for usability. For example, imagine a user starts by viewing Composable A and they then navigate to Composable B. What if clicking a button on Composable B returned the user to Composable A? There are two ways we could implement this:
+    <ul>
+    <li>Add a new entry to the back stack, a <em>second copy</em> of Composable A;</li>
+    <li><em>Remove</em> Composable B from the back stack, and <em>return</em> the user to Composable A.</li>
+    </ul>
+In most cases the second is probably the most desirable option, though it will depend on the specific application. How can this be done? We can call the <code>popBackStack()</code> method of our <code>NavController</code>, e.g:
+<pre>navController.popBackStack()</pre>
+So if we wanted to navigate back to Composable A from Composable B when the user clicks a button, we could pass a callback into Composable B (in a similar manner to the callback example given above) which calls <code>popBackStack()</code>.
+</p>
+
+<h3>Circular navigation</h3>
+<p>The documentation <a href='https://developer.android.com/guide/navigation/backstack/circular'>here</a> describes a common problem in navigation. As discussed in the documentation, if we have three composables on the back stack (A, B, and C) and the sequence of navigation is A to B to C, then back to A again, we might want to pop <strong>both B and C</strong> from the back stack when the user returns to A. How can we do that? As the article discusses, we can use <code>popUpTo()</code> to remove everything from the back stack up to the composable passed in as an argument. To do this we must supply a lambda as the final argument of <code>navigate()</code>, containing the <code>popUpTo()</code> call. So for example:
+<pre>navController.navigate("composableA") {popUpTo("composableA")}</pre>
+will remove all composables from the back stack above the latest copy of <code>composableA</code>.</p>
+
 </body>
 </html>
