@@ -115,5 +115,39 @@ So if we wanted to navigate back to Composable A from Composable B when the user
 <pre>navController.navigate("composableA") {popUpTo("composableA")}</pre>
 will remove all composables from the back stack above the latest copy of <code>composableA</code>.</p>
 
+<h2>Exercises</h2>
+<ol>
+<li>Enhance your mapping application so that it has two screens: one for the map itself, and a settings screen to set the map's <em>tile source</em>, latitude and longitude. The default tile source is the <em>Mapnik</em> style, however others are available. The <em>OpenTopoMap</em> tile source shows maps with relief-shading, i.e. hills are clearly shown. To set the tile source:
+<pre>map1.setTileSource( if (opentopomap) TileSourceFactory.OpenTopo else TileSourceFactory.MAPNIK )</pre>
+Implement this using a boolean state variable <code>openTopo</code> which should be set to true if the user wants the OpenTopoMap. In the settings screen use a <code>Switch</code> to set the OpenTopoMap status. A <code>Switch</code> is a composable which can be "flicked" on and off, and is normally bound to a boolean state variable:
+<br />
+<img src="../images/switch.png" alt="A Switch composable" />
+<br />
+To use a <code>Switch</code>:
+<pre>Switch( checked=openTopo,
+    onCheckedChange = {
+        openTopo = it
+    }
+)</pre>
+where <code>openTopo</code> is a state variable. Note how, with a <code>Switch</code>, we specify the <code>checked</code> status (on or off) and bind it to a boolean state variable. Then, when the user "flicks" the switch, the <code>onCheckedChange</code> lambda is run, which sets the boolean state variable to the current status of the switch. <br />
+<br />
+There should be a button on the main map screen to take the user to the settings screen, and another button on the settings screen to return the user to the map by popping the back stack.</li>
+<li>Implement a shopping list application with <em>two screens</em>. The first screen should display the list (see <a href='topic3.html'>Topic 3</a>). The second screen should allow the user to add a new entry. Use navigation to navigate between both; each screen should have a button allowing the user to navigate to the other screen. When the user has added an entry and returns to the main screen, pop the back stack to return to the main screen. Use a ViewModel to hold the list items and observe it from the main screen. 
+<br />
+<br />
+The code below shows how you can use a view model holding live data as a <em>list</em>. Note how <code>addStudent()</code> adds a student to the list and then syncs the live data - <code>liveStudents</code> - with the list.
+<pre>class StudentViewModel : ViewModel() {
+    val students = mutableListOf&lt;Student&gt;()
+
+    fun addStudent(s: Student) {
+        students.add(s) 
+        liveStudents.value = students
+    }
+
+    val liveStudents = MutableLiveData&lt;MutableList&lt;Student&gt;&gt;)
+}</pre>
+</li>
+</ol>
+ 
 </body>
 </html>
