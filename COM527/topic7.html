@@ -19,6 +19,8 @@
 
 <p>The navigation API consists of a series of classes which work together to enable navigation. It is a separate library from Compose itself so must be included in your package.json (see <a href='https://developer.android.com/jetpack/compose/navigation'>the documentation</a>):
 <pre>implementation("androidx.navigation:navigation-compose:2.7.7")</pre>
+<strong>Note</strong> that version 2.7.7 requires Android API 34 to be installed. The university computers have API 33 as installation took place last summer. If on a university computer you'll need to downgrade to 2.6.0:
+<pre>implementation("androidx.navigation:navigation-compose:2.6.0")</pre>
 </p>
 <p>The navigation API consists of these key classes:
     <ul>

@@ -55,7 +55,7 @@ It is <em>these dangerous permissions</em> which require runtime permission chec
 </ul>
 <h3>Implementation details</h3>
 <h4>Checking whether a permission has been granted</h4>
-<p>You use the <code>checkSelfPermission()</code> call for this, though it is recommended to use  <code>ContextCompat.checkSelfPermission()</code> from the Jetpack AppCompat library, to allow your code to run on older devices.
+<p>You use the <code>checkSelfPermission()</code> call for this.</p>
 <p>Here is an example of checking for the <code>ACCESS_FINE_LOCATION</code> (listen to GPS) permission. This is in a custom function called <code>checkPermissions()</code>, which would be called from  <code>onCreate()</code>.
 <pre>
 fun checkPermissions() {
