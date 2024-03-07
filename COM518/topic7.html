@@ -1,451 +1,354 @@
 <!DOCTYPE html>
-<html>
+<html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-<title>Topic 7.h: Further Node and Express: Modules, Routers and Middleware</title>
+<title>Topic 7: Further React</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
+      
+      
+
 <div class='titlebox'>
-<h1>Topic 7: Further Node and Express: Modules, Routers and Middleware</h1>
+<h1>Topic 7: Further React</h1>
 </div>
-This week we will look at
+<h2 id="components-containing-other-components-and-sharing-state-lifting-state-up">Components containing other components, and sharing state ("lifting state up")</h2>
+
+<p>More complex components will contain <strong>sub-components</strong>. For example, imagine an extended version of the shopping cart in which there are <strong>two React components</strong>, one for adding a product, and one for showing the list of products.</p>
+
+<p>Why would you want to do this? You might want to use the component containing the shopping cart in <em>another application</em>, where the products are loaded in from the web rather than input by the user, for example. Or you might want the "add product" component to connect to a database and store the tasks in a database, rather than displaying them immediately.</p>
+
+<p>So by separating out the component into smaller, separate components, it makes each component <em>reusable</em> in different situations, and you can use one component without the other.</p>
+
+<p>What you are probably asking is: how can the contents of the first sub-component (to add a product) be passed to the second (the list of products)? The recommended approach (see the React documentation) is to store information that needs to be shared between the two components as state of the <strong>parent</strong>. This is known as <strong>lifting state up</strong> (i.e. up to the parent component).</p>
+
+<p>This topic is discussed <a href="https://react.dev/learn/sharing-state-between-components">in the React documentation</a></p>
+
+<h3 id="lifting-state-up---a-simple-example">Lifting state up - a simple example</h3>
+
+<p>We will illustrate this with a simpler example. This example contains three components:</p>
+
 <ul>
-<li>Using Node <em>modules</em> from an Express application;</li>
-<li>Using the Express <em>router</em> to organise and group routes;</li>
-<li>Using <em>middleware</em> to intercept requests before they are processed by routes, and therefore perform <em>pre-processing tasks</em>.</li>
+  <li>an <code class="language-plaintext highlighter-rouge">InputComponent</code> to allow the user to input a name;</li>
+  <li>a <code class="language-plaintext highlighter-rouge">GreetingComponent</code> to show a greeting to the user (using the name input in the <code class="language-plaintext highlighter-rouge">InputComponent</code>);</li>
+  <li>an <code class="language-plaintext highlighter-rouge">AppComponent</code> to manage the application as a whole and to store the state. The name entered in the <code class="language-plaintext highlighter-rouge">InputComponent</code> will be "lifted up" to the <code class="language-plaintext highlighter-rouge">AppComponent</code>.</li>
 </ul>
 
-<h2>Modules</h2>
-<p>So far, we have written our Express server in one file. That is fine when the application is small, but if you need to develop a larger, more complex application, the file will quickly become hard to follow, and thus hard to maintain. We can make our code more maintainable by <em>splitting our routes into groups</em>, all dealing with the same type of entity (for example, songs or users). You can achieve this by creating a separate <em>router</em> for each related group of routes, in a separate file called a <em>module</em>, which can be <em>imported</em> from your main server file.</p>
-<p>There are two approaches for implementing modules, <em>CommonJS modules</em> and <em>ECMAScript 6 modules</em>. ECMAScript 6 modules are a web standard, and are increasingly well supported, so we will use ECMAScript 6 modules.</p> 
+<h4 id="appcomponent">AppComponent</h4>
 
-<h3 id="anexampleecmascript6module">An example ECMAScript 6 module</h3>
-<p>The whole idea of modules is to write <em>reusable code</em> that can be <em>imported into any project</em>. Here is an example of a simple module. You'll notice that most of it is simple JavaScript. Only the <code>export</code> statement at the end makes it a module. <strong>Modules can be used in both Node.js and client-side, in-browser, JavaScript.</strong>
-</p>
-<p>Note that the standard for ECMAScript 6 modules is to use the <code>.mjs</code> extension (JavaScript module) rather than <code>.js</code>. You must use this convention from Node.js, and it is optional in browsers.</p>
-<pre><code class="javascript language-javascript">
-// Module mymaths.mjs
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
 
-function square(n) {
-    return n * n;
-}
-
-function cube(n) {
-    return n * n * n;
-}
-
-export { square, cube };
-</code></pre>
-<p>Note how this module contains two functions, <code>square()</code> and <code>cube()</code>, which calculate the square and the cube of of a number, respectively. However the interesting thing is the statement at the end:</p>
-<pre><code class="javascript language-javascript">export { square, cube };
-</code></pre>
-<p>This statement <em>exports the two functions, so that they can be used from the outside world</em>. This file would be saved as a simple JavaScript file, e.g. <code>mymaths.mjs</code>.</p>
-<h3 id="usingthemodulefromanotherfile">Using the module from another file</h3>
-<p>We've created a simple module, but how might we use it from another file?
-We need to <code>import</code> the functions that have been exported. This could be done from your main server in a Node/Express example, or from browser-based JavaScript. Here's an example of using the module from the main file of a client-side JavaScript application. This is often named <code>index.mjs</code> by convention.</p>
-<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
-
-// Import the two functions from the module. 
-// Note the './' before 'mymaths.mjs'. This means 'the current folder'
-import { square, cube } from './mymaths.mjs';
-
-const a = square(3);
-console.log(`The square of 3 is : ${a}`);
-
-const b = cube(2);
-console.log(`The cube of 2 is : ${b}`);
-</code></pre>
-<p>Note how we have to <em>import</em> the functions from the module before we can use
-them. This makes for easier-to-read code as we can tell exactly where the
-two functions <code>cube()</code> and <code>square()</code> have come from.</p>
-<h3 id="includingmodulesintoawebpage">Including modules into a web page</h3>
-<p>To actually make this code run in a browser, we need to link it to an HTML web page which can be executed from the browser.</p> 
-<p>In a browser, we link a module in the same way as a regular JavaScript file, except we use <code>&lt;script type='module'&gt;</code>. Note that the main JavaScript file, <code>index.mjs</code>, is itself a module. It's the 'main module' of the application and it's using another module, <code>mymaths.mjs</code>. We have actually seen this already, in week 3. For example:</p>
-<pre><code class="html language-html">&lt;html&gt;
-&lt;head&gt;
-&lt;script type='module' src='index.mjs'&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-...
-</code></pre>
-<p>A critical point is that <strong>you have to access your site via a web server</strong> to use modules. You can use your own Express server, or if you want to test quickly, you can easily set up a web server in the current folder with:
-<pre>npx http-server</pre>
-and then access pages on port 8080, e.g:
-<pre>http://localhost:8080/index.html</pre>
-</p>
-<h3 id="example2onlyimportingsomefunctions">Example 2: Only importing some functions</h3>
-<p>It's possible to only import <em>some</em> functions from a module. For instance this version of our <code>index.mjs</code> code:</p>
-<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
-
-// Import cube() (only) from the module. 
-import { cube } from './mymaths.mjs';
-
-// Call the cube() function from the module
-const a = cube(3);
-console.log(`The cube of 3 is : ${a}`);
-
-// This will not work now, as square() was not imported from the module
-const b = square(4);
-console.log(`The square of 4 is : ${b}`);
-</code></pre>
-<h3 id="example3groupingallmembersofanexportedmoduleintoamoduleobject">Example 3: Grouping all members of an exported module into a module object</h3>
-<p>It can be a little messy to import each function
-separately. It would be nicer if we could <em>collect together all module
-exports as a single object</em> when we import them. This approach is frequently used with libraries, such as three.js. This version of <code>index.mjs</code> shows this:</p>
-<pre><code class="javascript language-javascript">// index.mjs - 'main' JavaScript file
-
-// Import the two functions from the module into a module object 'MyModule'
-import * as MyModule from './mymaths.mjs';
-
-// Call the functions from the module
-
-const a = MyModule.square(3);
-console.log(`The square of 3 is : ${a}`);
-const b = MyModule.cube(4);
-console.log(`The cube of 4 is : ${b}`);
-</code></pre>
-<p>Note how this differs from the first two examples. First, consider the
-<code>import</code> statement:</p>
-<pre><code class="javascript language-javascript">import * as MyModule from './mymaths.mjs';
-</code></pre>
-<p>Rather than importing each function separately, they are all being imported
-as a single <em>module object</em>, MyModule. You can reference each exported 
-function by referencing the module object name, then a dot, then the function
-name, for example <code>MyModule.cube(...)</code>. </p>
-<p>(To relate this to object-oriented programming, which we did in your web module last year and you may have done COM528, <code>MyModule</code> is an <em>object</em> and <code>cube()</code> is a <em>method</em> of that object).</p>
-<h3 id="example4defaultexport">Example 4: Default export</h3>
-<p>If your module only needs to export one function or object, you can declare
-this as the <em>default export</em>. This is another way of achieving the effect of the previous example, with all exports from a module packaged into a single
-object. However, with a default export, we group everything together as an object when <em>exporting</em>, rather than when importing. So here is an example of the module using a default export:</p>
-<pre><code class="javascript language-javascript">function _cube(name) {
-    return n*n*n; 
-}
-
-function _square(n) {
-    return n*n;
-}
-
-const exportedObject = {
-    cube: _cube,
-    square1: _square,
-    PI: 3.141592654
-};
-
-export default exportedObject;
-</code></pre>
-<p>This exports a default object with two fields: The <em>cube</em> field is set
-equal to the function <code>_cube()</code> (note that an underscore is a convention in JavaScript for a 'private' or 'internal function), and the <em>square</em> field is set equal to the function <code>_square()</code>.</p>
-<p>We can then use the default export in our main module using:</p>
-<pre><code class="javascript language-javascript">import MyDefaultObject from './mymaths.mjs';
-</code></pre>
-<p>This will import the <em>default</em> export from the module as <code>MyDefaultObject</code>, so we can then call the methods with:</p>
-<pre><code class="javascript language-javascript">const a = MyDefaultObject.cube(4);
-const b = MyDefaultObject.square(9);
-</code></pre>
-and we can also use the constant <code>PI</code>, as that is included in the exported object:
-<pre>console.log(MyDefaultObject.PI);</pre>
-</p>
-<h2>Express Routers</h2>
-<p>Having looked at modules, we will now look at how to implement an Express <em>router</em> as a module.</p>
-<h3>Implementing an Express Router as a Module</h3>
-<p>In a larger application, you will quickly find that your main Express file (often <code>app.mjs</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module.  Here is an example router module (<em>product.mjs</em>) which we would save in our <em>routes</em> folder:
-<pre>
-// routes/product.mjs 
-
-import express from 'express';
-const productRouter = express.Router();
-
-productRouter.get('/all', (req,res)=&gt; {
-    // code to return all products
-});
-
-productRouter.get('/id/:id', (req,res)=&gt; {
-    // code to find the product with the given ID
-});
-
-export default productRouter; // export the module for external use
-</pre>
-Note how we are making <code>productRouter</code> the default export from this module, which means we'll be able to import it as follows:
-<pre>import productRouter from './routes/product.mjs';</pre>
-This is shown in the full Express application, below:
-<pre>
-import express from 'express';
-const app = express();
-
-// Import our product router module which we created above
-import productRouter from './routes/product';
-
-// Tell the app to use productRouter for all routes beginning with /products
-// As we are using "use()", the router is acting as a middleware - see below
-app.use('/products', productRouter);
-app.listen(3000);
-</pre>
-So the song router is imported from the <em>routes/product</em> module
-(corresponding to routes/product.mjs) and then we call <em>use()</em> 
-with two arguments:
-    <ul>
-    <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
-    <li>The router object itself.</li>
-    </ul>
-So, the route <code>/products/all</code> will be handled via the product 
-router (as the route begins with <code>/products</code>) and then via the <code>/all</code> route within the <code>products</code> router.</p>
-
-<h2>Middleware</h2>
-
-<p>Express uses the concept of <em>middleware</em>. Middleware in 
-the context of web APIs consists of code which runs before a request is handled,
-which can modify the <em>req</em> and <em>res</em> objects. It is typically
-used to prepare the request before it's handled, or intercept requests to perform operations such as logging. <code>express.json()</code>, which you have already seen, is actually middleware. It parses JSON from the body of the incoming HTTP request and adds a <em>body</em> property to the <em>req</em> object allowing you to easily access POST data. Without the middleware, the <em>body</em> property of <em>req</em> would not exist.</p>
-<p>Middleware is included with the <code>use()</code> method of your <code>app
-</code> object, or with <code>get()</code> and <code>post()</code> if you only want a certain piece of middleware to run with GET and POST requests, respectively. Revisiting the use of <code>express.json()</code>, note how it is included with <code>use()</code>:
-<pre>app.use(express.json());</pre>
-<code>express.json()</code> is a function that returns middleware to parse JSON in the request body.
-</p>
-<h3>Writing our own middleware</h3>
-<p>You will frequently want to write <em>your own middleware</em>. A piece of middleware is simply a function which takes three parameters - described below - and can examine the request or modify the request and/or the response. The three parameters taken by a middleware function are:
-    <ul>
-    <li>the request object (typically called <code>req</code>);</li>
-    <li>the response object (typically called <code>res</code>);</li>
-    <li>the next function in the middleware chain (see below; typically called <code>next</code>).</li>
-    </ul>
-We write our middleware function and then <code>use()</code> it from our Express application object.</p>
-<p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request.
-<pre>
-import express from 'express';
-const app = express();
-
-app.use( (req,res,next) =&gt; {
-    console.log(`Received a request at ${Date.now()} milliseconds.`);
-    next();
-});
-
-app.get('/', (req,res) =&gt; {
-    res.send(`Hello world!`);
-});
-
-app.listen(3000);
-</pre>
-Note how <em>use()</em> expects a function which takes request and response
-as parameters, the same as the route handlers, as well as <code>next</code>. This example writes a message to the console informing the user of the time of the request.</p>
-<p>Notice the call to the <em>next();</em> function (also passed as a
-parameter to use()). This calls the next function in the middleware chain.
-What do we mean by this? It is important to note that we can <em>specify multiple items of middleware via multiple <code>use()</code> calls</em>. Each item of middleware is called in the order it is specified, as long as <code>next()</code> is called from the previous item. So, if another middleware function is specified after this one, it will be called with <code>next()</code>. If there is no middleware after this one, the route handler itself will be called with <code>next()</code>.</p>
-<p>The diagram below shows how the request can pass through multiple items of
-middleware before reaching the route handler:
-<br />
-<img src="../images/middleware.png" alt="Multiple items of middleware" />
-</p>
-<h3>Another example - CORS</h3>
-<p>Here is a second example (snippet only, not the whole server) which adds a <a href='topic3.html#cors'>CORS</a> header to all responses to allow clients from any domain to connect. In this example, the middleware will be added as a custom function which will allow any client to connect to this server.
-<pre>
-app.use((req, res, next) =&gt; {
-    res.set('Access-Control-Allow-Origin', '*');
-    next();
-});
-</pre> 
-Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
-<h3>Writing middleware as a separate function in a module</h3>
-<p>Furthermore, we can write the middleware as a separate function, rather than an arrow function, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. The advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
-<pre>
-// corsMiddleware.mjs
-function corsMiddleware(req, res, next) {
-    res.set('Access-Control-Allow-Origin', '*');
-    next();
-}
-
-export default corsMiddleware;
-</pre>
-We could then <code>import</code> this from our main server, and <code>use()</code> it, as follows:
-<pre>import express from 'express';
-const app = express();
-
-// Require the middleware module
-import corsMiddleware from './corsMiddleware';
-
-// use() it
-app.use(corsMiddleware);
-
-// Routes
-app.get('/', ...);
-
-// etc
-
-app.listen(3000);</pre>
-</p>
+function AppComponent({title, defaultName}) {
+    const [name, setName] = React.useState(defaultName);
 
 
-<h3>Middleware with specific routes</h3>
-<p>We can use routes to specify that a given middleware will only
-run before handling <em>a particular route</em>. This can be useful as,
-we might want certain middleware to only run in response to certain
-requests.  We do this by supplying an optional first argument to <em>use()</em> to specify which routes will run this middleware. For example,
-the middleware below (showing the time of the request once again)
-will only run with a route of <em>search</em> followed by a search term:
-<pre>
-import express from 'express';
-const app = express();
-
-// Note that middleware only runs with /search/:query route
-app.use( '/search/:query', (req,res,next) =&gt; {
-    console.log(`Received a request for /search at ${Date.now()} milliseconds.`);
-    next();
-});
-
-// Middleware not called
-app.get('/', (req,res) =&gt; {
-    res.send(`Hello world!`);
-});
-
-// Middleware called
-app.get('/search/:query', (req,res) =&gt; {
-    res.send(`Searching for ${req.params.query}...`);
-});
-
-app.listen(3000);
-</pre>
-</p>
-<h3>Middleware with specific HTTP methods</h3>
-<p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
-<pre>
-import express from 'express';
-const app = express();
-
-// This middleware will only run with POST requests, due to the use of
-// app.post() rather than app.use()
-// * means 'match all', so this middleware will run with all POST requests
-app.post( '*', (req,res,next) =&gt; {
-    console.log(`Received a POST request at ${Date.now()} milliseconds.`);
-    next();
-});
-
-// Middleware not called
-app.get('/', (req,res) =&gt; {
-    res.send(`Hello world!`);
-});
-
-// Middleware called, because it uses post()
-app.post('/product/new', (req,res) =&gt; {
-    // Code to add a product to the database
-});
-
-app.listen(3000);
-</pre>
-</p>
-<h3>Using multiple middleware with one statement</h3>
-<p>You can use multiple items of middleware in <em>one</em> <code>use()</code>, <code>get()</code> or <code>post()</code> call. You specify each middleware function as a successive parameter, so that the syntax is:
-<pre>
-app.use('/route', middleware1, middleware2, middleware3...);
-</pre>
-So, for example:
-<pre>
-app.use( '/testroute', (req, res, next) =&gt; {
-            console.log('Running middleware 1')
-            next();
-        },
-         (req, res, next) =&gt; {
-            console.log('Running middleware 2')
-            next();
-        } 
-);
-</pre>
-In this example, all requests to <code>/testroute</code> will be intercepted by <em>both</em> specified middleware functions, and both messages will be displayed on the console, in order (the first specified function will run first).</p>
-<h3>Using middleware to prevent access to a route under certain conditions</h3>
-<p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. In the example below, the middleware handling the <code>/christmasSurprise</code> route tests whether it's December. If it is, then the <code>/christmasSurprise</code> route is called with <code>next()</code>. if not, the user is told to come back when it's Christmas!
-<pre>
-import express from 'express';
-const app = express();
-
-// Christmas checker middleware: is it December?
-app.use('/christmasSurprise', (req, res, next) =&gt; {
-    // Create an object representing today's date
-    const d = new Date();
-
-    // Get the current month, note that d.getMonth() gives a month in the range
-    // 0-11 so we have to add one to get the normal numbering (1-12)
-    const month = d.getMonth() + 1;
-
-    // If it's December, let the client access the route
-    if (month == 12) {
-        next();
-    // If not, tell them to come back later!
-    } else {
-        res.send(`It's not Christmas yet, come back in ${12 - month} months!`); 
+    function updateState(name) {
+        setName(name);
     }
-});
 
-// Christmas surprise route, "guarded" by the middleware above
-app.get('/christmasSurprise', (req, res) =&gt; {
-    const html = "&lt;h1&gt;HERE IS YOUR CHRISTMAS SURPRISE!&lt;/h1&gt; ... etc ...";
-    res.send(html);
-});
+    return (
+        &lt;div&gt;
+        &lt;InputComponent title={title} passBackUserInput={updateState} name={name}/&gt;
+        &lt;GreetingComponent name={name} /&gt;
+        &lt;/div&gt;
+    )
 
-app.listen(3000);
-</pre>
-</p>
-<h2>dotenv - Environment variables</h2>
-<p>Finally this week we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. Examples of such variables might include database name, username and password. This also has a security advantage: by adding private data to your <code>.env</code> it means that you can keep information such as passwords outside your source code, and publish your code to GitHub or another repository without giving away such information.</p>
-<p><code>dotenv</code> is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
-<pre>npm install dotenv</pre>
-You then <code>import</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
-<pre>
-import express from 'express';
-const app = express();
-<em>import 'dotenv/config';</em>
-</pre>
-Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
-<pre>
-DB_HOST=localhost
-DB_USER=root
-DB_DBASE=mysql
-</pre>
-We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example, if we were using MySQL, which requires a host, username and password, we could do:
-<pre>
-const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    database: process.env.DB_DBASE
-});
-</pre>
-It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
-<hr />
-<h2>Exercise</h2>
-<p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
-<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you fully understand the material from Weeks 1-4 and 6 before attempting it. Please ensure that you have completed last week (Week 6) first, and also the standard exercises for Weeks 1-4.</p>
-<ol>
-<li>Make a <em>copy</em> of your Express server, so you still have the original version for reference.</li>
-<li>Available <a href='wadsongs.db'>here</a> is an updated wadsongs.db to use, including an <code>ht_users</code> table for users. Note the <code>ht_users</code> table has these columns: username, password, name, dayofbirth, monthofbirth, yearofbirth, balance, isadmin, id. Download this, so it replaces your existing wadsongs.db.</li> 
-<li>Create a separate <em>router</em> file, containing routes for users. This should be named <code>users.mjs</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain two routes relating to users. These should be:
-    <ul>
-    <li>An <code>/allUsers</code> route which returns details of all users as JSON; </li>
-    <li>a <code>/user/:username</code> route which returns details of a specific user, identified by username.</li>
-    </ul>
-</li>
-<li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
-<li>Test it out by trying out the following in your browser (type in the URL directly, do not access from AJAX):
-    <ul>
-    <li>List all users;</li>
-    <li>Look up a user by username.</li>
-    </ul>
-</li>
-<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 2) to a separate router inside the file <code>songs.mjs</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
-<li>Install <code>dotenv</code> and <code>import</code> it in your main server application. Add <em>middleware</em> to your server so that any <code>POST</code> request can only be accessed if the environment variable <code>process.env.APP_USER</code> exists. (This is a way of simulating a user being logged in without writing a full login system, which we have not done yet). To test whether <code>process.env.username</code> exists we can test whether it's <code>undefined</code>: 
-<pre>
-if(process.env.APP_USER === undefined) {
-    // process.env.APP_USER does not exist (it's undefined)
-    // Return a 401 (Unauthorized) HTTP code, with a JSON error message
-    res.status(401).json({error: "You're not logged in. Go away!"});
-} else {
-    // username exists, carry on...
 }
-</pre>
-Test this out by first trying to access a <code>POST</code> route without creating a <code>.env</code> file. Test this out in RESTer; you should get a 401 error and the "Go away" message as a response. Then, create a <code>.env</code> file with a <code>username</code> environment variable. The username can be anything, for example:
-<pre>APP_USER=AdamAdams</pre>
-You should now be able to access your POST route.
+export default AppComponent;
+</code></pre></div></div>
+
+<h4 id="inputcomponent">InputComponent</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
+
+function InputComponent({title, passBackUserInput}) {
+
+
+    function updateName() {
+        const n =  document.getElementById('name').value;
+        passBackUserInput(n);
+    }
+
+    return (
+        &lt;div&gt;
+        &lt;h1&gt;{title}&lt;/h1&gt;
+        &lt;fieldset&gt;
+        &lt;input type='text' id='name' onChange={updateName} /&gt;
+        &lt;/fieldset&gt;
+        &lt;/div&gt;
+    )
+}
+export default InputComponent;
+</code></pre></div></div>
+
+<h4 id="greetingcomponent">GreetingComponent</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
+
+function GreetingComponent({name}) {
+    return (
+        &lt;div&gt;{name}&lt;/div&gt;
+    )
+}
+
+export default GreetingComponent;
+</code></pre></div></div>
+
+<p>What is happening here? The diagram gives a general idea:</p>
+
+<p><img src="../images/liftingstate.png" alt="Lifting up state" /></p>
+
+<p>Firstly note the parent component, <code class="language-plaintext highlighter-rouge">AppComponent</code>. Note that the parent component stores the name in its state. Note how the name is passed down to the two sub-components, <code class="language-plaintext highlighter-rouge">InputComponent</code> and <code class="language-plaintext highlighter-rouge">GreetingComponent</code>, as their props. In a similar way to the text field value being tightly bound to the state, this will tightly bind the props of the sub-components to the state of the parent.</p>
+
+<p>In the <code class="language-plaintext highlighter-rouge">GreetingComponent</code> we display the name prop, which as we have seen, is tightly bound to the state of the parent because it's passed down from the parent.</p>
+
+<p>The important thing with the <code class="language-plaintext highlighter-rouge">InputComponent</code> is that it needs a way to send the name the user entered back up to the <code class="language-plaintext highlighter-rouge">AppComponent</code>, because that is where the name is being stored in the state. To do this, we pass a <strong>method to update the state</strong> into the <code class="language-plaintext highlighter-rouge">InputComponent</code>, which can then call it. We do this by passing the <code class="language-plaintext highlighter-rouge">updateState()</code> method of <code class="language-plaintext highlighter-rouge">AppComponent</code> (which updates the state) into the <code class="language-plaintext highlighter-rouge">InputComponent</code> as a <em>prop</em> called <code class="language-plaintext highlighter-rouge">passBackUserInput</code>.</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;InputComponent passBackUserInput={updateState} name={name}/&gt;
+</code></pre></div></div>
+<p>Thus, this prop, i.e. <code class="language-plaintext highlighter-rouge">passBackUserInput()</code>, can be called as a method from the <code class="language-plaintext highlighter-rouge">InputComponent</code>. This is precisely what happens when we encounter an onChange event; we first call the <code class="language-plaintext highlighter-rouge">InputComponent</code>'s own updateName() and then pass the name in the text field to passBackUserInput(). Since the passBackUserInput() property is set equal to the updateState() method in AppComponent, any  change to the name in the text field will update the state of the parent component. Then, since the <code class="language-plaintext highlighter-rouge">name</code> prop of the GreetingComponent is tightly bound to the parent's state, any updates in the text field will update the <code class="language-plaintext highlighter-rouge">GreetingComponent</code>.</p>
+<h2 id="refs---preserving-data-between-renderings">Refs - preserving data between renderings</h2>
+
+<p><em>React documentation: <a href="https://react.dev/learn/referencing-values-with-refs">here</a></em></p>
+
+<p>Sometimes it might be desirable to <em>preserve data</em> between renderings, without using state. State is intended for data that will be <em>rendered</em> (hence, updating state triggers a re-rendering) but there are some cases where we might wish to preserve data for other reasons. For example, we might want to keep hold of a timer handle used to control a timer function. Or we might want to use objects which are part of other APIs, such as mapping APIs (e.g. Leaflet).</p>
+
+<p>We could use global variables, declared outside the component, for this in theory. However this is not considered good design as components are supposed to be  <em>pure functions</em> (ref <a href='https://react.dev/learn/keeping-components-pure'>React docs</a>) which perform a task (rendering a component) without having any side-effects (e.g. changing variables external to the component).</p>
+
+<p>Instead we can use a <em>ref</em> (reference). A ref is a variable that can be changed within the component without causing a re-rendering.</p>
+
+<p>A good example to store in a ref might be a timer variable. You might know that you can use <code class="language-plaintext highlighter-rouge">setInterval()</code> in JavaScript to run code every so many milliseconds, e.g.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+const startTime = Math.round(Date.now() / 1000);
+
+const timerHandle = setInterval( () =&gt; {
+    const timeNow = Math.round(Date.now() / 1000);
+    document.getElementById('seconds').innerHTML = `${timeNow - startTime} seconds have passed.`;
+}, 1000);
+</code></pre></div></div>
+<p>In the example above the arrow function which displays the number of seconds that have passed, by subtracting the initial time from the current time. <code>Date.now()</code> gives the number of milliseconds since January 1st 1970, so we divide by 1000 and round to the nearest integer to convert this to seconds. The arrow function will run every second (1000 milliseconds). Note also how <code class="language-plaintext highlighter-rouge">setInterval()</code> returns a handle on the timed function (stored in the variable <code class="language-plaintext highlighter-rouge">timer</code> here) which can be used later to cancel the timer:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>clearInterval(timerHandle);
+</code></pre></div></div>
+
+<p>So how can we do this in React? We can store the timer as a <em>ref</em>, because we need to preserve it between renderings. For example:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
+
+function Timer() {
+
+    const timerHandle = React.useRef(null);
+    const [startTime, setStartTime] = React.useState(0);
+    const [currentTime, setCurrentTime] = React.useState(0);
+
+
+    function startTimer() {
+        // If the timer is currently running...
+        if(timerHandle.current == null) {
+
+            // Store the start time in state
+            const initialTime = Math.round(Date.now() / 1000);
+            setStartTime(initialTime);
+            setCurrentTime(initialTime);
+
+            // Start the interval function
+            timerHandle.current = setInterval ( () =&gt; {
+                // Every second, store the current time in state
+                const timeNow = Math.round(Date.now() / 1000);
+                setCurrentTime(timeNow);
+            } , 1000 );
+        }
+    }
+
+    function stopTimer() {
+        if(timerHandle.current != null) {
+            clearInterval(timerHandle.current);
+            timerHandle.current = null;
+        }
+    }
+
+    // Render the number of seconds that have passed by subtracting the
+    // current time from the start time
+    return( &lt;div&gt;
+        Time: {currentTime - startTime} seconds &lt;br /&gt;
+        &lt;input type='button' value='start' onClick={startTimer} /&gt;
+        &lt;input type='button' value='stop' onClick={stopTimer} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default Timer;
+</code></pre></div></div>
+
+<p>What's this doing?</p>
+<ul>
+  <li>It's a component simulating a timer, which starts from 0 and increments every second when 'start' is clicked, and stops when 'stop' is clicked.</li>
+  <li>It uses an interval function to do this. The interval function resets the <code class="language-plaintext highlighter-rouge">time</code> state variable to the current time (in seconds since January 1st 1970) every second. The timer handle (<code class="language-plaintext highlighter-rouge">timerHandle</code>) is cleared when the user clicks 'stop'.- In the rendering, the time in seconds is calculated by subtracting the initial time (<code class="language-plaintext highlighter-rouge">startTime</code>, another state variable) from the current time (the <code class="language-plaintext highlighter-rouge">time</code> state variable).</li>
+  <li>The handle is stored in a <strong>ref</strong> as we need to preserve it between renderings, but isn't being rendered itself and we do not want any changes to it to trigger a re-rendering. Note that to access the actual data in the ref, we need to use its <code class="language-plaintext highlighter-rouge">current</code> property, e.g. <code class="language-plaintext highlighter-rouge">timerHandle.current</code> in this example.</li>
+</ul>
+
+<p>Here is another example of using a ref, to hold a Leaflet map.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
+import 'leaflet';
+
+function LeafletMap({lat1, lon1}) {
+    const map = React.useRef(null);
+    const [lat, setLat] = React.useState(lat1 || 51.05);
+    const [lon, setLon] = React.useState(lon1 || -0.72);
+
+    React.useEffect( ()=&gt; {
+        // Initialise the map ref if it hasn't been initialised already
+        if(map.current === null) { 
+            map.current = L.map("map1");
+        }
+
+        // Set the map up in the normal way
+        L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: "Copyright OSM contributors, ODBL" } ).addTo(map.current);
+        const pos = [lat, lon];    
+        map.current.setView(pos, 14);
+
+        // Handle the map moveend event by updating the state appropriately
+        map.current.on("moveend", e=&gt; {
+            const centre = map.current.getCenter();
+            setLat(centre.lat);
+            setLon(centre.lng);
+        });
+    });
+
+
+    return(
+        &lt;div&gt;
+        Lat: &lt;input id='lat' /&gt;
+        Lon: &lt;input id='lon' /&gt;
+        &lt;input type='button' value='go' onClick={setPos} /&gt;
+        &lt;p&gt;Map centred at: {lat} {lon}&lt;/p&gt;
+        &lt;div id="map1" style={{width:"800px", height:"600px"}}&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    );
+    
+    function setPos() {
+        const lt = document.getElementById('lat').value;
+        const lng = document.getElementById('lon').value;
+        setLat(lt);
+        setLon(lng);
+        map.current.setView([lt, lng], 14);
+    }
+}
+
+export default LeafletMap;
+</code></pre></div></div>
+<p>In this example, the current map latitude and longitude are stored in state and displayed. Also, when the user clicks the button to change the location, the map moves to that location.</p>
+
+<p>The interesting thing, though, is that the map is stored as a <code class="language-plaintext highlighter-rouge">ref</code>. It's not a state variable to be rendered, it's an external entity to React which needs to be kept around between renders. Refs are a good way of handling such external objects. So we initialise it as a ref, and then update the position of the map using that ref in <code class="language-plaintext highlighter-rouge">setPos()</code>.</p>
+
+<p>We also handle map <code class="language-plaintext highlighter-rouge">moveend</code> events (when the user stops dragging the map) so that the <code class="language-plaintext highlighter-rouge">lat</code> and <code class="language-plaintext highlighter-rouge">lon</code> state variables are updated to hold the new centre position of the map.</p>
+
+<p>Finally you will note that the map initialisation code is written inside an arrow function passed to something we have not discussed yet: <code class="language-plaintext highlighter-rouge">React.useEffect()</code>. What is this? The next section will explain!</p>
+
+<h2 id="effects">Effects</h2>
+
+<p><em>React documentation: <a href="https://react.dev/learn/synchronizing-with-effects">here</a></em></p>
+
+<p>Commonly we might want some non-React code to run each time we render. For example, we might wish to fetch data from an external web API. We cannot do this directly inside the component function, as the component function is intended for rendering only; it should execute quickly and not contain time-consuming code. We could use an event handler (e.g. a button click handler), to perform these kinds of operations, but in some cases we might want the action to occur without such an event, e.g. when the component first loads or each time we render.</p>
+
+<p>Instead, we can create an <code class="language-plaintext highlighter-rouge">effect</code>. An effect is a function which we might want to run each time the component renders, which performs some kind of external operation. We specify effects with <code class="language-plaintext highlighter-rouge">React.useEffect()</code>, passing in a function as a parameter. An example is given above in the mapping component. Note that the code to initialise the map is placed within an arrow function passed as a parameter to <code class="language-plaintext highlighter-rouge">React.useEffect()</code>.</p>
+
+<p>Note how in our effect, we check that the map (a ref) is <code class="language-plaintext highlighter-rouge">null</code>. If it's <code class="language-plaintext highlighter-rouge">null</code>, it means we haven't initialised it yet so we initialise it. If not, we do nothing. Effects run <strong>each time the component is rendered</strong>, so we have to ensure that we do not re-initialise the map each time the component is rendered, which would be very wasteful and would also constantly reset the map to its default location.</p>
+
+<h3 id="effects-and-asyncawait">Effects and async/await</h3>
+
+<p>You cannot make an effect an <code class="language-plaintext highlighter-rouge">async</code> function. If you wish to do asynchronous tasks (e.g. AJAX) from an effect directly, you should use the <code class="language-plaintext highlighter-rouge">then</code>-based syntax  for promises instead. See <a href="https://nwcourses.github.io/COM518/topic3.html">WAD week 3</a>.</p>
+
+<h3 id="running-effects-just-once---on-initialisation">Running effects just once - on initialisation</h3>
+
+<p>The example above showed one way to prevent effects running on each render, by setting up a ref and checking whether it's <code class="language-plaintext highlighter-rouge">null</code>. However, there is a second, automatic, way of doing this. We can pass an empty array as the second parameter to <code class="language-plaintext highlighter-rouge">React.useEffect()</code>. This will cause the effect to run just once, on startup. The example below is the Leaflet map example re-written to do this:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
+import 'leaflet';
+
+function LeafletMap2({lat1, lon1}) {
+    const map = React.useRef(null);
+    const [lat, setLat] = React.useState(lat1 || 51.05);
+    const [lon, setLon] = React.useState(lon1 || -0.72);
+
+    React.useEffect( ()=&gt; {
+        // As effect will run only once, there is no need to check if map.current is null
+        map.current = L.map("map1");
+
+        // Set the map up in the normal way
+        L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: "Copyright OSM contributors, ODBL" } ).addTo(map.current);
+        const pos = [lat, lon];    
+        map.current.setView(pos, 14);
+
+        // Handle the map moveend event by updating the state appropriately
+        map.current.on("moveend", e=&gt; {
+            const centre = map.current.getCenter();
+            setLat(centre.lat);
+            setLon(centre.lng);
+        });
+    },[]);
+
+
+    return(
+        &lt;div&gt;
+        Lat: &lt;input id='lat' /&gt;
+        Lon: &lt;input id='lon' /&gt;
+        &lt;input type='button' value='go' onClick={setPos} /&gt;
+        &lt;p&gt;Map centred at: {lat} {lon}&lt;/p&gt;
+        &lt;div id="map1" style={{width:"800px", height:"600px"}}&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    );
+    
+    function setPos() {
+        const lt = document.getElementById('lat').value;
+        const lng = document.getElementById('lon').value;
+        setLat(lt);
+        setLon(lng);
+        map.current.setView([lt, lng], 14);
+    }
+}
+
+export default LeafletMap2;
+</code></pre></div></div>
+<p>What is this empty array? It's an array of dependencies: a series of props or state variables which will trigger a re-run of the effect if they change. You can fill this array with such props or state variables if you want to re-run the effect if any props or state variables change. If the array is empty, however, you are specifying that the effect should <em>never</em> be re-run: it should only run once when the component first loads.</p>
+
+<h2 id="exercise">Exercise</h2>
+
+<ul>
+
+  <li>Using the concept of lifting up state, modify your AJAX React exercise from last week so that it contains a parent component containing one component allowing the user to enter an artist, and another component to display the results.
 </li>
-<li>As shown in the example with CORS, write the user-checking middleware in a separate module as a function and export it. Then, <code>import</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
-<li>Prevent all access to the <code>/users</code> group of routes (see Question 3) unless the username exists in <code>.env</code>. Use the same middleware for this.</li>
-<li><strong>Advanced question:</strong> Modify your answer to the previous question so that, if the <code>/users</code> group of routes is requested, the middleware checks that the <code>APP_USER</code> username is <em>actually in the database</em> (use a SELECT statement to do this) and that the value of the <code>isadmin</code> column of this user is 1. In this way, only admin users can access the <code>/users</code> routes which, for data protection reasons, is probably a good idea!</li>
-</ol>
-</body>
+
+  <li>
+    Further modify your AJAX music search, ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates if the <code>artist</code> state variable updates. <strong>IMPORTANT</strong>: you should ensure that the effect only runs if the <code>artist</code> state variable changes. If you do not, your application might make repeated requests to the server, overloading it.
+  </li>
+  <li>
+    <p>Try out the Leaflet map example above. You'll need to link Leaflet to your HTML <code class="language-plaintext highlighter-rouge">head</code> section (see below).</p>
+  </li>
+  <li>Enhance your Leaflet map so that the user can search for a place over AJAX by connecting to this web API: <code class="language-plaintext highlighter-rouge">https://opentrailview.org/nomproxy.php?q=place_name
+</code>, where <code class="language-plaintext highlighter-rouge">place_name</code> is the place to search for. When the AJAX search has completed, set the <code class="language-plaintext highlighter-rouge">lat</code> and <code class="language-plaintext highlighter-rouge">lon</code> inside the state to be the latitude and longitude of the first result within the JSON returned by the API.</li>
+</ul>
+
+<h4 id="advanced-exercise">Advanced exercise</h4>
+
+<p><strong>Advanced</strong>: If you get that done, develop the map application so you have a <code class="language-plaintext highlighter-rouge">SearchResults</code> component (within the parent component) which should list all results (not just the first). Each result should have a button labelled "Go to this location" which, when clicked, should set the latitude and longitude of the map to that location.</p>
+
+<p>Here is an example of some JSX showing how you could pass parameters into an <code class="language-plaintext highlighter-rouge">onClick</code> handler. You could set the <code class="language-plaintext highlighter-rouge">onClick</code> handler to be an arrow function, and then inside the arrow function, call another function (<code class="language-plaintext highlighter-rouge">goTo()</code> here) which moves the map to the specified location.</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;input type='button' onClick={() =&gt; { goTo(result.lat,result.lon) } } /&gt;
+</code></pre></div></div>
+
+
+      
+    </div>
+
+
+
+      
+    </div>
+  </body>
 </html>
 
