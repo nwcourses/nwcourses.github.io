@@ -186,7 +186,7 @@ export default Timer;
   <li>The handle is stored in a <strong>ref</strong> as we need to preserve it between renderings, but isn't being rendered itself and we do not want any changes to it to trigger a re-rendering. Note that to access the actual data in the ref, we need to use its <code class="language-plaintext highlighter-rouge">current</code> property, e.g. <code class="language-plaintext highlighter-rouge">timerHandle.current</code> in this example.</li>
 </ul>
 
-<p>Here is another example of using a ref, to hold a Leaflet map.</p>
+<p>Here is another example of using a ref, to hold a Leaflet map. Note that <code>React.useEffect()</code> sets up an <em>effect</em>, which will be discussed below. An effect is a function which can run either on every render or on start-up only - see below for more details.</p>
 
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import React from 'react';
 import 'leaflet';
@@ -200,21 +200,21 @@ function LeafletMap({lat1, lon1}) {
         // Initialise the map ref if it hasn't been initialised already
         if(map.current === null) { 
             map.current = L.map("map1");
+            // Set the map up in the normal way
+            L.tileLayer
+            ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                { attribution: "Copyright OSM contributors, ODBL" } ).addTo(map.current);
+            const pos = [lat, lon];    
+            map.current.setView(pos, 14);
+
+            // Handle the map moveend event by updating the state appropriately
+            map.current.on("moveend", e=&gt; {
+                const centre = map.current.getCenter();
+                setLat(centre.lat);
+                setLon(centre.lng);
+            });
         }
 
-        // Set the map up in the normal way
-        L.tileLayer
-        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            { attribution: "Copyright OSM contributors, ODBL" } ).addTo(map.current);
-        const pos = [lat, lon];    
-        map.current.setView(pos, 14);
-
-        // Handle the map moveend event by updating the state appropriately
-        map.current.on("moveend", e=&gt; {
-            const centre = map.current.getCenter();
-            setLat(centre.lat);
-            setLon(centre.lng);
-        });
     });
 
 
@@ -315,28 +315,23 @@ export default LeafletMap2;
 </code></pre></div></div>
 <p>What is this empty array? It's an array of dependencies: a series of props or state variables which will trigger a re-run of the effect if they change. You can fill this array with such props or state variables if you want to re-run the effect if any props or state variables change. If the array is empty, however, you are specifying that the effect should <em>never</em> be re-run: it should only run once when the component first loads.</p>
 
+<!--
 <h2 id="exercise">Exercise</h2>
 
 <ul>
 
   <li>Using the concept of lifting up state, modify your AJAX React exercise from last week so that it contains a parent component containing one component allowing the user to enter an artist, and another component to display the results.
 </li>
-
-  <li>
-    Further modify your AJAX music search, ensuring that you use an effect to connect to the server from the parent component. The effect should re-run each time the parent component updates if the <code>artist</code> state variable updates. <strong>IMPORTANT</strong>: you should ensure that the effect only runs if the <code>artist</code> state variable changes. If you do not, your application might make repeated requests to the server, overloading it.
-  </li>
-  <li>
-    <p>Try out the Leaflet map example above. You'll need to link Leaflet to your HTML <code class="language-plaintext highlighter-rouge">head</code> section (see below).</p>
-  </li>
+  <li>Try out the Leaflet map example above (either version).</li>
   <li>Enhance your Leaflet map so that the user can search for a place over AJAX by connecting to this web API: <code class="language-plaintext highlighter-rouge">https://opentrailview.org/nomproxy.php?q=place_name
 </code>, where <code class="language-plaintext highlighter-rouge">place_name</code> is the place to search for. When the AJAX search has completed, set the <code class="language-plaintext highlighter-rouge">lat</code> and <code class="language-plaintext highlighter-rouge">lon</code> inside the state to be the latitude and longitude of the first result within the JSON returned by the API.</li>
 </ul>
 
 <h4 id="advanced-exercise">Advanced exercise</h4>
 
-<p><strong>Advanced</strong>: If you get that done, develop the map application so you have a <code class="language-plaintext highlighter-rouge">SearchResults</code> component (within the parent component) which should list all results (not just the first). Each result should have a button labelled "Go to this location" which, when clicked, should set the latitude and longitude of the map to that location.</p>
+<p><strong>Advanced</strong>: If you get that done, develop the map application so you have a <code class="language-plaintext highlighter-rouge">SearchResults</code> component (within the parent component) which should list all results (not just the first). Store the results in state. Also show all results as markers on the map. Each result should have a button labelled "Go to this location" which, when clicked, should set the latitude and longitude of the map to that location.</p>
 
-<p>Here is an example of some JSX showing how you could pass parameters into an <code class="language-plaintext highlighter-rouge">onClick</code> handler. You could set the <code class="language-plaintext highlighter-rouge">onClick</code> handler to be an arrow function, and then inside the arrow function, call another function (<code class="language-plaintext highlighter-rouge">goTo()</code> here) which moves the map to the specified location.</p>
+<p>Here is an example of some JSX (which you would generate from <code>map()</code>) showing how you could pass parameters into an <code class="language-plaintext highlighter-rouge">onClick</code> handler. You could set the <code class="language-plaintext highlighter-rouge">onClick</code> handler to be an arrow function, and then inside the arrow function, call another function (<code class="language-plaintext highlighter-rouge">goTo()</code> here) which moves the map to the specified location.</p>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;input type='button' onClick={() =&gt; { goTo(result.lat,result.lon) } } /&gt;
 </code></pre></div></div>
@@ -347,7 +342,7 @@ export default LeafletMap2;
 
 
 
-      
+-->      
     </div>
   </body>
 </html>
