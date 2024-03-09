@@ -10,6 +10,253 @@
 <h1>Navigation - Part 2</h1>
 </div>
 
-<p>This week will cover the TopAppBar and NavigationDrawer for menu-based navigation. We will also look at how preferences can be set.</p>
+<p>This week will look at common UI elements for navigation including the <code>TopAppBar</code>, bottom navigation bar, floating action button and navigation drawer.</p>
+
+<h2>Introduction</h2>
+
+<p>Last week we looked at navigation, and saw how we could represent multiple screens of an app with multiple composables and use <code>NavController</code> and <code>NavHost</code> to implement navigation. This week, we will look at how we can implement typical <em>UIs</em> designed for navigation, rather than just buttons.</p>
+
+<h2>Navigation components</h2>
+<p>Navigation components (all available as composables in Jetpack Compose) incude:
+<ul>
+<li>The <em>top app bar</em>.This is the typical bar that appears on top of the screen with the app name together with a "hamburger menu" icon which, when clicked, shows a menu.</li>
+<li>The <em>navigation drawer</em> (<code>ModalNavigationDrawer</code>) is a pull-out menu which appears, typically, on the left of the screen in response to the user clicking a "hamburger" icon.</li>
+<li>The <em>bottom navigation bar</em> is a navigation bar which appears along the bottom of the screen, allowing the user to switch between different screens. It typically contains icons and accompanying text for each item.</li>
+<li>The <em>floating action button</em> is a button, typically near the bottom right of the screen, which allows the user to perform the most common action in a given application. For example in an email application the floating action button might allow the user to write an email.</li>
+</ul>
+Some of these are shown here:
+<br />
+<img src="../images/navigation_components.png" alt="Navigation components" />
+</p>
+
+<p><em>See <a href='https://developer.android.com/jetpack/compose/components/app-bars'>here</a> for Android documentation on app bars (top and bottom).</em></p>
+
+
+<h2>Scaffold and the Top App Bar</h2>
+<p><strong>Important:</strong> to use the top app bar using Material Design 3 you need to opt in to the experimental Material Design 3 API for the top app bar. Add this immediately before your <code>onCreate()</code>:
+<pre>@OptIn(ExperimentalMaterial3Api::class)</pre>
+</p>
+<h3>Structuring your app with a Scaffold</h3>
+<p>To implement the top app bar (and the bottom navigation bar and floating action button), we use the appropriate composable within a <code>Scaffold</code>. What is a <code>Scaffold</code>? It's a top-level component which allows us to "plug in" common application components such as a top app bar, a bottom navigation bar, or a floating action button. The form of code we use with <code>Scaffold</code> is:
+<pre>
+Scaffold(
+    topBar = { },
+    bottomBar = { },
+    floatingActionButton = { }
+) { your main content } 
+</pre>
+So with a <code>Scaffold</code> you define composables for navigation components as arguments, and then as the final argument you define your main content.</p>
+<p><em>See <a href='https://developer.android.com/jetpack/compose/components/scaffold'>the Android documentation</a> for more on Scaffold.</em></p>
+<h3>The Top App Bar</h3>
+<p>To actually implement a top app bar you use the <code>TopAppBar</code> composable. You define its colours (<code>colors</code>) and <code>actions</code> as well as a <code>title</code>. The colours consist of the <code>containerColor</code> (the background) and the <code>titleContentColor</code> (the text). The <code>actions</code> are tasks that are launched by a user clicking an icon on the app bar (e.g. launching a menu). Here is an example:
+<pre>
+Scaffold(
+    topBar = {
+        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
+                     containerColor = MaterialTheme.colorScheme.primaryContainer,
+                     titleContentColor = MaterialTheme.colorScheme.primary
+       ), actions = {
+           IconButton(onClick = {
+                // TODO (see below) - show the menu when the icon is clicked
+            }) {
+               Icon(imageVector = Icons.Filled.Menu, "Menu")
+            }
+        }, title = { Text("Top Bar Example") })
+}) { innerPadding -&gt;
+    // main content is placed here
+}
+</pre>
+Note how we define the two colours using the <code>primaryContainer</code> and <code>primary</code> colours from the material theme: this is recommended in the documentation. The <em>actions</em> contains one or more icons to appear on the top app bar. Each action is defined with an <code>IconButton</code>: a composable which represents a clickable icon. 
+In our case, we just have one <code>IconButton</code> for the menu icon. The <code>title</code> of the top app bar is also defined.</p>
+<p>
+<code>IconButton</code> takes, as arguments:
+    <ul>
+    <li>an <code>onClick</code> event handler. We will fill this in later when we look at the navigation drawer.</li>
+    <li>a lambda containing the actual <code>Icon</code>.
+    The <code>Icon</code> represents the actual icon which is displayed. <code>Icon</code> (and <code>IconButton</code>) is a composable. Material Design comes with a series of standard icons, which are recommended to be used where possible as they have been specifically designed to blend well into Material Design UIs. Here, we are using the standard <code>Menu</code> icon from Material Design, representing a "hamburger" menu.
+    </ul>
+<h3>Icons</h3>
+<p>There are a range of standard Material Design icons you can use within the <code>androidx.compose.material.icons.Icons</code> object; see <a href='https://developer.android.com/reference/kotlin/androidx/compose/material/icons/Icons'>the API documentation</a>, which shows the icons that are available.</p>
+<p>If you wish to use an icon which is not available in the <code>Icons</code> object, you can download it from the web; there is a much larger set available from <a href='https://fonts.google.com/icons'>fonts.google.com</a>. They are available in <em>Scalable Vector Graphics</em> (SVG) format. SVG is a <em>vector</em> image format, in other words shapes are defined by a series of vectors (lines from one point to another) which means that they scale easily compared to pixel-based (raster) icons.</p>
+<p>To use a custom icon, you should download it and then <em>import it</em> into your app's resources. To do this right-click the <code>res</code> folder and then select <em>New</em>-<em>Vector Asset</em>. The dialog below will appear:
+<br />
+<img src="../images/vector_image_import.png" alt="Importing a vector image" />
+<br />
+Then follow the steps and the imported vector image will appear in your <code>drawable</code> folder. You can then access it via <code>R.drawable.imagename</code>.</p>
+<p>Here is an example of using a custom <code>Icon</code>:
+<pre>Icon(
+    painter = painterResource(R.drawable.map_black_24dp),
+    contentDescription = "Map",
+    tint = MaterialTheme.colorScheme.primary
+)</pre>
+Note how we supply a <code>painter</code> argument to load the image from the resources. By default the images will be black or white, however we can <code>tint</code> them to use a colour from our Material colour scheme, as is shown in the code above.
+</p>
+
+
+<p><em>See <a href='https://developer.android.com/jetpack/compose/graphics/images/material'>the API documentation</a> for more on icons.</em></p>
+
+<h3>Adjusting the main content in a Scaffold with innerPadding</h3>
+<p>The main content associated with a <code>Scaffold</code> is defined via a lambda function passed in as the final argument to the <code>Scaffold</code>. As can be seen above this takes one parameter: <code>innerPadding</code>. This is the adjustment you must apply to the rest of the layout to account for the top app bar: note that you have to "push down" the main content below the top app bar otherwise the app bar will hide the content. You do this by applying padding: the <code>innerPadding</code>, of data type <code>PaddingValues</code>, is the correct padding which must be applied, which is calculated from the height of the app bar. This is passed into a composable as a modifier, e.g:
+<pre>Scaffold({
+    // ...
+}) { innerPadding -&gt; {
+    MyComposable(modifier = Modifier.padding(innerPadding)) { /* ... */ }    
+}</pre>
+</p>
+<p>The <code>innerPadding</code> also contains adjustments for a bottom app bar.</p>
+<h2>Navigation with FloatingActionButton and NavigationBar</h2>
+<p>We will now return to the floating action button (<code>FloatingActionButton</code> composable) and bottom navigation bar (<code>NavigationBar</code> composable). The <code>FloatingActionButton</code> is a single button which appears typically at the bottom right of your screen and represents a primary action that a user would like to carry out (such as writing an email in an email application). The <code>NavigationBar</code>, otherwise known as the bottom navigation bar, takes the form of a series of labelled icons along the bottom of the screen allowing a user to switch between screens. The bottom navigation bar should not pop the back stack but instead navigate to a new instance of the given component.</p>
+<p>We define each of these in our <code>Scaffold</code> with the <code>floatingActionButton</code> and <code>bottomBar</code> properties.</p>
+<h3>FloatingActionButton</h3>
+<p>Here is an example of a <code>FloatingActionButton</code> within an app's <code>Scaffold</code>:
+<pre>
+Scaffold(
+    floatingActionButton = {
+        FloatingActionButton(
+            onClick = { navController.navigate("addStudent") }, 
+            content = {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Student")
+            }
+        )
+    }
+) { innerPadding -&gt; ... }
+</pre>
+Hopefully the floating action button code is easy to understand: it has an <code>onClick</code> argument in which we specify an event handler, and a <code>content</code> argument in which we specify the icon. (<code>Icons.Filled.Add</code> is the standard Material Design icon to use when adding something, e.g. a student in this case).</p>
+<h3>Bottom navigation bar</h3>
+<p>Here is an example of a bottom navigation bar (<code>NavigationBar</code>):
+<pre>Scaffold(
+    bottomBar = {
+        NavigationBar {
+            NavigationBarItem(icon = { Icon(Icons.Filled.Home, "Home") },
+                              label = { Text("Home") },
+                              onClick = { navController.navigate("home") },
+                               selected = true)
+            
+
+            NavigationBarItem(icon = { Icon(Icons.Filled.Add, "Add Student") },
+                              label = { Text("Add POI") },
+                              onClick = { navController.navigate("addStudent") },
+                              selected = false)
+        }
+    }
+) { innerPadding -&gt; ... }</pre>
+Again it shouldn't be too hard to understand. We specify a <code>NavigationBar</code> composable with two <code>NavigationBarItems</code>, one for each navigation destination. One is for the home screen and the other is for the "add student" screen. Each <code>NavigationBarItem</code> has:
+    <ul>
+    <li>an <code>icon</code>;</li>
+    <li>a <code>label</code> (the text on the navigation item);</li>
+    <li>an <code>onClick</code> event handler;</li>
+    <li>a <code>selected</code> boolean representing whether this option is selected by default.</li>
+    </ul>
+</p>
+<h3>Buttons with Icons and Text</h3>
+<p>With Jetpack Compose we can easily set up buttons with <em>both icons and text</em>, e.g.
+<br />
+<img src="../images/button_icon_and_text.png" alt="Button with icon and text" />
+<br />
+The key to understanding this is that the final argument to <code>Button</code>, a lambda, can contain more than one child composable, arranged in a row. Normally there is just a <code>Text</code> composable, however you can add an <code>Icon</code> as well, e.g:
+<pre>Button(onClick= { /* event handler */} ) {
+    Icon(Icons.Filled.Add, "Add student")    
+    Text("Add Student")
+}</pre>
+</p>
+<h2>The navigation drawer</h2>
+<p><em>See <a href='https://developer.android.com/jetpack/compose/components/drawer'>the Android documentation</a> for more details.</em></p>
+<p>Having looked at the <code>TopAppBar</code> and <code>Scaffold</code>, we can now look at the navigation drawer itself (<code>ModalNavigationDrawer</code>). An example is shown below, also showing the "hamburger" menu on the top bar which typically shows it when clicked.
+<br />
+<img src="../images/navigation_drawer.png" alt="Navigation drawer" />
+</p>
+<p>
+The navigation drawer consists of a <em>drawer sheet</em> (<code>ModalDrawerSheet</code>) containing the actual menu items, known as <em>navigation drawer items</em> (<code>NavigationDrawerItem</code>s). We specify the drawer sheet through the <code>drawerContent</code> argument. The final argument of <code>ModalNavigationDrawer</code> is a lambda containing the content that the navigation drawer allows you to navigate between; this is likely to be your <code>NavHost</code>.
+<pre>
+ModalNavigationDrawer(drawerState = drawerState,
+    drawerContent = {
+        ModalDrawerSheet(){
+            NavigationDrawerItem(
+                selected = false,
+                 label = { Text("Add Student") },
+                 onClick = {
+                     // TODO: Close the drawer when clicked - see below
+
+                     // Navigate
+                     navController.navigate("addStudent")
+                 } 
+            )
+        }
+    }
+) {
+   // Place your NavHost here...
+}
+</pre>
+Hopefully this is fairly clear. We create a <code>ModalNavigationDrawer</code> and supply the <em>drawer state</em> (i.e. is the drawer showing (open) or hidden (closed)?; we will look at this below) and the drawer content. The drawer content consists of a <code>ModalDrawerSheet</code>. Inside the <code>ModalDrawerSheet</code> we define one or more <code>NavigationDrawerItem</code>s (menu items). Each <code>NavigationDrawerItem</code> has a series of arguments:
+    <ul>
+    <li><code>selected</code> - is the item selected by default?</li>
+    <li><code>label</code> - the text on the navigation drawer item;</li>
+    <li><code>onClick</code> - an event handler which runs when the user clicks the menu item.</li>
+    </ul>
+</p> 
+<h3>Managing drawer state</h3>
+<p>What we have not seen yet is how to <em>manage drawer state</em>, in other words control whether it's currently showing (open) or hidden (closed). We do this by setting up a variable of type <code>DrawerState</code> using the inbuilt function <code>rememberDrawerState()</code>.
+<pre>val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)</pre>
+This sets the drawer state up to be closed by default.</p>
+
+<p>We then add code to the hamburger menu item in our <code>TopAppBar</code> to either open or close the navigation drawer depending on the drawer state. To return to the <code>IconButton</code> implementation in our top app bar, we can now fill in the <code>onClick</code> event handler:
+<pre>IconButton(onClick = {
+    coroutineScope.launch {
+        if(drawerState.isClosed) {
+            drawerState.open()
+        } else {
+            drawerState.close()
+        }
+    }
+}) {
+    Icon(imageVector = Icons.Filled.Menu, "Menu")
+}</pre>
+Hopefully you can see that the logic is either opening or closing the drawer depending on whether it's currently closed or open. So each time the menu icon is clicked, the visibility of the drawer will flip. We will discuss the meaning of <code>coroutineScope.launch</code> below.</p>
+
+<p>The other code we need to implement is code to close the drawer when the user clicks an item in the navigation drawer. To return to the code to do this:
+<pre>ModalNavigationDrawer(drawerState = drawerState,
+    drawerContent = {
+        ModalDrawerSheet(){
+            NavigationDrawerItem(
+                selected = false,
+                 label = { Text("Add Student") },
+                 onClick = {
+                     <strong>coroutineScope.launch {
+                        drawerState.close()
+                     }</strong>
+
+                     // Navigate
+                     navController.navigate("addStudent")
+                 } 
+            )
+        }
+    }
+) {
+   // Place your NavHost here... 
+}</pre>
+Note how we've added code to close the navigation drawer when the user selects an item.</p>
+<h3>Coroutines - a brief introduction</h3>
+<p>You're probably wondering what the <code>coroutineScope</code> means. The process of opening and closing a navigation drawer is potentially a time-consuming process which could potentially cause the UI to become unresponsive, thus it's done as a <em>background process</em>.</p>
+<p>Previously the way to implement background processes was with 
+<em>threads</em>.  
+    A <em>thread</em> is a separate strand of execution which permits
+    tasks to run simultaneously.  Typically you would have a main thread which manages the GUI, and
+    additional threads to manage background tasks such as network
+    communication.</p>
+<p>However Kotlin allows you to achieve the same effect with
+<em>coroutines</em>. A coroutine is a function that can run in either the foreground or the background, and can be <em>suspended</em> (paused) to allow
+another operation to take place. Under the hood, coroutines often use threads, but the code complexity is less if you use a coroutine compared to a raw thread.</p>
+<p>In the database topic we will look at coroutines in a little more detail, but for now you just need to be aware that when we change the state of a navigation drawer, we need to do it in a separate coroutine so it does not cause the UI to become unresponsive.</p>
+<p>So in our case, <code>coroutineScope.launch</code> allows you to launch a coroutine, specified as a lambda function here, and in that coroutine you either open or close the navigation drawer. To initialise the <code>coroutineScope</code> variable which is used to launch the coroutines, you use a <code>remember</code>-based initialisation.
+<pre>val coroutineScope = rememberCoroutineScope()</pre>
+</p>
+<h2>Exercises</h2>
+<ol>
+<li>Return to question 1 from last week. Add a bottom navigation bar to the app, with items for the main screen (Home) and the settings screen. Note that you should be able to find Home and Settings icons inside the <code>Icons</code> object; you will not need to download one.</li>
+<li>Add a top app bar to the app, containing a "hamburger" menu icon which, when clicked, brings up a navigation drawer with "Map" and "Settings" entries. Ensure each entry navigates to the correct screen.</li>
+<li>Download a "map" icon from <a href='https://fonts.google.com/icons'>the Material Icons at fonts.google.com</a> and use this on your bottom navigation bar instead of the Home icon.</li>
+<li>Change your <em>regular</em> navigation buttons from last week so they contain icons in addition to text. Use an <code>Settings</code> icon for the button to navigate to the settings, and an <code>ArrowBack</code> icon for the button to return to the main screen. Note for the latter you will need to use <code>Icons.Mirrored.Filled.ArrowBack</code>. The <code>Mirrored</code> is to account for the fact that some languages are right-to-left and the back arrow will point in the opposite direction in these languages.</li>
+<li>Return to question 2 from last week (the shopping list application) and add a floating action button which will take the user to the "add new shopping list entry" screen.</li>
+</ol>
 </body>
 </html>
