@@ -315,16 +315,17 @@ export default LeafletMap2;
 </code></pre></div></div>
 <p>What is this empty array? It's an array of dependencies: a series of props or state variables which will trigger a re-run of the effect if they change. You can fill this array with such props or state variables if you want to re-run the effect if any props or state variables change. If the array is empty, however, you are specifying that the effect should <em>never</em> be re-run: it should only run once when the component first loads.</p>
 
-<!--
 <h2 id="exercise">Exercise</h2>
 
 <ul>
 
   <li>Using the concept of lifting up state, modify your AJAX React exercise from last week so that it contains a parent component containing one component allowing the user to enter an artist, and another component to display the results.
 </li>
-  <li>Try out the Leaflet map example above (either version).</li>
-  <li>Enhance your Leaflet map so that the user can search for a place over AJAX by connecting to this web API: <code class="language-plaintext highlighter-rouge">https://opentrailview.org/nomproxy.php?q=place_name
-</code>, where <code class="language-plaintext highlighter-rouge">place_name</code> is the place to search for. When the AJAX search has completed, set the <code class="language-plaintext highlighter-rouge">lat</code> and <code class="language-plaintext highlighter-rouge">lon</code> inside the state to be the latitude and longitude of the first result within the JSON returned by the API.</li>
+  <li>Try out one of the Leaflet map examples above (either version).</li>
+  <li>Enhance your Leaflet map so that the user can 
+search for a place over AJAX by connecting to this web API: 
+<pre class="language-plaintext highlighter-rouge">https://hikar.org/webapp/nomproxy?q=place_name</pre>, where <code class="language-plaintext highlighter-rouge">place_name</code> is the place to search for. When the AJAX search has completed, set the <code class="language-plaintext highlighter-rouge">lat</code> and <code class="language-plaintext highlighter-rouge">lon</code> inside the state to be the latitude and longitude of the first result within the JSON returned by the API. <strong>Note that this API provides OpenStreetMap data and makes use of the Nominatim web service.</strong></li>
+<li>Store all the results in state and display each result as a marker.</li>
 </ul>
 
 <h4 id="advanced-exercise">Advanced exercise</h4>
@@ -342,7 +343,6 @@ export default LeafletMap2;
 
 
 
--->      
     </div>
   </body>
 </html>
