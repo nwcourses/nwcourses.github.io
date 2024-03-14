@@ -1,253 +1,434 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Mobile Application Development: Part 8: Network Communication</title>
+<title>Mobile Application Development: Part 9: SQLite and Room</title>
 <link rel="stylesheet" type="text/css" href="../css/android.css" />
 </head></p>
 <body>
 <div class='titlebox'>
 <h1>Mobile Application Development - Part 9</h1>
-<h1>Lists with RecyclerView</h1>
+<h1>SQLite and Room</h1>
 </div>
-<p>This week we will look at how we can create <em>lists</em> of items in Android, making use of <em>RecyclerView</em>.</p>
-
-<h2>RecyclerView</h2>
-
+<p>This week we will look at Android <em>on-board databases</em> by taking
+a look at <em>SQLite</em> and the <em>Room Persistence API</em>.</p>
+<h2>What is SQLite?</h2>
+<ul>
+<li><em>SQLite</em> (see <a href="http://www.sqlite.org/">sqlite.org</a>)
+is a simple on-board client-side database</li>
+<li>It does not require a full
+database management system setup (like MySQL or Oracle) and its attendant client-server
+architecture</li>
+<li>SQLite databases can be easily embedded into any pure client-side application,
+such as a desktop Java application or an Android app. </li>
+</ul>
+<h3>Using an SQLite database in Android</h3>
+<ul>
+<li>Traditionally, the <em>SQLite API</em> was used to query an SQLite
+database on Android</li>
+<li>However, this requires a lot of repetitive "boilerplate" code to
+perform queries</li>
+<li>It is recommended instead to use the <strong>Room Persistence Library</strong> </li>
+<li>Room is a higher-level API which takes advantage of <em>annotations</em>
+to allow you to write more concise code</li>
+</ul>
+<h2>Annotations</h2>
+<ul>
+<li>Annotations are a language feature of both Java and Kotlin which allow
+you to add "meta-code" which are processed before the code
+is compiled</li>
+<li>Annotations begin with @ followed by an annotation class name</li>
+<li>Annotations are processed either by the compiler or by third-party
+software</li>
+</ul>
+<h3>Annotation examples</h3>
 <ul>
 <li>
-The <em>RecyclerView</em> allows you to implement lists in a memory-efficient way.</li>
-<li>We insert the RecyclerView in an XML layout, wherever we want it to appear, in the normal way</li> 
-<li>Example code for a recycler view, which can be placed in an XML layout
-(this example will occupy the whole of the parent):
-<pre>&lt;androidx.recyclerview.widget.RecyclerView 
-android:layout_width="match_parent" 
-android:layout_height="0px" 
-app:layout_constraintBottom_toBottomOf="parent"
-app:layout_constraintTop_toTopOf="parent"
-android:id="@+id/poiListView"/&gt;</pre>
+<pre>@Override</pre>
+In Java, this specifies that the following method will override a method of the
+superclass. If it does not, the compiler will generate an error.
+In Kotlin, this is not necessary as the <em>override</em> keyword does the
+same thing.
 </li>
-<li>When using a recycler view you have to specify its layout using
-a LayoutManager, e.g. <em>LinearLayoutManager</em> will specify that the
-items are arranged linearly (vertically):
-<pre>// This code is in the onCreate() of the Activity
-val poiListView = findViewById&lt;RecyclerView&gt;(R.id.poiListView)
-poiListView.layoutManager = LinearLayoutManager(this)</pre>
+<li>
+<pre>@Deprecated</pre>
+Marks that the method following is deprecated. Any other code calling this
+method will generate a compiler warning, informing the developer that the
+method is deprecated (outdated, with a better replacement available)
 </li>
-<li>To use RecyclerView you must include it in your build.gradle 
-dependencies, as it's a Jetpack library:
-<pre>implementation 'androidx.recyclerview:recyclerview:1.1.0'</pre>
-</li>
-</ul>
-<h3>Components of a RecyclerView</h3>
+<li>Example of both (Java)
+<pre>public class Cow extends Animal {
 
-<p>A RecyclerView contains:</p>
-<ul>
-<li>an <em>adapter</em>, which is used to control how the data being presented in the list is displayed.</li> 
-<li>a series of <em>ViewHolder</em>s. A ViewHolder is used to hold an individual View (list item) within the list being shown. It should extend from <em>RecyclerView.ViewHolder</em>.</li>
-<li>The idea is to preserve memory by only creating as many ViewHolders as
-are needed to contain <strong>visible</strong> list items</li>
-<li>So when we scroll the list up and down, resulting in some list items 
-disappearing and new ones appearing, we can reallocate already-existing ViewHolders to the newly-visible items</li>
-<li>For example, if our list contains 100 items, but only 10 are visible
-at any one time, we need only create 10 ViewHolders, not 100, and then 
-reuse these ViewHolders as the user scrolls the list up and down, so that they
-contain the 10 <em>currently visible</em> items</li>
-</ul>
-<h3>How to code a RecyclerView</h3>
-<ul>
-<li>Create an Adapter class which should extend from RecyclerView.Adapter</li>
-<li>CWithin the Adapter, override the methods <em>onCreateViewHolder()</em>, 
-<em>onBindViewHolder()</em>, and <em>getItemCount()</em>. What are these used for?
-<ul>
-<li><em>onCreateViewHolder()</em> runs when we need to create a new view holder, e.g. when a list is first created, we create as many ViewHolders as we need
-to hold the visible items.</li> 
-<li><em>onBindViewHolder()</em> runs when we need to bind an already-created holder with a particular item of data, e.g. if we scroll the screen and need to replace
-the contents of a view holder with a previously-hidden, newly-visible item.</li>
-<li><em>getItemCount()</em> should return the number of elements in our 
-data set.</li>
-</ul>
+    // If there's no makeNoise() in Animal, compiler will give an error
+    @Override
+    public void makeNoise() {
+        System.out.println("Moo!");
+    }
+
+    @Deprecated
+    public void moo() {
+        System.out.println("Moo!"); // intention is that moo() has been deprecated in favour of makeNoise()
+    }
+
+    public static void main (String[] args) {
+        Cow cow = new Cow();
+        cow.moo(); // compiler generates deprecation warning
+    }
+}</pre>    
 </li>
-<li>Link the Adapter to your recycler view, e.g. if <em>MyAdapter</em> is
-your adapter class and <em>poiListView</em> is a variable containing your 
-RecyclerView, you could add code such as this to the <em>onCreate()</em> of your Activity to link the Adapter to the RecyclerView:
-<pre>poiListView.adapter = MyAdapter(..)</pre>
+<li>This code is specifying that <em>makeNoise()</em> must override the
+version of makeNoise() declared in the superclass, and that <em>moo()</em>
+is deprecated, i.e the code in the main():
+<pre>Cow cow = new Cow();
+cow.moo();</pre>
+would generate a compiler warning about using a deprecated method.</li>
+</ul>
+<h3>Room and annotations</h3>
+<ul>
+<li>In the case of Room, annotations are used to allow us to develop
+more concise code</li>
+<li>Room annotations consist of classes which are part of the Room library,
+and are processed by the <em>Room compiler</em> into standard, albeit 
+long-winded, Java code</li>
+<li>This Java code is then compiled to bytecode in the normal way</li>
+<li>The process is shown below:<br>
+<img src="../images/room.png" alt="Room compiler and annotations"><br>
 </li>
 </ul>
-<h3>Full example of adapter</h3>
+<h2>Using Room</h2>
+<h3>Components of a Room application</h3>
+<p>A Room application with one database table
+would contain, as a minimum, these four classes:
+</p><ul>
+<li>The <em>data entity</em>: class representing your actual data, e.g
+a Student class to represent a student record in a <em>students</em>
+table.</li>
+<li>The <em>DAO</em> or <em>Data Access Object</em>: 
+    <ul>
+    <li>A class providing access to your database from the rest of your
+    code</li>
+    <li>Contains a series of methods which perform given SQL statements</li>
+    <li>e.g. a <em>getById()</em> method which will perform a SELECT statement
+    to retrieve a record using its ID</li>
+    <li>External code can call the methods of the DAO, and thus can be
+    kept clean and uncluttered by SQL, as all the SQL code is encapsulated
+    within the DAO</li>
+    </ul>
+</li>
+<li>A class representing the actual <em>database</em> as a whole</li>
+<li>Your main activity</li>
+</ul>
+<p></p>
+<h3>The data entity</h3>
+<ul>
+<li>We'll start with the data entity</li>
+<li>As seen above, this is a class representing the entities stored within
+your database table</li>
+<li>e.g.:
+<pre> import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName="students")
+
+data class Student(
+    @PrimaryKey(autoGenerate = true) val id: Long, 
+    val name: String, 
+    var course: String, var mark: Int
+)
+</pre>
+</li>
+<li>This is a simple data class, but has two <em>Room annotations</em>:
+    <ul>
+    <li><em>@Entity</em>: specifies the database table which will be used to
+    store objects that this class represents</li>
+    <li><em>@PrimaryKey</em>: specifies which property will coincide with
+    the primary key in the database. Note the <em>autoGenerate = true</em>
+    argument, which will autogenerate the primary key as the next available
+    integer.</li>
+    </ul>
+</li>
+<li>The columns in the table will have the same names as the properties
+(i.e. id, name, course and mark)</li>
+<li>We can name the columns differently to the property names in the data class using the annotation <code>@ColumnInfo</code>, e.g:
+<pre> import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName="students")
+
+data class Student(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0, 
+    @ColumnInfo(name="the_name") val name: String, 
+    @ColumnInfo(name="the_course") var course: String, var mark: Int
+)
+</pre>
+In this example the columns used in the actual database will be <code>the_name</code> and <code>the_course</code>.</li>
+</ul>
+<h3>The DAO (Data Access Object)</h3>
+<ul>
+<li>As we saw above, the DAO encapsulates the SQL queries</li>
+<li>Here is an example:
+<pre>import androidx.room.*
+
+@Dao
+interface StudentDao {
+
+    @Query("SELECT * FROM students WHERE id=:id")
+    fun getStudentById(id: Long): Student?
+
+    @Query("SELECT * FROM students")
+    fun getAllStudents(): List&lt;Student&gt;
+
+    @Insert
+    fun insert(student: Student) : Long
+
+    @Update
+    fun update(student: Student) : Int
+
+    @Delete
+    fun delete(student: Student) : Int
+}</pre>
+</li>
+<li>Note how:
+    <ul>
+    <li>The DAO is an <em>interface</em>, rather than a class: this will
+    be processed by the Room compiler</li>
+    <li>It's marked as a DAO by the <em>@Dao</em> annotation</li>
+    <li>We specify a series of queries (using the <em>@Query</em>
+    annotation) followexd by methods which will run that query</li>
+    <li>For example, the <em>getStudentById()</em> method will
+    execute the <em>SELECT* FROM students WHERE id=:id</em> query
+    (the <em>:id</em> placeholder being bound to the <em>id</em>
+    parameter passed into the method)</li>
+    <li>The <em>insert()</em> method is marked with the special annotation
+    <em>@Insert</em>. This will take an object of the data class and
+    automatically add it to the database.</li>
+    <li>As can be seen there 
+    are corresponding <em>@Update</em> and <em>@Delete</em>
+    annotations which will take an object and either update or delete
+    the record, respectively</li>
+    <li>If declared, the update and delete methods will return an int
+    containing the number of affected rows</li>
+    </ul>
+</li>
+</ul>
+<h3>The database object</h3>
+<ul>
+<li>Finally, here is the database class</li>
+<li>Its role is to encapsulate the database as a whole</li>
+<li>It needs to create the database object as a <em>singleton</em>
+(single instance object), to avoid creating unnecessary multiple
+copies of the database</li>
+<li>To do this, we use Kotlin <em>companion objects</em>
+    <ul>
+    <li>A <em>companion object</em> is an object which is attached to
+    a class as a whole, rather than specific instances of a class</li>
+    <li>It has roughly the same role as static methods in Java</li>
+    </ul>
+</li>
+</ul>
+<h3>Example database</h3>
+<pre>import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+
+@Database(entities = arrayOf(Student::class), version = 1, exportSchema = false)
+public abstract class StudentDatabase: RoomDatabase() {
+    abstract fun studentDao(): StudentDao
+
+    companion object {
+        private var instance: StudentDatabase? = null
+
+        fun getDatabase(ctx:Context) : StudentDatabase {
+            var tmpInstance = instance
+            if(tmpInstance == null) {
+                tmpInstance = Room.databaseBuilder(
+                    ctx.applicationContext,
+                    StudentDatabase::class.java,
+                    "studentDatabase"
+                ).build()
+                instance = tmpInstance
+            }
+            return tmpInstance
+        }
+    }
+}</pre>
+<h3>Example database - explanation</h3>
+<ul>
+<li>We need to precede the class with the <em>@Database</em> annotation</li>
+<li>Our database extends from <em>RoomDatabase</em></li>
+<li>We have to provide an abstract method to <em>return the DAO</em>
+    <ul>
+    <li>The outside world, such as our Activity, will call this</li>
+    </ul>
+</li>
+<li>We then begin our <em>companion object</em>
+    <ul>
+    <li>This contains our single instance of the <em>StudentDatabase</em>
+    object (as we are using the singleton pattern)</li>
+    <li>Using standard singleton logic, the <em>getDatabase()</em> method
+    tests if the instance is null; if it is, we create the instance and
+    return it, if it isn't, we simply return it.</li>
+    <li>This will ensure that there will only ever be one instance of
+    our StudentDatabase</li>
+    </ul>
+</li>
+<li>Note how we specify the database name (<em>studentDatabase</em>) when we
+create our database object</li>
+</ul>
+<h3>Our main activity</h3>
+<ul>
+<li>Finally, we need a main activity for our application</li>
+<li>This needs to obtain the database (using the <em>getDatabase()</em> method
+of the companion object of our database class</li>
+<li>Once we have our database, we can obtain the DAO and call its methods</li>
+<li>Note that <em>operations to query the database have to go in a 
+separate, background thread</em> so that the user interface doesn't 
+become unresponsive while waiting for the database transactions to take
+place</li>
+<li>We can use <em>coroutines</em> for this</li>
+<li>Therefore, we will quickly look at coroutines before looking at the
+main activity</li>
+</ul>
+<h3>Asynchronous operations in contemporary Kotlin Android
+applications</h3>
+<ul>
+<li>One key feature of contemporary Kotlin Android apps
+is the ability to write concise asynchronous
+code, to perform operations such as connecting to a remote server</li>
+<li>Previously this was done in Android with <em>AsyncTask</em>,
+or even using raw <em>threads</em>
+    <ul>
+    <li>A <em>thread</em> is a separate strand of execution which permits
+    tasks to run simultaneously</li>
+    <li>Typically you would have a main thread which manages the GUI, and
+    additional threads to manage background tasks such as network
+    communication</li>
+    </ul>
+</li>
+<li>However Kotlin allows you to achieve the same effect with
+<em>coroutines</em></li>
+</ul>
+<h3>Introduction to coroutines</h3>
+<ul>
+<li>A coroutine is a function that can run in either the foreground
+or the background, and can be <em>suspended</em> (paused) to allow
+another operation to take place</li>
+<li>Each coroutine runs in a <em>context</em></li>
+<li>The context determines whether the coroutine runs in the
+foreground or background</li>
+<li>Typically, each context would run in a separate thread or group
+of threads (for those of you who have done multithreading)</li>
+<li>In Android, there are three available contexts:
+    <ul>
+    <li><em>Dispatchers.Main</em> - always runs on the foreground in
+    Android, GUI code would go in here.</li>
+    <li><em>Dispatchers.IO</em> - a background context optimised for 
+    input/output operations, for example network communication.</li>
+    <li><em>Dispatchers.Default</em> - a background context optimised for
+    heavy calculations and processing which does not use input/output.</li>
+    </ul>
+</li>
+<li>We can <em>switch between contexts</em> and in this way, run some of
+our code on the main thread and some in the background</li>
+</ul>
+<h3>Coroutine scopes</h3>
+<ul>
+<li>Coroutines must be <em>launched</em> from a <em>scope</em></li>
+<li>You can create this yourself in Android but alternatively, can use
+the <em>LifecycleScope</em></li>
+<li>The LifecycleScope is part of the new Android <em>lifecycle components</em>
+and allows you to to easily launch coroutines from any Android component with
+a lifecycle (e.g. Activity, Fragment)</li>
+</ul>
+<h3>Main activity - basic example</h3>
+<p>This is a basic and incomplete example showing how to set up the activity to load the database. It also shows how to query a Room database inside <code>withContext()</code>.
 <pre>
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+// Other imports left out...
 
-// The names and descriptions to be displayed are passed as parameters to
-// our Adapter.
-class MyAdapter(val titles: List&lt;String&gt;, 
-                val descriptions: List&lt;String&gt;): 
-    RecyclerView.Adapter&lt;RecyclerView.ViewHolder&gt;() {
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-    // A ViewHolder is associated with a particular adapter, so it makes
-    // sense to create the holder as an inner class of the adapter.
-    // The ViewHolder takes the associated View as a parameter
+class MainActivity: ComponentActivity() {
+    lateinit var db: StudentDatabase
 
-    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        db = StudentDatabase.getDatabase(application)
 
-        // Inflate the child elements of the View and store them as properties,
-        // so we have easy access to them later
-
-        val tvName = itemView.findViewById(R.id.poiName) as TextView
-        val tvDescription = itemView.findViewById(R.id.poiDescription) as TextView
-    }
-
-    // onCreateViewHolder() - called when a ViewHolder is first created.
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType:Int) : RecyclerView.ViewHolder {
-        // Inflate the XML layout and create a ViewHolder using it 
-
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val inflatedLayout = layoutInflater.inflate(R.layout.list_item_layout, parent, false)
-        return MyViewHolder(inflatedLayout)
-    }
-
-    // onBindViewHolder() - called when a ViewHolder is bound to a certain item of data.
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
-        // Cast to our specific ViewHolder class
-
-        val myViewHolder = holder as MyViewHolder
-    
-        // Fill the name and description within the ViewHolder to the 
-        // current elements within our two lists of data
-
-        myViewHolder.tvName.text = titles[index]
-        myViewHolder.tvDescription.text = descriptions[index]
-    }
-
-    override fun getItemCount(): Int {
-        return titles.size
+        setContent {
+            Button(onClick = {
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        // Room code should go here    
+                        // Create an example Student and add it to the database
+                        val s = Student(name="Alex Smith", course="SE", mark=77)
+                        db.studentDao().add(s)
+                    }
+                    // UI code should go outside the "withContext()" block
+                }
+            }
+            }) {
+                Text("Add Student")
+            }
+        }
     }
 }</pre>    
-<h3>Explanation of example: onCreateViewHolder()</h3>
-<p>In onCreateViewHolder(), we inflate a layout for an individual 
-list item within the list. 
-<ul>
-<li>We write an XML layout file to define the layout of each individual list item. This might contain, for example, a TextView for a title and another for a description. An example is given <a href='#listitemlayout'>below</a>.</li>
-<li>We use a LayoutInflater to inflate this layout, which returns a View object
-containing the layout.</li>
-<li>We then create a ViewHolder to "hold" this view:  
-    <ul>
-    <li>In the constructor of our ViewHolder (which takes the View as
-    a parameter), we use View.findViewById() to obtain the
-    child elements of the view (e.g. TextViews for title and description)
-     using their ID.  We then add these to the ViewHolder as properties, so that they can easily later be populated with data.</li>
-    <li>For programming convenience, the ViewHolder is often implemented as an
-    <em>inner class</em> of the adapter (an inner class is a class within 
-    another class) as it means the ViewHolder can access all the adapter
-    properties.</li>
-    </ul>
-</li>
-<li>The created <em>ViewHolder</em> is returned from onCreateViewHolder().</li>
-</ul>
-<h3>Explanation of example: onBindViewHolder()</h3>
-<p>In onBindViewHolder(), we bind the appropriate data to the current list item (e.g. the elements within our lists of data corresponding to the list item index)</p>
-<ul>
-<li>onBindViewHolder() has two parameters: the index of the list item we
-are processing, and its associated ViewHolder.</li>
-<li>We retrieve the corresponding item of data (e.g. from an array, list or
-database table holding the data)</li>
-<li>We then set the contents of the text views within this view holder to
-the details of the current item, so that the current item appears in the list</li>
-</ul>
-<h3 id='listitemlayout'>Layout for a list item</h3>
-<ul>
-<li>As seen above, we have to define a layout for <em>each list item in the RecyclerView</em></li>
-<li>Make it a <em>LinearLayout</em> and ensure that the height is set to
-<em>wrap_content</em>, not <em>match_parent</em>, otherwise each list item
-will occupy the whole screen</li>
-<li>e.g.<pre>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:orientation="vertical"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"&gt;
+</p>
+<h3>lateinit</h3>
+<p>This example provides the opportunity to introduce the Kotlin <code>lateinit</code> keyword. We need to declare our database object <em>outside</em> <code>onCreate()</code>, because other methods need to access it. However, we cannot initialise it <em>outside</em> <code>onCreate()</code>, as, before <code>onCreate()</code> runs, the application will not be setup properly (we will look at the Android <em>lifecycle</em> in a future session).</p>
+<p>How do we solve this? We declare <code>db</code> as a <code>lateinit</code> variable. <code>lateinit</code> states that the variable will be initialised <em>later</em>, when it is possible to do so. Note that in the code example above, we initialise it in <code>onCreate()</code>, when the app is ready for the database.</p>
+<p>We could alternatively make it a <em>nullable</em>, e.g:
+<pre>class MainActivity: ComponentActivity() {
+    var db : StudentDatabase? = null
 
-&lt;TextView android:layout_width="match_parent" 
-android:layout_height="wrap_content" android:id="@+id/poiName" android:textSize="12pt" /&gt;
-
-&lt;TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/poiDescription" android:textSize="10pt" /&gt;
-
-&lt;/LinearLayout&gt;</pre>
-</li>
-</ul>
-<h3>Handling events</h3>
-<ul>
-<li>We may wish to <em>handle events</em> in our list, e.g. the user clicking
-on a list item.</li>
-<li>With <em>ListActivity</em> (the old way of implementing lists, before RecyclerView) this was done automatically by means of overriding the onListItemClick() event handler.</li>
-<li> With RecyclerView however we have to do it ourselves.</li>
-<li>ViewHolder has an "itemView" property representing the
-View associated with the ViewHolder.</li>
-<li> So, in onBindViewHolder() we can add an <em>OnClickListener</em>
-to the "itemView" of the ViewHolder, and call a callback function, passing 
-the index to the callback.</li>
-<li>Kotlin makes this easy as we can pass in a callback to our Adapter and 
-handle the click via a lambda which then calls our callback, passing in the 
-index.</li>
-<li>e.g:<pre>
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-
-class MyAdapter(val titles: List&lt;String&gt;, 
-        val descriptions: List&lt;String&gt;,
-        val callback: (Int) -&gt; Unit): 
-    RecyclerView.Adapter&lt;RecyclerView.ViewHolder&gt;() {
-
-    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvName = itemView.findViewById(R.id.poiName) as TextView
-        val tvDescription = itemView.findViewById(R.id.poiDescription) as TextView
+    override fun onCreate(savedInstanceState: Bundle?) {
+        db = StudentDatabase.getDatabase(application)
+        ....
     }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType:Int) : RecyclerView.ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        return MyViewHolder(layoutInflater.inflate(R.layout.list_item_layout, parent, false))
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
-        val myViewHolder = holder as MyViewHolder
-        myViewHolder.tvName.text = titles[index]
-        myViewHolder.tvDescription.text = descriptions[index]
-        
-        // Run our callback when the holder's itemView is clicked
-        myViewHolder.itemView.setOnClickListener { callback(index) }
-    }
-
-    override fun getItemCount(): Int {
-        return titles.size
-    }
-}</pre>    
-</li>
-</ul>
-
+}</pre>
+This works, however because the <code>map</code> variable is nullable, we have to do null-safety checks throughout our code when using it.</p>
+<h3>Viewing the database from Android Studio</h3>
+<p>You can view your database from Android Studio by selecting <em>View-Tool Windows-App Inspection</em>. You have to use a device running at least API 26 to do this. Here is an example:
+<br />
+<img src="../images/app_inspection.png" alt="Using App Inspection to view the database" />
+</p>
 <h2>Exercise</h2>
-<ol>
-<li>Turn the example above into a complete working application (at the moment, the RecyclerView part of the application has been coded, but not the main activity, so you need to implement an activity). Give the main activity an XML layout with a RecyclerView, as shown above. Fill the RecyclerView with the following titles and descriptions:
-    <ul>
-    <li><em>Title</em>: Immersive Technologies, <em>Description:</em> Learn about developing augmented reality applications for the web, making use of three.js and A-Frame.</li>
-    <li><em>Title</em>: Mobile Application Development, <em>Description:</em> Learn about Android development using Kotlin.</li>
-    <li><em>Title</em>: Web Application Development, <em>Description:</em> Learn about web application development, including web APIs, JSON and AJAX.</li>
-    </ul>
-</li>
-<li><strong>More advanced:</strong> Modify your exercise from last week (to search for all songs by a given artist by connecting to a web API) so that the search results appear in a RecyclerView, with each list item containing:
-    <ul>
-    <li>The song title as the title;</li>
-    <li>The artist and year as the description.</li>
-    </ul>
-You will need to replace the TextView of your main activity layout with a RecyclerView, and you will need to create two lists, one containing the titles, and one containing the descriptions, using the data obtained from the JSON.<br />
-<strong>Note that if you update your adapter with new data (i.e. new song details when doing a new search) you need to call the adapter's <code>notifyDataSetChanged()</code> method to inform the adapter that the data has changed and it needs to be redrawn. For example:</strong>
-<pre>myRecyclerView.adapter.notifyDataSetChanged()</pre>
-</li>
-<li>Modify your answer to add a callback function when a list item is pressed. This callback can be passed in to to the adapter as a lambda function. The callback should simply display the details of the selected song as a Toast.</li>
-</ol> 
-</body>
-</html>
+<p>Develop an application to store music in an SQLite database using Room.
+You'll need four classes: the data entity, the DAO, the database and the
+main activity.  You'll need these dependencies in your build.gradle (note that newer versions may be available):
+<pre>
+implementation("androidx.room:room-runtime:2.6.1")
+implementation("androidx.room:room-ktx:2.6.1")
+ksp("androidx.room:room-compiler:2.6.1")
+</pre>
+</p>
+<h3>KSP</h3>
+Note the last directive, <code>ksp</code>. What is this? <em>KSP</em> (Kotlin Symbol Processing) is a tool which will process Java-based annotations in Kotlin code, such as the annotations used by Room. See <a href='https://developer.android.com/build/migrate-to-ksp'>the documentation</a>.</p>
+<p>To set up KSP you need to add it to the project <code>build.gradle.kts</code> (the first of the two, labelled with Project):
+<pre>id("com.google.devtools.ksp") version "1.9.0-1.0.13" apply false</pre>
+Note the version here <code>1.9.0-1.0.13</code>. You may need to change this for your system. The first number is the Kotlin version and the second number is the KSP version. You need to choose a version which corresponds to your Kotlin version (1.9.0 in this eaxmple). To find out the Kotlin version, go to <em>File-Settings-Kotlin Compiler</em> in Android Studio:
+<br />
+<img src="../images/kotlin_version.png" alt="Kotlin version in Android Studio" />
+<br />
+Then lookup the KSP versions at <a href='https://github.com/google/ksp/releases'>the GitHub repository</a> and choose the most recent version which is compatible with your version of Kotlin.
+</p>
+<p>Also, add this line to the <code>plugins</code> section of the <em>app</em> <code>build.gradle.kts</code> (the second):
+<pre>id ("com.google.devtools.ksp")</pre>
+</p>
+<h3>Questions</h3>
+<p>Use <strong>a device running at least API level 26</strong> so you can use the Database Inspector to visualise your database.</p>
+<p>The Activity should have a layout with four fields: ID, Title, Artist and Year, with four buttons (Search by ID, Add, Update, Delete). These buttons should
+have the following effects. Each should call an appropriate method in your
+DAO. These buttons should perform the following operations:
+<ul>
+<li>Add - add the Title, Artist and Year in the appropriate fields to a "hits" table in an SQLite database. <strong>The ID field should be ignored, as the database will allocate an ID</strong>. Once added, however, the ID field should be filled in with the allocated ID. (Note that DAO insert methods will return the new ID as a Long as long as it's declared in the method signature - see the example)</li>
+<li>Search by ID - find the record with the ID the user entered in the ID field. Display the details of the found song in the other three fields (title, artist, year). An error (a toast is fine) should appear if that song does not exist.</li>
+<li>Update - should update the details of the song with the ID entered in the ID field to the title, artist and year entered in the appropriate fields.
+Again display an error if the song with that ID does not
+exist.</li>
+<li>Delete - delete the song with the ID the user entered. Again, display an error if the song with that ID does not exist.</li>
+</ul>
+<h3>Further reading</h3>
+<p><a href="https://developer.android.com/training/data-storage/room/">Save data in a local database using Room</a> - Android documentation on Room.</p>
+</body></html>
