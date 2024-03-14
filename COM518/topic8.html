@@ -5,9 +5,11 @@
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
-<h1>Topic 8: Session Variables and Login Systems</h1>
+<div class='titlebox'>
+<h1>Topic 8: Session Variables, Login Systems and Middleware</h1>
 </div>
-<p>Today we will take a look at <em>session variables</em> and how we can use them in Node.js. We will also look at how we can make use of session variables when developing <em>login systems</em>.</p>
+<p>Today we will take a look at <em>session variables</em> and how we can use them in Node.js. We will also look at how we can make use of session variables when developing <em>login systems</em>. As part of our discussion we will introduce the concept of <em>middleware</em>.</p>
+
 <h2>Cookies</h2>
 <p>Before looking at session variables, we will quickly take a look at
 <em>cookies</em>. You may have come across cookies before: they are data saved
@@ -179,20 +181,20 @@ to the site. What happens is as follows:
     <li>An authentication route tests that the user entered a valid username and
     password on a web form</li>
     <li>If they did, we store the username in a session variable, e.g. <code>req.session.username</code></li> 
+    <li>We also write a logout route which sets <code>req.session</code> to <code>null</code>, as described above, thus terminating the session.</li>
     <li>We protect any routes which we want to restrict access to logged in users by writing a piece of middleware which checks for the existence of this session variable.Thus, such routes are "locked out" to unauthorised users</li>
-    <li>We then write a logout route which sets <code>req.session</code> to <code>null</code>, as described above, thus terminating the session.</li>
     </ul>
 </p>
-<p>Here is some code (an extract from a full server) which will actually do this. Note that we have three routes and one piece of 'checking' middleware.
+<p>Here are some routes (an extract from a full server) to manage authentication. Note how we send the HTTP code <code><strong>401</strong></code> (Unauthorized) if the login details are incorrect.
 <pre>
 <span class='comment'>// Login route</span>
 app.post('/login', (req, res) =&gt; {
-        if(req.body.username == 'SimonSmith' &amp;&amp; req.body.password == 'secret' ) {
-            req.session.username = req.body.username; 
-            res.json({success: 1});
-        } else {
-            res.status(401).json({error: "Incorrect login!"});
-        } 
+    if(req.body.username == 'SimonSmith' &amp;&amp; req.body.password == 'secret' ) {
+        req.session.username = req.body.username; 
+        res.json({success: 1});
+    } else {
+        res.status(401).json({error: "Incorrect login!"});
+    } 
 });
 
 <span class='comment'>// Logout route</span>
@@ -204,9 +206,150 @@ app.post('/logout', (req, res) =&gt; {
 <span class='comment'>// 'GET' login route - useful for clients to obtain currently logged in user</span>
 app.get('/login', (req, res) =&gt; {
     res.json({username: req.session.username || null} );
+});</pre>
+
+</p>
+What do these routes do?
+    <ul>
+    <li>Firstly the <code>/login</code> <code>POST</code> route checks the <code>POST</code> data sent to it, specifically the <code>username</code> and <code>password</code> fields. Here, it simply checks that they are equal to <em>SimonSmith</em> and <em>secret</em> respectively. If the details are correct, the supplied username is stored in a session variable (<code>req.body.username</code>). This is a deliberately simple example: in a more realistic example it would need to check the username and password are in the users table in the database.</li>
+    <li>Next, the <code>/logout</code> route sets <code>req.session</code> to null and in doing so, removes the session from the session store. This will mean that <code>req.session.username</code> will no longer exist.</li>
+    <li>The next route is the <code>/login</code> <code>GET</code> route. This returns the currently logged-in user within a JSON object, or <code>null</code> if a user is not logged in. This can be used by clients (e.g. AJAX front ends) to display the currently logged-in user in the UI.</li>
+	</ul>
+<h2>Middleware</h2>
+<p>We've looked at how we can implement a <code>login</code> route. However, the other thing that we have to do is <strong>prevent certain endpoints being accessed to non-logged -in users</strong>. How can we do that? One way is simply to add a session check in every route which we need to protect:
+<pre>
+app.post('/addProduct', (req, res) =&gt; {
+    if(req.session.username == null) {
+        res.status(401).json({error: "You're not logged in. Go away!"});
+    } else {
+        // code to add a product to the database
+    }
+});</pre>
+This works, but it quickly becomes repetitive, adding the same check to every route which needs it. To more efficiently "protect" multiple routes, we can make use of <em>middleware</em>.</p>
+<h3>Introduction to middleware</h3>
+<p><em>Middleware</em> is code which runs in between two application components, modifying or verifying data passed between those components in some way. In the context of web APIs, middleware consists of code which runs after the request has been received, but before a request is handled with a route. In Express, each piece of middleware is a function which
+can modify the <code>req</code> and <code>res</code> objects. It is typically
+used to prepare the request before it's handled, or intercept requests to perform operations such as logging. <code>express.json()</code>, which you have already seen, is actually middleware. It parses JSON from the body of the incoming HTTP request and adds a <em>body</em> property to the <em>req</em> object allowing you to easily access POST data. Without the middleware, the <em>body</em> property of <em>req</em> would not exist.</p>
+<p>Middleware is included with the <code>use()</code> method of your <code>app
+</code> object, or with <code>get()</code> and <code>post()</code> if you only want a certain piece of middleware to run with GET and POST requests, respectively. </p>
+<p>You've already used middleware, in fact, perhaps without realising it. Remember how we use <code>express.json()</code> to allow our Express server to handle JSON sent to it via the request body. Note how it is included with <code>use()</code>:
+<pre>app.use(express.json());</pre>
+So in fact we are using middleware here. Specifically, the middleware is parsing the JSON sent through the request body into a JavsScript object and adding it to the <code>req</code> (request) object as <code>req.body</code>.
+</p>
+<h3>Writing our own middleware</h3>
+<p>You will frequently want to write <em>your own middleware</em>. An item of Express middleware is simply a function which takes three parameters - described below - and can examine the request or modify the request and/or the response. The three parameters taken by a middleware function are:
+    <ul>
+    <li>the request object (typically called <code>req</code>);</li>
+    <li>the response object (typically called <code>res</code>);</li>
+    <li>the next function in the middleware chain (see below; typically called <code>next</code>).</li>
+    </ul>
+We write our middleware function and then <code>use()</code> it from our Express application object.</p>
+<p>Here is a simple example of a middleware that will run on any request. This will simply log the time of any request. Note that <code>new Date()</code> creates a date object representing the current time and <code>toLocaleString()</code> formats the date using the convention for the locale (language/country combination) that the server is configured for.
+<pre>
+import express from 'express';
+const app = express();
+
+app.use( (req,res,next) =&gt; {
+    console.log(`Received a request at ${new Date().toLocaleString()}`);
+    next();
 });
 
-<span class='comment'>// Middleware which protects any routes using POST or DELETE from access by users who are are not logged in</span>
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+app.listen(3000);
+</pre>
+Note how <em>use()</em> expects a function which takes request and response
+as parameters, the same as the route handlers, as well as <code>next</code>. This example writes a message to the console informing the user of the time of the request.</p>
+<p>Notice the call to the <em>next();</em> function (also passed as a
+parameter to use()). This calls the next function in the middleware chain.
+What do we mean by this? It is important to note that we can <em>specify multiple items of middleware via multiple <code>use()</code> calls</em>. Each item of middleware is called in the order it is specified, as long as <code>next()</code> is called from the previous item. So, if another middleware function is specified after this one, it will be called with <code>next()</code>. If there is no middleware after this one, the route handler itself will be called with <code>next()</code>.</p>
+<p>The diagram below shows how the request can pass through multiple items of
+middleware before reaching the route handler:
+<br />
+<img src="../images/middleware.png" alt="Multiple items of middleware" />
+</p>
+<h3>Middleware with specific routes</h3>
+<p>We can use routes to specify that a given middleware will only
+run before handling <em>a particular route</em>. This can be useful as,
+we might want certain middleware to only run in response to certain
+requests.  We do this by supplying an optional first argument to <em>use()</em> to specify which routes will run this middleware. For example,
+the middleware below (showing the time of the request once again)
+will only run with a route of <em>search</em> followed by a search term:
+<pre>
+import express from 'express';
+const app = express();
+
+// Note that middleware only runs with /search/:query route
+app.use( '/search/:query', (req,res,next) =&gt; {
+    console.log(`Received a request at ${new Date().toLocaleString()}`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called
+app.get('/search/:query', (req,res) =&gt; {
+    res.send(`Searching for ${req.params.query}...`);
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h3>Middleware with specific HTTP methods</h3>
+<p>Furthermore, we can specify that middleware will only run for specific HTTP methods (GET, POST, DELETE, etc). We do this by replacing <code>use()</code> with a function representing the HTTP method (<code>get()</code>, <code>post()</code> etc). A good real-world use of this would be to prevent access to routes which modify data (POST, DELETE, PUT) unless you're logged in. For example:
+<pre>
+import express from 'express';
+const app = express();
+
+// This middleware will only run with POST requests, due to the use of
+// app.post() rather than app.use()
+// * means 'match all', so this middleware will run with all POST requests
+app.post( '*', (req,res,next) =&gt; {
+    console.log(`Received a POST request at ${new Date().toLocaleString()}`);
+    next();
+});
+
+// Middleware not called
+app.get('/', (req,res) =&gt; {
+    res.send(`Hello world!`);
+});
+
+// Middleware called, because it uses post()
+app.post('/product/new', (req,res) =&gt; {
+    // Code to add a product to the database
+});
+
+app.listen(3000);
+</pre>
+</p>
+<h3>Using multiple middleware with one statement</h3>
+<p>You can use multiple items of middleware in <em>one</em> <code>use()</code>, <code>get()</code> or <code>post()</code> call. You specify each middleware function as a successive parameter, so that the syntax is:
+<pre>
+app.use('/route', middleware1, middleware2, middleware3...);
+</pre>
+So, for example:
+<pre>
+app.use( '/testroute', (req, res, next) =&gt; {
+            console.log('Running middleware 1')
+            next();
+        },
+         (req, res, next) =&gt; {
+            console.log('Running middleware 2')
+            next();
+        } 
+);
+</pre>
+In this example, all requests to <code>/testroute</code> will be intercepted by <em>both</em> specified middleware functions, and both messages will be displayed on the console, in order (the first specified function will run first).</p>
+<h3>Using middleware to prevent access to a route under certain conditions</h3>
+<p>As implied in the previous section, you can use middleware to <em>prevent the route ever being called under certain conditions</em>. A good example would be to implement a check that the user is logged in before they can access certain sensitive routes. You can prevent access to given routes by only calling <code>next()</code> if a certain condition is met, otherwise you send back a response (from the middleware) indicating that the main route cannot be processed. So here is an example which tests for the existence of the <code>username</code> session variable before allowing access to any POST or DELETE route.
+</p>
+
+<pre><span class='comment'>// Middleware which protects any routes using POST or DELETE from access by users who are are not logged in</span>
 app.use( (req, res, next) =&gt; {
     if(["POST", "DELETE"].indexOf(req.method) == -1) {
         next();
@@ -217,14 +360,8 @@ app.use( (req, res, next) =&gt; {
             res.status(401).json({error: "You're not logged in. Go away!"});
         }
     }
-});
-</pre>
-What do these routes do?
-    <ul>
-    <li>Firstly the <code>/login</code> <code>POST</code> route checks the <code>POST</code> data sent to it, specifically the <code>username</code> and <code>password</code> fields. Here, it simply checks that they are equal to <em>SimonSmith</em> and <em>secret</em> respectively. If the details are correct, the supplied username is stored in a session variable (<code>req.body.username</code>). This is a deliberately simple example: in a more realistic example it would need to check the username and password are in the users table in the database.</li>
-    <li>Next, the <code>/logout</code> route sets <code>req.session</code> to null and in doing so, removes the session from the session store. This will mean that <code>req.session.username</code> will no longer exist.</li>
-    <li>The next route is the <code>/login</code> <code>GET</code> route. This returns the currently logged-in user within a JSON object, or <code>null</code> if a user is not logged in. This can be used by clients (e.g. AJAX front ends) to display the currently logged-in user in the UI.</li>
-    <li>Finally, we have some middleware which is used to prevent access to routes with a method of <code>POST</code> or <code>DELETE</code> if the user is not logged in. To explain this:
+});</pre>
+To explain this:
     <ul>
     <li> The first thing we do is check whether the method of the request (<code>req.method</code>) is contained within the array <code>["POST", "DELETE"]</code>, i.e. we check whether the method is either <code>POST</code> or <code>DELETE</code>. We use <code>indexOf()</code> to do this, which returns the position of an element within an array, or -1 if it is not in the array.</li>
     <li>So <code>indexOf()</code> will return 0 for <code>POST</code>, 1 for <code>DELETE</code> or -1 for any other method (such as <code>GET</code>).</li>
@@ -265,21 +402,20 @@ if(results.length == 1) {
 See <a href='https://www.npmjs.com/package/bcrypt'>here</a> for more details.
 </p>
 <h2>Exercise</h2>
-<p><strong>Ensure you have completed topics 1, 2, 3, 4 and 6 before doing this exercise. However if you have not done Topic 7, you should do this week first.</strong></p>
 <p>Ensure you have <a href='wadsongs.db'>the most recent version of the HitTastic! database</a></p>
-<h3>Essential questions</h3>
+<p><em>The instructions below assume you are using the DOM. If you would like a challenge, feel free to implement the front-end using React instead.</em></p>
 <ol>
-<li>Add code to initialise <code>express-session</code> and <code>express-session-better-sqlite3</code> on your Express server, as shown above.</li>
-<li>Add the three routes in the example above (<code>/login</code> GET, <code>/login</code> POST and <code>/logout</code>), as well as the session-checking middleware, to your Express server. You should make one important change: <em>the <code>/login</code> POST route should check whether the username and password are contained within the <code>ht_users</code> table</em>, rather than just checking for a hard-coded username and password. To do this, perform your query and then check that the number of rows returned is one by checking the length of the <code>results</code> array, for example:
+<li>Add code to initialise <code>express-session</code> and <code>express-session-better-sqlite3</code> on your Week 1 Express server, as shown above.</li>
+<li>Add the three routes in the example above (<code>/login</code> GET, <code>/login</code> POST and <code>/logout</code>), as well as the session-checking middleware shown above, to your Express server. You should make one important change: <em>the <code>/login</code> POST route should check whether the username and password are contained within the <code>ht_users</code> table</em>, rather than just checking for a hard-coded username and password. To do this, perform your query and then check that the number of rows returned is one by checking the length of the <code>results</code> array, for example:
 <pre>
 if(results.length == 1) {
     res.json({"username": req.body.username});
 } else {
-    // ...
+    // ... error (as in the example above) ...
 }
 </pre>
 This code will also return the username as JSON back to the client if the login was successful, which will allow the client to display a <code>Logged in as ...</code> message.</li>
-<li>Run through this process in RESTer to check that it all works:
+<li>Run through this process in RESTer (or REST Tester) to check that it all works:
     <ul>
     <li>Send a POST request to your <code>/login</code> route with an appropriate username and password from the <code>ht_users</code> table. <strong>Look at the HTTP response</strong>; you should find that a session cookie is contained within it.</li>
     <li>Send a DELETE request to your route which deletes a song with a given ID. It should be successful. Look again at the HTTP response; the session cookie should still be there, and will be there until the session is destroyed.</li>
@@ -287,22 +423,15 @@ This code will also return the username as JSON back to the client if the login 
     <li>Send another DELETE request to your delete song route. You should now be unable to do so.</li>
     </ul>
 </li>
-<li>Now start to add login functionality to your AJAX front end. Create a <code>&lt;div&gt;</code> containing a login form, with username and password fields and a "Login" button. When the button is clicked, send a request to your <code>/login</code> POST route to log the user in. Check the HTTP code sent back from the server (via <code>response.status</code>). If it's 200, replace the contents of the login &lt;div&gt; with a message 'Logged in as ...' containing the username. Use <code>innerHTML</code> for this. Otherwise display an error via an alert box.</li>
-<li>Modify the "buy" functionality (week 6) so that if a 401 is returned from the <code>buy</code> route, an error message telling the user they're not logged in should appear as an alert box. Test it by trying to buy music before the user is logged in (it should not work) and then after they've logged in (it should work).</li>
-</ol>
-<h3>More advanced questions</h3>
-<p><strong>Please complete Topic 7 before doing these.</strong></p>
-<ol>
-<li>Enhance your login system so that you have "Logout" functionality, and also modify your code so that if the user reloads the page, the "Logged in as ..." message remains present. To do this: 
-    <ul>
-    <li>When a user has logged in, add a button to the "Logged in as..." message which appears in the &lt;div&gt;. You can do this simply by adding the button HTML to the <code>innerHTML</code> text (or, if you are feeling ambitious, use the DOM). Ensure this button has an ID, so that you can attach an event listener to it. For example:
-<pre>document.getElementById(...).innerHTML = `Logged in as ... &lt;input type='button' value='Logout' id='logoutBtn' /&gt;`</pre>
+<li>Now start to add login functionality to your AJAX front end from Weeks 3 and 4. Create a <code>&lt;div&gt;</code> containing a login form, with username and password fields and a "Login" button. When the button is clicked, send a request to your <code>/login</code> POST route to log the user in. Check the HTTP code sent back from the server (via <code>response.status</code>). If it's 200, display the message 'Logged in as ...' plus the username. 
+Also, hide the login &lt;div&gt; by setting its <code>display</code> to <code>none</code>:
+<pre>document.getElementById(...).style.display = 'none';</pre>
+If the status code is not 200, display an error via an alert box. 
 </li>
-    <li>On the next line of code, use <code>document.getElementById()</code> and <code>addEventListener()</code> to add a "click" event to this button so that the user is logged out by calling the <code>/logout</code> route. Once logged out, your should re-fill the login &lt;div&gt; with the original login form (use <code>innerHTML</code> for this, similar to the example in the previous question; note you will need to connect the 'Login' button to an event listener to handle login).</li>
-    <li><strong>If the user reloads the page, you want the "Logged in as ..." message to remain present. This question allows you to do this.</strong> At the start of your client-side JavaScript, call the <code>/login</code> GET route of your web server to determine if the user is logged in or not. If they are, the <code>username</code> field of the JSON returned will be non-null. If the username is non-null, display the "Logged in as... " message with the Logout button, and add the event listener to the Logout button, as in the earlier question. If not, display the login form, ensuring you continue to add an event listener to the Login button.</li>
-    </ul>
-</li>
-<li>Add a signup route to your server, allowing the user to sign up. Use <code>bcrypt</code> to encode the password. Then, change your login route to use <code>bcrypt</code>. Test by using RESTer, or, alternatively, add an AJAX-based signup facility to your HTML page.</li>
+<li>Modify the "buy" functionality (week 4) so that if a 401 is returned from the <code>buy</code> route, an error message telling the user they're not logged in should appear as an alert box. Test it by trying to buy music before the user is logged in (it should not work) and then after they've logged in (it should work).</li>
+<li>Add a "Logout" button to the main page, which sends an AJAX request to the logout route when clicked. Initially, this should be hidden (set its <code>display</code> CSS property to <code>none</code>), but show it when the user has logged in (set its <code>display</code> to <code>inline</code>). When the server returns the response from the <code>/logout</code> route, you should hide the logout button, set the <code>innerHTML</code> of the <code>div</code> containing the "Logged in as ..." message to a blank string, and show the login form again (set its <code>display</code> to <code>block</code>).</li>
+
+<li>Enhance your login system so that if the user reloads the page, the "Logged in as ..." message remains present if a user is logged in. To do this you should send a <code>GET</code> request to the <code>/login</code> route and examine the response. Depending on the response, show or hide the Login form and Logout button, and display the login form and "Logout" button, and the "Logged in as ..." message, as appropriate.</li>
 </ol>
 <h3>Other things to try</h3>
 <ul>
