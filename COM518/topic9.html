@@ -43,7 +43,7 @@ import express from 'express';
 const app = express();
 
 // Import our product router module which we created above
-import productRouter from './routes/product';
+import productRouter from './routes/product.mjs';
 
 // Tell the app to use productRouter for all routes beginning with /products
 // As we are using "use()", the router is acting as a middleware - see below
@@ -85,7 +85,7 @@ We could then <code>import</code> this from our main server, and <code>use()</co
 const app = express();
 
 // Require the middleware module
-import corsMiddleware from './corsMiddleware';
+import corsMiddleware from './corsMiddleware.mjs';
 
 // use() it
 app.use(corsMiddleware);
@@ -129,13 +129,13 @@ It's important to understand that <em>you can only use <code>process.env</code> 
 <p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
 <p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you have completed the sessions and logins exercise from the previous topic.</p>
 <ol>
-<li>Make a <em>copy</em> of your Express serve from last weekr, so you still have the original version for reference.</li>
-<li>Create a separate <em>router</em> file, containing routes for users (login, logout). This should be named <code>users.mjs</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain the three routes (login POST, login GET and logout).</li>
+<li>Make a <em>copy</em> of your Express server from last week, so you still have the original version for reference.</li>
+<li>Create a separate <em>router</em> file, containing routes for users (login, logout). This should be named <code>users.mjs</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain the three routes (<code>/login</code> POST, <code>/login</code> GET and <code>/logout</code>).</li>
 <li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
 <li>As shown in the example with CORS, write the user-checking middleware (from last week) in a separate module as a function and export it. Then, <code>import</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
 <li>Test it out.</li>
 <li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 2) to a separate router inside the file <code>songs.mjs</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
-<li>Install <code>dotenv</code> and <code>import</code> it in your main server application. Store the database name (e.g. wadsongs.db) in a .env file and alter your code so that it reads the database name from .env.</li>
+<li>Install <code>dotenv</code> and <code>import</code> it in your main server application. Store the database name (e.g. <code>wadsongs.db</code>) in a <code>.env</code> file and alter your code so that it reads the database name from <code>.env</code>.</li>
 </ol>
 </body>
 </html>
