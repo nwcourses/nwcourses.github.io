@@ -405,7 +405,7 @@ ksp("androidx.room:room-compiler:2.6.1")
 </p>
 <h3>KSP</h3>
 Note the last directive, <code>ksp</code>. What is this? <em>KSP</em> (Kotlin Symbol Processing) is a tool which will process Java-based annotations in Kotlin code, such as the annotations used by Room. See <a href='https://developer.android.com/build/migrate-to-ksp'>the documentation</a>.</p>
-<p>To set up KSP you need to add it to the project <code>build.gradle.kts</code> (the first of the two, labelled with Project):
+<p>To set up KSP you need to add it to the project <code>build.gradle.kts</code> (the first of the two, labelled with Project), within the <code>plugins</code>:
 <pre>id("com.google.devtools.ksp") version "1.9.0-1.0.13" apply false</pre>
 Note the version here <code>1.9.0-1.0.13</code>. You may need to change this for your system. The first number is the Kotlin version and the second number is the KSP version. You need to choose a version which corresponds to your Kotlin version (1.9.0 in this eaxmple). To find out the Kotlin version, go to <em>File-Settings-Kotlin Compiler</em> in Android Studio:
 <br />
@@ -416,6 +416,29 @@ Then lookup the KSP versions at <a href='https://github.com/google/ksp/releases'
 <p>Also, add this line to the <code>plugins</code> section of the <em>app</em> <code>build.gradle.kts</code> (the second):
 <pre>id ("com.google.devtools.ksp")</pre>
 </p>
+<h3>Important - Using KAPT if KSP does not work</h3>
+<p>For a currently-unknown reason, KSP is not compatible with some configurations of Android Studio, including the lab computers. If you obtain obscure errors when using KSP, please use the older <em>KAPT</em> tool instead. To use KAPT instead of KSP:
+<ul>
+<li>Do not add the KSP line to the <code>plugins</code> in the Project <code>build.gradle.kts</code>;</li>
+<li>Replace the KSP line in the <code>plugins</code> in the App <code>build.gradle.kts</code> with:
+<pre>id("kotlin-kapt")</pre>
+as shown below:
+<br />
+<img src="../images/kapt1.png" alt="Including the KAPT plugin" />
+<br />
+</li>
+<li>Change the Java version in <code>compileOptions</code> and <code>kotlinOptions</code> from 1.8 to 17 in the app <code>build.gradle.kts</code>, as shown below:
+<br />
+<img src="../images/kapt2.png" alt="Changing the Java version" />
+<br />
+</li>
+<li>When including the Room compiler in your dependencies, use <code>kapt</code> instead of <code>ksp</code>:
+<br />
+<img src="../images/kapt3.png" alt="Using kapt to include the Kotlin compiler" />
+<br />
+</li>
+<li>If you get an error stating that API 34 is needed, please <em>downgrade</em> the Room version from 2.6.1 to 2.2.3. Replace 2.6.1 with 2.2.3 in all three dependencies above.</li>
+</ul>
 <h3>Questions</h3>
 <p>Use <strong>a device running at least API level 26</strong> so you can use the Database Inspector to visualise your database.</p>
 <p>The Activity should have a layout with four fields: ID, Title, Artist and Year, with four buttons (Search by ID, Add, Update, Delete). These buttons should
