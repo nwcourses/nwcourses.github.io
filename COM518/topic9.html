@@ -1,255 +1,142 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 9 : More Modular Applications: DAOs and Controllers</title>
+<title>Topic 9: Routers</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 9: More Modular Applications: DAOs and Controllers</h1>
+<h1>Topic 9: Moving towards Modular Express Servers: Routing and Organising Code in Modules</h1>
 </div>
-<p>Today we will look at:
-    <ul>
-    <li>Some additional mapping and React concepts which we have not time to cover just yet</li>
-    <li>Developing modular Node and Express applications using Data Access Objects (DAOs) and controllers</li>
-    </ul>
-</p>
-<h2>Additional points regarding mapping and React</h2>
-<p>These points might be useful for the assignment, but we have not had time to introduce them yet, so we will do it this week.</p>
-<h3>How do I add a form to a popup?</h3>
-<p>This may help you. <code>bindPopup()</code> can take a DOM node as well as plain text or HTML. So you can create a DOM structure containing your form and pass it in as an argument to <code>bindPopup()</code>, e.g.:
-<pre>
-const domDiv = document.createElement('div');
-// ... other code to create a form ...
-marker.bindPopup(domDiv); // add the DOM-created div to a marker
-</pre>
-</p>
-<!--
-<h3>How do I show and hide an element?</h3>
-<p>You may wish, as part of your UI, to show and hide page elements such as &lt;div&gt;s First, set its <code>display</code> property to <code>none</code> in the CSS:
-<pre>
-#myDiv {
-    display: none;
-}
-</pre>
-Then, at the point you want to show it, change the <code>display</code> property from JavaScript to <code>block</code>, e.g.:
-<pre>document.getElementById('myDiv').style.display = 'block';</pre>
-Then, when you want to hide it again, change <code>display</code> back to <code>none</code>:
-<pre>document.getElementById('myDiv').style.display = 'none';</pre>
-</p>
--->
-<h3>React effects - how to run code when a React component is created, or re-rendered</h3>
-<p>You may be wondering how to run start-up code when a React component is created. For example if you create a React component for your map, how would you initialise the map and set the map's initial position and zoom level? You should not put this directly inside the component's main function, as this is intended for <em>rendering</em>. Instead you should use a React <em>effect</em>. Here is an example:
-<pre>
-let map;
-function ReactMap() {
-    React.useEffect( () =&gt; {
-        map = L.map("map1");
-        L.tileLayer("URL", { attribution: "Copyright message" }).addTo(map);
-        map.setView([51.05, -0.72], 14);
-    }, <strong>[]</strong> );
-
-    return (
-        // HTML for the map, including div with ID of 'map1'...
-    );
-}
-</pre>
-Note how the React <em>effect</em> is an arrow function, which runs when the component is first created, or re-rendered (<strong>note that when a React component's state is updated, it is re-rendered.</strong>). In this effect shown here, we initialise our map and set its position and zoom level.</p>
-<p>Note also the second argument to <code>React.useEffect()</code>, which has been highlighted, and is an empty array <code>[]</code>. This is a list of props which should trigger the effect to be run if they are changed. Here, there are no props so we leave the array empty, which will mean the effect will only run when the component is initialised. If, however, no second argument is provided at all (as opposed to an empty array), the effect will run <strong>every time the component is re-rendered, which will happen every time the state changes</strong>. We don't want this here, we only want the map to be initialised once.</p>
-<p>See <a href='https://beta.reactjs.org/learn/synchronizing-with-effects'>here</a> for the React documentation on effects.</p>
-<hr />
-<h2>The main material</h2>
-<p>Now onto the main topic for this week. Today we will look at using a more modular, easier-to-maintain structure for our Node/Express applications by making use of <em>Data Access Objects (DAOs)</em> and <em>controllers</em>.</p>
-<p><strong>Note that this is a more advanced topic, aimed at those of you who are coping reasonably well with the module. You should complete previous exercises before attempting this week's - particularly login systems from last week.</strong></p>
-<h2>Data Access Objects</h2>
+In this topic we will start to look at how we can make our code more <em>modular</em> by writing <em>routers</em> and also how we can write middleware in <em>modules</em>. Specifically we will look at:
 <ul>
-<li>We have already seen how to interact with an SQLite database from node.js</li>
-<li>However, we can make our code more structured and object-oriented (remember you did classes and objects last year)</li>
-<li>When writing object-oriented code to interact with a database, we 
-typically deal with <em>data access objects (DAOs)</em>.</li>
-<li>A <em>DAO</em> provides an interface to your table as a whole, and
-might contain methods such as <em>findStudentById()</em> or
-<em>findStudentsByName()</em></li>
+<li>Using the Express <em>router</em> to organise and group routes;</li>
+<li>Writing middleware in modules</li>
+<li>dotenv for user settings</li>
 </ul>
-<h3>Example of a DAO for the students table</h3>
+
+<h2>Express Routers</h2>
+<p>Having looked at modules, we will now look at how to implement an Express <em>router</em> as a module.</p>
+<h3>Implementing an Express Router as a Module</h3>
+<p>In a larger application, you will quickly find that your main Express file (often <code>app.mjs</code>) will become very large, handling a large number of routes. What you can do instead is to define a <em>Router</em>. A router allows you to set up a group of routes which match a particular path. For example we might create a router matching the path <em>/products</em> which will handle any routes beginning with <em>/products</em>, e.g: <em>/products/all</em>, <em>/products/id/:id</em> and so on. To do this we create a <em>routes</em> folder within the folder containing our main Express server, and place a route handler in there, which would be saved as a Node module (we looked at modules in <a href='topic5.html'>topic 5</a>.  Here is an example router module (<em>product.mjs</em>) which we would save in our <em>routes</em> folder:
 <pre>
+// routes/product.mjs 
 
-class StudentDao {
-    // db is our sqlite database connection
-    // table is the table storing the students
-    constructor(db, table) {
-        this.db = db;
-        this.table = table;
-    }
+import express from 'express';
+const productRouter = express.Router();
 
+productRouter.get('/all', (req,res)=&gt; {
+    // code to return all products
+});
 
-    // find a student with a given ID
+productRouter.get('/id/:id', (req,res)=&gt; {
+    // code to find the product with the given ID
+});
 
-    findStudentById(id) {
-        
-        const stmt = this.db.prepare(`SELECT * FROM ${this.table} WHERE id=?`);
-        const rows = stmt.all(id);
-        if (rows.length == 0) {
-            // return null if no results
-            return null;
-        } else {
-            // only one student will be found but "results" will still be an array with one member. 
-            // To simplify code which makes use of the DAO, extract the one and only row from the array 
-            // and return that.
-            return rows[0];
-        }
-    }
-
-    // find all students on a given course
-    findStudentsByCourse(course) {
-        const stmt = this.db.prepare(`SELECT * FROM ${this.table} WHERE course=?`);
-        const rows = stmt.all(course);
-        return rows; // will be an empty array if there are no results
-    }
-
-    // add a new student 
-    addStudent(name, course) {
-        const stmt = this.db.prepare(`INSERT INTO ${this.table} (name,course) VALUES (?,?)`);
-        const info = stmt.run(name, course);
-        return info.lastInsertRowid;
-    }
-
-    // update a student - takes student ID, name, and course as parameters and 
-    // updates the name and the course of the record with that ID
-    // For you to complete!
-
-    updateStudent(id, name, course) {
-    }
-
-
-    // delete a student - takes a student ID as a parameter
-    // and deletes the record with that ID.
-    // For you to complete!
-
-    deleteStudent(id) {
-    }
-}
-
-export default StudentDao; // so that other code can use it</pre>
-<h3>DAO - Explanation</h3>
-<ul>
-<li>Note how the DAO contains a series of methods which perform various
-database operations</li>
-<li>The rest of our code would interface with the DAO, rather than
-the database directly, keeping it clean and keeping all the 'messy' SQL
-statements in one place</li>
-<li>Each method in the DAO performs a particular database operation (find a student by ID, find all students on a given course, add a student, update a student's details, and delete a student)</li>
-</ul>
-</p>
-<h2>Controllers</h2>
-<p>We can further enhance the modularity of our code through the use of <em>controllers</em>. Controllers are part of the <em>model/view/controller</em> (MVC) architecture, in which we divide the code into three components:
-    <ul>
-    <li>the <em>model</em> - those components which directly interact with the database, i.e. the DAO</li>
-    <li>the <em>view</em> - those components used to <em>present</em> the data (i.e. output the data as JSON or as HTML)</li>
-    <li>the <em>controller</em> - which manages the interaction between the model and the view.</li>
-    </ul>
-<br />
-<img src="../images/mvc.png" alt="MVC architecture" /><br />
-The typical role of a controller would be to communicate with the model (the DAO) to get database results, and then format those results to be presented to the client. Or, alternatively, the controller could gather information from the client and then forward it on to the model (DAO) to insert it into the database.</p>
-<p>Hopefully, from this you may be able to figure out that the <em>router</em> takes the role of the controller. To improve the modularity of your code, however, you can create separate <em>controller objects</em> to represent the controller, and add methods to these objects to carry out the functionality of your router. Then, in your router, you create a controller object and call these methods from each route in the router.</p>
-<p>A good way to organise your project is to have sub-folders within the main folder of your project for routes, controllers and DAOs. These folders could simply be named:
-    <ul>
-    <li><code>routes</code> containing all your route files;</li>
-    <li><code>controllers</code> containing all your controllers;</li>
-    <li><code>dao</code> containing all your DAOs.
-    </ul>
-</p>
-<p>So, if we imagine a student router, within the <code>routes</code> folder:
+export default productRouter; // export the module for external use
+</pre>
+Note how we are making <code>productRouter</code> the default export from this module, which means we'll be able to import it as follows:
+<pre>import productRouter from './routes/product.mjs';</pre>
+This is shown in the full Express application, below:
 <pre>
 import express from 'express';
-const studentRouter = express.Router();
+const app = express();
 
-// Initialise database, not shown
+// Import our product router module which we created above
+import productRouter from './routes/product';
 
-// assume the StudentController is inside a 'student.mjs' file within the 
-// 'controllers' folder of the project, as described above
-import StudentController from '../controllers/student.mjs';
+// Tell the app to use productRouter for all routes beginning with /products
+// As we are using "use()", the router is acting as a middleware - see below
+app.use('/products', productRouter);
+app.listen(3000);
+</pre>
+So the song router is imported from the <em>routes/product</em> module
+(corresponding to routes/product.mjs) and then we call <em>use()</em> 
+with two arguments:
+    <ul>
+    <li><em>/products</em>, indicating that this router will <strong>handle all URLs beginning with <code>/products</code></strong>;</li>
+    <li>The router object itself.</li>
+    </ul>
+So, the route <code>/products/all</code> will be handled via the product 
+router (as the route begins with <code>/products</code>) and then via the <code>/all</code> route within the <code>products</code> router.</p>
 
-
-// Create the controller object, and pass in the database connection as an argument
-const sController = new StudentController(db);
-
-// handle get requests to route /id/:id using the controller's findStudentById() method
-studentRouter.get('/id/:id', sController.findStudentById.bind(sController));
-
-// handle get requests to route /course/:course using the controller's findStudentByCourse() method
-studentRouter.get('/course/:course', sController.findStudentByCourse.bind(sController));
-
-// handle post requests to /create using the controller's addStudent() method
-studentRouter.post('/create', sController.addStudent.bind(sController));
-
-export default studentRouter; // so that main application can use it</pre>
-Note how the router creates a StudentController object, passing the database connection to it (which will be needed by the DAO) and note also how we handle each route with <em>methods of the controller object</em>. Remember we looked at "<code>bind()</code>" in week 4. Here we are using it slightly differently. <code>bind()</code> is necessary here to <strong>preserve the context of the <code>this</code> object in callbacks</strong>. By default, the context of <code>this</code> (the current object) is lost in a callback function, and to preserve the context of <code>this</code>, you have to <em>bind</em> the callback to the object you wish to use as <code>this</code> (which will be the controller here). You can read about the use of <code>bind()</code> to preserve the context of <code>this</code> in callbacks in more detail <a href='topic4.html#binding'>here</a>.</p>
-<p>So, let's look at the Controller object, which would be in the <code>controllers</code> folder:
-<pre>// assume the DAO is in a 'student.mjs' file within the 
-//'dao' folder of the project, as described above
-import StudentDao from '../dao/student.mjs';
-
-class StudentController {
-    constructor(db) {
-        // Create a DAO for communicating with the database
-        this.dao = new StudentDao(db, "students");
-    }
-
-    // findStudentById()
-    // calls the DAO's findStudentById() method, passing the ID parameter to
-    // it, and formats the JSON returned.
-    findStudentById(req, res) {
-        try {
-            const student = this.dao.findStudentById(req.params.id);
-            // Remember from the DAO that the method returns null if there are no results
-            if(student == null) {
-                res.status(404).json({error: "No student with that ID"});
-            } else {
-                res.json(student);    
-            }
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-
-    // findStudentByCourse()
-    // calls the DAO's findStudentByCourse() method, passing the course parameter to
-    // it, and formats the JSON returned.
-    findStudentByCourse(req, res) {
-        try {
-            const students = this.dao.findStudentByCourse(req.params.course);
-            res.json(students);    
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
-
-    // addStudent()
-    // calls the DAO's addStudent() method, passing in the 'name' and 'course'
-    // POST data to it, and formats the allocated ID as JSON to send back to the client.
-    addStudent(req, res) {
-        try {
-            const studentId = this.dao.addStudent(req.body.name, req.body.course);
-            res.json({id: studentId});
-        } catch(e) {
-            res.status(500).json({error: e});
-        }
-    }
+<h2>Further Middleware</h2>
+<p>Last time you were introduced to <em>middleware</em>. However, we wrote our middleware in our main <code>app.mjs</code> which is not ideal for <em>reusability</em>. We saw examples last week of standard middleware such as <code>express.json()</code> so it is valuable to write middleware in its own <em>modules</em> so that it can be imported into other projects. As an example we will look at a piece of <em>CORS</em> middleware.</p>
+<p>Here is a piece of middleware which adds a <a href='topic3.html#cors'>CORS</a> header to all responses to allow clients from any domain to connect. In this example, the middleware is written directly inside <code>app.mjs</code>. 
+<pre>
+app.use((req, res, next) =&gt; {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+});
+</pre> 
+Note how we specify a custom arrow function as the argument to <code>use()</code>. This is our middleware, and you can see that it takes <code>req</code>, <code>res</code> and <code>next</code> parameters as described above. Note how our midleware <strong>adds the CORS <code>Access-Control-Allow-Origin</code> header to the response object</strong> to allow any domain to connect, and then calls the next function in the middleware chain with <code>next()</code>.</p>
+<p>However, we can write the middleware as a separate function, in a module, as long as it has the required <code>req</code>, <code>res</code> and <code>next</code> parameters. As we have seen, the advantage of this method is that your function can be placed inside a module and imported into other projects. Here is an example of writing our CORS middleware as a separate function in a module:
+<pre>
+// corsMiddleware.mjs
+function corsMiddleware(req, res, next) {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
 }
 
-export default StudentController; // so that the router can use it</pre>
-Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
-<h2>Finally - creating a module to initialise the database</h2>
-<p>One problem with our code so far is that we have had to initialise and load the database <em>multiple times</em>, once in the main app, and once per router. This is clearly inefficient and wasteful. What we can do instead is to create a <em>module</em> to initialse and export the database connection:
-<pre>// db.mjs - initialsie and export the database connection object
-import Database from 'better-sqlite3';
-const db = new Database("wadsongs.db");
-export default db;</pre>
-As the database object is exported, we could then <em>import</em> it from every file which needs to use it, either the main application or any router:
-<pre>import db from './db.mjs';</pre>
+export default corsMiddleware;
+</pre>
+We could then <code>import</code> this from our main server, and <code>use()</code> it, as follows:
+<pre>import express from 'express';
+const app = express();
+
+// Require the middleware module
+import corsMiddleware from './corsMiddleware';
+
+// use() it
+app.use(corsMiddleware);
+
+// Routes
+app.get('/', ...);
+
+// etc
+
+app.listen(3000);</pre>
 </p>
+
+
+<h2>dotenv - Environment variables</h2>
+<p>Finally in this topic we will cover a useful Node module, <code>dotenv</code>. The <code>dotenv</code> module allows developers to specify <em>environment variables</em> - variables which can be set by the user as input to the application and may change - within a file, <code>.env</code>. Examples of such variables might include database name, username and password. This also has a security advantage: by adding private data to your <code>.env</code> it means that you can keep information such as passwords outside your source code, and publish your code to GitHub or another repository without giving away such information.</p>
+<p><code>dotenv</code> is quite easy to use. Firsst of all, as it's a third-party module, you have to install it:
+<pre>npm install dotenv</pre>
+You then <code>import</code> it, for example below we import <code>dotenv</code> after we have initialised our Express app object.
+<pre>
+import express from 'express';
+const app = express();
+<em>import 'dotenv/config';</em>
+</pre>
+Environment variables are placed within the <code>.env</code> file as a series of key/value pairs. For example, here is a <code>.env</code> file containing database settings:
+<pre>
+DB_HOST=localhost
+DB_USER=root
+DB_DBASE=mysql
+</pre>
+We could then use these in our server via the <code>process.env</code> object. So we could use <code>process.env.DB_USER</code> to access the database user, <code>process.env.DB_HOST</code> to access the machine running the database, and <code>process.env.DB_DBASE</code> to access the database name. For example, if we were using MySQL, which requires a host, username and password, we could do:
+<pre>
+const con = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_DBASE
+});
+</pre>
+It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
+<hr />
 <h2>Exercise</h2>
-<p>Rewrite questions 1 to 6 from Topic 7 to use appropriate DAOs and controllers as well as routes. If you do not have topic 7 on its own, and only have topics 7 and 8 together, you can attempt to convert the login system to use DAOs, or, you may wish to comment out session/login code as it may make things easier.</p>
+<p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
+<p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you have completed the sessions and logins exercise from the previous topic.</p>
+<ol>
+<li>Make a <em>copy</em> of your Express serve from last weekr, so you still have the original version for reference.</li>
+<li>Create a separate <em>router</em> file, containing routes for users (login, logout). This should be named <code>users.mjs</code>, should create an <code>express.Router()</code> as shown in the second example, and should contain the three routes (login POST, login GET and logout).</li>
+<li>Include the router you have just created in your main Express app under the top-level route <code>/users</code>, as shown in the example.</li>
+<li>As shown in the example with CORS, write the user-checking middleware (from last week) in a separate module as a function and export it. Then, <code>import</code> it and <code>use()</code> it in the main server file by specifying the name of the function exported from the module.</li>
+<li>Test it out.</li>
+<li>Now, similarly, move all your routes to handle songs (i.e. everything you did in week 2) to a separate router inside the file <code>songs.mjs</code>. In the same way that you did for your <code>users</code> router, include this router under the top-level route <code>/songs</code>, and test it by searching for all songs by a particular artist by requesting the correct URL in your browser.</li> 
+<li>Install <code>dotenv</code> and <code>import</code> it in your main server application. Store the database name (e.g. wadsongs.db) in a .env file and alter your code so that it reads the database name from .env.</li>
+</ol>
 </body>
 </html>
+
