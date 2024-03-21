@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 10: File I/O, Streams, File Upload</title>
+<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
+<link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
+</head><body>
+<div class='titlebox'>
+<h1>Topic 10: File I/O, Streams, File Upload</h1>
+</div>
+
+<p>Today we will look at how to perform <em>file input/output (file I/O)</em> in Node.js.  This will allow you to create new files, or open existing files, that exist on your server. We will also look at how to <em>upload files to a server</em> in Node.js.</p>
+
+
+
+<h2>The Node.js fs module</h2>
+
+<p>Node.js comes with an inbuilt module <code>fs</code> to handle basic file I/O (see the <a href='https://nodejs.org/dist/latest-v16.x/docs/api/fs.html'>documentation</a>). You can open an existing file and loop through each line, open an existing file at once, or write to a new file. There are two versions of <code>fs</code>: the non-promise (callback-based) version and the promise-based version. We will use the promise-based version as it allows simpler code with <code>async</code>/<code>await</code>. Here are some examples:</p>
+
+<pre class="codebox">
+
+import * as fs from 'fs/promises'; // use promise-based version
+
+async function fileTest() {
+    try {
+        const fp = await fs.open('bytes.bin', 'r');
+        const buffer = Buffer.alloc(10);
+        const { bytesRead } = await fp.read({buffer: buffer});
+        console.log(buffer);
+        if(bytesRead != 10) {
+            console.error("Less than 10 bytes read. File corrupted");
+            process.exit(1);
+        }
+        fp.close();
+    } catch(e) {
+        console.error(e);
+        process.exit(1);
+    }
+}
+
+fileTest();
+</pre>
+<p>This example reads in 10 bytes from file and stores them in a <code>Buffer</code>. A Buffer is a Node.js data structure used to represent bytes in memory. The first thing we need to do is <em>open</em> the file: 
+<pre>const fp = await fs.open('bytes.bin', 'r');</pre>
+This opens the file in <em>read</em> mode (hence <code>'r'</code>), and resolves with a <code>FileHandle</code> (the variable <code>fp</code> in the example above). A <code>FileHandle</code> is a 'pointer' to an open file which can be used to perform operations on it; when opened it 'points' to the start of the file but as the file is read, it moves through the file.</p>
+<p>Note how we then allocate memory for a buffer with capacity 10 bytes. We then call the <code>read()</code> method of the <code>FileHandle</code> to read the bytes into the buffer from the file. This will return an object containing two properties:
+    <ul>
+    <li><code>bytesRead</code> - the number of bytes read from the file;</li>
+    <li><code>buffer</code> - the buffer that the bytes have been read into. If we supplied a buffer within the options passed in as an argument to <code>read()</code> it will be the same buffer; if not, a new buffer will be created and returned.</li>
+    </ul>
+Note the line:
+<pre>const { bytesRead } = await fp.read({buffer: buffer});</pre>
+What is this doing? <code>fp.read()</code> resolves with a an object containg a <code>bytesRead</code> property representing the bytes read. So we could equally well do:
+<pre>
+const obj = await fp.read({buffer: buffer});
+if(obj.bytesRead != 10) { 
+    // ...
+</pre>
+However, the destructuring operator <code>{ }</code> allows us to "unpack" the object into variables with names corresponding to the property names of the object. So if we wanted to use the <code>buffer</code> property of the object returned from <code>read()</code> (which we might do if we didn't create a <code>Buffer</code> ourselves, as a <code>Buffer</code> (of 16384 bytes) is created for us if we don't supply one) then we could also obtain it using destructuring:
+<pre>const { buffer, bytesRead } = await fp.read({});</pre>
+Note here that we do not pass in a buffer to <code>read()</code>, and instead give it an empty options object; in this case <code>read()</code> will allocate a buffer for us.</p>
+
+<h3>Writing to file</h3>
+<p>The next example will illustrate <em>writing</em> to file.
+<pre>
+import * as fs from 'fs/promises'; // use promise-based version
+
+async function fileWriteTest() {
+    try {
+        const array = [ 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 ];
+        const buffer = Buffer.from(array);
+        const fp = await fs.open('outbytes.bin', 'w');
+        const { bytesWritten } = await fp.write(buffer);
+        console.log(`Number of bytes written: ${bytesWritten}`);
+        fp.close();
+    } catch(e) {
+        console.error(e);
+        process.exit(1);
+    }
+}
+
+fileWriteTest();
+</pre>
+Note how we:
+    <ul>
+    <li>Create an array containing 10 numbers;</li>
+    <li>Create a buffer from the array;</li>
+    <li>Open a file for writing (<code>'w'</code> indicates we wish to open the file for writing);</li>
+    <li>Actually write the buffer to file. This will again resolve with a promise containing an object with two fields, <code>buffer</code> (the buffer written) and <code>bytesWritten</code> (the number of bytes successfully written). Again we use destructuring to extract the latter value into a variable.</li>
+    </ul>
+</p>
+<p>Note that the <code>write()</code> method of the <code>FileHandle</code> will also accept a string, rather than a buffer. This allows us to easily write text to file. The following example shows this:
+<pre>
+import * as fs from 'fs/promises'; // use promise-based version
+
+async function textFileWriteTest() {
+    try {
+        const array = [ "C++", "Java", "JavaScript", "PHP", "Python", "Kotlin" ];
+        const fp = await fs.open('languages.txt', 'w');
+        for(let language of array) {
+            await fp.write(`${language}\n`);
+        }
+        fp.close();
+    } catch(e) {
+        console.error(e);
+        process.exit(1);
+    }
+}
+
+textFileWriteTest();
+</pre>
+This example creates an array of strings and then loops through them with a <code>for</code>/<code>of</code> loop. We write each line in turn: note how we need to add a new line character (<code>\n</code>).</p>
+<h3>Higher-level operations</h3>
+<p>We can also perform some commonly-used higher-level operations with the <code>fs</code> package with minimal code. For example we can read in the entire contents of a file with <code>fs.readFile()</code>:
+<pre>
+import * as fs from 'fs/promises'; // use promise-based version
+
+async function readWholeFile() {
+    const wholeFile = (await fs.readFile("data.txt")).toString();
+    const lines = wholeFile.split("\n");
+    console.log(lines);
+}
+
+readWholeFile();
+</pre>
+Note how <code>readFile()</code> resolves with a buffer containing the entire contents of the file (which is then converted to a string with <code>toString</code>). We then split the string into an array representing each line; note how we can use the <code>split()</code> method, with a given delimiter string, to split a string into an array at a certain character. (We could use the same technique to split a line at the commas in a CSV file).</p>
+
+<h2>Streams</h2>
+
+<p>To understand some features of Node file I/O it is useful to understand the meaning of the term <em>stream</em>. A <em>stream</em> represents the flow of data from one device to another. Examples of streams include:
+    <ul>
+    <li>Keyboard input (keyboard to memory) - this is known as <em>standard input</em> and can be accessed in Node.js as <code>process.stdin</code></li>
+    <li>Screen output (memory to screen) - this is known as <em>standard output</em> and can be accessed in Node.js as <code>process.stdout</code></li>
+    <li>File input and output (memory to and from file), which we have seen abovee</li>
+    <li>Network input and output (memory to and from another machine on the
+    network), e.g. the use of the <code>node-fetch</code> API</li>
+    </ul>
+
+</p>
+
+<p>Streams divide into <em>input</em> and <em>output</em> streams. An <em>input stream</em> represents
+<em>input</em> to the program (from file, keyboard, network, etc), while
+an <em>output stream</em> represents <em>output</em> from the program (to
+file, screen, network etc). In Node parlance, input streams are known as <em>readable</em> streams and output streams as <em>writable</em> streams.</p>
+<p>The diagram below shows examples of streams:
+<br />
+<img src="../images/streams.png" alt="Streams" />
+</p>
+<h3>Pipes</h3>
+
+<p>A nice feature of the Node.js file I/O functionality is the ability to <em>pipe streams</em>. What does this mean? Remember, from above, that a stream is a flow of bytes from one entity to another. We can connect one stream to another, to transfer information from an input source to an output destination.
+</p>
+<p>Here is the simplest possible use of a pipe. We pipe standard input (<code>process.stdin</code>) to standard output (<code>process.stdout</code>). What will this do? It will read in input from the keyboard and echo it to the screen. The stream of information into the program from the keyboard is piped straight out to the screen (standard output).
+<pre>process.stdin.pipe(process.stdout);</pre>
+This example will continue until the user terminates the input stream with Control-D.</p>
+<p>
+Here is an example which will pipe standard input to a file:
+<pre>import * as fs from 'fs';
+const outStream = fs.createWriteStream('output.txt');
+process.stdin.pipe(outStream);</pre>
+Again this will continue until the user terminates standard input with Control-D. Here is an example which will create an input stream from a file, and stream it to standard output (i.e. the file contents will appear on screen):
+<pre>import * as fs from 'fs'; 
+const inStream = fs.createReadStream('file.txt');
+inStream.pipe(process.stdout);</pre>
+and finally here is an example which will copy one file to another by opening an input stream from the first file, an output stream to the second file, and pipe the input stream to the output stream:
+<pre>import * as fs from 'fs';
+const inStream = fs.createReadStream('file1.txt');
+const outStream = fs.createWriteStream('file2.txt');
+inStream.pipe(outStream);</pre>
+You can also do more complex piping operations by executing multiple stream operations , such a technique can be used for example to zip files using a zip stream from the <code>zlib</code> module. For example (from the documentation <a href='https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#readablepipe'>here</a>, this reads one file, creates a zip stream to compress the file to gz (gzip) format, and then outputs the zip file. The data is piped through all three.
+<pre>
+import * as fs from 'fs';
+import * as zlib from 'zlib';
+const instrm = fs.createReadStream('file2.txt');
+const outstrm = fs.createWriteStream('file2.txt.gz');
+const z = zlib.createGzip();
+instrm.pipe(z).pipe(outstrm);
+</pre>
+</p>
+<h3>Pipes and the web</h3>
+<p>So for example if we connect to a remote web API from our own server, we receive a stream of bytes from the remote API. Now, let's say we want our server to act as a proxy, or middle-person, between the remote API and the user, so that the user requests a resource from our own server but it is ultimately sourced from a remote third-party API (an example of when you want to do this is given below). In this case, there is no reason to save the response from the remote API in the Node server's memory; you can instead just forward - or <em>pipe</em> - the stream on to the ultimate client, i.e. the web browser.</p>
+<br />
+<img src="../images/proxy.png" alt="Proxies" />
+</p>
+<p>A good example of where this might be useful is where a remote API requires an <em>API key</em>. An API key is a code, unique to a given registered user, which is used to access certain APIs which may have usage limits, or require payment for heavy use. Use of an API key ensures that users of the remote API do not overload the API's servers, or allows charging for APIs if a client exceeds a certain number of requests, e.g. per month. Many mapping providers use API keys. API keys, however, need to be secret, so you will not want to include them in your client-side JavaScript code as otherwise people might 'steal' them. So a better pattern is for your client-side JavaScript to access the remote API via a proxy route on your own server. The proxy route can forward the request on to the remote API and add the API key. So the API key can, for example, be stored in a <code>.env</code> file.</p>
+<p>So here is an example of a proxy route which forwards a request on to a remote API, adding an API key, and using piping:
+<pre>
+app.get('/map/:z/:x/:y.png', async(req, res) =&gt; {
+    const mapsResponse = await fetch(`https://megamaps.example.com/map/${req.params.z}/${req.params.x}/${req.params.y}.png?apiKey=${process.env.API_KEY}`);
+`
+    // When piping we need to set the correct content type on our headers
+    res.set({'Content-Type': 'image/png'});
+    mapsResponse.body.pipe(res);
+});
+</pre>
+Note how this is working. We use the <code>node-fetch</code> API (<strong>you should install version 2 - <code>npm install node-fetch@2</code> - for this to work as version 3 uses ES6 modules which we have not covered yet</strong>) to perform a fetch request to the <code>megamaps.example.com</code> remote map server, forwarding on the requested x,y and z tile coordinates to it and adding an API key stored in <code>.env</code> We await the response and then take the <code>body</code> of the response (a stream containing the content, i.e the requested tile). This will be a stream of the bytes making up the tile. So this is <em>piped</em> into the response from our own route (i.e. <code>res</code>), which will result in the map tile being forwarded directly to the ultimate client - the browser - without being processed by our own server.</p>
+<p>Another use of proxy routes is to allow access to remote APIs which do not have CORS set up from an AJAX front end on our own server. The same-origin policy prohibits AJAX requests to third-party servers, but we can circumvent this by using a proxy. Our AJAX front end communicates with the proxy on our own server, and the proxy forwards the request on to the remote API. Again, we can setup a pipe on our proxy route which forwards the response stream on to our AJAX front end. Here is a real example, used to access the OpenStreetMap <em>Nominatim</em> API, which provides search services:
+<pre>
+app.get('/nominatimSearch/:query', async(req, res) =&gt; {     
+    const nominatimResponse = await fetch(`https://nominatim.openstreetmap.org/search?format=json&amp;q=${req.params.query}`, {         
+        headers: {             
+            'User-Agent': 'OpenTrailView 4',             
+            'Referer': 'https://opentrailview.org'         
+        }     
+    });     
+
+    // When piping we need to set the correct content type on our headers
+    res.set({'Content-Type': 'application/json'});     
+    nominatimResponse.body.pipe(res); 
+});
+</pre>
+</p>
+<h3>Stream events</h3>
+<p>It is possible to handle certain <em>events</em> emitted through the use of streams. For example the <code>error</code> event to indicate an error (e.g. opening a non-existing file), the <code>end</code> event for readable (input) streams when all data has been read, and the <code>finish</code> event for writable (output) streams when all data has been written. For example:
+<pre>
+import * as fs from 'fs';
+
+const instrm =  fs.createReadStream('file1.txt');
+instrm.on("error", e =&gt; { console.error(`Input stream: ERROR ${e}`); } );
+instrm.on("end", () =&gt; console.log("READ...") );
+
+const outstrm = fs.createWriteStream('file2.txt');
+outstrm.on("error", e =&gt; { console.error(`Output stream: ERROR ${e}`); } );
+outstrm.on("finish", () =&gt; console.log("WRITTEN...") );
+
+instrm.pipe(outstrm);
+</pre>
+More information on streams can be found on the <a href="https://nodejs.org/dist/latest-v16.x/docs/api/stream.html">API documentation</a>.
+</p>
+<h2>File upload</h2>
+
+<p>Having looked at file I/O in general, we will now consider how to <em>upload</em> files to a server. When a file is uploaded, it is sent in <code>multipart/form-data</code> format. An example of this is shown below; here we are uploading a file called <code>cats_small.jpg</code> via an item of POST data called <code>userPhoto</code>. 
+<pre>
+POST /photos/upload HTTP/1.1
+Host: example.com
+Content-Type: multipart/form-data; boundary=-----------------------------36350044621708912132908698620
+
+-----------------------------36350044621708912132908698620
+Content-Disposition: form-data; name="userPhoto"; filename="cats_small.jpg"
+Content-Type: image/jpeg
+
+
+[JPEG bytes follow here]
+-----------------------------36350044621708912132908698620--
+</pre>
+As can be seen, the post data begins an ends with a <em>delimiter</em> (the 
+<code>-----------------------------36350044621708912132908698620</code> here; the end delimiter has two additional dashes) and is followed by a <code>Content-Disposition</code> header describing the data, including its identifier (<code>userPhoto</code> here) and the filename of the file we're uploading (<code>cats_small.jpg</code> here).</p>
+<p>If a form is sent with <code>multipart/form-data</code>, then any non-file POST data will be sent in the same way too. Here is an example in which we are sending an item of POST data called <em>message</em> with the photo:
+<pre>
+POST /photos/upload HTTP/1.1
+Host: example.com
+Content-Type: multipart/form-data; boundary=-----------------------------36350044621708912132908698620
+
+-----------------------------36350044621708912132908698620
+Content-Disposition: form-data; name="userPhoto"; filename="cats_small.jpg"
+Content-Type: image/jpeg
+
+[JPEG bytes follow here]
+-----------------------------36350044621708912132908698620
+Content-Disposition: form-data; name="message"
+
+A photo of two street cats, Binnie and Clyde.
+-----------------------------36350044621708912132908698620--
+</pre>
+See the <a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST'>Mozilla documentation</a>. Note how the same delimiter is used to separate each piece of data.</p>
+<p>
+As should be apparent,it is trickier to parse on the server side than straightforward POST data, and for that reason, you probably want to use a third-party library to handle file uploads.</p>
+
+<h3>Specifying the form on the client-side</h3>
+
+<p>Before we look at how to handle file uploads on the server, we need to look at how we can handle <code>multipart/form-data</code> forms on the client side.
+You must specify the <code>enctype</code> (encoding type) of the form to <code>multipart/form-data</code> and specify a form field to upload the file with a <code>type</code> of <code>file</code>:
+<pre>
+&lt;form method='post' enctype='multipart/form-data'&gt;
+Select your file: &lt;input type='file' id='userPhoto' /&gt;
+&lt;input type='button' id='uploadBtn' value='Upload!' /&gt;
+&lt;/form&gt;
+</pre>
+Here is some JavaScript code which could then be used to upload the files:
+<pre>
+const photoFiles = document.getElementById("userPhoto").files;
+if (photoFiles.length == 0) {
+    alert('No files selected!');
+} else {
+    const formData = new FormData();
+    formData.append("userPhoto", photoFiles[0]);
+    const response = await fetch('/photos/upload', {
+        method: 'POST',
+        body: formData
+    });
+    // ... continue ...
+}
+</pre>
+Note how this works:
+    <ul>
+    <li>Firstly we access the file upload element in the form (<code>userPhoto</code>) and then access its <code>files</code> property (an array of all files selected, we can potentially upload more than one at once)</li>
+    <li>Then we create a <code>FormData</code> object. <code>FormData</code> is an object used to represent POST data which we need to use when doing <code>multipart/form-data</code> uploads.</li>
+    <li>We then make our <code>fetch</code> request and specify the <code>FormData</code> as the request body. This will automatically take care of formatting the multipart request.</li>
+    </ul>
+</p>
+<h3>The server side</h3>
+<p>Having looked at how we upload files on the client side, how do we then process them on the server? As said above we can make the job easier by relying on a third-party Node module, and we are going to use <code>express-fileupload</code>. First of all we have to add this as middleware to our Express app:
+<pre>
+import express from 'express';
+const app = express();
+import fileUpload from 'express-fileupload';
+import 'dotenv/config';
+
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: process.env.TMPDIR,
+    limits: { fileSize: process.env.UPLOAD_LIMIT_IN_MB * 1024 * 1024 }
+}));
+</pre>
+Note how we use the <code>express-fileupload</code> module and then add it to our app as middleware. We configure it with various settings:
+    <ul>
+    <li><code>useTempFiles</code> means to upload the files to a temporary location, rather than keeping them in memory. Our code can then perform checks on the files and if they are valid, they can be moved to a permanent location on the server.</li>
+    <li><code>tempFileDir</code> is the location of the temporary directory.</li>
+    <li><code>limits</code> allows you to configure various limits on what will be accepted. Here, we are using the <code>fileSize</code> limit which specifies the limit on upload file size in bytes. We calculate this from a value in <code>.env</code>, <code>UPLOAD_LIMIT_IN_MB</code>, specified in megabytes, by multiplying by 1024*1024.</li>
+    </ul>
+</p>
+<p>Once this middleware is added, the uploaded files can be accessed via <code>req.files</code>. You would probably set up an <code>/upload</code> route, e.g:
+<pre>
+app.post('/photos/upload', async(req, res) =&gt; {
+    try {
+        const fileName = req.files.userPhoto.name;
+        await req.files.userPhoto.mv(`${process.env.PERMANENT_UPLOAD_DIR}/${fileName}`);
+        res.json({success: 1});
+    } catch(e) {
+        res.status(500).json({error: e});
+    }
+});
+</pre>
+In this example we simply move the file (using the <code>mv()</code> method) to its permanent location. Note how we use <code>req.files</code> to access the file; this is a dictionary-like object with properties corresponding to the POST data name(s) for each file uploaded. In our case, the POST data name was <code>userPhoto</code> so we use it here. In more sophisticated applications we might want to add checks, for example to prevent non-logged-in users being able to upload files, or store a record of which user uploaded which file.</p>
+<p>Note also how <code>mv()</code> returns a promise, which resolves if the file could be moved to the requested location, or rejects otherwise - so to handle this, we <code>await</code> the resolution of the promise and catch a rejection with the <code>catch</code> block.</p>
+<h2>Exercise</h2>
+
+<ol>
+<li>Available <a href='restaurants.csv'>here</a> is a CSV file describing restaurants in the local area. Create a Node application which reads in this CSV file into a string, and splits it into an array. Display the array directly with <code>console.log()</code>.</li>
+<li>Now try splitting each <em>line</em> into a sub-array, by splitting at the commas. Output the data in this format:
+<pre>
+Name: restaurant name
+Address: restaurant address (without town) 
+Town: restaurant town
+Cuisine: restaurant cuisine
+Latitude: restaurant latitude
+Longitude: restaurant longitude
+--------
+Name: next restaurant name
+... etc ...
+</pre>
+</li>
+<li>Add functionality to your mapping application to add a Nominatim search via a proxy. There should be a "search" box with a button, and when this is pressed, you should call a proxy route on your server to forward the search string to Nominatim. <strong>Ensure you supply the <code>User-Agent</code> and <code>Referer</code> properties, as shown in the example, these are required to use Nominatim otherwise you are breaching its terms and conditions otherwise you are breaching its terms and conditions. The <code>User-Agent</code> can just be something like "Student test app", while the <code>Referer</code> should be a localhost URL e.g. <code>http://localhost:3000</code>.</strong>. Pipe the JSON returned from Nominatim to your browser. By examining the JSON returned from Nominatim, work out how to set the map position to that of the found location (if more than one result, use the first).</li>
+<li>Write a simple test file-upload application. It should just contain a form to allow the user to upload a file, plus some client side code to upload the file and Node.js code to handle receiving the file.</li>
+<li>Return to question 1 and try to add a route to your Express application to send back JSON of all the restaurants to the client. You need to parse the CSV file into an array of objects, the array being an array of the restaurants and each object representing a restaurant (use appropriate keys). Then, connect the route to your map front end, so that the locations of all restaurants are shown.</li>
+<li>Modify your Nominatim search to handle multiple results by creating a &lt;div&gt; for the results, and list each result in the &lt;div&gt;. Add a button to each result, and move the map to that location when the user clicks the button.</li>
+</ul>
+</body>
+</html>
