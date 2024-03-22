@@ -369,12 +369,12 @@ fun FuelExamplePost() {
 <p>This exercise will allow you to write an Android client to a web API which looks up all songs by a particular artist and sends them back to the client as JSON. If you are doing COM518 (Web Application Development) you can use the web API you have been developing in that module. If not, you will need to do a little bit of preparation work to set up a server on your own machine:
     <ul>
     <li>Download and install <a href='https://nodejs.org'>Node.js</a>. If you are not aware, Node.js is an environment for writing JavaScript applications outside a browser, and it is frequently used for creating servers.</li>
-    <li>Install a third-party Node <em>module</em> (library) which you will need: <em>Express</em>. Express is a module to easily create web servers in Node.js. You should use the package management tool <code>npm</code> for this. At the command prompt, enter:
-<pre>npm install express</pre>
+    <li>Install a third-party Node <em>module</em> (library) which you will need: <em>Express</em>. Express is a module to easily create web servers in Node.js. You'll also need the <code>better-sqlite3</code> module, as the server uses an SQLite database. You should use the package management tool <code>npm</code> to install these dependencies. At the command prompt, enter:
+<pre>npm install</pre>
     </li>
-    <li>If you are studying WAD, you can use your own Node/Express server from that module. If not, download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple Node.js server together with a JSON file containing songs. This server will allow you to do the exercise without needing a database, as it loads in the songs from the file into an array and then filters the array by the requested artist when an HTTP request is received.</li>
+    <li>If you are studying WAD, you can use your own Node/Express server from that module. If not, download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple Node.js server together with an SQLite database containing songs. This server will allow you to do the exercise without needing a database, as it loads in the songs from the file into an array and then filters the array by the requested artist when an HTTP request is received.</li>
     <li>Before doing the exercise, run the server:
-<pre>node madsongserver.js</pre>
+<pre>node app.mjs</pre>
     </li>
     </ul>
 </p>
@@ -410,11 +410,8 @@ If you are using your own server from COM518, you will need to add this addition
 This is because with Fuel, the POST data is sent to the server a different way. It is not sent as JSON within the request body, but as a series of key-value pairs e.g.
 <pre>title=Wonderwall&amp;artist=Oasis&amp;year=1995</pre>
 The line above specifies a different piece of middleware which can parse POST data in this format (urlencoded).<br />
-If you are using <code>madsongserver.js</code> you will not need to do this, as it is already built-in.</li>
-<li>Check that your POST request works. You can do this by searching for songs by the artist you used for the new song. Alternatively, 
-if you add the logging line:
-<pre>console.log(req.body);</pre>
-to the "add song" route in your Node server, you can check the POST data was sent correctly. Again, this is already built in to <code>madsongserver.js</code>.
+If you are using <em>madsongserver</em> you will not need to do this, as it is already built-in.</li>
+<li>Check that your POST request works. You can do this by searching for songs by the artist you used for the new song or looking inside the provided <code>wadsongs.db</code> SQLite database.
 </li>
 </ol> 
 </body>
