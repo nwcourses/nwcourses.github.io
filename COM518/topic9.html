@@ -125,6 +125,17 @@ const con = mysql.createConnection({
 </pre>
 It's important to understand that <em>you can only use <code>process.env</code> after you have imported <code>dotenv</code></em>, as shown above.</p>
 <hr />
+<h2>Finally - creating a module to initialise the database</h2>
+<p>One problem with our code so far is that we have had to initialise and load the database <em>multiple times</em>, once in the main app, and once per router. This is clearly inefficient and wasteful. What we can do instead is to create a <em>module</em> to initialse and export the database connection:
+<pre>// db.mjs - initialsie and export the database connection object
+import Database from 'better-sqlite3';
+const db = new Database("wadsongs.db");
+export default db;</pre>
+As the database object is exported, we could then <em>import</em> it from every file which needs to use it, either the main application or any router:
+<pre>import db from './db.mjs';</pre>
+or, from a router:
+<pre>import db from '../db.mjs';</pre>
+</p>
 <h2>Exercise</h2>
 <p>The exercise will allow you to practise with routers, middleware and <code>dotenv</code>.</p>
 <p><strong>IMPORTANT:</strong> This is a slightly more advanced topic, so you need to ensure you have completed the sessions and logins exercise from the previous topic.</p>

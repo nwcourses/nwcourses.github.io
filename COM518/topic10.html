@@ -215,15 +215,6 @@ class StudentController {
 
 export default StudentController; // so that the router can use it</pre>
 Note how the methods of the controller object can act as route handlers, as they have the <code>req</code> and <code>res</code> parameters. Note also how they call the methods of the DAO and then format the data returned from the DAO as JSON, ready to be used by the client. Hopefully, by examining the code, you can see how the controller is acting as a "middle-person" between the model (the DAO) and the view (the client).</p>
-<h2>Finally - creating a module to initialise the database</h2>
-<p>One problem with our code so far is that we have had to initialise and load the database <em>multiple times</em>, once in the main app, and once per router. This is clearly inefficient and wasteful. What we can do instead is to create a <em>module</em> to initialse and export the database connection:
-<pre>// db.mjs - initialsie and export the database connection object
-import Database from 'better-sqlite3';
-const db = new Database("wadsongs.db");
-export default db;</pre>
-As the database object is exported, we could then <em>import</em> it from every file which needs to use it, either the main application or any router:
-<pre>import db from './db.mjs';</pre>
-</p>
 <h2>Exercise</h2>
 <p>Rewrite your Express server to use appropriate DAOs and controllers as well as routes:
 	<ul>
