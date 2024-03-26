@@ -19,7 +19,6 @@
 
 <h2>JSON</h2>
 <h3>Introduction to JSON</h3>
-<p><strong>All of you will be aware of JSON via WAD, OODD or both, so the information provided here will hopefully be just for revision.</strong></p>
 <p><em>JSON - JavaScript Object Notation</em> is a data format which is used
 to transfer data across the web between server-side scripts (written in
 technologies such as Node.js or JSP) and clients (such as Android apps).
@@ -149,33 +148,7 @@ easily send HTTP request.  One of these is <em>Fuel</em>: "the easiest HTTP netw
 JSON. To perform these operations, you use the <code>httpGet()</code> or <code>httpPost()</code> extension functions of <code>String</code>. This performs the request and then you can use methods such as <code>response()</code> or <code>responseJson()</code> to process the response. Such methods take a callback (typically a lambda function)
 which takes three parameters, a request object, a response object and a result object. The first two represent the HTTP request and response, while the final object is an object indicating whether the operation was successful or not. This is part of the <a href='https://github.com/kittinunf/Result'>Result</a> library, written by the same developer as Fuel, which is a general library for error-handling.</p>
 
-<p>We will l@Composable
-fun FuelExample1() {
-    var responseText by remember { mutableStateOf("") }
-    Column {
-        Button( onClick = {
-            // URL which returns JSON describing points of interest
-            var url = "https://hikar.org/webapp/tile?x=4079&amp;y=2740&amp;z=13&amp;poi=all"
-            url.httpGet().response { request, response, result -&gt;
-
-                when(result) {
-                    is Result.Success -&gt; { 
-                        // result.get() gives ByteArray, decode to string
-                        responseText = result.get().decodeToString()
-                    }
-
-                    is Result.Failure -&gt; { 
-                        // is failure if HTTP error
-                        responseText = "ERROR ${result.error.message}"
-                    }
-                }
-            }
-        }) {
-            Text("Get data from Web!")
-        }
-        Text(responseText)
-    }
-}ook at three examples of using Fuel with Result to perform requests.
+<p>We will look at three examples of using Fuel with Result to perform requests.
 Ensure these two dependencies are in your <code>build.gradle</code>:
 <pre>implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
 implementation 'com.github.kittinunf.fuel:fuel-android:2.3.1'</pre>
@@ -296,23 +269,18 @@ Much of the code is the same as the previous example, but the key differences ar
 To use GSON, you need to add Fuel's GSON module to your <code>build.gradle</code>:
 <pre>implementation 'com.github.kittinunf.fuel:fuel-gson:2.3.1'</pre>
 We can  then use code such as the following to parse the JSON:
-<pre>
+<pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)
+
 @Composable
 fun FuelExampleGson() {
-    var responseText by remember { mutableStateOf("") } 
+    var products by remember { mutableStateOf(listOf&lt;Product&gt;()) } 
     Column {
         Button( onClick = {
             val url = "https://example.com/products/cornflakes"
-            url.httpGet().responseJson { request, response, result -&gt;
+            url.httpGet().responseObject&lt;List&lt;Product&gt;&gt; { request, response, result -&gt;
                 when(result) {
                     is Result.Success -&gt; {
-                        val jsonArray = result.get().array()
-                        var str = ""
-                        for(i in 0 until jsonArray.length()) {
-                            val curObj = jsonArray.getJSONObject(i)
-                            str += "Manufacturer: ${curObj.getString("manufacturer")} Price: ${curObj.getString("price")}\n" 
-                        }
-                        responseText = str
+                        products = result.get()
                     }
 
                     is Result.Failure -&gt; {
@@ -323,14 +291,17 @@ fun FuelExampleGson() {
         }) {
             Text("Get data from Web (Fuel/GSON)!")
         }
-        Text(responseText)
+        products.forEach {
+            Text("${it.name} ${it.manufacturer} ${it.price}")
+        }
     }
 }</pre>
 Note the differences from the previous example:
     <ul>
     <li>Rather than using <code>responseJson</code>, we use <code>responseObject</code> this time to indicate that we want to parse the JSON into a specific object. We have to specify the <em>type</em> of object the JSON is being parsed into: here it is <code>&lt;List&lt;Product&gt;&gt;</code> as we are parsing our JSON into a list of <code>Product</code>s (not a single <code>Product</code>, because the server will return <em>multiple</em> products).</li>
     <li>Consequently, this time, <code>result.get()</code> will return a <code>List</code> of <code>Product</code> objects.</li>
-    <li>We could use a for loop to iterate through this list, but instead, we are doing something more elegant: a <em>map</em> operation (see <a href="topic1a.html">topic 1a</a>). <code>map()</code> applies a <em>transformation function</em> to an array or list, returning an output array or list with the transformation applied. So here, each <code>Product</code> returned from <em>result.get()</em> is transformed into a string containing its name, its manufacturer and its price, and we end up with a list of strings. Finally, we concatenate this list of strings into one string, with the entries separated by a new line (<code>\n</code>), with the list's <code>joinToString</code> method. This concatenated string is used to update the state variable.</li>
+    <li>This is used to update the state (a list of products).</li>
+    <li>We then loop through each product in the list and create a <code>Text</code> object with each one.</li>
     </ul>
 </p>
 <h4>Example 4 - using POST</h4>
@@ -372,7 +343,7 @@ fun FuelExamplePost() {
     <li>Install a third-party Node <em>module</em> (library) which you will need: <em>Express</em>. Express is a module to easily create web servers in Node.js. You'll also need the <code>better-sqlite3</code> module, as the server uses an SQLite database. You should use the package management tool <code>npm</code> to install these dependencies. At the command prompt, enter:
 <pre>npm install</pre>
     </li>
-    <li>If you are studying WAD, you can use your own Node/Express server from that module. If not, download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple Node.js server together with an SQLite database containing songs. This server will allow you to do the exercise without needing a database, as it loads in the songs from the file into an array and then filters the array by the requested artist when an HTTP request is received.</li>
+    <li>If you are studying WAD, you can use your own Node/Express server from that module. If not, download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple Node.js server together with an SQLite database containing songs.</li>
     <li>Before doing the exercise, run the server:
 <pre>node app.mjs</pre>
     </li>
