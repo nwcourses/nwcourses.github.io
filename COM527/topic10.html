@@ -150,8 +150,8 @@ which takes three parameters, a request object, a response object and a result o
 
 <p>We will look at three examples of using Fuel with Result to perform requests.
 Ensure these two dependencies are in your <code>build.gradle</code>:
-<pre>implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
-implementation 'com.github.kittinunf.fuel:fuel-android:2.3.1'</pre>
+<pre>implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+implementation("com.github.kittinunf.fuel:fuel-android:2.3.1")</pre>
 The first dependency is Fuel itself. The second is the Android module for Fuel, which allows you to write asynchronous Fuel code without having to worry about creating the coroutines yourself: this is all done for you by the library.</p>
 <h4>Example 1 - simple case - get a string response</h4>
 <pre>
@@ -200,7 +200,7 @@ This lambda takes three parameters:
 <h4>Example 2 - Returning the response as JSON</h4>
 <p>This next example will <em>automatically parse the JSON returned from a URL</em>. 
 To parse JSON, you need to add Fuel's JSON module to your <code>build.gradle</code>:
-<pre>implementation 'com.github.kittinunf.fuel:fuel-json:2.3.1'</pre>
+<pre>implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")</pre>
 Imagine we have this JSON returned from the URL <code>https://example.com/products/cornflakes</code>:
 <pre>
 [
@@ -267,7 +267,7 @@ Much of the code is the same as the previous example, but the key differences ar
 <p>GSON is faily easy to use but with Fuel, it's easier still. We just need to define a data class corresponding to our JSON, so for the previous example we could define a Product class. Note how the properties of the Product class correspond to the fields in the JSON.
 <pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)</pre>
 To use GSON, you need to add Fuel's GSON module to your <code>build.gradle</code>:
-<pre>implementation 'com.github.kittinunf.fuel:fuel-gson:2.3.1'</pre>
+<pre>implementation("com.github.kittinunf.fuel:fuel-gson:2.3.1")</pre>
 We can  then use code such as the following to parse the JSON:
 <pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)
 
