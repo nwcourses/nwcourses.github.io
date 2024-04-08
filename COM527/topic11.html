@@ -7,7 +7,7 @@
 
 <div class='titlebox'>
 <h1>Mobile Application Development - Part 11</h1>
-<h1>Introduction to Services and Broadcasts</h1>
+<h1>Introduction to the Activity Lifecycle, Services and Broadcasts</h1>
 </div>
 
 
@@ -91,7 +91,7 @@ It is important to note that a Service is not the same as a coroutine.</li>
 </div>
 
 <h3>Intents</h3>
-<p>To understand services, you need to understand <code>Intent</code>s. What is an <code>Intent</code>? Essentially, it's a message which can be sent in between Android application components, such as between an activity and a service (in both directions) or to launch a second activity from the main activity. They can also be used to launch <em>entirely separate applications</em>; you can do this in Android development, for example you can launch the standard camera app from your own app in order to take a picture. Intents contain two important components:
+<p>To understand services, you need to understand <code>Intent</code>s, which are used to communicate between activities and services. What is an <code>Intent</code>? Essentially, it's a message which can be sent in between Android application components, such as between an activity and a service (in both directions) or to launch a second activity from the main activity. They can also be used to launch <em>entirely separate applications</em>; for example you can launch the standard camera app from your own app in order to take a picture. Intents contain two important components:
     <ul>
     <li>An <em>action</em>. This specifies what the intent <em>does</em>. The recipient of an intent can test the action, and in doing so, understand what the intent is telling it to do. (An activity or service can receive multiple intents).</li>
     <li><em>Data</em>. Data can be added to an intent as <em>extras</em>, and in doing so, data can be passed from one application component to another.</li>
@@ -106,8 +106,9 @@ It is important to note that a Service is not the same as a coroutine.</li>
 or both.</li>
 <li><em>Starting</em> a service is intended for long-running services, which will run even if the Activity you start them from is closed down. </li>
 <li><em>Binding</em> a service is intended for shorter-running services,
-which are bound to a particular instance of an Activity and will stop when the Activity shuts down (e.g. a music player which only plays while the Activity is running)</li>
-<li>Even though in many cases you do not need to bind a service, you must still provide the <code>onBind()</code> method in your service</li>
+which are bound to a particular instance of an Activity and will stop when the Activity shuts down (e.g. a music player which only plays while the Activity is running). Binding is useful if you want to be able to access the service directly from the activity; if you start the service and do not bind it, you are unable to do this.</li>
+<li>Even though in many cases you do not need to bind a service, you must still provide the <code>onBind()</code> method in your service, but it can return <code>null</code>.</li>
+<li>It is possible to <em>both start and bind</em> a service, if you want the service to keep running when the activity is destroyed <strong>and</strong> you want to easily access it from the activity.</li>
 <li>Example of a template service:
 <pre>
 import android.app.Service
@@ -204,8 +205,7 @@ has the disadvantage that you will not have a reference to the Service in the Ac
 <p>We will first look at <em>binding</em> the service. You must bind it instead of, or in addition to, starting the service (see <a href='https://developer.android.com/guide/components/bound-services.html'>the Android documentation</a> for more details).</p>
 <p>Binding a service is a little trickier than starting it as you need to provide a <code>Binder</code> object. This is an interface to the service which gives the outside world (e.g. the activity) access to it. The <code>Binder</code> object is an object which inherits from <code>android.os.Binder</code>. 
 <p>The Activity is able to access the Binder (see below) and, as long as the Binder has a method which returns the Service, can obtain the Service. Thus, the Binder should provide a method to return the service.</p>
-<p>You must also provide an <code>onBind()</code> method within the Service to create a new Binder object and return it when the Activity binds to the service. 
-<strong>You need this method even if you do not intend to use binding, but it can return <code>null</code> in that case.</strong>
+<p>As seen above, you must also provide an <code>onBind()</code> method within the Service to create a new Binder object and return it when the Activity binds to the service. Remember that <strong>you need this method even if you do not intend to use binding, but it can return <code>null</code> in that case.</strong>
 </p>
 <p>A common pattern is to have the Binder as an inner class of the Service (an inner class is a class within another class)</p>
 </ul>
@@ -290,8 +290,8 @@ override fun onDestroy() {
 <li>What if we wish to bind a service, but want the service to keep going even if an Activity is not running?</li>
 <li>This would be the case in both a music player and a GPS recorder, in which we want a GPS track to record even if the activity shuts down</li>
 <li>In this case, we need to call both <code>startService()</code> and <code>bindService()</code>.</li>
-<li>This will have the effect both of creating a long-lasting service (which will continue until the service has done its work) - this is enabled with startService() - and allowing the activity to control the service - this is done with bindService().</li>
-<li>You should still call unbindService() when the activity is destroyed.</li>
+<li>This will have the effect both of creating a long-lasting service (which will continue until the service has done its work) - this is enabled with <code>startService()</code> - and allowing the activity to control the service - this is done with <code>bindService()</code>.</li>
+<li>You should still call <code>unbindService()</code> when the activity is destroyed.</li>
 </ul>
 </div>
 
@@ -363,17 +363,17 @@ val filter = IntentFilter().apply {
 }
 </pre>
 </li>
- <li>We then <em>register the receiver</em> with the Activity (or whatever application
-component is receiving it), specifying both receiver and intent filter:
-<pre>
-registerReceiver(receiver, filter)
-</pre>
-</li>
 <li>Note how we first check that the intent's action is indeed
 <code>sendTime</code>. Even though this is specified by the
 intent filter, it is recommended to do this as "it is possible for senders
 to force delivery to specific recipients, bypassing filter resolution"
 (see <a href='https://developer.android.com/reference/android/content/BroadcastReceiver.html#onReceive(android.content.Context, android.content.Intent)'>the documentation</a>)</li>
+ <li>We then <em>register the receiver</em> with the Activity (or whatever application
+component is receiving it), specifying both receiver and intent filter:
+<pre>ContextCompat.registerReceiver(this, receiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED)</pre>
+</li>
+<li><code>ContextCompat.RECEIVER_NOT_EXPORTED</code> specifies that we cannot receive broadcasts from <strong>other apps</strong>, which is useful for security. In theory, an app could send a malicious broadcast to another app which could have harmful side effects, so if we don't need inter-app communication when receiving broadcasts, we should turn it off.</li>
+<li>We use <code>ContextCompat</code> because we are using the <em>compatibility</em> version of the call; <code>RECEIVER_NOT_EXPORTED</code> was only introduced in API 33. The <em>compatibility</em> (<code>appcompat</code>) library allows us to use newer API features on older versions of Android.</li>
 </ul>
 </div>
 
@@ -393,7 +393,7 @@ to force delivery to specific recipients, bypassing filter resolution"
 
 <h3>Important point - it might take some time to asynchronously start a service</h3>
 
-<p>It's important to note that <em>it might take time to start a service</em>. The process of starting a service takes place asynchronously and might take time to complete. This has important implications if you do something in the main activity (such as testing whether a permission has been granted) while waiting for the service to start. You might, for example, implement a broadcast to tell the service to start listening for GPS updates as soon as the permissions have been checked. But at this time (if the user does not need to grant permission) the service may not have been started yet, so there will be no service to broadcast to! Consequently, your broadcast intent will go un-noticed.</p>
+<p>It's important to note that <em>it might take time to start a service</em>. The process of starting a service takes place asynchronously and might take time to complete. This has important implications if you do something in the main activity (such as testing whether a permission has been granted) while waiting for the service to start. You might, for example, send a broadcast to tell the service to start listening for GPS updates as soon as the permissions have been checked. But at this stage (if the user does not need to explicitly grant permission via the dialog) the service may not have been started yet, so there will be no service to broadcast to! Consequently, your broadcast intent will go un-noticed.</p>
 
 <p>A way round this is to send a broadcast <em>from the service to the activity</em> as soon as <code>onStartCommand()</code> has completed. This then tells the activity that the service is started, and ready to receive broadcasts. So as a result, the activity can then check permissions <strong>when this broadcast has been received from the service.</strong></p>
 
@@ -428,7 +428,9 @@ lifecycleScope.launch {
 
 <li>Implement a broadcast receiver in the service to implement the logic for the Start, Stop and Reset operations. The first two can be handled with a boolean variable and the Reset can be handled by resetting the counter to 0.</li>
 
-<li>When the counter increases by one, send it as a broadcast back to the main activity. Receive the broadcast in the main activity by showing it in the UI. You will also need a <code>ViewModel</code> containing the counter as <code>LiveData</code> to implement this.</li>
+<li>When the counter increases by one, send a broadcast back to the main activity containing the value of the counter. Receive the broadcast in the main activity by showing the value of the counter in the UI. You will also need a <code>ViewModel</code> containing the counter as <code>LiveData</code> to implement this.</li>
+
+<li>Implement code to pause the stopwatch when the activity becomes invisible (but still running, e.g. the user navigates to the home screen), and restart it when the activity becomes visible again. You'll need to look at the <em>lifecycle</em> notes in order to work out how to do this.</li>
 
 </ul>
 
