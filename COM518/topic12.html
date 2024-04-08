@@ -1,82 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topic 11: Building and Deploying Node apps</title>
+<title>Topic 12: Building and Deploying Node apps</title>
 <meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-1' />
 <link rel='stylesheet' type='text/css' href='../css/dfti0910.css' />
 </head><body>
 <div class='titlebox'>
-<h1>Topic 11: Building and Deploying Node apps</h1>
+<h1>Topic 12: Building and Deploying Node apps</h1>
 </div>
-<p>Today we will look at how we can <strong>deploy a Node app to a live server</strong> and also look at tools for <strong>simplifying building and running Node apps</strong>. There is also some information provided on <strong>dates and times</strong> for your own reading.</p>
+<p>Today we will look at how we can <strong>deploy a Node app to a live server</strong>. There is also some information provided on <strong>dates and times</strong> for your own reading.</p>
 <h2>Deploying a live Node app</h2>
-<h3>Keeping a Node app running - PM2 - Node process manager</h3>
-<p>The first thing we are going to look at is <em>how to keep a Node app running</em> when it has been started. This is obviously important on a live server, where we will want to restart the app if it crashes for any reason. So far, you have just started Node apps from the command-line, e.g:
-<pre>node app.js</pre>
-and then stopped then with Control-C. Obviously though, this is not 
-satisfactory for a production app, which needs to be running all the time.
-</p>
-<p>So we need some kind of software to keep our Node server running 
-continuously. There are various options available, including <a href=''>Nodemon</a>, together with the software we will examine, <em><code>pm2</code></em> (see <a href='http://pm2.keymetrics.io'>here</a>). <code>pm2</code>
-is a process manager typically used with Node applications, though it
-can also be used to manage other background processes.
-With <code>pm2</code>, you can launch a Node process in the background, stop it, start it and monitor how it is running. Furthermore if the process crashes, <code>pm2</code> will restart it, which is again essential on a production server.</p>
-<p>It can be installed with npm. Unlike the other NPM packages we have looked at so far, you will want to install it <em>globally</em> so that it is available to all applications and all users on your system. For example this command will 
-install it globally for all users if you are logged in as a user with admin 
-privileges on a Linux system (<code>sudo</code> means "run with root, or admin privileges", and <code>-g</code> indicates to install it globally):
-<pre>sudo npm install -g pm2</pre>
-Or, if you do not have admin privileges, you can make <code>pm2</code> available
-to all applications owned by your user by omitting the <code>sudo</code>:
-<pre>npm install -g pm2</pre>
-</p>
-<h4>Using pm2</h4>
-<p>To start a given Node server with <code>pm2</code> you use this command:
-<pre>pm2 start name_of_file.js</pre>
-Here is an example. Note the <code>cat</code> command on a Linux system
-shows the contents of the file, this has been done to show the source code
-of ths server:
-<br />
-<img src='../images/pm2_1.png' alt='Starting a process with pm2' />
-<br />
-As can hopefully be seen, this server runs on port 3000, and we have started
-it. Note that it has been allocated a process ID of 0, which we can use later
-to stop the process.</p>
-<p>The screenshot below shows starting a second process. Note that the second server runs on a different port, 3001, which allows both processes to run at the same time.
-<br />
-<img src='../images/pm2_2.png' alt='Starting a second process with pm2' />
-<br />
-Once we've started a process, we can then stop it using 
-<pre>pm2 stop process_name_or_process_ID</pre>
-So in the example below, we stop the second process, using its process ID (1):
-<br />
-<img src='../images/pm2_3.png' alt='Stopping a process using its ID' />
-<br />
-We can then restart the process. In the example below, we restart the second server using its process <em>name</em>, rather than its ID:
-<br />
-<img src='../images/pm2_4.png' alt='Restarting a process using its name' />
-<br />
-We can completely remove a process from the list with <code>pm2 delete</code>. So the example below stops, and completely removes from the list, the second server.
-<br />
-<img src='../images/pm2_5.png' alt='Deleting a process' />
-<br />
-The next example shows how to start a process with a custom name (<code>SecondServer</code>). This is done using the <code>--name</code> option to <code>pm2.</code>
-<br />
-<img src='../images/pm2_6.png' alt='Starting a process with a custom name' />
-<br />
-Note how the second server has an ID of 2. This is because it is a <em>brand new process</em>: process 1 was deleted and removed from the list.
-</p>
-<h4>Watch mode</h4>
-<p>The above example also shows how to start a process in <strong>watch mode</strong>. Wtch mode will <strong>automatically restart the server if changes are made</strong>, which is very useful during development, as you do not have to keep stopping and restarting your server if you make changes. As can be seen in the example, the <code>--watch</code> option is used to add the process in watch mode:
-<pre>pm2 start server2.js <strong>--watch</strong> --name SecondServer</pre>
-</p>
-<h4>Listing all processes</h4>
-<p>You can also list all processes managed with <code>pm2</code> without having to perform another operation. Just use <code>pm2 list</code>, e.g.: 
-<br />
-<img src='../images/pm2_7.png' alt='Listing all processes' />
-<br />
-</p>
 <h3>Using a reverse proxy to access your app</h3>
-<p><strong>Note that this is not necessary if using Goorm, because Goorm provides external access to your app. However, if running on another server you will need to do this.</strong></p>
 <p>There is another issue to consider when running a Node application on a production server. Node applications typically run on a custom port, such as 3000. However, typical servers on a website (such as Apache) normally run on port 80, or port 443 if secure (HTTPS). However, it is not recommended to open non-standard ports to the wider internet, for security reasons - as it makes them vulnerable to exploits. </p>
 <p>So you need to provide a 'backdoor' means for the outside world to
 access your server via a server running on the publicly available ports of 80 or 443, such as Apache. A common approach is to use Apache or a similar server
