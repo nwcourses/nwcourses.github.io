@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 9a: Using SQLite and Room with ViewModel and LiveData</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 9a</h1>
+<h1>Using SQLite and Room with ViewModel and LiveData</h1>
+</div>
+<p>This extension to Topic 9 explains how you can efficiently use SQLite and Room with ViewModel and LiveData.</p>
+<h2>Updating a Room DAO to return LiveData</h2>
+<p>It's easy to update a DAO to return LiveData.We simply update our DAO so that the search methods return LiveData of the appropriate type. So, in a student records app, we might change:
+
+<pre>@Query("SELECT * FROM students")
+fun getAllStudents(): List&lt;Student&gt;</pre>
+
+to:
+
+<pre>@Query("SELECT * FROM students")
+fun getAllStudents(): LiveData&lt;List&lt;Student&gt;&gt;</pre>
+
+This allows other parts of your code to observe changes in the database and auto-update as the database  updates.</p>
+<h2>Using LiveData and a ViewModel with Room</h2>
+
+<p>The other thing we can do is to use both <code>LiveData</code> and a <code>ViewModel</code> together with Room. To do this you would return <code>LiveData</code> from the DAO (as above) and <em>store a reference to it in your <code>ViewModel</code></em>. Then, you can observe the data in the <code>ViewModel</code> with an <code>Observer</code>, as before.</p>
+<p>Here is an example of a <code>ViewModel</code> set up to store <code>LiveData</code> from a Room database containing student records:
+<pre>package com.example.roomapp
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+
+// We need to pass in the Application object
+class StudentViewModel(app: Application): AndroidViewModel(app)  {
+    // Get a reference to the database, using the Application object
+    var db = StudentDatabase.getDatabase(app)
+    var students : LiveData&lt;List&lt;Student&gt;&gt;
+
+    // When we initialise the ViewModel, get the LiveData from the DAO
+    // The variable 'students' will always contain the latest LiveData.
+    init {
+        students = db.studentDao().getAllStudents()
+    }
+
+    // Return the LiveData, so it can be observed, e.g. from the MainActivity
+    fun getAllStudents(): LiveData&lt;List&lt;Student&gt;&gt; {
+        return students
+    }
+}</pre>
+The <code>ViewModel</code> would then be setup from the <code>MainActivity</code> in the normal way:
+<pre>
+val viewModel : StudentViewModel by viewModels()
+</pre>
+and observed in the normal way by observing the <code>getAllStudents()</code> method of the <code>ViewModel</code>:
+<pre>
+viewModel.getAllStudents().observe(this, Observer {
+    stateResults = it.joinToString("\n") // display data in 'stateResults', a state variable 
+})
+</pre>
+</p>
+
+</body>
+</html>
