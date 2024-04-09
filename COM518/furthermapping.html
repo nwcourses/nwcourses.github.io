@@ -111,64 +111,6 @@ particular city on a web map. This is quite easy - you simply need to make an
 AJAX request to a web API, parse the JSON (or XML) returned and create
 markers using the data. The following exercise will allow you to explore
 this.</p>
-<hr />
-<h2>Exercises</h2>
-<p>Will appear here.</p>
-<!--
-<p><strong>IMPORTANT! Please add your mapping code (HTML, JavaScript) to the <code>public</code> folder of your existing Express application and access it via Express</strong>, e.g.:
-<pre>http://localhost:3000/mapapp.html</pre>
-This is because JavaScript modules can only be accessed if a server is running.</p>
-<h3>Exercise 1</h3>
-<ol>
-<li>New York is at longitude 74 West, latitude 40.75 North (more or less).
-Change the example above so that it's centred on New York, at zoom level 
-13.</li>
-<li>Find the latitude and longitude of your home town 
-(e.g. google it) and change the example
-so it's centred on your home town.</li>
-</ol>
-<h3>Exercise 2</h3>
-<ol>
-<li>Add a marker on your map from Exercise 1 on your home town.</li>
-<li>Combine the marker and mouse click event examples, above,
-so that by clicking on the 
-map, you add a marker to the map at that position.
-</li>
-<li>Using a prompt box to read the text in, bind a popup to the marker 
-containing text entered by the user. Use a prompt box to read information in from the user, e.g:
-<pre>const text = prompt('Please enter some text');</pre>
-</li>
-</ol>
-<h3>Exercise 3 - Connecting to a web API and displaying markers</h3>
-<p><strong>Important:</strong> If you are using `mysqlview`, please update it to the latest version before doing this exercise. The latest version fixes one or two bugs. On the command prompt, go to the folder containing it, and enter:
-<pre>git pull</pre>
-</p>
-<p>This <a href='wadsongs.db'>updated HitTastic! database</a> contains a table called <code>artists</code> which stores the latitude and longitude of the home towns of selected artists, in addition to the <code>wadsongs</code>. Download this, and replace your existing <code>wadsongs.db</code> with it.
-</p>
-<ul>
-<li>Extend your Express server to add an additional route <code>/hometown/:artist</code> which looks up the hometown of a particular artist. It should return
-a JSON object containing the hometown name, latitude and longitude, or a 404 if the requested artist cannot be found in the <code>artists</code> table.</li>
-<li>Modify your HitTastic! AJAX page (Sessions 3 and 4) so that as well as a 
-"Search" button, there is a "Where is this artist from?" button. This should 
-connect to a <em>new JavaScript function</em>
-which sends an AJAX request to this route. 
- Also modify your code from your AJAX exercise so
-that it initialises a Leaflet map. 
-</li>
-<li>In the AJAX callback, parse the JSON returned so that a 
-marker is shown on the map for that artist, and the map is centred at 
-the artist's hometown. When the marker is clicked,
-the name of the home town of the artist should be shown in a popup.</li>
-</ul>
-<h3>Exercise 4 - adding data to a web API via a map interface</h3>
-<ul>
-<li>Add a <em>new</em> route to your server, to <em>add</em> a new home town to the database. The route should take, as POST data, the latitude, longitude, artist name, and home town name.</li>
-<li> In your client-side code, when the user clicks on the map, send a POST request to this route, containing the required information. Use the map click position for the latitude and longitude, and read the artist name and location via prompt boxes, e.g:
-<pre>const artist = prompt('Please enter an artist name');</pre>
-</li>
-<li>Add a marker to your map <strong>when the response is received from the server, and only if a 200 is returned</strong>.</li>
-</ul>
--->
 </body>
 </html>
 
