@@ -1,0 +1,122 @@
+body
+{ 
+    background-color : white;
+    font-family : Fira Sans; 
+    font-weight : normal;
+    font-size: 120%;
+}
+
+header
+{
+    border-radius: 32px;
+    text-align: center; 
+    margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
+    background-color : teal; 
+    color:white;
+}
+
+.subtitle
+{
+    text-align: center; 
+    margin-left: 25%; margin-right: 25%; margin-top: 10px; margin-bottom:10px;
+}
+
+    
+a
+{
+    text-decoration: none ;
+}
+
+
+pre
+{
+    font-size: 120%;
+    border-style: solid;
+    background-color: white;
+    padding: 5px;
+    overflow: auto;
+    background-color: #f0f0f0;
+}
+
+pre.vector {
+    display: inline-block;    
+}
+
+img
+{
+    border-style: none;
+    max-width: 90%;
+}
+
+em
+{
+    font-weight: 500;
+    font-style: italic;
+}
+
+strong
+{
+    font-weight: bold;
+    font-style: normal;
+}
+
+table
+{
+    border-width: 2px; 
+    border-style: solid;
+    margin: 5px;
+    
+}
+
+th
+{
+    font-weight: solid;
+    border-style: solid;
+    border-width: 2px;
+}
+td
+{
+    font-weight:normal; 
+    border-style: solid;
+    border-width: 2px;
+    padding: 5px;
+}
+
+.comment
+{
+    color:  green;
+    font-style: italic;
+    font-weight: bold
+}
+
+h1,h2,h3,h4,h5
+{
+    color: teal;
+}
+
+header h1,header h2,header h3,header h4,header h5
+{
+    color: white;
+}
+
+div.warning {
+    border: 5px solid black;
+    background-color: white;
+    color: #ffc0c0;
+    font-weight: bold;
+}
+
+div.code {
+    font-family: monospace;
+}
+
+blockquote {
+    font-style: italic;
+    background-color: #f0f0f0
+}
+
+.content-exercise {
+    border: 1px solid #c0c0c0;
+    margin: 8px;
+    padding: 8px
+}

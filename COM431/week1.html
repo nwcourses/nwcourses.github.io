@@ -1,38 +1,26 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week1basicdatastructures">Week 1 - Basic Data Structures</h1>
-<p>This week we will be looking at some basic <em>data structures</em>, the array, and the list,  and looking at their relevance. We will also start some very basic Python programming using lists. </p>
+<!DOCTYPE html><html lang='en'><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
+<title>Week 1 - Basic Data Structures</title>
+<meta charset="utf-8">
+</head>
+<body>
+<h1 id="week1basicdatastructures">Week 1 - Basic Data Structures</h1>
+<p>This week we will be looking at some basic <em>data structures</em>, the array, the linked list and the stack, and looking at their relevance.</p>
 <h2 id="theimportanceofdatastructures">The importance of data structures</h2>
-<p>First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
+<p>We will start with a look at <em>data structures</em>. First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>, rather than a single item of data. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
 <p>To store multiple items in a computer program, we need to choose an appropriate <em>data structure</em>. A data structure is a programming construct which allows us to store multiple items. When dealing with data structures, an important thing to consider is <em>which is the most appropriate data structure for the problem we are trying to solve</em>? Certain data structures are more suited to specific types of problem, and we will be looking at this through the module.</p>
 <h2 id="abasicdatastructurethearray">A basic data structure - the array</h2>
 <p>Let's start with the most basic data structure of all, the <em>array</em>. An array is a data structure which can hold more than one item of data, and can be thought of as a series of "boxes" which can hold data. With an array, the key thing is that <em>each box is adjacent to its neighbours in memory</em> which has some consequences in terms of efficiency which we will consider as we go on</p>
 <p>The diagram below shows an example of an array which holds the names of five items of fruit. </p>
-<p><img src="../images/arrays.png" alt="An array" /></p>
+<p><img src="../images/arrays.png" alt="An array"></p>
 <p>The things to note here are:</p>
 <ul>
-<li><p>Arrays have <em>indices</em>. An <em>index</em> is a number which represents the <em>position</em> of an item in an array. In most programming languages, including Python, indices begin with <em>zero</em>. So the first item in the array has the index zero.</p></li>
-<li><p>The items in an array are stored <em>continuously in the computer's memory</em> and <em>each item in the array uses the same amount of memory</em>. Here we assume that each item uses 64 bytes, so that the first item is stored at memory address 512, the second at memory address 576 and so on. This has some important consequences for performance of arrays versus other data structures, to be considered later.</p></li>
+<li>Arrays have <em>indices</em>. An <em>index</em> is a number which represents the <em>position</em> of an item in an array. In most programming languages, including Python, indices begin with <em>zero</em>. So the first item in the array has the index zero.</li>
+<li>The items in an array are stored <em>continuously in the computer's memory</em> and <em>each item in the array uses the same amount of memory</em>. Here we assume that each item uses 64 bytes, so that the first item is stored at memory address 512, the second at memory address 576 and so on. This has some important consequences for performance of arrays versus other data structures, to be considered later.</li>
 </ul>
 <p>Arrays do have some disadvantages. Their simplicity makes them easy to work with but this simplicity can lead to limitations. </p>
-<h2 id="workingwitharraysinpython">Working with arrays in Python</h2>
-<p><strong>Note that this section is not necessary if you are studying this module over the summer, as you should be comfortable with this as you have already completed COM411. If you are on the summer instance, we will skip this section.</strong></p>
-<p>You are being introduced to Python programming on another module, COM411. In this section, however, wewill explore how to create and index a simple <em>array</em> like data structure in Python. Note that Python comes with a range of different data structures to represent collections of data. The default is the <em>list</em>, which is a flexible language component able to be used not just as an array but as various other data structures. However, here, we will treat the list as if it was an array.</p>
-<h3 id="usingrepl">Using Repl</h3>
-<p>If you have had your first COM411 class already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
-<p>You can login to Repl using either a Repl account or your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
-<p>Once you have created a Repl account or GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
-<p><img src="../images/repl1.png" alt="Repl interface" /></p>
-<p>If you select the menu icon on the top left, you can select "New Repl". A Repl is a project - essentially, a single program. The idea is that you create a new Repl for each program you are going to write. You can then go back and view your previous Repls to load the code.</p>
-<p><img src="../images/repl2.png" alt="New Repl" /></p>
-<p>Once you have done this, just enter the following Python code:</p>
-<pre><code class="python language-python">print("Hello World!")
-</code></pre>
-<p>Run the code and you should see the output appear in the console to the right:</p>
-<pre><code>Hello World!
-</code></pre>
-<p><img src="../images/repl3.png" alt="Repl Console Output" /></p>
 <h2 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h2>
 <h3 id="advantagefastlookup">Advantage: Fast lookup</h3>
-<p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.</p>
+<p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "apple", "orange", "pear", "grape" and "cherry" will be stored adjacent to each other in memory.</p>
 <p>When indexing an array, the computer is able to work out where in memory the
 data is stored, <strong>because each member of an array uses up the same number of bytes</strong>. The equation is simply:</p>
 <pre><code>Address = Start Address + Index * Size Of One Member
@@ -47,26 +35,103 @@ we substitute the values into the equation we get:</p>
 we can see, because it's simple arithmetic, the computer is able to do it
 very quickly. So, <strong>arrays are optimised for fast look-up of data using a 
 numerical index</strong>.</p>
-<h3 id="exploringtheproblemswitharrays">Exploring the problems with arrays</h3>
-<h4 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h4>
-<p>Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
-<p><img src="../images/employee_array.png" alt="Employee array" /></p>
+<h3>Creating a simple program making use of an array</h3>
+<p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to below, but for simplicity we're going to assume it's an array). We are creating an array called <code>people</code> to hold the names of members of a team.</p>
+<pre><code class="python language-python">
+import numpy as np
+fruits = np.array(['Apple', 'Orange', 'Cherry']) 
+
+print("The first fruit is " + fruits[0])
+print("The second fruit is " + fruits[1])
+print("The third fruit is " + fruits[2])
+
+</code></pre>
+<p>Note a couple of things:</p>
+<ul>
+<li>To use an array we use the <a href='https://numpy.org'>NumPy</a> library, which provides a range of features for scientific computing. However our use of NumPy here will simply be to create an array.</li>
+<li>We define the array using the statement:
+<pre>fruits = np.array(['Apple', 'Orange', 'Cherry'])</pre>
+Note the square brackets surrounding the list of items to go in the array.
+</li>
+<li>Note the code to print the members of the array: 
+<pre>print("The first fruit is " + fruits[0])
+print("The second fruit is " + fruits[1])
+print("The third fruit is " + fruits[2])</pre>
+This code showss the use an array <em>index</em> to access each member of the array. The index is the number within the square brackets: 0 for the first member, 1 for the second and 2 for the third. Remember we discussed array indices above.</li> 
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
+<h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
+<p>Now, imagine you want to add two more entries to the array:</p>
+<pre>fruits[3] = "Banana"
+fruits[4] = "Pear"</pre>
+<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they have <em>fixed size</em>. If an array is initialised with a certain number of elements, you cannot add additional elements later and the only valid indices are those indices within the capacity of the array. Here, the array was initialised with three elements so only indices 0, 1 and 2 are valid. Furthermore attempting to append to the end of the array via an <code>append</code> operation would not work either:</p>
+<pre>fruits.append("Grape")</pre>
+<h4>Not enough space, or too much space!</h4>
+<p>Imagine we have a larger array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
+<p><img src="../images/employee_array.png" alt="Employee array"></p>
 <p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
 <p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
-<p><img src="../images/array_problems.png" alt="Adding to an array" /></p>
+<p><img src="../images/array_problems.png" alt="Adding to an array"></p>
 <ul>
-<li>We could <em>make the array bigger when we create it</em>. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. <em>Can you see the problem</em>? The <em>storage is inefficient</em> as the array has 30 spaces but only 11 are needed.</li>
+<li>As shown in the diagram above, we could <em>make the array bigger than we are likely to ever need</em>, so we can add new employees. So we could create an array with 30 spaces, and add our 10 original employees to it. Then, there would be room for the 11th employee (and quite a few more, too). <em>Can you see the problem with this, though</em>? The <em>storage is inefficient</em> as the array has many more spaces than we are likely to need and therefore it is <em>wasteful of memory</em>.</li>
 </ul>
-<h4 id="processneededtoextendanarray">Process needed to extend an array</h4>
-<p>If we wanted to add additional members onto an array, we would have to:</p>
+<h2>Using a List</h2>
+<p>One solution is to use a more complex data structure, which can be extended with new data. In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. </p>
+<p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
+<h3>Creating a simple program making use of a list</h3>
+<p>Here is a program which makes use of a list. We are creating a list called <code>people</code> to hold the names of members of a team. The list initially has space for three members, however we can later append to it, to expand the list.
+</p>
+<pre><code class="python language-python">
+print("Please enter the three people in your team")
+people = [None] * 3
+people[0] = input("Please enter the first person:")
+people[1] = input("Please enter the second person:")
+people[2] = input("Please enter the third person:")
+
+print("The first person is " + people[0])
+print("The second person is " + people[1])
+print("The third person is " + people[2])
+
+fourth = input("Please enter the fourth person:")
+fifth = input("Please enter the fourth person:")
+people.append(fourth)
+people.append(fifth)
+print("The fourth person is " + people[3])
+print("The fifth person is " + people[4])
+
+</code></pre>
+<p>Note a couple of things:</p>
 <ul>
-<li>Create an array of the new, larger, size;</li>
+<li>We define the list using the statement:
+<pre>people = [None] * 3</pre>
+<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create a list with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet").</li>
+<li>Note the code: <code>people[0]</code>. This is using an <em>index</em> - remember we discussed indices above. Specifically this code is retrieving the member of the list with index zero.</li>
+<li>Note also how we can <em>append</em> to the list: unlike an array, we can extend it after we created it so we are not restricted to the original size.</li>
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
+<h3>How does a list work under the hood?</h3>
+<p>We have looked at how to use a list. However we are now going to look at what actually happens when a list is appended to, via an interactive exercise.</p>
+<ol>
+<li><strong>Question:</strong> A list actually uses a non-extensible array internally. Given this, what do you think might happen internally when we append to the list? How can we deal with the extra member, given that the internal array is of fixed size?</li>
+<li>You will get the chance to think about this in class, and we will then go over the answer.</li>
+<li>Once this is done, think about whether you can see any <em>efficiency problems</em> with the process of appending to a list.</li>
+<li>You will again think about this for a few minutes, then we will discuss these efficiency problems.</li>
+<li>Once we've done this exercise, notes will appear here, discussing the issues covered by the exercise.</li>
+</ol>
+
+<!--
+<p>Lists contain an internal array. So what happens when we need to extend a list? We <em>create a new array with more space</em> hen the old one runs out of space. We need to: 
+<ul>
+<li>Create an array of the new, larger, size (large enough to hold all the new members we're trying to add);</li>
 <li>Copy all the existing members into the new array;</li>
 <li>Add the new members onto the end of the array.</li>
 </ul>
-<p><img src="../images/array_extension.png" alt="Array extension" /></p>
+<p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
+<p><img src="../images/list.png" alt="Appending to a list" /></p>
+<p>This however is <em>inefficient</em> because  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array. We have to loop through each element in the old array and copy it across to the new array, which is <em>slow</em></p>
+<p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
 <h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
-<p>What if we wanted to add a new member at a <em>specific position</em> in the array?
+<p>Above we saw that <em>adding extra data to the end of a list</em> is inefficent, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
 For example, imagine we had an array of contacts that we wished to keep in 
 alphabetical order, e.g:</p>
 <pre><code>Alex Acland
@@ -75,7 +140,8 @@ Charley Chase
 Earl Edwards
 Frances Freeman
 </code></pre>
-<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What we would have to do is:</p>
+<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What could we do? <strong>Again we will consider this in class</strong>; the answers will appear here later.</p>
+<p>What we would have to do is
 <ul>
 <li>Create a new array, with one more space than the original array;</li>
 <li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
@@ -83,18 +149,14 @@ Frances Freeman
 </ul>
 <p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
 <p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
-<h2 id="moreflexibledatastructures">More flexible data structures</h2>
-<p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
-<p>In fact Python uses one such data structure, the <em>list</em>. A list can act, amongst other things, as an extensible array, which does not have a fixed initial size; you can add additional items of data to the end of the list, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, this may require creation of a new array with additional space to hold the new elements.</p>
-<p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
-<p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
+-->
 <h2 id="thelinkedlist">The linked list</h2>
-<p>We will start with a look at <em>linked lists</em>. Linked lists are unlike arrays
-in that they are <em>not</em> stored continuously in memory Instead, data is stored
+<p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
+in that they are <em>not</em> stored continuously in memory. Instead, data is stored
 as a series of linked <em>nodes</em>. Each node contains one item of data, and links
 to the memory locations of the previous and the next item of data in the 
 linked list.</p>
-<p><img src="../images/linkedlist.png" alt="Linked list diagram" /></p>
+<p><img src="../images/linkedlist.png" alt="Linked list diagram"></p>
 <p>Each node has a link to the previous and the following node. When we add
 a new item of data, we make the previous node link to the new node, and
 we link the new node back to the previous node to form a two-way link.</p>
@@ -116,7 +178,7 @@ again just like a stack of plates.
 The stack is known as a "last in first out" or "LIFO" data structure.
 It is called this, because the last things we add to the stack, are the
 first things we remove. Here is an example of a simple stack of numbers.</p>
-<p><img src="../images/stack.png" alt="Simple stack" /></p>
+<p><img src="../images/stack.png" alt="Simple stack"></p>
 <p>A stack can be used for any operation in which we need to navigate back to
 a previous state. Examples could include:</p>
 <ul>
@@ -164,28 +226,8 @@ Mark Ramsey
 <li><p>What would be the index of "Kate Stevenson" in this array? What about "Mike Watson"?</p></li>
 <li><p>If each item in the array needs 80 bytes of memory, and the start of the array is at memory location 1600, what is the memory address of the array item storing <code>Kate Stevenson</code>?</p></li>
 </ul>
-<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Exercise 2: Arrays (code): Creating a simple program making use of an array</h3>
-<ol>
-<li>Here is a program which makes use of an array (it's actually a Python <em>list</em>, but we're going to treat it as an array). </li>
-</ol>
-<pre><code class="python language-python">operating_systems = ["Linux", "Windows", "Mac OS X"]
-print(operating_systems[0])
-</code></pre>
-<p>Note a couple of things:</p>
-<ul>
-<li>We define the array using square brackets <code>[]</code> and pass in a <em>sequence</em> of values - the values which we want to store in the array. There are other ways of creating an array, but for now we will focus on this method.</li>
-<li>Note the code: <code>operating_systems[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
-</ul>
-<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
-<p>Once you have done so, extend your code so that "Mac OS X" is displayed (<em>by indexing the array</em>).</p>
-<p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
-<pre><code class="python language-python">operating_systems[3] = "Android"
-operating_systems[4] = "iOS"
-</code></pre>
-<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are not resizable.</p>
-<ol start="2">
-<li>Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.</li>
-</ol>
+<h3>Exercise 2: Arrays (code): Creating a simple program making use of an array</h3>
+<p>Write a program which creates an array with the 10 employees mentioned in Exercise 1. Display "Jane Smith" and "Mike Watson" by indexing the array appropriately.</p>
 <h3 id="exercise3addingnewdatatoanarraypaper">Exercise 3: Adding new data to an array (paper)</h3>
 <p>Do this exercise on paper. This is a similar example to that given in the lecture, and is designed to illustrate the problems with adding new data to an array.</p>
 <ul>
@@ -210,12 +252,11 @@ item in a linked list using its index, starting at the beginning. </p>
 <p>Imagine we wish to retrieve the item with index 3 (Android). How could we 
 do this? Draw out how you think it could be done on paper, and ask yourself:
 <strong>how efficient is this</strong>, particularly compared to doing the same thing with an array. </p></li>
+<li>Imagine that we wish to add a new item (Solaris) to the end of the linked list. Draw a diagram showing the process of creating this new item and adding it to the linked list.</li>
 </ol>
 <!--
 <h4 id="solution">Solution</h4>
-<p><img src="../images/linked_list_index.png" alt="Linked list indexing" /></p>
 <p>Note how, to find a particular index within a linked list, we have to start at the beginning and follow the links until we arrive at the element we wish to access. This is slow compared to the simple address calculation from an index in an array.</p>
--->
 <ol start="2">
 <li><p>Remember with an array, that we had problems if we wanted to add new data
 to the array. We had to create a brand new array with more space, and copy the 
@@ -227,7 +268,6 @@ same thing with a linked list. On paper, draw a linked list containing the eleme
 </code></pre>
 <p>Now try and add new element "Android" to the end of the linked list. What do you have to do? Draw out what happens on paper.</p></li>
 </ol>
-<!--
 <h4 id="solution-1">Solution</h4>
 <p>Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.</p>
 -->
@@ -248,11 +288,13 @@ any errors that might occur.</p>
 <li>Frances Freeman</li>
 </ul>
 <p>On paper draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? </p>
+<!--
 <h4 id="solution-2">Solution</h4>
 <p>Note the mixed efficiency when inserting into the middle of the linked list:</p>
 <ul>
 <li><p>on the one hand, we have to search for the name to insert after (i.e. "Charley Chase"). As we have seen above, this is less efficient than arrays if we are searching by index (2 for "Charley Chase"). But if we are searching by name instead, we have to compare each record with the search term ("Charley Chase" here) by starting at the beginning of the data structure and comparing each item in turn to the search term. This is the same process whether we use an array or a linked list, so the efficiency is similar in either case.</p></li>
 <li><p>on the other hand, the actual insertion process is <em>more</em> efficient, as we just have to break the links between Charley Chase and Earl Edwards, and create new links between each and Danielle Dawson. This is more efficient than an array, in which we would have to create a new array with one extra space and copy the old items over once again.</p></li>
 </ul>
-<h2 id="readingfornextweek">Reading for next week</h2>
-<p>Next time we will look at how we can actually implement these data structures in Python. To prepare for this, try doing a bit of reading on <em>Classes and Objects in Python</em>.</p></body></html>
+-->
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Topic 3 - Lists, Aggregation and Polymorphism</title>
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel='stylesheet' type='text/css' href='../css/nwnotes.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<header>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 3: Lists, Aggregation and Polymorphism</h1>
+</header>
+
+<main>
+<h2>Collections and Lists</h2>
+
+<p>
+Previously we looked at how to create simple <em>arrays</em>.
+However, we can also use other data structures in Kotlin, for example the <code>List</code> (similar to the Python list), and the <code>HashMap</code> (similar to the Python dictionary).</p>
+<p>In Kotlin, collections divide into <em>mutable</em> collections (those that can be altered) and <em>immutable</em> collections (those which cannot, which are more efficient in cases where the data in
+the collection never changes).</p>
+<h3>The List</h3>
+<ul>
+<li>This example shows basic use of a List:
+<pre>fun main() {
+    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
+    for(p in peopleList) {
+        println("$p was formerly a lecturer at Solent University.")
+    }
+}
+</pre>
+We create a list of former lecturers at the university and use a <em>for/in</em> loop
+to iterate through each</li>
+<li>Note that <em>listOf()</em> returns an <em>immutable</em> list (a list of type List);
+this cannot be altered (e.g. it does not have an <em>add()</em> method)</li>
+</ul>
+<h3>Creating a Mutable List</h3>
+<ul>
+<li>This example shows basic use of a mutable List:
+<pre>fun main() {
+    val peopleList = <em>mutableListOf</em>("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
+    <em>peopleList.add("Roger Forster")</em>
+    for(p in peopleList) {
+        println("$p was formerly a lecturer at Solent University.")
+    }
+}
+</pre>
+Note how we use <code>mutableListOf</code></li>
+<li>This returns an object of class <code>MutableList</code>, which has an <code>add()</code> method</li>
+<li>Also note that <code>peopleList</code> is <code>val</code>, not <code>var</code>, even though it's a <code>MutableList</code>
+    <ul>
+    <li>Even though we add new data to the list, the actual object reference <code>peopleList</code>
+    (which represents the memory address of the list) does <code>not</code> change</li>
+    <li>Hence we can use a <code>val</code>ue for this example</li>
+    </ul>
+</li>
+<li>We can create an empty list by omitting the arguments, e.g:
+<pre>val peopleList = mutableListOf<em>&lt;String&gt;</em>()</pre>
+Note how we have to specify the data type of the list in angle brackets here (<code>&lt;String&gt;</code>), because the Kotlin compiler is unable to work it out from the contents of the list.
+</li>
+</ul>
+<!--
+<h2>The Map</h2>
+<ul>
+<li>Kotlin has a <em>Map</em>, which is similar to the equivalent HashMap data structure in Java, the dictionary in Python, or the associative array in PHP</li>
+<li>A Map is a collection which can be indexed using <em>non-numeric indices</em>, called <em>keys</em></li>
+<li>It is the same concept as a <em>dictionary</em> in Python</li>
+<li>Like Python dictionaries, maps can be indexed using simple array indexing syntax (i.e. the square brackets, [])</li>
+<li>Like lists, Maps can be <em>mutable</em> or <em>immutable</em></li>
+</ul>
+<h3>Creating a mutable Map</h3>
+<ul>
+<li>This example creates a MutableMap:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val olympus = mutableMapOf("name" to "Mount Olympus", "height" to "2917m", "country" to "Greece")
+    println("Name: ${olympus["name"]}, height: ${olympus["height"]}, highest in: ${olympus["country"]}")
+    
+    // Add another key/value pair to the Map
+    olympus["comment"] = "Legendary home of the gods."
+    println(olympus["comment"])
+}
+</pre>
+</li>
+<li>Note how we use the syntax "key <em>to</em> value" when initialising the map, to set up the keys (indices)
+and values</li>
+<li>Note that all keys and all values have to be a particular type (both String here)</li>
+<li>Also note how we can embed more complex expressions in strings through the use of the dollar symbol <code>$</code> followed by the expression in curly brackets. So for example, here we wish to embed <code>olympus["name"]</code> inside the string we are displaying. Because the quotes surrounding the index <code>name</code> (i.e. <code>"name"</code>) would conflict with the quotes surrounding the string as a whole, we surround the whole expression with a dollar and curly brackets: <code>${olympus["name"]}</code>. In general, complex expressions of any kind (anything more complex than a simple variable) should be surrounded with brackets preceded by a dollar sign.</li>
+</ul>
+-->
+<h2>Aggregation</h2>
+
+<p>So far we have considered single objects, or objects within arrays or lists. However, real object-oriented systems typically have <em>many objects interacting with one another</em>. A common scenario is to have <em>objects within other objects</em> and this is called <em>aggregation</em>. </p>
+
+<p>Aggregation is one of two similar concepts. The other is <em>composition</em>. What is the difference between the two?
+
+<ul>
+<li>With aggregation, the inner object can exist <em>without</em> the outer object. So for example, the driver of a car might be a <code>Person</code> object <em>aggregated</em> within the <code>Car</code> object.</li>
+<li>With composition, the inner object cannot meaningfully exist outside the outer object. So the relation between a car and its engine might be a composition relation, because the engine cannot do anything meaningful outside the car.</li>
+</ul>
+
+</p>
+
+<h3>Why is aggregation useful?</h3>
+
+<p>Imagine we wanted to write a program to manage stock for a shop. We could write a main() which creates an list of Product objects (as in the example above) and implement functionality within the main() to search for products, sells products, adds new products and so on.  However a more object-oriented approach would be to create a class which represents the shop as a whole. This class could be called Shop. It could contain methods to add a new product, search for a product, or sell a product, and could contain, within it, a mutable list of Product objects (this would be the <em>aggregation</em>). The advantage of creating a Shop class is that it could be <em>reusable</em>: we could create a Shop class which represents a shop, and then reuse it in many different programs. Also it allows another level of encapsulation: the outside world can use the <code>Shop</code> via its method, without knowing its inner workings.</p>
+
+<h3>Example</h3>
+
+<p>This example shows the use of a Shop class, as well as a Product class and a test <code>main()</code>.</p>
+<pre>
+// Product class
+class Product(val name: String, var price: Double, var quantityInStock: Int) {
+    
+    override fun toString() : String {
+        return "Name=$name, Price=$price, Quantity in stock=$quantityInStock"
+    }
+    
+    fun sell(): Boolean {
+        if(quantityInStock &gt; 0) {
+            quantityInStock--
+            return true
+        } else {
+            return false
+        }
+    }
+}
+</pre>
+<pre>
+// Shop class
+
+class Shop(val name: String) {
+    private val products = mutableListOf&lt;Product&gt;()
+    
+    
+    fun addProduct (p: Product) {
+        products.add(p)
+    }
+
+    // Search for a product by name 
+    fun searchForProduct (searchName: String) : Product?  {
+        for(currentProduct in products) {
+            if(currentProduct.name == searchName) {
+                return currentProduct
+            }
+        }
+        return null
+    }
+    
+    fun sellProduct (productName: String): Boolean {
+        val p = this.searchForProduct (productName)
+        return p?.sell() ?: false
+    }
+}
+</pre>
+<pre>
+// Test main
+fun main () {
+    val shop = Shop("Cottage Stores")
+        
+    shop.addProduct (Product("Cheese", 1.99, 10))
+    shop.addProduct (Product("Milk", 0.50, 20))
+    shop.addProduct (Product("Bread", 1.19, 15))
+
+    val testProducts = listOf("Cheese", "Spam")
+    for(p in testProducts) {
+        println(if (shop.sellProduct(p)) "$p sold" else "$p could not be sold")
+    }
+}
+</pre>
+How is this working?
+    <ul>
+    <li>We have a Shop class which <em>contains a mutable list of Products within it</em>. 
+    This is <em>aggregation</em>.</li>
+    <li>The list of Products is <em>private</em>. This is <em>encapsulation</em> again.
+    The outside world (e.g. the main() ) cannot access the list directly. Access to the
+    list is <em>controlled</em> by the Shop. The only way the outside world can manipulate the
+    array list is via the methods of Shop. You can think of each method of Shop as a "portal" or
+    "gateway" through which the inner workings of Shop exchange information from the outside world. 
+    Each "portal" (method) would typically include some validation, to check that the outside world isn't
+    doing anything unrealistic. The diagram below shows this. <br />
+    <img src="../images/aggregation.png" alt="Aggregation - methods as 'portals'" /></li>
+    <li>For example, <code>searchForProduct()</code> will return 
+<code>null</code> if the product cannot be found. Because of this, the method needs to return a <em>nullable</em> <code>Product</code>.</li>
+    </li>
+    <li>The <code>sellProduct()</code> method 
+    calls <code>searchForProduct()</code> to try
+    and find the product with that name. If it can be found,
+    the product is sold by calling its <code>sell()</code> method. Note the expression we use to return the appropriate boolean value:
+<pre>return p?.sell() ?: false</pre>
+	This is a concise way of returning a value using the Elvis operator to account for <code>p</code> possibly being null. If <code>p</code> is not null, we will return whatever <code>sell()</code> returns (true or false depending on whether the product is in stock). Otherwise, we will return <code>false</code> using the Elvis operator, to indicate that the product could not be found.</li>
+    <li>Therefore, we have a Shop class which models how a shop works in Kotlin 
+    code - with inbuilt error checking. This Shop class, with its error checks, could thus be
+    <em>reused</em> in any Kotlin program, and the error checks wouldn't have to be written again.
+    </li>
+    </ul>
+</p>
+<h3>Returning boolean status codes to indicate success or failure</h3>
+<p>You'll also notice in the above code that <code>sell()</code> and <code>sellProduct()</code> do not use a <code>println</code> to inform the user of success or otherwise. Instead, they <em>return a boolean</em>. This boolean status code is then used in the <code>main()</code> to print an appropriate message.</p>
+<p><strong>Why is this done?</strong> It's the same reason we used <code>toString()</code> in earlier topics. It increases the <strong>reusability</strong> of our code, in that it can now be used in non-console applications such as desktop GUI applications web applications or Android apps, where <code>println()</code> cannot be used. The equivalent of <code>main()</code> in these apps could test the boolean return code and display an appropriate message in an appropriate format. Also it means that different console-mode applications which use our code can display their own message rather than a hard-coded message within <code>Product</code> or <code>Shop</code>.</p>
+<p>Also note this code in the <code>main()</code>:
+<pre>println(if (shop.sellProduct(p)) "$p sold" else "$p could not be sold")</pre>
+This once again shows the use of an <code>if</code> statement as an expression, as seen last week. It evaluates to either <code>"$p sold"</code> if the product could be sold (<code>true</code> is returned) or <code>"$p could not be sold"</code> if the product could not be sold (<code>false</code> is returned).</p> 
+
+<h2>Polymorphism</h2>
+
+<p>Polymorphism (&quot;many forms&quot;) is another key feature of object-oriented development. It means:
+    <ul>
+    <li><em>the ability to produce different behaviour with a superclass method, 
+    depending on the subclass we are actually referencing</em></li>
+    </ul>
+</p>
+<p>What does this mean?  Imagine we have an object of a superclass type which 
+actually references an instance of the subclass, and when we call a method, the
+<em>subclass</em> version of the method will be called. This is probably best shown by example.
+<pre>
+abstract class Animal {
+    abstract fun makeNoise(): String
+}
+</pre>
+<pre>
+class Cat(val name: String): Animal() {
+    override fun makeNoise() = "Meow!"
+}
+</pre>
+<pre>
+class Dog(val name: String) : Animal() {
+    override fun makeNoise() = "Woof!"
+}
+</pre>
+<pre>
+class Cow: Animal() {
+    override fun makeNoise() = "Moo!"
+}
+</pre>
+Above is an inheritance hierarchy consisting of <code>Animal</code> as an abstract superclass and various specific types of animal as subclasses. The subclasses override the <code>makeNoise()</code> method by returning a string representing the noise that the animal makes. Note also the concise syntax for methods which simply return a value:
+<pre>override fun makeNoise() = "Meow!"</pre>
+We do not need to declare the return type or define a code block for the method, but simply set the function "equal to" the value we wish to return.</p>
+<p>Moving onto a <code>main()</code> which illustrates polymorphism by using this inheritance hierarchy:
+<pre>fun main() {
+    val animals = listOf&lt;Animal&gt;()
+    animals.add(Dog("Fido"))
+    animals.add(Cat("Clyde"))
+    animals.add(Cow())
+
+    for (animal in animals) {
+        println(animal.makeNoise())
+    }
+}</pre>
+Note how we create a list of <code>Animal</code> objects but fill it with <em>subclasses</em> of <code>Animal</code>. We are able to do this: <strong>A variable of a superclass type can point to any subclass of that superclass.</strong></p>
+<p>The polymorphism is then illustrated by the loop. We loop through all the animals in the list and call <code>makeNoise()</code> on each. <strong>Even though the variable <code>animal</code> is of type <code>Animal</code>, the appropriate <code>makeNoise()</code> method for the animal at that position in the list will be called.</strong> So our output will be:
+<pre>Woof!
+Meow!
+Moo!</pre>
+
+<h3>Runtime Binding</h3>
+<p>Polymorphism is able to occur due to <em>runtime binding</em>.
+This means that the method to call is decided at run time (when the program
+is run) rather than when we compile the program. Think about why that has to be true for polymorphism to work. In the above example, we hardcoded the animals in our list to be a dog, a cat and a cow. But in some examples, the contents of the list might depend on user input. For example, in a student records system application, you might have a list containing students, including undergraduates and postgraduates. But the contents of the list would depend on the university administrator adding students to the list <strong>while the program is running</strong>, in other words, there is no way in which the compiler can determine the exact contents of the list.</p>
+<h3>Polymorphism in Method Parameters</h3>
+<p>Another scenario where polymorphism is freqently 
+observed is in <em>method parameters</em>.
+ method parameter of <em>any given superclass</em>
+will allow us to pass in <em>any subclass of that superclass</em> as an argument to the method.  If we then perform an operation on the 
+object passed to the method, the object will
+behave as the appropriate subclass, even though the
+type of the parameter is the superclass</p>
+<p>Here is an example:
+<pre>class Oven {
+    fun cook (f: Food): String {
+        val n = f.getCookingTime()
+        return &quot;Cooking for $n minutes.&quot;
+    }
+}
+</pre>
+<ul>
+<li>The Oven class includes a <code>cook()</code> method which takes an item of
+<code>Food</code> as a parameter and displays its cooking time.
+This allows <code>cook()</code> to cook <em>any subclass</em> of <code>Food</code>.
+The <code>getCookingTime()</code> method of
+<em>the particular subclass of Food</em> that has been added to the Oven
+will be called, even though <code>f</code> is of type <code>Food</code></li>
+<li>So, the parameter <code>f</code> will exhibit different behaviour depending on what subclass it refers to.</li>
+</ul>
+</div>
+
+<div>
+<h3>Food inheritance hierarchy</h3>
+<p>Imagine the following:
+    <ul>
+    <li>The <code>getCookingTime()</code> method of <code>Fish</code> returns 
+    50 * the weight of
+    the fish</li>
+    <li>The <code>getCookingTime()</code> method of <code>Vegetables</code> returns 
+    10 * the weight of the vegetables </li>
+    <li>The <code>getCookingTime()</code> method of <code>Cake</code> returns 
+    100 * the weight of the cake</li>
+    </ul>
+<pre>abstract class Food(protected val weight: Int) {
+    abstract fun getCookingTime(): Int
+}
+</pre>
+
+<pre>class Fish(wt: Int) : Food(wt) {
+    override fun getCookingTime() = 50*weight
+}</pre>
+
+<pre>class Vegetables(wt: Int) : Food(wt) {
+    override fun getCookingTime() = 10*weight
+}</pre>
+
+<pre>class Cake(wt: Int) : Food(wt) {
+    override fun getCookingTime() = 100*weight
+}
+</pre>
+</p>
+<p>Now imagine a <code>main()</code>:
+<pre>fun main() {
+    val oven = Oven()
+    val f = Fish(3)
+    val v = Vegetables(4)
+    val c = Cake(2)
+    println(oven.cook(f))
+    println(oven.cook(v))
+    println(oven.cook(c))
+}
+</pre>
+This will give us the following results:
+<pre>
+Cooking for 150 minutes.
+Cooking for 40 minutes.
+Cooking for 200 minutes.
+</pre>
+<strong>Even though the data type of the parameter passed to 
+<code>Oven.cook()</code> is Food, it will be referring to a subclass, so the subclass version of <code>getCookingTime()</code> will be called.</strong></li>
+</ul>
+</div>
+
+<h2>Exercises</h2>
+<ol>
+<li><em>Lists:</em> Return to your <code>Student</code> example from previous weeks. In your <code>main()</code>, create a mutable list of students, and in the loop, add each <code>Student</code> objects to the list as soon as you create it. Then, when all students have been entered, write a second loop to loop through the array list and display each student in turn.</li>
+<li><em>Aggregation:</em> Create a completely new project (<code>AggregationApp</code>), and add your <code>Student</code> class to it, as well as a main. Rather like the <code>Shop</code> in the example, create a <code>University</code> class. The <code>University</code> should contain, as an attribute, a list of <code>Student</code>s. The <code>University</code> should include these methods:
+    <ul>
+    <li><code>enrolStudent()</code> - this should add a new student to the university by adding it to the array list.</li>
+    <li><code>findStudentById()</code> - this should find a single student by student ID. If no student with that ID can be found, it should return <code>null</code>.</li>
+    <li><code>findStudentsByName()</code> - this should find <em>all</em> students that have a particular name. It should return a list of all matching students. To do this, you will need to declare a list in the method, loop through all students, and add any students with that name to the list before returning it at the end.</li>
+    </ul>
+In your <code>main()</code>, create a <code>University</code> object. Then, develop a simple menu-driven application to add and search for students. The menu should look like this:
+<pre>
+1. Add a student
+2. Search for student by ID
+3. Search for students by name
+4. Quit
+</pre>
+You will need a <code>String</code> variable to read in the user's menu choice. Add a <code>while</code> loop which keeps looping until this variable has the value "4". Inside the loop, test which option the user entered, and either:
+    <ul>
+    <li> add a student (by reading in the student details, creating a <code>Student</code> object and adding it to the <code>University</code>),</li>
+    <li>search for a student using their ID (printing out the found student), or</li>
+    <li>search for all students with a given name, printing out the results.</li>
+    </ul>
+</li>
+<li><em>Polymorphism:</em> <strong>You need to have completed the inheritance question from Topic 2 in order to complete this question.</strong> Enhance the application so that a user can enter either undergraduate or masters students when they add a student. Depending on what the user enters, create either an undergraduate or a masters student and add it to the list of students. Test it by searching for the students you've just added. This should <strong>illustrate polymorphism</strong> by displaying either undergraduate details or masters' details, depending on what type of student was found.</li>
+</ol>
+
+</main>
+
+</body>
+</html>

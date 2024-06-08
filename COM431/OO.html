@@ -1,0 +1,139 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week2implementationofbasicdatastructures">Toic 2: Introduction to Object-Oriented Programming</h1>
+<h2 id="introduction">Introduction</h2>
+<p>From next week onwards we will move on to actually implementing some data structures in Python, starting with the stack and the linked list. However, in order to do this effectively and cleanly, you need to be familiar with <em>object-oriented programming</em>. You will be introduced to this topic in more depth in COM411 later, but I will introduce this week just enough object-oriented programming for you to be able to code your own data structures.</p>
+<p>(Note that Python comes with an extensive range of built-in data structures, for example you can treat the standard <code>list</code> type as a stack and perform <code>push</code> and <code>pop</code> operations, but we are going to build them from scratch, in order to gain a deeper understanding of how the various data structures work.)</p>
+<h2>Classes and Objects</h2>
+<p>See <a href="https://docs.python.org/3/tutorial/classes.html">the Python documentation</a> for classes and objects.</p>
+<h3 id="whatisaclass">What is a class?</h3>
+<p>(<strong>This is a simplified explanation. More depth will be provided in COM411.</strong>)</p>
+<p>A <code>class</code> can be thought of as a complex data type. Classes provide a way to define our own custom data structures. For example, we could create a <code>Cat</code> class to represent a cat, a <code>Stack</code> class to represent a stack, or a <code>LinkedList</code> class to represent a linked list. Classes contain two key components: </p>
+<ul>
+<li><p><strong>Methods</strong>. A method represents an action that you can perform with a class. For example:</p>
+<ul>
+<li>with a <code>Cat</code> class we could have <code>eat</code>, <code>sleep</code> and <code>meow</code> methods.</li>
+<li>with a stack class, we could define <code>push</code> and <code>pop</code> methods. </li>
+<li>for a linked list class, we could define an <code>addNode</code> method, to add a node onto the end of the linked list (and update the reference to the last node).</li></ul></li>
+<li><p><strong>Attributes</strong>. An attribute represents an item of data associated with the class. Last week, we saw that a stack uses an array to store its data. So :</p>
+<ul>
+<li>attributes of a <code>Cat</code> class could include the name, the age and the weight of the cat.</li>
+<li>an attribute of a <code>Stack</code> class could be the underlying array. </li>
+<li>Likewise, a linked list contains references to the first and last nodes in the list. So these could be attributes of the <code>LinkedList</code> class. </li></ul></li>
+</ul>
+<h3 id="whatisanobject">What is an object?</h3>
+<p>An object is a specific <strong>instance</strong> of a class, for example, a <em>specific</em> cat, stack or linked list. A class can be thought of as a blueprint, or specification, for how a particular data structure should work. However an object is a <em>specific example</em> of that data structure.</p>
+<p>For example, each of the two cats in the photo below (Binnie and Clyde) could be represented in code with an object. One object for Binnie, and another for Clyde.</p>
+<p><img src="../images/cats_small.jpg" alt="Cats" /></p>
+<p>We could define a Cat <em>class</em> and then create many cat <em>objects</em>, reperesenting individual cats.</p>
+<p>We could define a Stack <em>class</em>, and then create two Stack <em>objects</em>. One Stack object could be used in a web browser and contain your browsing history, whereas another could be used in a paint program and represent each drawing operation you do, allowing you to undo them.</p>
+<p>Or, you could define a <code>LinkedList</code> class, and then have one <code>LinkedList</code> object to store students at a university, another to store courses, and yet another to store staff.</p>
+<h2 id="implementingacatusingaclass">Implementing a Cat using a class</h2>
+<p>We will start with a simple class representing a cat. </p>
+<pre><code class="python language-python">class Cat:
+    def __init__(self, name, age, weight):
+        self.name = name
+        self.age = age
+        self.weight = weight
+
+    def eat(self):
+        self.weight += 1
+</code></pre>
+<p>This code does not <em>create any actual cats</em>. It just creates a <em>class</em>, or a <em>blueprint</em> or <em>specification</em>, for what cats are and what they do. Note, in particular, the following:</p>
+<ul>
+<li><p>We define the class with the keyword <code>class</code> followed by the name of the class (<code>Cat</code> here). Note the colon and the indentation. The colon defines what is called a <em>code block</em>  - here, the definition of the class. Note how everything within that block is indented (This can be with a tab, or a given number of spaces - typically 4). The block ends as soon as the indentation ends. You should be learning about this in COM411 this week.</p></li>
+<li><p>Note how we list each <em>method</em>. We use the keyword <code>def</code> to define a method. (You will do functions in COM411 next week; a method is essentially a function within a class).</p></li>
+<li><p>Note how each method is itself a code block, so we use a colon and indent the code within the method.</p></li>
+<li><p>Note how we define two methods. We have <code>eat()</code> to define one of the most fundamental actions of a cat. However we also have a second method, <code>__init__()</code>. What is this? It is a special <strong>initialisation method</strong>. It runs whenever an object of the class is first created, and can be used to initialise the object. Here, we are using it to initialise the three <em>attributes</em> of the cat, the <code>name</code>, the <code>age</code> and the <code>weight</code> (see below for more detail).</p></li>
+<li><p>Note how each method contains, as a parameter, the keyword <code>self</code>. What is this? It is a <em>reference to the current object that we're working with</em>. Remember from the discussion on objects, above, that we might have <em>multiple objects of a given class</em>, for example, multiple cats. <code>self</code> refers to <em>whichever object we are dealing with right now</em>.</p></li>
+<li><p>Going back to the <code>eat()</code> method, note that it contains the code:</p></li>
+</ul>
+<pre><code class="python language-python">self.weight += 1
+</code></pre>
+<p>What does this do? Remember that <code>self</code> is the current object, in other words the current cat. The operator <code>+=</code> increases a variable by one. So <code>self.weight += 1</code> will increase the weight of the current cat by one.</p>
+<p>To create actual cats, we need to create <code>Cat</code> <em>objects</em>, as follows:</p>
+<pre><code class="python language-python">cat1 = Cat("Binnie", 4, 4)
+cat2 = Cat("Clyde", 1, 2)
+cat1.eat()
+cat2.eat()
+print(cat1.weight)
+print(cat2.weight)
+</code></pre>
+<p>This code creates <em>two specific cats</em>, <code>cat1</code> and <code>cat2</code>. The lines:</p>
+<pre><code class="python language-python">cat1 = Cat("Binnie", 4, 4)
+cat2 = Cat("Clyde", 1, 2)
+</code></pre>
+<p>actually create the two cats. In each case, the <em>initialisation method</em> <code>__init__()</code>, which we saw above, is called, and the data about that cat is passed into the object.</p>
+<p>Next, we actually make the cats <em>do</em> something by calling <em>methods</em>. Firstly, we call the <code>eat()</code> method on each cat:</p>
+<pre><code class="python language-python">cat1.eat()
+cat2.eat()
+</code></pre>
+<p>We then print the <code>weight</code> of each cat, to show that eating has increased the weight by one:</p>
+<pre><code class="python language-python">print(cat1.weight)
+print(cat2.weight)
+</code></pre>
+<h3>Methods with Parameters</h3>
+<p>
+<pre><code class="python language-python">class Cat:
+    def __init__(self, name, age, weight):
+        self.name = name
+        self.age = age
+        self.weight = weight
+
+    def eat(self, <em>amount</em>):
+        self.weight += amount
+</code></pre>
+In many cases, we need to <em>pass information in to a method</em> to tell it what to do. For example, it would be useful if we could tell the <code>eat()</code> how much food the cat needs to eat. We do this by specifying one or more <em>parameters</em> in the method, separated by commas. So:
+<pre>def eat(self, amount)</pre>
+includes a parameter <code>amount</code> specifying how much food the cat should eat. We then use that in our statement to increase the weight, by increasing it by <code>amount</code>:
+<pre>self.weight += amount</pre>
+When calling the method, we then specify the parameter, e.g:
+<pre>
+cat1 = Cat("Flathead", 3, 4)
+cat2 = Cat("Cupra", 2, 3)
+cat1.eat(<em>3</em>)
+cat2.eat(<em>2</em>)
+print(cat1.weight)
+print(cat2.weight)
+</pre>
+</p>
+<h3 id="exercise1">Exercise 1</h3>
+<ol>
+<li><p>Try out this example. Once it's working, do the following:</p>
+<ul>
+<li>Create a <code>walk()</code> method inside the <code>Cat</code> class. This should reduce the cat's weight by one.</li>
+<li>Create a third cat, "Old Tom" with age 10 and weight 6. </li>
+<li>Make Old Tom eat, and make all three cats walk after they have eaten. After walking, display all three cats' weight again, to show that walking reduces the weight by one.</li></ul></li>
+<li>Using an <code>if</code> statement, change the <code>walk()</code> method so that the cat cannot walk if the weight is below 1. (The intention is to avoid starving the cat). </li>
+</ol>
+<h3>Exercise 2: Additional object-oriented programming exercise</h3>
+<p>Try out this additional exercise using classes and objects.</p>
+<ol>
+<li>Create a completely new class called <code>Student</code> to represent a student.
+Pass the following as parameters to the <code>__init__()</code> method, and initialise the appropriate attributes.
+	<ul>
+	<li><code>id</code>, representing the student's ID</li>
+	<li><code>name</code>, representing the student's name</li>
+	<li><code>course</code>, representing the student's course</li>
+	<li><code>mark</code>, the student's mark</li>
+	</ul>
+</li>
+<li>Give the <code>Student</code> class a <code>__str__()</code> method, which returns the student details as a string.</li>
+<li>Write some code to create 5 students within a loop. Create a <code>Student</code> object each time the loop runs, using details the user entered from the keyboard. Then, still within the loop, display each student by printing it.
+</li>
+<li>Add a <code>setMark()</code> method to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid. Return a boolean to indicate whether the method was successful or not: it should return <code>True</code> if the mark was valid and <code>False</code> otherwise.</li>
+<li>Add a <code>getGrade()</code> method to <code>Student</code>. This should return the student's grade as a <em>string</em> based on the mark, according to this scheme :
+    <ul>
+    <li>70+ : First</li>
+    <li>60-69 : 2/1</li>
+    <li>50-59 : 2/2</li>
+    <li>40-49 : Third</li>
+    <li>0-39 : Fail</li>
+    </ul>
+</li>
+
+<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
+
+<li>Change the <code>Student</code> <code>__init__()</code> method so that the mark is no longer passed in as a parameter, and instead, set to 0. The idea is that <code>setMark()</code> will be used instead to set the mark.</li>
+
+<li>Test out the above methods by modifying the loop so that the mark is passed in via the <code>setMark()</code> method. When all the details have been entered, print out the student's status (grade, and whether they passed or not) by calling the <code>getGrade()</code>, and the <code>didPass()</code> methods, and printing the return value of each.</li>
+</ul>
+</body></html>

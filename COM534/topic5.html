@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OODD Week 5 - Further Analysis and Design</title>
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel='stylesheet' type='text/css' href='../css/nwnotes.css' />
+</head>
+<body>
+<header>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 5: Further Analysis and Design (Use Case Texts)</h1>
+</header>
+
+<main>
+
+<div>
+<h2>What we will cover this week</h2>
+<ul>
+<li>More detailed analysis with use case texts</li>
+</ul>
+</div>
+
+<div>
+<h2>Use-case texts</h2>
+<p>Last week we looked at how to identify use cases and show them on a use-case diagram. The next step is to break down each use case shown on the diagram into a series of steps describing how a user will interact with the system in order to complete the use case.   use-case text has two columns:
+    <ul>
+    <li><em>Actor action</em>, describing how the actor will interact with
+    the system</li>
+    <li><em>System response</em>, describing how the system will respond.</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Example use-case text: Enrol student</h3>
+
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+enrol a new student.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the student  details (name, address, date of
+birth, course)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks validity of details, e.g. date of birth is sensible</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System allocates student ID for new student</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>System enrols student in university</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System confirms enrolment is successful</td>
+</tr>
+
+</table>
+
+</div>
+
+<div>
+<h4>Alternative courses of action</h4>
+<p>Our use-case text must also include <em>alternative courses of action</em>.
+These describe how the system should react to <em>errors</em>, which 
+can help us design robust systems.  These go below the main use-case text.
+For example, in the previous use-case text:
+<pre>
+At step 4: Date of birth is not sensible.
+    Staff informed that date of birth is not sensible.
+    Staff re-prompted for details (go back to step 3)
+</pre>
+</p>
+</div>
+
+
+
+<div>
+<h3>Example use-case text: Edit student details</h3>
+<p>This is a simplified version assuming <code>includes</code> or <code>extends</code> are not being used.</p>
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+edit the student details</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the student ID</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The member of staff enters the student ID.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System finds the student with that ID</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System displays details of that student in editable text boxes</td> 
+</tr>
+
+<tr>
+<td>6</td>
+<td>The admin staff changes the details.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System checks that the new details are valid (e.g. no blank strings)</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>System updates details of the student</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>-</td>
+<td>System displays a confirmation message to the user.</td>
+</tr>
+</table>
+
+<p>Alternative courses of action:
+<pre>
+At step 4: Student with that ID does not exist on system 
+    Staff informed that the student with that ID does not exist
+    Staff re-prompted for details (go back to step 2)
+
+At step 7: New details are not valid (e.g. blank strings)
+    Staff informed that the new details are invalid
+    Staff re-prompted for details (go back to step 6)
+</pre>
+</p>
+</div>
+
+<h2>Design-level use-case texts: assigning responsibilities to our use cases</h2>
+<p>Once you have done the basic use-case texts (so called <em>analysis-level use case texts</em>), the next thing to do is <strong>assign responsibilities to each system response step in the use case text</strong>. This involves deciding which domain model classes are required for each system response step.</p>
+<p>By doing this, we are linking the user-oriented analysis (use cases) with our first design step (the domain model). Doing this will help us perform detailed system design with sequence diagrams, which is the step following use case analysis.</p> 
+
+<p>We will now convert each of the two use case texts above into design-level use case texts. This involves going through each <em>system response</em> step and thinking about which domain model classes, if any, would be responsible for each step in turn. We will highlight the domain model classes in the use-case text, and then discuss the rationale for our decisions.</p>
+
+<h3>Design-level use case text: enrol a student</h3>
+<p>
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+enrol a new student.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td><strong>The UI</strong> prompts the user for the student  details (name, address, date of
+birth, course)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td><strong>The UI</strong> checks the validity of the details, e.g. date of birth is sensible</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>The <strong>University object</strong> allocates a student ID for new student <strong>using the existing highest ID plus one.</strong></td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>The <strong>University object</strong> creates a <strong>Student object</strong> and adds it to the list of students.</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System confirms enrolment is successful <strong>on the UI</strong>.</td>
+</tr>
+
+</table>
+</p>
+
+<p>Note what we have done here. We have <strong>gone through each "System response" step in the use case text</strong> and analysed it more deeply to determine which classes in our domain model have the responsibility for that step. In some cases, e.g. step 4, we don't need to involve the domain model classes because we are just doing a simple validation. But in others, the system response is more complex and requires interaction with the domain model classes. We will look at two of those steps (step 5 and step 6) in more detail and discuss the rationale for choosing the classes shown in the design-level use-case text:
+
+<ul>
+<li>Step 5 involves allocating a student ID. What do we need for this? We need to talk to the domain model object which knows about all the existing IDs. The <code>Student</code> class does not know this, as a single <code>Student</code> knows only about its own ID. The <code>University</code> class, however, contains a list of all <code>Student</code>s added so far, and therefore knows about all IDs allocated so far. So the <code>University</code> class is the class which has the responsibility for allocating the ID. It might do this, for example, by looking at the ID of the most recently added student (the one at the end of the list) and allocate that number plus one.</li>
+<li>Step 6 involves creating a student. If you think about this, it involves two steps: creating a student and adding that student to the list of students. The first step creates a <code>Student</code> object, so we reference this in the design-level use-case text. The second step involves adding that student to the list of existing students. What object contains the list of existing students? It's the <code>University</code> object in our system, so the <code>University</code> has the responsibility for this step.</li>
+<li>What class would have the <em>overall</em> responsibility for step 6, though, in other words, creating a student object <em>and then</em> adding it to the list of students? We could put this inside our UI. However, we might want to <em>re-use</em> the enrolment process in another application with a different UI. So instead, we can <em>place the entire step 6</em> - both creating a student, and adding it to the list - inside the <code>University</code> class, as a method.</li>
+</ul>
+
+
+<h3>Design-level use-case text: edit student details</h3>
+<p>We will run through the same process of explaining the domain model classes we have chosen to allocate responsibilities for the important system response steps, which in this example are steps 4 and 8. (The other steps are trivial and only require the UI).
+<ul>
+<li>In step 4 we are searching for a student by ID. As you hopefully appreciate now, it is easy to allocate a responsibility for this step. Only the <code>University</code> knows about all the <code>Student</code>s (as it contains a list of them) and therefore it must be the <code>University</code>'s responsibility to find a student using its ID. It would do this by looping through the student objects in the list until it finds a match. (Or, you might use a map - the Kotlin equivalent of a dictionary - to store the students, using the ID as the key).</li>
+<li>In step 8 we update the details of the student we have found. This only involves the specific <code>Student</code> object we found - nothing else - therefore the <code>Student</code> will have responsibility for this step.</li>
+</ul>
+</p>
+<p>This gives the design-level use-case text below:
+<p>
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+edit the student details</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td><strong>The UI</strong> prompts the user for the student ID</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The member of staff enters the student ID.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td><strong>The University object</strong> finds the <strong>Student object</strong> with that ID</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td><strong>The UI</strong> displays details of that student in editable text boxes</td> 
+</tr>
+
+<tr>
+<td>6</td>
+<td>The admin staff changes the details.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td><strong>The UI</strong> checks that the new details are valid (e.g. no blank strings)</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td><strong>The Student object we found in step 4</strong> is updated with the new details.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>-</td>
+<td><strong>The UI</strong> displays a confirmation message to the user.</td>
+</tr>
+
+</table>
+</p>
+
+<h2>Exercise</h2>
+<ol>
+<li>Draw up a use case diagram for these use cases from the live music venue scenario from last week: 
+	<ul>
+	<li>Search for events (all users)</li>
+	<li>Book an event (all users)</li>
+	<li>Add an event (admin only)</li>
+	<li>Modify an event (admin only)</li>
+	<li>Delete an event (admin only)</li>
+	<li>Cancel a booking (all users)</li>
+	</ul>
+Ideally use extends and precedes as appropriate.
+</li>
+<li>Prepare an analysis-level use-case text for "add an event"</li>
+<li>Prepare an analysis-level use-case text for "book an event"</li>
+<li>Prepare a design-level use-case text for "add an event".</li>
+<li>Prepare a design-level use-case text for "book an event".</li>
+</ol>
+</main>
+</body>
+</html>

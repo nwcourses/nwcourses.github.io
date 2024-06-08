@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Introduction to Object-Oriented Programming in Kotlin</title>
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel='stylesheet' type='text/css' href='../css/nwnotes.css' />
+<style type='text/css'>
+li { margin: 10px; }
+img { margin: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<header>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 2: Encapsulation and Inheritance</h1>
+</header>
+
+<main>
+<h2>Encapsulation</h2>
+
+<p>Object-oriented programming makes use of a technique called <em>encapsulation</em> to control operations on the properties of a class and prevent unintended errors and data corruption occurring. Here is another version of last week's Cat class:
+<pre>class Cat(private val name: String, private var age: Int, private var weight: Int) {
+    
+    public fun walk() {
+        weight--
+    }
+
+
+    public override fun toString(): String {
+        return "Name: $name, age: $age, weight: $weight" 
+    }
+}</pre>
+you can see the use of the keywords <code>private</code> and <code>public</code> throughout the code. What do these
+mean?
+    <ul>
+    <li>Any property or method preceded by the keyword <code>private</code> can only be used <em>inside the current class</em>.</li>
+    <li>Any property or method preceded by the keyword <code>public</code> can be used <em>both inside and outside the class</em>.</li>
+    <li><strong>In fact <code>public</code> is the default, so you can omit it.</strong> It's just shown here to clearly illustrate the difference between <code>public</code> and <code>private</code>.</li>
+    </ul>
+So you can see that in this example, <em>the methods can be used outside the class</em> but <em>the properties can only be used inside it.</em>. The <code>main()</code> - repeated below - calls the <em>method</em> <code>walk()</code>, and all references to the <em>properties</em> are within the methods inside the class.
+<pre>
+fun main () {
+    val clyde = Cat ("Clyde", 2, 5)
+    val binnie = Cat ("Binnie", 5, 4)
+        
+    println(clyde)
+    println(binnie)
+        
+    clyde.walk()
+    binnie.walk()
+
+    println(clyde)
+    println(binnie)
+        
+    clyde.walk()
+    println(clyde)
+}
+</pre>
+</p>
+<p>This is common practice and is known as <em>encapsulation</em>. Encapsulation means to keep the inner workings of the class hidden from the outside world, and control access to those inner workings
+by means of the methods, which act as "gateways" between the outside world and the interior of the class.
+</p>
+<h4>Why use toString()?</h4>
+<p>We will now re-visit the <code>toString()</code> method. Remember that it <em>returns</em> the details of the cat as a String, rather than printing it. Why is that better than just displaying the cat details within, let's say, a <code>display()</code> method? It gives more flexibility to the code using the class: it allows the code using the Cat class (<code>main()</code> in this case) to choose how to display it, which may not be via <code>println()</code>. For example, a GUI application (which we are looking at later) does not use <code>println()</code> to display things.</p>
+<p>Note also how we are printing the cats directly:
+<p>For the flexibility reason above, <strong>you should in general use <code>toString()</code> rather than trying to write methods which print to the console.</strong>. It allows your code to be used in non-console environments, e.g. web or Android.</p>
+<h4>Why perform encapsulation?</h4>
+<p>Why is encapsulation performed? Consider this new version of the Cat class:
+<pre>class Cat(private val name: String, private var age: Int, private var weight: Int) {
+    
+    public fun walk() : Boolean {
+        if(weight &gt; 5) {
+            weight--
+            return true
+        } 
+        return false
+    }
+
+    public override fun toString(): String {
+        return "Name: $name, age: $age, weight: $weight" 
+    }
+}</pre>
+This new version includes an <code>if</code> statement inside the <code>walk()</code> method, which prevents the cat
+from walking if the weight is 5 or less. Thus we are <em>controlling how the cat's weight can be altered</em> using the walk() method. So if we tried the following in the main():
+<pre>
+fun main () {
+    val sniffy = Cat ("Sniffy", 5 , 7)
+        
+    for(i in 1..3) {
+        println(if (sniffy.walk()) "Walk successful" else "Walk failed")
+    } 
+}
+</pre>
+The first two calls to <code>walk()</code> would succeed, as the weight would be reduced from 7 to 6 and then from
+6 to 5. However the third call to <code>walk()</code> would fail, as the weight would now be 5 and cannot be reduced any further.</p>
+<p>Note also how we place an <em><code>if</code> expression</em>, which we saw last week, inside the <code>for</code> loop:
+<pre>if(sniffy.walk()) "Walk successful" else "Walk failed"</pre>
+The <code>walk()</code> method returns a boolean, so the <code>if</code> expression will evaluate to either <code>"Walk successful"</code> or <code>"Walk failed"</code> depending on whether <code>true</code> or <code>false</code> was returned. So the appropriate message will be displayed, with this output:
+<pre>Walk successful
+Walk successful
+Walk failed</pre>
+</p>
+<p>Note how we have <em>used encapsulation to prevent unrealistic things happening</em>. The following code will <em>not compile</em> but <em>only because weight is private</em>:
+<pre>fun main () {
+    val sniffy = Cat ("Sniffy", 5 , 7)
+    
+    sniffy.weight = -1
+}</pre>
+If the weight was not <code>private</code>, you would legitimately be able to set it to -1 from the main() as in the above example. This illustrates the whole concept of encapsulation: <em>to keep the inner workings of a class private and control access from the outside world, to prevent the outside world corrupting it.</em>
+</p>
+<h3>Getters and setters</h3>
+<p>It is fairly common in object-oriented programming that we wish to 
+prevent the outside world <em>changing</em> an property, but allow the outside world to <em>access</em> it. How can we do this?  We can make the property public (the default) and then specify that it can only be changed (<em>set</em>) inside the class using <em><code>private set</code></em>. Here is an example: 
+<pre>class Cat(private val name: String, private var age: Int, weightIn: Int) {
+
+    var weight = 0
+        <em>private set</em>
+
+    init {
+        weight = weightIn
+    }
+    
+    public fun walk() : Boolean {
+        if(weight &gt; 5) {
+            weight--
+            return true
+        } 
+        return false
+    }
+
+    public override fun toString(): String {
+        return "Name: $name, age: $age, weight: $weight" 
+    }
+}</pre>
+Note how we <em>no longer make the <code>weightIn</code> parameter an property</em> (because we cannot use <code>private set</code> in that case). Instead, we declare the weight as an property separately (as in the first object-oriented example from last week) and, on the following line and indented by one tab, specify that it cannot be set from outside using <code>private set</code>. Finally, we use the <code>init</code> block to set the <code>weight</code> property equal to the <code>weightIn</code> parameter (as in the first example from last week). </p>
+<p>As a result of this approach, the <code>weight</code> property will be able to be modified from <em>inside the class</em>, but <em>not</em> from outside. This is illustrated with the following <code>main()</code>:
+<pre>fun main () {
+    val sniffy = Cat ("Sniffy", 5 , 7)
+    println(sniffy.weight) // works because we can read the property from outside
+    
+    sniffy.weight = -1 // does not work because setting the property is declared private
+}</pre>
+</p>
+<h4>Custom setters</h4>
+<p>We can create a <em>custom setter</em> for our properties. This allows you to control what happens when you set an property, for example prevent the property being set to invalid values. For example:
+<pre>class Cat(private val name: String, private var age: Int, weightIn: Int) {
+
+    var weight = 0
+        <em>set(newWeight) {
+            if(newWeight &gt;= 5) {
+                field = newWeight
+            }
+        }</em>
+
+    init {
+        weight = weightIn
+    }
+    
+    public fun walk() : Boolean
+    {
+        if(weight &gt; 5) {
+            weight--
+            return true
+        } 
+        return false
+    }
+
+    public override fun toString(): String
+    {
+        return "Name: $name, age: $age, weight: $weight" 
+    }
+}</pre>
+Here the <code>weight</code> is no longer private, even for updating the value - but has a <em>custom setter</em>. A custom setter is indented one level below the property and is written like a function, with the keyword <code>set</code> followed by a code block containing the custom setter. Here, we check the new weight (<code>newWeight</code>) and only update the property's underlying value (represented by <code>field</code>) if the new weight is at least 5. Here is an example of a <code>main()</code> using the above:
+<pre>fun main () {
+    val sniffy = Cat ("Sniffy", 5 , 7)
+    println(sniffy.weight)
+    sniffy.weight = 6 // works, 6 is above 5
+    println(sniffy.weight)
+    sniffy.weight = 4 // does not work, 4 is below 5
+    println(sniffy.weight) // weight will still be 6
+}</pre>
+</p>
+
+
+<h2>Passing Parameters to Methods</h2>
+
+<p>
+You have already seen in COM411 that you can pass parameters to methods. Here is an enhanced version of <code>Cat</code> showing how you can do this in Kotlin: 
+<pre>class Cat(private val name: String, private var age: Int, weightIn: Int) {
+
+    var weight = 0
+        <em>set(newWeight) {
+            if(newWeight &gt;= 5) {
+                field = newWeight
+            }
+        }</em>
+
+    init {
+        weight = weightIn
+    }
+    
+    public fun walk(distance: Int) : Boolean
+    {
+        if(weight - distance &gt;= 5) {
+            weight -= distance
+            return true
+        } 
+        return false
+    }
+
+    public override fun toString(): String
+    {
+        return "Name: $name, age: $age, weight: $weight" 
+    }
+}</pre>
+Note how the <code>walk()</code> method now takes one parameter, representing the distance walked. Note how, unlike Python, the <em>data type</em> (<code>Int</code>) must be declared. We also reduce the weight by the distance. (Note that <code>weight -= distance</code> is a shorter way of writing <code>weight = weight - distance</code>; the <code>-=</code> operator reduces a variable by a given value. There are similar <code>+=</code>, <code>*=</code> and <code>/=</code> operators). This could be called in a <code>main()</code> as follows:
+<pre>fun main () {
+    val sniffy = Cat ("Sniffy", 10, 15)
+        
+    sniffy.walk (5)
+    println(sniffy)
+    sniffy.walk (3)
+    println(sniffy)
+}</pre>
+Note how we are passing the distance to the walk method. Note the difference between <em>arguments</em> and <em>parameters</em>.  The <em>value passed into a method</em> is called an <em>argument</em>, whereas the <em>parameter</em> is the <em>variable</em> in the method representing that
+value. So, here, 5 and 3 are the <em>arguments</em> whereas <code>distance</code> is the <em>parameter</em>.
+</p>
+<h2>Inheritance</h2>
+<p>As you saw last year in COM411, <em>inheritance</em> allows us to use an existing class as a basis for a new, related class.  Imagine we wanted to write classes representing different types of vehicle, e.g. Car, Bus, Motorbike. If we were to write the three classes entirely separately, we'd be <em>repeating</em> a good deal of code - e.g. the code for starting and stopping the engine is common to all three classes.</p>
+<p>So what we could do in this case is create a <code>Vehicle</code> class,
+containing common functionality for all types of vehicle, and then <em>inherit</em> various <em>subclasses</em> of Vehicle (such as Car, Bus, and
+Motorbike) which provide additional functionality specific to that type
+of Vehicle. We can say that:
+    <ul>
+    <li>The Car <em>inherits</em> from or  is a <em>subclass</em> of Vehicle</li>
+    <li>Vehicle is a <em>superclass</em> of Car</li>
+    </ul>
+</p>
+
+<h3>How is inheritance achieved in Kotlin?</h3>
+<p>In Kotlin, we show inheritance in this way, using a colon:
+<pre>
+class Car : Vehicle() {
+}
+</pre>
+This means that the <code>Car</code> class inherits from Vehicle. All properties and methods in Vehicle
+will be <em>inherited</em> by Car, so when you create a Car, all the Vehicle methods and properties
+will be available.</p>
+
+<h3>Kotlin Inheritance Example</h3>
+
+<p>Below is a <code>Vehicle</code> superclass with <code>Bike</code> and <code>Car</code> subclasses.</p>
+<h4>Vehicle class (Vehicle.kt):</h4>
+<pre>
+<em>// Generic Vehicle superclass</em>
+open class Vehicle(protected val make: String, protected val topSpeed: Int, protected val nWheels:Int) {
+
+    open fun move() {
+        println("Moving along...")
+    }
+
+    override fun toString(): String {
+        return "Make: $make Top Speed: $topSpeed Wheels: $nWheels"
+    }
+}
+</pre>
+<h4>Car class (Car.kt):</h4>
+<pre>
+class Car(make: String, topSpeed: Int, private val engineCapacity: Int) : Vehicle(make, topSpeed, 4) {
+    private var engineRunning = false
+
+    <em>// Overridden move() for cars</em>
+    override fun move() {
+        if (engineRunning) {
+            println("Driving along...")
+        } else {
+            println("Can't drive the car if the engine's stopped!!!")
+        }
+    }
+
+    <em>// Car-specific methods</em>
+    fun start() {
+        engineRunning=true;
+    }
+
+    fun stop() {
+        engineRunning = false;
+    }
+
+    <em>// Return string representing the car. Note the use of super.toString() to</em>
+    <em>// call the superclass (Vehicle) version of toString() to print the</em>
+    <em>// make, top speed and number of wheels.</em>
+    override fun toString() : String {
+        return super.toString() + " Engine running? $engineRunning, Engine Capacity: $engineCapacity"
+    }
+}
+</pre>
+<h4>Bike class (Bike.kt):</h4>
+<pre>
+class Bike(make: String, topSpeed: Int, private val isOffRoad: Boolean, private val nGears: Int) : Vehicle(make, topSpeed, 2) {
+
+    override fun toString() : String {
+       return super.toString() + " Off road? $isOffRoad, No. Gears: $nGears"
+    }
+}
+</pre>
+</p>
+<p>How is this working?
+    <ul>
+    <li>First, note that in the <code>Vehicle</code> class the properties are not private,
+    but <em>protected</em>. <em>protected</em> means that properties are accessible from
+    <em>subclasses</em> (e.g. Car, Bike) whereas <code>private</code> indicates that, while the properties
+    are still there in memory, they are hidden from the subclasses and cannot be used from them.</li>
+	<li>Note also how the <code>Vehicle</code> class is <code>open</code>, which indicates that it can be overridden, that is, replaced by a more specific version in a subclass.</li>
+	<li>Note also how the <code>move()</code> method in <code>Vehicle</code> is declared as <code>open</code>. This indicates that this specific method can be overridden in subclasses.</li>
+    <li>Note how the constructor for Car calls the Vehicle constructor 
+    to initialise the Vehicle aspects of the Car. This is done when the inheritance relation is setup, as follows:
+    <pre>class Car(make: String, topSpeed: String, private val engineCapacity: Int) : <em>Vehicle(make, topSpeed, 4)</em></pre> 
+    This indicates that we are calling the superclass constructor and passing it the parameters it requires - the make, top speed and number of wheels. The Vehicle constructor will initialise the corresponding properties to the values
+    passed from Car. Note that because we always pass 4 for the number of wheels, the <code>nWheels</code> property will always be initialised to 4 when the vehicle is a <code>Car</code>.</li>
+	<li>The engine capacity, on the other hand, is specific to <code>Car</code> so we declare it as a property of <code>Car</code> (by preceding it with <code>val</code>) and we do <em>not</em> pass it up to <code>Vehicle</code>.</li>
+    <li>We adopt a similar approach in Bike, but in this case, we always pass 2 for the number of wheels.</li>
+    <li>Notice also how we call the superclass version of toString() in the
+    subclass version using <code>super.toString()</code> The <code>super</code> keyword refers to the superclass.</li>
+    </ul>
+</p>
+
+<h3>Overriding Methods</h3>
+<p>In the example, Vehicle and Car both have a method called 
+<code>move()</code>. We have 
+<em>overridden</em> the original version in Vehicle with the version in Car -
+in other words, replaced the original Vehicle version of move() with a new 
+version in Car. The <code>override</code> keyword, which you must provide, explicitly indicates that you are overriding a method. We saw this with <code>toString()</code>, above.</p>
+<p>
+This will mean that:
+    <ul>
+    <li>If we call <code>move()</code> on a Vehicle, then the Vehicle 
+    <code>move()</code> will be called;</li>
+    <li>If we call <code>move()</code> on a Car, then the Car <code>move()</code> 
+    will be called;</li>
+    <li>If we call <code>move()</code> on a Bike, then the Vehicle <code>move()</code> 
+    will be called, because we did not override it in Bike</li>
+    </ul>
+</p>
+<p>In the same way, <code>toString()</code> is overridden in both Car and Bike. However, unlike for 
+<code>move()</code>, the overridden version of <code>toString()</code> calls the original, Vehicle version of
+<code>toString()</code> using the super keyword: <code>super.toString();</code>.</p>
+<h4>Example main() with the inheritance hierarchy</h4>
+<p>Here is an example <code>main()</code> using the inheritance hierarchy:
+<pre>fun main () {
+    val c = Car("Ford",120,2000);
+    val b = Bike("Raleigh",30,true,27)
+
+    println(c)
+    println(b)
+
+    c.move()
+    c.start()
+    c.move()
+    c.stop()
+
+    b.move()
+}</pre>
+This would produce the following output:
+<pre>Make: Ford Top Speed: 120 Wheels: 4 Engine running? false, Engine Capacity: 2000
+Make: Raleigh Top Speed: 30 Wheels: 2 Off road? true, No. Gears: 27
+Can't drive the car if the engine's stopped!!!
+Driving along...
+Moving along...</pre>
+Note that when we try to move the car (<code>c.move()</code>) we cannot do it without starting the car first, because the overridden <code>move()</code> method in <code>Car</code> is checking this. However, when we try to move the bike (<code>b.move()</code>) it will move straight away because <code>Bike</code> is using the <code>Vehicle</code> version of <code>move()</code>, as the method has not been overridden in <code>Bike</code>.</p>
+<h3>Abstract classes</h3>
+<p>You also met <em>abstract classes</em> in COM411. An abstract class is a class that will never be instantiated; it serves only to be the superclass of inherited classes, and to provide common data and methods. Abstract classes typically contain <em>abstract methods</em>, which are methods containing no code; they will be overridden in subclasses. For example we could have an <code>Animal</code> abstract class with a <code>makeNoise()</code> abstract method (as there is no default noise made by a generic Animal!):
+<pre>
+<em>abstract</em> class Animal(protected var age: Int, protected var weight: Double)  {
+
+     <em>abstract</em> fun makeNoise(): String
+}
+</pre>
+and then inherit <code>Cat</code> and <code>Dog</code> from it, overriding <code>makeNoise()</code> appropriately. <code>Cat</code> and <code>Dog</code> are <em>concrete</em> classes: classes you can create instances of.
+<pre>
+class Cat(age: Int, weight: Int) : Animal(age, weight) {
+    override fun makeNoise(): String {
+        return "Meow!"
+    }
+}
+</pre>
+<pre>
+class Dog(age: Int, weight: Int) : Animal(age, weight) {
+    override fun makeNoise(): String {
+        return "Woof!"
+    }
+}</pre>
+</p>
+<h2>Exercises</h2>
+<ol>
+<li>Update your Cat project from last week by replacing the <code>walk()</code> method with the version from the "Passing parameters to methods" example, above, to your <code>Cat</code> class. Also modify the Cat's <code>eat()</code> method so that the weight can never go above 20. Deal with errors approrpiately 
+if an attempt is made to increase the weight beyond that amount.</li>
+
+<li>Modify your Cat's <code>eat()</code> method further, so that it now takes a parameter of <code>amount</code>.
+The weight should increase by the specified amount.</li>
+
+<li>Return to your Student project from last week. 
+
+Add a custom setter to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid.</li>
+
+<li>Add a <code>getGrade()</code> method to <code>Student</code>. This should return the student's grade as a <code>String</code> based on the mark, according to this scheme :
+    <ul>
+    <li>70+ : First</li>
+    <li>60-69 : 2/1</li>
+    <li>50-59 : 2/2</li>
+    <li>40-49 : Third</li>
+    <li>0-39 : Fail</li>
+    </ul>
+</li>
+
+<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
+
+<li>Change the <code>Student</code> constructor so that the mark is no longer passed in as a parameter. Instead, add the mark as a property and initialise it to 0. The idea is that your custom setter will be used instead to set the mark later</li>
+
+<li>Test out the above methods by modifying the <code>main()</code> of your existing program so that:
+
+    <ul>
+    <li>Prompt the user for the mark and read it in from the user. <strong>Hint:</strong> You can use <code>readln()</code> rather than <code>readLine()</code>, this will never return null. You can also use <code>toDouble()</code> to convert a strong to a double. Set the mark using your custom setter. Print the student's status (mark, grade, and whether they passed or not) by accessing the mark property together with the <code>getGrade()</code>, and the <code>didPass()</code> methods, and printing the return value of each.</li>
+    </ul>
+</li>
+
+<li>Create an inheritance hierarchy to represent different types of student. The classes <code>Undergraduate</code> and <code>Masters</code> should extend from <code>Student</code>. Make <code>Student</code> an abstract class and change the <code>getGrade()</code> method of <code>Student</code> to be abstract, and provide overridden versions of <code>getGrade()</code> for <code>Undergraduate</code> and <code>Masters</code>. The undergraduate version should work exactly the same as the version above. The masters version should instead return the following grades:
+    <ul>
+    <li>70+ : Distinction</li>
+    <li>60-69 : Merit</li>
+    <li>40-59 : Pass</li>
+    <li>0-39 : Fail</li>
+    </ul>
+Test it by creating a few undergraduate and masters' students in your <code>main()</code>, and printing their grades. You do not need to read them in from the keyboard; you can just hard-code them.
+</li>
+</ol>
+
+</main>
+
+</body>
+</html>
