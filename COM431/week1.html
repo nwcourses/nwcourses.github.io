@@ -61,7 +61,7 @@ This is using an array <em>index</em> - remember we discussed array indices abov
 <p>Now, imagine you want to add two more entries to the array:
 <pre>fruits[3] = "Banana"
 fruits[4] = "Pear"</pre>
-<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they have <em>fixed size</em>. If an array is initialised with a certain number of elements, you cannot add additional elements later and the only valid indices are those indices within the capacity of the array. Here, the array was initialised with three elements so only indices 0, 1 and 2 are valid. Furthermore this would not work either:
+<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they have <em>fixed size</em>. If an array is initialised with a certain number of elements, you cannot add additional elements later and the only valid indices are those indices within the capacity of the array. Here, the array was initialised with three elements so only indices 0, 1 and 2 are valid. Furthermore attempting to append to the end of the array would not work either:
 <pre>fruits.append("Grape")</pre>
 </p>
 <h4>Not enough space, or too much space!</h4>
