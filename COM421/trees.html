@@ -13,7 +13,7 @@
 <p>A <em>tree</em> is a commonly-used data structure to represent data
 in a hierarchical manner. An example of a tree is shown below:
 <br />
-<img src='images/tree.png' alt='Tree structure' />
+<img src='../images/tree.png' alt='Tree structure' />
 </p>
 <p>As can be seen, a tree structure resembles a real tree, but is upturned.
 It consists of a series of <em>nodes</em>, and each node can have one or more
@@ -62,35 +62,35 @@ tree?
 <p>
 You put the first number (i.e. 29) in the root node of the tree:
 </p>
-<p><img src="images/tree1.png" alt="Tree stage 1" /></p>
+<p><img src="../images/tree1.png" alt="Tree stage 1" /></p>
 <p>The next number (20) is less than 29, so it gets placed in the left
 child node of the tree:</p>
-<p><img src="images/tree2.png" alt="Tree stage 2" /></p>
+<p><img src="../images/tree2.png" alt="Tree stage 2" /></p>
 <p>The third number (17) is less than 29 and less than 20, so first we
 descend the left node of the root node (containing 29) and reach the
 node containing 20. 17 is less than 20 as well, so it gets placed in the
 left child node of the node containing 20.</p> 
-<p><img src="images/tree3.png" alt="Tree stage 3" /></p>
+<p><img src="../images/tree3.png" alt="Tree stage 3" /></p>
 <p>The fourth number (40) is greater than 29, so it gets placed in the
 right child node of the root node.</p>
-<p><img src="images/tree4.png" alt="Tree stage 4" /></p>
+<p><img src="../images/tree4.png" alt="Tree stage 4" /></p>
 <p>The fifth number (25) is less than 29 but greater than 20, so first we
 descend the left node of the node
 containing 29, to reach the node containing 20. Since 25 is greater than 20,
 we place it in the right child node of the node containing 20.</p>
-<p><img src="images/tree5.png" alt="Tree stage 5" /></p>
+<p><img src="../images/tree5.png" alt="Tree stage 5" /></p>
 <p>The sixth number (18) is less than 29, so we descend the left node of
 the root node to get to the node containing the number 20. 18 is less than 
 20 so we descend the left node again, to reach the node containing the
 number 17. 18 is greater than 17, so 18 is placed in the right child node
 of the node containing the number 17.</p>
-<p><img src="images/tree6.png" alt="Tree stage 6" /></p>
+<p><img src="../images/tree6.png" alt="Tree stage 6" /></p>
 <p>The seventh number (1) is less than 29, so we descend the left node of
 the root node to get to the node containing the number 20. 1 is less than 
 20 so we descend the left node again, to reach the node containing the
 number 17. 1 is less than 17, so 1 is placed in the left child node
 of the node containing the number 17.</p>
-<p><img src="images/tree7.png" alt="Tree stage 7" /></p>
+<p><img src="../images/tree7.png" alt="Tree stage 7" /></p>
 <h3>Exercise 1</h3>
 <p>On paper, create a binary tree containing these numbers in order:
 <pre> 389 843 9 8934 1 83 23 1124 532</pre>
@@ -119,7 +119,7 @@ child nodes? We simply repeat the process and keep going until we finally
 hit a node with no child nodes of its own.</p>
 <p>Again this is probably best illustrated by example. Taking the tree
 produced above:</p>
-<p><img src="images/tree7.png" alt="Tree stage 7" /></p>
+<p><img src="../images/tree7.png" alt="Tree stage 7" /></p>
 <ul>
 <li>The 29 node has two child nodes, 20 and 40, so we descend to 20 first.
 </li>
@@ -167,14 +167,14 @@ descend the stack of function calls. To illustrate the concept here
 is some code to print out the numbers 1 to 10 using recursion:</p>
 <pre>
 def recursive_print(num, limit):
-    print(f"recursive_print(): parameters: num {num} limit {limit}")
+    print(f"    recursive_print(): parameters: num {num} limit {limit}")
 
     if num &lt;= limit:
-        print(f"num does not exceed {limit}, so calling recursive_print again with argument of {num+1}")
-        print(num)
+        print(f"Number is {num}")
+        print(f"    num does not exceed {limit}, so calling recursive_print again with argument of {num+1}")
         recursive_print(num+1, limit)
 
-    print(f"Returning from recursive_print call with a parameter of {num}")
+    print(f"    Returning from recursive_print call which has a parameter of {num}")
 
 recursive_print (1, 10)
 </pre>
@@ -211,7 +211,7 @@ situations such as descending all branches of a tree, it's the best way of tackl
 <p>Here is a diagram showing this example of recursion.</p>
 <!-- in which <code>func_a()</code> is called repeatedly from itself.-->
 <br />
-<img src="images/recursion2.png" alt="Recursively calling a function" />
+<img src="../images/recursion2.png" alt="Recursively calling a function" />
 <!--
 <img src="images/recursion.png" alt="Recursively calling a function" />
 -->
@@ -320,7 +320,7 @@ recursively descending into the child nodes. When the search term is found, we w
 instead we consider each <em>level</em> one at a time. So if we have a tree 
 organised as below:</p></li>
 </ul>
-<p><img src="images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
+<p><img src="../images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
 <p>we would first consider node A (the first level), then nodes B and C (the second level), then nodes D, E, F and G (the third level).</p>
 
 <h3 id="binarysearchtreedepthfirst">Binary search tree (depth-first)</h3>
