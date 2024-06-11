@@ -13,7 +13,7 @@ A* algorithm is:</p>
 <p>where <code>G</code> is the distance from the origin to the current node, and <code>H</code> is the heuristic: an estimation of the distance from the current node to the destination node.</p>
 <h3 id="anexample">An example</h3>
 <p>An example is presented below, in which our task is to route from London to Nice via the shortest path. The distances (via road, in km) are shown on the graph. What happens if we choose A*?</p>
-<p><img src="images/astar.png" alt="A* algorithm" /></p>
+<p><img src="../images/astar.png" alt="A* algorithm" /></p>
 <h4 id="iteration1">Iteration 1</h4>
 <p>First we consider the neighbour nodes of London: Birmingham, Brussels and Paris. What are the F scores of each? We add the G score (distance from London) to the H score (estimate of road distance to Nice, which will actually be the direct, straight-line distance). Doing this, we get:</p>
 <pre><code>Birmingham: G=191 + H=1188 ... 1379

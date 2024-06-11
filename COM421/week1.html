@@ -6,7 +6,7 @@
 <h2 id="abasicdatastructurethearray">A basic data structure - the array</h2>
 <p>Let's start with the most basic data structure of all, the <em>array</em>. An array is a data structure which can hold more than one item of data, and can be thought of as a series of "boxes" which can hold data. With an array, the key thing is that <em>each box is adjacent to its neighbours in memory</em> which has some consequences in terms of efficiency which we will consider as we go on</p>
 <p>The diagram below shows an example of an array which holds the names of five items of fruit. </p>
-<p><img src="images/arrays.png" alt="An array" /></p>
+<p><img src="../images/arrays.png" alt="An array" /></p>
 <p>The things to note here are:</p>
 <ul>
 <li><p>Arrays have <em>indices</em>. An <em>index</em> is a number which represents the <em>position</em> of an item in an array. In most programming languages, including Python, indices begin with <em>zero</em>. So the first item in the array has the index zero.</p></li>
@@ -20,16 +20,16 @@
 <p>If you have had your first COM411 class already, you will have been introduced to Repl and should have an account. If not, here is a quick introduction. <a href="https://repl.it">Repl</a> is an online environment which allows you to program without setting up software on your own computer.</p>
 <p>You can login to Repl using either a Repl account or your <a href="https://github.com">GitHub</a> account. You may well already have a GitHub account, if not, you will find it useful throughout your time at university and also when coding in general. GitHub is a collaborative platform for developing projects which allows you to <em>version-control</em> your code, in other words you can <em>commit</em> your code every time you reach a certain stage, and then "roll back" to previous commits if you are unhappy with new code. You will learn more about GitHub, and the Git version-control system, on other modules, but for now, simply create an account on GitHub.</p>
 <p>Once you have created a Repl account or GitHub account, you can log in with it on Repl. If you have created a simple "hello world" project already in COM411 you do not need to do anything else. If not, test that it all works by creating a new project.</p>
-<p><img src="images/repl1.png" alt="Repl interface" /></p>
+<p><img src="../images/repl1.png" alt="Repl interface" /></p>
 <p>If you select the menu icon on the top left, you can select "New Repl". A Repl is a project - essentially, a single program. The idea is that you create a new Repl for each program you are going to write. You can then go back and view your previous Repls to load the code.</p>
-<p><img src="images/repl2.png" alt="New Repl" /></p>
+<p><img src="../images/repl2.png" alt="New Repl" /></p>
 <p>Once you have done this, just enter the following Python code:</p>
 <pre><code class="python language-python">print("Hello World!")
 </code></pre>
 <p>Run the code and you should see the output appear in the console to the right:</p>
 <pre><code>Hello World!
 </code></pre>
-<p><img src="images/repl3.png" alt="Repl Console Output" /></p>
+<p><img src="../images/repl3.png" alt="Repl Console Output" /></p>
 <h2 id="advantagesanddisadvantagesofarrays">Advantages and disadvantages of arrays</h2>
 <h3 id="advantagefastlookup">Advantage: Fast lookup</h3>
 <p>As we saw above, the advantage of using an array is that it is very fast to <em>index</em> an array. This is because arrays are always <em>sequentially stored in memory</em>, so that in the example above, "Linux", "Windows" and "Mac OS X" will be stored adjacent to each other in memory.</p>
@@ -50,10 +50,10 @@ numerical index</strong>.</p>
 <h3 id="exploringtheproblemswitharrays">Exploring the problems with arrays</h3>
 <h4 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h4>
 <p>Imagine we have an array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
-<p><img src="images/employee_array.png" alt="Employee array" /></p>
+<p><img src="../images/employee_array.png" alt="Employee array" /></p>
 <p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
 <p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
-<p><img src="images/array_problems.png" alt="Adding to an array" /></p>
+<p><img src="../images/array_problems.png" alt="Adding to an array" /></p>
 <ul>
 <li>We could <em>make the array bigger when we create it</em>. Imagine an array with 30 spaces, and add our 10 original employees and the 11th employee to the array. <em>Can you see the problem</em>? The <em>storage is inefficient</em> as the array has 30 spaces but only 11 are needed.</li>
 </ul>
@@ -64,7 +64,7 @@ numerical index</strong>.</p>
 <li>Copy all the existing members into the new array;</li>
 <li>Add the new members onto the end of the array.</li>
 </ul>
-<p><img src="images/array_extension.png" alt="Array extension" /></p>
+<p><img src="../images/array_extension.png" alt="Array extension" /></p>
 <h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
 <p>What if we wanted to add a new member at a <em>specific position</em> in the array?
 For example, imagine we had an array of contacts that we wished to keep in 
@@ -81,7 +81,7 @@ Frances Freeman
 <li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
 <li>Add the new member to the appropriate space in the new array. </li>
 </ul>
-<p><img src="images/array_insert.png" alt="Array Insertion" /></p>
+<p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
 <p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
 <h2 id="moreflexibledatastructures">More flexible data structures</h2>
 <p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
@@ -94,7 +94,7 @@ in that they are <em>not</em> stored continuously in memory Instead, data is sto
 as a series of linked <em>nodes</em>. Each node contains one item of data, and links
 to the memory locations of the previous and the next item of data in the 
 linked list.</p>
-<p><img src="images/linkedlist.png" alt="Linked list diagram" /></p>
+<p><img src="../images/linkedlist.png" alt="Linked list diagram" /></p>
 <p>Each node has a link to the previous and the following node. When we add
 a new item of data, we make the previous node link to the new node, and
 we link the new node back to the previous node to form a two-way link.</p>
@@ -116,7 +116,7 @@ again just like a stack of plates.
 The stack is known as a "last in first out" or "LIFO" data structure.
 It is called this, because the last things we add to the stack, are the
 first things we remove. Here is an example of a simple stack of numbers.</p>
-<p><img src="images/stack.png" alt="Simple stack" /></p>
+<p><img src="../images/stack.png" alt="Simple stack" /></p>
 <p>A stack can be used for any operation in which we need to navigate back to
 a previous state. Examples could include:</p>
 <ul>
@@ -213,7 +213,7 @@ do this? Draw out how you think it could be done on paper, and ask yourself:
 </ol>
 <!--
 <h4 id="solution">Solution</h4>
-<p><img src="images/linked_list_index.png" alt="Linked list indexing" /></p>
+<p><img src="../images/linked_list_index.png" alt="Linked list indexing" /></p>
 <p>Note how, to find a particular index within a linked list, we have to start at the beginning and follow the links until we arrive at the element we wish to access. This is slow compared to the simple address calculation from an index in an array.</p>
 -->
 <ol start="2">

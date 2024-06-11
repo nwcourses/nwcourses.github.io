@@ -45,7 +45,7 @@ one bucket might have more than one item. In this example, "cat" and "act"
 would be placed in the same bucket, as they have the same hash code. Each
 bucket would contain a <em>list</em> (or array) of items.</p>
 <p>This is shown in the diagram below. </p>
-<p><img src="images/hash_chaining.png" alt="Separate chaining to resolve clashes" /></p>
+<p><img src="../images/hash_chaining.png" alt="Separate chaining to resolve clashes" /></p>
 <h3 id="linearprobing">Linear probing</h3>
 <p>Linear probing is an alternative approach. With linear probing, each array
 index contains only <em>one</em> item, not a list. If there is a clash with hash codes,
@@ -53,7 +53,7 @@ the item is moved on to <em>the next available place in the array</em>. So, in t
 above example, both "cat" and "act" would have a hash code of 312. As "act"
 is the second item to be added, it would be moved to the next available index
 after 312, which is 313. This is shown in the diagram below. </p>
-<p><img src="images/hash_probing.png" alt="Linear probing to resolve clashes" /></p>
+<p><img src="../images/hash_probing.png" alt="Linear probing to resolve clashes" /></p>
 <p>The diagram also shows a second clash and how it's resolved with linear
 probing. We try to add "sea". The hash code of "sea" is 313. However, <em>all
 indices between 312 and 314 inclusive have been used up by this point</em>,
@@ -170,7 +170,7 @@ corresponding to the key).</p>
 <h3 id="advancedsecondaryhashfunction">Advanced: Secondary hash function</h3>
 <p>To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.</p>
 <p>For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:</p>
-<p><img src="images/secondary_hash.png" alt="Secondary hash function" /></p>
+<p><img src="../images/secondary_hash.png" alt="Secondary hash function" /></p>
 <p>Secondary hash functions typically involve a modulo calculation for example:</p>
 <pre><code>secondaryHash = sumOfAsciiCodes % N
 </code></pre>

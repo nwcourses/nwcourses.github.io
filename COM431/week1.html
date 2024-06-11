@@ -7,7 +7,7 @@
 <h2 id="abasicdatastructurethearray">A basic data structure - the array</h2>
 <p>Let's start with the most basic data structure of all, the <em>array</em>. An array is a data structure which can hold more than one item of data, and can be thought of as a series of "boxes" which can hold data. With an array, the key thing is that <em>each box is adjacent to its neighbours in memory</em> which has some consequences in terms of efficiency which we will consider as we go on</p>
 <p>The diagram below shows an example of an array which holds the names of five items of fruit. </p>
-<p><img src="images/arrays.png" alt="An array" /></p>
+<p><img src="../images/arrays.png" alt="An array" /></p>
 <p>The things to note here are:</p>
 <ul>
 <li><p>Arrays have <em>indices</em>. An <em>index</em> is a number which represents the <em>position</em> of an item in an array. In most programming languages, including Python, indices begin with <em>zero</em>. So the first item in the array has the index zero.</p></li>
@@ -62,10 +62,10 @@ people[4] = input("Please enter the fifth person:")
 <p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are <em>not resizable</em>.</p>
 <h4>Not enough space, or too much space!</h4>
 <p>Imagine we have a larger array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
-<p><img src="images/employee_array.png" alt="Employee array" /></p>
+<p><img src="../images/employee_array.png" alt="Employee array" /></p>
 <p>Let's say, though, the company takes on an 11th employee, "Ulysses Vernon" (UV). Do we have space in the array to fit this 11th employee? <em>No, we don't, because an array has fixed size!</em></p>
 <p>So <strong>what happens if the company expands and takes on more employees</strong>? What could we do? </p>
-<p><img src="images/array_problems.png" alt="Adding to an array" /></p>
+<p><img src="../images/array_problems.png" alt="Adding to an array" /></p>
 <ul>
 <li>As shown in the diagram above, we could <em>make the array bigger than we are likely to ever need</em>, so we can add new employees. So we could create an array with 30 spaces, and add our 10 original employees to it. Then, there would be room for the 11th employee (and quite a few more, too). <em>Can you see the problem with this, though</em>? The <em>storage is inefficient</em> as the array has many more spaces than we are likely to need and therefore it is <em>wasteful of memory</em>.</li>
 </ul>
@@ -79,7 +79,7 @@ people[4] = input("Please enter the fifth person:")
 <li>Add the new members onto the end of the array.</li>
 </ul>
 <p>This is shown in the diagram below, which returns to the original Python code example, in which team members were added to an array. Imagine we have an array with three team members, and we want to add two more members to the team. Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
-<p><img src="images/array_extension_1.png" alt="Array extension" /></p>
+<p><img src="../images/array_extension_1.png" alt="Array extension" /></p>
 -->
 <h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
 <p>Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
@@ -99,7 +99,7 @@ Frances Freeman
 <li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
 <li>Add the new member to the appropriate space in the new array. </li>
 </ul>
-<p><img src="images/array_insert.png" alt="Array Insertion" /></p>
+<p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
 <p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
 -->
 <h2 id="moreflexibledatastructures">More flexible data structures</h2>
@@ -108,7 +108,7 @@ Frances Freeman
 <p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
 <p>In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, the <code>append</code> operation may require the inefficient process we saw last week, in which  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array.</p>
 <p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
-<p><img src="images/list.png" alt="Appending to a list" /></p>
+<p><img src="../images/list.png" alt="Appending to a list" /></p>
 <p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
 <p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
 -->
@@ -118,7 +118,7 @@ in that they are <em>not</em> stored continuously in memory. Instead, data is st
 as a series of linked <em>nodes</em>. Each node contains one item of data, and links
 to the memory locations of the previous and the next item of data in the 
 linked list.</p>
-<p><img src="images/linkedlist.png" alt="Linked list diagram" /></p>
+<p><img src="../images/linkedlist.png" alt="Linked list diagram" /></p>
 <p>Each node has a link to the previous and the following node. When we add
 a new item of data, we make the previous node link to the new node, and
 we link the new node back to the previous node to form a two-way link.</p>
@@ -140,7 +140,7 @@ again just like a stack of plates.
 The stack is known as a "last in first out" or "LIFO" data structure.
 It is called this, because the last things we add to the stack, are the
 first things we remove. Here is an example of a simple stack of numbers.</p>
-<p><img src="images/stack.png" alt="Simple stack" /></p>
+<p><img src="../images/stack.png" alt="Simple stack" /></p>
 <p>A stack can be used for any operation in which we need to navigate back to
 a previous state. Examples could include:</p>
 <ul>

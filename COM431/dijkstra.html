@@ -9,7 +9,7 @@
 <p><em>Edges</em> link two nodes. They would typically contain <code>start_node</code> and <code>end_node</code> attributes representing the start and end node of a given edge. They would also typically have a numerical <em>weight</em> and a series of <em>properties</em> describing the edge, such as the name and class of the road that the edge represents. The weight is often the distance, but might factor in other metrics such as those mentioned above.</p>
 <p>Here is a diagram of an example graph, showing the inter-city rail network between certain cities in Western Europe (note, this is approximate and not to
 scale).  </p>
-<p><img src="images/railgraph.png" alt="Example graph" /></p>
+<p><img src="../images/railgraph.png" alt="Example graph" /></p>
 <p>You'll note that the graph is not supposed to be an accurate map, but a representation of key points (nodes; cities here) and the connections between them (edges). You can see a potential routing problem here. How would we route from
 London to Munich? We could either go via Brussels, Cologne and Frankfurt 
 (3 intermediate stops), or via Paris and Stuttgart (2 intermediate stops) - plus potentially other, longer routes - but which would be the faster or the shorter? </p>
@@ -24,7 +24,7 @@ London to Munich? We could either go via Brussels, Cologne and Frankfurt
 <p>The open list is typically implemented as a specialised data structure known as a <em>priority queue</em>. A priority queue is an enhanced version of a regular queue; it's a queue which can have a custom ordering, typically a numerical ordering. So in Dijkstra's algorithm we could order the nodes by distance from the starting node.</p>
 <p>This is best illustrated by working through an example. Imagine we want to calculate the shortest route from London to Munich, using the graph shown above. 
 We would follow steps shown on the diagram below.</p>
-<p><img src="images/dijkstra2.png" alt="Dijkstra's algorithm to route from London to Munich" /></p>
+<p><img src="../images/dijkstra2.png" alt="Dijkstra's algorithm to route from London to Munich" /></p>
 <p>To explain in words, we'd start at the London node and add London's neighbours - Brussels and Paris - to the open list, in distance order (so Brussels first and then Paris, as Brussels is nearer). </p>
 <p>When we add a neighbour node, we store its total distance from the origin within the node. So the node for Brussels stores the value 370 km and the node for Paris, 461 km.</p>
 <p>Having considered a node, it is then removed from the open list (so as soon as we add the neighbours of London to the open list, we remove London from it). Note how this is a breadth-first technique; you should recognise the approach from Week 8.</p>

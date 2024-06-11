@@ -116,7 +116,7 @@ complexity in Big O notation. The first algorithm we will look at is the
 As you can see from the diagram below, it involves looping through a list
 and considering each pair of values in turn. If the pair is in the correct
 order, we do nothing. If it is not, we swap them.</p>
-<p><img src="images/bubble_sort.png" alt="Bubble Sort" /></p>
+<p><img src="../images/bubble_sort.png" alt="Bubble Sort" /></p>
 <p>As you can see from the diagram, larger numbers "bubble" towards the end of the
 list, for example the value 20 will, each time a swap is done, move one position
 onwards in the list. So once we've finished the first iteration of the sort, the largest value will be in the correct position. <em>However</em>, you should also be able to see from the diagram, and appreciate from the way the algorithm works, that the <em>smaller</em> values only move forward <em>one</em> position per iteration (i.e. <em>one</em> position per loop). So once we've finished the loop, the value 1 will only have moved forward one place.</p>
@@ -163,7 +163,7 @@ compares the current member with each of the remaining members in turn. The
 lowest remaining member is found, and if this is lower than the current
 member, the current member and this lowest member is swapped.</p>
 <p>See the diagram below, which is based from notes provided by my former colleague Brian Dupée, which were in turn sourced from the site sorting-algorithms.com (this site still exists, provided by Toptal, but does not appear to contain these resources anymore)</p>
-<p><img src="images/selection_sort.png" alt="Selection Sort" /></p>
+<p><img src="../images/selection_sort.png" alt="Selection Sort" /></p>
 <p>It is of interest what this algorithm's time complexity equals, as it raises
 an important conceptual point about the Big O notation. If you imagine 
 sorting 5 values, what needs to be done?</p>
@@ -212,7 +212,7 @@ then it will always give a suitable midpoint to index. Note that <code>math.floo
 <p>We repeat the process. "Smith, Tim" is after "Nodd, Nigel" in the alphabet so we know we have to search the portion of the list <em>after</em> 74. So we find the midpoint of 75 and 99, which is 87. We might get "Trott, Tina" at this position, so now we need to look at the portion <em>before</em> 87 (as "Smith, Tim" is before "Trott, Tina" in the alphabet). So we have to search within the portion75-86. We choose the midpoint, 80, and now found "Raven, Roger".</p>
 <p>Our area of search is cut down now to 81-86. We pick 83 and find "Smith, Alice", i.e just before "Smith, Tim" alphabetically. We then only have three list positions to search - 84 to 86. So we pick the midpoint 85. We find "Smith, Simon". We now only have one possibility - 86 - and looking at item 86 we finally find what we want, "Smith, Tim".</p>
 <p>The diagram below shows the process. Our search term (Smith, Tim) is shown using a red circle.</p>
-<p><img src="images/binary_search.png" alt="Binary search" /></p>
+<p><img src="../images/binary_search.png" alt="Binary search" /></p>
 <p>So how many searches did we need until we found Smith, Tim?</p>
 <ol>
 <li>The first search, picking index 49 in the whole list gave "Jones, Jane"</li>

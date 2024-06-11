@@ -27,7 +27,7 @@ then it will always give a suitable midpoint to index. Note that <code>math.floo
 <p>We repeat the process. "Smith, Tim" is after "Nodd, Nigel" in the alphabet so we know we have to search the portion of the list <em>after</em> 74. So we find the midpoint of 75 and 99, which is 87. We might get "Trott, Tina" at this position, so now we need to look at the portion <em>before</em> 87 (as "Smith, Tim" is before "Trott, Tina" in the alphabet). So we have to search within the portion75-86. We choose the midpoint, 80, and now found "Raven, Roger".</p>
 <p>Our area of search is cut down now to 81-86. We pick 83 and find "Smith, Alice", i.e just before "Smith, Tim" alphabetically. We then only have three list positions to search - 84 to 86. So we pick the midpoint 85. We find "Smith, Simon". We now only have one possibility - 86 - and looking at item 86 we finally find what we want, "Smith, Tim".</p>
 <p>The diagram below shows the process. Our search term (Smith, Tim) is shown using a red circle.</p>
-<p><img src="images/binary_search.png" alt="Binary search" /></p>
+<p><img src="../images/binary_search.png" alt="Binary search" /></p>
 <p>So how many searches did we need until we found Smith, Tim?</p>
 <ol>
 <li>The first search, picking index 49 in the whole list gave "Jones, Jane"</li>
@@ -64,7 +64,7 @@ recursively descending into the child nodes. When the search term is found, we w
 instead we consider each <em>level</em> one at a time. So if we have a tree 
 organised as below:</p></li>
 </ul>
-<p><img src="images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
+<p><img src="../images/bfs_tree.png" alt="Example tree for breadth-first search" /></p>
 <p>we would first consider node A (the first level), then nodes B and C (the second level), then nodes D, E, F and G (the third level).</p>
 <p>Breadth-first search has various applications in route-finding, so by covering it now, we will prepare ourselves for the graphs and route-finding topic in Week 10. </p>
 <h3 id="breadthfirstsearch">Breadth-first search</h3>

@@ -116,7 +116,7 @@ complexity in Big O notation. The first algorithm we will look at is the
 As you can see from the diagram below, it involves looping through a list
 and considering each pair of values in turn. If the pair is in the correct
 order, we do nothing. If it is not, we swap them.</p>
-<p><img src="images/bubble_sort.png" alt="Bubble Sort" /></p>
+<p><img src="../images/bubble_sort.png" alt="Bubble Sort" /></p>
 <p>As you can see from the diagram, larger numbers "bubble" towards the end of the
 list, for example the value 20 will, each time a swap is done, move one position
 onwards in the list. So once we've finished the first iteration of the sort, the largest value will be in the correct position. <em>However</em>, you should also be able to see from the diagram, and appreciate from the way the algorithm works, that the <em>smaller</em> values only move forward <em>one</em> position per iteration (i.e. <em>one</em> position per loop). So once we've finished the loop, the value 1 will only have moved forward one place.</p>
@@ -163,7 +163,7 @@ compares the current member with each of the remaining members in turn. The
 lowest remaining member is found, and if this is lower than the current
 member, the current member and this lowest member is swapped.</p>
 <p>See the diagram below, which is based from notes provided by my former colleague Brian Dupée, which were in turn sourced from the site sorting-algorithms.com (this site still exists, provided by Toptal, but does not appear to contain these resources anymore)</p>
-<p><img src="images/selection_sort.png" alt="Selection Sort" /></p>
+<p><img src="../images/selection_sort.png" alt="Selection Sort" /></p>
 <p>It is of interest what this algorithm's time complexity equals, as it raises
 an important conceptual point about the Big O notation. If you imagine 
 sorting 5 values, what needs to be done?</p>
@@ -186,7 +186,7 @@ initialise, then the fact that we need to create a temporary variable can
 mean a swap is expensive. So in cases like this, selection sort is particularly favoured over bubble sort.</p>
 <h3 id="insertionsort">Insertion sort</h3>
 <p>A third type of simple sort, with complexity <code>O(n^2)</code> in many cases, but occasionally <code>O(n)</code> (see below), is the <em>insertion sort</em>. This is shown on the diagram below.</p>
-<p><img src="images/insertion_sort.png" alt="Insertion sort" /></p>
+<p><img src="../images/insertion_sort.png" alt="Insertion sort" /></p>
 <p>Insertion sort works by progressively <em>inserting</em> values into the list at the
 correct place. A typical implementation will work through a list and sort
 it in-place (i.e. within the original list, rather than creating a new list), 
