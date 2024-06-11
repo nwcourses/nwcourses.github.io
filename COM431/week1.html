@@ -34,32 +34,36 @@ numerical index</strong>.</p>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
 <p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to below, but for simplicity we're going to assume it's an array). We are creating an array called <code>people</code> to hold the names of members of a team. 
 <pre><code class="python language-python">
-print("Please enter the three people in your team")
-people = [None] * 3
-people[0] = input("Please enter the first person:")
-people[1] = input("Please enter the second person:")
-people[2] = input("Please enter the third person:")
+import numpy
+fruits = numpy.array(['Apple', 'Orange', 'Cherry']) 
 
-print("The first person is " + people[0])
-print("The second person is " + people[1])
-print("The third person is " + people[2])
+print("The first fruit is " + fruits[0])
+print("The second fruit is " + fruits[1])
+print("The third fruit is " + fruits[2])
 
 </code></pre>
 </p>
 <p>Note a couple of things:</p>
 <ul>
+<li>To use an array we use the <code>numpy</code> library, which provides a range of features for working with numerical data. However we can store non-numerical data in our array.</li>
 <li>We define the array using the statement:
-<pre>people = [None] * 3</pre>
-<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create an array with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet"). There are other ways of creating an array, but for now we will focus on this method.</li>
-<li>Note the code: <code>people[0]</code>. This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
+<pre>fruits = numpy.array(['Apple', 'Orange', 'Cherry'])</pre>
+Note the square brackets surrounding the list of items to go in the array.
+</li>
+<li>Note the code to print the members of the array: 
+<pre>print("The first fruit is " + fruits[0])
+print("The second fruit is " + fruits[1])
+print("The third fruit is " + fruits[2])</pre>
+This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
 </ul>
 <p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
 <h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
-<p>Now, imagine you want to add two more entries to the array, "Android" and "iOS". <em>Before trying it</em>, do you think this would work?</p>
-<pre><code class="python language-python">people[3] = input("Please enter the fourth person:") 
-people[4] = input("Please enter the fifth person:")
-</code></pre>
-<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they are <em>not resizable</em>.</p>
+<p>Now, imagine you want to add two more entries to the array:
+<pre>fruits[3] = "Banana"
+fruits[4] = "Pear"</pre>
+<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they have <em>fixed size</em>. If an array is initialised with a certain number of elements, you cannot add additional elements later and the only valid indices are those indices within the capacity of the array. Here, the array was initialised with three elements so only indices 0, 1 and 2 are valid. Furthermore this would not work either:
+<pre>fruits.append("Grape")</pre>
+</p>
 <h4>Not enough space, or too much space!</h4>
 <p>Imagine we have a larger array storing company employees, as shown in the diagram below. (Just the initials of the employees are shown).</p>
 <p><img src="../images/employee_array.png" alt="Employee array" /></p>
@@ -111,7 +115,39 @@ Frances Freeman
 <p><img src="../images/list.png" alt="Appending to a list" /></p>
 <p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
 <p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
+<h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of a list</h3>
+<p>Here is a program which makes use of a list. We are creating a list called <code>people</code> to hold the names of members of a team. 
+<pre><code class="python language-python">
+print("Please enter the three people in your team")
+people = [None] * 3
+people[0] = input("Please enter the first person:")
+people[1] = input("Please enter the second person:")
+people[2] = input("Please enter the third person:")
+
+print("The first person is " + people[0])
+print("The second person is " + people[1])
+print("The third person is " + people[2])
+
+fourth = input("Please enter the fourth person:")
+fifth = input("Please enter the fourth person:")
+people.append(fourth)
+people.append(fifth)
+print("The fourth person is " + people[3])
+print("The fifth person is " + people[4])
+
+</code></pre>
+</p>
+<p>Note a couple of things:</p>
+<ul>
+<li>We define the list using the statement:
+<pre>people = [None] * 3</pre>
+<code>*</code> is the <em>multiplication symbol</em> in most programming languages. This will create a list with three blank members (i.e. <code>None</code> times 3; <code>None</code> basically means "nothing here yet").</li>
+<li>Note the code: <code>people[0]</code>. This is using an <em>index</em> - remember we discussed indices above. Specifically this code is retrieving the member of the list with index zero.</li>
+<li>Note also how we can <em>append</em> to the list: unlike an array, we can extend it after we created it so we are not restricted to the original size.</li>
+</ul>
+<p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
 -->
+
 <h2 id="thelinkedlist">The linked list</h2>
 <p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
 in that they are <em>not</em> stored continuously in memory. Instead, data is stored
