@@ -34,8 +34,8 @@ numerical index</strong>.</p>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of an array</h3>
 <p>Here is a program which makes use of an array (it's actually, technically, something called a <em>list</em>, which you will be introduced to below, but for simplicity we're going to assume it's an array). We are creating an array called <code>people</code> to hold the names of members of a team. 
 <pre><code class="python language-python">
-import numpy
-fruits = numpy.array(['Apple', 'Orange', 'Cherry']) 
+import numpy as np
+fruits = np.array(['Apple', 'Orange', 'Cherry']) 
 
 print("The first fruit is " + fruits[0])
 print("The second fruit is " + fruits[1])
@@ -45,23 +45,23 @@ print("The third fruit is " + fruits[2])
 </p>
 <p>Note a couple of things:</p>
 <ul>
-<li>To use an array we use the <code>numpy</code> library, which provides a range of features for working with numerical data. However we can store non-numerical data in our array.</li>
+<li>To use an array we use the <a href='https://numpy.org'>NumPy</a> library, which provides a range of features for scientific computing. However our use of NumPy here will simply be to create an array.</li>
 <li>We define the array using the statement:
-<pre>fruits = numpy.array(['Apple', 'Orange', 'Cherry'])</pre>
+<pre>fruits = np.array(['Apple', 'Orange', 'Cherry'])</pre>
 Note the square brackets surrounding the list of items to go in the array.
 </li>
 <li>Note the code to print the members of the array: 
 <pre>print("The first fruit is " + fruits[0])
 print("The second fruit is " + fruits[1])
 print("The third fruit is " + fruits[2])</pre>
-This is using an array <em>index</em> - remember we discussed array indices above. Specifically this code is retrieving the member of the array with index zero.</li>
+This code showss the use an array <em>index</em> to access each member of the array. The index is the number within the square brackets: 0 for the first member, 1 for the second and 2 for the third. Remember we discussed array indices above.</li> 
 </ul>
 <p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
 <h3 id="disadvantagenotflexibleanarraycannotberesized">Disadvantage: not flexible, an array cannot be resized</h3>
 <p>Now, imagine you want to add two more entries to the array:
 <pre>fruits[3] = "Banana"
 fruits[4] = "Pear"</pre>
-<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they have <em>fixed size</em>. If an array is initialised with a certain number of elements, you cannot add additional elements later and the only valid indices are those indices within the capacity of the array. Here, the array was initialised with three elements so only indices 0, 1 and 2 are valid. Furthermore attempting to append to the end of the array would not work either:
+<p>Now run it. Do you get the result that you expected? See how this illustrates an issue with arrays: they have <em>fixed size</em>. If an array is initialised with a certain number of elements, you cannot add additional elements later and the only valid indices are those indices within the capacity of the array. Here, the array was initialised with three elements so only indices 0, 1 and 2 are valid. Furthermore attempting to append to the end of the array via an <code>append</code> operation would not work either:
 <pre>fruits.append("Grape")</pre>
 </p>
 <h4>Not enough space, or too much space!</h4>
@@ -73,50 +73,11 @@ fruits[4] = "Pear"</pre>
 <ul>
 <li>As shown in the diagram above, we could <em>make the array bigger than we are likely to ever need</em>, so we can add new employees. So we could create an array with 30 spaces, and add our 10 original employees to it. Then, there would be room for the 11th employee (and quite a few more, too). <em>Can you see the problem with this, though</em>? The <em>storage is inefficient</em> as the array has many more spaces than we are likely to need and therefore it is <em>wasteful of memory</em>.</li>
 </ul>
-<h4 id="processneededtoextendanarray">Process needed to extend an array</h4>
-<p>So what can we do? We will <strong>examine this practically in class</strong>. The solution will appear here once we have done so.</p>
-
-<!-- One solution is to <em>create a new array with more space</em> when the old one runs out of space. If we wanted to to do this, we would need to:
-<ul>
-<li>Create an array of the new, larger, size (large enough to hold all the new members we're trying to add);</li>
-<li>Copy all the existing members into the new array;</li>
-<li>Add the new members onto the end of the array.</li>
-</ul>
-<p>This is shown in the diagram below, which returns to the original Python code example, in which team members were added to an array. Imagine we have an array with three team members, and we want to add two more members to the team. Hopefully you can see that this is a rather long-winded, and thus <em>slow</em> and <em>inefficient</em> process, as multiple steps are needed. Throughout this module, we will be focusing on how to maximise <em>efficiency</em> when coding, in terms of speed (time taken) and memory usage.</p>
-<p><img src="../images/array_extension_1.png" alt="Array extension" /></p>
--->
-<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
-<p>Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
-For example, imagine we had an array of contacts that we wished to keep in 
-alphabetical order, e.g:</p>
-<pre><code>Alex Acland
-Bonnie Black
-Charley Chase
-Earl Edwards
-Frances Freeman
-</code></pre>
-<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What could we do? <strong>Again we will consider this in class</strong>; the answers will appear here later.</p>
-<!--
-<p>What we would have to do is
-<ul>
-<li>Create a new array, with one more space than the original array;</li>
-<li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
-<li>Add the new member to the appropriate space in the new array. </li>
-</ul>
-<p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
-<p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
--->
-<h2 id="moreflexibledatastructures">More flexible data structures</h2>
-<p>Once we have considered the issues above, we will look at the <em>list</em>. These notes will appear subsequently.</p>
-<!--
-<p>We have seen, through the exercise above, the limitations of the basic array. Consequently, there are a whole range of more flexible and specialised data structures which we can use for particular scenarios.</p>
-<p>In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. However, because the list is implemented internally using an array, the <code>append</code> operation may require the inefficient process we saw last week, in which  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array.</p>
-<p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
-<p><img src="../images/list.png" alt="Appending to a list" /></p>
-<p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
+<h2>Using a List</h2>
+<p>One solution is to use a more complex data structure, which can be extended with new data. In fact Python uses one such data structure, the <em>list</em>.  A list is essentially a wrapper round an underlying array. With the list you can add new items of data to the end of the list using the <code>append</code> operation, and keep doing so until the computer runs out of memory. </p>
 <p>Other languages have similar "extensible array" data structures, for instance C++ has the <code>vector</code> and Java has the <code>ArrayList</code>.</p>
 <h3 id="exercise2arrayscodecreatingasimpleprogrammakinguseofanarray">Creating a simple program making use of a list</h3>
-<p>Here is a program which makes use of a list. We are creating a list called <code>people</code> to hold the names of members of a team. 
+<p>Here is a program which makes use of a list. We are creating a list called <code>people</code> to hold the names of members of a team. The list initially has space for three members, however we can later append to it, to expand the list.
 <pre><code class="python language-python">
 print("Please enter the three people in your team")
 people = [None] * 3
@@ -146,8 +107,47 @@ print("The fifth person is " + people[4])
 <li>Note also how we can <em>append</em> to the list: unlike an array, we can extend it after we created it so we are not restricted to the original size.</li>
 </ul>
 <p>Try running this code but <em>before you do so</em>, try to predict what will be displayed.</p>
--->
+<h3>How does a list work under the hood?</h3>
+<p>We have looked at how to use a list. However we are now going to look at what actually happens when a list is appended to, via an interactive exercise.</p>
+<ol>
+<li><strong>Question:</strong> A list actually uses a non-extensible array internally. Given this, what do you think might happen internally when we append to the list? How can we deal with the extra member, given that the internal array is of fixed size?</li>
+<li>You will get the chance to think about this in class, and we will then go over the answer.</li>
+<li>Once this is done, think about whether you can see any <em>efficiency problems</em> with the process of appending to a list.</li>
+<li>You will again think about this for a few minutes, then we will discuss these efficiency problems.</li>
+<li>Once we've done this exercise, notes will appear here, discussing the issues covered by the exercise.</li>
+</ol>
 
+<!--
+<p>Lists contain an internal array. So what happens when we need to extend a list? We <em>create a new array with more space</em> hen the old one runs out of space. We need to: 
+<ul>
+<li>Create an array of the new, larger, size (large enough to hold all the new members we're trying to add);</li>
+<li>Copy all the existing members into the new array;</li>
+<li>Add the new members onto the end of the array.</li>
+</ul>
+<p>This is shown below. This diagram shows a <em>simplified</em> version of what happens when you append to a list. It is a repeat of the diagram showing array resizing, but also shows the <em>list</em> (in green) as a wrapper round the array. It shows how the internal array has to be recreated and the old data copied across when you append to a list.</p>
+<p><img src="../images/list.png" alt="Appending to a list" /></p>
+<p>This however is <em>inefficient</em> because  a new internal array is created with additional space to hold the new elements, and then the old data is copied across from the old array to the new array. We have to loop through each element in the old array and copy it across to the new array, which is <em>slow</em></p>
+<p>(The Python list does however include some optimisations to improve the efficiency of append and insertion operations. For instance, more memory is allocated for the internal array than is needed, meaning that a new internal array need not be created if only a small number of items are added as there will be spare space at the end of the array to hold them. See <a href="https://www.laurentluce.com/posts/python-list-implementation/">here</a> for details.)</p>
+<h3 id="furtherdisadvantageinsertiondifficult">Further disadvantage: insertion difficult</h3>
+<p>Above we saw that <em>adding extra data to the end of a list</em> is inefficent, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.Last week we saw that <em>adding extra data to the end of an array</em> was not possible, and we had to inefficiently <em>create a new array and copy the data across</em> if we wished to do that.  What if we wanted to add a new member at a <em>specific position</em> in the array?
+For example, imagine we had an array of contacts that we wished to keep in 
+alphabetical order, e.g:</p>
+<pre><code>Alex Acland
+Bonnie Black
+Charley Chase
+Earl Edwards
+Frances Freeman
+</code></pre>
+<p>Imagine we had a new name, "Danielle Dawson" which we wanted to insert between "Charley Chase" and "Earl Edwards" in the array above. What could we do? <strong>Again we will consider this in class</strong>; the answers will appear here later.</p>
+<p>What we would have to do is
+<ul>
+<li>Create a new array, with one more space than the original array;</li>
+<li>Copy the existing elements over to the new array, leaving a space for the new member;</li>
+<li>Add the new member to the appropriate space in the new array. </li>
+</ul>
+<p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
+<p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
+-->
 <h2 id="thelinkedlist">The linked list</h2>
 <p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
 in that they are <em>not</em> stored continuously in memory. Instead, data is stored
