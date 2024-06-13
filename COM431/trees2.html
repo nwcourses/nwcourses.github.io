@@ -8,8 +8,7 @@
 </style>
 </head>
 <body>
-<h1>Topic 9 - Binary Trees</h1> 
-<h2 id="treesearching">Tree searching</h2>
+<h1>Topic 9 - Tree searching algorithms</h1> 
 <p>We can efficiently search a <em>tree</em> by virtue of its structure. There are two general techniques for searching a tree:</p>
 <ul>
 <li><p><em>Depth-first search</em>. This uses the recursive tree traversal technique we have examined already above, starting at the root node and then
@@ -119,7 +118,7 @@ print(len(q))
 </code></pre>
 <h3 id="usingtreestostorekeyvaluepairs">Using trees to store key/value pairs</h3>
 <p>I have said several times that we test whether each node 'matches'. What exactly do we mean by this? We'd typically use a tree to store and efficiently search for data as an alternative to hash tables. In other words, each node would contain a key/value pair, such as "1smitj01"/"John Smith" for the key and value respectively in a student records system. In Python, this would probably be stored as a tuple (if we didn't want to change the values) or two-member list (if we did). So we could search the tree for a given key (index), and test each node we find in breadth-first (or depth-first) search to see if its key is the key we are searching for. If it is, then we return the value.</p>
-<h3 id="exercise3">Exercise 3</h3>
+<h3 id="exercise3">Exercise</h3>
 <p>Start with your own tree from above.
 <ol>
 <li>Implement <em>either</em> depth-first <em>or</em> breadth-first search using the tree (for now return True or False depending on whether the number is in the tree or not).</li>
