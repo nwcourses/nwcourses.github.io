@@ -90,8 +90,14 @@ fun main () {
 }
 </pre>
 The first two calls to <code>walk()</code> would succeed, as the weight would be reduced from 7 to 6 and then from
-6 to 5. However the third call to <code>walk()</code> would fail, as the weight would now be 5 and cannot be reduced
-any further.</p>
+6 to 5. However the third call to <code>walk()</code> would fail, as the weight would now be 5 and cannot be reduced any further.</p>
+<p>Note also how we place an <em><code>if</code> expression</em>, which we saw last week, inside the <code>for</code> loop:
+<pre>if(sniffy.walk()) "Walk successful" else "Walk failed"</pre>
+The <code>walk()</code> method returns a boolean, so the <code>if</code> expression will evaluate to either <code>"Walk successful"</code> or <code>"Walk failed"</code> depending on whether <code>true</code> or <code>false</code> was returned. So the appropriate message will be displayed, with this output:
+<pre>Walk successful
+Walk successful
+Walk failed</pre>
+</p>
 <p>Note how we have <em>used encapsulation to prevent unrealistic things happening</em>. The following code will <em>not compile</em> but <em>only because weight is private</em>:
 <pre>fun main () {
     val sniffy = Cat ("Sniffy", 5 , 7)
