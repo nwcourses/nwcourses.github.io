@@ -3,6 +3,8 @@
 <meta charset="utf-8">
 </head>
 <body>
+<p>Please note that the first week's notes will appear on <a href='https://lilt.hikar.org'>lilt</a>.</p>
+<!--
 <h1 id="week1basicdatastructures">Week 1 - Basic Data Structures</h1>
 <p>This week we will be looking at some basic <em>data structures</em>, the array, the linked list and the stack, and looking at their relevance.</p>
 <h2 id="theimportanceofdatastructures">The importance of data structures</h2>
@@ -118,8 +120,8 @@ print("The fifth person is " + people[4])
 <li>You will again think about this for a few minutes, then we will discuss these efficiency problems.</li>
 <li>Once we've done this exercise, notes will appear here, discussing the issues covered by the exercise.</li>
 </ol>
-
-<!--
+-->
+<!-- ORIGINAL COMMENT
 <p>Lists contain an internal array. So what happens when we need to extend a list? We <em>create a new array with more space</em> hen the old one runs out of space. We need to: 
 <ul>
 <li>Create an array of the new, larger, size (large enough to hold all the new members we're trying to add);</li>
@@ -149,7 +151,8 @@ Frances Freeman
 </ul>
 <p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
 <p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
--->
+END ORIGINAL COMMENT-->
+<!--
 <h2 id="thelinkedlist">The linked list</h2>
 <p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
 in that they are <em>not</em> stored continuously in memory. Instead, data is stored
@@ -254,7 +257,6 @@ do this? Draw out how you think it could be done on paper, and ask yourself:
 <strong>how efficient is this</strong>, particularly compared to doing the same thing with an array. </p></li>
 <li>Imagine that we wish to add a new item (Solaris) to the end of the linked list. Draw a diagram showing the process of creating this new item and adding it to the linked list.</li>
 </ol>
-<!--
 <h4 id="solution">Solution</h4>
 <p>Note how, to find a particular index within a linked list, we have to start at the beginning and follow the links until we arrive at the element we wish to access. This is slow compared to the simple address calculation from an index in an array.</p>
 <ol start="2">
@@ -270,7 +272,6 @@ same thing with a linked list. On paper, draw a linked list containing the eleme
 </ol>
 <h4 id="solution-1">Solution</h4>
 <p>Note how it's easy to add a new element to the end of a linked list. We just need to link it with the current last element, and then update the last element to point to the new element. Compare this with the need to create a new array, and copy the old elements over, if we wish to add elements to an array.</p>
--->
 <h3 id="exercise5stacks">Exercise 5: Stacks</h3>
 <p>We are now going to perform another paper-based exercise with stacks, to help
 you understand them and their operations.</p>
@@ -288,7 +289,6 @@ any errors that might occur.</p>
 <li>Frances Freeman</li>
 </ul>
 <p>On paper draw these as a linked list. Now try to add "Danielle Dawson" at the appropriate place between "Charley Chase" and "Earl Edwards". What operations need to be done now? Draw them on paper again. Do you think this would be more or less efficient than using an array? </p>
-<!--
 <h4 id="solution-2">Solution</h4>
 <p>Note the mixed efficiency when inserting into the middle of the linked list:</p>
 <ul>
