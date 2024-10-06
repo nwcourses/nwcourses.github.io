@@ -163,7 +163,7 @@ their inter-relationships, and the attributes and methods of each class. The cla
 <ul>
 <li>Classes and their interrelationships come from the domain model</li>
 <li>When first analysing the problem statement, you can add a first guess at likely attributes to the domain model to produce an initial class diagram</li>
-<li>The class diagram will be updated later to add the methods, once we have gone through the full analysis and design process, as the full analysis and design will reveal the methods that we need.</li>
+<li>The initial class diagram can also contain an initial guess at the methods. However, it will be updated later to add further methods, once we have gone through the full analysis and design process - which will reveal additional methods.</li>
 </ul>
 </div>
 
@@ -188,7 +188,6 @@ class and subclasses</li>
 <li>A further horizontal line separates the attributes and methods</li>
 <li>Methods also have an access indicator, and show parameters and return types are, using this syntax (also used in the Kotlin language, which many of you will do next term):
 <pre>ACCESS method(param1: DataType, param2: DataType): ReturnType</pre>
-However, we will not add methods just yet. We will add them after we have covered sequence diagrams.
 </li>
 <li>Regular lines, annotated by multiplicity indicators, link classes (as in the domain model)</li>
 <li>Additionally, arrows with unfilled heads indicate inheritance</li>
@@ -320,7 +319,7 @@ Venue staff should be able to add and cancel events.
 </pre>
 <ol>
 <li>Create a domain model for this problem statement.</li>
-<li>Add some likely attributes to the domain model to produce a class diagram.</li>
+<li>Add some likely attributes, and an initial guess at methods, to the domain model to produce a class diagram.</li>
 <li><em>Before moving onto use cases, ensure you have finished Questions 1-11 of Week 2, and the whole of Week 3. You need all these for the first assignment (the group project).</em></li>
 <li>List some possible use cases for this scenario. You do not have to draw a diagram just yet - just list some likely use cases.</li>
 <li>If you have time, draw up a use-case diagram showing these use cases. (If you do not have enough time, please attend the drop-in session; if you still do not have enough time, there will be an opportunity to create a use-case diagram next week).</li>
