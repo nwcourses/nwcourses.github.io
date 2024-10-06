@@ -3,8 +3,8 @@
 <meta charset="utf-8">
 </head>
 <body>
-<p>Please note that the first week's notes will appear on <a href='https://lilt.hikar.org'>lilt</a>.</p>
-<!--
+<p>Please note that the first week's notes will appear on <a href='https://lilt.hikar.org'>lilt</a>. The notes below will be removed from here in due course.</p>
+<hr />
 <h1 id="week1basicdatastructures">Week 1 - Basic Data Structures</h1>
 <p>This week we will be looking at some basic <em>data structures</em>, the array, the linked list and the stack, and looking at their relevance.</p>
 <h2 id="theimportanceofdatastructures">The importance of data structures</h2>
@@ -120,7 +120,6 @@ print("The fifth person is " + people[4])
 <li>You will again think about this for a few minutes, then we will discuss these efficiency problems.</li>
 <li>Once we've done this exercise, notes will appear here, discussing the issues covered by the exercise.</li>
 </ol>
--->
 <!-- ORIGINAL COMMENT
 <p>Lists contain an internal array. So what happens when we need to extend a list? We <em>create a new array with more space</em> hen the old one runs out of space. We need to: 
 <ul>
@@ -152,7 +151,6 @@ Frances Freeman
 <p><img src="../images/array_insert.png" alt="Array Insertion" /></p>
 <p>Clearly this is inefficient as we have to <em>create a new array</em>, which is expensive in memory usage, as we have to have the old and new arrays in memory at the same time. </p>
 END ORIGINAL COMMENT-->
-<!--
 <h2 id="thelinkedlist">The linked list</h2>
 <p>We will start with a look at <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
 in that they are <em>not</em> stored continuously in memory. Instead, data is stored
@@ -295,6 +293,5 @@ any errors that might occur.</p>
 <li><p>on the one hand, we have to search for the name to insert after (i.e. "Charley Chase"). As we have seen above, this is less efficient than arrays if we are searching by index (2 for "Charley Chase"). But if we are searching by name instead, we have to compare each record with the search term ("Charley Chase" here) by starting at the beginning of the data structure and comparing each item in turn to the search term. This is the same process whether we use an array or a linked list, so the efficiency is similar in either case.</p></li>
 <li><p>on the other hand, the actual insertion process is <em>more</em> efficient, as we just have to break the links between Charley Chase and Earl Edwards, and create new links between each and Danielle Dawson. This is more efficient than an array, in which we would have to create a new array with one extra space and copy the old items over once again.</p></li>
 </ul>
--->
 </body>
 </html>
