@@ -178,7 +178,7 @@ How is this working?
     <li>The list of Products is <em>private</em>. This is <em>encapsulation</em> again.
     The outside world (e.g. the main() ) cannot access the list directly. Access to the
     list is <em>controlled</em> by the Shop. The only way the outside world can manipulate the
-    array list is via the methods of Shop. You can think of each method of Shop as a "portal" or
+    list is via the methods of Shop. You can think of each method of Shop as a "portal" or
     "gateway" through which the inner workings of Shop exchange information from the outside world. 
     Each "portal" (method) would typically include some validation, to check that the outside world isn't
     doing anything unrealistic. The diagram below shows this. <br />
@@ -341,12 +341,12 @@ Cooking for 200 minutes.
 
 <h2>Exercises</h2>
 <ol>
-<li><em>Lists:</em> Return to your <code>Student</code> example from previous weeks. In your <code>main()</code>, create a mutable list of students, and in the loop, add each <code>Student</code> objects to the list as soon as you create it. Then, when all students have been entered, write a second loop to loop through the array list and display each student in turn.</li>
+<li><em>Lists:</em> Return to your <code>Student</code> example from previous weeks. In your <code>main()</code>, create a mutable list of students, and in the loop, add each <code>Student</code> objects to the list as soon as you create it. Then, when all students have been entered, write a second loop to loop through the list and display each student in turn.</li>
 <li><em>Aggregation:</em> Create a completely new project (<code>AggregationApp</code>), and add your <code>Student</code> class to it, as well as a main. Rather like the <code>Shop</code> in the example, create a <code>University</code> class. The <code>University</code> should contain, as an attribute, a list of <code>Student</code>s. The <code>University</code> should include these methods:
     <ul>
-    <li><code>enrolStudent()</code> - this should add a new student to the university by adding it to the array list.</li>
+    <li><code>enrolStudent()</code> - this should add a new student to the university by adding it to the list.</li>
     <li><code>findStudentById()</code> - this should find a single student by student ID. If no student with that ID can be found, it should return <code>null</code>.</li>
-    <li><code>findStudentsByName()</code> - this should find <em>all</em> students that have a particular name. It should return a list of all matching students. To do this, you will need to declare a list in the method, loop through all students, and add any students with that name to the list before returning it at the end.</li>
+    <li><code>findStudentsByName()</code> - this should find <em>all</em> students that have a particular name. It should return a list of all matching students. To do this, you will need to declare a list in the method, loop through all students, and add any students with that name to the list before returning it at the end. The return type should be <code>MutableList&lt;Student&gt;</code>.</li>
     </ul>
 In your <code>main()</code>, create a <code>University</code> object. Then, develop a simple menu-driven application to add and search for students. The menu should look like this:
 <pre>
