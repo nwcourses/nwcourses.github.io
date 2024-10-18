@@ -305,7 +305,7 @@ Multiple state variables can be setup in this way, and each state variable has a
 
 <pre>&lt;input type='button' value='update' onClick={updateStateName} /&gt;</pre>
 
-<h3>Implementing an onChange() event handler</h3>
+<h3 id='uiBoundToState'>Implementing an onChange() event handler</h3>
 
 <p>Consider this new version of the InteractiveGreeting example. As well as displaying the name in the div it also displays it in the input box.
 
@@ -333,7 +333,7 @@ function InteractiveGreeting2() {
 export default InteractiveGreeting2;</pre>
 </p>
 <p>
-If you try this out, you'll notice that it is impossible to change the text in the text field. Why is this? The text field is tightly bound to the name property of the state, so unless the state changes, the text field will not change. More generally, any element within the component which references the state is tightly bound to the state and will not change unless the state changes. To implement an editable text field, you need to implement an onChange() event handler on the text field to update the state. The next example shows this:
+If you try this out, you'll notice that it is impossible to change the text in the text field. Why is this? The text field is <em>tightly bound</em> to the name property of the state, so unless the state changes, the text field will not change. More generally, any element within the component which references the state is tightly bound to the state and will not change unless the state changes. To implement an editable text field, you need to implement an onChange() event handler on the text field to update the state. The next example shows this:
 <pre>import React from 'react';
 
 function InteractiveGreeting3() {
