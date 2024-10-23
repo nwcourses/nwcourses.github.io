@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OODD Week 6 - Further Kotlin language features</title>
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel='stylesheet' type='text/css' href='../css/nwnotes.css' />
+</head>
+<body>
+<header>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 6: Further Kotlin language features</h1>
+</header>
+
+<main>
+<p>This week we will look at some further Kotlin language features, in particular <em>lambda functions</em> and <em>interfaces</em>.</p>
+<h2>More on Functions in Kotlin</h2>
+<p>In Kotlin, functions can be <em>stored in variables</em> and
+<em>passed as arguments to other functions</em>.  
+In this respect, Kotlin is similar to JavaScript.
+This property of functions makes them <em>first class</em>
+(see <a href="https://kotlinlang.org/docs/reference/lambdas.html">the Kotlin documentation</a>).</p>
+<h3>Anonymous Functions</h3>
+<ul>
+<li>An <em>anonymous function</em> is a function with no declared name after the <em>fun</em> keyword</li>
+<li>Anonymous functions can be passed in as 
+arguments to another function, or referred to via variables</li>
+<li>Here is a basic example of an anonymous function, referred to by the variable <em>funcReference</em> here:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val funcReference = fun(i: Int): Int { return i*i*i }
+    println(funcReference(3))
+    val secondRef = funcReference
+    println(secondRef(4))
+}
+</pre>
+</li>
+<li>Note how we set <em>funcReference</em> equal to a function which has one Int parameter, returns Int and
+calculates and returns the cube of the number</li>
+<li><em>funcReference</em> is a reference to this anonymous function</li>
+<li>We can use this reference to call the function</li>
+<li>Notice how we can also set up a <em>second</em> reference (<em>secondRef</em> here)
+to the function, and use that to call it</li>
+</ul>
+<h3>Passing functions as arguments to other functions</h3>
+<ul>
+<li>In Kotlin, we can <em>pass functions as arguments to other functions</em></li>
+<li>The parameter type for a function passed into another is:
+<pre>(ParamType1, ParamType2, ParamType3...) -&gt; returnType</pre>
+where <em>ParamType1, ParamType2, ParamType3</em> etc. are the parameter types for the 
+function being passed in, and <em>returnType</em> is the return type of that function</li>
+<li>This is probably better explained via example, so here is one:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val cubeFunction = fun(i: Int): Int { return i*i*i }
+    execFunction(cubeFunction)
+}
+
+fun execFunction ( f: (Int) -&gt; Int) {
+    println(f(3)) // call the function passed in with an argument of 3, i.e. the cube of 3 will be calculated
+}
+</pre>
+Note that we pass <em>cubeFunction</em> in as an argument to <em>execFunction</em></li>
+<li>The corresponding data type of the parameter, <em>f</em>, is <em>(Int) -&gt; Int</em>,
+to indicate that the function being passed in takes one Int and returns an Int</li>
+<li>If the function being passed in returns nothing, we specify <em>Unit</em> as the return type, e.g:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val printStars = fun(i: Int){ 
+        for(count in 1..i) {
+            print("*")
+        }
+        print("\n")
+    }
+    execFunction(printStars)
+}
+
+fun execFunction ( f: (Int) -&gt; <em>Unit</em>) {
+    f(3)// call the function passed in with an argument of 3, i.e. three stars will be printed
+}
+</pre>
+This time we pass in a function which prints a given number of stars, but does not return
+anything, hence specifying <em>Unit</em> as the return type of the function passed into <em>execFunction</em>
+</li>
+</ul>
+<h2>Lambda functions</h2>
+<ul>
+<li><em>Lambda</em> functions are similar to ordinary anonymous functions but use a special, concise syntax</li>
+<li>Here is the first example rewritten to use a lambda function:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val cubeLambda: (Int) -&gt; Int =  { i -&gt; return i*i*i }
+    println(cubeLambda(3))
+}
+</pre>
+</li>
+<li>Note how we write a lambda: we enclose the whole function (the parameters as well as the function body)
+in braces { }, and separate the parameters and the function body with the <em>-&gt;</em> token</li>
+<li>Note how we have to specify the <em>type</em> of the lambda:
+<pre>val cubeLambda: (Int) -&gt; Int</pre>
+This is because we do not specify the parameter types in the lambda, therefore we have to specify the type of
+the variable holding it</li>
+<li>Note how in our case, the lambda only has one statement (<em>return i*i*i</em>), but they can
+actually have multiple statements, one statement per line; e.g.
+<pre>val someLambda: (Int) -&gt; Int = { parameter-&gt;
+    statement1
+    statement2
+    return someValue
+}
+</pre>
+</li>
+<li>See <a href="https://kotlinlang.org/docs/reference/lambdas.html">the Kotlin documentation</a> for more details</li>
+</ul>
+<h3>Making the lambda more concise - I</h3>
+<ul>
+<li>We can make the previous version more concise</li>
+<li>With lambdas, <em>the value declared in the last line is always automatically returned</em></li>
+<li>So the code below will also have the same effect as the previous example:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val conciseCubeLambda: (Int) -&gt; Int =  { i -&gt; i*i*i }
+    println(conciseCubeLambda(3))
+}
+</pre>
+Because the last statement of the lambda is always returned, and that last statement here is <em>i*i*i</em>,
+it follows that <em>i*i*i</em> will be returned from the lambda in this example, and the desired effect of
+returning the cube will be achieved</li>
+</ul>
+<h3>Making the lambda more concise - II - the implicit "it"</h3>
+<ul>
+<li>It doesn't stop there!</li>
+<li>In cases in which a lambda has just <em>one</em> parameter - a common situation - we can refer to
+that one parameter implicitly using the keyword <em>it</em></li>
+<li>Thus, we can rewrite the cube example as follows:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val cubeLambdaWithIt: (Int) -&gt; Int =  { it*it*it }
+    println(cubeLambdaWithIt(3))
+}
+</pre>
+Because the <em>it</em> parameter always corresponds to a single argument passed in (3 in this example),
+and because the value of last statement of a lambda is always returned, it follows that this example
+will also calculate the cube of the argument passed into the lambda</li>
+</ul>
+<h3>Real-world use of lambdas</h3>
+<ul>
+<li>A very common real-world use of lambdas is to write code in a <em>functional</em> style</li>
+<li>A typical pattern in functional code is to <em>apply a given function to all members of an array,
+list or map</em></li>
+<li>This leads to more readable, intuitive code with the details of looping through the collection
+hidden away</li>
+<li>Collections (lists, maps) have a range of functions (methods) which apply a lamda to some or all members of
+the collection</li>
+<li>The simplest is <em>forEach()</em>, which applies a lambda to all members of a collection:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
+    peopleList.forEach { person -&gt; println(person) }
+}
+</pre>
+</li>
+<li>Note how the <em>forEach()</em> method of the list takes a lambda as an argument</li>
+<li>The lambda will be applied to all members of <em>peopleList</em>, with each person in turn being passed into
+the lambda as the <em>person</em> parameter</li>
+<li>The result, therefore, will be that each person will be printed</li>
+<li>Note also how we can omit the parentheses () when passing in a lambda as the first argument to a function</li>
+</ul>
+<h3>Question</h3>
+<ul>
+<li>How can we make
+<pre>peopleList.forEach { person -&gt; println(person) }</pre>
+more concise?</li>
+<li>Answer will be given out in class!</li>
+</ul>
+<h3>Mappings: performing the same operation on all members of a list</h3>
+<p>Another common use of lambdas is to perform a <em>mapping</em>. A mapping transforms each member of an input list by a specified function, and returns a new list containing the transformed data. This example will convert each string in the input list to lower case and return a new list containing the lower case values:
+<pre>fun main(args: Array&lt;String&gt;) {
+    val peopleList = listOf("Mark Cranshaw", "Rob Cooper", "Al Monger", "Mark Udall", "Margaret Jones")
+    val lowerCaseList = peopleList.map { person -&gt; person.lowercase() }
+    println(lowerCaseList)    
+}</pre>
+Note how we use the <code>map()</code> function to transform each member of <code>peopleList</code> by a specified lambda. The lambda here will take each member of the input list in turn (<code>person</code>) and return that member converted to lower case (i.e. <code>person.lowercase()</code>). So, the list returned from <code>map</code>, i.e. <code>lowerCaseList</code>, will contain the person names converted to lower case.</p> 
+
+<h3>Other collection functions which use lambdas</h3>
+<ul>
+<li>There are a number of other collection functions which can apply a lambda on some or all members
+of collections, and can be used to perform common tasks concisely using a functional style</li>
+<li>e.g.
+    <ul>
+    <li><em>filter()</em> - filters a collection by applying a lambda to each member of a collection,
+    and returns the filtered collection. If the lambda returns true for that member, that member will be
+    in the filtered collection.</li>
+    <li><em>filterNotNull()</em> - filters null values from a collection</li>
+    <li><em>map()</em> - maps the values of a list or array to another list or array by applying a 
+    transformation function. The transformed list or array is returned. There is a similar <em>mapValues()</em> for 
+    Maps.</li>
+    </ul>
+</li>
+<li>See <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/index.html">the Kotlin documentation</a>
+for a full list.</li>
+</ul>
+<h3>Other collection functions - example</h3>
+<ul>
+<li>This example shows some of the functions mentioned on the previous slide:
+<pre>
+data class Employee(val name: String, val salary: Double)
+
+fun main(args: Array&lt;String&gt;) {
+    listOf(111, 222, 333, 555, 666, 444, 888, 777).filter { it &lt; 500}.forEach { println(it) }
+    listOf(Employee("Tom", 28000), Employee("Jane", 32000)).map{ Employee(it.name, it.salary*1.2)}.forEach{ println("${it.name} ${it.salary}")
+}
+</pre>
+Note how we can chain these functions together, e.g. filter() followed by forEach() in the first example</li>
+</ul>
+<h2>Interfaces</h2>
+<h3>The Problem With Inheritance and the Need for Interfaces</h3>
+<ul>
+<li>What if a class inherits from more than one class?</li>
+<li>e.g. a Bird could inherit from both an Animal and a FlyingThing</li>
+<li>It could inherit the following methods and attributes from Animal:
+    <ul>
+    <li>eat(), makeNoise()</li>
+    <li>nLegs, nEyes</li>
+    </ul>
+</li>
+<li>... and the following from FlyingThing:
+    <ul>
+    <li>fly()</li>
+    <li>nWings</li>
+    </ul>
+</li>
+<li><em>How do we handle this?</em></li>
+<p><img src="../images/interfaces.png" alt="problem with inheritance"/></p>
+</ul>
+
+<h3>Multiple Inheritance?</h3>
+<ul>
+<li>Some languages (e.g. C++) use <em>multiple inheritance</em></li>
+<li>e.g. the equivalent of
+<pre>class Bird : Animal(), FlyingThing()</pre>
+</li>
+<li>However, multiple inheritance can be difficult to work with</li>
+<li>Therefore Kotlin avoids multiple inheritance in favour of 
+<em>interfaces</em></li>
+</ul>
+
+<h3>Introduction to Interfaces</h3>
+<ul>
+<li>An interface is a list of methods which implementing classes must include</li>
+<li>Interfaces allow us to define common actions across different
+inheritance hierarchies</li>
+<li>Classes in different inheritance hierarchies 
+<em>implement</em> the interface</li>
+</ul>
+
+<h3>Interface Example</h3>
+<pre>interface FlyingThing { 
+    fun fly(): String 
+}</pre>
+<ul>
+<li>This defines an <em>interface</em> called FlyingThing</li>
+<li>It specifies a method called <em>fly()</em></li>
+<li>We do not code the method in the interface</li>
+<li>Instead, we code versions of the method in classes
+which <em>implement the interface</em></li>
+<li>Each class which implements FlyingThing must include a <em>fly()</em> method</li>
+</ul>
+
+<h3>How do we implement an interface</h3>
+<ul>
+<li>Use the <em>same syntax as for inheritance</em>, e.g.
+<pre>public class Bird : Animal() <em>, FlyingThing</em>
+public class Plane : Vehicle() <em>, FlyingThing</em></pre>
+</li>
+<li>Because Bird and Plane implement FlyingThing, they 
+<strong>must</strong> each include a <em>fly()</em> method, e.g:
+<pre>class Bird: Animal(), FlyingThing {
+    override fun fly(): String {
+        return "Flap!" 
+    }
+}</pre>
+<pre>class Plane: Vehicle(), FlyingThing {
+    override fun fly() : String {
+        return "Zoom!"
+    }
+}</pre>
+</li>
+</ul>
+
+<h3>Interfaces with polymorphism</h3>
+<ul>
+<li>Because interfaces allow us to define common actions across
+different classes, we can use them in conjunction with polymorphism</li>
+<li>e.g.:
+<pre>val flyingThings = listOf&lt;FlyingThing&gt;()
+
+flyingThings.add(Bird())
+flyingThings.add(Plane())
+flyingThings.add(Spaceship())
+flyingThings.add(PaperPlane())
+flyingThings.add(Bee())
+
+for (f in flyingThings){
+    println(f.fly())
+}</pre>
+</li>
+<li>We create an list of FlyingThings and initialise the members of the 
+list to different types of FlyingThing</li>
+<li>Because we <em>know</em> that all FlyingThings will implement the
+<em>fly()</em> method, we can then loop through the array and call the
+<em>fly()</em> method of each</li>
+<li>... and each FlyingThing will behave appropriately</li>
+</ul>
+
+<h3>Real-world use of interfaces</h3>
+<p>The above was just a trivial example showing the concept of interfaces. However, how are they used in the real world? The advantages of using interfaces is that <em>you can specify an interface in your code without revealing what actual class will be used</em>. As long as the class you use implements the interface and the list of methods stated in the interface, <em>any</em> class can be used. Why is this potentially more useful than inheriting from an abstract superclass which specifies a list of abstract methods?
+    <ul>
+    <li>It makes our code more flexible as any class which implements the interface can be used. We are not restricted to using classes which inherit from a specified superclass.</li>
+    <li>It means we can make changes to our code without completely rewriting our class diagram and inheritance hierarchy. If we use interfaces which provide a list of methods, and you want to change which class implements those methods, you just need to make the new class implement the interface and its methods - no need to rewrite your inheritance hierarchy.</li>
+    </ul>
+</p>
+<p>It's probably best to illustrate real-world interface use with an actual example. A common use of interfaces is for user <em>event handling</em> in a GUI application. <em>Events</em> occur when the user interacts with the UI, for example clicking a button. We respond to events with <em>event handlers</em> - functions and methods which run when the event occurs. The code might look something like the example below (this is not the real code you would use, just an example to illustrate the point). Here we are adding an event handler object (<code>clickHandler</code>) to a button: 
+<pre>button.addClickHandler(clickHandler)</pre> 
+The <code>addClickHandler()</code> method of the <code>Button</code> class might have the signature below, i.e. it takes one parameter of type <code>ClickHandler</code>:
+<pre>fun addClickHandler(clickHandler: ClickHandler)</pre>
+Here, <code>ClickHandler</code> could be an <em>interface</em> which might specify one method, <code>onClick()</code>, for example:
+<pre>interface ClickHandler {
+    fun onClick()
+}</pre>
+</p>
+<p>
+The advantage of this design over making <code>ClickHandler</code> an abstract superclass is that <em>any class</em> can implement the <code>ClickHandler</code> interface and provide an <code>onClick()</code> method to handle the user clicking on the button. If we created a <code>ClickHandler</code> <em>class</em> instead, the <code>onClick()</code> method would have to be placed inside a class inheriting from <code>ClickHandler</code> which makes the code less flexible. By defining an <em>interface</em> instead, it means that <em>any</em> object we like can act as the <code>ClickHandler</code>, provided it implements the <code>ClickHandler</code> interface and has an <code>onClick()</code> method.</p>
+<p>This also allows us to make changes to our implementation more easily. If we want to change the class which handles our click events, we can easily do it by making the new class implement the interface and adding an <code>onClick()</code> method to it.</p> 
+<p>Later on in the module we will see how interfaces are often used in <em>design patterns</em>.</p>
+
+
+<h2>Single Abstract Method (SAM) conversions</h2>
+<p>As a language which aims to provide conciseness in code where possible, Kotlin allows you to use an alternative syntax when providing an object implementing an interface as an argument. Imagine we have code like this (again, not code that would actually work, but merely an example to illustrate the concept):
+<pre>class MyGuiWindow : Window() {
+
+    fun setupGui() {
+        val b = Button("Click Me!")
+        val eventHandler = object: ClickHandler {
+            override fun onClick() {
+                displayAlert("Button Clicked!")
+            }
+        }
+        b.addClickHandler(eventHandler)
+        b.addTo(this) // "this" means the current object, i.e. the window
+    }
+}</pre>
+This example also shows another new concept, the <em>anonymous class</em>. An anonymous class is an unnamed, single-instance class which typically inherits from an abstract class or (as here) implements an interface, and provides implementations of the required methods on-the-fly:
+<pre>val eventHandler = object: ClickHandler { ... }</pre>
+This means that the variable <code>eventHandler</code> is an object which implements <code>ClickHandler</code> without creating a new class. Note how it includes an implementation of <code>onClick()</code>.</p>
+<p>This works, but you could argue that creating the anonymous class with an implementation of <code>onClick()</code> is quite wordy and long-winded.</p>
+What Kotlin allows us to do instead is to add a <em>lambda</em> as the event handler making use of <em>SAM Conversions</em>. SAM stands for <em>Single Abstract Method</em> and describes an interface with only <em>one</em> method defined - as <code>ClickHandler</code> does here.
+The idea of SAM is that <em>method calls which expect an interface with only one method defined</em> can be written instead as a lambda, to make it more concise. We could rewrite our <code>setupGui()</code> as follows:
+<pre>fun setupGui() {
+    val b = Button("Click Me!")
+    b.addClickHandler(ClickHandler {
+        displayAlert("Button Clicked!")
+    })
+    b.addTo(this)
+}</pre>
+Note how the argument to <code>addClickHandler()</code> is now a <code>ClickHandler</code> object with a lambda as an argument. This lambda is the Single Abstract Method implementation, i.e. the implementation for the <code>onClick()</code> for our button.</p>
+<p>For this to work you need to change your interface to be a <em>functional interface</em>. To do this, you just precede the keyword <code>interface</code> with the keyword <code>fun</code>:
+<pre>fun interface ClickHandler {
+    fun onClick()
+}</pre>
+</p>
+
+<h2>Questions</h2>
+<ol>
+<li>Write a method in your <code>University</code> class which finds all students who passed (mark at least 40). It should do this by applying a <em>filter</em> to the student list, returning only those students with a mark of at least 40.</li>
+<li>Write a method in <code>University</code> called <code>getStudentNames()</code>. This should return a list of names of all students at the university (i.e. it should be a list of strings). Use a mapping to do this.</li>
+<li>At:
+<pre>https://github.com/nwcourses/com534-topic6-starter</pre> 
+is another version of the University project. You are going to simulate event handling by using an event handler <em>interface</em> called <code>MenuHandler</code> which handles the "event" of the user selecting a menu option.
+	<ul>
+	<li>First make the <code>TuiApplication</code> class (which represents the application as a whole, and is created from <code>main</code>) implement the <code>MenuHandler</code> interface.</li>
+	<li>Secondly write, inside <code>TuiApplication</code>, the <code>onMenuItemSelected()</code> method to handle the user selecting a particular menu option. This receives a parameter of the number of the menu item being selected, so you should use a <code>when</code> statement to test the number and run the appropriate code. The three items of functionality (add a student, search by ID, search by name) are provided in the code already, but you need to link them to the <code>onMenuItemSelected()</code>.</li>
+	<li>Change your code to write <em>three separate handler objects</em> for each menu item in separate anonymous class objects, as shown in the notes. Each handler object should, inside its <code>onMenuItemSelected()</code>, include the appropriate functionality (add a student, search by ID, search by name).</li>
+	<li>Finally change your code again to use a lambda, with SAM conversions, for each event handler.</li>
+	</ul>
+</li>
+</ol>
+</main>
+</body>
+</html>
