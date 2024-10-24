@@ -219,24 +219,20 @@ Note how we can chain these functions together, e.g. filter() followed by forEac
 </ul>
 <h2>Interfaces</h2>
 <h3>The Problem With Inheritance and the Need for Interfaces</h3>
-<p>How could we represent the situation of a class inheriting from more than one parent class class?</p>
-<ul>
-<li>e.g. a Bird could inherit from both Animal and FlyingThing</li>
-<li>It could inherit the following methods and attributes from Animal:
+<p>Imagine we have a situation where a class could potentially inherit from more than one parent class. For example we could have 
+a Bird could inherit from both Animal and FlyingThing.
+It could inherit the following methods and attributes from Animal:
     <ul>
     <li>eat(), makeNoise()</li>
     <li>nLegs, nEyes</li>
     </ul>
-</li>
-<li>... and the following from FlyingThing:
+... and the following from FlyingThing:
     <ul>
     <li>fly()</li>
     <li>nWings</li>
     </ul>
-</li>
-<li><em>How do we handle this?</em></li>
+<em>How do we handle this?</em></p>
 <p><img src="../images/interfaces.png" alt="problem with inheritance"/></p>
-</ul>
 
 <h3>Multiple Inheritance?</h3>
 <ul>
@@ -376,6 +372,7 @@ Note how the argument to <code>addClickHandler()</code> is now a <code>ClickHand
 
 <h2>Questions</h2>
 <ol>
+<li>Write a simple program, with just a <code>main()</code>, which reads in 5 strings from the keyboard into a mutable list. Using a <em>filter</em> with a lambda, create another list which contains only those strings which are not blank (""). Display the filtered list.</li>
 <li>Write a method in your <code>University</code> class which finds all students who passed (mark at least 40). It should do this by applying a <em>filter</em> to the student list, returning only those students with a mark of at least 40.</li>
 <li>Write a method in <code>University</code> called <code>getStudentNames()</code>. This should return a list of names of all students at the university (i.e. it should be a list of strings). Use a mapping to do this.</li>
 <li>At:
