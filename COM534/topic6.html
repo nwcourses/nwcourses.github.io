@@ -195,20 +195,33 @@ for a full list.</li>
 <ul>
 <li>This example shows some of the functions mentioned on the previous slide:
 <pre>
-data class Employee(val name: String, val salary: Double)
+data class Employee(val name: String, val email: String, var salary: Double)
 
 fun main(args: Array&lt;String&gt;) {
-    listOf(111, 222, 333, 555, 666, 444, 888, 777).filter { it &lt; 500}.forEach { println(it) }
-    listOf(Employee("Tom", 28000), Employee("Jane", 32000)).map{ Employee(it.name, it.salary*1.2)}.forEach{ println("${it.name} ${it.salary}")
+    // Print the numbers in the list greater than 500
+    val numList = listOf(111, 222, 333, 555, 666, 444, 888, 777)
+    numList.filter { it &lt; 500}
+        .forEach { println(it) }
+
+    val employeeList = listOf(
+        Employee("Tom", "tom@unifiedwidgets.example.com", 28000), 
+        Employee("Kate", "kate@unifiedwidgets.example.com", 32000)
+    )
+        
+    // Print the emails of all employees in the list by mapping the
+    // employee list to a list of emails and then using forEach() to print
+    // each email in the list.
+    employeeList.map{ it.email }
+        .forEach{ println(it) }
 }
 </pre>
 Note how we can chain these functions together, e.g. filter() followed by forEach() in the first example</li>
 </ul>
 <h2>Interfaces</h2>
 <h3>The Problem With Inheritance and the Need for Interfaces</h3>
+<p>How could we represent the situation of a class inheriting from more than one parent class class?</p>
 <ul>
-<li>What if a class inherits from more than one class?</li>
-<li>e.g. a Bird could inherit from both an Animal and a FlyingThing</li>
+<li>e.g. a Bird could inherit from both Animal and FlyingThing</li>
 <li>It could inherit the following methods and attributes from Animal:
     <ul>
     <li>eat(), makeNoise()</li>
@@ -231,15 +244,15 @@ Note how we can chain these functions together, e.g. filter() followed by forEac
 <li>e.g. the equivalent of
 <pre>class Bird : Animal(), FlyingThing()</pre>
 </li>
-<li>However, multiple inheritance can be difficult to work with</li>
-<li>Therefore Kotlin avoids multiple inheritance in favour of 
+<li>However, multiple inheritance can be difficult to work with in some cases, due to clashes with attributes and methods inherited from multiple superclasses</li>
+<li>Therefore, many languages avoid multiple inheritance in favour of 
 <em>interfaces</em></li>
 </ul>
 
 <h3>Introduction to Interfaces</h3>
 <ul>
 <li>An interface is a list of methods which implementing classes must include</li>
-<li>Interfaces allow us to define common actions across different
+<li>Interfaces allow us to define <em>common actions</em> across different
 inheritance hierarchies</li>
 <li>Classes in different inheritance hierarchies 
 <em>implement</em> the interface</li>
@@ -305,13 +318,13 @@ list to different types of FlyingThing</li>
 </ul>
 
 <h3>Real-world use of interfaces</h3>
-<p>The above was just a trivial example showing the concept of interfaces. However, how are they used in the real world? The advantages of using interfaces is that <em>you can specify an interface in your code without revealing what actual class will be used</em>. As long as the class you use implements the interface and the list of methods stated in the interface, <em>any</em> class can be used. Why is this potentially more useful than inheriting from an abstract superclass which specifies a list of abstract methods?
+<p>The above was just a trivial example showing the concept of interfaces. However, how are they used in the real world? The advantage of using interfaces is that <em>you can specify a list of methods which must always be present, without revealing what actual class will be used</em>. As long as the class you use implements the interface and the list of methods stated in the interface, <em>any</em> class can be used where a method parameter is of an interface type. Why is this potentially more useful than inheriting from an abstract superclass which specifies a list of abstract methods?
     <ul>
     <li>It makes our code more flexible as any class which implements the interface can be used. We are not restricted to using classes which inherit from a specified superclass.</li>
-    <li>It means we can make changes to our code without completely rewriting our class diagram and inheritance hierarchy. If we use interfaces which provide a list of methods, and you want to change which class implements those methods, you just need to make the new class implement the interface and its methods - no need to rewrite your inheritance hierarchy.</li>
+    <li>It means we can make changes to our code without potentially having to rewrite your entire inheritance hierarchy. If we use interfaces which provide a list of methods, and you want to change which class implements those methods, you just need to make the new class implement the interface and its methods - no need to perform a major design revision rewrite your inheritance hierarchy.</li>
     </ul>
 </p>
-<p>It's probably best to illustrate real-world interface use with an actual example. A common use of interfaces is for user <em>event handling</em> in a GUI application. <em>Events</em> occur when the user interacts with the UI, for example clicking a button. We respond to events with <em>event handlers</em> - functions and methods which run when the event occurs. The code might look something like the example below (this is not the real code you would use, just an example to illustrate the point). Here we are adding an event handler object (<code>clickHandler</code>) to a button: 
+<p>It's probably best to illustrate real-world interface usage with an actual example. A common use of interfaces is to implement user <em>event handling</em> in a GUI application. <em>Events</em> occur when the user interacts with the UI, for example by clicking a button. We respond to events with <em>event handlers</em> - functions and methods which run when the event occurs. Typical event-handling code might look something like the example below (this is not the real code you would use in Kotlin GUI programming, it's just an example to illustrate the point). Here we are adding an event handler object (<code>clickHandler</code>) to a button: 
 <pre>button.addClickHandler(clickHandler)</pre> 
 The <code>addClickHandler()</code> method of the <code>Button</code> class might have the signature below, i.e. it takes one parameter of type <code>ClickHandler</code>:
 <pre>fun addClickHandler(clickHandler: ClickHandler)</pre>
@@ -321,7 +334,7 @@ Here, <code>ClickHandler</code> could be an <em>interface</em> which might speci
 }</pre>
 </p>
 <p>
-The advantage of this design over making <code>ClickHandler</code> an abstract superclass is that <em>any class</em> can implement the <code>ClickHandler</code> interface and provide an <code>onClick()</code> method to handle the user clicking on the button. If we created a <code>ClickHandler</code> <em>class</em> instead, the <code>onClick()</code> method would have to be placed inside a class inheriting from <code>ClickHandler</code> which makes the code less flexible. By defining an <em>interface</em> instead, it means that <em>any</em> object we like can act as the <code>ClickHandler</code>, provided it implements the <code>ClickHandler</code> interface and has an <code>onClick()</code> method.</p>
+The advantage of this design over making <code>ClickHandler</code> an abstract superclass is that <em>any class</em> can implement the <code>ClickHandler</code> interface and provide an <code>onClick()</code> method to handle the user clicking on the button - including classes which already inherit from something else. If we created a <code>ClickHandler</code> <em>class</em> instead, the <code>onClick()</code> method would have to be placed inside a class inheriting from <code>ClickHandler</code> which makes the code less flexible as some of our classes might already be subclasses of another superclass. By defining an <em>interface</em> instead, it means that <em>any</em> object we like can act as the <code>ClickHandler</code>, provided it implements the <code>ClickHandler</code> interface and has an <code>onClick()</code> method.</p>
 <p>This also allows us to make changes to our implementation more easily. If we want to change the class which handles our click events, we can easily do it by making the new class implement the interface and adding an <code>onClick()</code> method to it.</p> 
 <p>Later on in the module we will see how interfaces are often used in <em>design patterns</em>.</p>
 
@@ -368,12 +381,12 @@ Note how the argument to <code>addClickHandler()</code> is now a <code>ClickHand
 <li>At:
 <pre>https://github.com/nwcourses/com534-topic6-starter</pre> 
 is another version of the University project. You are going to simulate event handling by using an event handler <em>interface</em> called <code>MenuHandler</code> which handles the "event" of the user selecting a menu option.
-	<ul>
-	<li>First make the <code>TuiApplication</code> class (which represents the application as a whole, and is created from <code>main</code>) implement the <code>MenuHandler</code> interface.</li>
-	<li>Secondly write, inside <code>TuiApplication</code>, the <code>onMenuItemSelected()</code> method to handle the user selecting a particular menu option. This receives a parameter of the number of the menu item being selected, so you should use a <code>when</code> statement to test the number and run the appropriate code. The three items of functionality (add a student, search by ID, search by name) are provided in the code already, but you need to link them to the <code>onMenuItemSelected()</code>.</li>
-	<li>Change your code to write <em>three separate handler objects</em> for each menu item in separate anonymous class objects, as shown in the notes. Each handler object should, inside its <code>onMenuItemSelected()</code>, include the appropriate functionality (add a student, search by ID, search by name).</li>
-	<li>Finally change your code again to use a lambda, with SAM conversions, for each event handler.</li>
-	</ul>
+    <ul>
+    <li>First make the <code>TuiApplication</code> class (which represents the application as a whole, and is created from <code>main</code>) implement the <code>MenuHandler</code> interface.</li>
+    <li>Secondly write, inside <code>TuiApplication</code>, the <code>onMenuItemSelected()</code> method to handle the user selecting a particular menu option. This receives a parameter of the number of the menu item being selected, so you should use a <code>when</code> statement to test the number and run the appropriate code. The three items of functionality (add a student, search by ID, search by name) are provided in the code already, but you need to link them to the <code>onMenuItemSelected()</code>.</li>
+    <li>Change your code to write <em>three separate handler objects</em> for each menu item in separate anonymous class objects, as shown in the notes. Each handler object should, inside its <code>onMenuItemSelected()</code>, include the appropriate functionality (add a student, search by ID, search by name).</li>
+    <li>Finally change your code again to use a lambda, with SAM conversions, for each event handler.</li>
+    </ul>
 </li>
 </ol>
 </main>
