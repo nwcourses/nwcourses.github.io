@@ -204,8 +204,8 @@ fun main(args: Array&lt;String&gt;) {
         .forEach { println(it) }
 
     val employeeList = listOf(
-        Employee("Tom", "tom@unifiedwidgets.example.com", 28000), 
-        Employee("Kate", "kate@unifiedwidgets.example.com", 32000)
+        Employee("Tom", "tom@unifiedwidgets.example.com", 28000.0), 
+        Employee("Kate", "kate@unifiedwidgets.example.com", 32000.0)
     )
         
     // Print the emails of all employees in the list by mapping the
@@ -254,6 +254,8 @@ inheritance hierarchies</li>
 <em>implement</em> the interface</li>
 </ul>
 
+<p>Interfaces are used to define <strong>common behaviour</strong> across classes which might be from different inheritance hierarchies. For example, birds might be animals and planes might be vehicles, but <strong>they share the common behaviour of flying</strong>. </p>
+<p>Generally you should follow the principle: if something "fundamentally <em>is</em>" something else, use inheritance. If it just <em>shares common behaviour</em>, use an interface. So for example a <code>Bird</code> is fundamentally an animal, so it makes sense to inherit <code>Bird</code> from <code>Animal</code>. But a <code>Bird</code> isn't fundamentally a "<code>FlyingThing</code>", it just has the <em>behaviour</em> of flying. So it makes sense to make <code>FlyingThing</code> an <em>interface</em>.</p>
 <h3>Interface Example</h3>
 <pre>interface FlyingThing { 
     fun fly(): String 
@@ -270,8 +272,8 @@ which <em>implement the interface</em></li>
 <h3>How do we implement an interface</h3>
 <ul>
 <li>Use the <em>same syntax as for inheritance</em>, e.g.
-<pre>public class Bird : Animal() <em>, FlyingThing</em>
-public class Plane : Vehicle() <em>, FlyingThing</em></pre>
+<pre>class Bird : Animal() <em>, FlyingThing</em>
+class Plane : Vehicle() <em>, FlyingThing</em></pre>
 </li>
 <li>Because Bird and Plane implement FlyingThing, they 
 <strong>must</strong> each include a <em>fly()</em> method, e.g:
