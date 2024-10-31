@@ -381,9 +381,9 @@ Note how the argument to <code>addClickHandler()</code> is now a <code>ClickHand
 <pre>https://github.com/nwcourses/com534-topic6-starter</pre> 
 is another version of the University project. You are going to simulate event handling by using an event handler <em>interface</em> called <code>MenuHandler</code> which handles the "event" of the user selecting a menu option.
     <ul>
-    <li>First make the <code>TuiApplication</code> class (which represents the application as a whole, and is created from <code>main</code>) implement the <code>MenuHandler</code> interface.</li>
+    <li>Note how the <code>TuiApplication</code> class (which represents the application as a whole, and is created from <code>main</code>) is implementing the <code>MenuHandler</code> interface, so it can act as the handler for each menu item.</li>
     <li>Secondly write, inside <code>TuiApplication</code>, the <code>onMenuItemSelected()</code> method to handle the user selecting a particular menu option. This receives a parameter of the number of the menu item being selected, so you should use a <code>when</code> statement to test the number and run the appropriate code. The three items of functionality (add a student, search by ID, search by name) are provided in the code already, but you need to link them to the <code>onMenuItemSelected()</code>.</li>
-    <li>Change your code to write <em>three separate handler objects</em> for each menu item in separate anonymous class objects, as shown in the notes. Each handler object should, inside its <code>onMenuItemSelected()</code>, include the appropriate functionality (add a student, search by ID, search by name).</li>
+    <li>Using <em>anonymous classes</em>, change your code to write <em>three separate handler objects</em> for each menu item in separate anonymous class objects, as shown in the notes. Each handler object should, inside its <code>onMenuItemSelected()</code>, include the appropriate functionality (add a student, search by ID, search by name). It can now ignore the <code>choice</code> parameter (why?)</li>
     <li>Finally change your code again to use a lambda, with SAM conversions, for each event handler.</li>
     </ul>
 </li>
