@@ -84,7 +84,7 @@ anything, hence specifying <em>Unit</em> as the return type of the function pass
 <li><em>Lambda</em> functions are similar to ordinary anonymous functions but use a special, concise syntax</li>
 <li>Here is the first example rewritten to use a lambda function:
 <pre>fun main(args: Array&lt;String&gt;) {
-    val cubeLambda: (Int) -&gt; Int =  { i -&gt; return i*i*i }
+    val cubeLambda: (Int) -&gt; Int =  { i -&gt; i*i*i }
     println(cubeLambda(3))
 }
 </pre>
@@ -95,34 +95,21 @@ in braces { }, and separate the parameters and the function body with the <em>-&
 <pre>val cubeLambda: (Int) -&gt; Int</pre>
 This is because we do not specify the parameter types in the lambda, therefore we have to specify the type of
 the variable holding it</li>
-<li>Note how in our case, the lambda only has one statement (<em>return i*i*i</em>), but they can
+<li>We do not need the <code>return</code> keyword: the lambda will automatically return <code>i*i*i</code></li>
+<li>Note how in our case, the lambda only has one statement (<em>i*i*i</em>), but they can
 actually have multiple statements, one statement per line; e.g.
 <pre>val someLambda: (Int) -&gt; Int = { parameter-&gt;
     statement1
     statement2
-    return someValue
+    someValue
 }
 </pre>
 </li>
+<li><strong>The final statement in a lambda is treated as the return value</strong></li>
 <li>See <a href="https://kotlinlang.org/docs/reference/lambdas.html">the Kotlin documentation</a> for more details</li>
 </ul>
-<h3>Making the lambda more concise - I</h3>
+<h3>Making the lambda more concise - the implicit "it"</h3>
 <ul>
-<li>We can make the previous version more concise</li>
-<li>With lambdas, <em>the value declared in the last line is always automatically returned</em></li>
-<li>So the code below will also have the same effect as the previous example:
-<pre>fun main(args: Array&lt;String&gt;) {
-    val conciseCubeLambda: (Int) -&gt; Int =  { i -&gt; i*i*i }
-    println(conciseCubeLambda(3))
-}
-</pre>
-Because the last statement of the lambda is always returned, and that last statement here is <em>i*i*i</em>,
-it follows that <em>i*i*i</em> will be returned from the lambda in this example, and the desired effect of
-returning the cube will be achieved</li>
-</ul>
-<h3>Making the lambda more concise - II - the implicit "it"</h3>
-<ul>
-<li>It doesn't stop there!</li>
 <li>In cases in which a lambda has just <em>one</em> parameter - a common situation - we can refer to
 that one parameter implicitly using the keyword <em>it</em></li>
 <li>Thus, we can rewrite the cube example as follows:
