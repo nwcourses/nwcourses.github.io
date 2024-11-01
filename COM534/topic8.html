@@ -1,245 +1,144 @@
 <!DOCTYPE html>
-<html><head>
-<title>Topic 5: Sequence diagrams</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
+<head>
+<title>OODD Week 8 - Further Compose Multiplatform</title>
 <link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
-<link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
-</head><body>
+<link rel='stylesheet' type='text/css' href='../css/nwnotes.css' />
+</head>
+<body>
 <header>
-<h1>Topic 8</h1>
-<h1>Analysis and Design III: Sequence Diagrams</h1>
+<h1>Object Oriented Design and Development</h1>
+<h1>Topic 8: Further Compose Multiplatform</h1>
 </header>
+<h2>Further introductory Compose topics</h2>
+<h3>Units of Measurement</h3>
+<p>During the lab session last week we looked at how to specify font size, e.g.:
+<pre>Text("Hello World!", fontSize=24.sp)</pre>
+What does the font size <code>24.sp</code> mean? It's not just a number but a number with <code>.sp</code> appended. This is another example of an <em>extension function</em> on <code>Int</code>, as we saw last time, but what does <code>.sp</code> mean?</p>
 
-<main>
-<h2>Sequence diagrams</h2>
-<p>Having linked the use-cases to the domain model classes with design-level use case texts, the next stage is to move to a more detailed design, in which we work out what <em>methods</em> might need to be implemented, <em>which classes they belong to</em> and <em>what order each method should be called</em>. The <em>sequence diagram</em> allows us to do this: sequence diagrams show all the components in the system and their interactions (in the form of method calls), focusing on the order (sequence) in which they are called. Once a sequence diagram is completed, the methods shown on it can be used to enhance or correct the class diagram, to produce a finalised, accurate class diagram from which coding can begin.</p>
-
-<h3>What we have to do</h3>
-
-<p>Our aim is to convert the design-level use case text into the sequence diagram. We will go through the process by looking at our first design-level use case text from the previous topic (Enrol a Student) as an example:
-<table>
-
-<tr>
-<th>Step</th>
-<th>Actor action</th>
-<th>System response</th>
-</tr>
-
-<tr>
-<td>1</td>
-<td>The use case begins when the admin staff selects to
-enrol a new student.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>-</td>
-<td><strong>The UI</strong> prompts the user for the student  details (name, address, date of
-birth, course)</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>The user enters the details specified in step 2.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>4</td>
-<td>-</td>
-<td><strong>The UI</strong> checks the validity of the details, e.g. date of birth is sensible</td>
-</tr>
-
-<tr>
-<td>5</td>
-<td>-</td>
-<td>The <strong>University object</strong> allocates a student ID for new student <strong>using the existing highest ID plus one.</strong></td>
-</tr>
-
-<tr>
-<td>6</td>
-<td>-</td>
-<td>The <strong>University object</strong> creates a <strong>Student object</strong> and adds it to the list of students.</td>
-</tr>
-
-<tr>
-<td>7</td>
-<td>-</td>
-<td>System confirms enrolment is successful <strong>on the UI</strong>.</td>
-</tr>
-
-</table>
-</p>
-<h3>First - work out what methods are needed</h3>
-<p>Before we draw the sequence diagram, it helps to <em>clearly identify the methods</em> which will be needed to implement the use case. We can do this by analysing our design-level sequence diagram still further.</p>
-<p>Here is an example of how to do this from the "enrol a student" design-level use case text shown above. As we saw above, the most interesting steps are step 5 and 6 because they involve objects of the domain model classes <code>University</code> and <code>Student</code>. We can think about these steps in a bit more detail in order to work out what methods might be needed.
-	<ul>
-	<li>We first need to allocate a student ID, using the existing highest ID plus one. As we have seen, this is the responsibility of the <code>University</code>. So it follows logically that we could allocate a <em>method</em> - <code>allocateStudentId()</code> - for this functionality, and place it in the <code>University</code> class.</li>
-	<li>We then need to create a student object using that ID, and add it to the list of students. Again, it follows logically that we need a new method, <code>addNewStudent()</code>, also inside <code>University</code>.</li>
-	<li>So we end up with two methods of <code>University</code> to implement this use case. These will be shown as <em>messages</em> on the sequence diagram.</li>
-	</ul>
-</p>
-
-<h3>Secondly - draw the sequence diagram</h3>
-
-<p>We then draw the sequence diagram by going through the use case and showing the interactions between the components of the system, including the actor, UI and domain model classes. Two components <em>interact</em> if they communicate with each other. What do we mean when we say components communicate with each other?
-	<ul>
-	<li>An actor communicates with the UI by pressing buttons, filling in text fields, and so on.</li>
-	<li>The UI communicates with an actor by displaying information.</li>
-	<li>A class communicates with another class by calling a method of the other class. In response, the other class might return data.</li>
-	</ul>
-Before drawing the sequence diagram for "enrol student", we need to understand sequence diagram <em>notation</em>.</p>
-
-<h4>Sequence diagram notation</h4>
-<p>
+<p>Before discussing <code>sp</code>, we will discuss the similar <code>dp</code> unit. What is the <code>dp</code> unit? 
 <ul>
-<li>Sequence diagrams show the communication between the components of the system in the correct <em>sequence</em> (hence the name)</li>
-<li>Each component (actor, class) is shown as a vertical <em>lifeline</em> representing the time span in which it is active	
-	<ul>
-	<li>For example, in the sequence diagram below there are lifelines for "admin staff" (actor), <code>GUI</code>, <code>University</code> and <code>Student</code></li>
-	</ul>
-</li>
-<li>When a component communicates with another, we say that the component (actor, UI or class) sends the other component a <em>message</em>
-	<ul>
-	<li>These are shown as solid arrows</li>
-	<li>In code, this translates to class A calling a method of class B</li>
-	</ul>
-</li>
-<li>The arrow shows the direction of the message</li>
-<li>Sometimes one class sends itself a message (a <em>self-call</em>) - for example <code>checkDetails()</code> on the sequence diagram below</li>
-<li>Return values (return messages) are shown by a dotted line</li>
-</ul>
-<p><img src="../images/sequence_enrol_student.drawio.png" alt="Enrol student - sequence diagram" /></p>
-<p>
-Overall, the sequence diagram shows how the <em>control</em> flows from one component to another (e.g. actor to UI, UI to class, or class to another class). 
-A given component is <em>in control</em> when a <em>method</em> of that component is running (or, in the case of an actor, the actor is interacting with the UI).  A vertical box on a given lifeline is known as an <em>activation</em> and represents a continuous period of control in one component, for example, a method.
-</p>
-
-<h4>Full explanation of sequence diagram for Enrol Student</h4>
-<ul>
-<li>The control starts with the admin staff, when they choose to add a new student (step 1).</li>
-<li>The control then shifts to the UI, which prompts the user to enter the student details (step 2).</li>
-<li>The control then shifts back to the admin staff, who enters the student details (step 3).</li>
-<li>The control then shifts back to the UI, which receives the student details and validates them (step 4). Validation does not require the use of domain model classes, so we write it as a <em>self-call</em> (see above): the UI can do it with its own method, which might be called <code>validateDetails()</code>.</li>
-<li>The student then needs to be created, which the UI cannot do on its own. It needs to call upon the domain model classes to do this. This corresponds to the UI <em>calling methods</em> of the domain model classes. In our initial analysis, above, we worked out the two methods we need, both in the <code>University</code> class: <code>allocateStudentId()</code> to allocate a student ID, and <code>addNewStudent()</code> to add a student.</li>
-<li>So the flow of control transfers to the <code>University</code> for step 5, to allocate a new student ID. This involves the UI calling the <code>allocateStudentId()</code> method of the <code>University</code> which then returns an ID.</li>
-<li>The step to return the ID is clearly shown in the sequence diagram.
-It is shown as a <em>return message</em> (dotted line, going the other way)</li>
-<li>We then need to create a new student and add it to the list: as we saw above, this is done with the <code>addNewStudent()</code> method. This method will perform both tasks. It will need the student ID allocated in the previous step, so we pass it in as a parameter.</li>
-<li>Finally the UI displays a confirmation message (e.g. a dialog box). This is represented by a message sent back to the admin staff, so the flow of control is transferred back to the admin staff (who can then continue to use the application).</li>
-</ul>
-
-<h3>Example 2 - Edit student details</h3>
-<p>We will now go through the second use case in a similar way. Firstly, here is the design-level use case text from the previous topic:</p>
-<p>
-<table>
-
-<tr>
-<th>Step</th>
-<th>Actor action</th>
-<th>System response</th>
-</tr>
-
-<tr>
-<td>1</td>
-<td>The use case begins when the admin staff selects to
-edit the student details</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>-</td>
-<td><strong>The UI</strong> prompts the user for the student ID</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>The member of staff enters the student ID.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>4</td>
-<td>-</td>
-<td><strong>The University object</strong> finds the <strong>Student object</strong> with that ID</td>
-</tr>
-
-<tr>
-<td>5</td>
-<td>-</td>
-<td><strong>The UI</strong> displays details of that student in editable text boxes</td> 
-</tr>
-
-<tr>
-<td>6</td>
-<td>The admin staff changes the details.</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td>7</td>
-<td>-</td>
-<td><strong>The UI</strong> checks that the new details are valid (e.g. no blank strings)</td>
-</tr>
-
-<tr>
-<td>8</td>
-<td>-</td>
-<td><strong>The Student object we found in step 4</strong> is updated with the new details.</td>
-</tr>
-<tr>
-<td>9</td>
-<td>-</td>
-<td><strong>The UI</strong> displays a confirmation message to the user.</td>
-</tr>
-
-</table>
-</p>
-Once again, the first step, before we draw up the sequence diagram, is to identify what methods we need in our domain model classes. We have already seen, in the design-level use-case text, that steps 4 and 8 involve the domain model classes. Firstly in step 4, the <code>University</code> finds the <code>Student</code> with that ID. Hopefully, it's fairly clear what method would be needed here. We'd need a method within <code>University</code> to loop through the list of students, and return the <code>Student</code> with the correct ID. So we could define a method called <code>findStudentById()</code> which takes a student ID as a parameter and returns a <code>Student</code>.
-</p>
-<p>Step 8 in this use case is even more straightforward, we just need to update the details of the found <code>Student</code>. We could define a method of <code>Student</code> which takes the new details as parameters and updates the properties to those new values. This method could simply be called <code>updateDetails()</code>.</p>
-<p>So we could have a sequence diagram like this:
-<p>
-<img src="../images/sequence_edit_student.drawio.png" alt="Search for member sequence diagram" />
-</p>
-<ul>
-<li>In step 1 the control is with the admin staff: the admin staff selects the option to edit the student details.</li>
-<li>The flow of control then shifts to the UI in step 2: the UI displays a form to allow the admin staff to enter the student ID.</li>
-<li>The flow of control then shifts back to the admin staff in step 3, and they enter an ID.</li>
-<li>The flow of control shifts back to the UI (the admin staff can only interact with the UI!) in step 4, but the UI then immediately transfers control to the <code>University</code> to find the student with that ID, using the <code>findStudentById()</code> method we discussed above.</li>
-<li>The <code>University</code> returns the <code>Student</code> to the UI by means of a return message, the flow of control returns to the UI, and the UI displays the student details in editable text boxes (step 5).</li>
-<li>The flow of control then shifts back to the admin staff, who changes the appropriate details, in step 6.</li>
-<li>The flow of control then shifts to the UI once again in step 7, which validates the details the user entered.</li>
-<li>In step 8, the flow of control shifts to the <code>Student</code> that we found in step 4. The UI sends the new details to the <code>Student</code> object, which updates its details to the new ones entered by the admin staff.</li>
-<li>The flow of control returns to the UI in step 9, which displays a confirmation message in a dialog box, which is displayed to the admin staff, with the flow of control finishing with the admin staff so that they can then dismiss the dialog box.</li> 
-</ul>
-
-<h3>Alternative courses of action on a sequence diagram</h3>
-<p>You can also show alternative courses of action on a sequence diagram. This sis done by means of a UML <em>frame</em>. This has a label (<code>alt</code> for alternative courses of action) together with two or more sections, each representing an alternative course of action, and separated by a dotted line. Each section is annotated with the condition which must hold true for that course of action to run. Here is an example:
+<li>A <code>dp</code> is a <em>density-independent pixel</em>: a virtual pixel, corresponding to varying numbers of real pixels, which ensures that page elements occupy the same dimensions on the screen across different devices.</li>
+<li>Why do we need to do this? Different devices have different <em>pixel density</em>, in other words they contain varying numbers of pixels within a given distance on the screen, such as one centimetre or one inch (approximately 2.5cm). High-density screens have many pixels within a given distance, while low-density screens have less. Thus, density-independent pixels account for different pixel density of screens to ensure consistent appearance across different devices). If we used regular pixels for the width or height, UI elements would occupy different proportions of the screen on different devices. This is shown below:
 <br />
-<img src='../images/sequence_edit_student_with_alt_action.drawio.png' alt='Sequence diagram showing alternative courses of action' />
-</p>
-<h3>Preparing a sequence diagram in diagrams.net</h3>
-<p>Please see this <a href='https://www.diagrams.net/blog/sequence-diagrams'>blog article</a> for more detail on preparing a sequence diagram in diagrams.net.</p>
-<h2>Exercise</h2>
-<p>Below is a domain model and two design-level use case texts for the live music venue scenario, introduced in week 4. Using these:
-	<ol>
-	<li>Work out what methods would be needed to implement the use case, by further analysing the steps in the use-case text which involve the domain model classes as shown above.</li>
-	<li>Prepare a sequence diagram for "book an event".</li>
-	<li>Work out what methods would be needed to implement this use case, as before.</li>
-	<li>Prepare a sequence diagram for "book an event".</li>
-	</ol>
+<img src="../images/dp.png" alt="Density-independent pixels" />
+<br />
+</li>
+<li>Density-independent pixels correspond exactly to pixels at a pixel density of 160 pixels per inch. If the density is greater than that, one density-independent pixel will occupy more than one real pixel, while if it is less, one dp will occupy less than one real pixel. See <a href='https://developer.android.com/training/multiscreen/screendensities'>the Android documentation</a> for more information on density-independent pixels, as well as this <a href='https://developer.android.com/design/ui/mobile/guides/layout-and-content/grids-and-units'>documentation on units of distance in Android in general (also applicable to Compose Multiplatform)</a>.</li>
+</ul>
 </p>
 
-<h3>Domain model</h3>
-<p>
-<img src='../images/week4domainmodel.drawio.png' alt='Week 4 class diagram solution' />
+<p>What then are <code>sp</code>? These are <em>scalable pixels</em>, which are basically the same as density-independent pixels, but they adapt to the user's chosen font size as well as the pixel density and thus should be used for specifying font size.</p>
+
+<h3>Modifiers</h3>
+<p>We can modify the appearance of UI elements with <em>modifiers</em> which allow you to control such things as padding, borders, etc. Modifiers are optional in some cases but compulsory in others. Modifiers are compulsory in the case of the <code>Spacer</code>, which is an element used to provide space between other elements. Here is an example with a <code>Spacer</code>:
+<pre>package com.example.jetpackcompose3 
+
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+
+@Composable
+fun TwoTextsWithSpacer() {
+    Column {
+        Text("Hello World!", color = Color.red, fontStyle=FontStyle.Italic, fontSize=24.sp, fontFamily=FontFamily.Serif)
+        Spacer(Modifier.height(32.dp))
+        Text("Welcome to Android Development", fontWeight=FontWeight.Bold, fontSize=18.sp)
+    }
+}
+</pre>
+This creates a spacer with a height of 32 density independent pixels (see above).</p>
+
+<p>Other modifiers allow us to specify <em>padding</em> (the space between the border of a UI element and its content) or an element's <em>border</em>. For example, this surrounds a <code>GreetingComponent</code> component with a 2 dp wide blue border and with <em>padding</em> of 16dp between the border and the content. Note how <code>Modifier</code> contains many methods to modify different aspects of the element, and note how they can all be chained together.
+<pre>
+GreetingComponent(
+    Modifier.border(BorderStroke(2.dp, Color.Blue))
+            .padding(16.dp)
+)
+</pre>
+Our <code>GreetingComponent</code> would now need to take a modifier as a parameter. This would then be passed onto the <code>Column</code> which sets the layout within the greeting component. 
+<pre>
+@Composable
+fun GreetingComponent(<em>mod: Modifier</em>) {
+    var name by remember { mutableStateOf("") }
+    Column(<em>mod</em>) {
+        ...
+    }
+}
+</pre>
 </p>
 
-<h3>Design-level use-case texts</h3>
-<p>Will appear once you have completed the Week 5 work.</p>
-</main>
+<h3>Tab-based navigation on TextFields</h3>
+
+<p>If you try to create multiple <code>TextField</code>s in the same app, you will notice that you will be unable to navigate between them using Tab. This is because by default text fields are <em>multi-line</em> and multi-line text fields do not support tab-based navigation by default. You canm however, make the text field single line:</p>
+<pre>TextField(value, <strong>singleLine = true</strong>, onValueChange = ...)</pre>
+Furthermore, to enhance the user experience and show an outline round the currently-focused text field, you can use an <code>OutlinedTextField</code>:
+<pre><strong>OutlinedTextField</strong>(value, <strong>singleLine = true</strong>, onValueChange = ...)</pre>
+</p>
+
+<h2>Implementing Lists of Data</h2>
+
+<p>You may be able to figure out how to create a <em>list</em> of data. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list. How might you implement this?</p>
+
+<h3>Creating Lists</h3>
+<p>You would implement a list by <em>storing a list of data in state</em>. You might think you could do something like this:
+<pre>@Composable
+fun ShoppingList() {
+    var list by remember { mutableStateOf(mutableListOf&lt;String&gt;()) }
+    var currentItem by remember { mutableStateOf("") }
+
+    TextField(value=currentItem, onValueChange = { currentItem=it } )
+    Button(onClick = { list.add(currentItem) } ) { Text("Add Item") }
+
+    list.forEach {
+        Text(it)
+    }
+}</pre>
+Note how we have a text field which allows you to enter a shopping list item, which is stored in the <code>currentItem</code> state variable. When the button is clicked, the current item is added to the list. As it's a mutable list, you might think this would work.
+</p>
+<p><strong>However</strong> it does not work. The reason is that <strong>composables are only re-rendered if the state variables change.</strong> Here, when we add a new item to the list, the list becomes one element longer but the actual list variable is the same variable, referring to the same location in memory. To trigger a re-render when a new list item is added, we have to <strong>create a clone of the list, add the item to that, and then reset the list state variable to the clone.</strong> This will change the state variable and force a re-render. Here is an example which does that:
+<pre>@Composable
+fun ShoppingList() {
+    var list by remember { mutableStateOf(<em>listOf</em>&lt;String&gt;()) }
+    var currentItem by remember { mutableStateOf("") }
+
+    TextField(value=currentItem, onValueChange = { currentItem=it } )
+    Button(onClick = { 
+        var tempList = list.toMutableList() // clone the list
+        tempList.add(currentItem) 
+        list = tempList
+    } ) { Text("Add Item") }
+
+    list.forEach {
+        Text(it)
+    }
+}</pre>
+Note here how:
+    <ul>
+    <li>The list state variable is now an <em>immutable</em> list.</li>
+    <li>When we add an item to the list, we create a <em>mutable</em> copy of the list using <code>toMutableList()</code></li>
+    <li>We add the item to this mutable copy (<code>tempList</code>) and reset the original state list to the mutable copy.</li>
+    </ul>
+</p>
+
+<h2>Material Design</h2>
+
+<p><em>Material Design</em> (see <a href='https://material.io'>the website</a>) is a published design philosophy which is adopted as the recommended standard in Android development but is also used in Compose Multiplatform. It revolves around the idea of screen surfaces being composed of <em>material</em> which has certain visual and behavioural properties, for example the ability to cast shadows when raised, and only UI elements at the top of a stack of elements being able to receive events. Material Design specifies a range of standard UI components, such as buttons, text fields and many others. Following the Material Design philosophy allows the development of clean-looking, usable and intuitive apps.</p>
+
+
+<p>Material Design has a range of key aspects, with three particularly important components being the <em>colour scheme</em>, the <em>typography</em> (font family, size etc) and the <em>shape</em> of UI components (composables). With Material Design you give your app a <em>theme</em> which allows you to set a consistent look and feel for your app by applying a certain colour scheme, typography and component shape class (e.g. rounded corners). Your theme typically extends from a standard <code>MaterialTheme</code> which is setup to give a similar colour scheme to UI elements of similar importance - in your own theme you can change the default colour scheme, typography and shape. For example important buttons are coloured by the theme in strong colours, but less important UI elements such as labels are coloured using more neutral colours.</p>
+
+<p>You can easily apply the default <code>MaterialTheme</code> in Compose Multiplatform by surrounding your composables with <code>MaterialTheme</code>. This is, in fact, already done for you in the auto-generated code in IntelliJ IDEA or AAndroid Studio. Here is an example:</p>
+<pre>
+@Composable
+App() {
+    <strong>MaterialTheme</strong> {
+        Column {
+            Composable1()
+            Composable2()
+        }
+    }
+}</pre>
+<p>We will look at Material Design in more detail in Mobile Application Development.</p>
+
 </body>
 </html>
