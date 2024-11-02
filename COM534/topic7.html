@@ -13,26 +13,33 @@
 
 <main>
 <h2>Compose Multiplatform</h2>
-<p><em>Compose Multiplatform</em> is a multi-platform framework to allow you to develop GUI applications across a range of platforms. Originally a framework for Android apps specifically (<em>Jetpack Compose</em>), it now supports a range of different platforms including common desktop platforms (Windows, Linux, Mac) as well as iOS.</p>
+<p><em>Compose Multiplatform</em> is a multi-platform framework to allow you to develop GUI applications across a range of platforms. Originally a framework for Android apps specifically (<em>Jetpack Compose</em>), it now supports a range of different platforms including common desktop platforms (Windows, Linux, Mac) as well as iOS. This means that with Compose Multiplatform, you can develop apps for multiple platforms using the <strong>same</strong> codebase - without having to develop seperate versions for Android, iOS, and desktop.</p>
 
-<h3>Declarative layouts</h3>
+<h3>Declarative UIs</h3>
 
 <p>Compose Multiplatform adopts a <em>declarative</em> approach to UI development. What does that mean? 
     <ul>
-    <li> With a declarative approach, by contrast, we <em>declare</em> the layout by writing a series of Kotlin functions called <em>composable functions</em> and also specify the data within them by inserting that data directly into the layout where it's needed. We store that data in what is known as <em>state</em> and change the state in response to UI events, for example button clicks. Importantly, <strong>changing the state triggers an automatic re-rendering of the UI</strong>. </li>
+    <li>With a declarative approach, we <em>declare</em> the layout by specifying the UI elements within the layout in the order in which they appear.</li>
+    <li>If we need to store data (such as a name the user entered, or the number of times a user clicks a button) we store it in <em>state</em>. State is data which represents the current state of the UI, and we can use state to decide what is displayed to the user in the UI.
+    <li>We don't need to write code logic to construct the UI elements, or to manually modify the UI elements if the underlying data changes.</li>
     </ul>
 </p>
-<p>So, code for a declarative UI might look something like this (not real code):
-<pre>
-ScreenLayout = {
-    currentName: StringStateVariable
+<p>So, code for a declarative UI might look something like this (<strong>note that this is not real Compose code, but a simplified version to illustrate the concepts</strong>):</p>
+<pre>AppLayout() {
+    var state = "Not Clicked"
 
-    TextField { onKeyPress = { set currentName to TextField contents } }
-    TextLabel { contents =  "Hello $currentName!" }
-    Button { text : "Set name to blank", onClick = { currentName = "" } }
-}
-</pre>
-Note how we store a name (that the user might enter) in a <em>state</em> variable called <code>currentName</code>. The TextLabel shows the message "Hello" plus the name from the state, the TextField allows the user to enter a new name, and the name is updated to the text field contents when a key is pressed while it's focused, and the Button clears the name to a blank string when it's clicked. Note how the TextField <em>tracks the state</em>, so that whenever the state is updated, the TextField contents automatically update.</p>
+    Text("Hello World")
+    Button("Click Me!", onClick = { state = "Clicked" })
+    Text(state)
+}</pre>
+<ul>
+<li>Note how we specify our app layout by including all the elements in the order in which they appear.</li>
+<li>Note also the state variable (called <code>state</code>) which is set to "Not Clicked" by default. When the user clicks on the button, the state variable is reset to the value "Clicked".</li>
+<li>Note that the second <code>Text</code> displays the value of the state variable, so it will display either "Not Clicked" or "Clicked".</li>
+<li>Importantly in declarative layouts, <em>UI elements which use state are re-rendered (re-drawn) when the state changes</em>. So when the variable <code>state</code> is updated, the second <code>Text</code> is <em>automatically redrawn</em>. Unlike non-declarative layouts, we do not have to implement logic with <code>if</code> statements to re-render the layout.</li>
+</ul>
+
+<p>See <a href='https://developer.android.com/develop/ui/compose/mental-model'>Thinking In Compose</a> in the Android documentation.</p>
 
 <h2>Getting started with Compose Multiplatform</h2>
 <p>There are two main ways of starting up a Compose Multiplatform project:
@@ -48,10 +55,10 @@ We will look at these one by one. More information on setting up a Compose Multi
 <img src="../images/composeMultiplatform1.png" alt="Selecting a Compose Multiplatform project in IDEA" />
 </p>
 <p>Create a project and ensure you select <em>Compose for Desktop</em> as the project type. An <strong>IMPORTANT</strong> point is that you need to choose a version of Java - remember that Kotlin runs on the <em>Java Virtual Machine</em>. The Java Development Kit (JDK) is required to compile Kotlin into Java bytecode. The default version is likely to be 22 or 23 but these may require an update to the <em>Gradle</em> build tool (see below) (see below). So your choices are:
-	<ul>
-	<li>Use the most up-to-date version of Java and upgrade your Gradle;</li>
-	<li>Use an older version of Java.</li>
-	</ul>
+    <ul>
+    <li>Use the most up-to-date version of Java and upgrade your Gradle;</li>
+    <li>Use an older version of Java.</li>
+    </ul>
 </p> 
 <p>If using up-to-date Java, you may see this error come up:
 <br />
@@ -122,22 +129,23 @@ What's this doing? <code>application()</code> is part of the Compose API. Compos
 
 <h3>Composable functions</h3>
 
-<p>In Compose Multiplatform, we define each UI component as a <em>composable function</em>. Composable functions typically represent reusable groups of UI elements which work together, e.g. a login composable function could contain username and password fields and a button which logs the user in.</p>
+<p>In Compose Multiplatform, we define each UI component as a <em>composable function</em>. A <em>composable function</em> represents a UI component which can be drawn to the screen (<strong>composed</strong>). Composable functions typically represent reusable groups of UI elements which work together, e.g. a login composable function could contain username and password fields and a button which logs the user in.</p>
 
 <h4>Example of a composable function</h4>
 
-<p>In the auto-generated code you will find an <code>App()</code> composable. We will cover what this auto-generated code does later, but for now, delete the pre-generated <code>App()</code> and replace it with this new <code>App()</code>:
+<p>In the auto-generated code you will find an <code>App()</code> composable, which is a child composable of the <code>Window</code> (which is itself a composable). We will cover what this auto-generated code does later, but for now, delete the pre-generated <code>App()</code> and replace it with this new <code>App()</code>:
 <pre>@Composable
 fun App() {
     Text("Hello Compose World!")
 }</pre>
 
-Note how we create a function <code>App()</code> labelled with the <em>annotation</em> <code>@Composable</code>. This turns <code>App()</code> into a composable. Annotations are meta-language instructions which are converted by a pre-processor into more complex Kotlin or Java code. The <code>App</code> function contains a <code>Text</code> composable which displays a Hello World message.</p>
+Note how we create a function <code>App()</code> labelled with the <em>annotation</em> <code>@Composable</code>. This turns <code>App()</code> into a composable. Annotations are meta-language instructions which are converted by a pre-processor into more complex Kotlin or Java code; in the case of <code>@Composable</code>, a Compose pre-processor converts the annotation into more complex Kotlin code, but you never see this code.</p>
+<p>The <code>App</code> function contains a <code>Text</code> composable which displays a Hello World message.</p>
 
 
 <h4>Writing custom composables</h4>
 
-<p>So far we have just filled the default <code>App()</code> composable. However we can create our own composables, separate to <code>App()</code>, and include them within <code>App()</code> to develop a more complex UI. For example:
+<p>So far we have just filled the default <code>App()</code> composable. However we normally create our own composables, which can be <em>reused</em> in multiple applications. These can then be included within the <code>App()</code> composable as <strong>child composables of <code>App</code></strong> to develop a more complex UI. For example:
 <pre>@Composable
 fun HelloWorld() {
     Text("Hello World fron the Custom Composable!")
@@ -162,7 +170,8 @@ fun TwoTexts() {
 }
 </pre>
 <p><em>Note that in all these examples, where an import is marked with <code>// new import</code> you need to add it to the list of imports at the top of the file which is auto-generated when you set up a Compose Multiplatform project.</em></p>
-<p>This example creates a composable function with <em>two</em> UI elements: two <code>Text</code> elements arranged vertically. The vertical layout is defined with <code>Column</code> which arranges all the elements within it in a vertical column. There is also <code>Row</code> which arranges all elements within it horizontally.</p>
+<p>This example creates a composable function with <em>two</em> UI elements: two <code>Text</code> elements arranged vertically. The vertical layout is defined with <code>Column</code> which arranges all the elements within it in a vertical column. There is also <code>Row</code> which arranges all elements within it horizontally. If we don't specify a layout (row, column or others), composables will appear on top of each other.</p>
+<p>This example also illustrates how <em>composables always take a lambda as their final argument</em>. In this lambda, we specify the <em>child composables</em> of that composable. So for example, here, <code>Column</code> is a composable representing a column, and we specify a lambda function containing its child composables (two <code>Text</code>s). We use this pattern of coding no matter what composable we use.</p>
 
 <h4>Controlling the appearance of UI elements</h4>
 
@@ -206,19 +215,21 @@ fun App() {
 @Composable
 fun GreetingBox() {
     Column {
-        TextField(value = "Enter your name: ", onValueChange={/* event handler */ })
+        TextField(value = "Enter your name: ", onValueChange={
+            /* event handler */ 
+        })
         Text("Greeting will go here")
     }
 }
 </pre>
 Note how the <code>TextField</code> takes two compulsory arguments, the default text to place inside the text field, and the <code>onValueChange</code> event handler which runs when the user enters text (a lambda function).  Note that here we have used named parameters in the <code>TextField</code>, we do not need to do this (as the value and <code>onValueChange</code> event handler are the first two parameters) but have added them for clarity.</p>
-<p>How can we actually display a greeting in the <code>Text</code> corresponding to the name that the user entered, though? Or, in general, how can we dynamically update a Compose UI? We use composable <em>state</em> to do this. In event handlers, we update state variables, and then we include that state in other UI elements. <strong>When the state updates, the UI will automatically be refreshed.</strong> If you have worked with <em>React</em> in web development, you will recognise this pattern.</p>
+<p>How can we actually display a greeting in the <code>Text</code> corresponding to the name that the user entered, though? Or, in general, how can we dynamically update a Compose UI? We use composable <em>state</em> to do this. In event handlers, we update state variables, and then we include that state in other UI elements. <strong>When a state variable updates, composables which use that state variable will automatically be redrawn.</strong> This is called <strong>recomposition.</strong> If you have worked with <em>React</em> in web development, you will recognise this pattern.</p>
 
-<p>So how do we setup state? We have to declare a variable in this way, inside the Composable:
-<pre>var name by remember { mutableStateOf("") }</pre>
-The use of <code>by remember</code> creates a state variable called <code>name</code> which is initialised within the provided lambda to a blank string "". We will examine the meaning of this code, specifically <code>by</code>, in more detail in the Mobile Application Development module, but for now you just need to know that it initialises <code>name</code> so that it can act as a state variable and cause the composable to redraw itself when it changes. 
+<p>So how do we setup state? We have to declare a <strong>state variable</strong> to represent the state. State variables are variables of type <code>MutableState</code>, for example <code>MutableState&lt;String&gt;</code> for a <code>String</code> state variable, though you don't normally need to declare the type as Kotlin infers it from your initialisation. For example:
+<pre>val nameState = remember { mutableStateOf("") }</pre>
+The <code>remember</code> function creates a <code>MutableState</code> variable called <code>nameState</code> which is initialised within the provided lambda to a blank string "". The state will be remembered when the composable is recomposed (redrawn).
 </p>
-<p>We can then insert the state variable within the UI where we like, e.g:
+<p>We can then insert the state variable within the UI where we like. To reference the actual value of the <code>MutableState</code>, we have to use its <code>value</code> property. For example:
 <pre>
 import androidx.compose.runtime.remember // new import
 import androidx.compose.runtime.mutableStateOf // new import
@@ -227,17 +238,19 @@ import androidx.compose.runtime.getValue // new import
 
 @Composable
 fun GreetingBox() {
-    var currentName by remember { mutableStateOf("") }
+    val nameState = remember { mutableStateOf("") }
     Column {
-        TextField(value=currentName, onValueChange={ currentName = it })
-        Text("Hello $currentName!")
+        TextField(value = nameState.value, onValueChange= { 
+            nameState.value = it 
+        })
+        Text("Hello ${nameState.value}!")
     }
 }
 </pre>
 <ul>
 <li>
 Note how we set the <code>value</code> of the <code>TextField</code> to the state variable so that the text field is always in sync with the current value of the state variable.</li>
-<li>The <code>onValueChange</code> event handler lambda for the <code>TextField</code> takes the new text within the text field as its one and only parameter (<code>it</code>) so, in the event handler, we <em>update the state variable <code>currentName</code></em> to the current text in the text field. Then, in the <code>Text</code> element, we include the state variable in our greeting, so the greeting will always sync with what the user entered in the text field.</li>
+<li>The <code>onValueChange</code> event handler lambda for the <code>TextField</code> takes the new text within the text field as its one and only parameter (<code>it</code>) so, in the event handler, we <em>update the state variable <code>nameState</code></em> to the current text in the text field. Then, in the <code>Text</code> element, we include the state variable in our greeting, so the greeting will always sync with what the user entered in the text field.</li>
 </ul>
 
 <h3>Buttons</h3>
@@ -246,14 +259,22 @@ Note how we set the <code>value</code> of the <code>TextField</code> to the stat
 <pre>
 import androidx.compose.material.Button // new import
 
-Button ( 
-    onClick = { /* make something happen when the user clicks the button */ }
-) {
-    // Text as a child component of the button
-    Text("Click me!")
+@Composable
+fun ButtonExample() {
+    val clickedState = remember { mutableStateOf("Not Clicked!") }
+
+    Column { 
+        Button ( 
+            onClick = { clickedState.value="Clicked!" }
+        ){
+            // Text as a child composable of the button
+            Text("Click me!")
+        }
+        Text(clickedState.value, fontWeight = FontWeight.Bold)
+    }
 }
 </pre>
-The <code>Button</code> function takes a number of parameters including an <code>onClick</code> event handler, for which we usually pass a lambda. After specifying the other parameters of <code>Button</code> we specify a lambda containing the text to display on the button as a <code>Text</code> component, which will make the <code>Text</code> a child component of the button and therefore make the text appear on the button.</p>
+The <code>Button</code> function takes a number of parameters including an <code>onClick</code> event handler, for which we usually pass a lambda. Here, the lambda updates the state variable to "Clicked!" to indicate the user has clicked the button - this is shown in the <code>Text</code> at the end of the composable. After specifying the other parameters of <code>Button</code> we specify a lambda containing the text to display on the button as a <code>Text</code> component.  In the same way as the <code>Button</code> and <code>Text</code> are child composables of the <code>Column</code>, this makes the <code>Text</code> a child composable of the button and will, as a result, make the text appear on the button.</p>
 <h2>Exercises</h2>
 <ol>
 <li>Try out "Hello World" and the "TwoTexts" and "TwoTextsStyled" examples, above.</li>
