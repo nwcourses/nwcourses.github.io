@@ -14,6 +14,13 @@
 <main>
 <h2>Compose Multiplatform</h2>
 <p><em>Compose Multiplatform</em> is a multi-platform framework to allow you to develop GUI applications across a range of platforms. Originally a framework for Android apps specifically (<em>Jetpack Compose</em>), it now supports a range of different platforms including common desktop platforms (Windows, Linux, Mac) as well as iOS. This means that with Compose Multiplatform, you can develop apps for multiple platforms using the <strong>same</strong> codebase - without having to develop seperate versions for Android, iOS, and desktop.</p>
+<p>We are using Compose Multiplatform in this module for these reasons:
+	<ul>
+	<li>It is cross-platform, as stated above;</li>
+	<li>It uses a <em>declarative</em> style, also seen in many other contemporary UI frameworks, such as React, so you can use the skills you learn in other environments;</li>
+	<li>Android uses Compose, so it will prepare you well for Mobile Application Development if you are doing that module.</li>
+	</ul>
+</p>
 
 <h3>Declarative UIs</h3>
 
@@ -84,7 +91,7 @@ We will look at these one by one. More information on setting up a Compose Multi
 <p>It will take some time to build. Once it's built it's <strong>important you run it the correct way</strong>, using the <code>composeApp:run</code> Gradle task. Pressing the green "run" button on its own will not work, failing with a <code>Cannot find MainKt</code> error (i.e. it cannot find your <code>main()</code>). You should follow the <a href='https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-create-first-app.html#run-your-application-on-desktop'>Run your application on desktop</a> instructions carefully - these explain how you can specify the correct run configuration.</p>
 
 <h2>Developing with Compose Multiplatform</h2>
-<p>We will now start looking at the structure of a Compose Multiplatform application. If you look at the generated code (look at <code>src</code>-<code>main</code>-<code>kotlin</code>-<code>Main.kt</code> in IntelliJ IDEA - Gradle uses a different folder structure for projects) it will look something like this:
+<p>We will now start looking at the structure of a Compose Multiplatform application. If you look at the generated code (look at <code>src</code>-<code>main</code>-<code>kotlin</code>-<code>Main.kt</code> in IntelliJ IDEA - Gradle uses a different folder structure for projects) it will look something like this. (Note Android Studio with the Wizard produces different code - see later).
 <pre>
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
@@ -126,6 +133,10 @@ What's this doing? <code>application()</code> is part of the Compose API. Compos
 <li>We then create a <code>Window</code> object. As you can probably guess, this represents a UI window. Note how we give the <code>Window</code> an <code>onCloseRequest</code> parameter (Kotlin has named parameters, like Python, i.e. we do not need to pass in values for all parameters or pass them in order, we can refer to them by name). This parameter is set equal to the in-built function <code>exitApplication</code> which closes the application down. So, when the user closes the window, the application will exit.</li>
 <li>Note how we then specify a lambda function associated with <code>Window</code> and inside this lambda we launch <code>App()</code>. <code>App()</code> is a <em>composable</em> representing our application.</li>
 </ul>
+
+<h4>On Android Studio</h4>
+<p>The Kotlin Multiplatform Wizard on Android Studio also auto-generates (slightly more complex) code, though the code in <code>main()</code> is similar. In Android Studio you can find your code under <code>composeApp</code>-<code>src</code>-<code>desktopMain</code>-<code>kotlin</code> and then a <em>package directory</em> (<code>org.example.project</code> in the example below).</p>
+<p><img src="../images/studio_compose_multiplatform.png" alt="Compose Multiplatform in Android Studio" />
 
 <h3>Composable functions</h3>
 
