@@ -10,15 +10,9 @@ the value, and then create an array containing many of these objects. However,
 this is <em>inefficient</em>. To search for an item by key, we'd have to use a loop
 (e.g. <code>while</code> or <code>for</code>) to search the array and compare the key of each item
 with the key we're searching for. If there are say 10000 items in the array
-this would be slow. We'd call this an <em>O(n)</em> operation, where <em>n</em> is the
-index of the item we're searching for in the array - in other words, the
-performance of the search depends on where the item is within the array.</p>
+this would be slow as we'd have to potentially look through 10000 items.
 <p>We can do better than this, though, and implement this sort of look-up 
-search at an efficiency close to <em>O(1)</em> (doesn't depend on the index or
-the size of the array) using a <em>hash table</em>. A hash table is an efficient
-data structure in which the keys (indices) are converted to a numerical
-<em>hash code</em> using a mathematical function of some kind. This hash code is then 
-used to look up the item in an underlying array. The hash code will be used as 
+search more efficiently using a <em>hash table</em>. A hash table is an efficient data structure in which the keys (indices) are converted to a numerical <em>hash code</em> using a mathematical function of some kind. This hash code is then used to look up the item in an underlying array. The hash code will be used as 
 the array's index.</p>
 <h2 id="anexample">An example</h2>
 <p>It's probably best to start with a very simple example.
@@ -121,7 +115,7 @@ array index (or bucket number) for 'cat' would be:</p>
 </code></pre>
 <p>so, 'cat' would be added to bucket 77 (where buckets are numbered from 0-126,
 i.e. 127 buckets - the underlying array has a capacity of 127).</p>
-<h4 id="whyuseaprimearraysize">Why use a prime array size?</h4>
+<h4 id="whyuseaprimearraysize">Advanced: Why use a prime array size?</h4>
 <p>This is discussed <a href="https://cs.stackexchange.com/questions/11029/why-is-it-best-to-use-a-prime-number-as-a-mod-in-a-hashing-function/64191#64191">here</a>.
 If our hash codes are truly random, there is no reason to use a prime bucket
 size. However, in certain cases, we might want to store data which is 
@@ -221,11 +215,12 @@ calculate which bucket to place the value into.</p></li>
 <li><p>Copy your answer to question 2 into a new Repl project, and change it
 to use linear probing rather than separate chaining. Move forward one space
 if there is a clash.</p></li>
-<li><p>Enhance your linear probing-based hash table to use a secondary hash
+<li><p><strong>Advanced:</strong> Enhance your linear probing-based hash table to use a secondary hash
 function to calculate how many spaces to move on when searching for a free
 space. It should be:</p></li>
 </ol>
 <pre><code>secondaryHash = hashCode % 17 
 </code></pre>
 <p>where <code>hashCode</code> is the primary hash, i.e. the hash code calculated from
-the "powers-of-31" approach above.</p></body></html>
+the "powers-of-31" approach above.</p>
+</body></html>
