@@ -20,8 +20,8 @@ A simple hash function might simply add the ASCII codes of the characters
 making up the key. We might use it in a dictionary program storing words
 as the keys and their meanings as the values.</p>
 <ul>
-<li>e.g  for the key "cat" - summing the ASCII codes gives 99+97+116 = 312
--For the key "dog" - we get 100 + 111 + 103 = 314</li>
+<li>e.g  for the key "cat" - summing the ASCII codes gives 99+97+116 = 312</li>
+<li>For the key "dog" - we get 100 + 111 + 103 = 314</li>
 <li>For the key "rat" - we get 114 + 97 + 116 = 327</li>
 </ul>
 <p>The hash code returned from the hash function can then be used as the array
@@ -81,21 +81,24 @@ words uses f^(n-1) for the first character and f^0 (i.e. 1) for the last,
 but the same concept applies;
 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html">Oracle</a>
 )</p>
+<p>If we run though this with "cat", and using the positions of the alphabet for the letters rather than ASCII codes, we end up with the following for "cat":
+(alphabet positions for 'c'=3; 'a'=1; 't'=20):</p>
+<pre><code>3*(31^0) + 1*(31^1) + 20*(31^2) = 3 + 31 + 19220 = 19254 
+</code></pre>
+<p>For "act" we end up with:
+<pre><code>1*(31^0) + 3*(31^1) + 20*(31^2) = 1 + 93 + 19220 = 19314
+</code></pre>
+You can see that the clash no longer happens automatically with keys which are anagrams.</p>
 <p>Using this approach, while minimising clashes, will lead to large numbers
 as hash codes. Even if we assume that only lower-case letters are valid
 characters in the key (which means we can use the numbers 1-26 to represent
-the letters rather than the full ASCII range), a small word like "cat", with a 
-factor of 31, will give
-(codes for 'c'=3; 'a'=1; 't'=20):</p>
-<pre><code>3*(31^0) + 1*(31^1) + 20*(31^2) = 3 + 31 + 19220 = 19254 
-</code></pre>
+the letters rather than the full ASCII range), a small word like "cat" has a large hash code of 19254.</p>
 <p>For longer words, the hash code is going to be an even bigger number.
 This is clearly inefficient as, if we adopt the approach above without
 taking any further steps, our underlying array is going to need 19254
 spaces ('buckets' as they are called in hash table terminology) to even
 be capable of storing a key like 'cat' !</p>
-<p>So we then typically do a modulo operation. We decide how large our
-underlying array is likely to be (which will depend on our 
+<p>So we then typically do a <em>modulo</em> (remainder) operation. We decide how large our underlying array is likely to be (which will depend on our 
 particular use-case, but should be larger than the likely number of items in
 the hash table) and take the modulo of that number. This will be a
 trade-off: over-large arrays will waste memory, but over-small arrays will
@@ -115,7 +118,7 @@ array index (or bucket number) for 'cat' would be:</p>
 </code></pre>
 <p>so, 'cat' would be added to bucket 77 (where buckets are numbered from 0-126,
 i.e. 127 buckets - the underlying array has a capacity of 127).</p>
-<h4 id="whyuseaprimearraysize">Advanced: Why use a prime array size?</h4>
+<h4 id="whyuseaprimearraysize">Why use a prime array size?</h4>
 <p>This is discussed <a href="https://cs.stackexchange.com/questions/11029/why-is-it-best-to-use-a-prime-number-as-a-mod-in-a-hashing-function/64191#64191">here</a>.
 If our hash codes are truly random, there is no reason to use a prime bucket
 size. However, in certain cases, we might want to store data which is 
