@@ -17,8 +17,7 @@ the array's index.</p>
 <h2 id="anexample">An example</h2>
 <p>It's probably best to start with a very simple example.
 A simple hash function might simply add the ASCII codes of the characters 
-making up the key. We might use it in a dictionary program storing words
-as the keys and their meanings as the values.</p>
+making up the key (use the <code>ord()</code>) function. We might use it in a dictionary program storing words as the keys and their meanings as the values.</p>
 <ul>
 <li>e.g  for the key "cat" - summing the ASCII codes gives 99+97+116 = 312</li>
 <li>For the key "dog" - we get 100 + 111 + 103 = 314</li>
@@ -37,7 +36,7 @@ There are two common solutions to clashes, <em>separate chaining</em> and
 item with a given hash code is placed into the bucket for that hash code, so
 one bucket might have more than one item. In this example, "cat" and "act"
 would be placed in the same bucket, as they have the same hash code. Each
-bucket would contain a <em>list</em> (or array) of items.</p>
+bucket would contain a <em>list</em> of items,</p>
 <p>This is shown in the diagram below. </p>
 <p><img src="../images/hash_chaining.png" alt="Separate chaining to resolve clashes" /></p>
 <h3 id="linearprobing">Linear probing</h3>
@@ -151,19 +150,13 @@ and then the <code>get()</code> operation.</p>
 <p><code>put()</code> is quite easy. (The first thing we have to do is convert the key to
 a hash code using a hash function. We'd then need to add the key and value
 to the appropriate 'bucket' in the array, using the hash code as its index.
-Each 'bucket' holds a list (a linked list is generally recommended as it's
-extensible), so you need to append the key and value to this listThe most efficient way of doing this in Python is with a tuple, so we'd create
+Each 'bucket' holds a list (a <strong>linked list</strong> is generally recommended as it's
+efficient to add to the end of the linked list), so you need to append the key and value to this listThe most efficient way of doing this in Python is with a tuple, so we'd create
 a tuple containing the key and value, and add this tuple to the 
-linked list). As an alternative to a linked list, you could use an extensible
-array with a certain initial capacity, such as a Python <code>list</code>; searching would
-be faster but there's the risk that a slow resize operation would have to
-occur if the extensible array ran out of capacity.</p>
+linked list).</p>
 <p><strong>Question: why do you need to add the key and value to the list, and not
 just the value?</strong></p>
-<p>-<code>get()</code> is also fairly straightforward. (Again, we have to convert the key
-to the hash code, find the 'bucket' with the index corresponding to the hash
-code, and then search through the list within this bucket to find the entry
-corresponding to the key).</p>
+<p>-<code>get()</code> is also fairly straightforward. (Again, we have to convert the key to the hash code, find the 'bucket' with the index corresponding to the hash code, and then search through the list within this bucket to find the entry corresponding to the key).</p>
 <h3 id="advancedsecondaryhashfunction">Advanced: Secondary hash function</h3>
 <p>To minimise clusters in linear probing, we can use a secondary hash function to calculate the displacement, and increase that number of places in the array in the case of a clash.</p>
 <p>For example, if the secondary hash function gives 7 for "act", we'd place "act" at 312+7 = 319, rather than 313. This is shown on the diagram below:</p>
@@ -193,29 +186,34 @@ than numeric keys.</strong></p>
 <li>Repeat question 1, but assume that collisions are handled by linear probing.</li>
 </ol>
 <h2 id="exercise2code">Exercise 2 - Code</h2>
-<p>(<em>Question 1 is the most important question to finish, and ideally question
-2; the later questions involving linear probing are more advanced
+<p>(<em>Questions 1-9 are the most important question to finish.
+The later questions involving linear probing are more advanced
 and designed for those of you coping well with the module so far</em>).</p>
 <ol>
-<li>Implement a hash table using separate chaining. The keys should be strings
-and the hash function should be simply the sum of the ASCII codes (this is a
-poor hash function, as we have seen, but it's to keep things simple to begin
-with). </li>
-</ol>
-<p>Use an underlying array with size 127 (i.e. 127 buckets), take the modulo 127 
-of the hash code, and store the key and value as a tuple in the
-corresponding list. Use a simple Python list to store the values.
-Initialise the underlying array to be an array of 127 empty arrays (Python lists, technically): <pre>self.buckets = [[] for i in range(127)]</pre>
-A linked list is generally recommended, but again I'm trying to keep things
-simple initially.</p>
-<p>Implement <code>get()</code> and <code>put()</code> methods as described above.</p>
-<p>Test the hash table by <code>put</code>ting a few keys and values into it and then
-<code>get</code>ting them back. Try to choose at least two keys which will clash.</p>
-<ol start="2">
+<li>On GitHub, <em>fork</em> this repository:
+<pre>https://github.com/nwcourses/com431-hashtables-starter</pre>
+This repository contains some starter code to implement a linked list, to be used for separate chaining in your hash table.</li>
+</li>
+<li>Clone your fork (you can get the fork from VCS within PyCharm).</li>
+<li>Modify the linked list as directed by the comments: 
+	<ul>
+	<li>The <code>add()</code> method should now take <em>a key and a value</em> (corresponding to the keys and  values used by the hash table) and create a <em>tuple</em> using them. A node should then be created using the <em>tuple</em>.</li>
+	<li>Also change the <code>find()</code> method so that it assumes the <code>searchInput</code> is a <em>key</em>. Where the code compares the <code>searchTnput</code> with the current value (line 37 in the original code), modify it so that it compares the key against the <em>first</em> member of the tuple stored in the node. Return the <em>second</em> member of the tuple, i.e. the value.</li>
+	</ul>
+</li>
+<li>Implement a hash table class using separate chaining. The keys should be strings and the hash function should be simply the sum of the ASCII codes (this is a poor hash function, as we have seen, but it's to keep things simple to begin
+with). You can use <code>ord()</code> to calculate the ASCII code of a character. The hash function should be a method of the hash table class, taking the key as a parameter and returning the hash code.</li>
+<li>Use an underlying <em>list</em> with size 127 (i.e. 127 buckets), take the modulo 127 of the hash code, and use the <em>linked list</em> above to store the list of items in each bucket.  
+Initialise the underlying list to be an list of 127 linked lists: <pre>self.buckets = [LinkedList() for i in range(127)]</pre>
+This expression is known as a <em>list comprehension</em> and is a quick way of filling a list with values.
+</li>
+<li>Implement a <code>put()</code> method in your hash table class. This should take a key and a value as parameters, calculate the hash code of the key, then calculate the modulo 127 of the hash code to find the bucket to add the data to. Use the linked list's <code>add()</code> method to add the key and value to the linked list for that bucket as a tuple.</li>
+<li>Implement the <code>get()</code> method in your hash table class, to find an item by key. This should calculate the hash code of the key, find the bucket, and then use the linked list's <code>find()</code> method to find the appropriate entry.</li>
+<li>Test the hash table by <code>put</code>ting a few keys and values into it and then <code>get</code>ting them back. Try to choose at least two keys which will clash.</li>
 <li><p>Enhance your hash table by using the "powers-of-31" approach (described
 above) to calculate the hash code. You should still use modulo 127 to
 calculate which bucket to place the value into.</p></li>
-<li><p>Copy your answer to question 2 into a new Repl project, and change it
+<li><p>Copy your answer to questions 1-9 into a new Repl project, and change it
 to use linear probing rather than separate chaining. Move forward one space
 if there is a clash.</p></li>
 <li><p><strong>Advanced:</strong> Enhance your linear probing-based hash table to use a secondary hash

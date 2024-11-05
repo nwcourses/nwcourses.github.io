@@ -76,39 +76,43 @@ Furthermore, to enhance the user experience and show an outline round the curren
 </p>
 
 <h2>Implementing Lists of Data</h2>
-<p>More info on state: <a href='https://developer.android.com/develop/ui/compose/state'>Android docs</a>.</p>
 <p>You may be able to figure out how to create a <em>list</em> of data. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list. How might you implement this?</p>
 
 <h3>Creating Lists</h3>
 <p>You would implement a list by <em>storing a list of data in state</em>. You might think you could do something like this:
 <pre>@Composable
 fun ShoppingList() {
-    var list by remember { mutableStateOf(mutableListOf&lt;String&gt;()) }
-    var currentItem by remember { mutableStateOf("") }
+    var listState = remember { mutableStateOf(mutableListOf&lt;String&gt;()) }
+    var currentItem = remember { mutableStateOf("") }
 
-    TextField(value=currentItem, onValueChange = { currentItem=it } )
-    Button(onClick = { list.add(currentItem) } ) { Text("Add Item") }
+    TextField(value=currentItem.value, onValueChange = { currentItem.value=it } )
+    Button(onClick = { listState.value.add(currentItem.value) } ) { Text("Add Item") }
 
-    list.forEach {
+    listState.value.forEach {
         Text(it)
     }
 }</pre>
 Note how we have a text field which allows you to enter a shopping list item, which is stored in the <code>currentItem</code> state variable. When the button is clicked, the current item is added to the list. As it's a mutable list, you might think this would work.
 </p>
-<p><strong>However</strong> it does not work. The reason is that <strong>composables are only re-rendered if the state variables change.</strong> Here, when we add a new item to the list, the list becomes one element longer but the actual list variable is the same variable, referring to the same location in memory. To trigger a re-render when a new list item is added, we have to <strong>create a clone of the list, add the item to that, and then reset the list state variable to the clone.</strong> This will change the state variable and force a re-render. Here is an example which does that:
+<p><strong>However</strong> it does not work. The reason is that <strong>composables are only re-rendered if the state variables change.</strong> Here, when we add a new item to the list, the list becomes one element longer but the actual list variable is the same variable, referring to the same location in memory.</p>
+<p>To trigger a re-render when a new list item is added, we have to either:
+    <ul>
+    <li><strong>make the list in state immutable for efficiency, create a mutable clone of the list (using <code>toMutableList()</code>), add the item to that, and then reset the list state variable to the clone</strong>, or</li>
+    <li>use a <code>SnapshotStateList</code> to store a list in state, using <code>mutableStateListOf()</code> rather than <code>mutableStateOf()</code>. This will automatically trigger a state change and thus a recomposition if you change the list (e.g. add new elements).</li>
+    </ul>
+This is an example of using 
 <pre>@Composable
 fun ShoppingList() {
-    var list by remember { mutableStateOf(<em>listOf</em>&lt;String&gt;()) }
-    var currentItem by remember { mutableStateOf("") }
+    // stateList is of type SnapshotStateList&lt;String&gt;
+    var stateList = remember { <em>mutableStateListOf</em>&lt;String&gt;() }
+    var currentItem = remember { mutableStateOf("") }
 
-    TextField(value=currentItem, onValueChange = { currentItem=it } )
+    TextField(value=currentItem.value, onValueChange = { currentItem.value=it } )
     Button(onClick = { 
-        var tempList = list.toMutableList() // clone the list
-        tempList.add(currentItem) 
-        list = tempList
+        stateList.add(currentItem.value)
     } ) { Text("Add Item") }
 
-    list.forEach {
+    stateList.forEach {
         Text(it)
     }
 }</pre>
@@ -119,6 +123,24 @@ Note here how:
     <li>We add the item to this mutable copy (<code>tempList</code>) and reset the original state list to the mutable copy.</li>
     </ul>
 </p>
+
+<h3>Lazy Lists</h3>
+
+<p>One issue with a long list of items is that by default, a long list consisting of a series of <code>Text</code> items in a <code>Column</code> will not be memory efficient. Why? Let's say there are 100 items in the list, but only 10 are visible on the screen at any time. The items off the screen are still being rendered, even though they are invisible. This is clearly inefficient.</p>
+
+<p>We can solve this problem through the use of <em>lazy columns</em>. The <code>LazyColumn</code> is designed to hold a series of items (i.e. a list) but is implemented with memory optimisation so that only for the items currently visible are rendered.</p>
+
+<p>Creating a <code>LazyColumn</code> is quite straightforward, you place it in the appropriate place in your layout and then specify a lambda to control how it works. This lambda takes an object of type <code>LazyListScope</code> as its single parameter and this object includes an <code>items</code> method to specify a list of items. For example:
+<pre>import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+
+@Composable
+LazyListComposable(listItems: List&lt;String&gt;) {
+    LazyColumn {
+        items(listItems) { curItem -&gt; Text(curItem) }
+    }
+}</pre>
+Note how <code>items()</code> takes the list of items to render as its first parameter and another lambda as its last parameter. This lambda specifies how each item in the list of data should be transformed into a Compose element. So here, each item in the list is transformed to a <code>Text</code> element containing its details.</p>
 
 <h2>Material Design</h2>
 
