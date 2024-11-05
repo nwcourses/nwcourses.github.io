@@ -100,7 +100,7 @@ Note how we have a text field which allows you to enter a shopping list item, wh
     <li><strong>make the list in state immutable for efficiency, create a mutable clone of the list (using <code>toMutableList()</code>), add the item to that, and then reset the list state variable to the clone</strong>, or</li>
     <li>use a <code>SnapshotStateList</code> to store a list in state, using <code>mutableStateListOf()</code> rather than <code>mutableStateOf()</code>. This will automatically trigger a state change and thus a recomposition if you change the list (e.g. add new elements).</li>
     </ul>
-This is an example of using 
+This is an example of using a <code>SnapshotStateList</code>:
 <pre>@Composable
 fun ShoppingList() {
     // stateList is of type SnapshotStateList&lt;String&gt;
@@ -142,25 +142,113 @@ LazyListComposable(listItems: List&lt;String&gt;) {
 }</pre>
 Note how <code>items()</code> takes the list of items to render as its first parameter and another lambda as its last parameter. This lambda specifies how each item in the list of data should be transformed into a Compose element. So here, each item in the list is transformed to a <code>Text</code> element containing its details.</p>
 
-<h2>Material Design</h2>
+<h3>Callback functions as composable parameters</h3>
 
-<p><em>Material Design</em> (see <a href='https://material.io'>the website</a>) is a published design philosophy which is adopted as the recommended standard in Android development but is also used in Compose Multiplatform. It revolves around the idea of screen surfaces being composed of <em>material</em> which has certain visual and behavioural properties, for example the ability to cast shadows when raised, and only UI elements at the top of a stack of elements being able to receive events. Material Design specifies a range of standard UI components, such as buttons, text fields and many others. Following the Material Design philosophy allows the development of clean-looking, usable and intuitive apps.</p>
+<p>Imagine a situation in which you are handling multiple items of data, such as multiple songs or multiple student records. You might want to store the data in state in the top-level <code>App</code> composable. However, what if, for reusability purposes, you have separate, child composables for adding an item of data, and searching for data? How can the child composables access the list stored in state if it's stored in the <code>App</code>?</p>
 
+<p>The answer is to use a <em>callback</em>. A callback is a reference to a function which can be called at some future point in time. What we do is we pass in this function reference into our child composables - and then call them as soon as the user has entered the required information (e.g. a search term or a new item) - probably when the user clicks a button.</p>
 
-<p>Material Design has a range of key aspects, with three particularly important components being the <em>colour scheme</em>, the <em>typography</em> (font family, size etc) and the <em>shape</em> of UI components (composables). With Material Design you give your app a <em>theme</em> which allows you to set a consistent look and feel for your app by applying a certain colour scheme, typography and component shape class (e.g. rounded corners). Your theme typically extends from a standard <code>MaterialTheme</code> which is setup to give a similar colour scheme to UI elements of similar importance - in your own theme you can change the default colour scheme, typography and shape. For example important buttons are coloured by the theme in strong colours, but less important UI elements such as labels are coloured using more neutral colours.</p>
+<p>We looked at how to pass functions into other functions as parameters in <a href='topic6.html'>Topic 6</a> and now we will see a real-world use for it. Imagine this is part of an application to allow users to search for music:
 
-<p>You can easily apply the default <code>MaterialTheme</code> in Compose Multiplatform by surrounding your composables with <code>MaterialTheme</code>. This is, in fact, already done for you in the auto-generated code in IntelliJ IDEA or AAndroid Studio. Here is an example:</p>
-<pre>
+<pre>@Composable
+fun App() {
+    val songs = remember { mutableStateOf(listOf&lt;Song&gt;()) }
+
+    AddSong(onSongAdded = {
+        val newList = songs.toMutableList()
+        newList.add(it)
+        songs.value = newList
+    })
+
+    SearchForSong(onArtistEntered = { artist -&gt;
+        val foundSongs = songs.filter { song -&gt; song.artist == artist }
+        songs.value = foundSongs
+    })
+
+    DisplaySongs(songs.toList())
+}
+
 @Composable
-App() {
-    <strong>MaterialTheme</strong> {
-        Column {
-            Composable1()
-            Composable2()
+fun AddSong(onSongAdded: (Song) -&gt; Unit) {
+    val curTitle = remember { mutableStateOf("") }
+    val curArtist = remember { mutableStateOf("") }
+
+    Column {
+        Text("Title:")
+        TextField(curTitle.value, onValueChange = { curTitle.value = it } )
+        Text("Artist:")
+        TextField(curArtist.value, onValueChange = { curArtist.value = it } )
+        Button(onClick = {
+            val song = Song(curTitle.value, curArtist.value)
+            onSongAdded(song)
+        }) {
+            Text("Add Song!")
+        }
+    }
+}
+
+@Composable
+fun SearchForSong(onArtistEntered: (String) -&gt; Unit) {
+    val curArtist = remember { mutableStateOf("") }
+
+    Column {
+        Text("Artist:")
+        TextField(curArtist.value, onValueChange = { curArtist.value = it } )
+        Button(onClick = {
+            onArtistEntered(curArtist.value)
+        }) {
+            Text("Search!")
+        }
+    }
+}
+
+@Composable
+fun DisplaySongs(songs: List&lt;Song&gt;) {
+    Column {
+        songs.forEach {
+            Text(it)
         }
     }
 }</pre>
-<p>We will look at Material Design in more detail in Mobile Application Development.</p>
+<p>Note the following:
+    <ul>
+    <li>We're now simply using <code>mutableListOf()</code>, not <code>mutableStateListOf()</code>. <code>mutableStateListOf()</code> is particularly designed for cases in which we are frequently adding data to the list (as a recomposition happens in this case) but is less useful in cases (like this) in which we are completely replacing the list (as we do when we search).</li>
+    <li>Note how both <code>AddSong()</code> and <code>SearchForSongs()</code> take a <em>callback function</em> as a parameter. For <code>AddSong()</code>, this is of type
+<pre>(Song)-&gt;Unit</pre>
+As we saw last week, this represents a function which takes a <code>Song</code> as a parameter and returns nothing. So the callback function passed in to <code>AddSong</code> must also be a function which takes a <code>Song</code> and returns nothing. Likewise, for <code>SearchForSongs()</code>, the parameter is of type
+<pre>(String)-&gt;Unit</pre>
+so must take a string as a parameter and return nothing. In both cases, lambda functions will be acceptable to pass in.</li>
+    <li>Note how both <code>AddSong()</code> and <code>SearchForSongs()</code> perform an action when the user clicks the button. In the former, we create a <code>Song</code> object using the contents of the two text fields (also stored as state) and then <em>call the callback which was passed in, supplying the <code>Song</code> as an argument.</em> Similarly, in <code>SearchForSongs()</code> we call the callback, supplying the search term (a string) as an argument.</li>
+    <li>In our <code>App</code>, when we create our two child composables <code>AddSong</code> and <code>SearchForSong</code>, note how we supply a lambda function for the callback argument. As a result, the lambda function passed in will be called when the user presses the buttons in the two child composables. As the lambdas are within <code>App</code> they have access to the list stored in state, and so can change it or call its methods.</li>
+    <li>Because it's an ordinary list of type <code>MutableState</code>, not a <code>SnapshotStateList</code>, we have to create a <em>copy</em> of the list when adding a song, add the song to the copy, and then update the state list to the copy. Otherwise, the state would not be updated and a recompose would not happen. In the lambda for search, we perform a filter on the original list to get a new filtered list, and then set the state variable to be the new filtered list.</li>
+    </ul>
+<h2>Material Design - a quick note</h2>
 
+<p>You'll notice that the pregenerated code, from the wizards, wraps your composables in this:
+<pre>MaterialTheme { ...
+}</pre>
+What is the <code>MaterialTheme</code>? We will not go into detail now, but in summary, it gives your UI a <em>theme</em> making use of <em>Material Design</em>.
+`<p><em>Material Design</em> (see <a href='https://material.io'>the website</a>) is a published design philosophy which is adopted as the recommended standard in Android development but is also used in Compose Multiplatform, and helps ensure that you develop UIs with a consistent look and feel (e.g. consistent colour scheme with the same colours used for UI elements of similar importance) as well as a user-friendly and clean user experience. We will look at Material Design in more detail in Mobile Application Development.</p>
+<h2>Exercise</h2>
+<p>This exercise allows you to add a GUI to the University project from earlier in the module. You can use the <code>University</code> and <code>Student</code> classes from the Week 3 pre-prepared solution as part of your code:
+<pre>https://github.com/nwcourses/com534-wk3-solution</pre>
+but <strong>do not use the whole project</strong> as it is not a Compose project.</p>
+<ol>
+<li>Create an <code>App</code> composable containing a <code>SnapshotStateList</code> of <code>Student</code> objects (see the discussion in <code>mutableStateListOf()</code>, above)</li>
+<li>Create a series of <code>TextField</code>s within your <code>App</code> composable to allow the user to enter the student ID, name and course. There should also be a button, which, when clicked, creates a <code>Student</code> object and adds it to the list. You'll need three state variables for the current ID, name and course (see the discussion on <code>TextFields</code> last week).</li>
+<li>Create a separate composable called <code>StudentList</code> and in it, display the entire contents of the student list. The composable will need a list of students as a parameter, and you'll need to pass this in from the <code>App</code> composable.</li>
+<li>Try it out; if it works, the <code>StudentList</code> composable should update each time the user enters a new student.</li>
+<li>Now try moving the "add student" functionality into its own composable, <code>AddStudent</code>. This should contain the three TextFields and the button as well as the three state variables for the ID, name and course. When the button is clicked, it should create a new <code>Student</code> and pass tit back to the <code>App</code> via a <em>callback</em>. In <code>App</code>, write the callback as a lambda function so that the Student parameter is added to the list of students.</li>
+<li>Now try rewriting the application using the <code>University</code> class. Create a <em>copy</em> of your project, so you still have your old code. You will need to make some changes due to the fact that the list of students is contained within the university.
+    <ul>
+    <li>The <code>App</code> should contain a <code>University</code> object as a <em>regular variable</em> - not a state variable.</li>
+    <li>The <code>App</code> should maintain a state variable containing the current list of students to be displayed. You will find it easier to use a regular state variable (<code>MutableState</code>) rather than a mutable state list, so change the list to use <code>mutableStateOf</code> rather than <code>mutableStateListOf</code>.</li>
+    <li>When a user adds a student, add it to the <em>university</em>. Then, retrieve the list of students from the university and update the state variable so it contains a <em>copy</em> of this list (you'll need a copy to ensure the state updates). To do this, use <code>toList()</code>, e.g:
+<pre>studentList.value = university.studentList.<em>toList()</em></pre> 
+    </li>
+    <li>Implement search-by-course functionality by adding a new composable <code>SearchByCourse</code> which should contain a Text label reading "Enter course", a TextField and a Button. When the user clicks the button the course the user entered in the text field should be sent back to the <code>App</code> using a callback. Then, in the lambda function in the <code>App</code> used as the callback, it should find all students on that course and update the list state variable to the results, so that only students on the given course are displayed on the UI.</li>
+    </ul>
+</li>
+</ol>
 </body>
 </html>
