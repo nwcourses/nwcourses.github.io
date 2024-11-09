@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Topic 4 - React Hooks and Context</title>
+<meta charset="utf-8">
+</head>
+
+<body>
+
+<main>
+<div class='content-public'>
+<h2>React Hooks and Context</h2>
+
+<p>This week we will look at some new features of React: <em>Hooks</em> and <em>context</em>. We will introduce these by examining our existing HitTastic! app and seeing if there are any flaws with it. Could we make improvements?</p>
+
+<p>Clone this repository:</p>
+<pre>https://github.com/nwcourses/com623-topic4-starter.git</pre>
+<p>It's a slightly extended version of the HitTastic! React project we looked at
+last week. It now has login functionality, and distinguishes between users and
+administrators. You'll also notice that the search functionality responds to
+the user entering an artist as they type the name in, rather than waiting
+until the user has clicked the Search button.</p>
+
+<p>There are a few updates in this version:</p>
+
+<ul>
+<li>The login system has been mostly implemented; note the <code>Login</code> component. It also distinguishes between regular users and administrators: the server has also been changed to support this.</li>
+<li>Note the <code>Search</code> component containing a <code>SearchResults</code> sub-component. The search results state is now stored in <code>Search</code> (why? A question below asks this).</li>
+<li>The dark mode controller is now placed in its own component.</li>
+<li>Note that the <code>Search</code> uses an <code>onChange</code> event handler on the text field, rather than an <code>onClick</code> on the button. It stores the artist entered by the user in state. The text field is <em>tightly bound</em> to this state variable, as its <code>value</code> is set to it. This means that whenever the artist state variable changes, the text in the text field changes. Every time the user presses a key, the <code>onChange</code> event handler function will run, which will update the state and thus the contents of the text field every time the key presses. We looked at this approach last year, in <a href='https://nwcourses.github.io/COM518/topic6.html#uiBoundToState'>topic 6</a></li>
+<li>An add song component has been started. Note how this is only visible if you are an admin.</li>
+</ul>
+
+</div>
+
+<div class='content-exercise' data-id='1'>
+<p>A few questions about this version:</p>
+<div class='questions'></div>
+
+</div>
+
+<div class='content-protected' data-depends='1'>
+<p>To consider <strong>Question 1</strong>: there are a number of issues with this version of HitTastic! : </p>
+<ul>
+<li>Note how we have to pass the current user, and current mode (light or dark) through props so that child components can access it. We store the current user and mode in state in the top-level <code>App</code> component so that it can be shared across a range of child components. However this means that, if the child components need to obtain the user status, they have to receive it as a prop. If it's just one or two child components, that's not so bad, but imagine that we have to do the same for <em>many</em> child components, or imagine that there were many levels in the component hierarchy. In fact here, we have a <code>Search</code> component containing a <code>SearchResults</code> component, and the <code>SearchResults</code> component needs the user (to display the Buy button only if the user's logged in) and the dark mode - so we are passing props down two levels in the hierarchy. This is a lot of passing data through props, which could quickly get messy and clutter the code.</li>
+<li>This is not an ideal solution so what can we do to share information between components? There are two approaches we can take:
+    <ul>
+    <li>We can use <em>Hooks</em></li>
+    <li>We can use <em>context</em></li>
+    </ul>
+We will discuss these below.</li>
+</ul>
+
+<p>Here are some discussions on the other questions:</p>
+<ol start="2">
+<li>The search results is only needed in the <code>Search</code> component and its child component <code>SearchResults</code>. It's not needed elsewhere. We lift state up to the highest level where we need to share it, which is <code>Search</code> as it's the parent of <code>SearchResults</code>.</li>
+<li>This is making use of the <em>ternary operator</em>, which is a shorthand <code>if</code> statement. The line:
+<pre>{admin ? &lt;AddSong /&gt; : ''}</pre>
+means "if the admin state variable is true, render the <code>AddSong</code> component, otherwise, render a blank string".</li>
+<li>We'd need to call the <code>login</code> GET route on the server, to find out if we're logged in or not. This returns a JSON object containing <code>username</code> and <code>isadmin</code> fields. We can read these from the JSON and update the two state variables with their new values. This code should be implemented in an effect in the <code>App</code> component.</li>
+</ol>
+</div>
+
+<div class='content-public'>
+
+<h2>React Hooks</h2>
+
+<p>A Hook in React is a function which allows us to use ("hook into") React functionality from a component rendering function. Hooks run while the component is rendering. Hooks perform various functions, such as setting up state (<code>useState</code>), refs (<code>useRef</code>) or effects (<code>useEffect</code>). The key thing about Hooks is that they are designed to be called from the rendering function, and are designed to complete quickly so should not contain any time consuming code. Hooks (particularly custom Hooks) frequently call other Hooks.</p>
+
+<p>So far, either in this module or in COM518, we have seen these Hooks:</p>
+
+<ul>
+<li><code>useState()</code>;</li>
+<li><code>useEffect()</code>;</li>
+<li><code>useRef()</code>.</li>
+</ul>
+
+<p>All of these are Hooks because they allow components to use these features of React (state, effects, refs) but none of these functions are actually responsible for rendering.</p>
+
+<p>Hooks begin with the word <code>use</code>. When developing React apps, you may well find yourself writing similar code over and over again, and such code can be implemented using a Hook. Here are some examples of code that you might find yourself repeatedly rewriting and thus would be a good choice for a Hook:</p>
+    <ul>
+    <li>code to determine if the user is logged in, and whether the user is an administrator;</li>
+    <li>code which binds a form field to a state variable. This code will work the same way no matter what form we are dealing with.</li>
+    <li>AJAX searches, where the user enters a search term in one component and the results are displayed in another. Much of the functionality of such an AJAX search is the same no matter what we are searching for.</li>
+    </ul>
+
+<h3>Rules of Hooks</h3>
+
+<p>Hooks have certain rules determining when they can be used.</p>
+    <ul>
+    <li>Their names must begin with <code>use</code>, this triggers React linting (code-checking) tools to check the rules of Hooks have not been broken.</li>
+    <li>They must be called inside a component or another Hook.</li>
+    <li>They must not be called from within a code block such as an if statement or loop, or within an effect.</li>
+    </ul>
+<p><a href='https://react.dev/reference/rules/rules-of-Hooks'>See the documentation</a> for more detail on Hooks.</p>
+<p>The <a href='https://legacy.reactjs.org/docs/hooks-rules.html'>older, legacy React documentation</a> also includes an explanation of why these rules need to be followed. As the article explains, if there are multiple Hooks (<code>useState()</code> and <code>useEffect()</code> are Hooks) within your component, <strong>React uses the order in which they are called to keep track of which state belongs to which Hook.</strong> <code>useState()</code> of course uses state, but so can custom Hooks if they call <code>useState()</code> within them. Conditional statements, for example, can change the number of Hooks called per render, which can result in React losing track of which state belongs to which Hook.</p>
+
+
+<h3>Example Hook</h3>
+<p>As we have seen, you might want to include multiple text fields bound to state variables. If we did it without custom Hooks, we'd have to do something like this:</p>
+
+<pre>
+import React, { useState } from 'react';
+
+export default function RepetitiveComponent() {
+
+    const [name, setName] = useState("");
+    const [course, setCourse] = useState("");
+
+    return (
+        &lt;div&gt;
+        Name:
+        &lt;input id='name' onChange={updateName} /&gt;
+        Course: 
+        &lt;input id='course' onChange={updateCourse} /&gt;
+        Name {name} course {course} /&gt;
+        &lt;/div&gt;
+    );
+
+    function updateName() {
+        setName(document.getElementById('name').value);
+    }
+
+    function updateCourse() {
+        setCourse(document.getElementById('course').value);
+    }
+}
+</pre>
+
+<p>This works, but hopefully you can see that <code>updateName()</code> and <code>updateCourse()</code> are both doing very similar things (updating a state variable with the value in a form field), so there is unnecessary repetition.</p>
+
+<p>What we can do instead is to create a *custom Hook* to update *any* state variable with the value in *any form field*. Here is an example of doing this (modified from the example in the <a href='https://react.dev/reference/react'>React documentation</a>.</p>
+<pre>
+import React, { useState } from 'react';
+
+export default function useFormInput(defaultValue) {
+    const [value,setValue] = useState(defaultValue);
+
+    function handleChange(ev) {
+        setValue(ev.target.value);
+    }
+
+    return {
+        value, handleChange
+    }
+}
+</pre>
+<ul>
+<li>We are creating a custom Hook <code>useFormInput()</code>, which sets up a state variable inside it, which will contain the value the user entered in the form field. This replaces the original state variables in the <code>RepetitiveComponent</code> above.</li>
+<li>We also create a <code>handleChange()</code> function. This is a function <em>provided by the Hook</em> which will run in response to an <code>onChange</code> event in a given form field, i.e. when the user types new text. It updates the state by calling <code>setValue()</code> with the text the user entered in that form field. It is <em>returned</em> from the Hook so that the component using the Hook can make use of it.</li>
+<li>How does the Hook know which text field to look at? Note the parameter <code>ev</code> to this function. Event handler functions, such as this, always receive at least one parameter, an object representing the <strong>event</strong>. We can obtain the specific page element (e.g form field, button) that triggered the event using <code>ev.target</code> (this is actually standard JavaScript, not just React). Thus, if it's a form field, we can get the text within the field with <code>ev.target.value</code>.</li>
+<li>Note how we <em>return</em> an object containing the <code>value</code> state variable and <code>handleChange</code> event handler. We will use these from our component: see below.</li>
+<li>Note the short-hand way of returning an object where the property names of the object are the same as the variable names containing their values. We could, if we wanted to, write it this way:
+<pre>
+return {
+    value: value,
+    handleChange: handleChange
+}
+</pre>
+but, because the property names and variable names are the same, we can make this concise with:
+<pre>
+return {
+    value, handleChange
+}
+</pre>
+</li>
+<li>We then use our custom Hook inside a component with multiple form fields. Here is an example:
+<pre>
+import React from 'react';
+import useFormInput from './UseFormInput';
+
+function CustomHookComponent() {
+
+    const nameHook = useFormInput("No name");
+    const courseHook = useFormInput("No course");
+
+    return (
+        &lt;div&gt;
+        Name:
+        &lt;input id='name' onChange={nameHook.handleChange} /&gt;
+        Course: 
+        &lt;input id='course' onChange={courseHook.handleChange} /&gt;
+        Name {nameHook.value} course {courseHook.value} 
+        &lt;/div&gt;
+    );
+}
+
+export default CustomHookComponent;
+</pre>
+</li>
+<li>Remember how the custom Hook returned an object with two fields, <code>handleChange</code> (the <code>onChange</code> event handler) and <code>value</code> (the state variable associated with the custom Hook).</li>
+<li>We create two separate copies of this object, one for the name field and one for the course field. By doing that, we ensure that we create two separate state variables.</li>
+<li>We then set the <code>onChange</code> event handler of each form field to the <code>handleChange</code> property of the appropriate object, and, in the JSX, include the <code>value</code> (i.e. the state) from each object returned from the Hook.</li>
+</ul>
+
+
+
+<h2>Context</h2>
+
+<p>
+The HitTastic! example from this week has a highly nested sequence of components. The App component contains the Search component which contains the SearchResults component. We need to share some data (the dark mode setting, in our example)  between all these components, from the parent (first level), through its children (second level) and then down to *their* children (third level).</p>
+
+<p>The example passed state down through props, but it can become cumbersome if we have to pass <em>many</em> items of data down through the tree to the lowest level components.</p>
+
+<h3>Example</h3>
+<p>This is an example of sharing state through props with three levels of component, <code>Nested1</code>, <code>Nested2</code> and <code>Nested3</code>.</p>
+
+<h4>Nested1</h4>
+<pre>
+import React, { useState } from 'react';
+import Nested2 from './Nested2';
+
+export default function Nested1() {
+
+    const [name, setName] = useState("");
+
+    return (
+        &lt;div&gt;
+        &lt;input id='name' value={name} onChange={updateState}/&gt;
+        &lt;Nested2 name={name} /&gt;
+        &lt;/div&gt;
+    );
+
+    function updateState() {
+        setName(document.getElementById('name').value);
+    }
+}
+
+</pre>
+
+<h4>Nested2</h4>
+<pre>
+import React from 'react';
+import Nested3 from './Nested3';
+
+export default function Nested2({name}) {
+    return(
+        &lt;&gt;
+        &lt;h1&gt;Hello {name}!&lt;/h1&gt;
+        &lt;Nested3 name={name} /&gt;
+        &lt;/&gt;
+    );
+}
+</pre>
+<h4>Nested3</h4>
+<pre>
+import React from 'react';
+
+export default function Nested3({name}) {
+    return(
+        &lt;p&gt;Welcome {name} to the site!&lt;/p&gt;
+    );
+}
+</pre>
+
+<p>You should be able to see how the <code>name</code> is passed down from <code>Nested1</code> to <code>Nested3</code> via props. It works, and in this case its acceptable, but could become cumbersome if there were many props to pass through from the top component to the lower components.</p>
+<h3>Using Context</h3>
+<p>What we can do instead is to store information that needs to be shared in this way in <em>context</em>. How do we create a context? First you have to create a context in a separate file:</p>
+
+<pre>
+// NameContext.js
+
+import React, { createContext } from 'react';
+
+const NameContext = createContext("No name");
+export default NameContext;
+</pre>
+This creates a context called <code>NameContext</code> and exports it: if there is no value yet, it will take the value "No name".
+
+We can then use it in our top-level, parent component (<code>WithContext1</code>):
+<pre>
+// WithContext1.js
+
+import React, { useState } from 'react';
+import WithContext2 from './WithContext2';
+import NameContext from './NameContext';
+
+export default function WithContext1() {
+
+    const [name, setName] = useState("No name");
+
+    return (
+        &lt;div&gt;
+        &lt;input id='name' value={name} onChange={updateState}/&gt;
+        &lt;NameContext.Provider value={name}&gt;
+        &lt;WithContext2 /&gt;
+        &lt;/NameContext.Provider&gt;
+        &lt;/div&gt;
+    );
+
+    function updateState() {
+        setName(document.getElementById('name').value);
+    }
+}
+</pre>
+<p>Note how we:</p>
+<ul>
+<li>import the context from the <code>NameContext</code> module;</li>
+<li>when rendering <code>WithContext1</code>, we then set up a <code>NameContext.Provider</code> surrounding any child elements. This provides the given context to the child elements, note it has a value of <code>name</code>, which is the name from the state.</li>
+</ul>
+
+<p>Moving onto the next component down in the hierarchy, <code>WithContext2</code>:</p>
+<pre>
+import React, { useContext } from 'react';
+import NameContext  from './NameContext';
+import WithContext3 from './WithContext3';
+
+export default function WithContext2() {
+    const name = useContext(NameContext);
+    return(
+        &lt;&gt;
+        &lt;h1&gt;Hello {name}!&lt;/h1&gt;
+        &lt;WithContext3  /&gt;
+        &lt;/&gt;
+    );
+}
+</pre>
+<p>Note how we reference the context we need using <code>useContext</code> with the desired context (the context exported from <code>NameContext.js</code>) to access the name. The name used will be that provided by the provider in the parent context, which in this example is the name from the state.</p>
+
+<p>We do exactly the same in <code>WithContext3</code>:</p>
+
+<pre>
+import React, { useContext } from 'react';
+import NameContext from './NameContext';
+
+export default function WithContext3() {
+    const name = useContext(NameContext);
+
+    return(
+        &lt;p&gt;Welcome {name} to the site!&lt;/p&gt;
+    );
+}
+</pre>
+<h3>Passing multiple contexts</h3>
+
+<p>We can pass multiple contexts by nesting providers, e.g.</p>
+
+<pre>
+import React, { useState } from 'react';
+import WithContext2 from './WithContext2';
+import NameContext from './NameContext';
+import CourseContext from './CourseContext';
+
+export default function WithContext1() {
+
+    const [name, setName] = useState("No Name");
+    const [course, setCourse] = useState("No Course");
+
+    return (
+        &lt;div&gt;
+        Name:&lt;br /&gt;
+        &lt;input id='name' /&gt;&lt;br /&gt;
+        Course: &lt;br /&gt;
+        &lt;input id='course' /&gt;&lt;br /&gt;
+        &lt;input type='button' onClick={updateState} value='Go!' /&gt;
+        &lt;NameContext.Provider value={name}&gt;
+        &lt;CourseContext.Provider value={course}&gt;
+        &lt;WithContext2 /&gt;
+        &lt;/CourseContext.Provider&gt;
+        &lt;/NameContext.Provider&gt;
+        &lt;/div&gt;
+    );
+
+    function updateState() {
+        setName(document.getElementById('name').value);
+        setCourse(document.getElementById('course').value);
+    }
+}
+</pre>
+<p>and we can then use them in child components separately, e.g:</p>
+<pre>
+import React, { useContext } from 'react';
+import NameContext from './NameContext';
+import CourseContext from './CourseContext';
+
+function WithContext3() {
+    const name = useContext(NameContext);
+    const course = useContext(CourseContext);
+
+    return(
+        &lt;p&gt;Welcome {name}, studying {course}, to the site!&lt;/p&gt;
+    );
+}
+export default WithContext3;
+</pre>
+<p>We would of course need a separate <code>CourseContext</code>:</p>
+<pre>
+import React, { createContext } from 'react';
+
+const CourseContext =  createContext("No Course");
+export default CourseContext;
+</pre>
+</div>
+
+<div class='content-public'>
+<h3>Coding Exercise 4.1</h3>
+<ol>
+<li>Modify the HitTastic! starter project for this week so that the dark mode is provided as a <code>Context</code> and accessed from the child components via <code>useContext</code> rather than passing it down via props.</li>
+<li>Write a Hook to provide the user status to any component that needs it. The Hook should make a request to the <code>/login</code> GET route on the server and store the result (an object containing the user and admin status) in a state variable. This should be done using an effect. The Hook should return an array containing the state variable and its setter, so that components can read and modify the state variable.</li>
+<li>Try writing a custom Hook to perform an AJAX search and parse the JSON returned into a JavaScript variable (usually an array of objects). It would be called as follows:
+<pre>const [results, setResults] = useAjax("URL");</pre>
+The custom Hook should store the AJAX results in state and return the state variable and setter, as before. Test it out by using it for your song search in the HitTastic! project.</li>
+<li><strong>Advanced:</strong> One problem with question 2 is that we need to make a request to the server each time a component queries the login status. This is inefficient. Research <strong>local storage</strong> and try modifying the Hook so that it stores the username in local storage when it's retrieved from the server. The Hook should also check that the username is not in local storage before making a request to your server. Additionally, your Logout needs to delete the username from local storage.</li>
+</ol>
+</div>
+
+</main>
+</body>
+</html>

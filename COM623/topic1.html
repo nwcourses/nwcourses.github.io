@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<main>
+
+<div class='content-public'>
+
+<h2>Introduction</h2>
+
+<p>Last year you were introduced to <em><a href='https://react.dev'>React</a></em> JavaScript library, one of the industry standards for developing reactive user interfaces - UIs which respond immediately to changes in the underlying data. It makes use of reusable <em>components</em>. In this module you will explore React in more detail, as well as look at other contemporary web technologies such as <em>Next.js</em> and <em>Firebase</em>. We will explore React in the first few weeks by developing a fuller version of the HitTastic! application from last year, including features to allow users to buy songs and admins to add and edit songs.</p>
+
+<p>The first week will consist of two parts:
+    <ul>
+    <li>Revising basic React from last year;</li>
+    <li>Using the development server and bundler <em>Vite</em> for a friendly developer experience.</li>
+    </ul>
+Before trying out the exercises, you should review the following notes from last year:
+
+<ul>
+<li><a href='https://nwcourses.github.io/COM518/topic5.html'>Modules and Bundlers</a></li>
+<li><a href='https://nwcourses.github.io/COM518/topic6.html'>Introduction to React</a></li>
+</ul>
+
+and also, once you have looked at the above:
+
+<ul>
+<li><a href='https://nwcourses.github.io/COM518/topic7.html'>Further React</a></li>
+</ul>
+
+</p>
+
+</div>
+
+<div class='content-exercise' data-id='1'>
+
+<p>The learning in this module will take an interactive form in which you will occasionally be given exercises to check your existing understanding. Answering these exercises will unlock further content which discusses and expands upon the answers to these exercises.</p>
+
+<p>So here is the first exercise. Here is some HTML and JavaScript (JSX) code to implement Hello World in React.</p>
+
+<pre><code data-src='index.html'>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;React Hello World&lt;/title&gt;
+&lt;script src='main.jsx' type='module'&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id='root'&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<pre><code data-src='main.jsx'>
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(&lt;h1&gt;Hello World!&lt;/h1&gt;);
+</code></pre>
+
+<div class='questions'>
+</div>
+
+</div>
+
+<div class='content-protected' data-depends='1'>
+
+<h3>Preparing React code for the browser</h3>
+
+<p>As we saw last year, there are <em>three</em> reasons why this code will not run directly in the browser. These are:
+
+<ol>
+
+<li>We do not yet have React installed on our system. We must install it using <code>npm</code>.</li>
+
+<li>Browsers do not understand <code>import</code> statements which import external libraries, such as React. We must use a <em>bundler</em>, such as Webpack, to process these imports and create a <em>bundle</em> containing our code and the external library code. This bundle can then be run directly by the browser.</li>
+<li>React code contains <em>JSX</em>, an extension to JavaScript which allows you to easily render components as tags directly from JavaScript. Browsers will not understand JSX directly. We must convert the JSX to standard JavaScript using a <em>transpiler</em>, such as <em>Babel</em>.</li>
+</ol>
+</p>
+</div>
+
+<div class='content-public'>
+
+<h2>Using Vite as a development and bundling tool</h2>
+
+<p>Last year we used Webpack to bundle our apps and enabled watch mode to automatically detect changes. However an increasingly popular - and faster and more powerful - build tool for JavaScript is <a href='https://vitejs.dev'>Vite</a>.</p>
+
+<p>Vite contains two different components:
+    <ul>    
+    <li>A <em>development server</em>, which can process imports in your source code which reference third-party Node modules (e.g React) and "live updates" the page if your code changes by rebuilding your page using a technique known as <em>Hot Module Reloading</em>. See <a href='https://vitejs.dev/guide/why.html'>here</a> for details.</li>
+    <li>A <em>bundler</em> which is used when the app is fully ready for production. This produces a traditional bundle which can be shipped with your app. Under the hood, Vite uses the <a href='https://rollupjs.org'>Rollup</a> bundler.</li>
+    </ul>
+</p>
+
+<p>Using Vite for development is an easy and fast experience. You just create your index.html in your project root, link in your JavaScript source as an ES6 module, and run the Vite development server with <code>vite dev</code>. The server runs on port 5173 so can be accessed via
+<pre>http://localhost:5173</pre>
+Then any changes you make will be automatically processed by Vite, your code will be rebuilt, and the page will auto-reload.</p>
+
+<p>Vite will work easily with React as long as the Vite <em>React plugin</em> is also installed, and specified in Vite's configuration file <code>vite.config.mjs</code>.</p>
+
+<p>You can use the Vite config tool to auto-create an app with dependencies installed and vite.config.mjs setup. However initially we are going to use Vite from first principles just to show how easy it is to setup a Vite dev server, even if we are using React.</p>
+
+<h3>Coding Tasks</h3>
+<h4>1.1 Basic: Use Vite to serve a static HTML page</h4>
+<p>Use Vite to serve a plain HTML Hello World page. To do this:
+<ul>
+<li>Install Vite:
+<pre>npm install vite</pre>
+</li>
+<li>Create a Hello World <code>index.html</code> page. This should simply be placed in the root folder of your project; this is the Vite convention though it can be configured in <code>vite.config.mjs</code> via the <code>root</code> and <code>base</code> options (see <a href='https://vitejs.dev/config/shared-options.html'>the documentation</a>). You should not place it in <code>public</code> unless you configure Vite to do this.</li>
+<li>Run the Vite development server:
+<pre>npx vite dev</pre>
+</li>
+<li>Connect to the server via your browser using <code>http://localhost:5173</code>.</li>
+<li>While the browser is visible, change your HTML code and save it. <strong>You should find that your HTML page reloads!</strong></li>
+</ul>
+</p>
+<h4>1.2 Using Vite to serve a React page</h4>
+<p>Use Vite to serve an enhanced version of your HTML page from the first exercise, containing a React component. To do this:
+<ul>
+<li>Install the Vite React plugin as well as React itself:
+<pre>npm install @vitejs/plugin-react react react-dom</pre>
+</li>
+<li>You now need to <em>configure</em> Vite to use the React plugin. As discussed above, the Vite configuration file is <code>vite.config.mjs</code>. This is quite easy to understand. Create this file and add this code to it:
+<pre>import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()]
+});</pre>
+It is a small JavaScript file which is read by Vite on startup. We import the function <code>defineConfig()</code> from the <code>vite</code> module and then import the <code>react()</code> function from the <code>@vitejs/plugin-react</code> module. We then define a configuration object with the <code>defineConfig()</code> function. This object has a <code>plugins</code> property containing an array of all the plugins which will be used by Vite. The object is exported from our configuration file so that Vite can use it.
+    <ul>
+    <li><strong>To read about <code>vite.config.mjs</code> in more detail</strong>, including the full range of configuration options, please see <a href='https://vitejs.dev/config/'>the documentation</a>. It contains several sub-sections (accessible via the left sidebar) covering the different types of configuration options.</li>
+    </ul>
+</li>
+<li>Now create a <code>src</code> folder to store your application source code. Inside there, create the Hello World React app given above and save it as <code>main.jsx</code>. Also modify <code>index.html</code> so that it has a &lt;div&gt; to hold your React root component, and link this file to your <code>index.html</code> as an ECMAScript 6 module:
+<pre>&lt;script type='module' src='src/main.jsx'&gt;&lt;/script&gt;</pre>
+</li>
+<li>This is all you need! If you start the Vite server in the project folder (or leave it running, if you didn't stop it) your JSX source code will be processed by Vite and accessible on <code>localhost:5173</code> on the browser, as before.</li>
+<li>Now try changing your React application so that it includes an <code>App</code> component. This <code>App</code> component should return the message 
+<pre>Hello World from the app component!</pre>
+as an &lt;h1&gt; heading. Modify your <code>main.jsx</code> to use this component. Watch your browser window. Does it update?</li>
+</ul>
+</p>
+
+<h2>React components</h2>
+
+<p>Central to React is the concept of <em>components</em>: reusable user interface elements which can be used in many different applications. You can read about components in <a href='https://nwcourses.github.io/COM518/topic6.html'>last year's notes</a>. Components can store data in <em>state</em> variables. State variables are special because they cause the component to automatically <em>re-render</em> if they update.</p>
+
+<h3>Coding Task 1.3 - Revising components and state</h3>
+
+<p>Using <a href='https://nwcourses.github.io/COM518/topic6.html'>last year's notes</a> and your own knowledge only (<strong>do NOT use any external websites and absolutely do NOT use any generative AI!</strong>), and keeping your Vite server running, write a React counter component which counts the number of times the user clicks a button. The counter should be stored in state and should be displayed via a message such as: <pre>You have clicked the counter 3 times.</pre>
+Also add a second button which resets the counter to 0. Import and use the component from your <code>main.jsx</code> from the Vite exercise above.
+</p>
+
+<h2>Production-ready apps with Vite: creating bundles</h2>
+
+<p>Above we saw how we can use Vite as a development server which uses Hot Module Reloading to live-update the app when your code changes. This is very useful while we are developing our app: we can make changes and instantly see the results. We can fix code and quickly see whether the fix worked.</p>
+<p>However, when our app is fully debugged and ready to be shipped for production, we can also use Vite as a <em>bundler</em>, in a similar way to how we used Webpack last year. You can easily create a bundle by telling Vite to <em>build</em> your application. This is easy, simply run Vite in <code>build</code> mode:
+<pre>npx vite build</pre>
+What will this output? It will, by default, create a bundle with a name based on <code>index.js</code> (e.g. <code>index-Db-RNyM6.js</code>) within the <code>dist</code> folder (you do not have to create this folder, Vite will do it for you). Furthermore it will:
+    <ul>
+    <li>copy your <code>index.html</code> and any static assets (such as images) to the <code>dist</code> folder;</li>
+    <li>automatically insert a link to the bundle into your <code>index.html</code>;</li>
+    <li>and update any references to static assets so that they are loaded from the <code>dist</code> folder also.</li>
+    </ul>
+Thus, once you have run a Vite build, your application is fully prepared and ready to go: all you need is to serve it with a server of some kind (e.g. an Express app) and your project is fully runnable. Hopefully you will appreciate that using Vite as a bundle build tool is also a quick, painless and easy experience!</p>
+<p><code>dist</code> is the default output folder, however it can be configured via the <code>build.outDir</code> option in <code>vite.config.mjs</code>. See <a href='https://vitejs.dev/config/build-options.html'>the documentation</a>. For example:
+<pre>import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()],
+    build: {
+        outDir: 'built'
+    }
+});</pre>
+The above example will generate the output in the <code>built</code> folder instead. Note the syntax when using config options from the documentation. JavaScript syntax is used for defining each option, so <code>build.outDir</code> indicates that you must create an <code>outDir</code> property <em>within</em> a <code>build</code> object.</p>
+
+
+
+<h3>Coding Task 1.4 - Building your Counter App for Production</h3>
+
+<p>Use Vite in build mode to build a bundle containing your counter app. Also create a simple Express server to serve it from the <code>dist</code> folder. See <a href='https://nwcourses.github.io/COM518/topic1.html'>last year's notes on Express</a> and more specifically <a href='https://nwcourses.github.io/COM518/topic3.html'>the Serving Static Web Pages with Express section from topic 3</a>. Access your built app in the browser via your Express server.</p>
+
+<h2>Building HitTastic! with React</h2>
+
+<p>Having done one or two small introductory exercises, we will now focus on starting to build a larger project. Last year in WAD you built a simple music website <em>HitTastic!</em>, to search for and buy music. In this module we will gradually build up a more complex React version of HitTastic!, exploring various React features and good React design principles as we do.</p>
+
+<h3>Coding Task 1.5</h3>
+
+<p>Initially, we will just implement a search facility using a list of hard-coded songs, rather than connecting to a REST API. The user will enter an artist in a text field, click a button, and the results will appear in a &lt;div&gt; below the form.</p>
+
+<p>The GitHub repository at:
+<pre>https://github.com/nwcourses/hittastic-react</pre>
+contains a starter for HitTastic! It contains a component including the basic UI described above, along with a hard-coded list of songs which is filtered by the user's chosen artist when the user does a search. Extend the code so that it:
+    <ul>
+    <li>Stores the results filtered by artist in state.</li>
+    <li>Maps the filtered results to JSX. See the shopping cart example in <a href='https://nwcourses.github.io/COM518/topic6.html'>last year's notes</a> to see how to do this.</li>
+    <li>Displays the JSX in the results &lt;div&gt;.</li>
+    </ul>
+</p>
+
+<p>
+It also allows the user to customise the look and feel, by selecting light or dark mode. This information is stored in state and a different style is applied to the main &lt;div&gt; according to its value.
+</p>
+
+
+<p>Use the Vite development server to test your application, as before. When it is fully working, build a bundle and write a simple Express server (<code>server.mjs</code>) to serve the app from the <code>dist</code> folder, as you did in the previous exercise.</p>
+
+</div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<main>
+<div class='content-public'>
+
+<h2>Designing and Building HitTastic! in React</h2>
+
+<p>This week we will contiue to build HitTastic!, in order to gain more practice with the concepts we've learnt so far and to consolidate what you learnt last year. In doing so, you will hopefully start to appreciate the benefit of reusable components.</p>
+
+<p>Next week we will be introducing a range of new React features. However, to appreciate them, you need to gain a little more practical experience with basic React to identify a few problems that might arise.</p>
+
+<p>You will also get the chance to analyse and design our small HitTastic! system. <strong>Ideally you should do this as directed learning before the class, e.g. on Monday morning. We will then discuss your solutions in class, giving us more time to code the system.</strong></p>
+
+
+
+<h3>Designing the system</h3>
+<p>Have a look at this drawing of the intended UI of HitTastic!</p>
+<img src='images/hittastic-react-layout.png' alt='HitTastic! React layout'>
+<p>Think about the "lifting up state" exercise from last time. By drawing a diagram, or explaining in words, state:
+	<ul>
+	<li>What components are needed;</li>
+	<li>What sub-components each component will need;</li>
+	<li>What state variables each component will need;</li>
+	<li>Using the principle of lifting up state, what props might each component need to receive from its parent?</li>
+	</ul>
+If you draw a diagram using software (e.g. Paint), please <strong>share it with me on OneDrive</strong>. If explaining in words, please login and answer Exercise 1.</p>
+</div>
+<div class='content-exercise' data-id='1'>
+<div class='questions'></div>
+</div>
+
+<div class='content-protected' data-depends='1'>
+<p>
+Each area of the UI needs to be its own component. For example:
+	<ul>
+	<li>Login component</li>
+	<li>Search input component</li>
+	<li>Search results component</li>
+	<li>Add song component</li>
+	</ul>
+The image below shows a more detailed analysis.</p>
+<img src='images/hittastic-react-layout-analysis.png' alt='HitTastic! React layout - analysis' />
+</div>
+
+<div class='content-public'>
+<h2>Coding Exercise 3.1: Coding the application</h2>
+<p>Once you've done this, you should start enhancing the functionality of your application by coding the system you have designed above. To do this:
+	<ul>
+	<li>Clone this new Git repository located at:
+<pre>https://github.com/nwcourses/com623-wk3-starter.git</pre>
+This contains:
+	<ul>
+	<li>An Express server, setup to use <code>vite-express</code> already and with a range of endpoints including a login system;</li>
+	<li>An <code>index.html</code>, which will provide the page layout for your application;</li>
+	<li>A <code>main.jsx</code> and beginnings of an <code>App</code> component.</li>
+	</ul>
+	<li>Add the components that you developed last time, including Coding Exercise 2.4, to your <code>components</code> folder, replacing the basic <code>App</code></li>
+	<li>Code the remaining components you identified in the analysis and design exercise, above.</li>
+	</ul>
+</p>
+</div>
+</main>
+</body>
+</html>

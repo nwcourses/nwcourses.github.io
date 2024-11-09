@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Topic 5 - Further React Topics</title>
+<meta charset="utf-8">
+</head>
+
+<body>
+
+<main>
+<div class='content-public'>
+<p>This week we will cover a few small but important topics that we have not had the chance to cover yet. We will discuss these at the beginning of the class, and I will demonstrate some of them. You will also get the chance to continue with the practical work from last week.</p>
+<h2>Some general extra points about state</h2>
+<h3 id="statebelongstoaspecificcomponent">State belongs to a specific component</h3>
+<p>In some cases you may wish to have multiple instances of the same child component, e.g. two separate To Do lists (one for work, one for leisure), as you saw last week. In such a case, the state belongs to a <em>specific component</em> (e.g. a specific To Do list).</p>
+<p>Here is a simple example in which the <code>App</code> component contains two <code>Counter</code> components. First the <code>App</code> component:
+~                        `</p>
+<pre><code class="javascript language-javascript">import React from 'react';
+import Counter from './Counter';
+
+export default function App() {
+
+
+    return (
+        &lt;div&gt;
+        &lt;h1&gt;Two Counters&lt;/h1&gt;
+        &lt;Counter /&gt;
+        &lt;Counter /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</code></pre>
+<p>and the <code>Counter</code> component.</p>
+<pre><code class="javascript language-javascript">import React from 'react';
+
+export default function Counter() {
+    const [count,setCount] = React.useState(0);
+
+    function incCount(){
+        setCount(count+1);
+    }
+
+    return(
+        &lt;div&gt;
+        Count: {count} &lt;br /&gt;
+        &lt;input type='button' value='+' onClick={incCount} /&gt;
+        &lt;/div&gt;
+    );
+
+}
+
+</code></pre>
+<p>Note how the Counter component stores a <code>count</code> in the state, which increases each time we click the button.</p>
+<p>If you try this out (along with an appropriate HTML page and <code>index.js</code>) you will see that two counters appear, each of which independently record the number of clicks.</p>
+<h3 id="hidingacomponentresetsstate">Hiding a component resets state</h3>
+<p>This example includes a button on the <code>App</code> component which toggles the visibility of the second counter, showing it and hiding it.</p>
+<pre><code class="javascript language-javascript">import React from 'react';
+import Counter from './Counter';
+
+export default function App() {
+
+    const [show,setShow] = React.useState(false);
+
+
+    function handleClick() {
+        setShow(!show);
+    }
+
+    return (
+        &lt;div&gt;
+        &lt;Counter /&gt;
+        { show ? &lt;Counter /&gt; : "" }
+        &lt;input type='button' value={show? 'Hide':'Show'} onClick={handleClick} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</code></pre>
+<p>In this example, <code>App</code> stores a variable <code>show</code> in state. This is toggled with the button, and if <code>show</code> is false, the second counter is hidden.</p>
+<p>If you try this, you will find that the counter <strong>resets to 0</strong> if you hide the second counter and then show it again. This is because <strong>state is destroyed</strong> if a component is no longer rendered.</p>
+<p>Furthermore state is destroyed if you change the <em>order</em> of rendering of a given component. For example:</p>
+<pre><code class="javascript language-javascript">import React from 'react';
+import Counter from './Counter';
+
+export default function App() {
+
+    const [swapped,setSwapped] = React.useState(false);
+
+
+    function handleClick() {
+        setSwapped(!swapped);
+    }
+
+    return (
+        &lt;div&gt;
+        { swapped ? &lt;div&gt;A placeholder div&lt;/div&gt;: &lt;Counter /&gt; }
+        { swapped ? &lt;Counter /&gt; : &lt;div&gt;A placeholder div&lt;/div&gt; }
+        &lt;input type='button' value='Move Counter' onClick={handleClick} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</code></pre>
+<p>This time, the <code>App</code> component renders a <code>Counter</code> along with a placeholder <code>div</code>. If you press the button, the counter and the div will be swapped over within the <code>App</code> component, as the order of rendering depends on the state variable <code>swapped</code>. When this happens, <strong>the Counter is rendered in a different position within the DOM of <code>App</code></strong> (as the second child rather than first) and as a result, the state will be reset.</p>
+<h2 id="usingkeystoidentifycomponents">Using keys to identify components</h2>
+<p>You may have noticed this warning in the console when using React to create lists of items:</p>
+<pre>Warning: each item in a list should have a unique "key" prop.</pre>
+<p>What does this mean? Each item in a list needs to be given a unique <em>key</em> (such as its ID in a database). We are now going to start looking about <em>why</em> this is a good idea. It allows us to identify a specific component, and preserve its state if its rendering position is moved. For example:</p>
+<pre><code class="javascript language-javascript">import React from 'react';
+import Counter from './Counter';
+
+export default function App() {
+
+    const [swapped,setSwapped] = React.useState(false);
+
+
+    function handleClick() {
+        setSwapped(!swapped);
+    }
+
+    return (
+        &lt;div&gt;
+        &lt;Counter key={swapped ? 'c2': 'c1'} /&gt;
+        &lt;Counter key={swapped ? 'c1': 'c2'} /&gt;
+        &lt;input type='button' value='Swap' onClick={handleClick} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</code></pre>
+<p>In this example, each counter component has a <strong>key</strong>, <code>c1</code> or <code>c2</code>. Depending on the value of the state variable <code>swapped</code>, the counters are rendered either in order <code>c1</code>,<code>c2</code>, or order <code>c2</code>,<code>c1</code>. But because each is identified with a key, the state of each counter will be <em>preserved</em> by the swap.</p>
+</div>
+<div class='content-public'>
+<h2>Further points about JSX syntax</h2>
+<p>The exercise below clarifies a possible point of confusion about JSX syntax.</p>
+</div>
+<div class='content-exercise' data-id='1'>
+<p>Look at this code:</p>
+<pre>
+import React, { useState } from 'react';
+export default function CounterApp() {
+
+    const [counter, setCounter] = useState(0);
+
+    function handleClick() {
+        setCounter(counter+1);
+    }
+
+    const msg = counter &gt; 0 ? &lt;p&gt;You have clicked:&lt;/p&gt;&lt;p&gt;{counter} times.&lt;/p&gt; : &lt;p&gt;You have not clicked yet.&lt;/p&gt;;
+    return (
+        &lt;div&gt;
+        {msg}
+        &lt;input type='button' value='Click' onClick={handleClick} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</pre>
+<div class='questions'></div>
+</div>
+
+<div class='content-protected' data-depends='1'>
+You might think this would work because the JSX returned is valid JSX, i.e. it has a single root or top-level tag (the <code>div</code>). However, <em>all</em> JSX expressions must follow this rule, not just the return value. You'll notice in the code above that the ternary expression which sets <code>msg</code> according to the value of <code>counter</code> returns <em>two paragraph tags if <code>counter</code> is greater than 0, with no top level tag</em> - which is not allowed. To correct this you'd need to add a top level tag, or an empty tag <code>&lt;&gt;</code> or <code>&lt;Fragment&gt;</code> tag if there isn't an appropriate top level tag.
+</div> 
+
+<div class='content-public'>
+<h2>Coding exercises</h2>
+<p>First, complete Coding Exercise 4.1, from last week. Then, try out Coding Exercise 5.1 below, which allows you to further extend HitTastic!</p>
+<h3>Coding Exercise 5.1</h3>
+<ol>
+<li>Extend last week's work to implement the "add song" functionality on the client side in HitTastic! Ensure you communicate with the "add song" route on the server, and display the success or otherwise on the React UI (the message must be part of the component - not an alert box - and must update each time the user tries to add a song).</li>
+<li>Try implementing the "buy" functionality - remember that a Buy button appears for each search result if the user is logged in. You'll need to add a new "buy" route to your server, e.g.:
+<pre>
+app.post('/song/:id/buy', (req, res) =&gt; {
+    const stmt = db.prepare("UPDATE songs SET quantity=quantity-1 WHERE id=?");
+    const info = stmt.run(req.params.id);
+    res.json({updated: info.changes});
+});
+</pre>
+<strong>Change the client-side code to show the quantity in stock of each song, and have a go at live-updating the quantity on the client when a response is sent back from the server.</strong> 
+</li>
+</ol>
+</div>
+</main>
+
+</body>
+</html>

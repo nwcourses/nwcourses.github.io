@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<main>
+<div class='content-public'>
+
+<h2>Connecting to an API</h2>
+
+<p>Last time you made a start on a HitTastic! React application, using a list of hard-coded songs. However a real application would need to work with a much bigger dataset, and would need to fetch the song data from a server, e.g. a JSON-based REST API. This is quite straightforward to implement when the app has been built for production: you can just add AJAX calls, using the <code>fetch</code> API, to the appropriate routes on the server which query the database and return JSON of all the matching songs.</p>
+
+<p>However, what do you do when you are developing the app using the Vite dev server? Do you need to run two servers, the Vite server and your own API server?</p>
+
+<p>You <em>could</em> do this, as the Vite server is running on port 5173 by default whereas your own server is probably running on port 3000. So you could have the two servers running at once. However a little bit of work would be required:
+    <ul>
+    <li>You would need to explicitly state, in your AJAX calls from your React front-end, that you wish to connect to the server running on port 3000. This is because the front-end is being served from the Vite server on port 5173, so by default, AJAX calls will be to that same server running on port 5173. If you wish to connect via AJAX to another server, its port must be included.</li>
+    <li>Even if you did this, the AJAX calls would by default fail due to the Same-Origin Policy which states that the front end and back end of an AJAX application MUST come from the same domain name (<code>localhost</code> here) AND port. The ports are different so the AJAX calls will be blocked. We'd have to set up Cross-Origin Resource Sharing (CORS) on the server to enable it.</li>
+    </ul>
+</p>
+
+<p>Luckily there is a better solution. The Vite server is designed to be run in <em>middleware mode</em>, in which it can be inserted into another server (such as an Express-based server) as middleware. Any routes which are not handled by your Express server (i.e. your front end) are then passed on to the Vite dev server running as middleware. So you can run your Express server, with Vite added as middleware, and continue to take advantage of Vite's Hot Module Reload facilities!</p>
+
+<p>Vite provides a low-level API to do this. You can read about this <a href='https://vitejs.dev/guide/ssr.html'>here</a>. This article is centred around the concept of server-side rendering, which we will meet later in the module, but also shows you how you can integrate Vite and Express. However the code is quite low-level and you have to manually handle the processing of <code>index.html</code>. In the words of that page:
+
+<blockquote>
+If your goal is to create an application, make sure to check out the higher-level SSR plugins and tools at <a href='https://github.com/vitejs/awesome-vite#ssr'>Awesome Vite</a> [...] instead.
+</blockquote>
+
+Awesome Vite is a GitHub repo which contains a range of third-party tools for working with Vite. A particularly interesting tool is <a href='https://github.com/szymmis/vite-express'>vite-express</a> which integrates Vite with Express. Using <code>vite-express</code> you can create an Express server with the Vite dev server included as middleware with minimal code.</p>
+
+<p>You need to install <code>vite-express</code> first, e.g:
+<pre>npm install vite-express</pre>
+
+You can then use it in a simple server:
+
+<pre>import express from 'express';
+import ViteExpress from 'vite-express';
+
+const app = express();
+
+ViteExpress.listen(app, 3000, () =&gt; "Express server with Vite integration now running...");</pre>
+
+</p>
+
+<h3>Coding Task 2.1</h3>
+
+<p>Install <code>vite-express</code> and create the simple server above. Save it as <code>server.mjs</code>. Start it, and then access your site on:
+<pre>http://localhost:3000</pre>
+Make changes to the front-end to prove that the Hot Module Reloading of the Vite server is still working!</p>
+
+<h3>What about production?</h3>
+
+<p>A particularly useful feature of <code>vite-express</code> is that the server you create is <em>also suitable for production</em>, in which case the Vite dev server will <em>not</em> be used. In production mode, you bundle your app with <code>npx vite build</code> as before, and then start your server by passing in the environment variable <code>NODE_ENV</code> set to a value of <code>production</code>:
+
+<pre>NODE_ENV=production node server.mjs</pre>
+
+<code>vite-express</code> tests the environment variable <code>NODE_ENV</code> and if it's set to <code>production</code>, it will run your server <em>without</em> including the Vite dev server as middleware. Instead, it will serve the built bundle and static assets from the <code>dist</code> folder.</p>
+
+<h3>Coding Task 2.2</h3>
+
+<p>Find your HitTastic! Express server from last year, if you still have it.</p>
+<p>If you do not, use the solution to last year's Week 2 exercise to recreate it. 
+<pre>https://github.com/nwcourses/COM518/blob/master/wk2/</pre> 
+The database can be found at:
+<pre>https://github.com/nwcourses/COM518/blob/master/wadsongs.db</pre>
+You will need just two of routes:
+    <ul>
+    <li>The <code>artist</code> route, allowing the user to search by artist.</li>
+    <li>A <code>/songs/all</code> route, which should return <em>all</em> songs as JSON. This is very like the <code>artist</code> route but does not need a <code>WHERE</code> clause in the SQL, and does not need a parameter in the route.</li>
+    </ul>
+Adapt it to use <code>vite-express</code>. Also change your React front-end so that it sends an AJAX request to the appropriate route on the API when the user clicks the search button. Once the response is received, the JSON should be parsed, and the resulting array is stored in state. You will therefore no longer need the hard-coded array of songs.</p>
+
+<p><strong>Important:</strong> The Vite server will <em>not</em> watch for changes to your <em>own server</em>. It only watches for changes to <em>front-end</em> code. In order to watch for changes on the server, you will need to run it with a tool such as PM2 in watch mode, as you did last year.</p>
+
+</div>
+
+<div class='content-exercise' data-id='2'>
+
+<p> The next exercise gets you to think about how you can fetch external data from a web API in a React application when the component first loads.
+</p>
+
+
+<p>Let's say you now want to load <em>all</em> songs from the server as the default, when the component first loads, so that the first thing the user sees is a list of <em>all</em> songs. This would involve sending an AJAX request to a route on the server which returns <em>all</em> songs.</p>
+
+<div class='questions'></div>
+
+<p>You might want to look at <a href='https://nwcourses.github.io/COM518/topic7.html'>the further React notes</a> from last year.</p>
+
+</div>
+
+<div class='content-protected' data-depends='2'>
+
+<h3>Using Effects</h3>
+
+<p>The exercise asked you about where to place code to send an AJAX request to the server when the component first loads. Where could it go?
+    <ul>
+    <li>You could add it directly inside the component function. However this is incorrect. The component function is purely for <em>rendering</em> and should not contain any slow operations, such as connecting to the network. Re-rendering can potentially be done at any time, whenever React sees fit to do so, and is certainly done whenever state changes. In our app, the user may want to change the mode (light or dark), updating the state, and in this case we certainly do not want to make another request to the server to retrieve all songs!</li>
+    <li>It could be placed in an ordinary function and called from the top of the component function. This would make the code cleaner but would have the same problem as above.</li>
+    <li>The correct place to add the code is in an <em>effect</em>,
+as we saw in the <a href='/COM518/topic7.html'>further React notes</a> last year. If you remember, an effect is a function used to perform a time-consuming external task which can be run either at <em>every render</em>, the <em>first render only</em> or <em>when selected state variables or props change</em>. We run an effect by using <code>React.useEffect()</code> with a function as a parameter which performs the external task, such as an AJAX call.</li>
+    </ul>
+</p>
+</div>
+
+
+<div class='content-exercise' data-id='3' data-depends='2'>
+<p>Here is another exercise on the use of effects.</p>
+<div class='questions'></div>
+</div>
+
+<div class='content-protected' data-depends='3'>
+<h3>Exercise 3 Discussion: Specifying when an effect will run</h3>
+<p>In this case, you want the effect to run <em>only when the component is first loaded</em>, because that is the only time we need to load all the songs. There is <em>no</em> need to run the effect each time state updates, for example. There are three ways to call an effect:
+    <ul>
+    <li>Call it on <em>every</em> render;</li>
+    <li>Call it on <em>first</em> render only;</li>
+    <li>Call it <em>only when particular state variables or props change</em>.</li>
+    </ul>
+As we saw in the <a href='https://nwcourses.github.io/COM518/topic7.html'>notes last year</a>, you specify when the effect should be called via the second argument to the <code>useEffect()</code> function:
+<ul>
+<li><code>useEffect( effectFunction )</code> alone will run the effect on every render. <strong>This is not what we want.</strong></li>
+<li><code>useEffect( effectFunction, [ variable1, variable2, variable3 ... ] )</code> alone will run the effect <em>whenever any of the variables listed inside the array change. These variables can be either state variables or props.</em> Again this is <strong>not what we want as we only want to load the effect when the component first loads</strong>.</li>
+<li><code>useEffect( effectFunction, [] )</code>, i.e. with an empty array as the second argument, runs the effect on <em>first render only</em>. <strong>This is what we want here.</strong></li>
+</ul>
+</p>
+
+<h3>Coding Task 2.3</h3>
+
+<p>Add code to your component to send an AJAX request to the "all songs" route as an effect, ensuring that it runs only when the component first loads. Save the songs in state when they are returned from the server.</p>
+
+<p><strong>Note that you cannot use async/await inside an effect</strong>. Instead you will need to use the <em>then</em>-based promise syntax, e.g.:
+<pre>
+useEffect ( ()=&gt; {
+    fetch('api endpoint')
+        .then(response =&gt; response.json())
+        .then(songsArray =&gt; ...update your state variable...)
+});
+</pre>
+</p>
+
+<h2>Designing Reusable React Components</h2>
+<p>A key concept in React component design is to ensure the components are <em>reusable</em>. Whenever we create a React component, we should be thinking: <em>might we want to use this component again, in a completely different application?</em></p>
+</div>
+
+<div class='content-exercise' data-id='4'>
+<p>We are now going to do a small analysis and design exercise. Take a look at this problem statement for an extended version of HitTastic!:
+    <ul>
+    <li>HitTastic! is a website to allow users to search for, and buy, music. A user should be able to search for songs by artist. If they are logged in, they should be able to buy music by clicking on a "Buy" button on the user interface. An administrator should be able to add new songs to the database.</li>
+    </ul>
+</p>
+
+<div class='questions'></div>
+
+</div>
+
+<div class='content-protected' data-depends='4'>
+<h3>Possible Components for HitTastic!</h3>
+
+<p>From the in-class discussion we worked out that these components might be useful to have in the HitTastic! app to implement the search facility:
+    <ul>
+    <li>A <em>search</em> component, allowing the user to enter a search term.</li>
+    <li>A <em>results</em> component, allowing the results to be displayed.</li>
+    <li>A <em>login</em> component, displaying a login form if the user is not logged in, or a "Logged in as..." message if they are logged in.</li>
+    <li>An <em>add new song</em> component, containing a form allowing the user to add a song to the database.</li>
+    <li>An app component, containing all these components.</li>
+    </ul>
+</p>
+
+</div>
+
+<div class='content-exercise' data-id='5' data-depends='4'>
+<p>
+We want each of these components to be reusable. So the search component, for example, can work in isolation, without needing the <code>App</code> component. How can this be done? Read the notes from <a href='https://nwcourses.github.io/COM518/topic7.html'>last year</a>, in particular the notes on Lifting Up State and answer these questions:</p>
+
+<div class='questions'></div>
+
+</div>
+
+<div class='content-protected' data-depends='5'>
+
+<h3>Passing data between components and lifting up state</h3>
+<p>As we saw last year, we can adopt a <em>callback-based approach</em> by which we pass a <em>function</em> (a callback) into the search component as a prop. Whenever the user performs a search, this function is called. Because the function is defined by the developer, passed in as a prop, it means that each app can implement its <em>own way</em> of handling the search. The callback would probably be a function in the parent component (e.g. the <code>App</code>).</p>
+
+<p>We introduced the topic of <em>lifting up state</em> <a href='https://nwcourses.github.io/COM518/topic7.html'>last year</a>. The technique of <em>lifting up state</em> is useful if we need to share state (such as an array of songs) between several components. We store the state in the parent component and then pass it to child components as <em>props</em>.</p>
+
+<h3>Coding Task 2.4 - Do at home if necessary</h3>
+
+<p>Modify your HitTastic! project so that it's implemented with three components :
+    <ul>
+    <li>an App component;</li>
+    <li>A search component, allowing the user to enter an artist;</li>
+    <li>A search results component, which should display the search results.</li>
+    </ul>
+ with the technique of lifting up state used to share state between them. Keep the function to send the AJAX request to the server in the <code>App</code> component, but pass it into the search component as a callback. Look at the example from <a href='https://nwcourses.github.io/COM518/topic7.html'>last year</a> to help you. If you completed this last year, please do it again from scratch, <em>without</em> looking at your work from last year, as it's useful revision!</p>
+
+</div>
+
+</main>
+</body>
+</html>

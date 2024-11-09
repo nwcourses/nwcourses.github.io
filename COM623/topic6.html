@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>React Router</title>
+</head>
+<body>
+<main>
+<div class="content-public">
+<h2>React Router</h2>
+<p>So far, all our React applications have been <em>single-page applications</em>, i.e. applications which run in <em>one HTML page</em> and communicate with the server via AJAX. The server then sends back JSON which is used to update state on the React front end.</p>
+<p>However in many cases it can be useful to have <em>many pages</em>, even in a React application. For example a website might have a user section and an admin section, and we might want to have the admin functionality on a separate page to keep the site cleaner and more organised.</p>
+<p>How can we do this? Some React frameworks such as <em>Next.js</em> (which we will cover later) allow us to do this easily, but if we want to implement multiple pages in React without using a full framework we can use <em>React Router</em>. React Router allows you to setup <em>client-side routes</em> and associate each route which a specific React component. The routes are similar in concept to Express routes but are handled purely client-side with no server required.</p>
+<h3>How do we setup React Router?</h3>
+<p>You need to install the <code>react-router-dom</code> package, i.e.:</p>
+<pre>npm i react-router-dom</pre>
+<p>You then need to <em>setup the routing from your <code>main.jsx</code></em>. Here is an example, taken directly from the source code of <code>lilt</code>.</p>
+<pre>
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import App from './components/app.jsx';
+import Admin from './components/admin.jsx';
+import AdminAnswersMain from './components/adminanswersmain.jsx';
+
+const router = createBrowserRouter([{
+        path: "/",
+        element: &lt;App /&gt;
+    }, {
+        path: "/admin",
+        element: &lt;Admin /&gt;,
+    }, {
+        path: "/admin/answers",
+        element: &lt;AdminAnswersMain /&gt;,
+    }
+]);
+
+const root = ReactDOM.createRoot(
+    document.getElementById('root')
+);
+root.render(&lt;RouterProvider router={router} /&gt;);
+</pre>
+<p>Note how we  use the function <code>createBrowserRouter()</code> to create a browser-based router. This takes an <em>array of route objects</em>. Each route object has a <code>path</code> (relative to the root URL of the application) and an <code>element</code> (a React component). When a user requests a particular path, the appropriate component will be rendered. So for example, assuming a server on port 3000:</p>
+<ul>
+<li><code>http://localhost:3000/</code> will cause <code>App</code> to be rendered;</li>
+<li><code>http://localhost:3000/admin</code> will cause <code>Admin</code> to be rendered;</li>
+<li><code>http://localhost:3000/admin/answers</code> will cause <code>AdminAnswersMain</code> to be rendered.</li>
+</ul>
+<p>Note how we render a &lt;RouterProvider&gt; component with a <code>router</code> prop of the router we set up into our <code>root</code> element. Previously we rendered <code>App</code> directly into the <code>root</code> element.</p>
+
+<h2>Client Side Navigation</h2>
+
+<p>Once we've setup routes, we can navigate between them. We could of course just use standard &lt;a&gt; tags here, but the disadvantage of this is that they <em>reload the entire page</em>. Instead, in React Router, we can use the &lt;Link&gt; tag to link to another route <em>without making a request to the server</em>. Here is an example:</p>
+<pre>import { Link } from 'react-router-dom';
+
+export default function App() {
+    return &lt;&gt;
+        &lt;h1&gt;Main Page&lt;/h1&gt;
+        &lt;Link to='/search'&gt;Go to Search Page&lt;/Link&gt;
+        &lt;Link to='/admin'&gt;Go to Admin Page&lt;/Link&gt;
+        &lt;/&gt;;
+}</pre>
+
+<h2>Parameters and Loaders</h2>
+
+<p>We can add parameters to our routes, and then read, and act upon, these using <em>loaders</em>. Here is an example:</p>
+<pre>
+import { useState, useEffect } from 'react';
+import SearchResults from './searchresults.jsx';
+import { useLoaderData, Link } from 'react-router-dom';
+
+export async function loader({params}) {
+    const response = await fetch(`/studentServer/${params.studentId}`);
+    const json = await response.json();
+    return json;
+}
+
+export default function StudentSearch(){
+
+    const  searchResults = useLoaderData();
+
+    const data = searchResults.map (result =&gt; &lt;li&gt;{result.name}&lt;/li&gt;);    
+    return &lt;ul&gt;{data}&lt;/ul&gt;
+
+}
+</pre>
+<p>We have created a SearchForStudent component with an accompanying <em>loader</em>. The loader takes parameters which will come from the URL (<code>studentId</code> in this case; see below) and sends an AJAX request to a given endpoint on the server. We return the JSON from the loader and can re-use this JSON in our component with <code>useLoaderData()</code>. Note how the data from the loader is mapped to JSX in the normal way.</p>
+
+<p>We then specify the loader when we setup our router, eg.</p>
+<pre>
+import StudentSearch, { loader as searchLoader } from './components/studentsearch.jsx';
+
+const router = createBrowserRouter([{
+    path: "/",
+    element: &lt;App /&gt;
+}, {
+    path: '/student/:studentId',
+    element: &lt;StudentSearch /&gt;,
+    loader: searchLoader
+}]);
+</pre>
+<p>Note how we import both the component and its loader from the JSX file containing the component. We setup a route which takes a <em>parameter</em> (<code>/student/:studentId</code>) and link it to the loader by specifying a <code>loader</code> property. As a result, when that route is requested, the loader will run, sending a fetch request to the appropriate server side route, and the component can then use it  with <code>useLoaderData()</code>.</p>
+
+<h2>Reading Forms with React Router</h2>
+
+<p>We can also read <em>forms</em> with React Router. To do this we use <em>actions</em>. Here is an example component containing a form and an <code>action</code> to handle the form.</p>
+<pre>import { Form, redirect } from 'react-router-dom';
+
+export default function AddStudent() {
+    return &lt;div&gt; 
+        &lt;h2&gt;Add Student&lt;/h2&gt; 
+        &lt;Form method="post"&gt;
+        &lt;label htmlFor="name"&gt;Name:&lt;/label&gt;&lt;br /&gt;
+        &lt;input id="name" name="name" /&gt;&lt;br /&gt;
+        &lt;label htmlFor="course"&gt;Course:&lt;/label&gt;&lt;br /&gt;
+        &lt;input id="course" name="course" /&gt;&lt;br /&gt;
+        &lt;label htmlFor="mark"&gt;Mark:&lt;/label&gt;&lt;br /&gt;
+        &lt;input id="mark" name="mark" /&gt;&lt;br /&gt;
+        &lt;input type="submit"  value="Add Student" /&gt;
+        &lt;/Form&gt;
+        &lt;/div&gt;;
+
+}   
+    
+export async function action({request, params}) {
+    // The form data will be received as a FormData object
+    const formData = await request.formData();
+    const name = formData.get('name');
+    const course = formData.get('course');
+    const mark = formData.get('mark');
+
+    // you can now send an AJAX POST request to a server route to add the student..
+
+    redirect('/addstudent');
+}</pre>
+<p>Note how we include the special React Router <code>Form</code> element to represent the form. Note that it must have a <code>submit</code> button. The accompanying <em>action()</em> function reads the form data, it is available via <code>request.formData()</code>. This returns a <code>FormData</code> object containing the form data, which we read with <code>get()</code> plus the name of each form field. Note how it is the <em>name</em> of the form fields which is read, NOT the id. Once we've done this, we can then use the data to send an AJAX request to a server-side route to add the data to the database.</p>
+<p>We can then add the action when we setup the router, e.g:</p>
+<pre>
+import AddStudent, { action as addStudentAction } from './components/addstudent.jsx';
+
+const router = createBrowserRouter([{
+    path: "/",
+    element: &lt;App /&gt;
+}, {
+    path: '/addstudent',
+    element: &lt;AddStudent /&gt;,
+    action: addStudentAction
+}]);
+</pre>
+<h3>Coding Exercise 6.1</h3>
+<p>This exercise allows you to get used to basic React Router functionality.</p>
+<ul>
+<li>Make a COPY of your work from last week.</li>
+<li>Install React Router: <code>npm i react-router-dom</code></li>
+<li>Remove ALL files from the src folder; do not change the server though!</li>
+<li>Setup these routes using React Router:
+	<ol>
+	<li>/, loading the App component. The App component should simply display "Welcome to HitTastic!" and include a Link to the /addsong route, below.</li>
+	<li>/searchByArtist/:artist, where :artist is a parameter representing the artist to search for. Use a SearchByArtist component plus a loader to load the results.  The SearchByArtist component should map all results from the loader to JSX, as you did in earlier weeks. It should also have two Links, one to the main route and one to the /addsong route.</li>
+	<li>/addsong route. This should load an AddSong component which should include a form allowing the user to add a new song (title, artist, year). It should have an accompanying <code>action</code> which reads the form data and sends an AJAX post request to the <code>/song/new</code> route on the server. It should then redirect back to the /addsong route. Finally the AddSong component should have a Link to the main page. <strong>Remove the session-checking middleware from the server so the user does not have to log in.</strong></li>
+	<li><strong>More advanced:</strong> Try adding a search box to your SearchByArtist component and code to search for songs by that artist (as you did in previous weeks). You will need to add a state variable to the SearchByArtist component, holding the search results, as well as an artist state variable if you are doing a search each time the user enters a new character into the search box. See if you can work out how to set this state variable to the result from the loader by default, so that the user can do the search EITHER by specifying the artist in the URL OR by entering an artist in the search box once the component has loaded.</li>
+	<li><strong>More advanced:</strong> 
+Try implementing Buy Song functionality via React Router actions. For each search result, you will need to implement a form containing a HIDDEN field with the song ID (<code>&lt;input type="hidden" name="songID" value=.... /&gt;</code>) plus the buy button as a Submit button. Redirect back to the search page once the buy has completed. You'll need a "buy" route on your server (see last week's exercise where one is given to you).</li>
+	</ol>
+</li>
+</ul>
+</div>
+</main>
+</body>
+</html>

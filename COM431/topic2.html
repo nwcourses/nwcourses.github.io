@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang='en'><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
+<title>Week 1 - Basic Data Structures</title>
+<meta charset="utf-8">
+</head>
+<body>
+<main>
+<div class='content-public'>
+<h2 id="thelinkedlist">The linked list</h2>
+<p>Before moving onto the main topic for this week, object-oriented programming, we will start with a look at a further data structure, <em>linked lists</em>. Linked lists, which are <em>different to the plain <strong>list</strong>s we discussed above</em>, are unlike arrays
+in that they are <em>not</em> stored continuously in memory. Instead, data is stored
+as a series of linked <em>nodes</em>. Each node contains one item of data, and links
+to the memory locations of the previous and the next item of data in the 
+linked list.</p>
+<p><img src="images/linkedlist.png" alt="Linked list diagram"></p>
+<p>Each node has a link to the previous and the following node. When we add
+a new item of data, we make the previous node link to the new node, and
+we link the new node back to the previous node to form a two-way link.</p>
+<p>The first node in the list links to nothing in the reverse direction (indicated in Python by the special value <code>None</code>) and similarly, the final node in the list links to nothing in the forward direction.</p>
+<p>In addition, a linked list contains <em>two variables pointing to the first node and the last node</em>. This means that we can always access the start of the linked list and the end of the linked list very quickly and efficiently.</p>
+</div>
+
+<div class='content-exercise' data-id='1'>
+<p>We will now think about the consequences of this.</p>
+<div class='questions'></div>
+</div>
+
+<div class='content-protected' data-depends='1'>
+<ul>
+<li><p>Remember how we could use simple arithmetic, using the array index, to 
+calculate the location in memory of a given element in an array. Can
+we do this here? <strong>We cannot. This is because, in a linked list, items are not stored continuously in memory. Instead, each node contains references to the memory locations of the previous and the following node.</strong> The diagram below shows how we have to search through the linked list by following the forward links until we find the index we need:</p>
+<img src='images/linked_list_index.png' alt='Indexing  a linked list' />
+</li>
+<li><p>On the other hand, <strong>as long as we have a reference to both the start and the end of the linked list, it's efficient to add a new member to the end of the linked list</strong>. We can just create a new node and link it, both ways, to the end node. Contrast this to arrays, in which we had to create a new array with additional space and copy the elements over. We will explore this in more detail in the exercises this week.</p>
+<p>You can see this below with a linked list containing operating systems:</p>
+<img src='images/linked_list_append.png' alt='Appending to a linked list' /></li>
+<li><p>Insertion into the <em>middle</em> of the list (not asked as a question in the exercise) has mixed efficiency. On the one hand we have to find the index we want to insert the element at (which as we saw above is inefficient), on the other hand the actual insertion process is easier as we can just break the existing links between the node BEFORE the element we want to insert and the node AFTER this element, and then link in the new element.</p>
+<p>The diagram below shows the process of adding a new element by inserting it after another element. The operation would typically take, as parameters, the index we want to insert at (2 here, i.e. element CC) and the new data (DD here) to insert.</p>
+<img src='images/linked_list_insertion.png' alt='Inserting into the middle of a linked list' />
+</li>
+</ul>
+</div>
+
+</main>
+</body>
+</html>
