@@ -89,7 +89,9 @@ Adapt it to use <code>vite-express</code>. Also change your React front-end so t
 
 <p>Let's say you now want to load <em>all</em> songs from the server as the default, when the component first loads, so that the first thing the user sees is a list of <em>all</em> songs. This would involve sending an AJAX request to a route on the server which returns <em>all</em> songs.</p>
 
-<div class='questions'></div>
+<div class='questions'>
+Where would you place code to send an AJAX request to the server when the component first loads?
+</div>
 
 <p>You might want to look at <a href='https://nwcourses.github.io/COM518/topic7.html'>the further React notes</a> from last year.</p>
 
@@ -102,7 +104,6 @@ Adapt it to use <code>vite-express</code>. Also change your React front-end so t
 <p>The exercise asked you about where to place code to send an AJAX request to the server when the component first loads. Where could it go?
     <ul>
     <li>You could add it directly inside the component function. However this is incorrect. The component function is purely for <em>rendering</em> and should not contain any slow operations, such as connecting to the network. Re-rendering can potentially be done at any time, whenever React sees fit to do so, and is certainly done whenever state changes. In our app, the user may want to change the mode (light or dark), updating the state, and in this case we certainly do not want to make another request to the server to retrieve all songs!</li>
-    <li>It could be placed in an ordinary function and called from the top of the component function. This would make the code cleaner but would have the same problem as above.</li>
     <li>The correct place to add the code is in an <em>effect</em>,
 as we saw in the <a href='/COM518/topic7.html'>further React notes</a> last year. If you remember, an effect is a function used to perform a time-consuming external task which can be run either at <em>every render</em>, the <em>first render only</em> or <em>when selected state variables or props change</em>. We run an effect by using <code>React.useEffect()</code> with a function as a parameter which performs the external task, such as an AJAX call.</li>
     </ul>
@@ -113,6 +114,7 @@ as we saw in the <a href='/COM518/topic7.html'>further React notes</a> last year
 <div class='content-exercise' data-id='3' data-depends='2'>
 <p>Here is another exercise on the use of effects.</p>
 <div class='questions'></div>
+How can you specify that an effect should run <em>on first load</em> only?
 </div>
 
 <div class='content-protected' data-depends='3'>
@@ -157,7 +159,7 @@ useEffect ( ()=&gt; {
 </p>
 
 <div class='questions'></div>
-
+Think up some possible components for the scenario above.
 </div>
 
 <div class='content-protected' data-depends='4'>
@@ -174,16 +176,6 @@ useEffect ( ()=&gt; {
 </p>
 
 </div>
-
-<div class='content-exercise' data-id='5' data-depends='4'>
-<p>
-We want each of these components to be reusable. So the search component, for example, can work in isolation, without needing the <code>App</code> component. How can this be done? Read the notes from <a href='https://nwcourses.github.io/COM518/topic7.html'>last year</a>, in particular the notes on Lifting Up State and answer these questions:</p>
-
-<div class='questions'></div>
-
-</div>
-
-<div class='content-protected' data-depends='5'>
 
 <h3>Passing data between components and lifting up state</h3>
 <p>As we saw last year, we can adopt a <em>callback-based approach</em> by which we pass a <em>function</em> (a callback) into the search component as a prop. Whenever the user performs a search, this function is called. Because the function is defined by the developer, passed in as a prop, it means that each app can implement its <em>own way</em> of handling the search. The callback would probably be a function in the parent component (e.g. the <code>App</code>).</p>
