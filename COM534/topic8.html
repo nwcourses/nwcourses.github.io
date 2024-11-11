@@ -88,9 +88,11 @@ fun ShoppingList() {
     TextField(value=currentItem.value, onValueChange = { currentItem.value=it } )
     Button(onClick = { listState.value.add(currentItem.value) } ) { Text("Add Item") }
 
-    listState.value.forEach {
-        Text(it)
-    }
+    Column {
+        listState.value.forEach {
+            Text(it)
+        }
+       }
 }</pre>
 Note how we have a text field which allows you to enter a shopping list item, which is stored in the <code>currentItem</code> state variable. When the button is clicked, the current item is added to the list. As it's a mutable list, you might think this would work.
 </p>
@@ -112,17 +114,12 @@ fun ShoppingList() {
         stateList.add(currentItem.value)
     } ) { Text("Add Item") }
 
-    stateList.forEach {
-        Text(it)
+    Column {
+        stateList.forEach {
+            Text(it)
+        }
     }
 }</pre>
-Note here how:
-    <ul>
-    <li>The list state variable is now an <em>immutable</em> list.</li>
-    <li>When we add an item to the list, we create a <em>mutable</em> copy of the list using <code>toMutableList()</code></li>
-    <li>We add the item to this mutable copy (<code>tempList</code>) and reset the original state list to the mutable copy.</li>
-    </ul>
-</p>
 
 <h3>Lazy Lists</h3>
 
@@ -165,7 +162,7 @@ fun App() {
         songs.value = foundSongs
     })
 
-    DisplaySongs(songs.toList())
+    DisplaySongs(songs)
 }
 
 @Composable
@@ -220,8 +217,14 @@ As we saw last week, this represents a function which takes a <code>Song</code> 
 so must take a string as a parameter and return nothing. In both cases, lambda functions will be acceptable to pass in.</li>
     <li>Note how both <code>AddSong()</code> and <code>SearchForSongs()</code> perform an action when the user clicks the button. In the former, we create a <code>Song</code> object using the contents of the two text fields (also stored as state) and then <em>call the callback which was passed in, supplying the <code>Song</code> as an argument.</em> Similarly, in <code>SearchForSongs()</code> we call the callback, supplying the search term (a string) as an argument.</li>
     <li>In our <code>App</code>, when we create our two child composables <code>AddSong</code> and <code>SearchForSong</code>, note how we supply a lambda function for the callback argument. As a result, the lambda function passed in will be called when the user presses the buttons in the two child composables. As the lambdas are within <code>App</code> they have access to the list stored in state, and so can change it or call its methods.</li>
-    <li>Because it's an ordinary list of type <code>MutableState</code>, not a <code>SnapshotStateList</code>, we have to create a <em>copy</em> of the list when adding a song, add the song to the copy, and then update the state list to the copy. Otherwise, the state would not be updated and a recompose would not happen. In the lambda for search, we perform a filter on the original list to get a new filtered list, and then set the state variable to be the new filtered list.</li>
-    </ul>
+    <li>Because the songs are an ordinary list of type <code>MutableState</code>, not a <code>SnapshotStateList</code>, we have to create a <em>copy</em> of the list when adding a song, add the song to the copy, and then update the state list to the copy. Otherwise, the state would not be updated and a recompose would not happen. In the lambda for search, we perform a filter on the original list to get a new filtered list, and then set the state variable to be the new filtered list.
+        <ul>
+        <li>The list state variable is now an <em>immutable</em> list.</li>
+        <li>When we add an item to the list, we create a <em>mutable</em> copy of the list using <code>toMutableList()</code></li>
+        <li>We add the item to this mutable copy (<code>tempList</code>) and reset the original state list to the mutable copy.</li>
+        </ul>
+</li>
+</ul>
 <h2>Material Design - a quick note</h2>
 
 <p>You'll notice that the pregenerated code, from the wizards, wraps your composables in this:
