@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html><head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
+</head><body>
+
+<header>
+<h1>Topic 8: Filesystem Routing and Next.js</h1>
+</header>
+
+<main>
+<div class="content-public">
+
+<h2 id="whatisnextjs">Introduction to Next.js</h2>
+<p>For the majority of today and also next week we are going to look at the <a href="https://nextjs.org">Next.js</a> framework. Next.js is the leading framework allowing you to develop applications using RSCs.</p>
+
+<h3>Next.js compared with react-server</h3>
+
+<p>We started our look at RSC with a look at <code>react-server</code>, because <code>react-server</code> is a lightweight framework and arguably the easiest way to get started with server-side React. How does Next.js compare with <code>react-server</code>? Essentially they each have their own strong points, and it's a case of choosing the most appropriate for your specific application.</p>
+
+<ul>
+<li>Next.js, developed by the <a href='https://vercel.com'>Vercel company</a>, is a long-standing framework which has been available for many years, and for this reason it is the current industry-standard for server-side React and thus well worth knowing. It also has a large amount of documentation and support available. <code>react-server</code> is developed by a small group of contributors and is very new but is being developed rapidly and new documentation and examples are appearing all the time. Indeed the documentation and support is impressive for what is basically a one-person (plus contributors) project.</li>
+<li>Next.js is a larger, more mature, and more full-featured framework. You can do a lot with Next.js without needing to download extra dependencies. However, it may not be the best choice for a smaller project that only works with RSC fundamentals, as many of those extra features may not be needed and you will be dealing with a larger bundle size compared to <code>react-server</code>.</li>
+<li>Being more mature, Next.js's error messages in dev mode are often more detailed.</li>
+<li>Being a more lightweight framework and making use of Vite, <code>react-server</code> applications are often faster than the Next.js equivalents.</li>
+<li><code>react-server</code> gives more flexibility. With Next.js you generally have to develop your app in a certain way, and use the inbuilt Next.js server as well as Next.js's own routing solution. With <code>react-server</code> you can use it in conjunction with other technologies, such as Express or React Router. We saw this above, where you can use <code>react-server</code> in middleware mode in an Express app; we can also use third-party routers such as React Router as an alternative to <code>react-server</code>'s own "native" router. There are examples on <code>react-server</code>'s GitHub repo which show how to do this.</li>
+<li>For basic usage, Next.js and <code>react-server</code> work in a similar way so the code you develop for one will be similar to the code you develop for the other. For example, as they both use React, they both allow you to use RSCs and server actions, so if you are using fundamental RSC features, code developed for one will work in the other with only small changes. Both also use a filesystem-based router solution, which we will discuss below, though this is required in Next.js and optional in <code>react-server</code>.</li>
+</ul>
+<h3>Features of Next.js</h3>
+<p>With Next.js, you can develop with RSCs and client components, and server actions, in the same way as <code>react-server</code>. Also like <code>react-server</code>, it comes with an inbuilt, Node.js based server, so when you run a Next.js application, a server is automatically started - again, similar to <code>react-server</code> in non-middleware mode.</p>
+<p>Like Vite, Next.js also has a live-update dev mode, wuth an automatic
+<a href="https://nextjs.org/docs/architecture/fast-refresh">Fast Refresh</a> facility in which your code is "hot-reloaded" if you change it. 
+However, it does not make use of Vite; it makes use of Webpack plus via the custom <a href="https://nextjs.org/docs/architecture/nextjs-compiler">Next.js Compiler</a>.</p>
+<p>Furthermore Next.js has various <a href="https://nextjs.org/docs/app/building-your-application/caching">caching features</a> to optimise the delivery of your application.</p>
+<h3 id="creatinganextjsproject">Creating a Next.js project</h3>
+<p>You can use the <code>create-next-app</code> tool to automatically create a Next.js project with certain files in place. However, to better understand the structure of a Next.js application, we will do so from first principles.</p>
+<p>You need to make a folder for your project and change directory to it:</p>
+<pre><code>mkdir next-project
+cd next-project
+</code></pre>
+<p>Then install dependencies, including Next.js itself plus React and React DOM as follows. Note that I have also added <code>better-sqlite3</code> here, this is the SQLite library you used last year and is not necessary for a Next.js application, but we will be using it, so we may as well install it now.</p>
+<pre><code>npm install next@latest react@latest react-dom@latest better-sqlite3
+</code></pre>
+<p>This will create a basic <code>package.json</code>.</p>
+<p>You should then add some scripts to your <code>package.json</code> to perform standard actions:</p>
+<pre><code> "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  }
+</code></pre>
+<p>Of these: </p>
+<ul>
+<li><code>dev</code> builds your project and starts a server running your project in development mode, </li>
+<li><code>build</code> builds your project, but does not start a server, </li>
+<li><code>start</code> starts a server running your project in production mode, and </li>
+<li><code>lint</code> checks your code for potential problems (linting).</li>
+</ul>
+<p>More information is available on <a href="https://nextjs.org/docs/getting-started/installation">the website</a>.</p>
+
+<h2>Using react-server and Express</h2>
+
+<p>Before moving on to filesystem routing and looking at Next.js in more detail, we will quickly discuss one remaining feature of <code>react-server</code> which is unique to it and not available in Next.js. One advantage of <code>react-server</code> is that you can combine it with an existing Express server, allowing you to make use of existing API routes on your server. This is achieved by running react-server in <em>middleware</em> mode, i.e. it acts as a middleware for your Express server. This means that Express will handle all routes matching a certain pattern by forwarding them on to react-server, while all others will be handled directly by Express. By doing this you can easily write an app which features both RSCs and JSON APIs.</p>
+<p>Here is an example, note how any route beginning with <code>react-server</code> will be handled by react-server:</p>
+<pre>
+import express from 'express';
+
+// This assumes development mode.
+// You need a different import for production mode.
+// See the Express example at https://github.com/lazarv/react-server/tree/main/examples/express for more detail.
+
+import { reactServer } from '@lazarv/react-server/dev';
+
+const app = express();
+
+// Assumes App.jsx contains the app component
+// If we pass no arguments to reactServer(), filesystem routing will be used.
+const server = await reactServer('./App.jsx');
+
+const PORT = 3000;
+
+app.get('/', (req, res) =&gt; {
+    res.send("Hello World from Express!");
+});
+
+app.use('/react-server', async(req, res, next) =&gt; {
+    const { middlewares } = await server;
+    middlewares(req, res, next);
+});
+
+// Add other routes and middleware, e.g. API routes, here...
+
+app.listen(PORT, () =&gt; {
+  console.log(`Server started on port ${PORT}.`);
+});
+
+</pre>
+<p>For this to work you must configure a <code>base</code> URL in the configuration file <code>react-server.config.json</code> (in the top level folder of your project):</p>
+<pre>{
+  "base": "/react-server/"
+}</pre>
+<h2>Filesystem Routing in Next.js and react-server</h2>
+
+<p>Most RSC libraries and frameworks make use of <em>filesystem routing</em>. What is this? The idea is that you store your components in <em>specific folders</em> on the server and then access them via <em>routes</em> which correspond to the folder structure. This discussion applies to <em>both</em> Next.js <em>and</em> <code>react-server</code>. With Next.js, the router is known as the <em>App Router</em>.</p>
+
+<p> When using filesystem routing, you save RSCs in files with a specific filename. This should be <code>index.jsx</code> for <code>react-server</code> or <code>page.jsx</code> for Next.js, though you can configure <code>react-server</code> to also use <code>page.jsx</code>. These RSCs are known as <em>pages</em> because they represent an individual page of your application. So we can start with a top-level RSC page as follows: 
+<pre>export default function Page() {
+    return &lt;h1&gt;Hello World from Filesystem Routing!&lt;/h1&gt;;
+}</pre>
+</p>
+<p>In Next.js the top component is placed in the <code>app</code> folder, but with <code>react-server</code> the top level component is placed in the root folder of our application.</p>
+<p>To start a server which serves this page by default, we'd run:
+    <ul>
+    <li><code>npm run dev</code> in Next.js with a <code>package.json</code> setup as above; or</li>
+    <li><code>pnpm exec react-server</code> without a filename argument for <code>react-server</code>. This runs <code>react-server</code> in filesystem routing mode.
+    <li>In either case, the RSC will be visible if you access the server on <code>http://localhost:3000</code>.</li>
+    </ul>
+</p>
+<p>More information is available on <a href="https://nextjs.org/docs/app/building-your-application/routing">the website</a>.</p>
+<h3>Layouts</h3>
+
+<p><em>Layouts</em> are a "frame" or a "scaffold" for our application. In a layout we define the body of our site including such things as navigation bars, logos, footers, etc. This allows us to use a common layout for multiple pages in our web application. The layouts "host" the pages within them. <strong>Layouts are compulsory in Next.js, but optional in <code>react-server</code></strong>. They must be saved as <code>layout.jsx</code> in either framework.</p>
+<h4 id="helloworldinnextjs">Example layout.jsx</h4>
+<pre><code class="jsx language-jsx">export default function RootLayout({children}) {
+    return (
+        &lt;html&gt;
+        &lt;body&gt;
+        {children}
+        &lt;/body&gt;
+        &lt;/html&gt;
+    );
+}
+</code></pre>
+<p>The layout is a React component. Hopefully you can see that the layout contains a function which returns JSX in the normal React way, containing, essentially, a "frame" into which can be inserted your RSC pages. When the site is rendered, your page components are passed to the function in the <code>children</code> prop and inserted into your layout, so the JSX returned will include both the layout and the current page.</p>
+
+<h3 id="creatinganewroute">Creating a new route</h3>
+<p>As you saw last year in WAD, a full web app will need to set up a range of different <em>routes</em>, all of which perform different functions. With the filesystem router, we define routes by creating <em>folders</em> which map to routes. </p>
+<p>We can create an 'about' page. Inside the <code>app</code> folder (Next.js) or your top-level folder (<code>react-server</code>), we would create another folder named <code>about</code>.  In here, we can create a new <code>page.jsx</code> or <code>index.jsx</code> containing a new component:</p>
+<pre><code class="jsx language-jsx">export default function Page() {
+    return(
+        &lt;div&gt;
+        &lt;h2&gt;About HitTastic!&lt;/h2&gt;
+        &lt;p&gt;HitTastic! is the top site for music. Whether it's rock, pop, indie, rap or pure liquid cheese you're into, you're sure to find it here.&lt;/p&gt;
+        &lt;/div&gt;
+    );
+}
+</code></pre>
+<p>Folders correspond to routes with the filesystem router. So, you can access it in your browser with:</p>
+<pre><code>http://localhost:3000/about
+</code></pre>
+<h3>Parameters with filesystem routing</h3>
+
+<p>You might want to write a RSC which takes <em>parameters</em> from the client, to allow it to search for user-specified data in a database, for example. In a similar way to Express, you can include the parameters directly in the route, e.g.:</p>
+<pre>http://localhost:3000/artist/Oasis</pre>
+<p>How could we do this?
+    <ul>
+    <li>We would need to create a sub-folder called <code>artist</code>, following the procedure for the <code>about</code> route;</li>
+    <li>We then need to create another sub-folder, inside <code>artist</code>, called <code>[artist]</code>. Note the square brackets: these are important, and specify that <code>[artist]</code> is a <em>parameter</em> to be provided by the client.</li>
+    <li>Inside the <code>[artist]</code> folder, we would need to create another component inside a <code>page.jsx</code> or <code>index.jsx</code> file. This would receive the artist parameter via <em>props</em>, and could then use it to query the database.</li>
+    </ul>
+Here is an example of a <em>Next.js</em> component which receives the artist via props: </p>
+<pre>
+import Database from 'better-sqlite3';
+
+export default function Page({params}) {
+  
+    const db = new Database('wadsongs.db');
+
+    const stmt = db.prepare("SELECT * FROM wadsongs WHERE artist=?");
+    const results = stmt.all(params.artist);
+}
+</pre>
+<p>The <code>params</code> prop contains all parameters sent to the route. In this case, there is only one parameter, the artist (specified by <code>[artist]</code>) so we retrieve it with <code>params.artist</code>.</p>
+    <ul>
+    <li>The equivalent RSC in <code>react-server</code> is slightly different in that, rather than a <code>params</code> prop, we'd use separate props for each parameter. So we'd use an <code>artist</code> prop to retrieve the artist, for example, rather than <code>params.artist</code>.</li>
+    </ul>
+
+<h3>Exercise 8.1</h3>
+<p>Using  Next.js, create an application using filesystem routing. There should be layout (you can use the example above), a main index page as an RSC, an "about" page and a search-for-artist page, as in the examples above. You will need to complete the search-for-artist page so that it actually displays the results by mapping them to JSX.</p>
+
+<h3 id="thevalueofthelayoutinprovidingcommoncontentforeachpage">The value of the layout in providing common content for each page</h3>
+<p>As discussed above, the layout can provide common content for each page. We will now explore this further. We could create a small CSS file, <code>style.css</code>, and save it in our <code>app</code> folder (or root folder for <code>react-server</code>):</p>
+<pre><code class="css language-css">body {
+    background-color: blue;
+    color: white;
+    text-decoration: none;
+}
+
+#imgdiv {
+    text-align: center;
+}
+</code></pre>
+<p>We could now import this into your <code>layout.jsx</code> by adding an <code>import</code> statement at the top (again this works with both Next.js and <code>react-server</code>, the latter thanks to Vite):</p>
+<pre><code class="javascript language-javascript">import './style.css';
+</code></pre>
+<p>This will result in the CSS being applied to <em>each page</em> in the current route path and its descendants. </p>
+<p>Furthermore we can add <em>page content</em> which will be shared across pages in the layout:</p>
+<pre><code class="jsx language-jsx">import './style.css';
+
+export default function RootLayout({children}) {
+    return (
+        &lt;html&gt;
+        &lt;body&gt;
+        &lt;div id='imgdiv'&gt;
+        &lt;img src='/hittastic.png' alt='HitTastic! logo' /&gt;
+        &lt;/div&gt;
+        {children}
+        &lt;/body&gt;
+        &lt;/html&gt;
+    );
+}
+
+</code></pre>
+<p>Note how our page now contains a <code>div</code> with an ID of <code>imgdiv</code> containing an image logo. The children are then inserted into the layout after the image. As a result, all pages will contain the logo with the specific content for each page appearing below the image.</p>
+<h3>Exercise 8.2</h3>
+<p>Add a <code>layout.jsx</code> to your application, like the one above, including the HitTastic! logo.  Download the <code>hittastic.png</code> image from <a href="https://github.com/nwcourses/nwcourses.github.io/blob/master/images/hittastic.png">here</a>, create a <code>public</code> folder and save the image in the <code>public</code> folder. Also apply a CSS file to the layout by importing it. You can use the CSS provided above.</p>
+<h4 id="includingstaticcontentinyourapplication">Including static content in your application</h4>
+<p>Static content (such as images) should be placed in:
+    <ul>
+    <li>your application's <code>public</code> folder, which should be a subfolder of the overall application folder, in Next.js;</li>
+    <li>the root folder in <code>react-server</code>.</li>
+    </ul>
+</p>
+<p>Try requesting all your pages (the Hello World page, the About page and the search page) now. Do both of them have the CSS and logo applied?</p>
+<h3 id="querystrings">Passing parameters to RSCs via query strings</h3>
+<p>Another way to pass parameters to RSCs is via <em>query strings</em>. Here is another version of the search component (Next.js). Note how we are using the <code>searchParams</code> prop, rather than <code>params</code>.</p>
+<pre>export default function Page({searchParams}) {
+    return(
+        &lt;&gt;
+        &lt;h2&gt;Searching for {searchParams.artist}&lt;/h2&gt;
+        &lt;p&gt;You are searching for the artist {searchParams.artist}&lt;/p&gt;
+        &lt;/&gt;
+    );
+}</pre>
+<p>You can request this with a <em>query string</em> containing an artist, e.g.:</p>
+<pre><code>http://localhost:3000/search?artist=Oasis
+</code></pre>
+<p>Note how the component receives a <em>prop</em> called <code>searchParams</code>. This is an object containing all the query string parameters sent to the component. We can access each individual query string parameter by using the corresponding property in the <code>searchParams</code> prop, e.g. <code>searchParams.artist</code> for the parameter <code>artist</code>.</p>
+<ul>
+<li>For <code>react-server</code> you must use the <code>useSearchParams()</code> hook instead:
+<pre>import { useSearchParams } from '@lazarv/react-server';
+
+export default function Page() {
+    const searchParams = useSearchParams();
+    return(
+        &lt;&gt;
+        &lt;h2&gt;Searching for {searchParams.artist}&lt;/h2&gt;
+        &lt;p&gt;You are searching for the artist {searchParams.artist}&lt;/p&gt;
+        &lt;/&gt;
+    );
+}</pre>
+</li>
+</ul>
+<h3 id="exercise3">Exercise 8.3</h3>
+<p>In your <code>search</code> folder create a <code>page.jsx</code> or <code>index.jsx</code> containing the above code to receive a query string. Complete it so that it searches your database for the user's chosen artist. Also, change your code so that it will interpret a second query string parameter <code>title</code> and display it as well as the artist.</p>
+<p>Hint: to pass in two query string parameters, separate them with an ampersand &amp;, e.g:</p>
+<pre><code>http://localhost:3000/search?artist=Oasis&amp;title=Wonderwall
+</code></pre>
+<h3>Server Actions with Next.js</h3>
+<p>Server Actions work in exactly the same way in Next.js as they do in <code>react-server</code>, because they are part of React rather than <code>react-server</code> or Next.js.</p>
+<h3 id="links">Links in Next.js</h3>
+<p>Next.js has its own <code>Link</code> component for linking between components, without forcing a complete reload. However it is slightly different in syntax to the <code>Link</code> used in React Router and <code>react-server</code>. Rather than
+<pre>&lt;Link to="..."&gt;</pre>
+it is
+<pre>&lt;Link href="..."&gt;</pre>
+However, it works similarly. It is imported with:
+<pre>import Link from 'next/link';</pre>
+</p>
+<h3 id="sublayouts">Sublayouts</h3>
+<p>It's possible to create <em>sublayouts</em> for part of your application only - i.e. certain routes and their descendants. You do this by creating a new <code>layout.jsx</code> within a route folder. So, for example, if you place a <code>layout.jsx</code> within the <code>hittastic</code> folder, the <code>hittastic</code> route and its subroutes will all have that layout. Such routes would include</p>
+<ul>
+<li><code>/hittastic</code></li>
+<li><code>/hittastic/newsong</code></li>
+<li><code>/hittastic/search</code></li>
+</ul>
+<p>etc.</p>
+<p>Here is an example of a sub-layout:</p>
+<pre><code class="jsx language-jsx">import "./pointsofinterest.css";
+import Link from 'next/link';
+
+export default function Layout({children}) {
+    return(
+        &lt;div id='container'&gt;
+        &lt;div id='nav'&gt;
+        &lt;Link href='/pointsofinterest'&gt;Main&lt;/Link&gt;
+        &lt;br /&gt;
+        &lt;Link href='/pointsofinterest/search'&gt;Search&lt;/Link&gt;
+        &lt;br /&gt;
+        &lt;Link href='/pointsofinterest/add'&gt;Add&lt;/Link&gt;
+        &lt;br /&gt;
+        &lt;Link href='/pointsofinterest/about'&gt;About&lt;/Link&gt;
+        &lt;br /&gt;
+        &lt;/div&gt;
+        &lt;div id='main'&gt;
+        {children}
+        &lt;/div&gt;
+        &lt;/div&gt;
+    );
+}
+
+</code></pre>
+<p>You should be able to see that this layout contains a navigation sidebar and a main content area. This layout will be rendered <em>inside your overall root layout</em> as a child of it. Meanwhile, any pages within this route or its subroutes will be treated as the <code>children</code> of this layout and, in this example, will be rendered inside the <code>div</code> with an ID of <code>main</code>.</p>
+<h3 id="searchwithoutjsonapisarecommendedapproach">Search without JSON APIs - A recommended approach</h3>
+<p>This example shows a recommended way to implement search in a Next.js application if we are using RSCs to render search results, rather than a JSON-based API. It is shown in the example in the <a href="https://nextjs.org/learn/dashboard-app/adding-search-and-pagination">Learn Next.js tutorial</a> and is an alternative approach to lifting state up, which you have met already, as a method of implementing search.</p>
+<p>The example shows the use of the <code>next/navigation</code> module to allow the URL to be dynamically modified after the user enters a search term, triggering a re-render of the page component. </p>
+<p>We will start with the <code>page.jsx</code>: </p>
+<pre>
+import SearchForm from './SearchForm.js';
+import SearchResults from './SearchResults.js';
+
+export default function Page({searchParams}) {
+
+    return (
+        &lt;div&gt;
+        &lt;h1&gt;Searching for {searchParams.type}&lt;/h1&gt;
+        &lt;SearchForm /&gt;
+        &lt;SearchResults type={searchParams.type} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</pre>
+<p>You can see that this contains two components, <code>SearchForm</code> and <code>SearchResults</code>. The former will read in a point of interest type from the user and modify the URL, and the latter will show the search results. Note how the page component imports the other two components from within the <code>ui</code> folder (as discussed above), and reads in a POI from the query string (i.e <code>searchParams</code>). This is then sent to the <code>SearchResults</code> component which will search for, and display, all points of interest of this type.</p>
+<p>We'll now look at the <code>SearchForm</code> component. This gathers the point of interest type from the user.</p>
+<pre><code class="jsx language-jsx">'use client';
+
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+
+export default function SearchForm({params}) {
+
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
+    async function handleSearch() {
+        const type = document.getElementById('type').value;
+        const params = new URLSearchParams(searchParams);
+        params.set('type', type);
+        replace(`${pathname}?${params.toString()}`);
+    }
+
+    return (
+        &lt;div&gt;
+        Point of Interest Type: &lt;input id='type' /&gt;
+        &lt;input type='button' value='Go!' onClick={handleSearch} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+</code></pre>
+<p>This is mostly a standard React client side component. However note that the <code>handleSearch</code> does not actually do any server search. Instead it dynamically changes the URL using functions of the <code>next/navigation</code> module. As we saw, the top level component reads the POI from the query string and sends it to the <code>SearchResults</code> component, so the dynamic change of the URL will trigger a re-rendering of the top level component and will pass the POI to the <code>SearchResults</code> component.</p>
+<p>It's the <code>SearchResults</code> component that actually performs the server search:</p>
+<pre><code class="jsx language-jsx">import Database from 'better-sqlite3';
+
+export default function SearchResults({type}) {
+    const db = new Database('pointsofinterest.db');
+
+    const stmt = db.prepare("SELECT * FROM pointsofinterest WHERE type=?");
+    const results = stmt.all(type);
+
+    const output = results.map (pointofinterest=&gt; &lt;li key={pointofinterest.id}&gt;{pointofinterest.name} at {pointofinterest.location}, type {pointofinterest.type}&lt;/li&gt; );
+    return &lt;div&gt;&lt;ul&gt;{output}&lt;/ul&gt;&lt;/div&gt;;
+}
+
+</code></pre>
+<p>You can see how this takes in a POI, performs an SQL query and returns JSX of the results.</p>
+</div>
+<h3>Exercise 8.4</h3>
+<p>Implement the search example above, but using your existing HitTastic! code rather than the Points Of Interest example given here. You will need to modify your query string-based (Exercise 8.3) search page so that it contains:</p>
+    <ul>
+    <li>a client component (<code>SearchForm</code>) with a search form allowing the user to enter an artist. When the artist is entered, it should alter the URL (as shown in the example above).</li>
+    <li>a separate <code>SearchResults</code> component to display the search results.</li>
+    </ul>
+</main>
+</body>
+</html>
