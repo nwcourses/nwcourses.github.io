@@ -224,11 +224,11 @@ Once again, the first step, before we draw up the sequence diagram, is to identi
 <h3>Preparing a sequence diagram in diagrams.net</h3>
 <p>Please see this <a href='https://www.diagrams.net/blog/sequence-diagrams'>blog article</a> for more detail on preparing a sequence diagram in diagrams.net.</p>
 <h2>Exercise</h2>
-<p>Below is a domain model and two design-level use case texts for the live music venue scenario, introduced in week 4. Using these:
+<p>Below is a domain model and two analysis-level use case texts for the live music venue scenario, introduced in weeks 4 and 5. Using these:
 	<ol>
-	<li>Work out what methods would be needed to implement the use case, by further analysing the steps in the use-case text which involve the domain model classes as shown above.</li>
-	<li>Prepare a sequence diagram for "book an event".</li>
-	<li>Work out what methods would be needed to implement this use case, as before.</li>
+	<li>Create a design-level use case text for "add an event" (you may need to look at <a href='topic5.html'>topic 5</a>; <strong>we have done this already, so try and do it BEFORE your class</strong>)</li>
+	<li>Create a design-level use case text for "book an event" (again try to do BEFORE the class)</li>
+	<li>Prepare a sequence diagram for "add an event".</li>
 	<li>Prepare a sequence diagram for "book an event".</li>
 	</ol>
 </p>
@@ -238,8 +238,129 @@ Once again, the first step, before we draw up the sequence diagram, is to identi
 <img src='../images/week4domainmodel.drawio.png' alt='Week 4 class diagram solution' />
 </p>
 
-<h3>Design-level use-case texts</h3>
-<p>Will appear once you have completed the Week 5 work.</p>
+<h3>Analysis-level use-case texts</h3>
+<h4>Add an event</h4>
+
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+add a new event.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the event details (band, date)</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the details specified in step 2.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System checks validity of details, e.g. band name not blank; date valid</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System creates event</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>-</td>
+<td>System adds the event to the list of events.</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System confirms adding event is successful</td>
+</tr>
+
+</table>
+
+<h4>Book an event</h4>
+<table>
+
+<tr>
+<th>Step</th>
+<th>Actor action</th>
+<th>System response</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td>The use case begins when the admin staff selects to
+book an event.</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>-</td>
+<td>System prompts the user for the event name</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>The user enters the event name</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>-</td>
+<td>System searches for event with this name</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>-</td>
+<td>System displays the event details and prompts the user for the number of tickets and customer name</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>Admin user enters the number of tickets required and the customer name</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>-</td>
+<td>System checks the availability: is there enough space to accommodate that number of people at the venue?</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>-</td>
+<td>System books the chosen number of tickets for the event for the given customer</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>-</td>
+<td>System confirms to the user that the booking was successful</td>
+</tr>
+
+</table>
+
+</div>
 </main>
 </body>
 </html>

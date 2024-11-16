@@ -203,10 +203,10 @@ export default function PizzaOrder({pizza}) {
 
 <h2>Implementation of React Server Components</h2>
 
-<p>React does not provide an "official" implementation of a server to process RSC but leaves it up to third-party providers to implement. In this session, we will use one of the simplest and most accessible third-party providers, <code>@lazarv/react-server</code>, referred to from now on as <em>react-server</em>, created by Viktor Lázár. react-server includes an inbuilt, Node-based server which will process RSC; you do not have to create your own server.</p>
+<p>React does not provide an "official" implementation of a server to process RSC but leaves it up to third-party providers to implement. In this session, we will use one of the simplest and most accessible third-party providers, <code>@lazarv/react-server</code>, referred to from now on as <code><em>react-server</em></code>, created by Viktor Lázár. <code>react-server</code> includes an inbuilt, Node-based server which will process RSC; you do not have to create your own server.</p>
 
 <h4>Use pnpm as your package manager</h4>
-<p>When using react-server, it is recommended to use the package manager <code>pnpm</code>: using <code>npm</code> has some difficulties. You can install pnpm using npm:</p>
+<p>When using <code>react-server</code>, it is recommended to use the package manager <code>pnpm</code>: using <code>npm</code> has some difficulties. You can install pnpm using npm:</p>
 <pre>npm install -g pnpm</pre>
 <p>or:</p>
 <pre>npm install -g @pnpm/exe</pre>
@@ -214,7 +214,7 @@ export default function PizzaOrder({pizza}) {
 <p>On Windows you can also try the following from PowerShell (but note it might have problems):</p>
 <pre>Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression</pre>
 </div>
-<p>You will need to install react-server:</p>
+<p>You will need to install <code>react-server</code>:</p>
 <pre>pnpm i @lazarv/react-server</pre>
 <h4>Hello World with react-server</h4>
 <pre>export default function App() {
@@ -222,13 +222,13 @@ export default function PizzaOrder({pizza}) {
         &lt;h1&gt;Hello React Server World!&lt;/h1&gt;
         &lt;/div&gt;;
 }</pre>
-<p>Note how this is <em>just a component</em>. However, you can run it directly using react-server: react-server will process it server side and output the HTML to the client.</p>
+<p>Note how this is <em>just a component</em>. However, you can run it directly using <code>react-server</code>: <code>react-server</code> will process it server side and output the HTML to the client.</p>
 <pre>pnpm exec react-server ./App.jsx</pre>
 <p>This will launch Vite and run the server in development mode, so that if you make changes, these are updated live. If all goes well you can access this via port 3000:</p>
 <pre>http://localhost:3000</pre>
 <p>If you View Source you will note that you see HTML, showing that the JSX was processed on the server and not the client.</p>
 <h4>Building, and running in production mode</h4>
-<p>As well as running react-server in dev mode, you can build bundles for production. If you do this, you then run the server in production mode. react-server uses Vite, so this technique should be familiar to you based on what we have already done with Vite.</p>
+<p>As well as running <code>react-server</code> in dev mode, you can build bundles for production. If you do this, you then run the server in production mode. <code>react-server</code> uses Vite, so this technique should be familiar to you based on what we have already done with Vite.</p>
 <p>So to build for production, we use:</p>
 <pre>
 pnpm exec react-server build ./App.jsx
