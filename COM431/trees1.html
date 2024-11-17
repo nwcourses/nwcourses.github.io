@@ -164,19 +164,25 @@ producing a <em>stack</em> of calls to the same function,
 one on top of each other.
 Then we stop recursing and
 descend the stack of function calls. To illustrate the concept here
-is some code to print out the numbers 1 to 10 using recursion:</p>
+is some code to print out the numbers 1 to 10 using recursion. It is annotated with explanatory messages to show how the recursion is operating.</p>
 <pre>
+from termcolor import cprint
+
 def recursive_print(num, limit):
-    print(f"    recursive_print(): parameters: num {num} limit {limit}")
-
     if num &lt;= limit:
-        print(f"Current number is: {num}")
-        print(f"    num does not exceed {limit}, so calling recursive_print again with argument of {num+1}")
+        print(num)
+        cprint(f"    {num} does not exceed {limit}, so calling recursive_print again with argument of {num+1}", "green")
+        cprint("Press enter to call function again recursively...", "yellow")
+        input()
         recursive_print(num+1, limit)
+    else:
+        cprint(f"    Number {num} has exceeded limit {limit}, so not printing {num} or calling recursive function again...", "red")
 
-    print(f"    Returning from recursive_print call which had a parameter of {num}")
+    cprint(f"Press enter to return from recursive_print call which had a parameter of {num}", "yellow")
+    input()
 
 recursive_print (1, 10)
+
 </pre>
 What happens when we run this?
     <ul>
@@ -205,6 +211,9 @@ What happens when we run this?
     to the original call, where <em>value</em> was 1.</li>
     <li>We then return to the main program (outside the function) and our 
     program exits, having printed 1 to 10 in order recursively.</li>
+<li>Also note the use of the <code>termcolor</code> package to improve the clarity of the output, as the main output (the numbers 1-10) are printed in white but the explanatory messages are printed in other colours. You can install <code>termcolor</code> with:
+<pre>pip install termcolor</pre>
+</li>
     </ul>
 Clearly recursion is an inefficient way of counting up to 10 (!), but in 
 situations such as descending all branches of a tree, it's the best way of tackling the problem.</p>

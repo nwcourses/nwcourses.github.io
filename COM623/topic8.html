@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html><head>
-<title></title>
+<html lang="en"><head>
+<title>Topic 8: Filesystem Routing and Next.js</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' >
 <link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
 </head><body>
 
@@ -106,19 +106,17 @@ app.listen(PORT, () =&gt; {
 
 <p>Most RSC libraries and frameworks make use of <em>filesystem routing</em>. What is this? The idea is that you store your components in <em>specific folders</em> on the server and then access them via <em>routes</em> which correspond to the folder structure. This discussion applies to <em>both</em> Next.js <em>and</em> <code>react-server</code>. With Next.js, the router is known as the <em>App Router</em>.</p>
 
-<p> When using filesystem routing, you save RSCs in files with a specific filename. This should be <code>index.jsx</code> for <code>react-server</code> or <code>page.jsx</code> for Next.js, though you can configure <code>react-server</code> to also use <code>page.jsx</code>. These RSCs are known as <em>pages</em> because they represent an individual page of your application. So we can start with a top-level RSC page as follows: 
+<p> When using filesystem routing, you save RSCs in files with a specific filename. This should be <code>index.jsx</code> for <code>react-server</code> or <code>page.jsx</code> for Next.js, though you can configure <code>react-server</code> to also use <code>page.jsx</code>. These RSCs are known as <em>pages</em> because they represent an individual page of your application. So we can start with a top-level RSC page as follows: </p>
 <pre>export default function Page() {
     return &lt;h1&gt;Hello World from Filesystem Routing!&lt;/h1&gt;;
 }</pre>
-</p>
 <p>In Next.js the top component is placed in the <code>app</code> folder, but with <code>react-server</code> the top level component is placed in the root folder of our application.</p>
-<p>To start a server which serves this page by default, we'd run:
+<p>To start a server which serves this page by default, we'd run:</p>
     <ul>
     <li><code>npm run dev</code> in Next.js with a <code>package.json</code> setup as above; or</li>
     <li><code>pnpm exec react-server</code> without a filename argument for <code>react-server</code>. This runs <code>react-server</code> in filesystem routing mode.
     <li>In either case, the RSC will be visible if you access the server on <code>http://localhost:3000</code>.</li>
     </ul>
-</p>
 <p>More information is available on <a href="https://nextjs.org/docs/app/building-your-application/routing">the website</a>.</p>
 <h3>Layouts</h3>
 
@@ -155,13 +153,13 @@ app.listen(PORT, () =&gt; {
 
 <p>You might want to write a RSC which takes <em>parameters</em> from the client, to allow it to search for user-specified data in a database, for example. In a similar way to Express, you can include the parameters directly in the route, e.g.:</p>
 <pre>http://localhost:3000/artist/Oasis</pre>
-<p>How could we do this?
+<p>How could we do this?</p>
     <ul>
     <li>We would need to create a sub-folder called <code>artist</code>, following the procedure for the <code>about</code> route;</li>
     <li>We then need to create another sub-folder, inside <code>artist</code>, called <code>[artist]</code>. Note the square brackets: these are important, and specify that <code>[artist]</code> is a <em>parameter</em> to be provided by the client.</li>
     <li>Inside the <code>[artist]</code> folder, we would need to create another component inside a <code>page.jsx</code> or <code>index.jsx</code> file. This would receive the artist parameter via <em>props</em>, and could then use it to query the database.</li>
     </ul>
-Here is an example of a <em>Next.js</em> component which receives the artist via props: </p>
+<p>Here is an example of a <em>Next.js</em> component which receives the artist via props: </p>
 <pre>
 import Database from 'better-sqlite3';
 
@@ -218,12 +216,11 @@ export default function RootLayout({children}) {
 <h3>Exercise 8.2</h3>
 <p>Add a <code>layout.jsx</code> to your application, like the one above, including the HitTastic! logo.  Download the <code>hittastic.png</code> image from <a href="https://github.com/nwcourses/nwcourses.github.io/blob/master/images/hittastic.png">here</a>, create a <code>public</code> folder and save the image in the <code>public</code> folder. Also apply a CSS file to the layout by importing it. You can use the CSS provided above.</p>
 <h4 id="includingstaticcontentinyourapplication">Including static content in your application</h4>
-<p>Static content (such as images) should be placed in:
+<p>Static content (such as images) should be placed in:</p>
     <ul>
     <li>your application's <code>public</code> folder, which should be a subfolder of the overall application folder, in Next.js;</li>
     <li>the root folder in <code>react-server</code>.</li>
     </ul>
-</p>
 <p>Try requesting all your pages (the Hello World page, the About page and the search page) now. Do both of them have the CSS and logo applied?</p>
 <h3 id="querystrings">Passing parameters to RSCs via query strings</h3>
 <p>Another way to pass parameters to RSCs is via <em>query strings</em>. Here is another version of the search component (Next.js). Note how we are using the <code>searchParams</code> prop, rather than <code>params</code>.</p>
@@ -255,7 +252,7 @@ export default function Page() {
 </li>
 </ul>
 <h3 id="exercise3">Exercise 8.3</h3>
-<p>In your <code>search</code> folder create a <code>page.jsx</code> or <code>index.jsx</code> containing the above code to receive a query string. Complete it so that it searches your database for the user's chosen artist. Also, change your code so that it will interpret a second query string parameter <code>title</code> and display it as well as the artist.</p>
+<p>In your <code>search</code> folder create a <code>page.jsx</code> containing the above code to receive a query string. Complete it so that it searches your database for the user's chosen artist. Also, change your code so that it will interpret a second query string parameter <code>title</code> and display it as well as the artist.</p>
 <p>Hint: to pass in two query string parameters, separate them with an ampersand &amp;, e.g:</p>
 <pre><code>http://localhost:3000/search?artist=Oasis&amp;title=Wonderwall
 </code></pre>
@@ -266,9 +263,9 @@ export default function Page() {
 <pre>&lt;Link to="..."&gt;</pre>
 it is
 <pre>&lt;Link href="..."&gt;</pre>
-However, it works similarly. It is imported with:
-<pre>import Link from 'next/link';</pre>
+<p>However, it works similarly. It is imported with:
 </p>
+<pre>import Link from 'next/link';</pre>
 <h3 id="sublayouts">Sublayouts</h3>
 <p>It's possible to create <em>sublayouts</em> for part of your application only - i.e. certain routes and their descendants. You do this by creating a new <code>layout.jsx</code> within a route folder. So, for example, if you place a <code>layout.jsx</code> within the <code>hittastic</code> folder, the <code>hittastic</code> route and its subroutes will all have that layout. Such routes would include</p>
 <ul>
@@ -369,7 +366,7 @@ export default function SearchResults({type}) {
 <p>You can see how this takes in a POI, performs an SQL query and returns JSX of the results.</p>
 </div>
 <h3>Exercise 8.4</h3>
-<p>Implement the search example above, but using your existing HitTastic! code rather than the Points Of Interest example given here. You will need to modify your query string-based (Exercise 8.3) search page so that it contains:</p>
+<p>Implement the search example above, but using your existing HitTastic! code rather than the Points Of Interest example given here. You will need to modify your query string-based (Exercise 8.3) search page so that (like the Points Of Interest example) it contains:</p>
     <ul>
     <li>a client component (<code>SearchForm</code>) with a search form allowing the user to enter an artist. When the artist is entered, it should alter the URL (as shown in the example above).</li>
     <li>a separate <code>SearchResults</code> component to display the search results.</li>

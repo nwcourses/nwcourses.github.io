@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html><head>
-<title></title>
+<html lang="en"><head>
+<title>Topic 7: Introduction to Server-side Rendering and Server Components</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' >
 <link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
 </head><body>
 
@@ -161,7 +161,7 @@ async function Page({page}) {
 <p>We might want to mix server-side and client-side components in the same application. Why might we want to do this? RSC cannot include any <em>interactivity</em>, such as allowing the user to fill in a form and click a button. In our pizza-ordering application, the user might wish to add a pizza to their basket by interacting with the application. This might involve the user entering a quantity and clicking a button.</p>
 <p>What we'd do here is <em>mark client side components as client-side using the directive:</em></p>
 <pre>"use client"</pre>
-If you are developing a system with a mix of both, the default is to assume server components. So anything without <pre>use client</pre> will be an RSC.</p>
+<p>If you are developing a system with a mix of both, the default is to assume server components. So anything without <code>use client</code> will be an RSC.</p>
 <p>Here would be an RSC to render all pizzas. Note how each pizza is repesented by a &lt;PizzaOrder&gt; sub-component.</p>
 <pre>
 export default async function AllPizzas() {
