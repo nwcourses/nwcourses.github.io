@@ -274,54 +274,38 @@ class TreeNode:
         self.right = None
 </pre>
 </li>
-<li>Create a BinaryTree class with one attribute, <em>root</em> (the root
-node of the tree) 
-and two methods: insertNode(), which adds a value to 
-the tree, and
-printFrom(), which prints out a part of the tree starting at a given node. These two methods should initially be blank (e.g. containing just <code>pass</code>).</li>
-<li>Implement the <em>insertNode()</em> method in BinaryTree. 
-This should take one parameter: the value to insert, 
-and do the following:
-    <ul>
-    <li>If the root node already exists, insert the value into the root
-    node by calling the root node's <em>setChild()</em> method, see below. This
-    will recursively search the tree for an appropriate node to add the value,
-    as discussed above.  </li>
-    <li>If it doesn't exist, create the root node and set the root node's
-    value to the value passed in.</li>
-    </ul>
-</li>
-<li>Write an <em>setChild()</em> method in the <em>TreeNode</em> class. This 
-should:
+<li>Write a <code>recursiveInsert()</code> method in the <code>TreeNode</code> class. This should take a <code>value</code> as a parameter, and:
         <ul>
         <li>See if the value is less than or greater than the current
         node's value;</li>
         <li>If the value is less than the current value, see if there is a
-        left child node. If there is not one (i.e. it's None), 
-        create a node storing the value
-        passed in. If there is a left child node, then we'll have to pass the
-        value onto it. So, recursively
-        call the <em>setChild()</em> method on the left node. The effect of this
+        left child node (i.e. test if <code>self.left</code> is <code>None</code>). If there isn't a left node, set <code>self.left</code> to a new <code>TreeNode</code> storing the value
+        passed in. If there is a left child node, then we'll have to pass the value onto it. Do this by recursively calling the <code>recursiveInsert()</code> method on the left node.</li>
+		<li>The effect of this
         will be to search the tree to find a suitable node to insert the 
         value.</li>
-        <li>If the value is greater than the current value, do the same but
-        with the right node.</li>
+        <li>If the value is greater than the current value, do the same as above but with the right node.</li>
         </ul>
     </li> 
     </ul>
 </li>
-<li>Implement a <em>printFrom()</em> method in <em>BinaryTree</em>. This should take a parameter which represents the node to start printing from,
-initially the root node.
+<li>Implement a <code>recursivePrint()</code> method in <code>TreeNode</code>. This should :
     <ul>
-    <li>Declare a variable which represents the 
-    current node. Set this initially to the root node.</li>
-    <li>Recursively call <em>printFrom()</em> on the left node, if the
-    left node exists (i.e. is not None)</li>
-    <li>Print the value in the node.</li>
-    <li>Recursively call <em>printFrom()</em> on the right node, if the
-    right node exists (i.e. is not None)</li>
+    <li>Recursively call <code>recursivePrint()</code> on the left node, if the
+    left node exists (i.e. is not <code>None</code>)</li>
+    <li>Print the value of the current node.</li>
+    <li>Recursively call <code>recursivePrint()</code> on the right node, if the
+    right node exists (i.e. is not <code>None</code>)</li>
     </ul>
-This will print the whole tree, and nicely illustrates the power of recursion!
+</li>
+<li>Create a <code>BinaryTree</code> class, representing the tree as a whole, with one attribute, <code>root</code> (the root
+node of the tree). Set this to <code>None</code> in the <code>__init__()</code> method.</li>
+<li>Create two other methods of <code>BinaryTree</code>:
+    <ul>
+    <li><code>insert()</code>, which takes a value as a parameter and inserts a new node into the tree. This should set the <code>root</code> to a <code>TreeNode</code> containing this value if the <code>root</code> is <code>None</code>, otherwise it should call the <code>recursiveInsert()</code> method of the <code>root</code> node.</li>
+    <li><code>print()</code>. This should print the whole tree by calling the root's <code>recursivePrint()</code>, as long as the root is not <code>None</code>.
+This will print the whole tree, and nicely illustrates the power of recursion!<//li>
+    </ul>
 </li>
 </ol>
 </p>
@@ -438,7 +422,7 @@ print(len(q))
 <h3 id="exercise3">Exercise 3</h3>
 <p>Start with your own tree from above.
 <ol>
-<li>Implement <em>either</em> depth-first <em>or</em> breadth-first search using the tree (for now return True or False depending on whether the number is in the tree or not).</li>
+<li>Implement <em>either</em> depth-first <em>or</em> breadth-first search using the tree (for now return True or False depending on whether the number is in the tree or not). <strong>Hint:</strong> for depth-first search, you will use a recursive approach very like what you did for Exercise 2.</li>
 <li>If you finish question 1, implement the other search.</li>
 </ol>
 </p>
