@@ -159,57 +159,61 @@ the order in which the values were printed, you'll find they are in order:
 <h3>Recursion</h3>
 <p>To implement a tree effectively we have to use a programming technique
 called <em>recursion</em>. The idea of recursion is that a function calls
-itself repeatedly until some condition is met. You can think of this as
-producing a <em>stack</em> of calls to the same function, 
-one on top of each other.
-Then we stop recursing and
-descend the stack of function calls. To illustrate the concept here
-is some code to print out the numbers 1 to 10 using recursion. It is annotated with explanatory messages to show how the recursion is operating.</p>
+itself repeatedly until some condition is met.</p>
+<p>When functions are called, each function call gets placed on the <em>call stack</em> - a <em>stack</em> of all function calls made by your program. So if a function calls itself, the call stack contains multiple copies of the
+same function, one on top of each other.</p>
+<p> Then we stop recursing and descend the call stack. To illustrate the concept here is some code to print out the numbers 1 to 10 using recursion. It is annotated with explanatory messages to show how the recursion is operating, and uses the <code>inspect</code> module to actually display the current call stack.</p>
 <pre>
 from termcolor import cprint
+import inspect
 
 def recursive_print(num, limit):
-    if num &lt;= limit:
-        print(num)
-        cprint(f"    {num} does not exceed {limit}, so calling recursive_print again with argument of {num+1}", "green")
+    # This gets the current function call stack
+    call_stack = [frameInfo.function for frameInfo in inspect.stack()]
+
+    cprint(f"Call stack:\n {call_stack}", "cyan")
+    print(num)
+
+    if num &lt; limit:
+        cprint(f"    num has not reached {limit}, so calling recursive_print again with argument of {num+1}", "green")
         cprint("Press enter to call function again recursively...", "yellow")
         input()
         recursive_print(num+1, limit)
+        cprint(f"Back in recursive_print() with parameter {num}. Call stack:\n {call_stack}", "cyan")
     else:
-        cprint(f"    Number {num} has exceeded limit {limit}, so not printing {num} or calling recursive function again...", "red")
+        cprint(f"    Number {num} has reached limit {limit}, so not calling recursive function again...", "red")
 
     cprint(f"Press enter to return from recursive_print call which had a parameter of {num}", "yellow")
     input()
 
 recursive_print (1, 10)
-
 </pre>
 What happens when we run this?
     <ul>
-    <li>We call the <em>recursive_print</em> function with the arguments 1
+    <li>We call the <code>recursive_print</code> function with the arguments 1
     (representing the current value) and 10 (the maximum value).</li>
     <li>The function prints the current value (1) and then compares the 
     current value (1) to the maximum value (10). Because the current value
     is less than the maximum, the if statement runs, which adds one to the
-    value (so it becomes 2) and then calls the function again. This is
-    the recursion.</li>
-    <li>The function then runs again. 2 is still less than 10, so we print
+    value (so it becomes 2) and then calls the function again. A new copy
+    of the function is placed on the call stack. This is the recursion.</li>
+    <li>This new copy then runs. 2 is still less than 10, so we print
     out the value 2, add one to the value (to give 3) and call the function
-    yet again.</li>
-    <li>Eventually the current value will become 10. At this point, we print
-    out the value (10) but the if statement will no longer whole true, because
-    10 is not less than 10. So the call to <em>recursive_print()</em>
+    a third time, placing a third copy of the function on the call stack.</li>
+    <li>Eventually the current value will become 10, on the tenth function call. At this point, we print
+    out the value (10) but the if statement will no longer be true, because
+    10 is not <em>less than</em> 10. So the call to <code>recursive_print()</code>
      with the 
-    <em>value</em> parameter equal to 10 will immediately return.</li>
-    <li>This then returns us to the call to <em>recursive_print()</em>
+    <em>value</em> parameter equal to 10 will return, after printing some information messages.</li>
+    <li>This then <em>pops the tenth copy of the function off the call stack</em> and returns us to the previous call to <code>recursive_print()</code>
     with the <em>value</em> parameter set to 9. Since there are no more
-    statements in <em>recursive_print()</em> after the call to itself,
-    this call also returns immediately.</li>
-    <li>We then return to the call to <em>recursive_print()</em> with the
+    statements in <code>recursive_print()</code> after the call to itself,
+    this call also returns immediately, popping it from the stack.</li>
+    <li>We then return to the call to <code>recursive_print()</code> with the
     <em>value</em> parameter set to 8, which also immediately returns
-    and so we keep descending the stack of function calls until we return
+    and so we keep popping the copies of the function off the stack until we return
     to the original call, where <em>value</em> was 1.</li>
-    <li>We then return to the main program (outside the function) and our 
+    <li>As the original call is at the bottom of the stack, we then return to the main program (outside the function) and our 
     program exits, having printed 1 to 10 in order recursively.</li>
 <li>Also note the use of the <code>termcolor</code> package to improve the clarity of the output, as the main output (the numbers 1-10) are printed in white but the explanatory messages are printed in other colours. You can install <code>termcolor</code> with:
 <pre>pip install termcolor</pre>
@@ -217,7 +221,7 @@ What happens when we run this?
     </ul>
 Clearly recursion is an inefficient way of counting up to 10 (!), but in 
 situations such as descending all branches of a tree, it's the best way of tackling the problem.</p>
-<p>Here is a diagram showing this example of recursion.</p>
+<p>Here is a diagram showing this example of recursion, showing the call stack.</p>
 <!-- in which <code>func_a()</code> is called repeatedly from itself.-->
 <br />
 <img src="../images/recursion2.png" alt="Recursively calling a function" />
