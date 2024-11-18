@@ -76,7 +76,7 @@ birth, course)</td>
 <p>Here is an example of how to do this from the "enrol a student" design-level use case text shown above. As we saw above, the most interesting steps are step 5 and 6 because they involve objects of the domain model classes <code>University</code> and <code>Student</code>. We can think about these steps in a bit more detail in order to work out what methods might be needed.
 	<ul>
 	<li>We first need to allocate a student ID, using the existing highest ID plus one. As we have seen, this is the responsibility of the <code>University</code>. So it follows logically that we could allocate a <em>method</em> - <code>allocateStudentId()</code> - for this functionality, and place it in the <code>University</code> class.</li>
-	<li>We then need to create a student object using that ID, and add it to the list of students. Again, it follows logically that we need a new method, <code>addNewStudent()</code>, also inside <code>University</code>.</li>
+	<li>We then need to create a student object using that ID, and add it to the list of students. Again, it follows logically that we need a new method, <code>addNewStudent()</code>, also inside <code>University</code>, which takes a <code>Student</code> object and adds it to the <code>University</code>.</li>
 	<li>So we end up with two methods of <code>University</code> to implement this use case. These will be shown as <em>messages</em> on the sequence diagram.</li>
 	</ul>
 </p>
