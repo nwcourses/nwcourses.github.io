@@ -164,28 +164,29 @@ itself repeatedly until some condition is met.</p>
 same function, one on top of each other.</p>
 <p> Then we stop recursing and descend the call stack. To illustrate the concept here is some code to print out the numbers 1 to 10 using recursion. It is annotated with explanatory messages to show how the recursion is operating, and uses the <code>inspect</code> module to actually display the current call stack.</p>
 <pre>
-from termcolor import cprint
+from colorama import init, Fore
 import inspect
 
 def recursive_print(num, limit):
     # This gets the current function call stack
     call_stack = [frameInfo.function for frameInfo in inspect.stack()]
 
-    cprint(f"Call stack:\n {call_stack}", "cyan")
+    print(f"{Fore.CYAN} Call stack:\n {call_stack}")
     print(num)
 
     if num &lt; limit:
-        cprint(f"    num has not reached {limit}, so calling recursive_print again with argument of {num+1}", "green")
-        cprint("Press enter to call function again recursively...", "yellow")
+        print(f"{Fore.GREEN}    num has not reached {limit}, so calling recursive_print again with argument of {num+1}")
+        print(f"{Fore.YELLOW} Press enter to call function again recursively...")
         input()
         recursive_print(num+1, limit)
-        cprint(f"Back in recursive_print() with parameter {num}. Call stack:\n {call_stack}", "cyan")
+        print(f"{Fore.CYAN} Back in recursive_print() with parameter {num}. Call stack:\n {call_stack}")
     else:
-        cprint(f"    Number {num} has reached limit {limit}, so not calling recursive function again...", "red")
+        print(f"{Fore.RED}    Number {num} has reached limit {limit}, so not calling recursive function again...")
 
-    cprint(f"Press enter to return from recursive_print call which had a parameter of {num}", "yellow")
+    print(f"{Fore.YELLOW}Press enter to return from recursive_print call which had a parameter of {num}")
     input()
 
+init(autoreset=True) # initialise Colorama
 recursive_print (1, 10)
 </pre>
 What happens when we run this?
@@ -215,8 +216,8 @@ What happens when we run this?
     to the original call, where <em>value</em> was 1.</li>
     <li>As the original call is at the bottom of the stack, we then return to the main program (outside the function) and our 
     program exits, having printed 1 to 10 in order recursively.</li>
-<li>Also note the use of the <code>termcolor</code> package to improve the clarity of the output, as the main output (the numbers 1-10) are printed in white but the explanatory messages are printed in other colours. You can install <code>termcolor</code> with:
-<pre>pip install termcolor</pre>
+<li>Also note the use of the <code>colorama</code> package to improve the clarity of the output, as the main output (the numbers 1-10) are printed in white but the explanatory messages are printed in other colours. You can install <code>colorama</code> with:
+<pre>pip install colorama</pre>
 </li>
     </ul>
 Clearly recursion is an inefficient way of counting up to 10 (!), but in 
@@ -279,9 +280,14 @@ class TreeNode:
         <li>See if the value is less than or greater than the current
         node's value;</li>
         <li>If the value is less than the current value, see if there is a
-        left child node (i.e. test if <code>self.left</code> is <code>None</code>). If there isn't a left node, set <code>self.left</code> to a new <code>TreeNode</code> storing the value
-        passed in. If there is a left child node, then we'll have to pass the value onto it. Do this by recursively calling the <code>recursiveInsert()</code> method on the left node.</li>
-		<li>The effect of this
+        left child node (i.e. test if <code>self.left</code> is <code>None</code>). 
+			<ul>
+			<li>If there isn't a left node, set <code>self.left</code> to a new <code>TreeNode</code> storing the value
+        passed in.</li>
+			<li> If there is a left child node, then we'll have to pass the value onto it so the left node can deal with it. Do this by recursively calling the <code>recursiveInsert()</code> method on the left node.</li>
+			</ul>
+		</li>
+        <li>The effect of this
         will be to search the tree to find a suitable node to insert the 
         value.</li>
         <li>If the value is greater than the current value, do the same as above but with the right node.</li>
