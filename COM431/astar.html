@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="topic11theaalgorithm">Topic 11a: The A* algorithm</h1>
 <h2 id="introduction">Introduction</h2>
-<p>Last week we considered Dijkatra's algorithm as one approach to path finding. This week we will look at the <em>A* (A-Star) algorithm</em>, which can provide some efficiency improvements in circumstances in which we can <em>estimate</em> the distance to the end point.</p>
+<p>In the last topic we considered Dijkatra's algorithm as one approach to path finding. Now we will look at the <em>A* (A-Star) algorithm</em>, which can provide some efficiency improvements in circumstances in which we can <em>estimate</em> the distance to the end point.</p>
 <h2 id="theaalgorithmdetail">The A* algorithm - detail</h2>
 <p>One issue with Dijkstra is that we explore <em>all</em> surrounding nodes to our current node. The algorithm could be enhanced if we place more priority on those
 nodes which are <em>closer</em> to the destination. This can help us minimise the number of nodes we need to visit. For example, if we are trying to route from London to Nice, and London's surrounding nodes are Birmingham, Brussels and Paris, then Paris is closer to Nice than the other two, so could be prioritised such that we are more likely to select Paris as our current node after leaving London.</p>
@@ -59,7 +59,7 @@ Even though Lyon is on the direct path, Brussels has a lower F score than Lyon, 
 <h4 id="generalcomments">General comments</h4>
 <p>Note how the use of the heuristic avoided us having to explore the nodes which are completely in the wrong direction, namely Bordeaux, and Amsterdam. A* favours the preferential selection of nodes which are nearer the target as measured by the heuristic, hence we explore Paris first whereas with Dijkstra we would explore Brussels first. With Dijkstra, we would end up considering Amsterdam (at 561km from London) because they are nearer London than Lyon is. By contrast with A*, the F score of Amsterdam would be 581+980 = 1561. As Amsterdam has higher F scores than Nice via the actual road route, they would never be explored. So A* explores less nodes. It will work better when the heuristic is close to the actual distance, so may not work so efficiently in mountainous terrain for example. An example of this is the way that Brussels was picked over Lyon early on in the algorithm. The straight-line distance from Brussels to Nice is considerably less than the road distance, because a straight line passes over the western Alps which the main roads avoid by taking a longer route to the west around the mountains.</p>
 <h2 id="exercise">Exercise</h2>
-<p>Rewrite your path finder from last week to use A* rather than Dijkstra. Use this graph (the London to Nice graph presented here) rather than the London to Munich graph from last week. You can set up the straight-line distances using a dictionary, e.g:</p>
+<p>Rewrite your path finder from the previous topic to use A* rather than Dijkstra. Use this graph (the London to Nice graph presented here) rather than the London to Munich graph from last time. You can set up the straight-line distances using a dictionary, e.g:</p>
 <pre><code>heuristic_distances = {
     "Birmingham": 1188,
     "Brussels": 823,

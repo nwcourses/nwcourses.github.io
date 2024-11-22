@@ -6,10 +6,8 @@ those of you who are coping reasonably well with the module an idea on how more 
 <p>If you need to catch up with previous weeks, please do this first!</p>
 <h2 id="introduction">Introduction</h2>
 <p>Two weeks ago we covered some basic sorting algorithms, such as bubble sort, selection sort and insertion sort. However, we saw that their efficiency could be better, being <code>O(n^2)</code> in the worst case. This week we will look at two improved sorting algorithms, <em>quicksort</em> and <em>merge sort</em>.</p>
-<p>These algorithms use <em>recursion</em>. Please see <a href="week6.html">Week 6</a> for a reminder on recursion.</p>
-<p>Due to time constraints I will only talk about quicksort, to ensure you have
-enough time in class to do practical work. However, notes about merge sort
-are also provided for your own reading.</p>
+<p>These algorithms use <em>recursion</em>. Please see <a href="trees1.html">the trees topic</a> for a reminder on recursion.</p>
+<p>Due to time constraints I may not have time to talk about merge sort, to ensure you have enough time in class to do practical work. However, notes about merge sort are also provided for your own reading.</p>
 <h2 id="quicksort">Quicksort</h2>
 <p>Quicksort is the first of the two algorithms. It works by recursively <em>partitioning</em> the list into two sections, or <em>partitions</em>, either side of an element we call the <em>pivot</em>. </p>
 <p>An arbitrary element (e.g. the last, the middle, or the first) is picked as the pivot, and then the <em>partitioning phase</em> begins. The aim of the partitioning phase is to rearrange the list so that it all the elements less than the pivot element are to its left, and all elements greater than the pivot element are to its right. To do this, the partitioning phase re-arranges the list, performing a series of swaps so it is ordered correctly.</p>
@@ -188,7 +186,7 @@ Here is a list of numbers.</p>
 Use the middle element of the list as the initial pivot (i.e. 38).
 It might take you a while as there will be multiple recursive stages!</p>
 <h3 id="exercisecode">Exercise (code)</h3>
-<p>If you finish, have a go at implementing quicksort in code, using the
+<p>Have a go at implementing quicksort in code, using the
 pseudocode above to help you.</p>
 <p>If you finish that, have a go at implementing merge sort. Hint: you should include three functions:
 	<ol>
