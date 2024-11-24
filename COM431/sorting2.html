@@ -70,10 +70,10 @@ The diagram below shows how, with each run of the Hoare partitioning algorithm, 
 <ul>
 <li>Note how we progressively partition the list into smaller and smaller sub-partitions. We first partition the entire list, by selecting one of the centre two elements (62) as the pivot and partitioning the list into those values less than 62 and those greater than 62.</li>
 <li>We then end up with two sub-partitions, one consisting of the first 6 elements of the list (those values less than 62) and the second consisting of the final three elements (those values greater then 62). Furthermore, as a result of this partitioning, <strong>the value 62 has been sorted into place (in its correct place in the list)</strong></li>
-<li>We repeat the process with the first of these two partitions (the first six elements) by selecting a new pivot (41) and sub-partitioning into those values less than 41 and those values greater than 41.</li>
-<li>We then end up with two sub-partitions again, one with four elements (14, 28, 33, 4) and another with just one element (57). Again, the value 41 <strong>has been sorted into place</strong>.</li>
-<li>We then recursively run the Hoare algorithm on the first of these sub-partitions (14, 28, 33, 4). We first select a new pivot (33) and sub-partition this section again. In this case, as all the other values are less than the pivot, we will end up with just one sub-partition from Hoare (consisting of 14, 28 and 4).</li>
-<li>We keep repeating the partitioning process until we end up with a partition of length one. When this happens, we cannot sub-partition any more. As discussed above, the whole process is <em>recursive</em>: each partitioning is called from the previous partitioning. So when the current partition has a length of 1, we simply return from the "master" partitioning function (as seen above) and descend the recursion stack.</li>
+<li>We repeat the process with the first of these two partitions (the first six elements) by selecting a new pivot (57) and sub-partitioning into those values less than 57 and those values greater than 57 (none). The value 57 has now been sorted into place.</li>
+<li>We then end up with just one sub-partition as all the other numbers in the previous step were less than the last pivot (57). The new pivot is 4 as it's the midpoint. Again this will only produce one sub-partition as all numbers are greater than 4. 4 is sorted into place.</li>
+<li>We then end up with the values 28, 14, 33 and 41 in the current subpartition. The new pivot is 33. This time we end up with two partitions: 28 and 14 (less than 33) and 41 (greater than 33). 33 is sorted into place.</li>
+<li>The process repeats until all numbers are sorted.</li>
 </ul>
 <br />
 <img src="../images/quicksort.png" alt="Quicksort" />
