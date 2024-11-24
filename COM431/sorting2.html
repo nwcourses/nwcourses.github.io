@@ -23,7 +23,7 @@ those of you who are coping reasonably well with the module an idea on how more 
 pointing to the start of the list and end of the list. We move the first "finger", referenced by the variable <code>i</code> forwards and the second "finger", referenced by the variable <code>j</code>, backwards, until <code>i</code> points to something <strong>GREATER THAN OR EQUAL</strong> TO the pivot and <code>j</code> points to something <strong>LESS THAN OR EQUAL TO</strong> the pivot.</p>
 <p>As we move each "finger" forward and back, we test whether any valuse need to be swapped. If the value at <code>i</code> is greater than the value at <code>j</code>, and <code>i</code> is still to the left of <code>j</code>, then we know that the values are in the wrong order and we swap them.</p>
 <p>When <code>i</code> and <code>j</code> point to the same element (the pivot) or cross over (<code>j</code> is to the left of <code>i</code>), then we know that we have done all the swaps we can, because <code>i</code> will have scanned all values greater than the pivot which were to the left of the pivot (and have now been swapped), and <code>j</code> will have scanned all values less than the pivot which were to the right of the pivot (and have now been swapped).</p>
-<p>We return the new pivot position (which will be either <code>j</code> or <code>i</code> - often they will point to the same value) so we can continue the operation recursively.</p>
+<p>We return the new partition point (which will be either <code>j</code> or <code>i</code> - often they will point to the same value) so we can continue the operation recursively.</p>
 <p>The algorithm is shown on the diagram below.</p>
 <p><img src="../images/qsort2.png" alt="Quicksort - Hoare partitioning algorithm" /></p>
 <p>The quicksort function then:</p>
@@ -31,7 +31,7 @@ pointing to the start of the list and end of the list. We move the first "finger
 <li>gets a new pivot by calling the Hoare partitioning algorithm;</li>
 <li>recursively calls quicksort on the section left of the pivot and section right of the pivot.</li>
 </ul>
-<p>The recursion will stop when the found pivot position is either at the start or the end of the list, as that means all members are before or after.</p>
+<p>The recursion will stop when we have a list section of length 1 as it cannot be partitioned.</p>
 <p>Quicksort is rather difficult to figure out from scratch so I will present some Python-like pseudocode of the Hoare algorithm below. This can be found in multiple places on the web including <a href="https://en.wikipedia.org/wiki/Quicksort">Wikipedia</a>; as always you should always double-check anything on Wikipedia against other sources to check it's accurate.</p>
 <pre><code>function hoare_partition(data, start, end)
     Let i = start
@@ -51,7 +51,7 @@ pointing to the start of the list and end of the list. We move the first "finger
         If i is less than j
             Swap the numbers
         else
-            return j  # i and j have crossed over. Use j as the new pivot - could also use i
+            return j  # i and j have crossed over. Use j as the partitioning point - could also use i
 </code></pre>
 <h3>Progressive sorting of quicksort using recursion</h3>
 <p>We have covered the Hoare algorithm for sub-partitioning a partition, however it may not be clear how the quicksort algorithm progresses as a whole. In order to implement quicksort,
