@@ -19,6 +19,19 @@
 <p><code>actions</code> - server actions;</p>
 <p><code>ui</code> - UI components which are included in components which handle routes.</p>
 <p><code>api</code> - API endpoints.</p>
+<h3 id="thejsconfigjsonconfigfile">The jsconfig.json config file</h3>
+<p>You can import these with paths relative to the top-level folder of your app, e.g.</p>
+<pre><code class="javascript language-javascript">import 'app/ui/addsong.js';
+</code></pre>
+<p><strong>but only if you create, or edit, the configuration file <code>jsconfig.json</code></strong> (in the top-level folder of your app) to specify the <code>baseUrl</code> option,</p>
+<p>So you should create a <code>jsconfig.json</code> in your root folder which looks like this:</p>
+<pre><code class="json language-json">{
+    "compilerOptions": {
+        "baseUrl": "."
+    }
+}
+</code></pre>
+<p>This means that paths in <code>import</code> statements will be relative to the current folder (<code>.</code>), i.e. the root folder of your project.</p>
 <h2 id="streaming">Streaming</h2>
 <p><em>See <a href="https://nextjs.org/learn/dashboard-app/streaming">Streaming</a> in the Next.js tutorial</em></p>
 <p>A particularly useful feature of Next.js is the ability to <em>stream</em> sub-components within a component. What does this mean? It means the page, or its layout, is fetched first and then sub-components within the page are fetched later. This is useful if some of the components are slow to load. It means that the user will see most of the page instantly, apart from the slower sub-components.</p>
