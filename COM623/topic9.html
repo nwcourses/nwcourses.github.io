@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<title>Topic 9: Further Next.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' >
+<link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
+</head><body>
+
+<header>
+<h1>Topic 9: Next.js Part 2</h1>
+</header>
+
+<main>
+<div class="content-public">
+<p>This week we will look at some further features of Next.js.</p>
+<h2 id="furtherorganisingyourproject">Further organising your project</h2>
+<p>As your project grows, it makes sense to start separating out content into its own folders, so that it's better organised.</p>
+<p>There is no single way of doing this but according to the Next.js documentation there are some commonly recommended standards. These folders are often used:</p>
+<p><code>actions</code> - server actions;</p>
+<p><code>ui</code> - UI components which are included in components which handle routes.</p>
+<p><code>api</code> - API endpoints.</p>
+<h2 id="streaming">Streaming</h2>
+<p><em>See <a href="https://nextjs.org/learn/dashboard-app/streaming">Streaming</a> in the Next.js tutorial</em></p>
+<p>A particularly useful feature of Next.js is the ability to <em>stream</em> sub-components within a component. What does this mean? It means the page, or its layout, is fetched first and then sub-components within the page are fetched later. This is useful if some of the components are slow to load. It means that the user will see most of the page instantly, apart from the slower sub-components.</p>
+<p>Streaming is not enabled by default but we can easily enable it. There are two methods we can use, in both Next.js and react-server:</p>
+<ul>
+<li>The <code>loading.jsx</code> file</li>
+<li>React's <code>Suspense</code></li>
+</ul>
+<p><code>loading.jsx</code> will apply across the whole layout while a <code>Suspense</code> can be used to wrap a <em>specific component</em>.</p>
+<h3 id="loadingjs">loading.jsx</h3>
+<p>In <em>both</em> Next.js and react-server, we can create a specific "Loading" component inside a <code>loading.jsx</code> file. This can be as simple as this:</p>
+<pre><code class="jsx language-jsx">function Loading() {
+    return &lt;div&gt;Loading..&lt;/div&gt;;
+}
+
+export default Loading;
+</code></pre>
+<p>Any components which take time to load, will display the <code>Loading</code> component while they are loading.</p>
+<p>This is a simple example, we could also write a component to include a spinning wheel image, or similar.</p>
+<h3 id="usingsuspenses">Using Suspenses</h3>
+<p><code>Suspense</code> is a React feature which allows us to wrap components with a fallback component which appears while the component is loading. As it's part of React, we can use suspenses in both Next.js and react-server.</p>
+<p>Here is an example:</p>
+<pre><code class="jsx language-jsx">import SlowComponent from 'app/ui/slowcomponent';
+import { Suspense } from 'react';
+import SuspenseLoadingComponent from 'app/ui/suspenseloadingcomponent';
+
+function Page() {
+    return &lt;Suspense fallback={&lt;SuspenseLoadingComponent /&gt;}&gt;&lt;SlowComponent /&gt;&lt;/Suspense&gt;;
+}
+
+export default Page;
+</code></pre>
+<p>You can see how we wrap <code>SlowComponent</code> with a <code>Suspense</code> component with a <code>fallback</code> prop of a temporary component to display while the <code>SlowComponent</code> is loading.</p>
+<h2 id="errorhandling">Error handling</h2>
+<p><em>See <a href="https://nextjs.org/learn/dashboard-app/error-handling">the Next.js tutorial</a></em></p>
+<p>Some of our components have featured testing for errors. However Next.js comes with some standard error-handling features, including:</p>
+<ul>
+<li><p>providing an <code>error.js</code> component to be displayed whenever an error is thrown (e.g. via an exception)</p></li>
+<li><p>providing custom 404 Not Found components via <code>not-found.js</code>.</p></li>
+</ul>
+<p>We'll look at each of these in turn. Here is a page which searches for POIs by type.</p>
+<pre><code class="jsx language-jsx">import Database from 'better-sqlite3';
+import { notFound } from 'next/navigation';
+
+function Page({searchParams}) {
+
+    if(searchParams.type == "") {
+        throw new Error("Missing POI type!");
+    }
+    const db = new Database('pointsofinterest.db');
+
+    const stmt = db.prepare("SELECT * FROM pointsofinterest WHERE type=?"); 
+    const results = stmt.all(searchParams.type);
+
+    if(results.length == 0) {
+        notFound();
+    } else {
+        // Output the POIs (not shown)
+    }
+}
+
+export default Page;
+</code></pre>
+<p>It has two possible errors:</p>
+<ul>
+<li>the <code>type</code> query string parameter is empty;</li>
+<li>there are no search results.</li>
+</ul>
+<p>The former error is a user error so we throw an <code>Error</code> object containing an error message, which will be handled with the <code>error.js</code>. The latter is a "no results" condition so we generate a 404 using Next's <code>notFound()</code> function. This will load the component defined in <code>not-found.js</code>.</p>
+<p>The <code>error.js</code> might look like this:</p>
+<pre><code class="jsx language-jsx">"use client"
+
+function Error({error, reset}) {
+    return &lt;div&gt;&lt;strong&gt;ERROR: {error.message} &lt;/strong&gt;&lt;/div&gt;;
+}
+
+export default Error;
+</code></pre>
+<p>Note how the <code>Error</code> component receives an <code>error</code> prop which is the <code>Error</code> object which was originally thrown, The <code>Error</code> object - see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/Error">here</a> - has a <code>message</code> property containing the original error message.</p>
+<p>The <code>reset</code> prop is a function which can be used to reload the component, where this is appropriate.</p>
+<p>The <code>not-found.js</code> is very simple:</p>
+<pre><code class="jsx language-jsx">"use client"
+
+function NotFound() {
+    return &lt;h1&gt;No songs by that artist!&lt;/h1&gt;;
+}
+
+export default NotFound;
+</code></pre>
+<h2 id="buildingalargerapplicationwithmultiplecomponentsandpassingdatabetweenthecomponents">Building a larger application with multiple components, and passing data between the components</h2>
+<p>This is discussed in more detail in <em><a href="https://nextjs.org/learn/dashboard-app/mutating-data">the tutorial on the Next.js website</a></em></p>
+<p>We will now look at some techniques, which will work in both Next.js and react-server, for building a larger application, with several inter-linked components. You might, for example, want to build a shopping application in which you can buy a product by clicking on a "buy" button. Or, a points of interest application in which you can review, or "like", a particular POI. The key feature of this type of application is the user selects a given entity (product, POI, etc) and performs an operation on it.</p>
+<p>Server actions would be ideal to perform the operation (e.g. buy, like, etc). Also, server components are the most convenient way of doing the initial search for products, POIs etc. However, remember from the introductory server-side React topic that server actions can <em>only be called from client components</em>.So we'll need to include <em>a separate client component</em> which includes the form, and then render this client component within a server component which is mapped to a route.</p>
+<p>We'll start with the server component, <code>SearchResults</code>. This uses a <code>PoiDetails</code> component to display the POI details.</p>
+<pre><code class="jsx language-jsx">import Database from 'better-sqlite3';
+import PoiDetails from 'app/ui/poidetails';
+
+function SearchResults({type}) {
+
+    const db = new Database('pointsofinterest.db');
+
+    const stmt = db.prepare("SELECT * FROM pointsofinterest WHERE type=?");
+    const results = stmt.all(type);
+
+    const output = results.map ( poi =&gt; &lt;PoiDetails poi={poi} /&gt; );
+    return &lt;div&gt;&lt;h2&gt;Search for POIs of type {type}&lt;/h2&gt;&lt;ul&gt;{output}&lt;/ul&gt;&lt;/div&gt;;
+}
+
+export default SearchResults;
+</code></pre>
+<p>We'll now look at that <code>PoiDetails</code> client-side component. Note how it's a client-side component and includes a "Like" button within a form with a server action. The POI ID is passed through the form within a <strong>hidden form field</strong>.</p>
+<pre><code class="jsx language-jsx">"use client"
+
+import { useActionState } from 'react';
+import likePoi from 'app/actions/likePoi';
+
+function PoiDetails({poi}) {
+
+    const [state, alteredLikePoi] = useActionState(likePoi, { status: "", likes: poi.likes });
+
+    return (
+        &lt;li key={poi.id}&gt;
+        {poi.name} is a {poi.type} in region {poi.region}. Likes: {state.likes}
+        &lt;form action={alteredLikePoi}&gt;
+        &lt;input type='hidden' name='id' value={poi.id} /&gt;
+        &lt;input type='submit' value='Like!' /&gt;
+        &lt;/form&gt; 
+        Status: {state.status}
+        &lt;/li&gt;
+    );
+}
+export default PoiDetails;
+</code></pre>
+<p>There is a <code>likePoi</code> server action.</p>
+<p>Note also how we take the likes from the server action <em>state</em>. This allows us to do an easy dynamic update of the likes when we click the "like" button. We initialise the state to contain a <code>likes</code> property equal to the existing likes of the Poi, and then, in the server action, we return an updated state (as we did in the <code>createPoi</code> example above) containing the updated likes, after we have liked the Poi. As the likes are displayed as the likes in the <em>state</em> (<code>state.likes</code>), the likes will live-update whenever we like a Poi.</p>
+<p>Here is what the <code>likePoi</code> server action might look like:</p>
+<pre><code class="javascript language-javascript">"use server"
+
+import Database from 'better-sqlite3';
+
+function likePoi(prevState, formData) {
+
+    const db = new Database('pointsofinterest.db');
+
+    const id = formData.get("id");
+    if(id &amp;&amp; id &gt;= 1) {
+        const stmt = db.prepare("UPDATE pointsofinterest SET likes=likes+1 WHERE id=?");
+        const { changes } = stmt.run(id);
+        if(changes &gt; 0) {
+            const stmt2 = db.prepare("SELECT likes from pointsofinterest WHERE id=?");
+            const row = stmt2.get(id);
+            return { status: "OK", likes };
+        } else {
+            return { status: `Poi with ID ${id} not found` };
+        }
+    } else {
+        return { status: `Invalid ID ${id}` };
+    }
+}
+</code></pre>
+<p>Note how it increases the likes and also does a SELECT statement to find the new likes, and returns the new likes in the object to be used as state - so that it can be displayed in the client-side <code>PoiDetails</code> component.</p>
+<h3 id="alternativetohiddenfieldbinding">Alternative to hidden field - binding</h3>
+<p>A slightly more elegant way of passing the ID across is to pass it as an <em>argument</em> to the server action. To do this, we use <em>binding</em> which we looked at last year. For example:</p>
+<pre><code class="jsx language-jsx">"use client"
+
+import { useActionState } from 'react';
+import likePoi from 'app/actions/likePoi';
+
+function PoiDetails({poi}) {
+
+    const [state, alteredLikePoi] = useActionState(likePoi, { status: "", likes: poi.likes });
+
+    return (
+        &lt;li key={poi.id}&gt;
+        {poi.name} is a {poi.type} in region {poi.region}. Likes: {state.likes}
+        &lt;form action={alteredLikePoi.bind(null, poi.id)}&gt;
+        &lt;input type='submit' value='Like!' /&gt;
+        &lt;/form&gt; 
+        Status: {state.status}
+        &lt;/li&gt;
+    );
+}
+export default PoiDetails;
+</code></pre>
+<p>We then read the bound value directly as a parameter of the server action, rather than via <code>FormData</code>:</p>
+<pre><code class="javascript language-javascript">"use server"
+
+import Database from 'better-sqlite3';
+
+function likePoi(prevState, id) {
+
+    const db = new Database('pointsofinterest.db');
+
+    if(id &amp;&amp; id &gt;= 1) {
+        const stmt = db.prepare("UPDATE pointsofinterest SET likes=likes+1 WHERE id=?");
+        const { changes } = stmt.run(id);
+        if(changes &gt; 0) {
+            const stmt2 = db.prepare("SELECT likes from pointsofinterest WHERE id=?");
+            const row = stmt2.get(id);
+            return { status: "OK", likes };
+        } else {
+            return { status: `Poi with ID ${id} not found` };
+        }
+    } else {
+        return { status: `Invalid ID ${id}` };
+    }
+}
+</code></pre>
+<hr>
+<h2 id="loginsandsessionsinnextjs">Logins and sessions in Next.js</h2>
+<p>So far we have not considered how to implement session variables and login systems in Next.js. There is actually not a standard technique; you need to either use third-party libraries or implement your own from scratch. (In react-server, you can use Express session handling by integrating react-server with Express as discussed last week).</p>
+<p>Two recommended libraries for implementing sessions in Next.js are:</p>
+<ul>
+<li><code>iron-session</code>, a reasonably simple library which stores sessions in encrypted cookies.</li>
+<li><code>next-auth</code>, a more flexible though more complex library which can handle third-party providers (Google, Facebook, etc).</li>
+</ul>
+<p>We will use <code>iron-session</code> as it's the simplest. This is documented <a href="https://github.com/vvo/iron-session">here</a>, on GitHub. It's available as an <code>npm</code> package, e.g.:</p>
+<pre><code>npm install iron-session
+</code></pre>
+<p>This code snippet is an example of using <code>iron-session</code>. We need a password to sign the cookie, and a cookie name. A convenient place to put these is in a module, and export them:</p>
+<pre><code class="jsx language-jsx">export const cookieName = "hittasticSession", 
+    password = "BinnieAndClyde123456789012345678"; // must be at least 32 characters
+</code></pre>
+<p>Here is an example of performing a simple (and extremely insecure) authentication and saving the username in the session:</p>
+<pre><code class="jsx language-jsx">import { getIronSession } from 'iron-session';
+import { cookies } from 'next/headers';
+import { cookieName, password } from 'app/sharedData';  // our module containing the cookie name and password, see above
+
+async function login(formData) {
+    const session = await getIronSession(cookies(), { password, cookieName } );
+
+    const username = formData.get("username");
+    if(username=="admin" &amp;&amp; formData.get("password")=="password") {
+        session.username = username;
+        await session.save(); // must save the session after setting it
+    }
+
+    // Other code omitted...
+}
+</code></pre>
+<p>Note how we initialise the session using the <code>cookies()</code> sent from the client, and specify the cookie name we wish to use, as well as the password.</p>
+<p>In this example we read in a username and password from a form and check that they are <code>admin</code>/<code>password</code> (yes, not at all secure, but this is just a basic example!) and if they are, store the username in the session object.</p>
+<p>Later we can retrieve the session again, eg.</p>
+<pre><code>const session = await getIronSession(cookies(), { password, cookieName } );
+if(session.username) {
+    // we are potentially logged in if the username field is present - check 
+    // the database to see if the user is actually logged in (see below)
+} else {
+    // we are not logged in
+}
+</code></pre>
+<p>In a full example you would check the username and password against a database. To handle logouts you can either <code>unset</code> the session property (e.g. <code>session.username</code>) or set it to <code>null</code>. </p>
+<h3 id="addingloginstatustothedatabase">Adding login status to the database</h3>
+<p>Note that simply checking for <code>session.username</code> renders the cookie liable to tampering on the client side (e.g. adding the username back in to the cookie) so further checks need to be added. If we just grant access by checking for the existence of the <code>username</code> property, it's conceivable that it will exist due to client-side tampering, so we should also store the current login status of a user in the database table, as described on the <code>iron-session</code> documentation. </p>
+<p>So when the user logs in, we set a flag in the database to <code>true</code> to indicate that they have authenticated successfully, and when they log out, we set the flag back to <code>false</code> to indicate that this username should no longer have access to private resources. So if the cookie contains a <code>username</code> property, we check the database to see whether that user is currently logged in (is the flag <code>true</code>?), and only grant access if they are.</p>
+<table>
+<thead>
+<tr>
+<th>username</th><th>password</th><th>loggedin</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>fred</td><td>fred123</td><td>false</td></tr>
+<tr><td>jane</td><td>jane123</td><td>true</td></tr>
+<tr><td>james</td><td>james123</td><td>true</td></tr>
+<tr><td>tina</td><td>tina123</td><td>false</td></tr>
+</tbody>
+</table>
+<p>In this example, users <code>jane</code> and <code>james</code> are logged in.</p>
+<h3 id="checkingthesession">Checking the session</h3>
+<p>We can later check the session in any page or layout, and by doing so, we can render different content depending on whether we are logged in or not.</p>
+<hr>
+<h2 id="routegroups">Route groups</h2>
+<p>Sometimes we may wish to use different layouts for different routes with the same base path. For example we may have these routes:</p>
+<ul>
+<li><code>/hittastic</code></li>
+<li><code>/hittastic/search</code></li>
+<li><code>/hittastic/about</code></li>
+<li><code>/hittastic/addSong</code></li>
+<li><code>/hittastic/login</code></li>
+</ul>
+<p>We may wish the first four to have a full layout, featuring a sidebar and main content area, and a Logout button if the user is logged in. The login route, however, probably needs a simpler layout with just a login form, and crucially no Logout button.</p>
+<p>What we can do in this case is to create <em>route groups</em>. Route groups allow us to do just this - create different layouts for different routes within the same path. A route group is created by making a folder with a name within parentheses. For example within the <code>`hittastic</code> folder we could create:</p>
+<ul>
+<li>a <code>(main)</code> folder containing the first four routes above;</li>
+<li>a <code>(login)</code> folder containing the <code>login</code> route.</li>
+</ul>
+<p>We could then place separate <code>layout.js</code> files in <code>(main)</code> and <code>(login)</code>.</p>
+<p>When requesting the routes we do not need to include the route group in parentheses, so if the <code>search</code> route was within <code>(main)</code>, the route we would use to request the page would be:</p>
+<p><code>/hittastic/search</code></p>
+<p>and not</p>
+<p><code>/hittastic/(main)/search</code></p>
+<hr>
+<h2 id="exercise">Exercise 1 - general Next.js app development</h2>
+<ul>
+<li><p>Ensure you have completed the exercises from last week.</p></li>
+<li><p>Develop a layout for HitTastic! which will apply to all routes and subroutes of <code>/hittastic</code>. This should include these links within a sidebar:</p>
+<ul>
+<li><code>/hittastic</code> : main HitTastic! page, including some information about HitTastic!</li>
+<li><code>/hittastic/search</code> : search for a song.</li>
+<li><code>/hittastic/add</code> : add a song.</li></ul></li>
+</ul>
+<p>Use the <code>Link</code> component for the links, and use this CSS to setup a sidebar and main content area:</p>
+<pre><code class="css language-css">html, body {
+    width: 100%;
+    height: 100%;
+}
+
+#container {
+    min-height: 100%;
+    height: 100%;
+    border: 1px solid white;
+    font-size: 80%;
+}
+#nav {
+    float: left;
+    width: 20%;
+    background-color: black;
+    color: white;
+    height: 100%;
+}
+
+
+#main {
+    background-color: #00ffff;
+    color: black;
+    float: right;
+    width: 80%;
+    height: 100%;
+}
+
+a {
+    color: white;
+}
+
+#main a {
+    color: blue;
+}
+</code></pre>
+<p>Create the <code>search</code> and <code>add</code> routes.</p>
+<ul>
+<li>Implement streaming for <code>hittastic</code> and all sub-routes, using a <code>loading.js</code> file. To prove it works, try writing a component with a path <code>/hittastic/slow</code> which simulates a slow loading, as follows, and link it to your sidebar.</li>
+</ul>
+<pre><code class="jsx language-jsx">async function Page() {
+
+    // the pauser() function returns a promise which resolves with a timeout function which runs the "resolve" function after a given number of milliseconds. This will have an effect of pausing for that time.
+    function pauser(milliseconds) {
+
+        return new Promise( resolve =&gt; {
+            setTimeout(resolve, milliseconds);
+        } );
+    }
+
+    // await the resolution of this promise in 3000 milliseconds
+    await pauser(3000);
+    return &lt;p&gt;Content loaded!&lt;/p&gt;;
+
+}
+
+export default Page;
+</code></pre>
+<ul>
+<li><p>Complete your "add song" functionality from two weeks ago to use AJAX and <code>useActionState()</code>. Display the success, or otherwise, of the "add song" server action in the front-end UI via state. Include a check to make sure that the song details are not blank in the server action, and return an appropriate object to update the state with the error if so. Place your server action inside an <code>actions</code> folder within <code>app</code>.</p></li>
+<li><p>Rewrite your Search functionality as follows:</p>
+<ul>
+<li><p>it should use three components, one page component, for the search form and one for the search results, with the search form component editing the query string and reloading the page, as shown in the example above. The search and search results components should be within the <code>ui</code> folder within <code>app</code>.</p></li>
+<li><p>it should throw an error if the artist is blank (""). Write a custom <code>error.js</code> component to handle this error.</p></li>
+<li><p>it should then include a Buy button for each song. This Buy button should contact a <code>buySong</code> server action which reduces the quantity by one. The <code>buySong</code> action should check whether the song with that ID exists, communicating the error to the client if not. If successful it should do a SELECT statement to find the new quantity, and communicate that to the client. The client should then do a live-update of the new quantity.</p></li></ul></li>
+</ul>
+</div>
+<h2 id="exercises">Exercise 2 - Sessions</h2>
+<p>Develop a login system for HitTastic! You should use the <code>ht_users</code> table in <code>wadsongs.db</code> to validate users. Ensure that you use the <code>loggedin</code> column as described above when logging in and when checking whether a user has access.</p>
+<p>Prevent access to all pages within <code>/hittastic</code> and its subroutes (ensure all your previous work is inside the <code>/hittastic</code> folder) <em>except</em> <code>/hittastic/login</code> which should contain a login form. </p>
+<p>Use a server action to do your login, and use simple "if" statements to check whether a user is logged in. <strong>Advanced task:</strong> research how to implement middleware in Next.js.</p>
+<p>Create a "Logout" component containing a "Logout" button (and nothing else). This should connect to a server action which logs the user out.</p>
+<p>Use the sidebar-based layout from the first exercise for all pages except the login page. Also, ensure the logout button does not appear in the login page. Use route groups for this.</p>
+</main>
+</body>
+</html>
