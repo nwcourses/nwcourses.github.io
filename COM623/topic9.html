@@ -255,12 +255,12 @@ function likePoi(prevState, id) {
 <pre><code class="jsx language-jsx">export const cookieName = "hittasticSession", 
     password = "BinnieAndClyde123456789012345678"; // must be at least 32 characters
 </code></pre>
-<p>Here is an example of performing a simple (and extremely insecure) authentication and saving the username in the session:</p>
+<p>Here is an example (a server action) of performing a simple (and extremely insecure) authentication and saving the username in the session:</p>
 <pre><code class="jsx language-jsx">import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { cookieName, password } from 'app/sharedData';  // our module containing the cookie name and password, see above
 
-async function login(formData) {
+async function login(prevState, formData) {
     const session = await getIronSession(cookies(), { password, cookieName } );
 
     const username = formData.get("username");
