@@ -47,11 +47,8 @@ pointing to the start of the list and end of the list. We move the first "finger
         # part of the list, so swap them, unless i and j are equal or have crossed over, 
         # in which case we have finished this run
 
-        # If i and j haven't crossed over yet, swap the numbers
-        If i is less than j
-            Swap the numbers
-        else
-            return j  # i and j have crossed over. Use j as the partitioning point - could also use i
+        # If i and j haven't crossed over yet, swap the numbers, 
+        # otherwise return i or j to use for the next partitioning
 </code></pre>
 <h3>Progressive sorting of quicksort using recursion</h3>
 <p>We have covered the Hoare algorithm for sub-partitioning a partition, however it may not be clear how the quicksort algorithm progresses as a whole. In order to implement quicksort,
@@ -177,36 +174,27 @@ needs to be done.</li>
 </ul>
 <h3 id="complexityofmergesort">Complexity of merge sort</h3>
 <p>The complexity of merge sort is <code>O(n log n)</code>. See <a href="https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/analysis-of-merge-sort">here</a> for a detailed explanation.</p>
-<h3 id="exercisepaper">Exercise (paper)</h3>
-<p>I believe that you will get a better understanding of quicksort, which is a rather complex operation, by doing a paper exercise first. 
-Here is a list of numbers.</p>
-<pre><code>[22,56,1,59,38,7,15,17,33]
-</code></pre>
-<p>On paper, perform quicksort on these numbers. Ensure you show all steps.
-Use the middle element of the list as the initial pivot (i.e. 38).
-It might take you a while as there will be multiple recursive stages!</p>
-<h3 id="exercisecode">Exercise (code)</h3>
-<p>Have a go at implementing quicksort in code, using the
-pseudocode above to help you.</p>
+<h3 id="exercisecode">Exercises</h3>
+<p>Have a go at implementing quicksort in code.</p>
 <p>If you finish that, have a go at implementing merge sort. Hint: you should include three functions:
-	<ol>
-	<li>A function to split a list into two. You can use range indexing to easily do this:
-	<pre>
-	midpoint = math.floor(len(data)/2)
-	first_half = data[:midpoint] # up to but not including midpoint
-	second_half = data[midpoint:] # from midpoint onwards
-	return [first_half, second_half] # return a list of the two sublists
-	</pre>
-	</li>
-	<li>A function to combine two lists. See the explanation above for how to do this.</li>
-	<li>A recursive mergesort function to control the whole process. This should take the list to sort as a parameter and then:
-		<ul>
-		<li>Split the list using your splitting function;</li>
-		<li>Test if the length of each sublist is more than one. If so, recursively call your mergesort function and pass the sublist to it. This will have the effect of recursively splitting the list until it can be split no further.</li>
-		<li>Combine the return values of the two recursive mergesort calls, and return the combined list from the mergesort function.</li>
-		</ul>
-	</li>
-	</ol>
+    <ol>
+    <li>A function to split a list into two. You can use range indexing to easily do this:
+    <pre>
+    midpoint = math.floor(len(data)/2)
+    first_half = data[:midpoint] # up to but not including midpoint
+    second_half = data[midpoint:] # from midpoint onwards
+    return [first_half, second_half] # return a list of the two sublists
+    </pre>
+    </li>
+    <li>A function to combine two lists. See the explanation above for how to do this.</li>
+    <li>A recursive mergesort function to control the whole process. This should take the list to sort as a parameter and then:
+        <ul>
+        <li>Split the list using your splitting function;</li>
+        <li>Test if the length of each sublist is more than one. If so, recursively call your mergesort function and pass the sublist to it. This will have the effect of recursively splitting the list until it can be split no further.</li>
+        <li>Combine the return values of the two recursive mergesort calls, and return the combined list from the mergesort function.</li>
+        </ul>
+    </li>
+    </ol>
 </p>
 
 </body></html>
