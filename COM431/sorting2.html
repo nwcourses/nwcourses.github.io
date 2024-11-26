@@ -160,41 +160,36 @@ considered from the first list, so we add the remainder of the longer list
 elements (5) to the output list. (It's possible the two lists would be of
 unequal length, e.g. a 3-member list and a 2-member list; this last stage
 would also ensure that all un-added members from the longer list would be added)</p>
-<h3 id="recursiveapproachtomergesort">Recursive approach to merge sort</h3>
-<p>The entire merge sort algorithm is handled with a recursive function. This
+<h3>Implementing merge sort</h3>
+<p>You will need these functions:
+    <ul>
+    <li>A function to split the list into two.</li>
+    <li>A function to merge the sublists in sorted order, as described above.</li>
+    <li>A recursive "manager" function, describe below.</li>
+    </ul>
+</p>
+<h4 id="recursiveapproachtomergesort">Recursive approach to merge sort</h4>
+<p>The entire merge sort algorithm is handled with a recursive "manager" function. This
 recursive function takes a list to be split as a parameter, and:</p>
 <ul>
-<li>Returns immediately if the list is of length 1, as no further splitting
-needs to be done.</li>
-<li>Otherwise:<ul>
-<li>Splits the list in two equal or nearly-equal parts</li>
-<li>Calls the recursive function again with each subpart of the list</li>
-<li>Merges the return values of each recursive function call in sorted order (see above for details)</li>
-<li>Returns the merged list</li></ul></li>
+<li>Splits the list into two by calling the split function.</li>
+<li>Recursively call itself again on each half of the list, as long as the length of that half is greater than 1 (obviously a sublist of length 1 doesn't have to be split again!). Note that the "manager" function returns a sorted combined list as described below. To understand what happens here, imagine the current call of the manager function splits the list into subsections of one. These will be not be recursively split again but will be combined in sorted order. This call will then return a sorted list of two. This call will of course be recursively called by another copy of the manager function, so the sorted list of two will be combined with another sorted list (maybe of two again) to produce a sorted list of four. The previous copy of the manager function will then return a sorted list of four to the third copy down in the stack, which will combine two sorted lists of four into a sorted list of eight, and so on.</li>
+<li>Merge the two sublists in sorted order, as described above.</li>
+<li>Return the merged and sorted list as indicated in the recursion discussion above.</li>
 </ul>
 <h3 id="complexityofmergesort">Complexity of merge sort</h3>
 <p>The complexity of merge sort is <code>O(n log n)</code>. See <a href="https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/analysis-of-merge-sort">here</a> for a detailed explanation.</p>
 <h3 id="exercisecode">Exercises</h3>
 <p>Have a go at implementing quicksort in code.</p>
-<p>If you finish that, have a go at implementing merge sort. Hint: you should include three functions:
-    <ol>
-    <li>A function to split a list into two. You can use range indexing to easily do this:
-    <pre>
-    midpoint = math.floor(len(data)/2)
-    first_half = data[:midpoint] # up to but not including midpoint
-    second_half = data[midpoint:] # from midpoint onwards
-    return [first_half, second_half] # return a list of the two sublists
-    </pre>
-    </li>
-    <li>A function to combine two lists. See the explanation above for how to do this.</li>
-    <li>A recursive mergesort function to control the whole process. This should take the list to sort as a parameter and then:
-        <ul>
-        <li>Split the list using your splitting function;</li>
-        <li>Test if the length of each sublist is more than one. If so, recursively call your mergesort function and pass the sublist to it. This will have the effect of recursively splitting the list until it can be split no further.</li>
-        <li>Combine the return values of the two recursive mergesort calls, and return the combined list from the mergesort function.</li>
-        </ul>
-    </li>
-    </ol>
+<p>If you finish that, have a go at implementing merge sort according to the description above. Hint: to split a list in two, use code such as the following:
 </p>
+<pre>
+import math
+
+def split_list(data):
+    length = len(data)
+    halfway = math.ceil(length/2) # ceil rounds up to nearest integer
+    return ( data[:halfway], data[halfway:] )
+</pre> 
 
 </body></html>
