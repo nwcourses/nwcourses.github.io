@@ -173,8 +173,6 @@ transaction {
 </pre>
 <p>Note that <code>insert()</code> returns the completed <code>InsertStatement</code> object, which will now have the value of the <code>id</code> column filled in. So to access the newly allocated ID, we index this <code>InsertStatement</code> using the <code>Column</code> object <code>Wadsongs.id</code>.</p>
 
-<p>An alternative is <code>insertAndGetId()</code> which returns the ID directly, rather than an <code>InsertStatement</code> containing the ID.</p>
-
 <h3>UPDATE statements</h3>
 <p>The pattern for <code>UPDATE</code> statements combines aspects of <code>INSERT</code> and <code>SELECT</code>. You call the <code>update()</code> method of your <code>Table</code> and supply a lambda which performs the update. Inside the lambda, <code>it</code> will refer to an <code>UpdateStatement</code> in which you can set the columns to values in the same way as for <code>INSERT</code>. However, <code>update()</code> needs a <em>condition</em> which specifies the rows which will be updated. For example:</p>
 <pre>
@@ -238,11 +236,11 @@ class ExposedWadsongsDao : WadsongsDao {
     fun insertSong(song: Song) : Int {
         var songId = 0
         transaction {
-            songId = Wadsongs.insertAndGetId {
+            songId = Wadsongs.insert {
                 it[title] = song.title 
                 it[artist] = song.artist 
                 it[year] = song.year 
-            }
+            }[Song.id]
         }
         song.id = songId // set the provided Song's ID to the ID returned from the INSERT
         return songId
