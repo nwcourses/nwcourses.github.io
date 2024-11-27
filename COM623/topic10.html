@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="en"><head>
+<title>Topic 10: Introduction to Firebase</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' >
+<link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
+</head><body>
+
+<header>
+<h1>Topic 10: Introduction to Firebase</h1>
+</header>
+
+<main>
+<div class="content-public">
+<p><em>(Credits: notes partly taken from the originals from the previous lecturer Joe Appleton, with amendments and additional information added)</em></p>
+<p>This week we will introduce the world of serverless systems by taking a look at <em>Firebase</em>.</p>
+<h2 id="essentialreading">Essential Reading</h2>
+<ul>
+<li><a href="https://firebase.google.com/docs/auth/web/start">Firebase Authentication</a></li>
+<li><a href="https://firebase.google.com/docs/reference/js">Firebase JavaScript API reference</a></li>
+</ul>
+<h2 id="firebase">Firebase</h2>
+<p><em>This section is based on Joe Appleton's notes but amendments have been made.</em></p>
+<p><a href="https://firebase.google.com/docs">Firebase</a> is a cloud infrastructure service that was acquired by Google in 2015 - it effectively is a sub-product suite of the <a href="https://cloud.google.com/">cloud platform</a>. At the time of writing, Firebase offers a range of web-enabled services, the most popular being:</p>
+<ul>
+<li>Authentication</li>
+<li>The Cloud Firestore Database</li>
+<li>Cloud Functions</li>
+<li>Hosting</li>
+</ul>
+<p>Firebase, and other infrastructure as a service platform, delegate the need to manage infrastructure away from the developer. This is particularly appealing if you are working in a small team, or, as a solo developer. What's more, for our use, it has a very generous free tier.</p>
+<h2 id="gettingstarted">Getting Started</h2>
+<h2 id="task1settingupfirebase">Task 1 - Setting Up Firebase</h2>
+<p>The purpose of this task is simply to set up a firebase account, create a project and register your first application - it is much easier than it sounds.</p>
+<p>First of all go to the <a href="https://firebase.google.com/">Firebase homepage</a>. Make sure you're logged in with your Google (GMail) account (create one if you do not have one already).</p>
+<p><img src="../images/firebase1.png" alt="Firebase Main Page"></p>
+<p>Then, go to the Firebase Console. This is the main page for managing your Firebase applications:</p>
+<p><img src="../images/firebase_console.png" alt="Firebase Console"></p>
+<p>Next, create a project and name it whatever you like when prompted:</p>
+<p><img src="../images/firebase_projectname.png" alt="Specify Firebase project name"></p>
+<p>Within your project, register a new web application:</p>
+<p><img src="../images/firebase_project.png" alt="Create a Firebase project and register a web application"></p>
+<p>This will then give you a screen such as that shown below, which will detail how to start your project. In particular, it gives you configuration code, including such things as your API key (keep private!) and project ID. You should copy and paste the sample code into your own code.</p>
+<p><img src="../images/firebase_create_web_app.png" alt="Create a Firebase web app"></p>
+<p>It will look something like this:</p>
+<pre><code class="JavaScript language-JavaScript">const firebaseConfig = {
+    apiKey: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    authDomain: "web-dev-practical.firebaseapp.com",
+    databaseURL: "https://web-dev-practical.firebaseio.com",
+    projectId: "web-dev-practical",
+    storageBucket: "web-dev-practical.appspot.com",
+    messagingSenderId: "1030945380946",
+    appId: "1:1030945380946:web:ae1bca104338f617df9d8b",
+    measurementId: "G-321SW2SPSG"
+};
+</code></pre>
+<p>We then need to create a Firebase app (of type <code>FirebaseApp</code>). We use the <code>initializeApp()</code> function to do this, which can be imported with:</p>
+<pre>import { initializeApp } from '@firebase/app';</pre>
+<p>then called with the configuration object above:</p>
+<pre><code class="javascript language-javascript">const app = initializeApp(firebaseConfig);
+</code></pre>
+<h3>Adding Firebase features</h3>
+<p>We are going to use Firebase Authentication and the Cloud Firestore within our app. If you select your app from the console you will see a screen like this:</p>
+<p><img src="../images/firebase_addfeatures.png" alt="Adding Firebase features"></p>
+<p>Ensure that both Authentication and Cloud Firestore are selected, as shown above.</p>
+<h2 id="firebaseauth">Firebase Authentication</h2>
+<p>The first Firebase product we will use is <em>Firebase Authentication</em>. Firebase Authentication gives you a standard secure and flexible cloud authentication service. You can choose to either use standard email/password authentication or third-party providers such as Google, Facebook, GitHub, etc.</p>
+<p>You can select an authentication provider as follows:</p>
+<p><img src='../images/firebase_authentication_methods.png' alt="Choosing a Firebase authentication method"></p>
+<p>Setting up Firebase in our project is fairly straightforward. First, we need to import our dependencies, this is included in the sample code when you create a Web project.</p>
+<pre><code class="javascript language-javascript">...
+import { initializeApp } from "firebase/app";
+...
+</code></pre>
+<p>Next however we need to import what we need from Firebase Auth. Add this import statement:</p>
+<pre><code class="javascript language-javascript">import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    updateProfile 
+} from "firebase/auth";
+</code></pre>
+<p>This imports various functions we will use.</p>
+<p>To start using Firebase Authentication we use the <code>getAuth()</code> function. This gives us an object of type <code>Auth</code> which is our general authentication manager. </p>
+<pre><code class="javascript language-javascript">const auth = getAuth();
+</code></pre>
+<h3 id="signingupauser">Signing up a user</h3>
+<p>We can then signup a user with <code>createUserWithEmailAndPassword()</code>:</p>
+<pre><code class="javascript language-javascript">try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // Signed up 
+    const user = userCredential.user;
+    alert(`ID of new user: ${user.uid}`);
+} catch(error)  {
+    alert(`ERROR: Code: ${error.code}, full message: ${error.message}`);
+}
+</code></pre>
+<p>This function takes our original <code>Auth</code> object, an email and a password as parameters and returns a promise which will resolve once the user has been added to Firebase. It resolves with an object of type <code>UserCredential</code> representing the user credentials. This contains an object of type <code>User</code> (the <code>user</code> property) which itself contains a <code>uid</code> property containing a unique ID for this user.</p>
+<p>If there are any errors with the signup process (these can include invalid email address or insufficiently complex password) the promise will reject and the catch block will run.</p>
+<h3 id="loggingin">Logging in</h3>
+<p>Logging in has very similar logic to signing up:</p>
+<pre><code class="javascript language-javascript">try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    // We can get the user object again if we need it
+    const user = userCredential.user;
+    alert(`Logged in successfully! Email=${user.email}`);
+} catch(error)  {
+    alert(`ERROR: Code: ${error.code}, full message: ${error.message}`);
+}
+</code></pre>
+<h3 id="loggingout">Logging out</h3>
+<p>Logging out is very easy, just use the <code>signOut()</code> method of the <code>Auth</code> object:</p>
+<pre><code class="javascript language-javascript">try {
+    await auth.signOut();
+} catch(error) {
+    alert(`${error.code} ${error.message}`);
+}
+</code></pre>
+<h3 id="addingadisplayname">Adding a display name</h3>
+<p>To add a display name (real name, e.g. Alan Smith) you can update the user profile. This can be done immediately after the code to signup a user:</p>
+<pre><code class="javascript language-javascript">const profile = await updateProfile(user, {
+    displayName: name
+});
+</code></pre>
+<h3 id="detectingchangesinauthenticationstate">Detecting changes in authentication state</h3>
+<p>Firebase Authentication allows us to easily detect changes in authentication state (i.e. logged out to logged in, and vice-versa). To do this, we specify a callback function which runs each time authentication state changes with <code>onAuthStateChanged()</code>:</p>
+<pre><code class="javascript language-javascript">onAuthStateChanged(auth, user =&gt; {
+    if(user) {
+        document.getElementById('btnLogout').style.display = 'inline';
+        document.getElementById('btnLogin').style.display = 'none';
+    } else {
+        document.getElementById('btnLogout').style.display = 'none';
+        document.getElementById('btnLogin').style.display = 'inline';
+    }
+});
+</code></pre>
+<p>The callback receives the original <code>Auth</code> object and a <code>user</code> object representing the currently logged-in user. This will be null if the user is logged out. In this example, we include logic to show or hide the login and logout buttons appropriately. If the user has logged in we show the logout button and hide the loginbn button, while if they have logged out we do the reverse.</p>
+<h3 id="detectingifauserisloggedinatanytime">Detecting if a user is logged in at any time</h3>
+<p>We may wish to detect, at any time (not just when the user logs in or logs out), whether the user is currently logged in. We can use the <code>currentUser</code> property of the <code>Auth</code> object (type <code>User</code>) to do this. It will be null if the user is not logged in. For example:</p>
+<pre><code class="javascript language-javascript">document.getElementById('btnAccessProtectedResource').addEventListener("click", e =&gt; {
+    if(auth.currentUser) {
+        alert(`${auth.currentUser.displayName || auth.currentUser.email}, here is your confidential information ....`);
+    } else {
+        alert("Cannot access - please login.");
+    }
+});
+</code></pre>
+<p>This example also shows how you can get information about the logged-in user: the <code>currentUser</code> object includes <code>email</code> and <code>displayName</code> properties.</p>
+<h2 id="cloudfirestore">Cloud Firestore</h2>
+<p>We will also start looking at <em>Cloud Firestore</em> - Firebase's cloud database solution. This week we will look at basic search and insert and next week we will look at more advanced queries such as update and delete.</p>
+<p>Cloud Firestore is an example of a <em>NoSQL</em> database. NoSQL databases are databases which use methods other than SQL to access. A common type of NoSQL database is a <em>document database</em>, and Firestore is one such example. Document databases consist of:</p>
+<ul>
+<li><p><code>documents</code> representing specific records. These are stored in a JavaScript object-like structure with properties (equivalent to columns in an SQL database). Each document has a unique ID which can be used to access it, the equivalent of a primary key in a relational database. Documents can contain nested objects (maps; <a href="https://firebase.google.com/docs/firestore/data-model">see the documentation</a>).</p></li>
+<li><p><code>collections</code> containing multiple documents. These are the equivalent of tables in SQL databases.</p></li>
+</ul>
+<p>If you have done MongoDB before, you might recognise this arrangement. See <a href="https://firebase.google.com/docs/firestore/data-model">the data model documentation</a> for more detail.</p>
+<h3 id="essentialreading-1">Essential reading</h3>
+<p><a href="https://firebase.google.com/docs/firestore/quickstart#web-modular-api">Cloud Firestore on Firebase docs</a></p>
+<h3 id="accessingthecloudfirestorefromthefirebaseconsole">Accessing the Cloud Firestore from the Firebase Console</h3>
+<p>Once you've added the Cloud Firestore to the Firebase Console you can access the data within it by clicking <strong>Firestore Database</strong> from the sidebar. The diagram below shows this. It shows :</p>
+<ul>
+<li>a collection called <code>songs</code>, containing…</li>
+<li>a series of documents, each indexed by a unique ID. On the right hand side the document data of one example (representing Whatever by Oasis) is shown.</li>
+</ul>
+<p>You can manage data by adding and removing it via this web interface, but more normally you would do it from a client app.</p>
+<p><img src="../images/firebase_firestore.png" alt="Cloud Firestore"></p>
+<p>You also need to set the <em>rules</em> for accessing the Firestore database. One of the powerful features of Firebase is that you can link the Firestore to Firebase Auth, and automatically restrict database access to authenticated users. You can control this in the <em>Rules</em> tab of the Cloud Firestore:</p>
+<p><img src="../images/firebase_firestore_rules.png" alt="Cloud Firestore Rules"></p>
+<p>Note the rules include <code>allow read</code> and <code>allow write</code> specifiers, to control access to read and write operations respectively. By default both are set to <code>false</code> for security reasons. However the settings above are good for a basic web app: reading data does not require authentication, while writing data requires the user to be authenticated (note that <code>request.auth</code> is the <code>Auth</code> object from Firebase Auth).</p>
+<p>We can setup more detailed authentication control. See <a href="https://firebase.google.com/docs/rules/manage-deploy#use_the_firebase_console">the Firebase documentation</a> for more detail on rules.</p>
+<h3 id="imports">Imports</h3>
+<p>The imports below will cover everything we will do. Note how we have to import from <code>firebase/firestore</code> rather than <code>firebase/auth</code>.</p>
+<pre><code class="javascript language-javascript">import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    query, 
+    where, 
+    doc,     
+    writeBatch, 
+    getDoc 
+} from "firebase/firestore";
+</code></pre>
+<h3 id="createyourfirestoreobject">Create your Firestore object</h3>
+<pre><code class="javascript language-javascript">const db = getFirestore(app);
+</code></pre>
+<h3 id="search">Search</h3>
+<p>To search for data, you use the <code>getDocs()</code> function. This returns a <code>QuerySnapshot</code>: an object containing a series of <code>DocumentSnapshot</code>s returned by the query.</p>
+<pre><code class="javascript language-javascript">try {
+    const querySnapshot = await getDocs(collection(db, "songs"));
+    let html = "";
+    if(querySnapshot.empty) {
+        alert("No results!");
+    } else {
+        const html =  querySnapshot.docs.map ( doc =&gt; {
+                const data = doc.data();
+                return `${doc.id} : ${data.title} ${data.artist}`;
+            } ).join("&lt;br /&gt;");
+        document.getElementById("...").innerHTML = html;
+    }
+} catch(e) {
+    alert(e);
+}
+</code></pre>
+<p>Note how we can loop through the documents in the <code>QuerySnapshot</code> using <code>forEach</code>. Each time the <code>forEach</code> arrow function is called, the current document (<code>doc</code>) will be supplied as a parameter. We can then obtain the data associated with the current document using <code>doc.data()</code>.</p>
+<p>Note how the <code>id</code> belongs to the <em>document</em>, not the data.</p>
+<p>This example returns <em>all</em> data. In many cases however, we want to obtain only certain data, i.e. do a query. For example:</p>
+<pre><code class="javascript language-javascript">try {
+    const poiType = document.getElementById("poiType").value;
+        // to get all:
+    const q = query(collection(db,"pointsofinterest"), where("type", "==", poiType));
+    const querySnapshot = await getDocs(q);
+
+    // We can then process the querySnapshot as before...
+} catch(e) {
+    alert(e);
+}
+</code></pre>
+<p>Note here how we build a <em>query</em>, using the collection, a <code>where</code> condition (<code>where</code> is actually a function, which takes a field, an operator and a value the field should be equal to for the query to return results.</p>
+<p>We then pass the query into <code>getDocs()</code> and continue as before.</p>
+<h3 id="insertingdata">Inserting data</h3>
+<p>To insert data we use the <code>addDoc()</code> function, and specify, as arguments, the collection we want to add the data to, and a JavaScript object containing the data. This will create a document containing this data and return the unique ID (key) allocated to this document.</p>
+<pre><code class="javascript language-javascript">try {
+    const docRef = await addDoc(collection(db,"pointsofinterest"), { 
+        name: nameFromForm, 
+        type, typeFromForm,
+        location: locationFromForm 
+} );
+    alert(`Record added successfully. ID=${docRef.id}`);
+} catch(e) {
+    alert(e);
+}
+</code></pre>
+<p>The return value of <code>addDoc()</code> is a <code>DocumentReference</code> object: a reference to a specific document. </p>
+<h3 id="updateanddeleteoperationsinfirestore">Update and delete operations in Firestore</h3>
+<p>Above we looked at how to create and retrieve data in Firestore. This week we will look at <em>update</em> and <em>delete</em> operations, which are a little more complex in their implementation. There are two general approaches to performing updates and deletes:</p>
+<ul>
+<li><p><em>Transactions</em>. These are used in cases where we query data (to obtain the latest data) and update the current data, where the new value for the data is dependent on the old value. A good example would be reducing the quantity in stock of a song, or "liking" a point of interest. In the former, we take the current quantity and reduce it by 1, while in the latter, we take the current number of likes and increase it by 1.</p></li>
+<li><p><em>Batched writes</em>. These are used when we need to perform updates which are not dependent on existing data. A good example would be updating the details of a song, such as changing its chart position, or price.</p></li>
+</ul>
+<h4 id="transactions">Transactions</h4>
+<p>Here is an example of the use of a Firestore transaction.</p>
+<pre><code class="javascript language-javascript">async function likePoi(id) {
+    const docRef = doc(db, "pointsofinterest", id);
+
+    try {
+        await runTransaction(db, async(transaction) =&gt; {
+            const doc = await transaction.get(docRef);
+            if(!doc.exists()) {
+                throw(`POI with ID ${id} does not exist!`);
+            }
+
+            const newLikes = (doc.data().likes || 0) + 1;
+
+            transaction.update(docRef, { likes: newLikes } );
+            document.getElementById(`likes${id}`).innerHTML = newLikes;
+        });
+    } catch(e) {
+        alert(e);
+    }
+}
+</code></pre>
+<p>Note that:</p>
+<ul>
+<li>We first obtain a <em>document reference</em> (object of type <code>DocumentReference</code>, containing a reference to a given document in the collection):</li>
+</ul>
+<pre><code class="javascript language-javascript">const docRef = doc(db, "pointsofinterest", id);
+</code></pre>
+<ul>
+<li>We then start a transaction with <code>runTransaction</code>. We supply our database object and a callback which runs when the transaction has been opened. In this transaction we obtain the document that the <code>docRef</code> refers to, i.e.</li>
+</ul>
+<pre><code class="javascript language-javascript">const doc = await transaction.get(docRef);
+</code></pre>
+<p>and check it actually exists.</p>
+<ul>
+<li><p>We then calculate the new likes; we can get the data associated with the document using the <code>data()</code> method.</p></li>
+<li><p>We then call the transaction's <code>update()</code> method to update the likes property to the new likes. Note that as well as <code>update()</code>, which updates selected properties, we can use <code>set()</code> to completely replace a document.</p></li>
+<li><p>Finally we update an element on the UI with the new likes, so we get a live UI update. You could of course also use React here; below we discuss using React with Firebase.</p></li>
+</ul>
+<h4 id="batchedwrites">Batched writes</h4>
+<p>Batched writes are an alternative to transactions in cases where the value of the updated data does not depend on the existing value. Here is an example:</p>
+<pre><code class="javascript language-javascript">async function updateStudent(id, newName, newCourse, newMark) {
+
+    try {
+        const docRef = doc(db, "students", id);
+        const docum = await getDoc(docRef);
+        if(docum.data()) {
+            const batch = writeBatch(db);
+            batch.update(docRef, {
+                name: newName,
+                course: newCourse,
+                mark: newMark
+            } );
+            await batch.commit();
+            alert(`Record updated successfully.`);
+        } else {
+            alert('That document does not exist.');
+        }
+    } catch(e) {
+        alert(e);
+    }
+}
+</code></pre>
+<p>We again obtain a document reference and then a document. We check that the document has data in it (which it will not if the ID does not exist) by checking that the <code>data()</code>method of our document returns a non-null value.</p>
+<p>Then we start a <em>batched update</em> with the <code>writeBatch()</code> function. You can put smultiple updates or deletes inside one single batched update, and then commit it at the end with <code>commit()</code>. Here, we are again performing an <code>update()</code> to update selected properties of the student document. We could equally well use <code>set()</code> to completely replace the document, or <code>delete()</code> to delete it.</p>
+<h2 id="exercise">Exercise 10.1</h2>
+<p>Clone this repository: </p>
+<pre><code>https://github.com/nwcourses/FirebaseStarter
+</code></pre>
+<p>This is a starter for a Vite-based Firebase project. It contains a <code>package.json</code> setup with Vite and Firebase as dependencies. So to install:</p>
+<pre><code>npm install
+</code></pre>
+<p>and to start the server:</p>
+<pre><code>npm run dev 
+</code></pre>
+<p>There is an <code>index.html</code> with various forms set up.</p>
+<h3 id="firebaseauth-1">Firebase Auth</h3>
+<ol>
+<li><p>Ensure you have created a Firebase project, enabled Firebase Authentication and Cloud Firestore, and added a web application to your project.</p></li>
+<li><p>Edit the <code>main.mjs</code> inside the <code>src</code> folder of the project and add the Firebase config generated from the Firebase console for your project.</p></li>
+<li><p>Complete the code to sign up a user. Ensure that the success, or otherwise, of the operation is displayed inside the <code>signupStatus</code> div. Remember you'll need to add an event listener to the appropriate button in order to run code when the button is clicked, see below.</p></li>
+<li><p>Test the signup form with an invalid email address, a password of less than 7 characters, and finally with valid details. Go onto the Firebase console and verify that, in the latter case, a user was signed up.</p></li>
+<li><p>Complete the code to login a user. Ensure that the success, or otherwise, of the operation is displayed inside the <code>loginStatus</code> div. Try it out, both with a valid user and an invalid user. If successful, display the user's email via a <code>Logged in as...</code> message.</p></li>
+<li><p>Modify your signup code to set the user's display name, using the example shown in the notes.</p></li>
+<li><p>Add code to handle changes in authentication state, as shown above. This should behave as follows:</p>
+<ul>
+<li>When a user has logged in, hide the login form and show the logout button and <code>firestore</code> div (this contains forms to interact with the Firestore database).</li>
+<li>When a user has logged out, show the login form and hide the logout button and <code>firestore</code> div.</li></ul></li>
+</ol>
+<h3 id="firestore">Firestore</h3>
+<p>If you finish the above exercise on Firebase Auth, start this Firestore exercise. If not, you can continue next week.</p>
+<ol>
+<li><p>Create a new collection called <code>songs</code> on Firestore via the Firebase Console.</p></li>
+<li><p>Add code to read data from the "add song" form. It should create a new document storing that song and add it to the <code>songs</code> collection.</p></li>
+<li><p>Add code to read the artist from the "search" form. It should query the Firestore database to find all songs by that artist, and display the results in the <code>searchresults</code> div.</p></li>
+<li>Add code to handle the "update" form. It should read in the ID, song, artist and year from the form fields. Then, depending on the value of the "action" select box, it should either update the document with that ID so that it contains the new values, or delete the document with that ID.</li>
+</ol>
+<h3 id="reminderhandlingbuttonclickevents">Reminder - handling button click events</h3>
+<pre><code class="javascript language-javascript">document.getElementById("....").addEventListener("click", e =&gt; {
+    // ...
+});
+</code></pre>
+</div>
+</main>
+</body>
+</html>
