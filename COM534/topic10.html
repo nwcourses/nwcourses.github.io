@@ -216,7 +216,7 @@ transaction {
 <p>We will implement a DAO as an <em>interface</em> which specifies a number of methods which will interact with a data source, as discussed above.Below is a <code>Song</code> data class and a <code>WadsongsDao</code> interface specifying some typical CRUD operations. Note how the interface has <em>no dependency on Exposed.</em></p>
 <pre>
 // Data entity
-data class Song(val id: Int, val title: String, val artist: String, val year: Int)
+data class Song(var id: Int, val title: String, val artist: String, val year: Int)
 
 // DAO interface
 interface WadsongsDao {
@@ -233,20 +233,20 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class ExposedWadsongsDao : WadsongsDao {
-    fun insertSong(song: Song) : Int {
+    override fun insertSong(song: Song) : Int {
         var songId = 0
         transaction {
             songId = Wadsongs.insert {
                 it[title] = song.title 
                 it[artist] = song.artist 
                 it[year] = song.year 
-            }[Song.id]
+            }[Wadsongs.id]
         }
         song.id = songId // set the provided Song's ID to the ID returned from the INSERT
         return songId
     }
 
-    fun findAllSongs() : List&lt;Song&gt; {
+    override fun findAllSongs() : List&lt;Song&gt; {
 
         var songList = listOf&lt;Song&gt;()
         transaction {
@@ -261,7 +261,7 @@ class ExposedWadsongsDao : WadsongsDao {
         return songList
     }
 
-    fun findSongById(id: Int) : Song? {
+    override fun findSongById(id: Int) : Song? {
         var song: Song? = null
         transaction {
             val resultRow   = Wadsongs.selectAll()
@@ -279,7 +279,7 @@ class ExposedWadsongsDao : WadsongsDao {
         return song
     }
 
-    fun updateSong(modifiedSong: Song): Int {
+    override fun updateSong(modifiedSong: Song): Int {
         var nUpdated = 0
         transaction {
             nUpdated = Wadsongs.update({ Wadsongs.id eq modifiedSong.id }) {
@@ -292,7 +292,7 @@ class ExposedWadsongsDao : WadsongsDao {
         return nUpdated 
     }
 
-    fun deleteSong(id: Int) : Int{
+    override fun deleteSong(id: Int) : Int{
         var nDeleted = 0
         transaction {
             nDeleted = Wadsongs.deleteWhere { Wadsongs.id eq id }
