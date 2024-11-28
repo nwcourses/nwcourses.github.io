@@ -192,7 +192,8 @@ transaction {
     nDeletedRows = Wadsongs.deleteWhere { Wadsongs.id eq 123 }
 }</pre>
 <p>In this example we delete the song where the ID is equal to 123. Similar to <code>update()</code>, <code>deleteWhere()</code> returns the number of rows that were deleted.</p>
-
+<p><strong>IMPORTANT:</strong> Note that the <code>eq</code> function here is <em>different</em> to the one used for SELECT and UPDATE operations and must be imported:</p>
+<pre>import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq</pre>
 <div>
 <h2>Data Access Objects and Data Entities</h2>
 <ul>
