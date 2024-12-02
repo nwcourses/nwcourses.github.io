@@ -226,7 +226,7 @@ import { initializeApp } from "firebase/app";
 <pre><code class="javascript language-javascript">try {
     const docRef = await addDoc(collection(db,"pointsofinterest"), { 
         name: nameFromForm, 
-        type, typeFromForm,
+        type: typeFromForm,
         location: locationFromForm 
 } );
     alert(`Record added successfully. ID=${docRef.id}`);
@@ -321,9 +321,9 @@ import { initializeApp } from "firebase/app";
 <ol>
 <li><p>Ensure you have created a Firebase project, enabled Firebase Authentication and Cloud Firestore, and added a web application to your project.</p></li>
 <li><p>Edit the <code>main.mjs</code> inside the <code>src</code> folder of the project and add the Firebase config generated from the Firebase console for your project.</p></li>
-<li><p>Complete the code to sign up a user. Ensure that the success, or otherwise, of the operation is displayed inside the <code>signupStatus</code> div. Remember you'll need to add an event listener to the appropriate button in order to run code when the button is clicked, see below.</p></li>
+<li><p>Complete the code to sign up a user. Ensure that the success, or otherwise, of the operation is displayed inside the <code>signupResults</code> div. Remember you'll need to add an event listener to the appropriate button in order to run code when the button is clicked, see below.</p></li>
 <li><p>Test the signup form with an invalid email address, a password of less than 7 characters, and finally with valid details. Go onto the Firebase console and verify that, in the latter case, a user was signed up.</p></li>
-<li><p>Complete the code to login a user. Ensure that the success, or otherwise, of the operation is displayed inside the <code>loginStatus</code> div. Try it out, both with a valid user and an invalid user. If successful, display the user's email via a <code>Logged in as...</code> message.</p></li>
+<li><p>Complete the code to login a user. Ensure that the success, or otherwise, of the operation is displayed inside the <code>loginResults</code> div. Try it out, both with a valid user and an invalid user. If successful, display the user's email via a <code>Logged in as...</code> message.</p></li>
 <li><p>Modify your signup code to set the user's display name, using the example shown in the notes.</p></li>
 <li><p>Add code to handle changes in authentication state, as shown above. This should behave as follows:</p>
 <ul>
