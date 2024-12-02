@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html><head>
+<title>Topic 11: Design Patterns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel='stylesheet' type='text/css' href='https://code.cdn.mozilla.net/fonts/fira.css' />
+<link rel="stylesheet" type="text/css" href="../css/nwnotes.css">
+</head><body>
+<header>
+<h1>Topic 11</h1>
+<h1>Introduction to Coupling, Cohesion and Design Patterns</h1>
+</header>
+
+<main>
+
+<div>
+<h2>Credits for this week's notes</h2>
+<ul>
+<li><em>Some of the early part of today's notes are based on the originals by
+a former member of staff John Flackett, but reworded</em></li>
+</ul>
+</div>
+
+
+<div>
+<h2>What is a design pattern?</h2>
+<p>A software pattern is
+a documented solution to a commonly-encountered software design problem.
+It helps allocates responsibilities for different tasks amongst your classes
+and can help produce reusable, easy to understand, maintainable code.</p>
+
+<p>Following patterns is a way to ensure that your code follows
+general <em>good design principles</em>:</p>
+<ul>
+<li><em>Reusability</em>: ability to reuse classes in other applications</li>
+<li><em>Maintainability</em>: patterns make code cleaner, more understandable, and therefore easier to maintain</li>
+<li><em>Overall system robustness</em> - patterns help avoid situations where changes in one class result in changes in the whole system which can introduce bugs.</li>
+</ul>
+
+<h2>Low coupling and high cohesion</h2>
+<p>Before looking at a few specific design patterns, we will look at the general principles of <em>low coupling</em> and <em>high cohesion</em>, which many patterns follow.</p>
+<h3>Low coupling</h3>
+<p>Low coupling means to minimise the dependency a class has on other classes,
+which can make the class more <em>reusable</em> and also
+makes the code easier to read, and, therefore, maintain.</p>
+
+<h4>What is wrong with dependency on other classes?</h4>
+<ul>
+<li>Harder to reuse
+    <ul>
+    <li>If class A depends on class B, we cannot reuse it in a scenario where
+    we don't need class B</li>
+    </ul>
+</li>
+<li>Harder to understand in isolation
+    <ul>
+    <li>It is harder to figure out the inner workings of a class which depends 
+    on other classes, compared to a class which does not</li>
+    </ul>
+</li>
+<li>Changes in other classes force changes in the class
+    <ul>
+    <li>If class A depends on class B, and the public methods in class B
+    change, we have to change class A as a result, which adds to maintenance effort.</li>
+    </ul>
+</li>
+</ul>
+
+<h4>Minimise, do not necessarily eliminate, dependencies</h4>
+<p>Obviously sometimes a class has to depend on another class.
+For example, a <code>Cinema</code> class might contain a list of <code>Screen</code> objects</li>, which makes sense, as cinemas always contain at least one screen.</p>
+<p>However, if a <code>Screen</code> depended on a <code>Cinema</code> class, that would minimise the reusability of the <code>Screen</code>.
+For example, what if you wanted to show a film outside the context of a cinema, e.g. a private viewing in a social club, etc?</p>
+<p><em>Think of real-world analogies, would the real world object the class
+is modelling exhibit such a dependency?</em></p>
+
+<h3>Coupling example - College, Course and Student</h3>    
+<h4>High coupling design (bad)</h4>    
+<pre> class Student(val college: College) {
+    val courses = mutableListOf&lt;Course&gt;()
+    
+    fun enrolOn(courseId: String) {
+        val course = college.findCourseById(courseId)
+        courses.add(course)
+    }
+}
+</pre>    
+<ul>
+<li>In this example, the <code>Student</code> depends on the <code>College</code> class</li>
+<li>The Student's <code>enrolOn()</code> method takes a course ID and uses the <code>College</code> to find the <code>Course</code> with that ID, and then the <code>Student</code> adds that <code>Course</code> to its list of courses</li>
+<li>The <code>Student</code> becomes dependent on <code>College</code></li>
+<li>This is bad, because it is an <em>unnecessary</em> dependency, as we will see with the 
+low-coupling design, and means that the Student class could not be used without a <code>College</code></li>
+<li>Examples where we might want to use students and courses without a college include:
+    <ul>
+    <li>a company which organises courses for its employees (who would be the students), such as IT or first-aid courses</li>
+    <li>individuals or organisations who set up their own private courses, independent of a college</li>
+    </ul>
+</li>
+</ul>
+</div>
+
+<h4>Low coupling alternative</h4>
+<p><code>Student</code> no longer depends on <code>College</code> in this example</p>
+<pre> 
+
+class Student {
+    val courses = mutableListOf&lt;Course&gt;()
+    
+    fun enrolOn(course: Course) {
+        courses.add(course);
+    }
+}</pre>
+<ul>
+<li>The <code>Student</code> no longer needs the <code>College</code></li>
+<li>Rather than passing in a course ID (which needs a <code>College</code> to look up the <code>Course</code> with that ID) we pass in the <code>Course</code> object directly to <code>enrolOn()</code></li>
+</ul>
+</div>
+
+<h4>Coupling and user interfaces - summary</h4>
+<ul>
+<li>You should design your data classes (e.g. <code>University</code> or <code>Student</code> in the week 3 exercise)  so that they are <em>independent</em> of your GUI</li>
+<li>Allows the data classes to be reused with a different UI (console, web, desktop GUI, Android app)</li>
+<li>Avoid all references to the GUI in data classes</li>
+<li>Similarly, avoid console output (<code>println()</code> or <code>readln()</code>) as this couples your data classes to the console
+    <ul>
+    <li>Use return values to indicate success or otherwise, e.g. boolean return values, or <code>null</code> to indicate an error if a method returns an object, instead</li> 
+    </ul>
+</li>
+<li>By keeping the data classes free of UI code, we are following the software engineering principle of <strong>separation of concerns</strong>, which states that you should separate out different functions of the system (UI, data) into different classes</li>
+</ul>
+</div>
+
+
+<h3>High Cohesion</h3>
+<ul>
+<li>A <em>highly cohesive</em> class is one where the responsibilities are
+all closely related, and focused on one thing</li>
+<li>It has a small number of methods, with highly related functionality</li>
+<li>It does the job it's supposed to do, and nothing else!</li>
+</ul>
+
+<h4>Example of a high cohesion design</h4>
+<ul>
+<li>Imagine a student records system application</li>
+<li>A <em>low cohesion</em> system might have one big <code>StudentRecordsSystem</code> class which does <em>all</em> the work</li>
+<li>A <em>high cohesion</em> system, by contrast, would have a series of
+smaller classes, all focused on one particular job, e.g.:
+    <ul>
+    <li> <code>Student</code> to represent a student</li>
+    <li> <code>Course</code> to represent a course</li>
+    <li> <code>University</code> to manage the system as a whole</li>
+    </ul>
+</li>
+<li>This means that the individual classes could be re-used in other applications, and by separating out code into individual classes, makes the application easier to read, and thus maintain</li>
+</ul>
+</div>
+
+<h2>Specific Design Patterns</h2>
+
+<h3>Gang of Four Design Patterns</h3>
+
+<p>Many of the most common design patterns were invented by the "Gang of Four" (Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides). and published as the book "Design Patterns: Elements of Reusable Object-Oriented Software" (Gamma, E., Helm, R., Johnson, R. and Vlissides, J., 1994, Addison-Wesley).</p>
+
+<p>We will look at a small number of example patterns: feel free to obtain a copy of the Design Patterns book to find out more.</p>
+
+<p>We will be looking at:
+    <ul>
+    <li>Singleton</li>
+    <li>Facade</li>
+    <li>Factory</li>
+    <li>Observer</li>
+    </ul>
+</p>
+
+<h3>Singleton pattern</h3>
+
+<p>We have already looked at the <em>Singleton</em> pattern in the context of Exposed. With the singleton pattern, we ensure that we can only ever have one instance of a given object. Kotlin makes the singleton pattern very easy thanks to the <code>object</code> keyword: as we saw last week you can use <code>object</code> to create a single-instance object. Singletons are very useful in any case where it does not make sense for more than one object of a given class to exist, such as a class representing a particular database table. Another example would be a database connection object: in Exposed we do not need to do this but many database APIs require you to connect with a connection object. There will only be one connection object at a time, so it makes sense for it to be a singleton.</p>
+
+<h3>Facade pattern</h3>
+
+<p>The facade pattern involves wrapping the internals of the system with an outer class known as a <em>facade</em>. The facade provides a limited number of methods which the outside world can use to interact with the system. Inside the facade there might be a series of internal classes, all of which interact with each other. To prevent unexpected behaviour you may want to limit the extent to which the outside world (e.g. the <code>main()</code> or any other unrelated classes) can manipulate the internal classes. So by wrapping them in a facade and strictly limiting interaction to a small number of facade methods, you can make your system more robust and minimise errors.</p>
+<h4>Example of a facade</h4>
+<p>We have in fact been working with a simple use of the facade pattern already without realising it. If you think of your university system you will remember that we have a <code>University</code> class which contains a list of <code>Student</code> objects. The outside world cannot interact with the <code>Student</code> objects directly, only through the <code>University</code>, which is the facade in our system. We could potentially extend our university system to also store information about modules, staff, and so on - and similarly, we would wrap these inside the <code>University</code> facade to limit how the outside world can access and manipulate them, improving the robustness of our system.</p>
+<p>Another example is the <code>Shop</code> class that we looked at when examining aggregation. <code>Shop</code> is a facade.</p>
+<p><img src='https://nwcourses.github.io/images/aggregation.png' alt='Shop - example of a facade' /></p>
+<h3>Factory pattern</h3>
+
+<p>The factory pattern involves using a <em>factory object</em> containing a <em>factory method</em> to generate other objects which implement some interface. The outside world need never know about the exact class to which these objects belong - the only thing the object knows, or cares about, is that they are objects implementing a particular interface which will therefore be guaranteed to have particular methods which can be called.</p>
+<p>The factory pattern involves the factory method receiving some kind of specification - typically a string - and then generating the appropriate object depending on the value of that string.</p>
+<p>Why might you want to use the factory pattern? Because the exact implementation of the objects created by the factory - what class they belong to and what inheritance hierarchy that class might be a part of - is of no concern to the user of those objects, it means that these can change but the application using them need not change at all. It also means that the objects returned from the factory method can belong to <em>different</em> inheritance hierarchies. The only thing that matters is that they implement a particular interface.</p>
+
+<p>Here is an example. Imagine we want to develop an application to translate from English to another language, and back again. Imagine also that there is a third-party library for translating between a range of European languages (including English). Our translator could use this library as long as the other language is another European language. However we might also want to add the facility to translate English to and from Chinese. In this case, we might use a separate library which can translate Chinese to and from other languages.</p>
+<p>We could use the factory pattern here with a factory method <code>getTranslator</code>, which returns an object implementing the <code>EnglishTranslator</code> interface. This interface specifies two methods <code>fromEnglish()</code> and <code>toEnglish()</code>. The factory method always returns some object which implements <code>EnglishTranslator</code>. The detailed logic could return an <code>EnglishOtherEuropeanTranslator</code> object if the language is European while if the language is Chinese it could return an <code>EnglishChineseTranslator</code> object.</p>
+<p>The <code>EnglishTranslator</code> interface would look something like this:</p>
+<pre>interface EnglishTranslator {
+    fun fromEnglish(text: String): String
+    fun toEnglish(text: String): String
+}</pre>
+<p>while the factory method might look something like this:</p>
+<pre>object EnglishTranslatorFactory {
+    fun getTranslator(targetLanguage: String) : EnglishTranslator? {
+        return when(targetLanguage) {
+
+            // return an English/Chinese translator
+            "chinese" -&gt; EnglishChineseTranslator()
+
+            // return a translator between English and another European language
+            // imagine LanguageUtils.isEuropean() is third party code to determine if a language is European
+            LanguageUtils.isEuropean(targetLanguage) -&gt; EnglishOtherEuropeanTranslator(targetLanguage)
+
+            // other languages not handled at present
+            else -&gt; null
+
+        }
+    }
+}</pre>
+<p>The exact class the <code>EnglishTranslator</code> belongs to, however, is not something which the developer making use of the factory needs to think about: they just use the factory to obtain some object which implements the <code>EnglishTranslator</code> interface and then use its <code>fromEnglish()</code> and <code>toEnglish()</code> methods.</p>
+<p>Here is an example of code which would use the factory method:</p>
+<pre>
+print("Enter a language: ")
+val lang = readln()
+val translator = EnglishTranslatorFactory.getTranslator(lang)
+translator?.apply { // translator is null if language not recognised
+    println("Enter the English text to translate:")
+    val text = readln()
+    println(this.fromEnglish(text))
+}
+</pre>
+<p>Another example could involve the DAOs that we looked at last week. Note how we defined the DAO as an <em>interface</em> and then provide a class which implements the interface using Exposed. However, we might have other DAOs which implement the interface using other mechanisms, such as obtaining the data from a flat file (ordinary file, not database) or the web. What we could use in this case is a factory which generates the appropriate DAO using a string passed in as an argument. For example:</p>
+<pre>object WadsongsDaoFactory {
+    fun getDao(source: String): WadsongsDao? {
+        return when(source) {
+            "exposed" -&gt; ExposedWadsongsDao()
+            "jdbc" -&gt; PlainJdbcWadsongsDao()
+            "csv" -&gt; CsvFileWadsongsDao()
+            "web" -&gt; WebWadsongsDao()
+            else -&gt; null
+        }
+    }
+}</pre>
+<p>The above factory generates a DAO making use of Exposed, plain JDBC (without Exposed), a CSV file, or a web data source, depending on the value of the <code>source</code> parameter passed in. So we could create an <code>ExposedWadsongsDao</code>, for example, with:</p>
+<pre>val dao = WadsongsDaoFactory.getDao("exposed")</pre>
+<h3>Observer pattern</h3>
+<p>Another pattern which can minimise dependencies and introduce low coupling is the <em>Observer</em> pattern. With the observer pattern, we have two entities:
+    <ul>
+    <li>The <em><code>Observable</code></em>. An <code>Observable</code> is an object which typically contains data which changes frequently, such as data from a database. It contains a list of <em>Observer</em>s which are notified when the data changes.</li>
+    <li>The <em><code>Observer</code></em>. An <code>Observer</code> is an object which <em>observes</em> the Observable, and is notified whenever the <code>Observable</code> changes. It includes an <code>observe()</code> method which receives the data to be observed, and can act upon it.</li>
+    </ul>
+<code>Observable</code> and <code>Observer</code> are typically implemented as interfaces (e.g. <a href='https://learn.microsoft.com/en-us/dotnet/standard/events/observer-design-pattern'>Microsoft article on the Observer pattern</a>) and the <code>Observer</code> does not have to know exactly what class the <code>Observable</code> belongs to. It <em>subscribes</em> (adds itself) to the <code>Observable</code> and is thus added to the list of Observers that the <code>Observable</code> contains.</p>
+<p>So when the data within the <code>Observable</code> changes, it notifies the <code>Observer</code>s which can then react accordingly, e.g. by updating the UI. Examples of the Observer pattern could include:</p>    
+    <ul>
+    <li>a database application. An <code>Observable</code> could handle database communication and notify its <code>Observer</code>s (UI elements) when the data changes, so that they can update.</li>
+    <li>a login system. When the user logs in, various UI elements might need to be updated to enable certain functionality (e.g. enabling buttons which are disabled when logged out).  The login system could be the <code>Observable</code> and the UI elements could be the <code>Observer</code>s.</li>
+    <li>an instant messaging system. This would be a networked (client/server) example of the observer pattern. A messaging server could act as the <code>Observable</code>, and, via network communication, notify the messaging clients (the <code>Observer</code>s) when a new message arrives. In this case, the notifying is <em>asynchronous</em> as it is across a network, and in this kind of case, a variant of Observer known as <em>pub/sub</em> (publisher/subscriber) applies. The messages are typically added to a queue to be sent across the network.</li>
+    </ul>
+<p>The <code>Observable</code> might be implemented as follows:</p>
+<pre>
+interface Observable&lt;T&gt; {
+
+    val observers :MutableList&lt;Observer&lt;T&gt;&gt;
+
+    fun addObserver(o: Observer&lt;T&gt;) {
+        observers.add(o)
+    }
+
+    fun notifyAll(data: T) {
+        observers.forEach {
+            it.observe(data)
+        }
+    }
+}
+</pre>
+<h4>Generics</h4>
+<p>Note the use of:</p>
+<pre>interface Observable&lt;T&gt;</pre>
+<p>What does this mean? The &lt;T&gt; is a <em>generic</em> type and this illustrates the language feature of <em>generics</em>. We can replace T with any type, which means the observable can work with any type of data. T here represents the type of data that is being observed and that will be sent to the observers.</p> 
+<p>The observer interface might be written as follows. It has to do is <code>observe()</code> the observable and receive the data (of generic type T) sent from the observable, so it only needs to specify one method, <code>observe()</code>:</p>
+<h4>Adding and notifying observers</h4>
+<p>Note that in Kotlin, interfaces can include <em>full implementations</em> of methods as well as method specifications. We provide full implementations of <code>addObserver()</code> (which adds an observer) and <code>notifyAll()</code> (which notifies all observers of a new value of <code>data</code>.</p>
+<p>The <code>Observable</code> only provides one item which must be overridden: the attribute <code>observers</code> which is the list of observers. We are just specifying that this attribute must be present: we are not actually creating it. <strong>We must override the variable in any classes implementing the <code>Observable</code> interface.</strong></p>
+<pre>
+fun interface Observer&lt;T&gt; {
+    fun observe(data: T)
+}
+</pre>
+<h4>Implementing the <code>Observable</code> and Observer</h4>
+<p>Here is how the two interfaces could be implemented in a simple login system (for simplicity, the login system just checks whether the username and password are both equal to <code>admin</code>). Firstly <code>LoginHandler</code> implements the Observable:</p>
+<pre>
+class LoginHandler : Observable&lt;User&gt; {
+
+    override val observers = mutableListOf&lt;Observer&lt;User&gt;&gt;()
+
+    fun login(username: String, password: String) {
+        if(username == "admin" &amp;&amp; password == "admin") { 
+            val u = new User("admin", admin = true)
+            notifyAll(u)
+        }
+    }
+}
+</pre>
+<p>Note for <code>LoginHandler</code>, the generic type T is always <code>User</code>. Note how we provide an implementation of the <code>observers</code> list, as discussed above.</p>
+<p>The <code>login</code> method handles login, and if the details are correct, all observers are notified of the <code>User</code> object thus created via the Observable's <code>notifyAll()</code>.</p>
+<p>Several UI elements which need to know whether the user is logged in could then act as <code>Observer</code> objects, implementing the <code>Observer</code> interface. For example:</p>
+<pre>class LoginWindow : Observer&lt;User&gt; {
+    override fun observe(u: User) {
+        // code to update the UI to show the user
+    }        
+}</pre>
+<p>The advantage of the <code>Observer</code> pattern here is that if multiple UI components of the app need to test whether the user is logged in, they can all implement Observer&lt;User&gt; and subscribe to the LoginHandler which will notify them when the user has logged in. They can then react accordingly, e.g. by enabling buttons which are only functional if the user is logged in.</p>
+
+<h2>Exercises</h2>
+<p>Will appear by Wednesday.</p>
+</main>
+</body>
+</html>
