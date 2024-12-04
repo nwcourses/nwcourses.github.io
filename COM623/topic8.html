@@ -25,7 +25,7 @@
 <li>Next.js is a larger, more mature, and more full-featured framework. You can do a lot with Next.js without needing to download extra dependencies. However, it may not be the best choice for a smaller project that only works with RSC fundamentals, as many of those extra features may not be needed and you will be dealing with a larger bundle size compared to <code>react-server</code>.</li>
 <li>Being more mature, Next.js's error messages in dev mode are often more detailed.</li>
 <li>Being a more lightweight framework and making use of Vite, <code>react-server</code> applications are often faster than the Next.js equivalents.</li>
-<li><code>react-server</code> gives more flexibility. With Next.js you generally have to develop your app in a certain way, and use the inbuilt Next.js server as well as Next.js's own routing solution. With <code>react-server</code> you can use it in conjunction with other technologies, such as Express or React Router. We saw this above, where you can use <code>react-server</code> in middleware mode in an Express app; we can also use third-party routers such as React Router as an alternative to <code>react-server</code>'s own "native" router. There are examples on <code>react-server</code>'s GitHub repo which show how to do this.</li>
+<li><code>react-server</code> gives more flexibility. With Next.js you generally have to develop your app in a certain way, and use the inbuilt Next.js server as well as Next.js's own routing solution. With <code>react-server</code> you can use it in conjunction with other technologies, such as Express or React Router. We saw this previously, where you can use <code>react-server</code> in middleware mode in an Express app; we can also use third-party routers such as React Router as an alternative to <code>react-server</code>'s own "native" router. There are examples on <code>react-server</code>'s GitHub repo which show how to do this.</li>
 <li>For basic usage, Next.js and <code>react-server</code> work in a similar way so the code you develop for one will be similar to the code you develop for the other. For example, as they both use React, they both allow you to use RSCs and server actions, so if you are using fundamental RSC features, code developed for one will work in the other with only small changes. Both also use a filesystem-based router solution, which we will discuss below, though this is required in Next.js and optional in <code>react-server</code>.</li>
 </ul>
 <h3>Features of Next.js</h3>
@@ -61,56 +61,16 @@ cd next-project
 </ul>
 <p>More information is available on <a href="https://nextjs.org/docs/getting-started/installation">the website</a>.</p>
 
-<h2>Using react-server and Express</h2>
+<h2>Filesystem Routing in Next.js</h2>
 
-<p>Before moving on to filesystem routing and looking at Next.js in more detail, we will quickly discuss one remaining feature of <code>react-server</code> which is unique to it and not available in Next.js. One advantage of <code>react-server</code> is that you can combine it with an existing Express server, allowing you to make use of existing API routes on your server. This is achieved by running react-server in <em>middleware</em> mode, i.e. it acts as a middleware for your Express server. This means that Express will handle all routes matching a certain pattern by forwarding them on to react-server, while all others will be handled directly by Express. By doing this you can easily write an app which features both RSCs and JSON APIs.</p>
-<p>Here is an example, note how any route beginning with <code>react-server</code> will be handled by react-server:</p>
-<pre>
-import express from 'express';
+<p>Most RSC libraries and frameworks make use of <em>filesystem routing</em>. What is this? The idea is that you store your components in <em>specific folders</em> on the server and then access them via <em>routes</em> which correspond to the folder structure. This discussion is centred round Next.js but the principles also apply to <code>react-server</code>. With Next.js, the router is known as the <em>App Router</em>.</p>
 
-// This assumes development mode.
-// You need a different import for production mode.
-// See the Express example at https://github.com/lazarv/react-server/tree/main/examples/express for more detail.
-
-import { reactServer } from '@lazarv/react-server/dev';
-
-const app = express();
-
-// Assumes App.jsx contains the app component
-// If we pass no arguments to reactServer(), filesystem routing will be used.
-const server = await reactServer('./App.jsx');
-
-const PORT = 3000;
-
-app.get('/', (req, res) =&gt; {
-    res.send("Hello World from Express!");
-});
-
-app.use('/react-server', async(req, res, next) =&gt; {
-    const { middlewares } = await server;
-    middlewares(req, res, next);
-});
-
-// Add other routes and middleware, e.g. API routes, here...
-
-app.listen(PORT, () =&gt; {
-  console.log(`Server started on port ${PORT}.`);
-});
-
-</pre>
-<p>For this to work you must configure a <code>base</code> URL in the configuration file <code>react-server.config.json</code> (in the top level folder of your project):</p>
-<pre>{
-  "base": "/react-server/"
-}</pre>
-<h2>Filesystem Routing in Next.js and react-server</h2>
-
-<p>Most RSC libraries and frameworks make use of <em>filesystem routing</em>. What is this? The idea is that you store your components in <em>specific folders</em> on the server and then access them via <em>routes</em> which correspond to the folder structure. This discussion applies to <em>both</em> Next.js <em>and</em> <code>react-server</code>. With Next.js, the router is known as the <em>App Router</em>.</p>
-
-<p> When using filesystem routing, you save RSCs in files with a specific filename. This should be <code>index.jsx</code> for <code>react-server</code> or <code>page.jsx</code> for Next.js, though you can configure <code>react-server</code> to also use <code>page.jsx</code>. These RSCs are known as <em>pages</em> because they represent an individual page of your application. So we can start with a top-level RSC page as follows: </p>
+<p> When using filesystem routing, you save RSCs in files with a specific filename. This is <code>page.jsx</code> for Next.js (or <code>index.jsx</code> for <code>react-server</code>). These RSCs are known as <em>pages</em> because they represent an individual page of your application. So we can start with a top-level RSC page as follows: </p>
 <pre>export default function Page() {
     return &lt;h1&gt;Hello World from Filesystem Routing!&lt;/h1&gt;;
 }</pre>
-<p>In Next.js the top component is placed in the <code>app</code> folder, but with <code>react-server</code> the top level component is placed in the root folder of our application.</p>
+<p>In Next.js the top-level component is placed in the <code>app</code> folder.
+ (With <code>react-server</code> the top level component is placed in the root folder of our application).</p>
 <p>To start a server which serves this page by default, we'd run:</p>
     <ul>
     <li><code>npm run dev</code> in Next.js with a <code>package.json</code> setup as above; or</li>
@@ -120,7 +80,7 @@ app.listen(PORT, () =&gt; {
 <p>More information is available on <a href="https://nextjs.org/docs/app/building-your-application/routing">the website</a>.</p>
 <h3>Layouts</h3>
 
-<p><em>Layouts</em> are a "frame" or a "scaffold" for our application. In a layout we define the body of our site including such things as navigation bars, logos, footers, etc. This allows us to use a common layout for multiple pages in our web application. The layouts "host" the pages within them. <strong>Layouts are compulsory in Next.js, but optional in <code>react-server</code></strong>. They must be saved as <code>layout.jsx</code> in either framework.</p>
+<p><em>Layouts</em> are a "frame" or a "scaffold" for our application. In a layout we define the body of our site including such things as navigation bars, logos, footers, etc. This allows us to use a common layout for multiple pages in our web application. The layouts "host" the pages within them. They must be saved as <code>layout.jsx</code>.</p>
 <h4 id="helloworldinnextjs">Example layout.jsx</h4>
 <pre><code class="jsx language-jsx">export default function RootLayout({children}) {
     return (
@@ -136,7 +96,7 @@ app.listen(PORT, () =&gt; {
 
 <h3 id="creatinganewroute">Creating a new route</h3>
 <p>As you saw last year in WAD, a full web app will need to set up a range of different <em>routes</em>, all of which perform different functions. With the filesystem router, we define routes by creating <em>folders</em> which map to routes. </p>
-<p>We can create an 'about' page. Inside the <code>app</code> folder (Next.js) or your top-level folder (<code>react-server</code>), we would create another folder named <code>about</code>.  In here, we can create a new <code>page.jsx</code> or <code>index.jsx</code> containing a new component:</p>
+<p>We can create an 'about' page. Inside the <code>app</code> folder, we would create another folder named <code>about</code>.  In here, we can create a new <code>page.jsx</code> or <code>index.jsx</code> containing a new component:</p>
 <pre><code class="jsx language-jsx">export default function Page() {
     return(
         &lt;div&gt;
