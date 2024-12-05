@@ -310,6 +310,7 @@ class LoginHandler : Observable&lt;User&gt; {
 <p>The advantage of the <code>Observer</code> pattern here is that if multiple UI components of the app need to test whether the user is logged in, they can all implement Observer&lt;User&gt; and subscribe to the LoginHandler which will notify them when the user has logged in. They can then react accordingly, e.g. by enabling buttons which are only functional if the user is logged in.</p>
 
 <h2>Exercises</h2>
+<p><strong>Important!</strong> : please ensure you complete Sequence Diagrams (Topic 9) first.</p>
 <ol>
 <li>Write a simple console app using the Factory pattern, to use a factory method to generate objects which convert between metric and imperial. The factory should be called <code>MetricImperialFactory</code> and should contain a factory method <code>getConverter()</code> returning an object implementing the <code>Converter</code> interface. <code>Converter</code> should include two methods, <code>toMetric()</code> and <code>toImperial()</code>. Implement the factory method for these:
 	<ul>
@@ -317,6 +318,12 @@ class LoginHandler : Observable&lt;User&gt; {
 	<li>with an argument of <code>celsiusToFahrenheit</code> it should return a <code>Converter</code> object which converts Fahrenheit (imperial) to Celsius (metric). The conversions:
 <pre>F = C*1.8 + 32
 C = (F-32) / 1.8</pre>
+	</ul>
+You will need:
+	<ul>
+	<li>the factory object;</li>
+	<li>The <code>Converter</code> interface;</li>
+	<li>Two classes implementing <code>Converter</code>, one to convert between feet/metres and another to convert between Fahrenheit/Celsius.</li>
 	</ul>
 </li>
 <li>Using the Observer pattern, develop a simple login form as a Compose app. The user should be logged in if they enter "admin" for both username and password. Create the <code>Observable</code> and <code>Observer</code> interfaces as shown in the notes, and implement the LoginSystem class. Add an <code>Observer</code> to observe the user logging in, and if the <code>observe()</code> method of the observer is called, update a state variable holding the currently logged in user (which should be null by default) so that it contains the new user. The <code>Observable</code> and <code>Observer</code> should work with <code>User</code> objects (i.e. the <code>Observable</code> should send the observers a <code>User</code> object when they log in), as shown on the example above.</li>
