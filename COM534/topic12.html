@@ -213,7 +213,7 @@ class ProductTest {
 <p>Often, tests differ only in the parameter we are supplying to the method. You can see this above in the tests within <code>EventTest</code>; most only differ by the amount of tickets we are supplying.  Clearly this is rather inefficient. It would be better if we could run a single test with
 one or more <em>parameters</em> - and luckily we can, using a <code>TestFactory</code>. A <code>TestFactory</code> creates one test for each item in a list. Here we try to sell -1, 1, 2 and 101 tickets for an event with 100 tickets available. The <code>sell()</code> method should return false, true, true and false respectively. So we can store the test parameter and expected value in a list of <code>Pair</code> objects.
 <pre>
-class ProductTest {
+class EventTest {
 
     val event = Event(tickets=100)
 
