@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Topic 11 - Firebase with React and Next.js</title>
+</head>
+<body>
+<main>
+<div class='content-public'>
+<h1 id="week11furtherfirebasemorefirestoreusingfirebasewithreact">Week 11 - Further Firebase: More Firestore, using Firebase with React and Next.js</h1>
+<p>This week we will look at using React (and Next.js) and Firebase together.</p>
+<h2 id="firebaseandreact">Firebase and React</h2>
+<h3 id="creatingcustomhooks">Creating Custom Hooks</h3>
+<p>You have already seen and used Hooks. It makes sense to use a custom Hook to setup the Firebase functionality as we can call it when we load the component.</p>
+<p>Create the file: <code>useAuth.js</code>: </p>
+<ul>
+<li>Add the following code:</li>
+</ul>
+<pre><code class="javascript language-javascript">import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    updateProfile,
+} from "firebase/auth";
+
+import { useState, useEffect } from 'react';
+
+function useAuth() {
+
+    const [user, setUser] = useState(null);
+
+    // Initialize Firebase Auth
+
+    const auth = getAuth();
+
+
+    useEffect( () =&gt; {
+        onAuthStateChanged( auth, user =&gt; {
+            setUser(user);
+        } )
+    }, [] );
+
+    async function signup(email, password, name) {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // Signed up 
+            const user = userCredential.user;
+            alert(`signed up: ID=${user.uid}`);
+            alert(user.uid);
+            const profile = await updateProfile(user, {
+                displayName: name
+            });
+          } catch(error)  {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(`${errorCode} ${errorMessage}`);
+          }
+
+    }
+
+    async function login(email, password) {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+        } catch(error) {
+            alert(`${error.code} ${error.message}`);
+        }
+    }
+
+    async function logout() {
+        try {
+            await auth.signOut();
+        } catch(error) {
+            alert(`${error.code} ${error.message}`);
+        }
+    }
+
+    return { signup, login, logout, user };
+}
+
+export default useAuth;
+</code></pre>
+<p>What's this doing? It's a hook which returns the various Firebase functions for user management: signup, login and logout. Thus it allows our React code to hook into the Firebase functionality. It also stores the current user as state (updating when authentication state changes); as we did in our original custom Hook, we also return a reference to the <code>user</code> state variable so that it can be used in our React components.</p>
+<p>Note how we put <code>onAuthStateChanged()</code> in an Effect. This is to prevent this event handler being setup multiple times, leading to duplicate event handlers, each time we re-render.</p>
+<p>We could then use the Hook in a React component:</p>
+<pre><code class="javascript language-javascript">import { initializeApp } from 'firebase/app';
+import React from 'react';
+import useAuth from './useAuth';
+import Login from './Login';
+import Logout from './Logout';
+import ProtectedContent from './ProtectedContent';
+
+function App(props) {
+
+    const app = React.useRef(null);
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "xxxxxx",
+        authDomain: "xxxxxx",
+        projectId: "xxxxxx",
+        storageBucket: "xxxxxx",
+        messagingSenderId: "xxxxxx",
+        appId: "xxxxxx"
+   };
+
+   if(!app.current) app.current = initializeApp(firebaseConfig);
+
+   const { login, logout, user } = useAuth();
+
+   async function loginClickHandler() {
+      await login(
+        document.getElementById('email').value,
+        document.getElementById('password').value
+    );
+  }
+
+  return (
+      &lt;div&gt;
+        &lt;h2&gt;Firebase/React&lt;/h2&gt;
+        &lt;div&gt;{user == null ? 
+            &lt;Login clickHandler={loginClickHandler}/&gt;: 
+            &lt;&gt;&lt;ProtectedContent /&gt;&lt;Logout clickHandler={logout}/&gt;&lt;/&gt; 
+        }&lt;/div&gt;
+      &lt;/div&gt;
+  );
+}
+
+export default App;
+</code></pre>
+<p>Note how we initialise Firebase inside our <code>App</code> component, but store the Firebase app as a <em>ref</em> so that it's preserved across multiple-renders.</p>
+<p>Note also how we obtain our Firebase user management functions from the <code>useAuth()</code> hook, as well as the <code>user</code> object representing the currently logged-in user.</p>
+<p>Note how the JSX contains a test to see whether <code>user</code> is null. If it is, the user isn't logged in so we show a <code>Login</code> component (not shown, but would contain a login form). If the user is logged in, we show some protected content as well as a <code>Logout</code> component (again, not shown, but would contain a logout button).</p>
+<h2 id="usingfirebaseinnextjs">Using Firebase in Next.js</h2>
+<p>If you use client components in Next.js, you can use the same kind of patterns as in plain React, as shown above.</p>
+<p>Server components in Next.js can also work with Firebase. In this case, the best approach is to store your Firebase objects in a module which can be imported into Next components.</p>
+<p>When using Next.js <em>do not try to use Firebase objects (e.g the <code>app</code> or the <code>auth</code> object) in both client and server components. They will be treated as separate Firebase objects and will be inconsistent</em>, for example if you login via a server-side <code>auth</code> object, the <code>auth</code> object client-side will still be in an unauuthenticated state. If using server components it's recommended to store the Firebase objects server-side for security reasons.</p>
+<p>The best place to put your Firebase objects is in a separate module, and export them so they can be used in different components and server actions. For example:</p>
+<pre><code class="javascript language-javascript">// app/firebase/setup.js
+
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  ...
+};
+
+export const app =  initializeApp(firebaseConfig);
+
+export const auth = getAuth();
+</code></pre>
+<p>Note here how we export both the Firebase app <code>app</code> and the auth object <code>auth</code>.</p>
+<p>We can then import one or both by selecting them in <code>import</code> statements, e.g. one of the following:</p>
+<pre><code class="javascript language-javascript">import { app, auth } from 'app/firebase/setup';
+import { app } from 'app/firebase/setup';
+import { auth } from 'app/firebase/setup';
+</code></pre>
+<p>Example of a server component which uses the exported <code>auth</code> object to display either a <code>Login</code> or <code>Logout</code> component:</p>
+<pre><code class="jsx language-jsx">import login from 'app/actions/login';
+import logout from 'app/actions/logout';
+import Login2 from 'app/ui/Login2';
+import Logout2 from 'app/ui/Logout2';
+import ProtectedContent from 'app/ui/ProtectedContent';
+import { auth } from 'app/firebase/setup';
+
+function Auth() {
+
+    return(
+        &lt;div&gt;
+        {auth.currentUser ? &lt;&gt;&lt;ProtectedContent /&gt;&lt;Logout2 action={logout} /&gt;&lt;/&gt; : &lt;Login2 action={login} /&gt; }
+        &lt;/div&gt;
+    )
+
+};
+
+export default Auth;
+</code></pre>
+<p>Example of a server action to handle login:</p>
+<pre><code class="jsx language-jsx">"use server"
+
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from 'app/firebase/setup';
+import { redirect } from 'next/navigation';
+
+async function login(formData) {
+    let errorCode = null;
+
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, formData.get("email"), formData.get("password"));
+    } catch(error) {
+        console.log("Error");
+        console.log(error);
+        errorCode = error.code;
+    }
+    // Note that '/' is the top-level route of our app
+    redirect(errorCode === null ? '/' : `/?error=${errorCode}`);
+}
+
+export default login;
+</code></pre>
+<h2 id="exercise">Exercise</h2>
+<ol>
+<li>Finish your Firebase app from last week.</li>
+<li><p>Convert your app to use <em>either</em> client-side React <em>or</em> Next.js with server-side components.</p></li>
+<li><p>Add a "buy" button to each search result from your search form in your answer from Question 3 (i.e the React/Next.js version). This button should allow the user to buy a song, using a transaction. This should reduce the quantity of the selected song by one.</p></li>
+</ol>
+</div>
+</main>
+</body>
+</html>
