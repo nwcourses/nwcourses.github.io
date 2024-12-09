@@ -7,7 +7,6 @@
 <body>
 <main>
 <div class='content-public'>
-<h1 id="week11furtherfirebasemorefirestoreusingfirebasewithreact">Week 11 - Further Firebase: More Firestore, using Firebase with React and Next.js</h1>
 <p>This week we will look at using React (and Next.js) and Firebase together.</p>
 <h2 id="firebaseandreact">Firebase and React</h2>
 <h3 id="creatingcustomhooks">Creating Custom Hooks</h3>
@@ -26,7 +25,7 @@
 
 import { useState, useEffect } from 'react';
 
-function useAuth() {
+export default function useAuth() {
 
     const [user, setUser] = useState(null);
 
@@ -46,8 +45,6 @@ function useAuth() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             // Signed up 
             const user = userCredential.user;
-            alert(`signed up: ID=${user.uid}`);
-            alert(user.uid);
             const profile = await updateProfile(user, {
                 displayName: name
             });
@@ -79,7 +76,6 @@ function useAuth() {
     return { signup, login, logout, user };
 }
 
-export default useAuth;
 </code></pre>
 <p>What's this doing? It's a hook which returns the various Firebase functions for user management: signup, login and logout. Thus it allows our React code to hook into the Firebase functionality. It also stores the current user as state (updating when authentication state changes); as we did in our original custom Hook, we also return a reference to the <code>user</code> state variable so that it can be used in our React components.</p>
 <p>Note how we put <code>onAuthStateChanged()</code> in an Effect. This is to prevent this event handler being setup multiple times, leading to duplicate event handlers, each time we re-render.</p>
@@ -91,7 +87,7 @@ import Login from './Login';
 import Logout from './Logout';
 import ProtectedContent from './ProtectedContent';
 
-function App(props) {
+export default function App(props) {
 
     const app = React.useRef(null);
 
@@ -127,7 +123,6 @@ function App(props) {
   );
 }
 
-export default App;
 </code></pre>
 <p>Note how we initialise Firebase inside our <code>App</code> component, but store the Firebase app as a <em>ref</em> so that it's preserved across multiple-renders.</p>
 <p>Note also how we obtain our Firebase user management functions from the <code>useAuth()</code> hook, as well as the <code>user</code> object representing the currently logged-in user.</p>
@@ -165,7 +160,7 @@ import Logout2 from 'app/ui/Logout2';
 import ProtectedContent from 'app/ui/ProtectedContent';
 import { auth } from 'app/firebase/setup';
 
-function Auth() {
+export default function App() {
 
     return(
         &lt;div&gt;
@@ -174,8 +169,6 @@ function Auth() {
     )
 
 };
-
-export default Auth;
 </code></pre>
 <p>Example of a server action to handle login:</p>
 <pre><code class="jsx language-jsx">"use server"
@@ -184,7 +177,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from 'app/firebase/setup';
 import { redirect } from 'next/navigation';
 
-async function login(formData) {
+export default async function login(formData) {
     let errorCode = null;
 
     try {
@@ -197,14 +190,28 @@ async function login(formData) {
     // Note that '/' is the top-level route of our app
     redirect(errorCode === null ? '/' : `/?error=${errorCode}`);
 }
-
-export default login;
 </code></pre>
 <h2 id="exercise">Exercise</h2>
 <ol>
 <li>Finish your Firebase app from last week.</li>
-<li><p>Convert your app to use <em>either</em> client-side React <em>or</em> Next.js with server-side components.</p></li>
-<li><p>Add a "buy" button to each search result from your search form in your answer from Question 3 (i.e the React/Next.js version). This button should allow the user to buy a song, using a transaction. This should reduce the quantity of the selected song by one.</p></li>
+<li>Convert your app to use <em>either</em> client-side React <em>or</em> Next.js with server-side components. Some guidance on getting started with this if you use server-side components with Next.js:
+<ul>
+<li>Add logic to your page.js to test if a user is logged into Firebase or not (see the notes for example)</li>
+<li>Render different content depending on whether a user is logged in</li>
+<li>If they are logged in, render an <code>AddSong</code> component with a matching server action to add song (which needs to use Firestore)</li>
+<li>If they are NOT logged in, render a login form</li>
+<li>The app folder should contain a page.js to include the logic above.
+You also neeed a Firebase setup.js (as discussed in the notes).</li>
+<li>The ui folder should contain a login component,
+and a logout component (a form with a Logout submit button).
+It also needs an "add song" component.</li>
+<li>The actions folder should contain
+an "add song" server action,
+a "login" server action and
+a "logout" server action.</li>
+</ul>
+</li>
+<li>Add a "buy" button to each search result from your search form in your answer from Question 3 (i.e the React/Next.js version). This button should allow the user to buy a song, using a transaction. This should reduce the quantity of the selected song by one.</li>
 </ol>
 </div>
 </main>
