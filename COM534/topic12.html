@@ -77,8 +77,6 @@ To use JUnit, we have to create a <em>test class</em> with a series of unit test
 <p>Here is an example of a test class containing a series of unit tests that you would run with JUnit on an <code>Event</code> class:
 <pre>
 
-import static org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
 
 class EventTest {
     
@@ -189,23 +187,23 @@ class ProductTest {
 </pre>
 </p>
 <h4>@BeforeAll</h4>
-<p>When is <code>@BeforeAll</code> useful? It's useful for expensive operations, which we want to run only once, before all tests are run (as opposed to each individual test). A good example would be connecting to the database. The <code>@BeforeAll</code> method has to be marked as <code>static</code>, indicating that it applies to the test class as a whole, rather than specific instances of it. This also means that any object(s) that the method need to be declared as <code>static</code>. An example is given below; this also shows the use of <code>@AfterAll</code> to implement a tear-down method to close the connection.
+<p>When is <code>@BeforeAll</code> useful? It's useful for expensive operations, which we want to run only once, before all tests are run (as opposed to each individual test). A good example would be connecting to the database. The <code>@BeforeAll</code> method has to be marked as <code>static</code>, indicating that it applies to the test class as a whole, rather than specific instances of it. In Kotlin you do this through the use of a <em>companion object</em>.  It also means that that the method need to be declared as <code>@JvmStatic</code>. An example is given below; this also shows the use of <code>@AfterAll</code> to implement a tear-down method to close the connection.
 <pre>
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.AfterAll
-
 class ProductTest {
 
-    @BeforeAll
-    public static void setupConnection() {    
-        Database.connect("jdbc:sqlite:wadsongs.db", "org.sqlite.JDBC")
-    }
+    companion object {
+        @BeforeAll
+        @JvmStatic
+        fun setupConnection() {    
+            Database.connect("jdbc:sqlite:wadsongs.db", "org.sqlite.JDBC")
+        }
 
-    @AfterAll
-    public static void tearDownConnection() {
-        // In Exposed we don't have to disconnect from the database, but in some
-        // database APIs you do, and it would go here.
+        @AfterAll
+        @JvmStatic
+        fun tearDownConnection() {
+            // In Exposed we don't have to disconnect from the database, but in some
+            // database APIs you do, and it would go here.
+        }
     }
 </pre>
 </p>
@@ -245,7 +243,6 @@ In the lambda we perform the test. We can access the current <code>Pair</code> a
 <h3>Further example: the Venue</h3>
 <p>This is an example of testing a more complex class (the <code>Venue</code>, which contains multiple <code>Event</code>s). Not all possible tests are shown. As discussed below, you should test more complex classes, such as <code>Venue</code>, <em>after</em> the simpler classes (such as <code>Event</code>) are fully tested and working. Note how it also shows the use of the <code>assertNotNull</code> and <code>assertNull</code> assertions, which can test whether the return value is not null or null. 
 <pre>
-import static org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class VenueTest {
