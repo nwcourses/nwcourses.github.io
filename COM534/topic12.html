@@ -217,16 +217,13 @@ class EventTest {
 
     val event = Event(tickets=100)
 
-    @BeforeEach
-    fun resetTickets() {
-        event.makeAllTicketsAvailable()
-    }
 
     @TestFactory
     fun testMultipleTicketSalesQuantities() =
         listOf(-1 to false, 1 to true, 2 to true, 101 to false)
             .map {
                 dynamicTest("Selling ${it.first} should give ${it.second}") {
+                    event.makeAllTicketsAvailable()
                     assertEquals(event.sell(it.first), it.second)
                  }
             }
