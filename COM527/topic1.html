@@ -424,11 +424,11 @@ Notice that it contains several static variables. These are identifiers which yo
 </p>
 
 <h2>Exercises</h2>
-<p>As this is the first week, in order to start gently much of this will be revision on Compose (which you have already done in OODD) but in the context of an Android app rather than a desktop app.</p>
+<p>As this is the first week, in order to start gently, this exercise is revision on Compose (which you have already done in OODD) but in the context of an Android app rather than a desktop app.</p>
 <ol>
 <li>Try out "Hello World" and the "TwoTexts" and "TwoTextsStyled" examples, above.</li>
 <li>Write a complete working app including a composable to allow the user to enter a name via a <code>TextField</code>. The composable should greet the user by name in a <code>Text</code>, with a message such as <strong>Hello John!</strong></li>
-<li>Extend the app to feature two text fields to enter first name and last name. The greeting should then display the user's full name in one TextField.</li>
+<li>Extend the app to feature two text fields to enter first name and last name. The greeting should then display the user's full name in one TextField when a button is clicked.</li>
 <li>In the same app, write a composable to implement a counter. The composable should include a state variable to hold the counter's current value (initialise it to 0) plus a <code>Text</code> containing the counter's value and a button which, when pressed, increases the counter by one. Display the counter's value in red.</li>
 <li>In the same app, write a composable to convert feet to metres. One foot is 0.305 metres. The user should be able to enter a value in feet, and the result should be displayed in metres. Give your <code>TextField</code> a <code>label</code> parameter, this should be set equal to a lambda containing a <code>Text</code> element with the label "Enter feet", i.e.:
 <pre>TextField(feetState, onValueChange={...}, label={ Text("Enter feet:") }) ...</pre>
