@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MAD Topic 1: Intro to Android Development</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head>
+<body>
+<div class='titlebox'>
+<h1>MAD Topic 1 : Introduction to Android Development</h1>
+</div>
+<p>The <a href='http://www.android.com'>Android</a> mobile operating
+system is the leading smartphone and tablet operating system. From a minority operating system only running on one phone (the T-Mobile G1) a few years ago it has grown into one of the leaders in the smartphone operating system field, along with iOS (on the iPhone), and to some extent, Windows Mobile.</p>
+<h2>Why develop for Android?</h2>
+<p>There is one very important difference between Android and many of its
+competitors. It is an open source operating system, which means that you
+are free to modify it for your own ends. Even more crucially for app 
+developers is that as a result of its open-source nature <em>you can 
+develop and distribute applications without restriction</em>. This is in
+contrast to some of the other contemporary mobile development options in
+which the operating system vendor restricts distribution to a single
+channel owned by themselves, and "vets" software before making it 
+available. Android has an official distribution channel (the
+<a href='http://play.google.com'>Play Store</a>), but this is more
+liberal with accepting apps than some of the other vendors. Also, there are alternative distribution channels for Android such as <a href='https://f-droid.org'>F-Droid</a></p>
+<p>.</p>
+<h2>Android versions</h2>
+<p>
+At this point it is worth elaborating on the various <em>versions of Android</em>. At the time of writing the percentages of devices running different versions are as below (this is taken from Android Studio):
+<br />
+<img src="../images/android_versions.png" alt="Percentages of devices running different versions" />
+<br />
+The most recent version deployed on actual mobile devices is 14, however, as can be seen above, no devices had 14 installed as of October 1 (i.e 4 months ago at the time of writing) but 22.4% had 13 installed. Many devices are running 9 (Pie), 10 (Q), 11 (R), and 12 (S). The majority of devices are running Marshmallow (Android 6 or API level 23) upwards.</p>
+<p>Another concept that you need to understand is the <em>API level</em>. The <em>Android API</em> is the set of classes which are used to program Android apps with. The API level denotes revisions to the Android API, in a sequence of positive integers starting from 1. Thus, the numbers used for the API levels are not the same as those used for the Android versions, but each API level corresponds to a particular version. The idea is that each time Android itself is updated, the API is updated too. For example: 
+<ul>
+    <li>API level 15 corresponds to Android 4.0.3; </li>
+    <li>API level 19 corresponds to Android 4.4;</li>
+    <li>API level 23 corresponds to Android 6;</li>
+    <li>API level 26 corresponds to Android 8.0;</li>
+    <li>API level 28 corresponds to Android 9</li>
+    <li>API level 30 corresponds to Android 11</li>
+    <li>API level 31 corresponds to Android 12</li>
+    </ul>
+When developing an Android app, you have to specify the minimum API level on
+which your app will run. Thus an app with minimum API level 19, for example,
+will only run on 4.4+. As seen above, the vast majority of devices
+are running at least API level 19 (Android 4.4; KitKat), so if you specify
+API level 19 as a minimum you will be targeting the majority of devices.
+</p>
+<h2>Runtime Environment</h2>
+<p>With standard Kotlin or Java, you compile to bytecode which is then run using the Java Virtual Machine (JVM). Android is similar but rather than using the standard JVM, it uses its own virtual machine and corresponding bytecode format, producing executable files known as DEX files. So "regular" Java bytecode will not run on Android and Android apps will not run on a regular JVM.
+</p>
+<p><em>Dalvik</em> was the original virtual machine, which versions of Android up to 4.4 used.  With Android 5.0, a new virtual machine (<em>ART : Android Runtime</em>) (see <a href="https://source.android.com/devices/tech/dalvik/configure.html">here</a>) is used instead.
+See <a href="https://source.android.com/devices/tech/dalvik/">here</a> for more details on Android
+virtual machines.</p>
+<h2>General nature of Android development</h2>
+<p>Android development is generally done in either Kotlin or Java, with
+Kotlin the preferred language. 
+However, because the environment differs from a standard desktop PC, the
+actual libraries available differ somewhat from the standard Sun/Oracle
+Java Development Kit. As well as the Kotlin standard library, many standard Java features from packages such as java.io and java.util are available; however (as you might expect) the standard Java GUI libraries (designed for desktop applications) are not, and also the structure of an Android application is significantly different due to the different style of interaction with a mobile device compared to a desktop computer.</p>
+<h2>What do you need to start Android development?</h2>
+<p>To get started on Android development you ideally need  the <em>Android Studio</em> IDE.  Android Studio is the recommended IDE for Android development. It is based on JetBrains' IntelliJ IDEA .  <p>It is also possible to develop apps purely using command-line (console) tools.</p>
+<p>Android Studio provides an IDE 'wrapper' round the core Android development environment, which contains the following components:
+    <ul>
+    <li>The Android Software Development Kit (SDK): provides Android libraries, tools to generate
+    bytecode and distributable apps and the <em>SDK Manager</em> which allows you to download
+    libraries for different versions of Android;</li>
+    <li>The <em>AVD (Android Virtual Device) Manager</em>: allows creation of
+    virtual phones or tablets allowing you to test your app in the absence of a real device.</li>
+    </ul>
+</p>
+<p>You can access the Android SDK and the AVD Manager either through an IDE such as Android Studio or independently, via the command-line.</p>
+<h3>Getting started</h3>
+<p>The best way to explore the different components of the Android development environment is to get started with Android Studio. Launch Studio, you will see a screen like this:
+</p>
+<br />
+<img src="../images/studio1.png" alt="Studio main screen" />
+<br />
+
+<h4>Creating a project</h4>
+<p>
+Select "Create New project". You will then see this screen.  This allows you to create a new project.  You will then see a screen like this:
+<br />
+<img src="../images/studio2.png" alt="Project details" />
+<br />
+Select "Empty Activity", as shown.</p>
+<br />
+<img src="../images/studio3.png" alt="Studio: start a new project" />
+<br />
+<p>
+To explain these one by one:
+    <ul>
+    <li><em>Name</em>: the name of your application.</li>
+    <li><em>Package name</em>: the Java/Kotlin package name that will be used for your application.</li> 
+    <li><em>Save location</em>: where your projects will reside.  You should make sure that this is somewhere easy to find, so you can navigate to it later.</li> 
+    <li><em>Minimum SDK</em>: what is the lowest Android API level which will run this app? You can leave it on the default (4.4 KitKat).</li>
+     <li><em>Build configuration language</em>: what language will the build file <code>build.gradle</code> (the equivalent of <code>pom.xml</code> from Maven) use? Leave as Kotlin DSL. We will discuss this more fully in the near future.</li>
+    </ul>
+</p>
+<p>Once you click "Finish", your project will be created.</p>
+<h4>Explaining the layout of a project</h4>
+<p>The Android project will open, with a screen something like this:
+<br />
+<img src="../images/studio4.png" alt="Android Studio project" />
+<br />
+On the right-hand side is the main code editor, containing your Kotlin
+code. Note that some code is auto-generated: we will explain this later.
+</p>
+<p>On the left-hand side, the <em>project structure</em> is shown. An Android project contains of a series of files and directories, each containing different things. To explain each:
+    <ul>
+    <li><em>manifests</em>: this directory contains the <em>manifest file</em>, AndroidManifest.xml, which contains information about the app and its contents. We will return to this later.</li>
+    <li><em>kotlin+java</em> or <em>java</em>: the actual code. Note how it contains our activity, <em>MainActivity.kt</em>. Note that in older versions of Android Studio it's called <em>java</em> even if we are writing Kotlin.</li>
+    <li><em>res</em>: the <em>resources</em>. These are additional files our app needs, such as screen layouts, menus, images and so on. We will examine resources in more detail later.</li>
+    <li><em>Gradle Scripts</em>: Gradle is a build tool to automate the process of building an application. It is similar in role to Maven; in other words it reads a configuration file which tells it how to build your application (including such things as third-party Kotlin or Java libraries - <em>dependencies</em> - our app needs to run), downloading them from online repositories if necessary. The Gradle build configuration file is <em>build.gradle.kts</em>. In this file, we also specify the minimum Android version supported by our app.
+    <br />
+    Note that there are two <em>build.gradle.kts</em> files, one to build the project as a whole, and another one to build the current module (the one in the <em>app</em> directory). In some cases, a project may contain multiple modules, though not in our case. Generally, you will find theat the <em>app</em> build.gradle.kts is the one you need to modify most frequently.
+    </li> </ul>
+</p>
+<h2>Hello World!</h2>
+<p>We're now going to start - as always in software development - with 
+a Hello World app. Delete all the pre-generated code and replace it with this: 
+<pre>
+package com.example.helloworldapp // leave the package line as it was
+
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import android.os.Bundle
+import androidx.compose.material3.Text
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            Text("Hello World!")
+        }
+    }
+}</pre>
+What does this code mean?
+    <ul>
+    <li>As mentioned above, the entry point to an Android application is an <em>activity</em>. An activity is basically a single screen of an Android app.  It contains "widgets" or user interface elements, through which the user can interact with the app: for example, text fields, buttons and radio buttons.  An Android app will typically consist of several Activities, representing different screens within the app, but there will be one main activity which launches when the app is launched. The main activity is defined in the manifest file (see later)</li>
+    <li>The <em>onCreate()</em> method is the actual entry point to the activity. It can be viewed as roughly equivalent to the <em>main()</em> method in standard Kotlin, or in C or C++. Whenever an activity is created for the first time, its <em>onCreate()</em> method is called: therefore, initialisation code should be placed in onCreate().</li>
+    <li>Note that the activity here is an <em>ComponentActivity</em>, which is a subclass of plain <em>Activity</em>.  This allows us to use Jetpack Compose for our UI - see below.</li>
+    <li>The first thing we do is call the version of <em>onCreate()</em> in the superclass (i.e. AppCompatActivity). In this way, we can ensure that common functionality which occurs when all activities are created will also occur in our case.</li>
+    <li>We then <em>define the layout</em>. Note that the current standard in Android UI development is now <strong>Jetpack Compose</strong>. Jetpack Compose is a new way of defining UIs using Kotlin objects, and is increasingly favoured over the older method of defining UIs in separate XML files. We will however look at the older, XML-based method in a later week as you will probably still encounter it in real-world Android projects.</li>
+    </ul>
+</p>
+<h3>Setting up an Android Virtual Device</h3>
+<p>If you do not have an actual Android device, you will
+need to set up an <em>Android virtual device (AVD)</em> before starting programming. This is an emulator which you can use to test your apps as you develop them. It resembles an actual phone, and the user interface looks just like a user interface on a real Android phone so you can test your apps fairly realistically. When creating an AVD you will be prompted for various properties of the emulator such as resolution.</p>
+<p>To set up an AVD in Studio, select <em>Tools-Device Manager</em>.  This will launch the Android Device Manager from within Android Studio, as shown below:
+</p>
+<p>
+<img src="../images/avd1.png" alt="AVD manager before virtual devices have been set up" />
+</p>
+<p>This screen shows that there is one AVD already set up, called <em>Pixel API 34</em>. On your system there probably won't be any yet. So Set up a new AVD as follows:
+    <ul>
+    <li>Click the "Create Virtual Device" button on the Device Manager.  This will bring up a dialog like the one below:
+    <br />
+    <img src="../images/avd2.png" alt="Dialog for creating an AVD" />
+    </li>
+    <li>Select one with lower resolution (higher-resolution ones may be slow).  <em>Pixel</em> is a reasonable one to pick.</li>
+    <li>Select an Android version for the virtual device.  <strong>Choose an x86 image as it will be faster, but do NOT choose one with Google APIs as that will be a larger download, which could be slow on domestic internet, and we are not going to use Google APIs on this module.</strong> 
+    <br />
+    <img src="../images/avd3.png" alt="AVD: selecting Android version" />
+    </li>
+    <li>Once setup, your new AVD will appear on the list of virtual devices.</li>
+    </ul>    
+</p>
+<h3>Running on an actual device</h3>
+<p>You can test your apps on an actual device, though you have to enable the developer settings.  Full instructions on this are available
+<a href='https://developer.android.com/studio/debug/dev-options'>from the Android site</a>.
+On Linux and Mac OS X as no driver is required.  On Windows, a driver for your device is required, however Nexus devices can use the <a href="http://developer.android.com/sdk/win-usb.html">
+Google USB driver</a> which comes with the SDK. For other devices, you can download a driver for your device from the Android developer site.  See <a href='http://developer.android.com/tools/extras/oem-usb.html'>the Android documentation on driver installation</a> for more details. To summarise, you have to <em>download</em> and then <em>install</em> the driver. Even with the Google USB driver, included in the SDK, the <em>installation</em> step is necessary.</p> 
+<p>You should also be able to use a real Android device if you have one.</p>
+
+
+<h3>The Android SDK Manager</h3>
+<p>One of the most crucial components of the Android SDK is the <em>SDK Manager</em>. This piece of software, which can be run within Android Studio or standalone, allows you to download and install versions of the SDK for different versions of Android, along with other items such as documentation. So if a new version of the SDK is released, the SDK manager allows you to download that new version.  The default Studio download only comes with the latest versions of the SDK, so if you want to target older devices, you need to download older versions.
+</p>
+
+
+<h4>Starting the SDK Manager</h4>
+
+<p>On Android Studio, select <em>Tools-Android-SDK Manager</em>. This will launch an intermediate screen listing installation options; however for more control it's recommended you then click on <em>Launch Standalone SDK Manager</em> which will give you the SDK Manager as it appears if you launch
+it on its own without Android Studio.</p>
+
+<h4>Installing SDK versions from the Android SDK manager</h4>
+
+<p>You might want to install older SDK versions than those included by default by Android Studio.  For example, you might want to install Android 4.4 and 4.0.3 (API levels 19 and 15 respectively). To do this, you need to start the SDK manager as described above, and then select the platforms you want, e.g:
+<br />
+<img src="../images/sdkman1.png" alt="Android SDK manager with user about to install 4.0.3 and 4.4.2" />
+<br />
+You will then need to accept the licence and it will download the individual components of these versions of the SDK.  
+
+</p>
+
+<h2>Jetpack Compose</h2>
+<p>Android uses the <em>Jetpack Compose</em> UI library. We have already looked at <em>Compose Multiplatform</em> in OODD; Compose Multiplatform is the desktop adaptation of Jetpack Compose, which was originally an Android-only library. Everything you've learnt with Compose Multiplatform will help you develop for Jetpack Compose, and furthermore, Jetpack Compose has a number of additional features compared to Compose Multiplatform which are available on Android.</p>
+
+<h2>Compose Revision</h2>
+<p>You have done Compose already in OODD but the notes below are provided for revision.</p>
+<h3>Composable Funcrions</h3>
+<p>In Jetpack Compose, we define each component as a <em>composable function</em>. Composable functions typically represent reusable groups of UI elements which work together, e.g. a login composable function could contain username and password fields and a button which logs the user in.</p>
+
+<h4>Example of a composable function</h4>
+
+<p>This extension of Hello World uses a simple composable function containing two text elements.
+<pre>package com.example.jetpackcompose2 
+
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import android.os.Bundle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setContent {
+            HelloComposable()
+        }
+    }
+
+    @Composable
+    fun HelloComposable() {
+        Text("Hello World from the Composable!")
+    }
+}</pre>
+
+Note how we create a function <code>HelloComposable()</code> labelled with the <em>annotation</em> <code>@Composable</code>. Annotations are meta-language instructions which are converted by a pre-processor into more complex Kotlin or Java code. The <code>HelloComposable</code> function defins a <code>Text</code> composable which displays a Hello World message, while the original <code>setContent()</code> now contains the <code>HelloComposable</code>.</p>
+
+<h4>A more complex composable function</h4>
+<pre>package com.example.jetpackcompose3 
+
+
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import android.os.Bundle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Column
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setContent {
+            TwoTexts()
+        }
+    }
+
+    @Composable
+    fun TwoTexts() {
+        Column {
+            Text("Hello World!")
+            Text("Welcome to Android Development")
+        }
+    }
+}</pre>
+This example creates a composable function with <em>two</em> UI elements: two <code>Text</code> elements arranged vertically. The vertical layout is defined with <code>Column</code> which arranges all the elements within it in a vertical column. There is also <code>Row</code> which arranges all elements within it horizontally.</p>
+
+<h4>Controlling the appearance of UI elements</h4>
+
+<p>We can control the appearance of a UI element by setting various parameters on the element. For example we can control colour, font style (normal or italic), font weight (normal or bold) and font family. Here is the previous example with the appearance of the <code>Text</code> elements styled:
+<pre>package com.example.jetpackcompose3 
+
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import android.os.Bundle
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setContent {
+            TwoTextsStyled()
+        }
+    }
+
+    @Composable
+    fun TwoTextsStyled() {
+        Column {
+            Text("Hello World!", color = Color.Red, fontStyle=FontStyle.Italic, fontFamily=FontFamily.Serif)
+            Text("Welcome to Android Development", fontWeight=FontWeight.Bold)
+        }
+    }
+}</pre>
+Hopefully much of this is fairly clear but a few points:
+<p>Note how each argument to <code>Text</code> is labelled with an identifier, e.g. <code>fontStyle=...</code>. This is an interesting feature of Kotlin which is also seen in Python; we do not have to pass in the arguments to a function in order if we label them. So <code>Text()</code> for example has <code>color</code> and <code>fontStyle</code> parameters and these can be specified in any order as long as they are labelled.</p>
+
+<h4>Passing in Parameters</h4>
+<p>We can pass <em>parameters</em> into our composables and use those parameters to control how they display, e.g this composable will display a given message a given number of times in a column by using a loop to include a <code>Text</code> the given number of times displayed in a given colour (black by default):</p>
+<pre>
+@Composable
+fun MultiMessage(message: String, nTimes: Int, colour: Color = Color.Black) {
+    Column {
+        for(i in 1..nTimes) {
+            Text(message, color=colour)
+        }
+    }
+}
+</pre>
+<p>This could then be included in your App as follows:</p>
+<pre>@Composable
+fun App() {
+    MultiMessage("Hello Compose World!", 3, Color.Blue)
+}</pre>
+<h3>Events and State</h3>
+
+<p>Many UI elements in Compose Multiplatform come with an accompanying <em>event handler</em>, which runs when the user interacts with it. Examples include <code>Button</code> (which comes with a click handler) and <code>TextField</code> (which comes with an <code>onValueChange</code> event handler to handle the text in the text field changing). Event handlers are typically specified as <em>lambda functions.</em> We will now start building a <code>GreetingBox</code> which allows the user to enter their name and displays "Hello" plus their name.
+<pre>
+@Composable
+fun GreetingBox() {
+    Column {
+        TextField(value = "Enter your name: ", onValueChange={
+            /* event handler */ 
+        })
+        Text("Greeting will go here")
+    }
+}
+</pre>
+Note how the <code>TextField</code> takes two compulsory arguments, the default text to place inside the text field, and the <code>onValueChange</code> event handler which runs when the user enters text (a lambda function).  Note that here we have used named parameters in the <code>TextField</code>, we do not need to do this (as the value and <code>onValueChange</code> event handler are the first two parameters) but have added them for clarity.</p>
+<p>How can we actually display a greeting in the <code>Text</code> corresponding to the name that the user entered, though? Or, in general, how can we dynamically update a Compose UI? We use composable <em>state</em> to do this. In event handlers, we update state variables, and then we include that state in other UI elements. <strong>When a state variable updates, composables which use that state variable will automatically be redrawn.</strong> This is called <strong>recomposition.</strong> If you have worked with <em>React</em> in web development, you will recognise this pattern.</p>
+
+<p>So how do we setup state? We have to declare a <strong>state variable</strong> to represent the state. State variables are variables of type <code>MutableState</code>, for example <code>MutableState&lt;String&gt;</code> for a <code>String</code> state variable, though you don't normally need to declare the type as Kotlin infers it from your initialisation. For example:
+<pre>val nameState = remember { mutableStateOf("") }</pre>
+The <code>remember</code> function creates a <code>MutableState</code> variable called <code>nameState</code> which is initialised within the provided lambda to a blank string "". The state will be remembered when the composable is recomposed (redrawn).
+</p>
+<p>We can then insert the state variable within the UI where we like. To reference the actual value of the <code>MutableState</code>, we have to use its <code>value</code> property. For example:
+<pre>
+import androidx.compose.runtime.remember // new import
+import androidx.compose.runtime.mutableStateOf // new import
+import androidx.compose.runtime.setValue // new import
+import androidx.compose.runtime.getValue // new import
+
+@Composable
+fun GreetingBox() {
+    val nameState = remember { mutableStateOf("") }
+    Column {
+        TextField(value = nameState.value, onValueChange= { 
+            nameState.value = it 
+        })
+        Text("Hello ${nameState.value}!")
+    }
+}
+</pre>
+<ul>
+<li>
+Note how we set the <code>value</code> of the <code>TextField</code> to the state variable so that the text field is always in sync with the current value of the state variable.</li>
+<li>The <code>onValueChange</code> event handler lambda for the <code>TextField</code> takes the new text within the text field as its one and only parameter (<code>it</code>) so, in the event handler, we <em>update the state variable <code>nameState</code></em> to the current text in the text field. Then, in the <code>Text</code> element, we include the state variable in our greeting, so the greeting will always sync with what the user entered in the text field.</li>
+</ul>
+
+<h3>Buttons</h3>
+
+<p>Buttons in Compose Multiplatform are quite easy to setup. Here is an example:
+<pre>
+import androidx.compose.material.Button // new import
+
+@Composable
+fun ButtonExample() {
+    val clickedState = remember { mutableStateOf("Not Clicked!") }
+
+    Column { 
+        Button ( 
+            onClick = { clickedState.value="Clicked!" }
+        ){
+            // Text as a child composable of the button
+            Text("Click me!")
+        }
+        Text(clickedState.value, fontWeight = FontWeight.Bold)
+    }
+}
+</pre>
+The <code>Button</code> function takes a number of parameters including an <code>onClick</code> event handler, for which we usually pass a lambda. Here, the lambda updates the state variable to "Clicked!" to indicate the user has clicked the button - this is shown in the <code>Text</code> at the end of the composable. After specifying the other parameters of <code>Button</code> we specify a lambda containing the text to display on the button as a <code>Text</code> component.  In the same way as the <code>Button</code> and <code>Text</code> are child composables of the <code>Column</code>, this makes the <code>Text</code> a child composable of the button and will, as a result, make the text appear on the button.</p>
+
+<h3>Application resources</h3>
+<p>Android apps consist of Kotlin or Java code plus <em>resources</em> - additional data which the app needs to do its job. An example of a resource is an XML layout file, as described above. Resources can be found within <em>res</em>, as we saw above.</p>
+<p>One example of a resource is a <em>string resource</em>. In Android development, to make it easier to translate apps into different languages, much of the text that we see within the user interface is defined in a <em>string resource file</em> so that we can easily translate an app to a different language simply by editing the string resource file. This can be found within the <em>values</em> folder within <em>res</em>, in the file <em>strings.xml</em>.  If you look in the <em>strings.xml</em> file, you will see this line:<pre><code>&lt;string name="app_name"&gt;HelloWorldApp&lt;/string&gt;
+</code></pre>
+This defines a string called <code>app_name</code>, which specifies the application name.</p>
+<p>
+Add a new line to <code>strings.xml</code>:<pre>&lt;string name="helloworld"&gt;Geia sas Kosmos!&lt;/string&gt;
+</pre>
+(Sorry if I have got the Greek wrong!). 
+</p>
+<p>Now try changing <em>Hello World</em> in the code example above to <code>resources.getString(R.string.helloworld)</code>. This will read the appropriate string from the <code>strings.xml</code> file.</p>
+<p>As well as strings, the <em>res</em> folder can contain other types of resource. These include layout files (we can define our layout in XML; we will look at this in a future week), application menus (which we will come onto a bit later on) and images. When you distribute an app, all the resources are packed into one file along with your actual code.</p>
+<h4>The auto-generated R.java file</h4>
+<p>You might be a bit puzzled as to the meaning of the <em>R</em> in the code you added above, i.e.
+<pre>R.string.helloworld</pre>
+What, actually, is this "R"? It's a pre-generated Java class which contains "hooks" into your XML resource files. The <em>R.java</em> file, not directly accessible from Studio but present in your project, looks something like this:<pre><code>/* AUTO-GENERATED FILE.  DO NOT MODIFY.
+ *
+ * This class was automatically generated by the
+ * aapt tool from the resource data it found.  It
+ * should not be modified by hand.
+ */
+
+package com.example.nickw.helloworld;
+
+public final class R {
+    public static final class attr {
+    }
+    public static final class drawable {
+        public static final int icon=0x7f020000;
+    }
+    public static final class layout {
+        public static final int activity_main=0x7f030000;
+    }
+    public static final class string {
+        public static final int app_name=0x7f040001;
+        public static final int helloworld=0x7f040000;
+    }
+}
+</code></pre>
+</pre>
+Notice that it contains several static variables. These are identifiers which your Kotlin or Java code can use to access the XML, for example <em>R.layout.activity_main</em> has the hex value <em>0x7f030000</em> which is a "handle" for the activity_main.xml resource file. Every time you add a resource to an Android app, your <em>R.java</em> will automatically be updated and you will be able to use static attributes of <em>R</em> in your Java code to access different resources. Never edit R.java directly by the way, the system will always do it for you!
+</p>
+
+<h2>Exercises</h2>
+<p>As this is the first week, in order to start gently much of this will be revision on Compose (which you have already done in OODD) but in the context of an Android app rather than a desktop app.</p>
+<ol>
+<li>Try out "Hello World" and the "TwoTexts" and "TwoTextsStyled" examples, above.</li>
+<li>Write a complete working app including a composable to allow the user to enter a name via a <code>TextField</code>. The composable should greet the user by name in a <code>Text</code>, with a message such as <strong>Hello John!</strong></li>
+<li>Extend the app to feature two text fields to enter first name and last name. The greeting should then display the user's full name in one TextField.</li>
+<li>In the same app, write a composable to implement a counter. The composable should include a state variable to hold the counter's current value (initialise it to 0) plus a <code>Text</code> containing the counter's value and a button which, when pressed, increases the counter by one. Display the counter's value in red.</li>
+<li>In the same app, write a composable to convert feet to metres. One foot is 0.305 metres. The user should be able to enter a value in feet, and the result should be displayed in metres. Give your <code>TextField</code> a <code>label</code> parameter, this should be set equal to a lambda containing a <code>Text</code> element with the label "Enter feet", i.e.:
+<pre>TextField(feetState, onValueChange={...}, label={ Text("Enter feet:") }) ...</pre>
+    <ul>
+    <li><strong>Hint!</strong> Store the current feet as a <code>String</code> state variable and use <code>toDoubleOrNull()</code> (see below) when you need to do the conversion. This will be easier than storing the feet as a <code>Double</code> state variable. </li>
+    <li><strong>Hint 2:</strong> the <code>toDoubleOrNull()</code> method of <code>String</code> will return a <code>null</code> if the user enters something which is not a number (e.g. letters). You can make use of this together with the Elvis operator to set the value to 0 if the user enters a non-numeric value for the feet. You can also use it to display an error if the user enters a non-numeric value - have a go at this if you finish everything else.</li>
+    </ul>
+</li>
+</ol>
+</body>
+</html>
+</body>
+<html>
