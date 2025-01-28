@@ -62,7 +62,9 @@ class MainActivity : ComponentActivity() {
 }</pre>
 This creates a spacer with a height of 32 density independent pixels (see above).</p>
 
-<p>Other modifiers allow us to specify <em>padding</em> (the space between the border of a UI element and its content) or an element's <em>border</em>. For example, this surrounds a <code>GreetingComponent</code> component with a 2 dp wide blue border and with <em>padding</em> of 16dp between the border and the content. Note how <code>Modifier</code> contains many methods to modify different aspects of the element, and note how they can all be chained together.
+<p>Other modifiers allow us to specify <em>padding</em> (the space between the border of a UI element and its content) or an element's <em>border</em>. For example, this surrounds a <code>GreetingComponent</code> component with a 2 dp wide blue border and with <em>padding</em> of 16dp between the border and the content. The diagram below illustrates the composable's border and padding.</p>
+<img src="../images/padding.png" alt="Composable borders and padding" />
+<p> Note how <code>Modifier</code> contains many methods to modify different aspects of the element, and note how they can all be chained together.
 <pre>
 GreetingComponent(
     Modifier.border(BorderStroke(2.dp, Color.Blue))
