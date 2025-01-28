@@ -11,7 +11,7 @@
 <h1>Topic 8: Further Compose Multiplatform</h1>
 </header>
 <h2>Further introductory Compose topics</h2>
-<h3>Units of Measurement</h3>
+<h3 id='#unitsofmeasurement'>Units of Measurement</h3>
 <p>During the lab session last week we looked at how to specify font size, e.g.:
 <pre>Text("Hello World!", fontSize=24.sp)</pre>
 What does the font size <code>24.sp</code> mean? It's not just a number but a number with <code>.sp</code> appended. This is another example of an <em>extension function</em> on <code>Int</code>, as we saw last time, but what does <code>.sp</code> mean?</p>
@@ -30,7 +30,7 @@ What does the font size <code>24.sp</code> mean? It's not just a number but a nu
 
 <p>What then are <code>sp</code>? These are <em>scalable pixels</em>, which are basically the same as density-independent pixels, but they adapt to the user's chosen font size as well as the pixel density and thus should be used for specifying font size.</p>
 
-<h3>Modifiers</h3>
+<h3 id='#modifiers'>Modifiers</h3>
 <p>We can modify the appearance of UI elements with <em>modifiers</em> which allow you to control such things as padding, borders, etc. Modifiers are optional in some cases but compulsory in others. Modifiers are compulsory in the case of the <code>Spacer</code>, which is an element used to provide space between other elements. Here is an example with a <code>Spacer</code>:
 <pre>package com.example.jetpackcompose3 
 
@@ -75,7 +75,7 @@ Furthermore, to enhance the user experience and show an outline round the curren
 <pre><strong>OutlinedTextField</strong>(value, <strong>singleLine = true</strong>, onValueChange = ...)</pre>
 </p>
 
-<h2>Implementing Lists of Data</h2>
+<h2 id='lists'>Implementing Lists of Data</h2>
 <p>You may be able to figure out how to create a <em>list</em> of data. <strong>Think about how you would create a Compose application which implements a shopping list.</strong> It should contain a <code>TextField</code> allowing the user to enter an item, a <code>Button</code> which when pressed adds the item to the list, and then, below that, the shopping list itself should be displayed, with each item on a separate line. There should also be a "Clear" button which clears the list. How might you implement this?</p>
 
 <h3>Creating Lists</h3>
@@ -121,7 +121,7 @@ fun ShoppingList() {
     }
 }</pre>
 
-<h3>Lazy Lists</h3>
+<h3 id='#lazylists'>Lazy Lists</h3>
 
 <p>One issue with a long list of items is that by default, a long list consisting of a series of <code>Text</code> items in a <code>Column</code> will not be memory efficient. Why? Let's say there are 100 items in the list, but only 10 are visible on the screen at any time. The items off the screen are still being rendered, even though they are invisible. This is clearly inefficient.</p>
 
