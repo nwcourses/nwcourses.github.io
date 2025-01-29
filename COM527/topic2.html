@@ -345,7 +345,8 @@ Note how <code>items()</code> takes the list of items to render as its first par
 <h2>Exercise 1</h2>
 <ol>
 <li>Modify your exercise last week (the feet to metres converter) so that the composable has a 4dp wide red border with a padding of 20dp.</li>
-<li>Create a new project and copy the code of your main activity into it. Apply your application's pre-generated <em>theme</em> to it. Add a <code>Surface</code> and place your feet-to-metres converter composable within the surface.</li>
+<li>Create a new project and copy the code of your main activity into it. Apply your application's pre-generated <em>theme</em> to it. Change the border from red to your theme's primary colour. <strong>You will need to turn off dynamic theming - we will cover this in class.</strong></li>
+<li> Add a <code>Surface</code> and place your feet-to-metres converter composable within the surface.</li>
 <li>Add a button to your feet-to-metres converter which resets the feet to 0.</li>
 <li><strong>A bit harder!</strong> Try making the <code>TextField</code> occupy the whole <em>width</em> of the device. I have not shown you how to do this, but you might be able to figure it out. Look at the modifier used in the <code>Surface</code> example, above.</li>
 <li>Now try putting the <code>TextField</code> and <code>Button</code> (to clear the value) on the same line. The button should have 8dp padding. Hint: use a <code>Row</code> to contain both elements. It should look something like this:
