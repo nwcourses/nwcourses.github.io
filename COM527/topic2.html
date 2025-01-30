@@ -368,7 +368,7 @@ Note how <code>items()</code> takes the list of items to render as its first par
 Store the list items inside a <code>SnapshotStateList</code>, as we did in OODD.
 There should be, top to bottom:
 	<ul>
-	<li>a <code>Row</code> containing a <code>Text</code> reading "Item", a <code>TextField</code> to add the item, and a <code>Button</code> labelled "Add" which adds the item to the list when clicked. Set the weights of the items within the row so that the <code>TextField</code> is three times the width of the other two items.</li>
+	<li>a <code>Row</code> containing a <code>Text</code> reading "Item", a <code>TextField</code> to add the item, and a <code>Button</code> labelled "Add" which adds the item to the list when clicked. Set the weights of the items within the row so that the <code>TextField</code> is three times the width of the other text and the button is twice the width of the text.</li>
 	<li>below this, a <code>LazyColumn</code> containing the shopping list items. <strong>IMPORTANT:</strong> You will need to import <code>items</code> to use <code>LazyColumn</code>, this will not be clear from the syntax highlighting. The correct import is <code>imort androidx.compose.foundation.lazy.items</code>.
    </li>
    </ul>
