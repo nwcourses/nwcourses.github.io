@@ -173,7 +173,10 @@ All composables inside the theme will have the theme applied to them.</p>
 <h3>Using the Material Theme Builder</h3>
 
 <p>It can be difficult to specify the precise colours and typography you want for your app manually in the theme code so that they all blend nicely. Instead, you can create your own custom theme using the graphical <em>Material Theme Builder</em> tool available online <a href='https://material-foundation.github.io/material-theme-builder/'>here</a>. Using this tool you can pick your colour and font choices via a graphical interface, and export a <code>Theme.kt</code> file to use in your app.</p>
-<p>Note that changes may have have to be made to the generated <code>Theme.kt</code> due to version incompatibilities, some of the parameters may not be compatible with the version of Compose running on your system. In general, any parameters showing as red (i.e. error) can be removed. Also you may need to adjust the package name so it matches your project. Finally if you use a custom font you need to add Google Fonts as a dependency.</p>
+<p>Note that changes may have have to be made to the generated <code>Theme.kt</code> due to version incompatibilities, some of the parameters may not be compatible with the version of Compose running on your system. In general, any parameters showing as red (i.e. error) can be removed. Also you may need to adjust the package name so it matches your project: the generated files are likely to have the statement:</p>
+<pre>package com.example.compose</pre>
+<p>You need to adjust them so that the package matches yours. You can find the correct package name by adding <code>ui.theme</code> to your project package name e.g. <code>com.example.myapplication.ui.theme</code>. Your package name can be found at the top of your main activity source code file.</p>
+<p>Finally if you use a custom font you need to add Google Fonts as a dependency.</p>
 <h3>Using a Surface</h3>
 
 <p>The most fundamental UI component of Material Design is the <em>surface</em>. The <code>Surface</code> is the UI element which your Material Design theme is applied to, so you should wrap all your other components in a Surface. Surfaces can be styled, for example you can set the shape to specify the extent of curvature at the corners. You can have a surface on top of another surface, and each surface can be styled differently.</p>
@@ -366,7 +369,9 @@ Store the list items inside a <code>SnapshotStateList</code>, as we did in OODD.
 There should be, top to bottom:
 	<ul>
 	<li>a <code>Row</code> containing a <code>Text</code> reading "Item", a <code>TextField</code> to add the item, and a <code>Button</code> labelled "Add" which adds the item to the list when clicked. Set the weights of the items within the row so that the <code>TextField</code> is three times the width of the other two items.</li>
-	<li>below this, a <code>LazyColumn</code> containing the shopping list items. 	</ul>
+	<li>below this, a <code>LazyColumn</code> containing the shopping list items. <strong>IMPORTANT:</strong> You will need to import <code>items</code> to use <code>LazyColumn</code>, this will not be clear from the syntax highlighting. The correct import is <code>imort androidx.compose.foundation.lazy.items</code>.
+   </li>
+   </ul>
 </li>
 <li>Modify your app so that the <code>Row</code> appears <em>below</em> the list. You will need to use a <code>Box</code> for this.</li>
 </ol>
