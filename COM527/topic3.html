@@ -1,6 +1,6 @@
 <!DOCTYPE html><html>
 <head>
-<title>MAD Topic 4: XML Layouts, Views and Introduction to Mapping</title> 
+<title>MAD Topic 3: XML Layouts, Views and Introduction to Mapping</title> 
 <link rel="stylesheet" type="text/css" href="../css/android.css" />
 </head>
 <body>
@@ -137,12 +137,11 @@ element, and then reads the feet from it with
 <pre>val feet = et1.text.toString().toDouble()</pre>
 Note that the <code>.text</code> property of the edit text returns an object of type <code>Editable</code>. We then need to call <code>toString()</code> on the Editable to get the actual text out of the text field, and finally convert it to a <code>Double</code> using <code>toDouble()</code>.</p>
 <p>Then we convert the feet to metres and place the result in the TextView.</p> 
-<h2>Using Views from Jetpack Compose</h2>
-<p>Because Jetpack Compose is quite a recent development, there are many third-party libraries which use Views rather than Compose. You may want to use these libraries while still using Compose for your UI. You can do this with the <code>AndroidView</code> composable. <code>AndroidView</code> is used to make a composable from an existing <code>View</code>. We will look at the use of <code>AndroidView</code> a little later, but first we will take a look at <em>mapping</em> in Android apps. The mapping library that we are looking at makes use of Views, so it provides a perfect example of how to integrate Views-based libraries into a Compose application.</p>
 <h2>Introduction to Mapping</h2>
-<h3>Application builds - examining the build.gradle.kts file</h3>
-<p>Android projects use the build tool <a href='https://gradle.org'>Gradle</a> to build an executable Android app from your source code and resources. You have met Gradle briefly in OODD. Gradle uses a build file <em>build.gradle.kts</em> to tell it how to build the project. We are now going to take a first look at the app's <em>build.gradle.kts</em> file and examine how to include <em>third-party dependencies</em> (i.e. libraries).</p>
-<p>If you look at your <code>build.gradle.kts</code> you will see it looks something like this:</p>
+<p>Before looking at mapping, we are going to explore how to add third-party dependencies to our app.</p>
+<h3>Application builds - examining the Gradle build file and version catalog</h3>
+<p>Android projects use the build tool <a href='https://gradle.org'>Gradle</a> to build an executable Android app from your source code and resources. You have met Gradle briefly in OODD. Gradle uses a build file <code>build.gradle.kts</code> to tell it how to build the project. We are now going to take a first look at the app's <em>build.gradle.kts</em> file and examine how to include <em>third-party dependencies</em> (i.e. libraries).</p>
+<p>If you look at your <code>build.gradle.kts</code> (the one in your <code>app</code> folder, not the other one) you will see it contains a <code>dependencies</code> section looking something like this:</p>
 <pre>dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -153,7 +152,7 @@ Note that the <code>.text</code> property of the edit text returns an object of 
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.maplibre.compose)
+    implementation(libs.ramanimaps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -162,7 +161,7 @@ Note that the <code>.text</code> property of the edit text returns an object of 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }</pre>
-<p>The <code>implementation</code> lines are specific dependencies, for example <code>libs.androidx.activity.compose</code> for Compose. Where are these library names defined? They are defined in another file, the <strong>versions catalog</strong>. This has the filename <code>libs.versions.toml</code> and it defines the exact versions of dependencies. Here is an example of a versions catalog: 
+<p>The <code>implementation</code> lines are specific dependencies, for example <code>libs.androidx.activity.compose</code> for Compose. Where are these library names defined? They are defined in another file, the <strong>version catalog</strong>. This has the filename <code>libs.versions.toml</code> and it defines the exact versions of dependencies. Here is an example of a version catalog: 
 </p>
 <pre>
 [versions]
@@ -191,7 +190,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-maplibre-compose = { group = "dev.sargunv.maplibre-compose", name = "maplibre-compose", version = "0.6.0" }
+ramanimaps = { group = "org.ramani-maps", name = "ramani-maplibre", version = "0.8.3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -199,18 +198,26 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 </pre>
 <p>This contains a <code>[versions]</code> section at the top, defining exact versions of various libraries.</p>
-<p>This is followed by a <code>[libraries]</code> section, containing a series of definitions for each library. Note the relationship between this and the dependencies in the <code>build.gradle.kts</code>. The dots in the dependencies in <code>build.gradle.kts</code> are translated to dashes in the <code>[libraries]</code> section of the versions catalog. So, for example, the <code>libs.androidx.core.ktx</code> line from the dependencies in the Gradle build file corresponds to the <code>androidx-core-ktx</code> line in the catalog.</p>
+<p>This is followed by a <code>[libraries]</code> section, containing a series of definitions for each library. Note the relationship between this and the dependencies in the <code>build.gradle.kts</code>. The dots in the dependencies in <code>build.gradle.kts</code> correspond to dashes in the <code>[libraries]</code> section of the version catalog. So, for example, the <code>libs.androidx.core.ktx</code> line from the dependencies in the Gradle build file corresponds to the <code>androidx-core-ktx</code> line in the catalog.</p>
 <p>Each library definition in the <code>[libraries]</code> section sepcifies three items of data which uniquely identify a specific version of a specific library: the <code>group</code>, the <code>name</code> and the <code>version</code>:</p>
 <ul>
-<li>The <code>group</code> is the group of libraries that this library belongs to, for example <code>androidx.core</code> for core Jetpack libraries. For third-party libraries, the group is often unique to the organisation providing the library, e.g. their domain name in reverse, e.g. <code>com.example.superwidgets</code> for the SuperWidgets organisation.</li>
+<li>The <code>group</code> is the group of libraries that this library belongs to, for example <code>androidx.core</code> for core Jetpack libraries. For third-party libraries, the group is often unique to the organisation providing the library, e.g. their domain name in reverse, e.g. <code>com.example.superwidgets</code> for the SuperWidgets organisation with the domain <code>superwidgets.example.com</code>.</li>
 <li>The <code>name</code> is the name for this particular library.</li>
-<li>The <code>version</code> is the version we want to use. We can either use <code>version</code> for a specific version, or <code>version.ref</code> for a version reference. If the latter is used, the version will be looked up from the <code>[versions]</code> section of the <code>libs.versions.toml</code>.</li>
+<li>The <code>version</code> is the version we want to use. We can either use <code>version</code> for a specific version, or <code>version.ref</code> for a version reference. If the latter is used, the version will be looked up from the <code>[versions]</code> section of the catalog.</li>
 </ul>
+<h3>Adding a map to your app</h3>
 <p>To use mapping, we need to include a third-party mapping library,
-specifically <em>MapLibre GL</em>.</p>
-<p>We are going to add the MapLibre Native mapping library to our app as an example of a dependency. This will allow us to add a map to our main activity. We should define the library in the [libraries] section of our libs.versions.toml:</p>
+specifically <em>MapLibre Native</em>. (see <a href='https://github.com/maplibre/maplibre-native'>here</a>).</p>
+<p>Most location-based apps include a map as the content view of their main activity.  Android comes with inbuilt map functionality via Google Maps; however to use Google Maps you need to obtain an API key and it comes with some restrictions so we are going to use an alternative mapping library: <em>MapLibre Native</em>, available <a href='https://github.com/maplibre/maplibre-native'>here</a>. (A <em>library</em> is a collection of classes with related functionality, such as mapping).</p>
+<p>MapLibre Native is a third-party open source library which uses
+maps from any source, but commonly from the <a href='http://www.openstreetmap.org'>OpenStreetMap</a> project. OpenStreetMap is a global
+project to provide free and open mapping data which anyone can contribute to;
+see <a href='http://www.openstreetmap.org'>the website</a> for more details. 
+OpenStreetMap provides the mapping <em>data</em>, but other projects provide the rendered (drawn) maps. One such project, which has appeared very recently and allows clients to download maps without any usage restrictions is <a href='https://www.openfreemap.org'>OpenFreeMap</a>. We will be using this.</p>
+<h3>Including MapLibre Native in your project</h3>
+<p>Add it to the <code>[libraries]</code> section of your version catalog:</p>
 <pre>maplibre = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "maplibre"}</pre>
-<p>and the version in the [versions] section:</p>
+<p>and the specific version in the <code>[versions]</code> section:</p>
 <pre>maplibre = 11.5.1</pre>
 <p>and finally the dependency in the <code>build.gradle.kts</code>:</p>
 <pre>implementation(libs.maplibre)</pre>
@@ -220,14 +227,6 @@ libraries</em>. There are two repositories used: Google's own, and <a href="http
 <p> Once the dependency has been
 downloaded, it will be saved on your computer so that it will not need to
 be downloaded next time you open the project.</p>
-<h3>More on MapLibre Native</h3>
-<p>Most location-based apps include a map as the content view of their main activity.  Android comes with inbuilt map functionality via Google Maps; however to use Google Maps you need to obtain an API key and it comes with some restrictions so we are going to use an alternative mapping library: <em>MapLibre Native</em>, available <a href='https://github.com/maplibre/maplibre-native'>here</a>. (A <em>library</em> is a collection of classes with related functionality, such as mapping).</p>
-<p>MapLibre Native is a third-party open source library which uses
-maps from any source, but commonly from the <a href='http://www.openstreetmap.org'>OpenStreetMap</a> project. OpenStreetMap is a global
-project to provide free and open mapping data which anyone can contribute to;
-see <a href='http://www.openstreetmap.org'>the website</a> for more details. 
-OpenStreetMap provides the mapping <em>data</em>, but other projects provide the rendered (drawn) maps. One such project, which has appeared very recently and allows clients to download maps without any usage restrictions is <a href='https://www.openfreemap.org'>OpenFreeMap</a>. We will be using this.</p>
-</p>
 <h3>Latitude and Longitude</h3>
 <p>In order to understand location-based applications, it is important
 to understand the coordinate system used on the earth. The most common
@@ -252,7 +251,6 @@ position as <strong>longitude -1.4, latitude +50.9</strong>.</p>
 ackage com.example.maplibre_views_1
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
@@ -263,17 +261,20 @@ class MainActivity : AppCompatActivity() {
     // "lateinit" variables are variables which will be initialised later.
     // Here we cannot initialise the map immediately, only inside onCreate()
     // when the activity is setup and ready to go.
+
     lateinit var mapView: MapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         MapLibre.getInstance(this)
         setContentView(R.layout.activity_main)
 
         // Find the map view from the XML layout
         mapView = findViewById(R.id.mapView)
 
+
+        // Load the map. This is an asynchronous operation: the specified
+        // lambda runs when the map has been loaded.
 
         mapView.getMapAsync { map -&gt;
             // Set the map style and tile source - here we are using OpenFreeMap
@@ -288,20 +289,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    // These are Android lifecycle methods, we will cover these later
+    // These are Android lifecycle methods. 
     // They handle stages in the activity lifecycle, such as hiding the
     // activity and showing it again, and terminating the activity.
     // We implement these to ensure the map behaves correctly when the
     // activity changes state.
 
+    // onStart() and onResume() are called when the activity becomes visible
+    // again, after being hidden (e.g. user answers a phone call or navigates
+    // to another app)
+
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
     }
 
     override fun onResume() {
@@ -309,10 +309,21 @@ class MainActivity : AppCompatActivity() {
         mapView.onResume()
     }
 
+    // onPause() and onStop() are called when the activity becomes hidden (e.g.
+    // user answers a phone call or navigates to another app)
+
     override fun onPause() {
         super.onPause()
         mapView.onPause()
     }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+    }
+
+    // onDestroy() is called when the user quits the activity by pressing the 
+    // Back button, or the system terminates the app e.g. due to low memory.
 
     override fun onDestroy() {
         super.onDestroy()
@@ -345,8 +356,7 @@ operations. Sensitive operations can include:
     security concerns.</li>    
     </ul>
 </p>
-<p>We will look at permissions in more detail next time. For now, we just
-need to add one permission to the manifest file:
+<p>We will look at permissions in more detail in a future session. For now, we just need to add one permission to the manifest file:
     <ul>
     <li>INTERNET - needed to download the maps from the internet</li>
     </ul>
@@ -356,53 +366,14 @@ go <strong>before the &lt;application&gt; tag.</strong>
 &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
 </pre>
 </p>
-<h2>Back to using Views from Compose: Creating a Map Composable</h2>
-<p>Having now looked at mapping, we can create a Composable to contain an MapLibre Native map as an example of using Views in Compose. How do we do this in general?
-We make use of the <code>AndroidView</code> composable. This is a composable designed precisely for the purpose of including Views inside a Compose layout. When creating an <code>AndroidView</code> you should specify two parameters:    
+<h3>Using Views APIs in Compose</h3>
+<p>What do we do if we want to use Views-based APIs <em>within a Compose layout?</em> We make use of the <code>AndroidView</code> composable. This is a composable designed precisely for the purpose of including Views inside a Compose layout. When creating an <code>AndroidView</code> you should specify two parameters:    
     <ul>
     <li>The <em><code>factory</code></em>. This is a function which should create and return the View you wish to include in the Compose layout, such as a <code>MapView</code>.</li>
     <li>The <em><code>update</code></em> function. This code is called whenever the composable is re-rendered, for example because state changes. In here you would set any properties of the View that might need to change.</li>
     </ul>
 Here is an example <code>MapComposable</code> which is a composable wrapping a <code>MapView</code>:
-package com.example.maplibre1
-
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import com.example.maplibre1.ui.theme.Maplibre1Theme
-//import dev.sargunv.maplibrecompose.compose.MaplibreMap
-
-import org.maplibre.android.MapLibre
-import org.maplibre.android.camera.CameraPosition
-import org.maplibre.android.geometry.LatLng
-import org.maplibre.android.maps.MapLibreMap
-import org.maplibre.android.maps.MapView
-
-
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-       // MapLibre.getInstance(this)
-        setContent {
-            Maplibre1Theme {
-              // MaplibreMap()
-               MapComposable(LatLng(51.05, -0.72))
-            }
-        }
-    }
-
-
-}
+<pre>
 @Composable
 fun MapComposable(latLng: LatLng) {
         AndroidView(
@@ -414,10 +385,11 @@ fun MapComposable(latLng: LatLng) {
                     map.cameraPosition = CameraPosition.Builder()
                         .target(latLng).zoom(14.0).build()
 
-
-                    map1 = map
                 }
                 mapView
+            },
+            update = {
+                // handle changes to latLng (e.g. from a GPS) (not shown)
             }
         )
 }
@@ -426,36 +398,93 @@ Note how the <code>MapComposable</code> contains an <code>AndroidView</code>. To
     <ul>
     <li>The <code>factory</code>, a lambda, is run when the layout is first created. It takes one parameter <code>ctx</code>. This is a <code>Context</code>, a standard Android class which represents primary application components such as Activities. Here, the context <code>ctx</code> will represent the activity, but it can represent other components in some situations. The context is typically needed for creating the View: note how we pass it into the <code>MapView</code> in this case.</li>
    <li>Remember that the <em>final statement in a lambda represents the return value</em>. Here, the code to create the <code>MapView</code> is the final statement in the lambda, so the <code>MapView</code> will be returned from the factory in this case. This is what we must do: <strong>we must return the View from the factory function.</strong></li>
-    <li>Note also the <code>update</code> parameter. This is also a function: this function runs each time a composable is re-rendered, for example the state changes. In here, you make changes to the underlying View which may need to be made if the state changes. The <code>update</code> function takes the View that we returned from the <code>factory</code> as a parameter (<code>view</code> in the example), so here the parameter will represent the MapView. In this example, we might store the current latitude and longitude in state, in a <code>GeoPoint</code> object. This object is passed into our <code>MapComposable</code> from state, so will change when the state changes.</li>
+    <li>Note also the <code>update</code> parameter. This is also a function: this function runs each time a composable is re-rendered, for example the state changes. In here, you make changes to the underlying View which may need to be made if the state changes. The <code>update</code> function takes the View that we returned from the <code>factory</code> as a parameter (<code>view</code> in the example), so here the parameter will represent the MapView. In this example, 
+we could implement code to change position of the map when the <code>latLng</code> parameter to the <code>AndroidView</code> changes.</li>
     </ul>
 </p>
-<!--
+<h2>Making it easier - Ramani Maps</h2>
+<p>We have seen how, in theory, we can integrate a Views-based library into Compose. However, having to use <code>AndroidView</code> all the time can be cumbersome and we also have to take into account such things as handling the different lifecycle stages, such as <code>onPause()</code>, <code>onResume()</code>, 
+<code>onDestroy()</code> and so on. It would be nice to be able to use a "pure-Compose" approach to Android mapping and luckily we can. There are a few libraries out there which provide a pre-written Compose wrapper round MapLibre Native and one such library is <a href='https://github.com/ramani-maps/ramani-maps'>Ramani Maps</a>. Ramani Maps provides an easy-to-use Compose interface to MapLibre Native allowing you to write your map as a composable, and control properties such as the latitude, longitude and zoom level - as well as add shapes such as lines, polygons and circles to the map as markers. You can find out more about Ramani Maps in this <a href='https://www.youtube.com/watch?v=GI4rs9SDgX8'>video of the developer's presentation at the 2023 State of the Map Europe conference</a>.</p>
+<h3>A Hello World app using Ramani Maps</h3>
+<p>Here is a simple Hello World app using Ramani Maps.</p>
+<pre>
+package com.example.ramani_test
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import com.example.ramani_test.ui.theme.RamaniAppTheme
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.Style
+import org.ramani.compose.MapLibre
+import org.ramani.compose.CameraPosition
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            RamaniAppTheme {
+                MapLibre(
+                    modifier=Modifier.fillMaxSize(),
+                    styleBuilder= Style.Builder().fromUri("https://tiles.openfreemap.org/styles/bright"),
+                    cameraPosition = CameraPosition(
+                        target  = LatLng(51.05, -0.72), 
+                        zoom = 14.0
+                    )
+                )
+            }
+        }
+    }
+}
+</pre>
+<p>Note how we create a <code>MapLibre</code> composable to contain the map. We give it various properties, including a modifier, a <code>styleBuilder</code> and a <code>cameraPosition</code>. The <code>styleBuilder</code> allows us to define a map style, as we did for the standard MapLibre Native example. The <code>cameraPosition</code> allows us to define the position (<code>target</code>) and zoom level of the map.</p>
+<h4>Adding Ramani Maps to your project</h4>
+<ul>
+<li>Add the library to your <code>[libraries]</code> in the version catalog:
+<pre>ramanimaps = { group="org.ramani-maps", name="ramani-maplibre", version.ref="ramanimaps" }</pre>
+</li>
+<li>Add the version to the <code>[versions]</code> in the version catalog:
+<pre>ramanimaps = "0.8.3"</pre>
+</li>
+<li>Add the dependency to your <code>dependencies</code> section in your <code>build.gradle.kts</code>:
+<pre>implementation(libs.ramanimaps)</pre>
+</li>
+</ul>
 <h2>Exercises</h2>
 <p>Before attempting these exercises, ensure that you complete <strong>Exercises 1 and 2 from last week</strong>. You do not, however, have to complete the advanced (messaging) exercise.</p>
 <ol>
-<li>Create a simple Views application containing an <code>EditText</code>, <code>Button</code> and <code>TextView</code>. The <code>EditText</code> should allow the user to enter their name. When the user clicks the button, the <code>TextView</code> should greet the user by name by displaying "Hello" plus the name entered in the <code>EditText</code>. Use the feet to metres Views examples, above, for guidance.</li>
-<li>Try out the simple Views-based mapping example above.</li>
-<li>Using <code>AndroidView</code>, create a working Compose application showing an MapLibre Native map. Position it to latitude 50.9, longitude -1.4.</li>
+<li>Try out the simple Views-based MapLibre Native example above. You will need to select <em>Empty Views Activity</em> when asked what project type you want to create.
+    <ul>
+    <li>Set the latitude and longitude to the city centre (lat 50.902614 North/lon 1.404464 West)</li>
+    <li>Set the latitude and longitude to New York (lat 40.75 North, lat 74 West).</li>
+    <li>Set the latitude and longitude to your home town.</li>
+    </ul>
+</li>
+<li>Now create the same application using Ramani Maps (in a new project). Show the map at the same three locations as the first example.</li>
 <li>You are now going to make the map application more interesting by allowing the user to enter a latitude and longitude in two <code>TextField</code>s. Create a Compose layout with:
-	<ul>
-	<li>a row at the top, containing the two text fields and a button;</li>
-	<li>your map composable (from question 2) occupying the rest of the screen space.</li>
-	</ul>
+    <ul>
+    <li>a row at the top, containing the two text fields and a button;</li>
+    <li>your map composable (from question 2) occupying the rest of the screen space.</li>
+    </ul>
 The intended layout is shown below:
 <br />
 <img src="../images/map_controls_at_top.png" alt="Map layout with controls at top" />
 <br />
-The application should include these state variables:
-	<ul>
-	<li>most recently entered latitude and longitude (both strings);</li>
-	<li>current position (a <code>GeoPoint</code> - part of MapLibre Native).</li>
-	<li>When the user enters a latitude and longitude in the text fields, the latitude or longitude (as appropriate) state variable should be updated. When the user clicks the button, the <code>GeoPoint</code> should be updated appropriately.</li>
-	<li>Ensure the map updates when the <code>GeoPoint</code> changes.</li>
-	<li><strong>Important!</strong> Ensure the row containing the text field and button has a <code>zIndex</code> specified in the <code>Modifier</code> and set to <code>2.0f</code>. <code>zIndex</code> represents vertical height and ensures that the row will stack on top of the map; unfortunately TBC maps appear to overflow the space allocated to their parent <code>Composable</code> and occupy the rest of the screen.</li>
-	</ul>
+The application should include these <em>state variables</em>:
+    <ul>
+    <li>most recently entered latitude and longitude (both strings);</li>
+    <li>current position (a <code>LatLng</code> - part of MapLibre Native).</li>
+    </ul>
+When the user enters a latitude and longitude in the text fields, the latitude or longitude (as appropriate) state variable should be updated. When the user clicks the button, the <code>LatLng</code> should be updated appropriately.</li>
+<br>
+Ensure the map updates when the <code>LatLng</code> changes.</li>
+<!--
+    <li><strong>Important!</strong> Ensure the row containing the text field and button has a <code>zIndex</code> specified in the <code>Modifier</code> and set to <code>2.0f</code>. <code>zIndex</code> represents vertical height and ensures that the row will stack on top of the map; unfortunately TBC maps appear to overflow the space allocated to their parent <code>Composable</code> and occupy the rest of the screen.</li>
+-->
+    </ul>
 </li>
 </ol>
--->
-<p>The remainder of the notes will appear subsequently, they are subject to the results of some tests on the lab computers.</p>
 </body>
 </html>

@@ -369,11 +369,11 @@ Store the list items inside a <code>SnapshotStateList</code>, as we did in OODD.
 There should be, top to bottom:
 	<ul>
 	<li>a <code>Row</code> containing a <code>Text</code> reading "Item", a <code>TextField</code> to add the item, and a <code>Button</code> labelled "Add" which adds the item to the list when clicked. Set the weights of the items within the row so that the <code>TextField</code> is three times the width of the other text and the button is twice the width of the text.</li>
-	<li>below this, a <code>LazyColumn</code> containing the shopping list items. <strong>IMPORTANT:</strong> You will need to import <code>items</code> to use <code>LazyColumn</code>, this will not be clear from the syntax highlighting. The correct import is <code>imort androidx.compose.foundation.lazy.items</code>.
+	<li>below this, a <code>LazyColumn</code> containing the shopping list items. <strong>IMPORTANT:</strong> You will need to import <code>items</code> to use <code>LazyColumn</code>, this will not be clear from the syntax highlighting. The correct import is <code>import androidx.compose.foundation.lazy.items</code>.
    </li>
    </ul>
 </li>
-<li>Modify your app so that the <code>Row</code> appears <em>below</em> the list. You will need to use a <code>Box</code> for this.</li>
+<li>Try using the Box layout to create a 3x3 grid of the numbers 1 to 9 using buttons: 1-3 for the first row, 4-6 for the second row, 7-9 for the third row.</li>
 </ol>
 <h2>Advanced exercise</h2>
 <p>Have a go at implementing a prototype of a simple messaging application using Jetpack Compose (lacking the communication-between-two-users aspect!). It should look something like this:
