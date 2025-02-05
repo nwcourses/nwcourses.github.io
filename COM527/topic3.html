@@ -452,6 +452,60 @@ class MainActivity : ComponentActivity() {
 <pre>implementation(libs.ramanimaps)</pre>
 </li>
 </ul>
+<h3>Adding shapes to Ramani Maps</h3>
+<p>We can easily add shapes to the map, such as circles, polygons and polylines. Here is an example:</p>
+<pre>
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+       // enableEdgeToEdge()
+        setContent {
+            RamanitestTheme {
+                Column {
+                    MapLibre(
+                        modifier = Modifier.fillMaxSize(),
+                        styleBuilder = Style.Builder()
+                            .fromUri("https://tiles.openfreemap.org/styles/bright"),
+                        cameraPosition = CameraPosition(
+                            target = LatLng(51.05, -0.72), 
+                            zoom = 14.0
+                        )
+                    ) {
+
+                        Circle(center = LatLng(51.05, -0.72),
+                            radius = 100.0f,
+                            opacity = 0.5f
+                        )
+
+                        Polyline(
+                            points = listOf(
+                                LatLng(51.05, -0.72),
+                                LatLng(51.049, -0.723),
+                            ),
+                            color = "#0000ff",
+                            lineWidth = 3.0f
+                        )
+
+                        Polygon(
+                            vertices = listOf(
+                                LatLng(51.047, -0.72),
+                                LatLng(51.046, -0.723),
+                                LatLng(51.045, -0.717)
+                            ),
+                            fillColor = "#ff0000",
+                            opacity = 0.3f,
+                            borderColor = "#ff0000"
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+</pre>
+<p>Note how we add a <code>Circle</code>, a <code>Polyline</code> and a <code>Polygon</code> as child composables of the main <code>MapLibre</code> composable. We also give them properties, such as position (<code>center</code> for <code>Circle</code>, <code>points</code> for <code>Polyline</code> and <code>vertices</code> for <code>Polygon</code>), as well as <code>color</code> (colour names, e.g. "Red", or CSS-style RGB strings, e.g. "#ff0000"), <code>opacity</code> (0=fully transparent, 1=fully opaque), <code>radius</code> and  <code>lineWidth</code>.</p>
+<p>Hopefully you can appreciate that Ramani Maps allows you to code your maps in declarative, Compose style.</p>
 <h2>Exercises</h2>
 <p>Before attempting these exercises, ensure that you complete <strong>Exercises 1 and 2 from last week</strong>. You do not, however, have to complete the advanced (messaging) exercise.</p>
 <ol>
@@ -479,12 +533,18 @@ The application should include these <em>state variables</em>:
     </ul>
 When the user enters a latitude and longitude in the text fields, the latitude or longitude (as appropriate) state variable should be updated. When the user clicks the button, the <code>LatLng</code> should be updated appropriately.</li>
 <br>
-Ensure the map updates when the <code>LatLng</code> changes.</li>
-<!--
-    <li><strong>Important!</strong> Ensure the row containing the text field and button has a <code>zIndex</code> specified in the <code>Modifier</code> and set to <code>2.0f</code>. <code>zIndex</code> represents vertical height and ensures that the row will stack on top of the map; unfortunately TBC maps appear to overflow the space allocated to their parent <code>Composable</code> and occupy the rest of the screen.</li>
--->
+Ensure the map updates when the <code>LatLng</code> changes.<br>
+    <strong>Important!</strong> Ensure the row containing the text field and button has a <code>zIndex</code> specified in the <code>Modifier</code> and set to <code>2.0f</code>. <code>zIndex</code> represents vertical height and ensures that the row will stack on top of the map; the map overflows the space allocated to their parent <code>Composable</code> and occupies the rest of the screen.</li>
     </ul>
 </li>
+<li>Position the map at the university (50.9079, -1.4015) and add these shapes to the map:
+    <ul>
+    <li>The university, at lat 50.9079, longitude -1.4015. Use a red circle with radius 100.</li>
+    <li>The Saints football stadium as a green polygon with coordinates (50.9063, -1.3914), (50.9063, -1.3905), (50.9053, -1.3905) and (50.9053, -1.3914).</li>
+    <li>The route to the the railway station as a blue polyline of width 3 and coordinates (50.9079, -1.4015). (50.9071, -1.4015), (50.9069, -1.4047), (50.9073, -1.4077), (50.9081, -1.4134).</li>
+    </ul>
+</li>
+<li><strong>Advanced:</strong> investigate the <code>isDraggable</code> and <code>onDragFinished</code> properties of a circle. The latter occurs when the user finishes dragging a shape, and takes a lambda which receives the new <code>LatLng</code> as a parameter. Make your circle draggable, and update the <code>LatLng</code> state variable to the position that the circle is dragged to.</li>
 </ol>
 </body>
 </html>
