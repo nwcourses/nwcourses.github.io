@@ -114,7 +114,7 @@ your app's website (which can be linked to from Google Play) which spells
 out to users why the app needs location information and what will be done
 with it.</p>
 <h4>Adding location permission to the manifest file</h4>
-<p>There are two permissions for location: <code>ACCESS_FINE_LOCATION</code> for accurate (GPS) position, and <code>ACCESS_COARSE_LOCATION</code> (for less-accurate (wifi and cell-tower) position. As for any permission (dangerous and non-dangerous), you need to add the appropriate permission to the manifest:
+<p>There are two permissions for location: <code>ACCESS_FINE_LOCATION</code> for accurate (GPS) position, and <code>ACCESS_COARSE_LOCATION</code> (for less-accurate (wifi and cell-tower) position. <strong>As for any permission (dangerous and non-dangerous), you need to add the appropriate permission to the manifest:</strong>
 <pre>&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;</pre>
 </p>
 <h3>Basic use of Geolocation</h3>
@@ -164,7 +164,9 @@ This code sample shows how to use the Location API. It will listen to the device
 <ul>
 <li>the <em>location provider</em> (representing the actual provider of your location, such as the GPS, WiFi network or cell tower network). A string is used to refer to the provider.</li>
 <li>the <em>location manager</em> (class LocationManager) which controls access to the provider, allowing you to set such things as frequency of updates;</li>
-<li>the <em>location listener</em> (the object which handles location updates, so that every time the GPS location changes, for example, code in the location listener will run to react to the change in location).
+<li>the <em>location listener</em>: the object which handles location updates, so that every time the GPS location changes, for example, code in the location listener will run to react to the change in location. The location listener is represented by the <code>LocationListener</code> <em>interface</em> - remember we met interfaces in OODD. The location listener is the class which implements the <code>LocationListener</code> interface, e.g. here it's the <code>MainActivity</code>:
+<pre>public class MainActivity : ComponentActivity(), <em>LocationListener</em></pre>
+In the <code>LocationListener</code> we provide the methods specified by the interface. The key method is <code>onLocationChanged()</code>, which runs when we get a new location.
 </li>
 </ul>
 </p>
@@ -174,7 +176,7 @@ To go through the code above in more detail:
 <li>First we obtain a LocationManager. We do not instantiate a LocationManager
 object; instead we ask the system to obtain the default location manager for
 us with:
-<pre>val mgr: LocationManager = getSystemService(Context.LOCATION_SERVICE)</pre>
+<pre>val mgr = getSystemService(Context.LOCATION_SERVICE) as LocationManager</pre>
 </li>
 <li>We then ask the location manager to update the app with new location informatiom, using:
 <pre>mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this)</pre>
@@ -184,16 +186,13 @@ Note the parameters:
     <em>LocationManager.NETWORK_PROVIDER</em>), though these are less accurate.</li>
     <li>The second parameter specifies the frequency of updates in milliseconds (0 means update as frequently as possible);</li>
     <li>The third parameter specifies the minimum distance we must travel, in metres, before an update is obtained (again 0 means update as frequently as possible);</li>
-    <li>The fourth parameter specifies the <em>LocationListener</em> object which will process the location updates received - here it is <em>this</em>, i.e the current Activity will act as the LocationListener.</li>
+    <li>The fourth parameter specifies the <em>LocationListener</em> object which will process the location updates received - here it is <em>this</em>, i.e the current Activity will act as the LocationListener, as we discussed above.</li>
     </ul>
 </li>
-<li>A LocationListener is any object which <em>implements the LocationListener interface</em> e.g.
-<pre>public class MainActivity : AppCompatActivity(), <em>LocationListener</em></pre>.</li>
-</ul>
 </p>
-<p>In a <em>LocationListener</em>, you must provide four methods to handle different location events:
+<p>In a <em>LocationListener</em>, these methods handle different location events:
     <ul>
-    <li><em>onLocationChanged()</em>, which takes a Location object as a parameter. This runs when a new location is received from the provider.</li>
+    <li><em>onLocationChanged()</em> (<strong>compulsory</strong>), which takes a Location object as a parameter. This runs when a new location is received from the provider.</li>
     <li><em>onProviderDisabled()</em> and <em>onProviderEnabled()</em> (optional), which run when you physically disable, or re-enable, that provider (e.g the GPS) from your device.  Often you can leave these blank but if you want specific behaviour to occur when the user switches the GPS on and off, you would write it here.</li>
     <li>For more on these methods, see
     <a href="http://developer.android.com/reference/android/location/LocationListener.html">the API documentation</a>.</li>
@@ -211,16 +210,31 @@ Note the parameters:
 <img src='../images/extendedcontrols2.png' alt='Emulator extended controls' />
 </p>
 <h2>Updating the UI using the GPS position</h2>
-<p>How might you set the position of an osmdroid map to the GPS position, or even simply display the latitude and longitude on the UI? This is a little tricky as the map position is stored in <em>state</em> in a Compose application, as we saw two weeks ago, and state cannot be accessed outside composables (the GPS code will be outside our composables). How then can we communicate the GPS coordinates to the state variable of a composable?</p>
-<p>The answer is to use a <strong>view model</strong> with <strong>live data</strong>.
-</p>
+<p>Let's imagine we want to use GPS location with Compose. How might we do this? You can probably imagine the general approach: whenever we get a new GPS position, we need to update a <em>state variable</em> within our composable hierarchy, containing the latitude and longitude. However, our location listener code takes place <em>outside</em> the composable hierarchy, as shown below:</p>
+<pre>
+class MainActivity : ComponentActivity(), LocationListener {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MyAppTheme {
+                const latLngState = mutableStateOf(LatLng(0.0, 0.0))
+                MyMap(latLngState.value) // imagine MyMap is our own composable
+            }
+        }
+    }
+
+    fun checkPermissions() { /* omitted */ }
+    fun startGPS() { /* omitted */ }
+        
+    override fun onLocationChanged(loc: Location) {
+        // How can we access latLngState outside the composable hierarchy?
+    }
+}</pre>
+<p>So <em>how can we update a state variable within a composable, from outside that composable?</em>.
+We have to use special techniques such as using a <em>view model</em>.</p>
 
 <h2>The ViewModel</h2>
 
-<h3>Using GPS location with Compose</h3>
-
-<p>Let's imagine we want to use GPS location with Compose. How might we do this? You can probably imagine the general approach: whenever we get a new GPS position, we need to update a <em>state variable</em> within our composable hierarchy, containing the latitude and longitude. However, our location listener code takes place <em>outside</em> the composable hierarchy. So <em>how can we update a state variable within a composable, from outside that composable?</em></p>
-<p>We can't, directly. We have to use special techniques such as using a <em>view model</em>.</p>
 <h3>Why view models?</h3>
 <p> A common aim in object-oriented programming is to make all classes as concise, and focused on one thing, as possible. This makes the classes smaller and easier to understand, and thus maintain. A small, tightly-focused class (focused on one particular thing) has high <em>cohesion</em>. Achieving high cohesion is well-known good software engineering practice, as you should know from OODD.</p>
 <p>However, in Android development, if we are not careful our activities can quickly become very large and "bloated", and end up containing a lot of variables hoding the application's data and methods to manipulate that data. Thus they have low cohesion, as they are trying to do too many things. It would be better to try and <em>separate out the activity from its data</em> so that the activity only manages core operations (such as  <code>onCreate()</code> and setting up the UI) and have another class which stores the data.</p>
@@ -301,11 +315,12 @@ We can then update the <code>latLng</code> in the view model from our <code>onLo
     // inside the lambda, "it" will be the LatLng being observed; use it to update the UI
 }</pre>
 <h2>Exercises</h2>
+<p>Will appear here.</p>
+<!--
 <p>As some of you did not complete Week 3, the exercises are relatively short this week.</p>
 <ol>
 <li>Use the code examples above to produce a complete Jetpack Compose app which displays the current GPS latitude and longitude on-screen within <code>Text</code> composables. When the GPS position updates, the <code>Text</code> composables should update. You will need to use runtime permission checking, and the Location API. Also use a <code>ViewModel</code> with <code>LiveData</code> and an observer.</li>
 <li>Extend the first question to include a Ramani Maps map. The centre of the map should be set to the GPS position.</li>
-<!--
 <li>Find points of interest in your home town (such as pubs, churches, restaurants, sports grounds, etc) in your home town, and add markers to each. Test it out by setting the fake GPS position in the emulator to your home town.</li>
 <li>Use different markers for different point of interest types. There are some sample markers <a href="https://www.free-map.org.uk/fm/icons">here</a>.</li>
 <li><strong>Advanced:</strong> Store the points of interest in your <code>ViewModel</code> as a list of items and make them available as <code>LiveData</code>. Observe the <code>LiveData</code> from your UI and add markers for each point of interest in the <code>LiveData</code>.
@@ -315,8 +330,9 @@ We can then update the <code>latLng</code> in the view model from our <code>onLo
     </li>
     </ul>
 </li>
--->
 </ol>
 </p>
+-->
+
 </body>
 </html>
