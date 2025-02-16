@@ -12,13 +12,6 @@
 
 <p>This week will look at common UI elements for navigation including the <code>TopAppBar</code>, bottom navigation bar, floating action button and navigation drawer.</p>
 
-<h2>First - Compose template working on Giraffe</h2>
-<p>I am aware that some of you have had problems getting code to work on the older Giraffe version of Android Studio. I have prepared a template on GitHub which works on Giraffe and the university computers. It's at
-<code>https://github.com/nwcourses/ComposeTemplate</code>
-</p>
-
-<hr />
-
 <h2>Introduction</h2>
 
 <p>Last week we looked at navigation, and saw how we could represent multiple screens of an app with multiple composables and use <code>NavController</code> and <code>NavHost</code> to implement navigation. This week, we will look at how we can implement typical <em>UIs</em> designed for navigation, rather than just buttons.</p>
@@ -75,7 +68,6 @@ Scaffold(
 </pre>
 Note how we define the two colours using the <code>primaryContainer</code> and <code>primary</code> colours from the material theme: this is recommended in the documentation. The <em>actions</em> contains one or more icons to appear on the top app bar. Each action is defined with an <code>IconButton</code>: a composable which represents a clickable icon. 
 In our case, we just have one <code>IconButton</code> for the menu icon. The <code>title</code> of the top app bar is also defined.</p>
-<p><strong>IMPORTANT NOTE!</strong> If on Giraffe and API 33 (e.g. an older Android Studio installation), you will be using an older version of Compose and must replace <code>topAppBarColors</code> with <strong><code>smallTopAppBarColors</code></strong>.</p>
 <p>
 <code>IconButton</code> takes, as arguments:
     <ul>
@@ -260,6 +252,8 @@ another operation to take place. Under the hood, coroutines often use threads, b
 </p>
 <p>We will take a deeper look at coroutines in a future session.</p>
 <h2>Exercises</h2>
+<p>Will appear later.</p>
+<!--
 <h3>Imports needed</h3>
 <p>Please add these new imports:
 <pre>
@@ -297,5 +291,6 @@ import kotlinx.coroutines.launch
 <li>Change your <em>regular</em> navigation buttons from last week so they contain icons in addition to text. Use an <code>Settings</code> icon for the button to navigate to the settings, and an <code>ArrowBack</code> icon for the button to return to the main screen. Note for the latter you will need to use <code>Icons.Mirrored.Filled.ArrowBack</code>. The <code>Mirrored</code> is to account for the fact that some languages are right-to-left and the back arrow will point in the opposite direction in these languages.</li>
 <li>Return to question 2 from last week (the shopping list application) and add a floating action button which will take the user to the "add new shopping list entry" screen.</li>
 </ol>
+-->
 </body>
 </html>

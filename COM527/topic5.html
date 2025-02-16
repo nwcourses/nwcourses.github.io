@@ -10,7 +10,8 @@
 <h1>Navigation - Part 1</h1>
 </div>
 <h2>Introduction</h2>
-<p>This week will cover the use of the Navigation API (NavHost, NavGraph, NavController) to do basic navigation. Next week we will look at how we can create an App Bar and menu to enhance our navigation.</p>
+<p>This week will cover the use of the <em>Navigation API</em> (NavHost, NavGraph, NavController) to do basic navigation. Next week we will look at how we can create an App Bar and menu to enhance our navigation.</p>
+<p>We will also take a look at <em>delegated properties</em>.</p>
 <h2>Navigation</h2>
 <p>So far we have just looked at simple Android apps with a single screen. However, most real-world Android apps will feature <em>multiple screens</em> allowing the user to perform multiple operations. For example one screen might include a map, another screen might include a form allowing the user to add a new point of interest, and a third screen might show the app's settings.</p>
 <p>How is this done? The previous approach was to use <em>multiple activities</em> for each screen, so that a secondary activity would be launched from the main activity. However it's now recommended to use the Android <em>navigation</em> API to navigate from one screen to another within <strong>a single activity</strong>. Luckily, Jetpack Compose works very well with the navigation API. With the navigation API and Compose, you define different composables in different screens, and host them in a <code>NavHost</code> - see below.</p>
@@ -129,7 +130,64 @@ So if we wanted to navigate back to Composable A from Composable B when the user
 <p>The documentation <a href='https://developer.android.com/guide/navigation/backstack/circular'>here</a> describes a common problem in navigation. As discussed in the documentation, if we have three composables on the back stack (A, B, and C) and the sequence of navigation is A to B to C, then back to A again, we might want to pop <strong>both B and C</strong> from the back stack when the user returns to A. How can we do that? We could call <code>popBackStack()</code> twice. But what if the user could also navigate from A to C, in which case we would only need to pop once. We clearly need some way of <em>removing all composables above composable A</em>. As the article discusses, we can use <code>popUpTo()</code> to remove everything from the back stack up to the composable passed in as an argument. To do this we must supply a lambda as the final argument of <code>navigate()</code>, containing the <code>popUpTo()</code> call. So for example:
 <pre>navController.navigate("composableA") {popUpTo("composableA")}</pre>
 will remove all composables from the back stack above the latest copy of <code>composableA</code>.</p>
+<hr />
+<h2>Delegated properties</h2>
+<p>As well as an introduction to navigation, we will also cover the concept of <em>delegated properties</em> in Kotlin.</p>
+<p>You will have seen this syntax when declaring state variables (which are data type <code>MutableState</code>) in Compose:
+<pre>var name = remember { mutableStateOf("") }</pre>
+We can, however, use an alternate syntax as follows:
+<pre>var name: String <em>by remember</em> { mutableStateOf("") }</pre>
+If you use <code>by remember</code>, rather than just <code>remember</code>, you receive a variable with holding the actual data, with a data type of whatever that data is (e.g. <code>String</code> in this example), rather than a variable of type <code>MutableState</code>. This means that you do not need to use the <code>value</code> property when accessing or updating the value, as the variable represents the data itself, not the <code>MutableState</code>. You can just read or update the variable directly - and the UI will still recompose (be redrawn). But how, if the variable isn't a <code>MutableState</code> anymore? And what does the <code>by</code> mean? We have also seen it when initialising a <code>ViewModel</code>.</p>
+<p>When we use <code>by</code>, we are using a Kotlin feature known as <em>delegated properties</em>. Delegated properties, like custom getters and setters, allow you to <em>customise</em> what happens when you retrieve or update a property (attribute) of an object. They do it with a <em>delegate</em> class; see the <a href='https://kotlinlang.org/docs/delegated-properties.html'>documentation</a> for details. So delegates are rather like custom getters and setters, but rather than simply customising the getter and setter, you <em>delegate</em> the job of getting and setting a property to <strong>an entirely separate class</strong> - the delegate - which can give more flexibility in some situations. The <code>by</code> keyword specifies that we will be using a delegate.</p>
+<p> Here is an example of a basic property delegate, to show how they work:
+<pre>package com.example.delegates1
 
+import kotlin.reflect.KProperty
+
+class Student (var name: String, var course: String) {
+    var mark: Int by MarkDelegate()
+
+    override fun toString(): String {
+        return "Student $name on $course with mark $mark"
+    }
+}
+
+class MarkDelegate(private var controlledProperty: Int = 0) {
+    operator fun getValue(thisRef: Any?, property: KProperty&lt;*&gt;) : Int{
+        return controlledProperty
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty&lt;*&gt;, newValue: Int) {
+        if(newValue in 0..100) {
+           controlledProperty = newValue
+        } else {
+            println("Cannot set ${property.name} to $newValue for $thisRef")
+        }
+    }
+}
+
+
+fun main (args: Array<String>) {
+    val john = Student("John", "Software Engineering")
+    john.mark = 101
+    println(john)
+    john.mark = 83
+    println(john)
+    john.mark = -1
+    println(john)
+}</pre>
+Note how we are declaring a property <code>mark</code> inside the <code>Student</code> class but declaring it with <code>by MarkDelegate()</code>. This means that the <code>MarkDelegate</code> class will be responsible for handling retrieving the value of, and setting the value of, the <code>mark</code> property. <code>MarkDelegate</code> is thus a <em>delegate</em>. A delegate should contain two methods, <code>getValue()</code> and <code>setValue()</code>, which retrieve and update the associated value. Note also how the delegate class takes the property that it's controlling as a parameter:
+<pre>class Mark(<em>private var controlledProperty: Int=0</em>)</pre>
+If you look at <code>getValue()</code>, it's just returning the mark, so no custom behaviour occurs if we simply retrieve the value (e.g. by printing it). However <code>setValue()</code> is more interesting. Note how it take the new value as a parameter (<code>newValue</code>). The <code>setValue()</code> checks that the new value is in the range 0 to 100, and only updates the mark to the value if it is. So in other words, marks below 0 or above 100 will be rejected. So if we try to set the mark to any value less than 0 or greater than 100, it will not be updated. Note that the <code>thisRef</code> parameter in <code>setValue()</code> and <code>getValue()</code> refers to the object that the delegated property belongs to. Also the <code>property</code> parameter represents the property being controlled, and the property's name can be retrieved with <code>property.name</code>. Therefore the output of this program will be as follows:
+<pre>Cannot set mark to 101 for Student John on course Software Engineering with mark 0
+Student John on course Software Engineering with mark 0
+Student John on course Software Engineering with mark 83
+Cannot set mark to -1 for Student John on course Software Engineering with mark 83
+Student John on course Software Engineering with mark 83</pre>
+When we try to set the mark to 101 or -1, it's rejected. However when we set the mark to 83, it's accepted.</p>
+<p>Note that you can pass additional parameters to the delegate, but the first parameter always reference the property that the delegate is controlling.</p>
+<h3>Relevance to Compose state</h3>
+<p>The relevance to Compose state, then, is that the <code>MutableState</code> is acting as a delegate for the underlying data (of type <code>Int</code>, <code>String</code>, etc) stored within it. You get back a basic variable of type <code>Int</code>, <code>String</code>, etc, from <code>by remember</code>, but it's controlled by a <em>delegate</em>. This delegate is the <code>MutableState</code>, and has a custom  <code>setValue()</code> method. So, if we change the basic variable returned from <code>by remember</code> the delegate's <code>setValue()</code> (containing custom behaviour) runs, and as a result, a recompose occurs.</p>
 <h2>Exercises</h2>
 <p>Will appear here.</p>
 <!--
