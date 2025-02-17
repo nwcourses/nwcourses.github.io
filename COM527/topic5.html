@@ -135,9 +135,10 @@ will remove all composables from the back stack above the latest copy of <code>c
 <p>As well as an introduction to navigation, we will also cover the concept of <em>delegated properties</em> in Kotlin.</p>
 <p>You will have seen this syntax when declaring state variables (which are data type <code>MutableState</code>) in Compose:
 <pre>var name = remember { mutableStateOf("") }</pre>
+As we have seen, you then use <code>MutableState</code>'s <code>value</code> property to get the actual data from the <code>MutableState</code> object.</p>
 We can, however, use an alternate syntax as follows:
 <pre>var name: String <em>by remember</em> { mutableStateOf("") }</pre>
-If you use <code>by remember</code>, rather than just <code>remember</code>, you receive a variable with holding the actual data, with a data type of whatever that data is (e.g. <code>String</code> in this example), rather than a variable of type <code>MutableState</code>. This means that you do not need to use the <code>value</code> property when accessing or updating the value, as the variable represents the data itself, not the <code>MutableState</code>. You can just read or update the variable directly - and the UI will still recompose (be redrawn). But how, if the variable isn't a <code>MutableState</code> anymore? And what does the <code>by</code> mean? We have also seen it when initialising a <code>ViewModel</code>.</p>
+If you use <code>by remember</code>, rather than just <code>remember</code>, you receive a variable holding the actual data, with a data type of whatever that data is (e.g. <code>String</code> in this example), rather than a variable of type <code>MutableState</code>. This means that you do not need to use the <code>value</code> property when accessing or updating the value, as the variable represents the data itself, not the <code>MutableState</code>. You can just read or update the variable directly - and the UI will still recompose (be redrawn) if it's updated. But how can this be, if the variable isn't a <code>MutableState</code> anymore? And what does the <code>by</code> mean? We have also seen it when initialising a <code>ViewModel</code>.</p>
 <p>When we use <code>by</code>, we are using a Kotlin feature known as <em>delegated properties</em>. Delegated properties, like custom getters and setters, allow you to <em>customise</em> what happens when you retrieve or update a property (attribute) of an object. They do it with a <em>delegate</em> class; see the <a href='https://kotlinlang.org/docs/delegated-properties.html'>documentation</a> for details. So delegates are rather like custom getters and setters, but rather than simply customising the getter and setter, you <em>delegate</em> the job of getting and setting a property to <strong>an entirely separate class</strong> - the delegate - which can give more flexibility in some situations. The <code>by</code> keyword specifies that we will be using a delegate.</p>
 <p> Here is an example of a basic property delegate, to show how they work:
 <pre>package com.example.delegates1
@@ -167,7 +168,7 @@ class MarkDelegate(private var controlledProperty: Int = 0) {
 }
 
 
-fun main (args: Array<String>) {
+fun main () {
     val john = Student("John", "Software Engineering")
     john.mark = 101
     println(john)
@@ -187,11 +188,12 @@ Student John on course Software Engineering with mark 83</pre>
 When we try to set the mark to 101 or -1, it's rejected. However when we set the mark to 83, it's accepted.</p>
 <p>Note that you can pass additional parameters to the delegate, but the first parameter always reference the property that the delegate is controlling.</p>
 <h3>Relevance to Compose state</h3>
-<p>The relevance to Compose state, then, is that the <code>MutableState</code> is acting as a delegate for the underlying data (of type <code>Int</code>, <code>String</code>, etc) stored within it. You get back a basic variable of type <code>Int</code>, <code>String</code>, etc, from <code>by remember</code>, but it's controlled by a <em>delegate</em>. This delegate is the <code>MutableState</code>, and has a custom  <code>setValue()</code> method. So, if we change the basic variable returned from <code>by remember</code> the delegate's <code>setValue()</code> (containing custom behaviour) runs, and as a result, a recompose occurs.</p>
+<p>The relevance to Compose state, then, is that the <code>MutableState</code> is acting as a <em>delegate</em> for the underlying data (of type <code>Int</code>, <code>String</code>, and so on) stored within it. You get back a basic variable of type <code>Int</code>, <code>String</code>, and so on, from <code>by remember</code>, but it's controlled by a <em>delegate</em>. This delegate is the <code>MutableState</code>, and has a custom  <code>setValue()</code> method. So, if we change the basic variable returned from <code>by remember</code> the delegate's <code>setValue()</code> (containing custom behaviour to redraw the composable) runs, and as a result, a recompose occurs.</p>
 <h2>Exercises</h2>
 <p>Will appear here.</p>
 <!--
 <ol>
+<li>Change your mapping application so that all variables holding <em>state</em> are initialised with <code>by remember</code>, in other words they use the <code>MutableState</code> as a <em>delegate</em>.</li>
 <li>Enhance your mapping application so that it has two screens: one for the map itself, and a settings screen to set the map's <em>style source</em>, latitude and longitude. The style we have used so far is the OpenFreeMap <em>bright</em> style, however others are available (TBC).To set the tile source, store it in a state variable.
 Implement this using a boolean state variable <code>bright</code> which should be set to true if the user wants the Bright. In the settings screen use a <code>Switch</code> to set the Bright status. A <code>Switch</code> is a composable which can be "flicked" on and off, and is normally bound to a boolean state variable:
 <br />
