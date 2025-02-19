@@ -190,24 +190,23 @@ When we try to set the mark to 101 or -1, it's rejected. However when we set the
 <h3>Relevance to Compose state</h3>
 <p>The relevance to Compose state, then, is that the <code>MutableState</code> is acting as a <em>delegate</em> for the underlying data (of type <code>Int</code>, <code>String</code>, and so on) stored within it. You get back a basic variable of type <code>Int</code>, <code>String</code>, and so on, from <code>by remember</code>, but it's controlled by a <em>delegate</em>. This delegate is the <code>MutableState</code>, and has a custom  <code>setValue()</code> method. So, if we change the basic variable returned from <code>by remember</code> the delegate's <code>setValue()</code> (containing custom behaviour to redraw the composable) runs, and as a result, a recompose occurs.</p>
 <h2>Exercises</h2>
-<p>Will appear here.</p>
-<!--
 <ol>
 <li>Change your mapping application so that all variables holding <em>state</em> are initialised with <code>by remember</code>, in other words they use the <code>MutableState</code> as a <em>delegate</em>.</li>
-<li>Enhance your mapping application so that it has two screens: one for the map itself, and a settings screen to set the map's <em>style source</em>, latitude and longitude. The style we have used so far is the OpenFreeMap <em>bright</em> style, however others are available (TBC).To set the tile source, store it in a state variable.
-Implement this using a boolean state variable <code>bright</code> which should be set to true if the user wants the Bright. In the settings screen use a <code>Switch</code> to set the Bright status. A <code>Switch</code> is a composable which can be "flicked" on and off, and is normally bound to a boolean state variable:
+<li>Enhance your mapping application so that the map style can be set. It should have two screens: one for the map itself, and a settings screen to set the map's <em>style</em>, latitude and longitude. The style we have used so far is the OpenFreeMap <em>bright</em> style, however others are available, including the black-and-white <em>Positron</em> style.</p>
+<p>Implement this using a boolean state variable <code>blackAndWhite</code> which should be set to true if the user wants the black and white (Positron) style. In the settings screen use a <code>Switch</code> to set the <code>blackAndWhite</code> status. A <code>Switch</code> is a composable which can be "flicked" on and off, and is normally bound to a boolean state variable:
 <br />
 <img src="../images/switch.png" alt="A Switch composable" />
 <br />
 To use a <code>Switch</code>:
-<pre>Switch( checked=bright,
+<pre>Switch( checked=blackAndWhite,
     onCheckedChange = {
-        bright = it
+        blackAndWhite = it
     }
 )</pre>
-where <code>bright</code> is a state variable. Note how, with a <code>Switch</code>, we specify the <code>checked</code> status (on or off) and bind it to a boolean state variable. Then, when the user "flicks" the switch, the <code>onCheckedChange</code> lambda is run, which sets the boolean state variable to the current status of the switch. <br />
+where <code>blackAndWhite</code> is a state variable. Note how, with a <code>Switch</code>, we specify the <code>checked</code> status (on or off) and bind it to a boolean state variable. Then, when the user "flicks" the switch, the <code>onCheckedChange</code> lambda is run, which sets the boolean state variable to the current status of the switch. <br />
 <br />
-There should be a button on the main map screen to take the user to the settings screen, and another button on the settings screen to return the user to the map by popping the back stack.</li>
+There should be a button on the main map screen to take the user to the settings screen, and another button on the settings screen to return the user to the map by popping the back stack. <br />
+When creating your map composable, test the value of <code>blackAndWhite</code> and if it's <code>true</code>, set the style to <code>https://tiles.openfreemap.org/styles/positron</code>. Otherwise set it to <code>httpS://tiles.openfreemap.org/styles/bright</code>, as before.</li>
 <li>Implement a shopping list application with <em>two screens</em>. The first screen should display the list (see <a href='topic3.html'>Topic 3</a>). The second screen should allow the user to add a new entry. Use navigation to navigate between both; each screen should have a button allowing the user to navigate to the other screen. When the user has added an entry and returns to the main screen, pop the back stack to return to the main screen. Use a ViewModel to hold the list items and observe it from the main screen. 
 <br />
 <br />
@@ -224,7 +223,6 @@ The code below shows how you can use a view model holding live data as a <em>lis
 }</pre>
 </li>
 </ol>
--->
  
 </body>
 </html>
