@@ -217,7 +217,7 @@ class MainActivity : ComponentActivity(), LocationListener {
         super.onCreate(savedInstanceState)
         setContent {
             MyAppTheme {
-                const latLngState = mutableStateOf(LatLng(0.0, 0.0))
+                val latLngState = mutableStateOf(LatLng(0.0, 0.0))
                 MyMap(latLngState.value) // imagine MyMap is our own composable
             }
         }
