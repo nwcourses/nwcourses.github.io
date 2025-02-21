@@ -201,13 +201,13 @@ This sets the drawer state up to be closed by default.</p>
 
 <p>We then add code to the hamburger menu item in our <code>TopAppBar</code> to either open or close the navigation drawer depending on the drawer state. To return to the <code>IconButton</code> implementation in our top app bar, we can now fill in the <code>onClick</code> event handler:
 <pre>IconButton(onClick = {
-    coroutineScope.launch {
+    <strong>coroutineScope.launch {
         if(drawerState.isClosed) {
             drawerState.open()
         } else {
             drawerState.close()
         }
-    }
+    }</strong>
 }) {
     Icon(imageVector = Icons.Filled.Menu, "Menu")
 }</pre>
@@ -235,8 +235,11 @@ Hopefully you can see that the logic is either opening or closing the drawer dep
    // Place your NavHost here... 
 }</pre>
 Note how we've added code to close the navigation drawer when the user selects an item.</p>
+<!--
 <h3>Coroutines - a brief introduction</h3>
-<p>You're probably wondering what the <code>coroutineScope</code> means. The process of opening and closing a navigation drawer is potentially a time-consuming process which could potentially cause the UI to become unresponsive, thus it's done as a <em>background process</em>.</p>
+-->
+<p>You're probably wondering what the <code>coroutineScope</code> in the above code means. The process of opening and closing a navigation drawer is potentially a time-consuming process which could potentially cause the UI to become unresponsive, thus it's done as a <em>background process</em>. In Kotlin this is done using <em>coroutines</em> (hence <code>coroutineScope</code>) - we will return to this topic soon.</p>
+<!--
 <p>Previously the way to implement background processes was with 
 <em>threads</em>.  
     A <em>thread</em> is a separate strand of execution which permits
@@ -251,9 +254,8 @@ another operation to take place. Under the hood, coroutines often use threads, b
 <pre>val coroutineScope = rememberCoroutineScope()</pre>
 </p>
 <p>We will take a deeper look at coroutines in a future session.</p>
+-->
 <h2>Exercises</h2>
-<p>Will appear later.</p>
-<!--
 <h3>Imports needed</h3>
 <p>Please add these new imports:
 <pre>
@@ -291,6 +293,5 @@ import kotlinx.coroutines.launch
 <li>Change your <em>regular</em> navigation buttons from last week so they contain icons in addition to text. Use an <code>Settings</code> icon for the button to navigate to the settings, and an <code>ArrowBack</code> icon for the button to return to the main screen. Note for the latter you will need to use <code>Icons.Mirrored.Filled.ArrowBack</code>. The <code>Mirrored</code> is to account for the fact that some languages are right-to-left and the back arrow will point in the opposite direction in these languages.</li>
 <li>Return to question 2 from last week (the shopping list application) and add a floating action button which will take the user to the "add new shopping list entry" screen.</li>
 </ol>
--->
 </body>
 </html>
