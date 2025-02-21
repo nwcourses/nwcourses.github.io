@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Using osmdroid</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Additional notes</h1>
+<h1>Using osmdroid</h1>
+</div>
+<h2>Alternate mapping library - osmdroid</h2>
+<p>Unfortunately some issues have come to light with the MapLibre API not working correctly in some emulators on some devices. Also a bug has been discovered in which Ramani Maps crashes when used with navigation and <code>Symbol</code>s. Therefore, if you are having problems with MapLibre/Ramani, I am introducing an alternate mapping API which you can use - <code>osmdroid</code>. This is an older library which is not Compose-based but I have provided a simple Compose wrapper for it.</p>
+<h3>Using osmdroid</h3>
+<p>You need to include <code>osmdroid</code> into your project:
+<ul>
+<li>Add an entry to the <code>[libraries]</code> section of your version catalog (<code>libs.versions.toml</code>):
+<pre>osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref="osmdroid" }</pre>
+</li>
+<li>Add a version to the <code>[versions]</code> section of your version catalog:
+<pre>osmdroid = "6.1.20"</pre>
+</li>
+<li>Include it in your <code>dependencies</code> in the app <code>build.gradle.kts</code>:
+<pre>dependencies {
+    ...
+    implementation(libs.osmdroid)
+    ...
+}</pre>
+</li>
+</ul>
+</p>
+<p>You should also add this <code>AndroidView</code>-based osmdroid composable to your project:
+</p>
+<pre>import android.preference.PreferenceManager
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+
+data class Poi(val latLon: GeoPoint, val title: String, val description: String)
+
+@Composable
+fun OsmdroidComposable(
+    modifier: Modifier,
+    latLon: GeoPoint,
+    zoom: Double = 14.0,
+    tileSource: OnlineTileSourceBase = TileSourceFactory.MAPNIK,
+    poiList: List<Poi> = listOf()
+) {
+
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx -&gt;
+            // This line sets the user agent, a requirement to download OSM maps
+            Configuration.getInstance()
+                .load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
+
+            val map1 = MapView(ctx).apply {
+                isClickable = true
+                setMultiTouchControls(true)
+            }
+            map1
+        },
+        update = { view -&gt;
+            view.setTileSource(tileSource)
+            view.controller.setZoom(zoom)
+            view.controller.setCenter(latLon)
+            view.overlays.clear()
+            view.overlays.addAll(poiList.map {
+                Marker(view).apply {
+                    position = it.latLon
+                    title = it.title
+                    snippet = it.description
+                }
+            })
+        }
+    )
+}</pre>
+<p>To use it, include it in your composable hierarchy:</p>
+<pre>OsmdroidComposable(
+    modifier = Modifier.fillMaxSize(),
+    latLon = GeoPoint(51.05, -0.705),
+    zoom = 14.0
+)
+</pre>
+<p>A full example is available at the GitHub repository:</p>
+<pre>https://github.com/nwcourses/OsmdroidCompose</pre>
+<h3>More on osmdroid</h3>
+<p>Like MapLibre and Ramani Maps, <code>osmdroid</code> uses OpenStreetMap maps. These are downloaded from the OpenStreetMap tile server. It can use various <em>tile sources</em>, representing different styles of tiled map. The default one is the <code>MAPNIK</code> style - the default style for OpenStreetMap. Other available styles include <em>OpenTopoMap</em>, which shows contours and hill shading. Here is an example of using a custom style (OpenTopoMap):
+</p>
+<pre>OsmdroidComposable(
+    modifier = Modifier.fillMaxSize(),
+    latLon = GeoPoint(51.05, -0.705),
+    zoom = 14.0,
+    tileSource = TileSourceFactory.OpenTopo
+)
+</pre>
+</body>
+</html>
