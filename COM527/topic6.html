@@ -43,7 +43,9 @@ Scaffold(
     topBar = { },
     bottomBar = { },
     floatingActionButton = { }
-) { your main content } 
+) { 
+    // your main content...
+} 
 </pre>
 So with a <code>Scaffold</code> you define composables for navigation components as arguments, and then as the final argument you define your main content.</p>
 <p><em>See <a href='https://developer.android.com/jetpack/compose/components/scaffold'>the Android documentation</a> for more on Scaffold.</em></p>
@@ -52,22 +54,26 @@ So with a <code>Scaffold</code> you define composables for navigation components
 <pre>
 Scaffold(
     topBar = {
-        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
-                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                     titleContentColor = MaterialTheme.colorScheme.primary
-       ), actions = {
-           IconButton(onClick = {
-                // TODO (see below) - show the menu when the icon is clicked
-            }) {
-               Icon(imageVector = Icons.Filled.Menu, "Menu")
-            }
-        }, title = { Text("Top Bar Example") })
-}) { innerPadding -&gt;
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+			    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary
+            ), 
+            actions = {
+               IconButton(onClick = {
+                    // TODO (see below) - show the menu when the icon is clicked
+               }) {
+                   Icon(imageVector = Icons.Filled.Menu, "Menu")
+               }
+           }, 
+           title = { Text("Top Bar Example") }
+        )
+    }
+) { innerPadding -&gt;
     // main content is placed here
 }
 </pre>
-Note how we define the two colours using the <code>primaryContainer</code> and <code>primary</code> colours from the material theme: this is recommended in the documentation. The <em>actions</em> contains one or more icons to appear on the top app bar. Each action is defined with an <code>IconButton</code>: a composable which represents a clickable icon. 
-In our case, we just have one <code>IconButton</code> for the menu icon. The <code>title</code> of the top app bar is also defined.</p>
+Note how we define the two colours using the <code>primaryContainer</code> and <code>primary</code> colours from the material theme: this is recommended in the documentation. The <em>actions</em> represents the actions we wish to carry out when icons on the top app bar are clicked. It contains one or more icons along with an associated lambda function containing code associated with the action. Each action is defined with an <code>IconButton</code>: a composable which represents a clickable icon.</p>
 <p>
 <code>IconButton</code> takes, as arguments:
     <ul>
@@ -75,6 +81,7 @@ In our case, we just have one <code>IconButton</code> for the menu icon. The <co
     <li>a lambda containing the actual <code>Icon</code>.
     The <code>Icon</code> represents the actual icon which is displayed. <code>Icon</code> (and <code>IconButton</code>) is a composable. Material Design comes with a series of standard icons, which are recommended to be used where possible as they have been specifically designed to blend well into Material Design UIs. Here, we are using the standard <code>Menu</code> icon from Material Design, representing a "hamburger" menu.
     </ul>
+</p>
 <h3>Icons</h3>
 <p>There are a range of standard Material Design icons you can use within the <code>androidx.compose.material.icons.Icons</code> object; see <a href='https://developer.android.com/reference/kotlin/androidx/compose/material/icons/Icons'>the API documentation</a>, which shows the icons that are available.</p>
 <p>If you wish to use an icon which is not available in the <code>Icons</code> object, you can download it from the web; there is a much larger set available from <a href='https://fonts.google.com/icons'>fonts.google.com</a>. They are available in <em>Scalable Vector Graphics</em> (SVG) format. SVG is a <em>vector</em> image format, in other words shapes are defined by a series of vectors (lines from one point to another) which means that they scale easily compared to pixel-based (raster) icons.</p>
@@ -127,16 +134,19 @@ Hopefully the floating action button code is easy to understand: it has an <code
 <pre>Scaffold(
     bottomBar = {
         NavigationBar {
-            NavigationBarItem(icon = { Icon(Icons.Filled.Home, "Home") },
+            NavigationBarItem(
+                              icon = { Icon(Icons.Filled.Home, "Home") },
                               label = { Text("Home") },
                               onClick = { navController.navigate("home") },
-                               selected = true)
-            
+                              selected = false
+                             )
 
-            NavigationBarItem(icon = { Icon(Icons.Filled.Add, "Add Student") },
+            NavigationBarItem(
+                              icon = { Icon(Icons.Filled.Add, "Add Student") },
                               label = { Text("Add POI") },
                               onClick = { navController.navigate("addStudent") },
-                              selected = false)
+                              selected = false
+                             )
         }
     }
 ) { innerPadding -&gt; ... }</pre>
@@ -145,7 +155,7 @@ Again it shouldn't be too hard to understand. We specify a <code>NavigationBar</
     <li>an <code>icon</code>;</li>
     <li>a <code>label</code> (the text on the navigation item);</li>
     <li>an <code>onClick</code> event handler;</li>
-    <li>a <code>selected</code> boolean representing whether this option is selected by default.</li>
+    <li>a <code>selected</code> boolean representing whether this option is highlighted as selected. Currently we just set this to <code>false</code>; in a future session we will return to highlighting the currently selected item.</li>
     </ul>
 </p>
 <h3>Buttons with Icons and Text</h3>
