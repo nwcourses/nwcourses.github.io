@@ -10,7 +10,7 @@
 <h1>Using osmdroid</h1>
 </div>
 <h2>Alternate mapping library - osmdroid</h2>
-<p>Unfortunately some issues have come to light with the MapLibre API not working correctly in some emulators on some devices. Also a bug has been discovered in which Ramani Maps crashes when used with navigation and <code>Symbol</code>s. Therefore, if you are having problems with MapLibre/Ramani, I am introducing an alternate mapping API which you can use - <code>osmdroid</code>. This is an older library which is not Compose-based but I have provided a simple Compose wrapper for it.</p>
+<p>Unfortunately some issues have come to light with the MapLibre API not working correctly in some emulators on some devices, possibly due to graphics card incompatibilities. Also a bug has been discovered in which Ramani Maps crashes when used with the navigation API and <code>Symbol</code>s. A fix for this bug should be forthcoming but it cannot be guaranteed within the lifetime of the MAD module. Therefore, if you are having problems with MapLibre/Ramani, I am introducing an alternate mapping API which you can use as an alternative - <code>osmdroid</code>. This is an older library, not currently in active development (last release was last year) which is not Compose-based but I have provided a simple Compose wrapper for it.</p>
 <h3>Using osmdroid</h3>
 <p>You need to include <code>osmdroid</code> into your project:
 <ul>
