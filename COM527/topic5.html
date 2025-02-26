@@ -73,10 +73,10 @@ would navigate to the <code>settingsScreen</code> route, corresponding to the <c
 <h3>How to structure the application - using callbacks to enable loose coupling</h3>
 <p><em>This is discussed <a href='https://developer.android.com/guide/navigation/use-graph/navigate'>in the Android documentation</a>; see "Expose events from your composables".</em></p>
 <p>An application making use of navigation would probably navigate to another composable by means of a button press or menu selection. How might we implement this? Let's say a press of a button from Composable A causes navigation to Composable B. We have a problem because the <code>NavController</code> is not accessible in Composable A: only the top-level, parent composable can access the <code>NavController</code>. So we can't directly navigate to Composable B from Composable A. So how can we do it? 
-	<ul>
-	<li>We could pass in the <code>NavController</code> to Composable A. However this makes Composable A <em>coupled</em> to the <code>NavController</code> which is not ideal - we may, for some reason, want to change the navigation mechanism, and if we had to do this in all the child composables rather than just the parent, it would increase the maintenance effort.</li>
-	<li>For looser coupling, we can define a <strong>callback function</strong> to pass into Composable A. This callback function performs the navigation. <strong>This is the recommended approach.</strong></li>
-	</ul>
+    <ul>
+    <li>We could pass in the <code>NavController</code> to Composable A. However this makes Composable A <em>coupled</em> to the <code>NavController</code> which is not ideal - we may, for some reason, want to change the navigation mechanism, and if we had to do this in all the child composables rather than just the parent, it would increase the maintenance effort.</li>
+    <li>For looser coupling, we can define a <strong>callback function</strong> to pass into Composable A. This callback function performs the navigation. <strong>This is the recommended approach.</strong></li>
+    </ul>
 We looked at the callback-based approach in OODD but we will revise it now. The callback function is defined in the parent composable but <em>passed into</em> any child composable that needs it. So in our example, we might define the callback in a top-level <code>Surface</code> composable (which has access to the <code>navController</code>), but pass it into Composable A as an argument. When the button is clicked in Composable A, it will run the callback (because it was passed into Composable A) without having any direct knowledge of what the callback is doing. Thus, Composable A becomes <em>loosely coupled</em>. It's not coupled to the parent composable because it doesn't have any direct reference to the parent's variables. It just has a callback, which could come from <em>any</em> application, and blindly calls the callback when the button is pressed.</p>
 <p>So, in a callback approach, Composable A might look like this:
 <pre>
@@ -190,9 +190,25 @@ When we try to set the mark to 101 or -1, it's rejected. However when we set the
 <h3>Relevance to Compose state</h3>
 <p>The relevance to Compose state, then, is that the <code>MutableState</code> is acting as a <em>delegate</em> for the underlying data (of type <code>Int</code>, <code>String</code>, and so on) stored within it. You get back a basic variable of type <code>Int</code>, <code>String</code>, and so on, from <code>by remember</code>, but it's controlled by a <em>delegate</em>. This delegate is the <code>MutableState</code>, and has a custom  <code>setValue()</code> method. So, if we change the basic variable returned from <code>by remember</code> the delegate's <code>setValue()</code> (containing custom behaviour to redraw the composable) runs, and as a result, a recompose occurs.</p>
 <h2>Exercises</h2>
+<p><strong>IMPORTANT</strong> for this to work, you need to initialise your <code>Style.Builder</code> as an attribute of your <code>MainActivity</code>:
+<pre>
+class MainActivity.... {
+    var styleBuilder: Style.Builder = Style.Builder().fromUri("https://tiles.openfreemap.org/styles/liberty")
+}
+</pre>
+and then use the style builder as a variable when you initialise your <code>MapLibre</code> composable:
+<pre>
+MapLibre(
+     ....
+     styleBuilder = styleBuilder,
+     ...
+)
+</pre>
+</p>
 <ol>
 <li>Change your mapping application so that all variables holding <em>state</em> are initialised with <code>by remember</code>, in other words they use the <code>MutableState</code> as a <em>delegate</em>.</li>
-<li>Enhance your mapping application so that the map style can be set. It should have two screens: one for the map itself, and a settings screen to set the map's <em>style</em>, latitude and longitude. The style we have used so far is the OpenFreeMap <em>bright</em> style, however others are available, including the black-and-white <em>Positron</em> style.</p>
+<li>Change your mapping app so that it has two screens: one for the map itself, and a settings screen to set the map's latitude and longitude and zoom.
+<!--The style we have used so far is the OpenFreeMap <em>bright</em> style, however others are available, including the black-and-white <em>Positron</em> style.</p>
 <p>Implement this using a boolean state variable <code>blackAndWhite</code> which should be set to true if the user wants the black and white (Positron) style. In the settings screen use a <code>Switch</code> to set the <code>blackAndWhite</code> status. A <code>Switch</code> is a composable which can be "flicked" on and off, and is normally bound to a boolean state variable:
 <br />
 <img src="../images/switch.png" alt="A Switch composable" />
@@ -205,8 +221,12 @@ To use a <code>Switch</code>:
 )</pre>
 where <code>blackAndWhite</code> is a state variable. Note how, with a <code>Switch</code>, we specify the <code>checked</code> status (on or off) and bind it to a boolean state variable. Then, when the user "flicks" the switch, the <code>onCheckedChange</code> lambda is run, which sets the boolean state variable to the current status of the switch. <br />
 <br />
-There should be a button on the main map screen to take the user to the settings screen, and another button on the settings screen to return the user to the map by popping the back stack. <br />
-When creating your map composable, test the value of <code>blackAndWhite</code> and if it's <code>true</code>, set the style to <code>https://tiles.openfreemap.org/styles/positron</code>. Otherwise set it to <code>httpS://tiles.openfreemap.org/styles/bright</code>, as before.</li>
+-->
+There should be a button on the main map screen to take the user to the settings screen, and another button on the settings screen to return the user to the map by popping the back stack. When the user returns to the map, the latitude, longitude and zoom of the map should be set to the entries in the settings screen.
+<!-- <br />
+When creating your map composable, test the value of <code>blackAndWhite</code> and if it's <code>true</code>, set the style to <code>https://tiles.openfreemap.org/styles/positron</code>. Otherwise set it to <code>httpS://tiles.openfreemap.org/styles/bright</code>, as before.
+-->
+</li>
 <li>Implement a shopping list application with <em>two screens</em>. The first screen should display the list (see <a href='topic3.html'>Topic 3</a>). The second screen should allow the user to add a new entry. Use navigation to navigate between both; each screen should have a button allowing the user to navigate to the other screen. When the user has added an entry and returns to the main screen, pop the back stack to return to the main screen. Use a ViewModel to hold the list items and observe it from the main screen. 
 <br />
 <br />
