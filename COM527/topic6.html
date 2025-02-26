@@ -221,8 +221,8 @@ This sets the drawer state up to be closed by default.</p>
 }) {
     Icon(imageVector = Icons.Filled.Menu, "Menu")
 }</pre>
-Hopefully you can see that the logic is either opening or closing the drawer depending on whether it's currently closed or open. So each time the menu icon is clicked, the visibility of the drawer will flip. We will discuss the meaning of <code>coroutineScope.launch</code> below.</p>
-
+Hopefully you can see that the logic is either opening or closing the drawer depending on whether it's currently closed or open. So each time the menu icon is clicked, the visibility of the drawer will flip. We will discuss the meaning of <code>coroutineScope.launch</code> below but you need to set it up within your composable hierarchy as follows:</p>
+<pre>val coroutineScope = rememberCoroutineScope()</pre>
 <p>The other code we need to implement is code to close the drawer when the user clicks an item in the navigation drawer. To return to the code to do this:
 <pre>ModalNavigationDrawer(drawerState = drawerState,
     drawerContent = {
