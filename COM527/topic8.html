@@ -29,6 +29,7 @@ is compiled</li>
 <li>Annotations begin with @ followed by an annotation class name</li>
 <li>Annotations are processed either by the compiler or by third-party
 software</li>
+<li>You have already seen annotations when using Compose (i.e. <code>@Composable</code>)</li>
 </ul>
 <h3>Room and annotations</h3>
 <ul>
@@ -375,9 +376,10 @@ Note the version in the example above <code>2.0.0-1.0.23</code>, this is specifi
 <h4>Setting up the build.gradle.kts</h4>
 <p>Having added Room and KSP to your version catalog, you need to then specify the dependencies in your app <code>build.gradle.kts</code>. There are two things you need to do, specify the regular libraries and then specify the KSP plugin. First, the regular libraries:</p>
 <img src="../images/room_dependencies.png" alt="Specifying Room dependencies" />
-<p>Then you need to specify the KSP plugin, within the <code>plugins</code> section of your <code>build.gradle.kts</code> (at the top):</p>
+<p>Then you need to specify the KSP plugin, within the <code>plugins</code> section of your app <code>build.gradle.kts</code> (at the top):</p>
 <img src="../images/room_plugins.png" alt="Specifying Room KSP plugin" />
-
+<p>You also need to modify the <em>project</em> <code>build.gradle.kts</code> (the first of the two) to add a reference to the KSP plugin:</p>
+<img src="../images/room_project_plugins.png" alt="Specifying Room KSP plugin in project build.gradle.kts" />
 <h3>Important - Using KAPT if KSP does not work</h3>
 <p>For a currently-unknown reason, KSP was (one year ago - the issue has possibly been fixed) not compatible with some configurations of Android Studio. If you obtain obscure errors when using KSP (ensuring you follow the instructions carefully), please use the older <em>KAPT</em> tool instead. To use KAPT instead of KSP:
 <ul>
