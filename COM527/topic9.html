@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 9: Network Communication</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 9</h1>
+<h1>Network Communication</h1>
+</div>
+<p>In this topic we will:
+    <ul>
+    <li>Examine JSON</li>
+    <li>Look at how we can parse (interpret) JSON in Android</li>
+    <li>Look at how we can communicate across the web using <em>Fuel</em> and how we can parse JSON returned from a web server</li>
+    </ul>
+</p>
+
+<h2>JSON</h2>
+<h3>Introduction to JSON</h3>
+<p><em>JSON - JavaScript Object Notation</em> is a data format which is used
+to transfer data across the web between server-side scripts (written in
+technologies such as Node.js or JSP) and clients (such as Android apps).
+It uses JavaScript syntax to represent data. </p>
+<p>In JSON, data is transferred as objects and arrays of objects. We use square brackets [] to represent arrays and curly brackets {} to represent 
+objects. For example, if we had a server side script to look up details of famous people, we might get a result such as:
+<pre>
+{
+    "name": "Tim Berners-Lee",
+    "nationality": "British",
+    "dob" : "8/6/1955",
+    "comments" : "Inventor of the World Wide Web."
+}
+</pre>
+What is being sent back is a representation of an <em>object</em> with four <em>attributes</em>: <em>name</em>,
+<em>nationality</em>, <em>dob</em> and <em>comments</em>. Each attribute has a <em>value</em>.
+The curly brackets { and } begin and end the object.
+</p>
+<p>It is of course possible that we might get <em>more than one record</em> returned from the server. In this case, we get
+an <em>array</em> of objects back instead. For example, if we did a search for
+all people called Tim Smith studying at a university, we might get back something like this:
+<pre>
+[
+    { "username": "2smitt82", "year": "2", "course": "Computing", "phone": "07962 296229" },
+    { "username" : "1smitt71", "year": "3", "course": "Chemistry", "phone": "07713 271317" },
+    { "username": "3smitt93", "year": "1", "course" : "Web Design", "phone": "07862 141561" }
+]
+</pre>
+Note how the JSON contains an <em>array</em> of three student objects. The array is indicated with the square brackets [ and ], and within the
+array are three objects, each representing an individual student, and each indicated with curly brackets { and }.
+</p>
+<h3>Parsing JSON from Android</h3>
+
+<p>Android comes with a set of classes to parse JSON. These will load JSON into memory and convert them into Java objects.
+We make use of the following classes.
+    <ul>
+    <li><em>JSONObject</em> - represents an individual JSON object (such as the Tim Berners-Lee object above or each of the three individual
+    students in the Tim Smith example)</li>
+    <li><em>JSONArray</em> - represents an array of JSON objects, such as the array of the three students named Tim Smith in the
+    second example above.</li>
+    </ul>
+</p>
+
+<p>The general strategy for parsing JSON is to:
+    <ul>
+    <li>Load the string of JSON into a JSONArray or JSONObject (as appropriate)</li>
+    <li>If an array, loop through each individual JSONObject in the array and extract the individual
+    attributes;</li>
+    <li>Otherwise, simply extract the attributes.</li>. 
+    </ul>
+</p>    
+<p>Here is an example of some code which parses the above example (array of three students) into an output string, <code>parsedData</code>. Imagine the JSON above, containing the three student objects, is stored in a variable called <code>json</code>.
+<pre>
+var parsedData = ""
+val jsonArray = JSONArray(json) // 'json' contains our JSON (see above)
+
+// JSONArray.length() gives the number of elements inside the array
+for(i in 0 until jsonArray.length()) {
+    // Get the JSON object at index i within the JSON array
+    val curObject = jsonArray.getJSONObject(i)
+    
+    // Extract the individual fields of the current object with getString()
+    val username = curObject.getString("username")
+    val year = curObject.getString("year")
+    val course = curObject.getString("course")
+    val phone = curObject.getString("phone")
+
+    // Add the extracted data to an output string
+    parsedData += "Username: $username, Year: $year, Course: $course, Phone: $phone"
+}
+println(parsedData) 
+</pre>
+</p>
+<p>
+Note the following:
+    <ul>
+    <li>We use <em>getString()</em> with an attribute name to retrieve a particular attribute of the JSONObject.</li>
+    <li>There are corresponding <em>getInt()</em> and <em>getDouble()</em> methods if the attributes are ints and
+    doubles, rather than strings.
+        <ul>
+        <li>See <a href="http://developer.android.com/reference/org/json/JSONObject.html">the JSONObject API page</a> for full details
+        on the methods of JSONObject.</li>
+        </ul>
+    </li>
+    <li>If the JSON is in an incorrect format, a <em>JSONException</em> will be thrown.</li>
+    </ul>
+</p>
+<h2>Network communication</h2>
+<p>We will now examine how to perform communication across a network, with a web API, in Android and Kotlin. The first example will involve sending a basic
+GET request. (All of you should be familiar with HTTP requests, either via OODD or WAD; if not, please see <a href='../COM518/topic1.html'>here</a> and <a href='../COM518/topic2.html'>here</a>).</p>
+<h3>Sending a GET request</h3>
+<pre>
+@Composable
+fun NetworkComm() {
+    var responseText by remember { mutableStateOf("") } 
+    Column {
+        Button( onClick = {
+            var response = ""
+            // Launch the coroutine using our LifecycleScope - as last week
+            lifecycleScope.launch {
+
+                // Switch to the IO context to perform the HTTP request
+                withContext(Dispatchers.IO) {
+                    // Send a GET request to https://kotlinlang.org
+                    response = URL("https://kotlinlang.org").readText()
+                }
+                responseText = response
+            }
+        }) {
+            Text("Get data from Web!")
+        }
+        Text(responseText)
+    }
+}</pre>
+<p>Note how easy it is to send a simple GET request in Kotlin.
+We simply use the <em>readText()</em> extension function of Java's
+<em>URL</em> class. This will send an HTTP request to the given URL and return the response.</p>
+<p>Notice again how we use <em>coroutines</em> to send the request asynchronously, just like we did last week for querying an SQLite database. We switch to the <code>Dispatchers.IO</code> context to send the request, so that the UI remains responsive while waiting for the response to be delivered.</p>
+<h3>What about other requests? - Intro to Fuel</h3>
+<p>The URL extension function above allows us to send GET requests
+very easily, however we cannot send other request types (e.g. POST) in the
+same way.  There are, however, many third party libraries which allow us to 
+easily send HTTP request.  One of these is <em>Fuel</em>: "the easiest HTTP networking library for Kotlin/Android" in the words of its authors (see <a href="https://github.com/kittinunf/Fuel">here</a>), which I would personally agree with as it is quite intuitive.</p>
+<p>There's a lot you can do with Fuel, and we will cover some of the more common aspects, particularly those which are useful for interacting with a JSON web API.</p>
+<h3>More complex operations with Fuel</h3>
+<p>You can perform more complex operations with Fuel, in particular with
+JSON. To perform these operations, you use the <code>httpGet()</code> or <code>httpPost()</code> extension functions of <code>String</code>. This performs the request and then you can use methods such as <code>response()</code> or <code>responseJson()</code> to process the response. Such methods take a callback (typically a lambda function)
+which takes three parameters, a request object, a response object and a result object. The first two represent the HTTP request and response, while the final object is an object indicating whether the operation was successful or not. This is part of the <a href='https://github.com/kittinunf/Result'>Result</a> library, written by the same developer as Fuel, which is a general library for error-handling.</p>
+
+<p>We will look at three examples of using Fuel with Result to perform requests.
+Ensure these two dependencies are in your <code>build.gradle</code>:
+<pre>implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+implementation("com.github.kittinunf.fuel:fuel-android:2.3.1")</pre>
+The first dependency is Fuel itself. The second is the Android module for Fuel, which allows you to write asynchronous Fuel code without having to worry about creating the coroutines yourself: this is all done for you by the library.</p>
+<h4>Example 1 - simple case - get a string response</h4>
+<pre>
+@Composable
+fun FuelExample1() {
+    var responseText by remember { mutableStateOf("") } 
+    Column {
+        Button( onClick = {
+            // URL which returns JSON describing points of interest
+            var url = "https://hikar.org/webapp/tile?x=4079&amp;y=2740&amp;z=13&amp;poi=all"
+            url.httpGet().response { request, response, result -&gt;
+
+                when(result) {
+                    is Result.Success -&gt; {
+                        // result.get() gives ByteArray, decode to string
+                        responseText = result.get().decodeToString()
+                    }
+
+                    is Result.Failure -&gt; {
+                        // is failure if HTTP error
+                        responseText = "ERROR ${result.error.message}"
+                    }
+                }
+            }
+        }) {
+            Text("Get data from Web!")
+        }
+        Text(responseText)
+    }
+}</pre>
+Note how this is working:
+<ul>
+<li>We call the <code>httpGet()</code> String extension function on the URL, to send a GET request to it.</li>
+<li>The <code>response()</code> method of the object returned by <code>httpGet()</code> takes a lambda as an argument, which runs when the response is received.
+This lambda takes three parameters:
+    <ul>
+    <li><code>request</code> - an object representing the HTTP request;</li>
+    <li><code>response</code> - an object representing the HTTP response. It has a <code>statusCode</code> property containing the HTTP status code, and a <code>data</code> property containing the actual response body, amongst others.</li>
+    <li><code>result</code> - a <code>Result</code> object, part of the <code>Result</code> library. We can use this to get a range of information about the result, for example whether the request was successful or not, and the data returned from the URL (as an alternative to <code>response.data</code>)</li>
+    </ul>
+</li>
+<li>We then check the <em>type</em> of the result object. If the operation was successful, its type will be <code>Result.Success</code>, otherwise it will be <code>Result.Failure</code>. We check the type of a variable with the Kotlin <code>is</code> keyword.</li>
+<li>If successful, we use the <code>get()</code> method of the <code>result</code> object to get the data. In this example, this will give the response as plain text; we could alternatively use <code>response.data</code>. Note that <code>result.get()</code> returns a ByteArray object, so we have to convert it to a String before updating the state variable. Note how we are not having to switch context here - the Fuel Android module does this for us!</li>
+<li>Finally if the request failed, we use the <code>error</code> property of our result to get the exact error, and again update the state variable.</li>
+</ul>
+<h4>Example 2 - Returning the response as JSON</h4>
+<p>This next example will <em>automatically parse the JSON returned from a URL</em>. 
+To parse JSON, you need to add Fuel's JSON module to your <code>build.gradle</code>:
+<pre>implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")</pre>
+Imagine we have this JSON returned from the URL <code>https://example.com/products/cornflakes</code>:
+<pre>
+[
+    {
+        "id": 10201,
+        "name":"Cornflakes",
+        "manufacturer":"Organic Products Ltd.",
+        "price": 2.49 
+    },
+    {
+        "id": 14641,
+        "name":"Cornflakes",
+        "manufacturer":"Cockadoodle Cereal Co.",
+        "price": 1.79 
+    },
+    {
+        "id": 16384,
+        "name":"Cornflakes",
+        "manufacturer":"Smith Emporium",
+        "price": 0.79 
+    },
+]
+</pre>
+We could use this code to fetch the data from the URL <em>and parse the JSON</em>:
+<pre>
+@Composable
+fun FuelExampleJson() {
+    var responseText by remember { mutableStateOf("") } 
+    Column {
+        Button( onClick = {
+            var url = "https://example.com/products/cornflakes"
+            url.httpGet().responseJson { request, response, result -&gt;
+                when(result) {
+                    is Result.Success -&gt; {
+                        val jsonArray = result.get().array()
+                        var str = ""
+                        for(i in 0 until jsonArray.length()) {
+                            val curObj = jsonArray.getJSONObject(i)
+                            str += "Manufacturer: ${curObj.getString("manufacturer")} Price: ${curObj.getString("price")}\n" 
+                        }
+                        responseText = str    
+                    }
+
+                    is Result.Failure -&gt; {
+                        responseText = "ERROR ${result.error.message}"
+                    }
+                }
+            }
+        }) {
+            Text("Get data from Web (Fuel/JSON)!")
+        }
+        Text(responseText)
+    }
+}</pre>
+Much of the code is the same as the previous example, but the key differences are:
+    <ul>
+    <li>firstly note how we use <code>responseJson</code> rather than <code>response</code>, this will tell Fuel to treat the response as JSON and automatically parse the data returned. The data can then be processed using the standard JSON API, as seen above.</li>
+    <li>secondly, as a consequence, note how <em><code>result.get()</code> returns an object containing parsed JSON rather than plain text</em>. This is why it is a good idea to use <code>result.get()</code> when obtaining the response, because it returns different data depending on what type of response we asked for. We can then use either <code>array()</code> or <code>obj()</code> to obtain a <code>JSONArray</code> or <code>JSONObject</code> representing the data, depending on whether the top-level element in our JSON is an array or an object. It's an array here, as our JSON is an array of objects representing three cornflakes brands.</li>
+    <li>We can then parse the JSON using the standard JSON API, as before. Note how we parse the JSON, add it to a string, and then use string to update the state.</li>
+    </ul>
+</p>
+<h4>Example 3 - GSON</h4>
+<p>The standard JSON API works, but can be a little cumbersome when parsing large amounts of JSON. Consequently, an alternative JSON parsing library exists: <a href='https://github.com/google/gson'>GSON</a>. GSON is a JSON <em>serialising/deserialising</em> library, in other words, it automatically converts JSON to objects (<em>deserialisation</em>) and objects to JSON (<em>serialisation</em>). With GSON, you have to create classes which match the structure of your JSON: in Kotlin, <em>data classes</em> are the obvious choice. So when using GSON, you can automatically create objects from your JSON without having to manually parse the JSON, as in the previous example. It makes use of the Java (and Kotlin) feature <em>reflection</em>, in which we can query an object at runtime to find out its class and what methods and attributes it has.</p>
+<p>GSON is faily easy to use but with Fuel, it's easier still. We just need to define a data class corresponding to our JSON, so for the previous example we could define a Product class. Note how the properties of the Product class correspond to the fields in the JSON.
+<pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)</pre>
+To use GSON, you need to add Fuel's GSON module to your <code>build.gradle</code>:
+<pre>implementation("com.github.kittinunf.fuel:fuel-gson:2.3.1")</pre>
+We can  then use code such as the following to parse the JSON:
+<pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)
+
+@Composable
+fun FuelExampleGson() {
+    var products by remember { mutableStateOf(listOf&lt;Product&gt;()) } 
+    Column {
+        Button( onClick = {
+            val url = "https://example.com/products/cornflakes"
+            url.httpGet().responseObject&lt;List&lt;Product&gt;&gt; { request, response, result -&gt;
+                when(result) {
+                    is Result.Success -&gt; {
+                        products = result.get()
+                    }
+
+                    is Result.Failure -&gt; {
+                        responseText = "ERROR ${result.error.message}"
+                    }
+                }
+            }
+        }) {
+            Text("Get data from Web (Fuel/GSON)!")
+        }
+        products.forEach {
+            Text("${it.name} ${it.manufacturer} ${it.price}")
+        }
+    }
+}</pre>
+Note the differences from the previous example:
+    <ul>
+    <li>Rather than using <code>responseJson</code>, we use <code>responseObject</code> this time to indicate that we want to parse the JSON into a specific object. We have to specify the <em>type</em> of object the JSON is being parsed into: here it is <code>&lt;List&lt;Product&gt;&gt;</code> as we are parsing our JSON into a list of <code>Product</code>s (not a single <code>Product</code>, because the server will return <em>multiple</em> products).</li>
+    <li>Consequently, this time, <code>result.get()</code> will return a <code>List</code> of <code>Product</code> objects.</li>
+    <li>This is used to update the state (a list of products).</li>
+    <li>We then loop through each product in the list and create a <code>Text</code> object with each one.</li>
+    </ul>
+</p>
+<h4>Example 4 - using POST</h4>
+<p>This final example shows how to send a POST request with Fuel. Note how we create a list <code>Pair</code> objects representing our POST data. Each item of POST data is a <code>Pair</code> object containing a key/value pair. The key (e.g. <code>name</code>, <code>manufacturer</code> and <code>price</code>) represents which item of data it is, and the value (e.g. "Cherry Jam") represents the data itself. We send the data within our POST request to the server.
+<pre>
+@Composable
+fun FuelExamplePost() {
+    var responseText by remember { mutableStateOf("") } 
+    Column {
+        Button( onClick = {
+            val url = "https://example.com/product/create"
+            val postData = listOf("name" to "Cherry Jam", "manufacturer" to "Organic Jams Ltd", "price" to 1.89)
+            url.httpPost(postData).response { request, response, result -&gt;
+                when (result) {
+                    is Result.Success -&gt; {
+                        responseText = result.get().decodeToString()
+                    }
+
+                    is Result.Failure -&gt; {
+                        responseText = "ERROR ${result.error.message}"
+                    }
+                }
+            }
+        }) {
+            Text("POST data to server!")
+        }
+        Text(responseText)
+    }
+}</pre>
+</pre>
+</p>
+<p>For more information on Fuel, see
+<a href="https://github.com/kittinunf/Fuel">the website</a>.</p>
+<h2>Exercise</h2>
+<h3>Preparation</h3>
+<p>This exercise will allow you to write an Android client to a web API which looks up all songs by a particular artist and sends them back to the client as JSON. If you are doing COM518 (Web Application Development) you can use the web API you have been developing in that module. If not, you will need to do a little bit of preparation work to set up a server on your own machine:
+    <ul>
+    <li>Download and install <a href='https://nodejs.org'>Node.js</a>. If you are not aware, Node.js is an environment for writing JavaScript applications outside a browser, and it is frequently used for creating servers.</li>
+    <li>Install a third-party Node <em>module</em> (library) which you will need: <em>Express</em>. Express is a module to easily create web servers in Node.js. You'll also need the <code>better-sqlite3</code> module, as the server uses an SQLite database. You should use the package management tool <code>npm</code> to install these dependencies. At the command prompt, enter:
+<pre>npm install</pre>
+    </li>
+    <li>If you are studying WAD, you can use your own Node/Express server from that module. If not, download and extract <a href='madsongserver.zip'>this ZIP file</a>. It contains a simple Node.js server together with an SQLite database containing songs.</li>
+    <li>Before doing the exercise, run the server:
+<pre>node app.mjs</pre>
+    </li>
+    </ul>
+</p>
+<h3>Questions</h3>
+<p>Ensure you add the imports below to your application. Some of them will not be available via Alt-Enter as they have the same names as inbuilt Kotlin classes.
+<pre>
+import com.github.kittinunf.fuel.core.Parameters
+import com.github.kittinunf.fuel.httpGet
+// import com.github.kittinunf.fuel.json.responseJson // for JSON - uncomment when needed
+// import com.github.kittinunf.fuel.gson.responseObject // for GSON - uncomment when needed
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.result.Result
+</pre>
+</p>
+<p>If using a server on your local machine, you will have to add <code>android:usesCleartextTraffic="true"</code> to your <code>application</code> tag in the manifest, e.g.:
+<pre>
+&lt;application <strong>android:usesCleartextTraffic="true"</strong>...
+</pre>
+This is because by default, Android disallows access to insecure (HTTP) servers (not using HTTPS) and your <code>localhost</code> server is a plain HTTP server, not HTTPS. This parameter disables the HTTPS restriction allowing your app to communicate with your local server.</p>
+<ol>
+<li>Create a <em>new Android project</em>, and create a main activity containing a composable with a <code>TextField</code> (allowing the user to enter an artist to search for), a button (which when clicked will send a request to the server) and a <code>Text</code> (to show the results).
+</li>
+<li>Write code to send a request, using Fuel, to your server, so that it looks up all songs by the user's chosen artist. Note that on the emulator, if you are running the server on your own local machine, you can use the special IP address <code>10.0.2.2</code> to access it. Your Node server will be running on port 3000, unless you changed the port, so you can access your server via a URL such as:
+<pre>http://10.0.2.2:3000/artist/the artist you are looking for</pre>
+Initially, do not parse the JSON, but just show the JSON unparsed.</li>
+<li>Next, parse the JSON so the results are shown in user-friendly way on your interface. You can use either the standard JSON parser or GSON for this (see the second or third Fuel example, respectively). <strong>Your data class MUST be placed OUTSIDE your MainActivity.</strong>
+</li>
+<li>You need to make your results a scrollable list in order to see all of them if there are many. You'll need to use <code>LazyColumn</code> for this: see <a href='topic2.html'>topic 3</a>.</li>
+<li>Add a <em>second composable</em> to your project (accessible via navigation), to allow the user to <em>add a new song</em>. As you did in earlier topics, link the second screen to the first screen (ideally using a menu, but a button will be fine if you haven't done Topic 8). The second screen should contain text fields for title, artist, and year, and a button. When the button is clicked, send a POST request to your server containing the data. If you are using the <code>madsongserver.js</code>, or running your web server on localhost, the URL will be:
+<pre>http://10.0.2.2:3000/song/create</pre>
+If you are using your own server from COM518, you will need to add this additional line to your server:
+<pre>app.use(express.urlencoded({extended: false}));</pre>
+This is because with Fuel, the POST data is sent to the server a different way. It is not sent as JSON within the request body, but as a series of key-value pairs e.g.
+<pre>title=Wonderwall&amp;artist=Oasis&amp;year=1995</pre>
+The line above specifies a different piece of middleware which can parse POST data in this format (urlencoded).<br />
+If you are using <em>madsongserver</em> you will not need to do this, as it is already built-in.</li>
+<li>Check that your POST request works. You can do this by searching for songs by the artist you used for the new song or looking inside the provided <code>wadsongs.db</code> SQLite database.
+</li>
+</ol> 
+</body>
+</html>
