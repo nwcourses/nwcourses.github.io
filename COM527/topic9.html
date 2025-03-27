@@ -149,9 +149,9 @@ JSON. To perform these operations, you use the <code>httpGet()</code> or <code>h
 which takes three parameters, a request object, a response object and a result object. The first two represent the HTTP request and response, while the final object is an object indicating whether the operation was successful or not. This is part of the <a href='https://github.com/kittinunf/Result'>Result</a> library, written by the same developer as Fuel, which is a general library for error-handling.</p>
 
 <p>We will look at three examples of using Fuel with Result to perform requests.
-Ensure these two dependencies are in your <code>build.gradle</code>:
-<pre>implementation("com.github.kittinunf.fuel:fuel:2.3.1")
-implementation("com.github.kittinunf.fuel:fuel-android:2.3.1")</pre>
+Ensure these two dependencies are in your version catalog, and ensure you link the library in build.gradle.kts as usual. <strong>Use 2.3.1 for the Fuel version.</strong>
+<pre>fuel = { group="com.github.kittinunf.fuel", name="fuel", version.ref="fuel" }
+fuel-android = { group="com.github.kittinunf.fuel", name="fuel-android", version.ref="fuel" }</pre>
 The first dependency is Fuel itself. The second is the Android module for Fuel, which allows you to write asynchronous Fuel code without having to worry about creating the coroutines yourself: this is all done for you by the library.</p>
 <h4>Example 1 - simple case - get a string response</h4>
 <pre>
@@ -199,8 +199,8 @@ This lambda takes three parameters:
 </ul>
 <h4>Example 2 - Returning the response as JSON</h4>
 <p>This next example will <em>automatically parse the JSON returned from a URL</em>. 
-To parse JSON, you need to add Fuel's JSON module to your <code>build.gradle</code>:
-<pre>implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")</pre>
+To parse JSON, you need to add Fuel's JSON module:
+<pre>fuel-json = { group="com.github.kittinunf.fuel", name="fuel-json", version.ref="fuel" }</pre>
 Imagine we have this JSON returned from the URL <code>https://example.com/products/cornflakes</code>:
 <pre>
 [
@@ -266,8 +266,8 @@ Much of the code is the same as the previous example, but the key differences ar
 <p>The standard JSON API works, but can be a little cumbersome when parsing large amounts of JSON. Consequently, an alternative JSON parsing library exists: <a href='https://github.com/google/gson'>GSON</a>. GSON is a JSON <em>serialising/deserialising</em> library, in other words, it automatically converts JSON to objects (<em>deserialisation</em>) and objects to JSON (<em>serialisation</em>). With GSON, you have to create classes which match the structure of your JSON: in Kotlin, <em>data classes</em> are the obvious choice. So when using GSON, you can automatically create objects from your JSON without having to manually parse the JSON, as in the previous example. It makes use of the Java (and Kotlin) feature <em>reflection</em>, in which we can query an object at runtime to find out its class and what methods and attributes it has.</p>
 <p>GSON is faily easy to use but with Fuel, it's easier still. We just need to define a data class corresponding to our JSON, so for the previous example we could define a Product class. Note how the properties of the Product class correspond to the fields in the JSON.
 <pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)</pre>
-To use GSON, you need to add Fuel's GSON module to your <code>build.gradle</code>:
-<pre>implementation("com.github.kittinunf.fuel:fuel-gson:2.3.1")</pre>
+To use GSON, you need to add Fuel's GSON module to your version catalog: 
+<pre>fuel-gson = { group="com.github.kittinunf.fuel", name="fuel-gson", version.ref="fuel" }</pre>
 We can  then use code such as the following to parse the JSON:
 <pre>data class Product (val id: Int, val name: String, val manufacturer: String, val price: Double)
 
@@ -374,7 +374,7 @@ Initially, do not parse the JSON, but just show the JSON unparsed.</li>
 <li>Next, parse the JSON so the results are shown in user-friendly way on your interface. You can use either the standard JSON parser or GSON for this (see the second or third Fuel example, respectively). <strong>Your data class MUST be placed OUTSIDE your MainActivity.</strong>
 </li>
 <li>You need to make your results a scrollable list in order to see all of them if there are many. You'll need to use <code>LazyColumn</code> for this: see <a href='topic2.html'>topic 3</a>.</li>
-<li>Add a <em>second composable</em> to your project (accessible via navigation), to allow the user to <em>add a new song</em>. As you did in earlier topics, link the second screen to the first screen (ideally using a menu, but a button will be fine if you haven't done Topic 8). The second screen should contain text fields for title, artist, and year, and a button. When the button is clicked, send a POST request to your server containing the data. If you are using the <code>madsongserver.js</code>, or running your web server on localhost, the URL will be:
+<li>Add a <em>second composable</em> to your project (accessible via navigation), to allow the user to <em>add a new song</em>. As you did in earlier topics, link the second screen to the first screen (just button-based navigation is fine). The second screen should contain text fields for title, artist, and year, and a button. When the button is clicked, send a POST request to your server containing the data. If you are using the <code>madsongserver.js</code>, or running your web server on localhost, the URL will be:
 <pre>http://10.0.2.2:3000/song/create</pre>
 If you are using your own server from COM518, you will need to add this additional line to your server:
 <pre>app.use(express.urlencoded({extended: false}));</pre>
