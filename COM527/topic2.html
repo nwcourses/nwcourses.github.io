@@ -334,7 +334,7 @@ fun ShoppingList() {
 
 <p>We can solve this problem through the use of <em>lazy columns</em>. The <code>LazyColumn</code> is designed to hold a series of items (i.e. a list) but is implemented with memory optimisation so that only for the items currently visible are rendered.</p>
 
-<p>Creating a <code>LazyColumn</code> is quite straightforward, you place it in the appropriate place in your layout and then specify a lambda to control how it works. This lambda takes an object of type <code>LazyListScope</code> as its single parameter and this object includes an <code>items</code> method to specify a list of items. For example:
+<p>Creating a <code>LazyColumn</code> is quite straightforward, you place it in the appropriate place in your layout and then specify a lambda to control how it works. This lambda takes an object of type <code>LazyListScope</code> as its single parameter and this object includes an <code>items</code> method to specify a list of items. For example (ensure you include both imports; Alt+Enter will not be able to find <code>items</code>):
 <pre>import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
