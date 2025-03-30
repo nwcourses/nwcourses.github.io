@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mobile Application Development: Part 10: Dialogs, Notifications</title>
+<link rel="stylesheet" type="text/css" href="../css/android.css" />
+</head></p>
+<body>
+<div class='titlebox'>
+<h1>Mobile Application Development - Part 10</h1>
+<h1>Dialogs, Notifications</h1>
+</div>
+<p>In this topic we will:
+    <ul>
+    <li>Look at how to create dialog boxes in Compose</li>
+    <li>Look at notifications</li>
+    </ul>
+</p>
+<p><strong>PLEASE NOTE: Preview. Further content may be added before the Wednesday/Thursday class.</strong></p>
+<h2>Dialogs</h2>
+<p>When developing software we frequently have to catch the user's attention, by displaying a prominent message to the user or prompting the user to enter essential information. We do this by means of <em>dialog boxes</em>. Dialog boxes are pop-up boxes which appear in front of the main UI and either contain informatioin or prompt the user to enter information. In Compose, there are two main composables available to allow us to use dialogs: the <code>AlertDialog</code> and the plain <code>Dialog</code>.</p>
+<p>Which of these you use depends on the requirements of your app. A very common type of dialog is one which presents important information to the user or asks the user to confirm an action. This will always contain some text, a "Dismiss" button (to hide the dialog), and a "Confirm" button (which allows the user to confirm an action). This type of dialog is known as an <em>alert dialog</em>, and because it is such a common type of dialog, there is a composable specialised for it - the <code>AlertDialog</code>.</p>
+<p>If you wish to develop a more complex dialog, for example to allow the user to enter text or to pick an image or a colour scheme, then you should use the ordinary <code>Dialog</code> class together with a composable containing the content, for example a <code>Surface</code> or a <code>Column</code>.</p>
+<p>We will look at each of these now.</p>
+<h3>AlertDialog</h3>
+<p>The <code>AlertDialog</code> is the simplest to code, as it does not require a custom layout. You specify common properties of the dialog, and Compose will build a dialog for you. Here is a simple example:</p>
+<pre>
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            DialogsTheme {
+                var dialogVisible by remember { mutableStateOf(false) }
+                var dialogSubmitted by remember { mutableStateOf(false) }
+
+                Column {
+                    if (dialogSubmitted) {
+                        Text(fontSize = 24.sp, text = "Tickets booked.")
+                    } else {
+                        Button(onClick = {
+                            dialogVisible = true
+                        }) {
+                            Text("Book Tickets")
+                        }
+                    }
+                }
+
+                if (dialogVisible) {
+                    AlertDialog(
+                        icon = {
+                            Icon(painter=painterResource(R.drawable.transit_ticket_24dp), "Book Tickets")
+                        },
+                        title = {
+                            Text("Book Tickets")
+                        },
+                        text = {
+                            Text(
+                                "Do you want to book the tickets?"
+                            )
+                        },
+                        onDismissRequest = {
+                            dialogVisible = false
+                        },
+                        dismissButton = {
+                            Button(onClick = {
+                                dialogVisible = false
+                            }) {
+                                Text("Dismiss")
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = {
+                                dialogVisible = false
+                                dialogSubmitted = true
+                            }) {
+                                Text("Confirm")
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+</pre>
+<p>Note how we define the dialog with <code>AlertDialog</code>: it is placed within our material theme (so the theme will apply to it) but outside our main <code>Column</code>. Note how the <code>AlertDialog</code> takes various arguments:</p>
+    <ul>
+    <li><code>icon</code> (optional) - an icon which will appear at the top of the dialog.</li>
+    <li><code>title</code> - the dialog title, appears at the top of the dialog, below the icon.</li>
+    <li><code>text</code> - the main content of the dialog.</li>
+    <ii><code>onDismissRequest</code> - a callback function which runs when the user dismisses the dialog by clicking outside it.</li>
+    <li><code>dismissButton</code> - the button to use for the dismiss action. Should have an <code>onClick</code> and some content, like a normal <code>Button</code>.</li>
+    <li><code>confirmButton</code> - the button to use for the confirm action. Should have an <code>onClick</code> and some content, like a normal <code>Button</code>.</li>
+    </ul>
+<p>Note that we use state variables to control whether the dialog is visible or not. In our main column we have a "Book Tickets" button, which when clicked, sets the state variable <code>dialogVisible</code> to true. This triggers a recompose, so that when the composable is next drawn, the <code>AlertDialog</code> will be shown, as it's only displayed if <code>dialogVisible</code> is true.</p>
+<p>Also note how if the user presses either the confirm or the dismiss buttons, the <code>dialogVisible</code> state variable is set to false, so the dialog will disapper. Additionally, if the user presses the confirm button, the <code>dialogSubmitted</code> state variable is set to true, which means that a confirmation message is rendered in the column rather than the original book button.</p>
+<h3>Using the standard Dialog</h3>
+<p>The <code>AlertDialog</code> is very useful if we want to produce a standard alert dialog with Confirm and Dismiss buttons. However if we want to implement a custom UI for the dialog, we should use the <code>Dialog</code> composable instead. With <code>Dialog</code>, you define a standard composable (such as a <code>Surface</code> or <code>Column</code>) containing your content, and wrap a <code>Dialog</code> round it to turn it into a dialog.</p>
+<p>Here is an example showing a login dialog:</p>
+<pre>if (loginDialogVisible) {
+    Dialog(
+        onDismissRequest = {
+            loginDialogVisible = false
+        }
+    ) {
+        var username by remember { mutableStateOf("username") }
+        var password by remember { mutableStateOf("password") }
+        Column(
+            modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(10.dp)
+        ) {
+            Text("Username")
+            TextField(value = username, onValueChange = { username = it })
+            Text("Password")
+            TextField(value = password, onValueChange = { password = it },
+                visualTransformation = PasswordVisualTransformation())
+            Button(onClick = {
+                loginDialogVisible = false
+                loggedIn = username == "fred" &amp;&amp; password == "s3cr3t123"
+            }) {
+                Text("Login!")
+            }
+        }
+    }
+}</pre>
+<p>Note how we create a <code>Dialog</code> containing a <code>Column</code> as its content. This column implements a login form (note the <code>visualTransformation</code> of <code>PasswordVisualTransformation</code> to hide the password). When the button is clicked, we set the <code>loginDialogVisible</code> state variable to hide the dialog, and we also set a <code>loggedIn</code> state variable to true if the login details were correct. This could be used, for example, to show hidden content.</p>
+<h2>Notifications</h2>
+<p>
+Frequently we wish to inform the user of an event, such as receiving an email, or getting a new message in social media. Such a message is known as a <em>notification</em>. In Android, a notification is a message which appears as an icon at the top of the device and also appears in a notification list. The <code>Notification</code> class represents a notification.</p>
+</div>
+<h3>Setting up permissions</h3>
+<p>To use notifications in an application targeting API level 33 (Android 13) upwards, you need to add the <code>POST_NOTIFICATIONS</code> permission to the manifest:</p>
+<pre>&lt;uses-permission android:name="android.permission.POST_NOTIFICATIONS" /&gt;</pre>
+<p>Additionally the <code>minSdk</code> should be at least 26 if you wish to use notification channels (see below).</p>
+<h3>Notification channels</h3>
+<p>On Android Oreo (API level 26) and upwards, notifications must be associated with a particular <em>channel</em>.  Channels group together related notifications; all notifications on a given channel can be associated with the same
+sound or light colour (e.g. flashing green for text message, blue for a social media update, and so on.  A user can allow or block all notifications on a particular channel for a particular app, by going to the settings for that app, selecting "Notifications", and turning that specific channel on or off.</p>
+<p>To use channels, create a <code>NotificationChannel</code> object with a given ID.</p>
+
+<div>
+<h3>Notification channels - example</h3>
+<p>The example was originally based on that provided
+<a href='https://developer.android.com/develop/ui/views/notifications/channels'>here</a>, but has been modified.  More information on channels can be found on this page, including associating
+a channel with a notification light colour or vibration, organising
+channels into groups, opening the user's notification settings and deleting
+channels.</p>
+<pre>
+val channelID = "EMAIL_CHANNEL" 
+
+val channel = NotificationChannel(channelID, "Email notifications", NotificationManager.IMPORTANCE_DEFAULT) 
+val nMgr = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+nMgr.createNotificationChannel(channel)
+</pre>
+</p>
+<p>
+Note that:
+    <ul>
+    <li><code>nMgr</code> is an object of type <code>NotificationManager</code>. It is a system-wide object used for managing notifications.</li>
+    <li>the <code>channelID</code> is a unique string identifier for that channel.</li>
+    <li>When we create a <code>NotificationChannel</code>, we supply the channel ID, the visible name of the channel ("Email notifications" here), and the channel importance. The importance controls how prominently the notifications are displayed.</li>
+    </ul>
+</p>
+<div>
+<h3>Creating and Displaying a Notification</h3>
+<ul>
+<li>A notification <em>builder</em> is used to construct the <code>Notification</code> object, by specifying options for the notification such as the icon and the associated text. For example:
+<pre>
+val notification = Notification.Builder(this, channelID)
+        .setContentTitle("Time update")
+        .setContentText("Time is now ${System.currentTimeMillis()}")
+        .setSmallIcon(R.drawable.caution)
+        .build()
+</pre>
+
+This will create a notification on the channel <code>channelID</code> (see above) with the title "Time update" and full message text showing the current time in milliseconds since Jan 1 1970.</li>
+<li>To actually show the notification, you should obtain the <code>NotificationManager</code> (we did this above when creating a notification channel) and call its <code>notify()</code> method, passing in the <code>Notificiation</code> object:
+<pre>nMgr.notify(uniqueId, notification) // uniqueId is a unique ID for this notification</pre>
+</li>
+</ul>
+</div>
+
+<div>
+<h3>Making something happen when the user selects the notification</h3>
+<p>In many cases, we will want something to happen when the user clicks on a notification.  or example, imagine a mapping app in which you receive a notification when you are nearby a point of interest. You might want a separate activity to launch when the user clicks on the notification, which displays full details of the point of interest (e.g a description, and reviews, for a pub or hotel).
+</p>
+<p>To do this we need to use <em>pending intents</em>. Before looking at pending intents, we also need to look at Android's <code>Intent</code> class. An <code>Intent</code> is a representation of an action to launch, or communicate with, some other app component. For example, if we wish to create a second <code>Activity</code> (with Compose, less common than it used to be), we would create an <code>Intent</code> to launch the second activity. <code>Intent</code>s can contain data, known as <em>extras</em>, which are useful if we wish to pass data between activities. These are stored in a collection of key/value pairs known as a <code>Bundle</code>. <code>Intents</code> also have an <code>action</code>: a string describing what the <code>Intent</code> does. Activities can receive many different <code>Intent</code>s and we use the <code>action</code> to work out which <code>Intent</code> the activity has received, and act accordingly.</p>
+<p>A <em>pending intent</em> is an <code>Intent</code> which will occur at some future time (e.g. when the user clicks on the notification) hence the name <code><em>Pending</em>Intent</code>.</p>
+<p>Here is an example of creating a pending intent which runs a separate activity, <code>EmailActivity</code>. Note we must first create an <code>Intent</code>, and then wrap it with a <code>PendingIntent</code>:
+<pre>
+// First, create an Intent, to launch the EmailActivity
+// let() is like apply(), but the subject of the let() is passed in as a 
+// parameter and therefore is referred to with "it" not "this"
+val emailIntent = Intent(this, EmailActivity::class.java).let {
+    it.action = "ACTION_LAUNCH_EMAIL"
+    it.putExtra("emailMessageId", 2345)
+}
+
+// Set the flags (options) for the Intent (discussed below)
+emailIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+// Now create a PendingIntent referencing that intent
+val emailPendingIntent = PendingIntent.getActivity(this, 0, emailIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+</pre>
+Note how we add the email message ID as an <em>extra</em> so that the recipient of the <code>Intent</code> can process it appropriately.</p>
+<p>
+You then use the <code>PendingIntent</code> in a notification:
+        <pre>
+val notification = Notification.Builder(this)
+                    .setContentTitle("New email message")
+                    .setContentText("You have a new email message")
+                     .setSmallIcon(R.drawable.message)
+                    .setContentIntent(emailPendingIntent)
+                    .build()
+</pre>
+        </p>
+        <div>
+        <h4>Navigating back to the same activity with a notification</h4>
+        <p>One common use-case for pending intents is to <em>navigate back to the activity which generated the notification, by clicking on  a notification</em>. The main activity of an email app might notify you when an email has been received.  However, you might be using another app at the time, with the email app in a stopped state in the background (i.e. between <code>onStop()</code> and <code>onStart()</code>).  What should happen is that the email app should become visible again when you click on the notification.</p>
+        <p>This is a little more complex than you might think: you have to account for
+        <strong>whether the email activity is already running in the background or not</strong>; if it is, it should become visible, but if it is not, it should be launched. The code above will achieve this. The key thing to understand here is that when activities are launched, they are placed on top of a <strong>stack</strong> of activities.
+        </p>
+        <p>
+        The key things to note here are the <code>flags</code> of the intent (note: <code>setFlags()</code> in Java). To repeat this code:
+        <pre>emailIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP</pre>
+        These mean the following:
+            <ul>
+            <li><code>FLAG_ACTIVITY_CLEAR_TOP</code> - if there are other activities above the activity 
+            generating the notification, clear them from the activity stack</li>
+            <li><code>FLAG_ACTIVITY_SINGLE_TOP</code> - if the activity is already the top activity on the stack
+            (i.e. the one currently showing), do <em>not</em> relaunch it but use the existing
+            copy of the activity</li>
+            <li>Without <code>FLAG_ACTIVITY_SINGLE_TOP</code>, another copy of the activity would be
+            created and launched when the user presses the notification, so we have two copies
+            in the stack</li>
+            </ul>
+        </p>
+        </div>
+
+
+
+        <div>
+        <h4>onNewIntent() - handling intents delivered to an activity</h4>
+        <ul>
+        <li>In the case above, in which we run an Intent when clicking the notification but do not relaunch the activity (due to <code>FLAG_ACTIVITY_SINGLE_TOP</code>), the activity will not be
+        relaunched, <em>but an Intent will still be delivered to it</em></li>
+        <li>We may, however, need to handle the Intent if it contains useful information, such as the ID of an email message (we would want to display the email message with that ID)</li>
+        <li>The Activity class has an <code>onNewIntent()</code> method which will handle all Intents delivered
+        to the activity, whether it's relaunched or not</li>
+        <li>This method takes the intent as a parameter, which we can then examine, e.g. by 
+        checking its <code>action</code> and then extracting the extras from it</li>
+        </ul>
+<p>For example, this responds to the <code>PendingIntent</code> we created earlier if the notification is launched from the same activity. Note how <code>onNewIntent()</code> takes the <code>Intent</code> as a parameter and we are testing its <code>action</code>. If the <code>action</code> is correct we extract the <code>emailMessageId</code> extra from the <code>Intent</code>.</p>
+<pre>class EmailActivity: ComponentActivity() {
+    // ... other code ...
+    override fun onNewIntent(intent: Intent){
+        super.onNewIntent(intent)
+        if(intent.action == "ACTION_LAUNCH_EMAIL") {
+            intent.extras?.let {
+                Toast.makeText(
+                    this,
+                    "Opening email with ID ${it.getInt("emailMessageId")}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+}</pre>
+        </div>
+
+        <h3>Additional actions</h3>
+        <p>Notifications can have additional actions (which appear as buttons).
+        You use <code>Notification.Builder</code>'s <code>addAction()</code> with an <code>Action</code> object to add these; again providing an icon, text and a PendingIntent. For example, here we create a button "Stop Music Player" which is associated with a <code>PendingIntent</code> containing a <em>broadcast</em> <code>Intent</code> to send a <em>broadcast</em> with the action <code>STOP_MUSIC</code>. This will be received by another application component which handles playing music. (Broadcasts are messages which we can use to communicate between application components such as activities; we will look at them in Topic 11. Note how we use <code>PendingIntent.getBroadcast()</code> rather than <code>PendingIntent.getActivity()</code>)
+        <pre>
+val broadcast =Intent().apply {
+    action = "STOP_MUSIC"
+}
+val piStopMusic = PendingIntent.getBroadcast(this, 1, broadcast, PendingIntent.FLAG_UPDATE_CURRENT)
+               
+val notification = Notification.Builder(this)
+                    .setContentTitle("Song update")
+                    .setContentText("Now playing: Oh Well by Fleetwood Mac")
+                    .setSmallIcon(R.drawable.stop)
+                    .setContentIntent(pendingIntent)
+                    .addAction(<em>Notification.Action.Builder(R.drawable.icon2, "Stop Music", piStopMusic).build()</em>)
+                    .build()
+</pre>
+</p>
+</div>
+
+
+<div>
+</body>
+
+</html>
