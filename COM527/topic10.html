@@ -13,9 +13,9 @@
     <ul>
     <li>Look at how to create dialog boxes in Compose</li>
     <li>Look at notifications</li>
+    <li>Adding click handlers to Ramani Maps objects</li>
     </ul>
 </p>
-<p><strong>PLEASE NOTE: Preview. Further content may be added before the Wednesday/Thursday class.</strong></p>
 <h2>Dialogs</h2>
 <p>When developing software we frequently have to catch the user's attention, by displaying a prominent message to the user or prompting the user to enter essential information. We do this by means of <em>dialog boxes</em>. Dialog boxes are pop-up boxes which appear in front of the main UI and either contain informatioin or prompt the user to enter information. In Compose, there are two main composables available to allow us to use dialogs: the <code>AlertDialog</code> and the plain <code>Dialog</code>.</p>
 <p>Which of these you use depends on the requirements of your app. A very common type of dialog is one which presents important information to the user or asks the user to confirm an action. This will always contain some text, a "Dismiss" button (to hide the dialog), and a "Confirm" button (which allows the user to confirm an action). This type of dialog is known as an <em>alert dialog</em>, and because it is such a common type of dialog, there is a composable specialised for it - the <code>AlertDialog</code>.</p>
@@ -288,8 +288,18 @@ val notification = Notification.Builder(this)
 </p>
 </div>
 
+<h2>Finally - adding click handlers to Ramani Maps objects</h2>
 
-<div>
+<p>We haven't done this yet, but you can add <em>click handlers</em> to Ramani Maps circles and symbols. To do this, use the <code>onClick</code> parameter and pass in a lambda as an event handler, e.g:</p>
+<pre>
+Circle(
+    // ... other settings ...
+    onClick = {
+        // handle the user clicking the circle
+    }
+)
+</pre>
+<p>To use this you need to ensure that you use <strong>at least version 0.9.0 of Ramani Maps.</strong></p>
 </body>
 
 </html>
