@@ -290,7 +290,7 @@ val notification = Notification.Builder(this)
 
 <h2>Finally - adding click handlers to Ramani Maps objects</h2>
 
-<p>We haven't done this yet, but you can add <em>click handlers</em> to Ramani Maps circles and symbols. To do this, use the <code>onClick</code> parameter and pass in a lambda as an event handler, e.g:</p>
+<p>We haven't covered this yet, but this is a convenient place to introduce adding <em>click handlers</em> to Ramani Maps circles and symbols. To do this, use the <code>onClick</code> parameter and pass in a lambda as an event handler, e.g:</p>
 <pre>
 Circle(
     // ... other settings ...
@@ -300,6 +300,14 @@ Circle(
 )
 </pre>
 <p>To use this you need to ensure that you use <strong>at least version 0.9.0 of Ramani Maps.</strong></p>
+<h2>Exercise</h2>
+<ol>
+<li>Return to the week 4 exercise. Modify the location listener so that it the app only receives a GPS update if they move at least 5 metres. This is to prevent too many notifications being generated in question 3, below.</li>
+<li>When the user clicks on the marker showing the current GPS position, display a dialog informing the user that the marker represents their current position. Ensure the dialog closes when it is dismissed.</li>
+<li>Modify the code so that a new <em>notification</em> is generated when the app receives a new GPS position.</li>
+<li>Modify your Topic 9 exercise solution so that a custom dialog is used to add a new song, rather than a separate composable accessible through navigation.</li>
+</ol>
+
 </body>
 
 </html>
