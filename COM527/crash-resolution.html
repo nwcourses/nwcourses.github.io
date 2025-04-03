@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Preventing crashes</title>
+<link rel='stylesheet' type='text/css' href='../css/android.css' />
+</head>
+<body>
+<div class='titlebox'>
+<h1>Preventing crashes</h1>
+</div>
+<p>Unfortunately there are one or two incompatibility issues between MapLibre/Ramani and the Android emulator, which have only come to light due to the wide range of PCs used by you all in this module. These are described here along with solutions.</p>
+<h2>Style.Builder crashes and unexpected behaviour</h2>
+<p>Recreating <code>Style.Builder</code> objects (objects used to specify and build the map style) when a composable recomposes can sometimes lead to unpredictable behaviour including crashes, or the map's location and zoom level not being set correctly. This can be avoided by ensuring that you declare your <code>Style.Builder</code> as an attribute of your activity, so that it's initialised only once, rather than on every recompose. For example:</p>
+<pre>class MyActivity: ComponentActivity() {
+    val styleBuilder = Style.Builder.fromUri("https://tiles.openfreemap.org/styles/bright")
+    // ....
+}</pre>
+<p>You can then pass <code>styleBuilder</code> into any composable which needs it as a parameter.</p>
+<h2>OpenGL Related crashes</h2>
+<p>Separate to the above issue, unfortunately on some machines the emulator appears to crash when displaying MapLibre maps (whether standard MapLibre or Ramani Maps). This will be referred to as the OpenGL Crash as it appears to be something to do with OpenGL (graphics rendering library). See below, the highlighted parts show the key symptoms of this crash:</p>
+<img src="../images/opengl_crash.png" alt="The OpenGL Crash with Maplibre/Android emulator" />
+<p>This only appears to happen on certain devices  and is likely to be due to graphics card incompatibilities with the OpenGL rendering system running on the virtual device. The following appear to resolve the problem, so try all these:
+<ol>
+<li>Ensure your virtual device is running at least API level 30 (Android 11). For example, the crash above occurred on a device running API level 28. To minimise memory requirements, I would recommend you use an emulator with <strong>exactly API level 30, rather than higher. The crash is most likely to happen on either older API levels (below 30) or recent API levels (34 or 35).</strong></li>
+<li>If that doesn't work, you can change the OpenGL settings. Open the Extended Controls of the emulator
+by clicking on the three dots (...) at the top of the controls of the virtual device. Then select <em>Settings</em>. In <em>Settings</em>, you should change the <code>OpenGL ES API level</code> to <code>Renderer maximum</code>. As indicated, you then need to shutdown the device and re-launch it again.
+<br />
+<img src="../images/maplibre_emulator_incompatibility_fix.png" alt="MapLibre emulator incompatibility fix" />
+</li>
+<li>Try running on a real Android device. You need to enable <em>Developer settings</em> for the device. Please see <a  href='https://developer.android.com/studio/debug/dev-options'>the Android documentation</a> for full details.</li>
+<li>Hopefully one or other of these will work for you. If they do not, please see the information below about <code>osmdroid</code>.</li>
+</ol>
+<h2>If all else fails</h2>
+<p>In all cases I have seen so far, one or more of the above measures has been enough to get Ramani Maps working on an emulator. However in case it still does not work, you can use <code>osmdroid</code> as an alternative. Please see <a href='osmdroid.html'>here</a> for more details.</p>
+</body>
+</html>
