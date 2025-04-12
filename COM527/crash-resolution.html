@@ -12,12 +12,12 @@
 <h2>Style.Builder crashes and unexpected behaviour</h2>
 <p>Recreating <code>Style.Builder</code> objects (objects used to specify and build the map style) when a composable recomposes can sometimes lead to unpredictable behaviour including crashes, or the map's location and zoom level not being set correctly. This can be avoided by ensuring that you declare your <code>Style.Builder</code> as an attribute of your activity, so that it's initialised only once, rather than on every recompose. For example:</p>
 <pre>class MyActivity: ComponentActivity() {
-    val styleBuilder = Style.Builder.fromUri("https://tiles.openfreemap.org/styles/bright")
+    val styleBuilder = Style.Builder().fromUri("https://tiles.openfreemap.org/styles/bright")
     // ....
 }</pre>
-<p>You can then pass <code>styleBuilder</code> into any composable which needs it as a parameter.</p>
+<p>You can then pass <code>styleBuilder</code> into any composable which needs it, as a parameter of type <code>Style.Builder</code>.</p>
 <h2>OpenGL Related crashes</h2>
-<p>Separate to the above issue, unfortunately on some machines the emulator appears to crash when displaying MapLibre maps (whether standard MapLibre or Ramani Maps). This will be referred to as the OpenGL Crash as it appears to be something to do with OpenGL (graphics rendering library). See below, the highlighted parts show the key symptoms of this crash:</p>
+<p>Separate to the above issue, unfortunately on some machines the emulator appears to crash when displaying MapLibre maps (whether standard MapLibre or Ramani Maps). This appears to be a problem with the low-level code to render the map using OpenGL (graphics rendering library). See below, the highlighted parts show the key symptoms of this crash:</p>
 <img src="../images/opengl_crash.png" alt="The OpenGL Crash with Maplibre/Android emulator" />
 <p>This only appears to happen on certain devices  and is likely to be due to graphics card incompatibilities with the OpenGL rendering system running on the virtual device. The following appear to resolve the problem, so try all these:
 <ol>
