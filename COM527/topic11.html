@@ -10,6 +10,8 @@
 <h1>Introduction to the Activity Lifecycle, Services and Broadcasts</h1>
 </div>
 
+<p><strong>Important:</strong> This topic is not required for the assessment, but is useful general knowledge about Android development.</p>
+
 <h2>The Android Activity Lifecycle</h2>
 
 <p>To understand Android development more fully it is useful to have
@@ -395,43 +397,6 @@ component is receiving it), specifying both receiver and intent filter:
 <p>It's important to note that <em>it might take time to start a service</em>. The process of starting a service takes place asynchronously and might take time to complete. This has important implications if you do something in the main activity (such as testing whether a permission has been granted) while waiting for the service to start. You might, for example, send a broadcast to tell the service to start listening for GPS updates as soon as the permissions have been checked. But at this stage (if the user does not need to explicitly grant permission via the dialog) the service may not have been started yet, so there will be no service to broadcast to! Consequently, your broadcast intent will go un-noticed.</p>
 
 <p>A way round this is to send a broadcast <em>from the service to the activity</em> as soon as <code>onStartCommand()</code> has completed. This then tells the activity that the service is started, and ready to receive broadcasts. So as a result, the activity can then check permissions <strong>when this broadcast has been received from the service.</strong></p>
-
-<h2>Exercise</h2>
-
-<p>You are going to write a stopwatch application using services and broadcasts. The idea is to develop a front end allowing the user to start, stop and reset a stopwatch via buttons on the UI. The stopwatch should be controlled by a service. Each button (start, stop and reset) on the UI should send a <em>broadcast</em> to the service, and the service should act accordingly.</p>
-
-<ul>
-
-<li>You'll need this extra dependency in your <code>build.gradle.kts</code>:
-<pre>implementation("androidx.lifecycle:lifecycle-service:2.7.0")</pre>
-This allows you to launch coroutines from the service. If you are using an older version of Android Studio it's possible that you'll have to use an earlier version than 2.7.0; if you encounter problems, try reducing it by one version e.g. 2.6.0, 2.5.0 etc.</li>
-
-<li>In order to launch coroutines from the service, you'll need your service to inherit from <code>androidx.lifecycle.LifecycleService</code></li>
-
-<li>The service should contain a variable <code>count</code>, an integer which increases by one every second (see below).</li>
-
-<li>The <code>onStartCommand()</code> in the service should launch a coroutine which should include a loop which loops until the service is destroyed. This can be done by using a boolean which is set to false in <code>onDestroy()</code>.</li>
-
-<li>In the coroutine, switch context to <code>Dispatchers.IO</code> and in here, call <code>delay()</code> with a parameter of 1000 (milliseconds). This will pause the coroutine but in the background context so the UI does not become unresponsive. After the <code>delay()</code>, increase the counter by one. The code would look something like this:
-
-<pre>
-lifecycleScope.launch {
-    // ... other code ...
-
-    withContext(Dispatchers.IO) {
-        delay(1000)
-        // increase counter...
-    }
-}
-</pre>
-
-<li>Implement a broadcast receiver in the service to implement the logic for the Start, Stop and Reset operations. The first two can be handled with a boolean variable and the Reset can be handled by resetting the counter to 0.</li>
-
-<li>When the counter increases by one, send a broadcast back to the main activity containing the value of the counter. Receive the broadcast in the main activity by showing the value of the counter in the UI. You will also need a <code>ViewModel</code> containing the counter as <code>LiveData</code> to implement this.</li>
-
-<li>Implement code to pause the stopwatch when the activity becomes invisible (but still running, e.g. the user navigates to the home screen), and restart it when the activity becomes visible again. You'll need to look at the <em>lifecycle</em> notes in order to work out how to do this.</li>
-
-</ul>
 
 </body>
 </html>
