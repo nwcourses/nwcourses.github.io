@@ -198,10 +198,10 @@ startService(startIntent)
 <h3>Binding a service</h3>
 <p>While starting a service is best for long running services, it
 has the disadvantage that you will not have a reference to the Service in the Activity.  If you want to be able to easily control your Service from your Activity, there are two main approaches:
-	<ul>
-	<li>Using <em>broadcasts</em>. This is discussed later.</li>
-	<li><em>Bind</em> the service. This gives you a reference to the service from the activity, which you can then use to control the service.</li>
-	</ul>
+    <ul>
+    <li>Using <em>broadcasts</em>. This is discussed later.</li>
+    <li><em>Bind</em> the service. This gives you a reference to the service from the activity, which you can then use to control the service.</li>
+    </ul>
 </p>
 <p>We will first look at <em>binding</em> the service. You must bind it instead of, or in addition to, starting the service (see <a href='https://developer.android.com/guide/components/bound-services.html'>the Android documentation</a> for more details).</p>
 <p>Binding a service is a little trickier than starting it as you need to provide a <code>Binder</code> object. This is an interface to the service which gives the outside world (e.g. the activity) access to it. The <code>Binder</code> object is an object which inherits from <code>android.os.Binder</code>. 
@@ -377,7 +377,17 @@ component is receiving it), specifying both receiver and intent filter:
 <li><code>ContextCompat.RECEIVER_NOT_EXPORTED</code> specifies that we cannot receive broadcasts from <strong>other apps</strong>, which is useful for security. In theory, an app could send a malicious broadcast to another app which could have harmful side effects, so if we don't need inter-app communication when receiving broadcasts, we should turn it off.</li>
 <li>We use <code>ContextCompat</code> because we are using the <em>compatibility</em> version of the call; <code>RECEIVER_NOT_EXPORTED</code> was only introduced in API 33. The <em>compatibility</em> (<code>appcompat</code>) library allows us to use newer API features on older versions of Android.</li>
 </ul>
-<p><strong>Important update:</strong> <code>RECEIVER_NOT_EXPORTED</code> appears to have some issues on devices running API level 34 and 35 and blocks broadcasts even within the same app. Please set the <code>targetSdk</code> to 33.</p>
+<p><strong>Important update:</strong> Apps using <code>RECEIVER_NOT_EXPORTED</code> need further modification on devices running API level 34 and 35 and blocks broadcasts even within the same app. You need to set the intent's <em>package</em> to the application ID. The application ID can be found in the app's <code>build.gradle.kts</code> under <code>applicationId</code>. For example:
+<pre>
+val broadcast = Intent().let {
+    it.action = "sendTime"
+    it.putExtra("time", System.currentTimeMillis())
+    it.setPackage("com.example.myapp")
+}
+sendBroadcast(broadcast)
+</pre>
+</p> 
+
 
 <div>
 <h3>Unregistering a broadcast receiver</h3>
