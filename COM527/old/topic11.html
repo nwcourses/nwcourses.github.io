@@ -10,8 +10,6 @@
 <h1>Introduction to the Activity Lifecycle, Services and Broadcasts</h1>
 </div>
 
-<p><strong>Important:</strong> This topic is not required for the assessment, but is useful general knowledge about Android development.</p>
-
 <h2>The Android Activity Lifecycle</h2>
 
 <p>To understand Android development more fully it is useful to have
@@ -326,9 +324,9 @@ application component can receive</li>
 <div>
 <h3>Example of sending a broadcast</h3>
 <pre>
-val broadcast = Intent().let {
-    it.action = "sendTime"
-    it.putExtra("time", System.currentTimeMillis())
+val broadcast = Intent().apply {
+    action = "sendTime"
+    putExtra("time", System.currentTimeMillis())
 }
 sendBroadcast(broadcast)
 </pre>
@@ -350,7 +348,6 @@ milliseconds since Jan 1st 1970</li>
 receiver = object:BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
          when (intent?.action) {
-                // imagine toast() is a custom function which displays a Toast
                 "sendTime" -&gt; toast("${intent?.getLongExtra("time", 0)}")
             }
         }
@@ -360,8 +357,8 @@ receiver = object:BroadcastReceiver() {
 <li>We then need to set up an <code>IntentFilter</code> in our activity to explicitly state
 that this activity is capable of receiving intents with an action of <code>sendTime</code>:
 <pre>
-val filter = IntentFilter().let {
-    it.addAction("sendTime")
+val filter = IntentFilter().apply {
+    addAction("sendTime")
 }
 </pre>
 </li>
@@ -377,7 +374,7 @@ component is receiving it), specifying both receiver and intent filter:
 <li><code>ContextCompat.RECEIVER_NOT_EXPORTED</code> specifies that we cannot receive broadcasts from <strong>other apps</strong>, which is useful for security. In theory, an app could send a malicious broadcast to another app which could have harmful side effects, so if we don't need inter-app communication when receiving broadcasts, we should turn it off.</li>
 <li>We use <code>ContextCompat</code> because we are using the <em>compatibility</em> version of the call; <code>RECEIVER_NOT_EXPORTED</code> was only introduced in API 33. The <em>compatibility</em> (<code>appcompat</code>) library allows us to use newer API features on older versions of Android.</li>
 </ul>
-<p><strong>Important update:</strong> <code>RECEIVER_NOT_EXPORTED</code> appears to have some issues on devices running API level 34 and 35 and blocks broadcasts even within the same app. Please set the <code>targetSdk</code> to 33.</p>
+</div>
 
 <div>
 <h3>Unregistering a broadcast receiver</h3>
@@ -399,55 +396,15 @@ component is receiving it), specifying both receiver and intent filter:
 
 <p>A way round this is to send a broadcast <em>from the service to the activity</em> as soon as <code>onStartCommand()</code> has completed. This then tells the activity that the service is started, and ready to receive broadcasts. So as a result, the activity can then check permissions <strong>when this broadcast has been received from the service.</strong></p>
 
-<h3>Launching coroutines from a service</h3>
-<p>If you wish to launch coroutines from a service, you should extend <code>LifecycleService</code> rather than <code>Service</code>. This allows you to launch the coroutine from <code>lifecycleScope</code>. You must include the <code>lifecycle-service</code> library to do this. In your version catalog specify it as follows:
-<pre>androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }</pre>
-with <code>lifecycleService</code> set to <code>2.8.7</code> in the version ssection. Also include a corresponding entry in your <code>build.gradle.kts</code> dependencies:
-<pre>implementation(libs.androidx.lifecycle.service)</pre>
-Finally, please note that you should not override <code>onBind()</code> in <code>LifecycleService</code>.</p>
-<h2>Extra topics</h2>
-<p>Finally, one or two extra topics we did not get the chance to talk about earlier.</p>
-<h3>Extension functions</h3>
-<p>With Kotlin we can add one, or a small number, of functions (methods) to a class without using inheritance - these are called <em>extension functions</em>.  This can be very useful if we just want to add a small amount of functionality to a class, for example:
-<pre>
-fun String.greet(greeting: String = "Hello") {
-    println("$greeting $this")
-}
-
-fun main(args: Array&lt;String&gt;) {
-    val s = "Fred"
-    s.greet()
-    s.greet("Goodbye")
-    "John".greet("Nice to see you") // This also works
-}</pre>
-Note how we are adding a <code>greet()</code> function to String, so all Strings can have <code>greet()</code> called on them. The <code>greet()</code> functon takes a greeting as a parameter, which has a default value of "Hello". It then prints the greeting, followed by the string's actual value (i.e. <code>this</code>). So if <code>greet()</code> is called on the string "Fred", it will display "Hello Fred", while if it's called on the string "Fred" with an argument of "Goodbye", it will display "Goodbye Fred".</p>
-<p>Note again how the parameter <em>greeting</em> takes on a default value of "Hello". This feature (default values for parameters) is common to all Kotlin functions, not just extension functions.</p>
-<p>Here is another example. Note that in Kotlin, even basic types such as integers are objects. So we can add an extension function to <code>Int</code>:
-<pre>
-function Int.stars() {
-    return (1..this).map({"*"}).joinToString("")
-}
-
-fun main(args: Array&lt;String&gt;) {
-    println(3.stars())
-}
-</pre>
-Note how we have created an extension function <code>stars()</code> to <code>Int</code>, which returns that number of stars. How does it work?
-<ul>
-<li><code>1..this</code> represents a <code>Range</code> object counting from 1 to the current <code>Int</code> (i.e. <code>this</code>)</li>
-<li>We then <code>map</code> each member of the range to a single star (<code>*</code>). This produces a list of stars with a length equal to the current <code>Int</code>.</li>
-<li><code>joinToString()</code> then joins this list of stars into a single string of stars.</li>
-<li>Note how we can even call <code>stars()</code> on a literal <code>Int</code>, e.g. <code>3.stars()</code>.</li>
-</ul>
-</p>
-<hr />
 <h2>Exercise</h2>
 
 <p>You are going to write a stopwatch application using services and broadcasts. The idea is to develop a front end allowing the user to start, stop and reset a stopwatch via buttons on the UI. The stopwatch should be controlled by a service. Each button (start, stop and reset) on the UI should send a <em>broadcast</em> to the service, and the service should act accordingly.</p>
 
 <ul>
 
-<li>You'll need to add the <code>lifecycle-service</code> dependency as described above.</li> 
+<li>You'll need this extra dependency in your <code>build.gradle.kts</code>:
+<pre>implementation("androidx.lifecycle:lifecycle-service:2.7.0")</pre>
+This allows you to launch coroutines from the service. If you are using an older version of Android Studio it's possible that you'll have to use an earlier version than 2.7.0; if you encounter problems, try reducing it by one version e.g. 2.6.0, 2.5.0 etc.</li>
 
 <li>In order to launch coroutines from the service, you'll need your service to inherit from <code>androidx.lifecycle.LifecycleService</code></li>
 
@@ -475,5 +432,7 @@ lifecycleScope.launch {
 <li>Implement code to pause the stopwatch when the activity becomes invisible (but still running, e.g. the user navigates to the home screen), and restart it when the activity becomes visible again. You'll need to look at the <em>lifecycle</em> notes in order to work out how to do this.</li>
 
 </ul>
+
 </body>
 </html>
+
