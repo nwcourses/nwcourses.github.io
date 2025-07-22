@@ -62,9 +62,10 @@ tools which can aid us in that process. It can be used in various different anal
 
 <p>Analysis and design starts with a <em>problem statement</em>.  This is a written description of what is required of the application, and will typically be produced by gathering requirements from the target users. Here is an example:
 <pre>There is a requirement for a software application to allow a university 
-to manage its undergraduate and masters students and modules. Each student and 
-module is identified by a unique ID. University admins need to be able to look 
-up students and modules by ID, look up students by name, and enrol students on 
+to manage its undergraduate and masters students and modules. Each student 
+is identified by a unique ID and each module is identified by a unique code. 
+University admins need to be able to look up students by ID, look up modules
+by code, look up students by name, and enrol students on 
 modules. The system should record all modules a student is enrolled on, and the 
 thesis topic for a masters' student.
 
@@ -163,7 +164,9 @@ their inter-relationships, and the attributes and methods of each class. The cla
 <ul>
 <li>Classes and their interrelationships come from the domain model</li>
 <li>When first analysing the problem statement, you can add a first guess at likely attributes to the domain model to produce an initial class diagram</li>
+<!--
 <li>The initial class diagram can also contain an initial guess at the methods. However, it will be updated later to add further methods, once we have gone through the full analysis and design process - which will reveal additional methods.</li>
+-->
 </ul>
 </div>
 
@@ -194,11 +197,11 @@ class and subclasses</li>
 <li>There are also special syntaxes for aggregation and composition</li>
 </ul>
 </p>
-<p>Here is an example, based on the domain model above. Note that for now, we have only added attributes. Methods are typically added <em>later</em> in the analysis and design process, as we saw above.
+<p>Here is an example, based on the domain model above. Note that for now, we have only added attributes. Methods are typically added <em>later</em> in the analysis and design process, as we saw above. I have just added one method to show the syntax.
 <br />
 <img src="../images/COM534classdiagram1.png" alt="University records system class diagram"/></p>
 <br />
-Note that the attributes we have added can be derived from the problem statement, above. Also, where a class contains one or more of another (e.g. a university contains one or more students or modules) this would translate to an attribute. So a one-to-many relationship (1..n) would require a <em>list</em> and a one-to-one relationship (1..1) would require a simple attribute. For example, the <code>University</code> contains one or many <code>Student</code>s so the <code>University</code> needs to contain a <code>List</code> of <code>Student</code> objects.</p>
+Note that many the attributes we have added can be derived from the problem statement, above. Also, where a class contains one or more of another (e.g. a university contains one or more students or modules) this would translate to an attribute representing a <em>collection</em> of data, such as a list. So a one-to-many relationship (1..n) would require a <em>list</em> of the entity at the "many" end of the relationship, and a one-to-one relationship (1..1) would require a simple attribute. For example, the <code>University</code> contains one or more <code>Student</code>s so the <code>University</code> would need to contain a <code>MutableList</code> of <code>Student</code> objects. Specifically it would be a <code>MutableList</code> because we need to be able to add new students to it when enrolling students.</p>
 </div>
 
 <div>
@@ -211,7 +214,6 @@ Note that the attributes we have added can be derived from the problem statement
 
 <div>
 <h2>Use cases</h2>
-<p><em>We may return to this in a later week, depending on how you are progressing.</em></p>
 <p>The other step we need to take as an initial analysis and design step is <em>use-case analysis</em>.  This takes a different approach to the problem compared to the domain model by considering the system from a <em>user</em> point of view; i.e. <em>thinking about how the user will interact with the system</em>.  For example, we consider questions such as:
 	<ul>
 	<li>Who are the users?</li>
@@ -310,24 +312,26 @@ we can distinguish between <em>generalised</em> actors and more <em>specialised<
 <h2>Exercise</h2>
 <p>Look at this problem statement:
 <pre>
-There is a requirement for a piece of software to manage events 
-(featuring live bands) and bookings for a live music venue. 
+There is a requirement for a piece of software to manage events (music, comedy,
+etc) and bookings for a venue. 
 
-Customers should be able to view all events, search for and book events, 
-as well as cancel bookings, on the web. 
+Customers should be able to view all events, search for events by name, and 
+book events. When an event is booked, a booking will be created for the user, 
+including the event details and a unique booking ID. A customer should also be 
+able to view and cancel their own bookings.
 
-Customers can also call the venue to book over the phone: venue staff should 
-also be able to perform these tasks on behalf of customers when they book 
-over the phone.  
+Venue staff should also be able to perform these tasks on behalf of customers 
+when they call the venue. 
 
-Venue staff should be able to add and cancel events. 
+Venue staff should be able to add new events, and cancel events. Cancelling 
+events should cancel all bookings associated with that event, and should also 
+inform all customers with bookings for that event of the cancellation.
 </pre>
 <ol>
-<li>Create a domain model for this problem statement. For now, to keep things simple, you do not need to include classes relating to implementing a login system.</li>
-<li>Add some likely attributes, and an initial guess at methods, to the domain model to produce a class diagram.</li>
-<li><em>Before moving onto use cases, ensure you have finished Questions 1-7 of Week 2, and questions 1 and 2 of week 3. You need all these for the first assignment (the group project).</em></li>
-<li>List some possible use cases for this scenario. You do not have to draw a diagram just yet - just list some likely use cases.</li>
-<li>If you have time, draw up a use-case diagram showing these use cases. (If you do not have enough time, please attend the drop-in session; if you still do not have enough time, there will be an opportunity to create a use-case diagram next week).</li>
+<li>Create a domain model for this problem statement. <strong>The domain model only need handle the functionality above: do not try to over-complicate things by assuming other functionality may be needed. Also, for now, to keep things simple, you do not need to include classes relating to implementing a login system.</strong></li>
+<li>By examining the domain model and the relationships between the classes in the domain model, add some likely attributes to it to produce an initial class diagram. Methods are not necessary as they are added later in the analysis and design process.</li>
+<li>List a series of use cases for this scenario (no diagram needed just yet - just a list). We will do this as an interactive group exercise in class. Unlike the domain model you <strong>should</strong> include logging in as a potential use case.</li>
+<li>Draw up a use-case diagram showing the agreed set of use cases from the interactive group exercise.</li>
 </ol>
 </main>
 </body>
