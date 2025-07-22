@@ -1,6 +1,55 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Topic 4 - Implementing Stacks and Linked Lists</h1>
+<!DOCTYPE html><html><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css' /></head><body><h1 id="week3implementingalinkedlist">Stacks</h1>
+<div class='content-public'>
+<h2 id="thestack">Introduction</h2>
+<p>A stack data structure involves adding items from bottom to top, rather like a
+stack of plates. When we remove items from the stack, we remove from the top,
+again just like a stack of plates.
+The stack is known as a "last in first out" or "LIFO" data structure.
+It is called this, because the last things we add to the stack, are the
+first things we remove. Here is an example of a simple stack of numbers.</p>
+<p><img src="../images/stack.png" alt="Simple stack"></p>
+<p>A stack can be used for any operation in which we need to navigate back to
+a previous state. Examples could include:</p>
+<ul>
+<li><p>Browser navigation. When we visit a website, we often need to navigate back to a previous site. When we click the 'Back' button, we want to return to the site <em>immediately preceding</em> the one we are currently viewing. So when you click 'Back', the current site might be <em>removed from the stack</em> so that you return to the previous site.</p></li>
+<li><p>Directory/folder structure. When navigating the folder system of your computer, you typically start at a 'root' folder (for example <code>C:\</code> on Windows, or your home directory on Linux) and then navigate to subfolders, for example <code>C:\Pictures</code>. You then might navigate to a sub-sub-folder, such as <code>C:\Pictures\Holiday</code> and then <code>C:\Pictures\Holiday\2018</code> and so on. In a subfolder you can navigate upwards to the previous folder, so that if you are in <code>C:\Pictures\Holiday</code> and you navigate upwards, you arrive at <code>C:\Pictures</code> and then <code>C:\</code> if you navigate upwards once more. So the process of navigating upwards <em>removes the current folder from the stack</em> and returns to the previous folder.</p></li>
+<li><p>"Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then removed from the stack.</p></li>
+</ul>
+<p>(In actual fact, each of these is now implemented in a slightly more complex way, in the sense that you can, in modern browsers, move both back and forwards along your history, but we are assuming a more simplified implementation in which you can only move back for the purposes of illustrating a stack).</p>
+<p>Another use of stacks, which you will appreciate more when you have done more programming, is:</p>
+<ul>
+<li>Storing function calls in a program.</li>
+</ul>
+<p>The two key operations of a stack, adding and removing items, have special
+terms.</p>
+<ul>
+<li><p><strong>Push</strong>. To <em>push</em> an item onto a stack means to add it to the top.
+It is possible the stack may only have a certain capacity, i.e. it can only hold
+a certain number of items (perhaps due to memory constraints) in which case an error occurs if the stack is full.</p></li>
+<li><p><strong>Pop</strong>. To <em>pop</em> an item off the stack means to remove it from the top.
+The item is removed, and we also obtain it as a result of the pop operation.
+If the stack is empty, an error is generated.</p></li>
+</ul>
+<p>An additional operation is:</p>
+<ul>
+<li><strong>Peek</strong>, To <em>peek</em> a stack is to obtain the value of the top-most item of the stack <em>without</em> removing it.</li>
+</ul>
+</div>
+
+
+<div class='content-public'>
+<h3>Paper Exercise 1.3 : Stacks</h3>
+<p>We are now going to perform another paper-based exercise with stacks, to help
+you understand them and their operations.</p>
+<p>Imagine you have an empty stack. Draw the stack after each operation
+below, and explain what, if anything is returned from each operation and
+any errors that might occur.</p>
+
+<p><code>push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().</code></p>
+
+</div>
 <h2 id="implementingastackusingaclass">Implementing a Stack using a class</h2>
-<p>Having looked at a simple <code>Cat</code> class, we are now going to do something a bit more practical and look at how we might create a <code>Stack</code> class.
+<p>Having looked at a simple <code>Cat</code> class in the object-oriented introduction topic, we are now going to do something a bit more practical and look at how we might create a <code>Stack</code> class.
 Note that it does not actually act as
 a stack at the moment, but it provides the framework for how a stack operates;
 notice how it contains a list and <code>push()</code> and <code>pop()</code> methods.</p>
@@ -81,52 +130,5 @@ How can you tell whether the stack is empty?
 return the top item of the stack <em>without</em> removing it.</li>
 </ol>
 <p><strong>Advanced optional exercise</strong>: If you are coping with this module and COM411 well so far, and keen to do more programming, and want something to do in your own time, read about <em>exceptions</em> and handle the error instead by <em>raising an exception</em>. This would be how errors are handled in real-world implementations of stacks. Feel free to implement your stack using exceptions and send it to me for checking.</p>
-<h2 id="implementingalinkedlistusingclasses">Implementing a linked list using classes</h2>
-<p>We'll now move on to implementing the other data structure we looked at in week 1 - the linked list - in code. As you may remember, linked lists are a bit more complex than stacks so require a bit more effort to implement. In particular, we will now need <em>two</em> classes, not one. Put each class in its own file and import them into your <code>main.py</code>.</p>
-<ul>
-<li><p>a <code>Node</code> class to represent an individual node. Each item of data is contained within a <em>node</em>, along with the links to the previous and next item. </p></li>
-<li><p>a <code>LinkedList</code> class to represent the linked list as a whole. Remember that
-this 
-needs to contain references to the first and last nodes in the linked 
-list.</p></li>
-</ul>
-<h3 id="exercise1createanodeclass">Exercise 2: Create a Node class</h3>
-<ol>
-<li>Create a <em>new</em> PyCharm project. Inside a new file, create a <code>Node</code> class. It should contain an <code>__init__()</code> method which looks like this:</li>
-</ol>
-<pre><code class="python language-python">def __init__(self, data):
-   self.data = data
-   self.prev = None
-   self.next = None
-</code></pre>
-<p>What does this do? Remember we use <code>__init__()</code> to initialise an object of the class. A node needs to contain data. So this <code>__init__()</code> method allows us to create a node, and pass the data to it. The data then gets attached to the current node we're working with, using <code>self.data = data</code>.</p>
-<p>Note how we initialise the <code>prev</code> and <code>next</code> attributes to <code>None</code>. These attributes represent the previous and next node. <code>None</code> is a special data type indicating that nothing exists yet; it will be appropriate here as we haven't linked this node to any others yet.</p>
-<ol start="2">
-<li><p>Add a <code>__str__()</code> method to Node which returns a string containing the value associated with the node.</p></li>
-<li><p>Create some test code in <code>main.py</code> which creates two nodes, <code>n1</code> and <code>n2</code>, for example;</p></li>
-</ol>
-<pre><code class="python language-python">n1 = Node("Fred")
-n2 = Node("Tom")
-</code></pre>
-<p>Note how we pass the data associated with each node ("Fred" and "Tom" here) when we create it. This will call our <code>Node</code> class's <code>__init__()</code> method, and set the variable <code>data</code> equal to whatever was passed in (Fred or Tom).</p>
-<ol start="4">
-<li><p>Now try printing <code>n1</code> and <code>n2</code> to prove that the nodes have been created separately.</p></li>
-</ol>
-<h3 id="exercise2creatingthelinkedlistitself">Exercise 3: Creating the linked list itself</h3>
-<p>We have now created our <code>Node</code> class. We are now going to use it in a complete <code>LinkedList</code> class which will allow you to add nodes to a linked list, and access the linked list's first and last members.</p>
-<p>Create a separate file for your <code>LinkedList</code> class and import it into <code>main.py</code> again. You will need to import <code>Node</code> into <code>LinkedList</code>.</p>
-<ol>
-<li><p>Create a LinkedList class. Its <code>__init__()</code> method should initialise two attributes, <code>self.first</code> and <code>self.last</code> to <code>None</code>. (These are the references to the first and last node in the list).</p></li>
-<li>Add an <code>add()</code> method to your linked list. This should add a <code>Node</code> to the end of your linked list. Ensure this is added correctly, according to the discussion we had last week.</li>
-<li>Add a <code>get()</code> method to your linked list. This should take an index as a parameter, i.e. write it as:</li>
-</ol>
-<pre><code class="python language-python">def get(self, index):
-</code></pre>
-<p>and should search the linked list for the node at that index. Having found it, it should return it.</p>
-<ol start="4">
-<li><p>Test out your linked list by creating three <code>Node</code> objects and adding them to your <code>LinkedList</code>. Once you've added them, try searching for them within the linked list using their index. </p></li>
-<li><p>Try searching for an index which does not exist in the linked list, such as index 10 for example. Is the error handled correctly?</p></li>
-<li><strong>More advanced</strong>: Add functionality to insert a new element into the middle of the linked list. The method should take two parameters: the index to insert the data, and the data to be inserted.</li>
-</ol>
 </body>
 </html>

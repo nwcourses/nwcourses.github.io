@@ -1,12 +1,12 @@
 <!DOCTYPE html><html lang='en'><head><link rel='stylesheet' type='text/css' href='../css/dfti0910.css'>
-<title>Week 1 - Basic Data Structures</title>
+<title>Basic Data Structures</title>
 <meta charset="utf-8">
 </head>
 <body>
 <main>
 <div class='content-public'>
-<h1 id="week1basicdatastructures">Week 1 - Basic Data Structures</h1>
-<p>This week we will be looking at some basic <em>data structures</em>, the array, the linked list and the stack, and looking at their relevance.</p>
+<h1 id="week1basicdatastructures">Basic Data Structures</h1>
+<p>In this interactive lecture session (no separate practical class this week), we will be looking at some basic <em>data structures</em>, the array and the list, and looking at their relevance and their advantages and disadvantages.</p>
 <h2 id="theimportanceofdatastructures">The importance of data structures</h2>
 <p>We will start with a look at <em>data structures</em>. First of all, what is a data structure and why is it important? When it comes to programming, we frequently need to deal with <em>collections of data</em>, rather than a single item of data. For example, we might write a program to manage student records. This program would need to deal with not just one student, but <em>many</em> students. Similarly, you might want to write a program for a live music venue, to allow the venue to store concerts and allow users to book tickets. Again, such a program would have to deal with <em>many</em> concerts and <em>many</em> users.</p>
 <p>To store multiple items in a computer program, we need to choose an appropriate <em>data structure</em>. A data structure is a programming construct which allows us to store multiple items. When dealing with data structures, an important thing to consider is <em>which is the most appropriate data structure for the problem we are trying to solve</em>? Certain data structures are more suited to specific types of problem, and we will be looking at this through the module.</p>
@@ -210,55 +210,6 @@ memory locations of the previous and the following node.</strong></p></li>
 </div>
 -->
 
-<div class='content-public'>
-<h2 id="thestack">The stack</h2>
-<p>A stack data structure involves adding items from bottom to top, rather like a
-stack of plates. When we remove items from the stack, we remove from the top,
-again just like a stack of plates.
-The stack is known as a "last in first out" or "LIFO" data structure.
-It is called this, because the last things we add to the stack, are the
-first things we remove. Here is an example of a simple stack of numbers.</p>
-<p><img src="../images/stack.png" alt="Simple stack"></p>
-<p>A stack can be used for any operation in which we need to navigate back to
-a previous state. Examples could include:</p>
-<ul>
-<li><p>Browser navigation. When we visit a website, we often need to navigate back to a previous site. When we click the 'Back' button, we want to return to the site <em>immediately preceding</em> the one we are currently viewing. So when you click 'Back', the current site might be <em>removed from the stack</em> so that you return to the previous site.</p></li>
-<li><p>Directory/folder structure. When navigating the folder system of your computer, you typically start at a 'root' folder (for example <code>C:\</code> on Windows, or your home directory on Linux) and then navigate to subfolders, for example <code>C:\Pictures</code>. You then might navigate to a sub-sub-folder, such as <code>C:\Pictures\Holiday</code> and then <code>C:\Pictures\Holiday\2018</code> and so on. In a subfolder you can navigate upwards to the previous folder, so that if you are in <code>C:\Pictures\Holiday</code> and you navigate upwards, you arrive at <code>C:\Pictures</code> and then <code>C:\</code> if you navigate upwards once more. So the process of navigating upwards <em>removes the current folder from the stack</em> and returns to the previous folder.</p></li>
-<li><p>"Undo" commands in desktop applications. Each action you take in a desktop application might be stored on a stack, so that if you select "Undo", the topmost operation would be reversed, and then removed from the stack.</p></li>
-</ul>
-<p>(In actual fact, each of these is now implemented in a slightly more complex way, in the sense that you can, in modern browsers, move both back and forwards along your history, but we are assuming a more simplified implementation in which you can only move back for the purposes of illustrating a stack).</p>
-<p>Another use of stacks, which you will appreciate more when you have done more programming, is:</p>
-<ul>
-<li>Storing function calls in a program.</li>
-</ul>
-<p>The two key operations of a stack, adding and removing items, have special
-terms.</p>
-<ul>
-<li><p><strong>Push</strong>. To <em>push</em> an item onto a stack means to add it to the top.
-It is possible the stack may only have a certain capacity, i.e. it can only hold
-a certain number of items (perhaps due to memory constraints) in which case an error occurs if the stack is full.</p></li>
-<li><p><strong>Pop</strong>. To <em>pop</em> an item off the stack means to remove it from the top.
-The item is removed, and we also obtain it as a result of the pop operation.
-If the stack is empty, an error is generated.</p></li>
-</ul>
-<p>An additional operation is:</p>
-<ul>
-<li><strong>Peek</strong>, To <em>peek</em> a stack is to obtain the value of the top-most item of the stack <em>without</em> removing it.</li>
-</ul>
-</div>
-
-
-<div class='content-public'>
-<h3>Paper Exercise 1.3 : Stacks</h3>
-<p>We are now going to perform another paper-based exercise with stacks, to help
-you understand them and their operations.</p>
-<p>Imagine you have an empty stack. Draw the stack after each operation
-below, and explain what, if anything is returned from each operation and
-any errors that might occur.</p>
-
-<p><code>push (a), push (b), pop (), push (c), peek (), pop (), pop (), pop (), push (d), push (e), push (f), pop (), push (g), push (h), peek (), push (i), pop (), pop (), pop (), peek ().</code></p>
-
-</div>
 
 </main>
 </body>
