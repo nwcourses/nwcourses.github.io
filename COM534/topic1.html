@@ -204,7 +204,7 @@ here</a> for full documentation on loops</li>
 Kotlin:
 <pre>fun main (args: Array&lt;String&gt;) {
     println("Enter your name:")
-    val n = readLine()
+    val n = readln()
     if (n == "Linus Torvalds") {
         println("You invented Linux")
     } else {
@@ -212,7 +212,7 @@ Kotlin:
     }
 
     println("Enter your grade:")
-    val grade = readLine()
+    val grade = readln()
     when(grade) {
         "A" -&gt; println("First")
         "B" -&gt; println("2.1")
@@ -239,14 +239,14 @@ which can be assigned to a variable</li>
 <li>eg. 
 <pre>fun main (args: Array&lt;String&gt;) {
     println("Enter your name:")
-    val n = readLine()
+    val n = readln()
 
     // "msg" contains the result of the if statement
     val msg = if (n=="Linus Torvalds") "You invented Linux" else "You didn't invent Linux"
     println(msg)
 
     println("Enter your grade:")
-    val grade = readLine()
+    val grade = readln()
 
     // "degree" contains the result of the when statement
     val degree = when(grade) {
@@ -284,7 +284,7 @@ with arrays and easily work out if a value is in an array: this is the same idea
         println(curLang)
     }
     println("Please enter a programming language:")
-    val lang = readLine()
+    val lang = readln()
     val msg = if(lang in langs) "learning" else "not learning"
     println("You are $msg $lang at university.")
 }
@@ -351,6 +351,7 @@ safe-access operator, <em>?.</em></li>
 <li>Here, due to the safe-access operator, we will only access the length
 if "s" is not null</li>
 </ul>
+<!-- move this to later?
 <h4>A practical example, and introducing Elvis</h4>
 <ul>
 <li>The previous example was to illustrate the nullable concept only, and 
@@ -390,6 +391,7 @@ in cases where the nullable is null</li>
 <em>toInt()</em></li>
 <li>More on nullability <a href="http://kotlinlang.org/docs/reference/null-safety.html">here</a>.</li>
 </ul>
+-->
 <h3>Functions in Kotlin</h3>
 <ul>
 <li>The following example shows the use of functions in Kotlin, 
@@ -610,7 +612,7 @@ Then, compile and run the Kotlin program by clicking on the green "Run" icon as 
 <li>Create a new program, ex2.kt. The program should ask the user to
 input their name and then should print it 10 times.</li>
 <li>Modify the program so that it also asks how many times they want to display
-their name. HINT: readLine() might return null. See the section “A practical example, and introducing Elvis”</li>
+their name.</li>
 </ul>
 
 
@@ -651,22 +653,43 @@ Hint: you can use the "in" keyword with a range (e.g. 1..10) as a condition insi
 </p>
 
 
-<h3>5. Classes and objects</h3>
+<h3>5. Classes and objects, including using Git branching</h3>
 
+<p>This exercise will also allow you to get some initial experience of Git <em>branching</em>.</p>
+<p>Git repositories can contain multiple <em>branches</em>, all with the project code in a different state. Why is this important? The main branch of a repository (usually called <code>main</code> or <code>master</code>) represents stable, well-tested code which is production-ready: ready for people to use. Commits to the main branch would normally just be bug-fixes. However, frequently developers wish to add new and experimental features to a project which require extensive testing, and which might break the main branch and make the project unstable and unusable until such testing has been completed. For this reason, developers frequently create additional branches to add these new, experimental features. Often a separate branch for each feature (called a <em>feature branch</em>) is created. Each feature is tested in isolation. Once this has been done, a common strategy is then to <em>merge</em> each feature branch into a <em>development branch</em> (frequently called <code>dev</code>) which will contain all new and experimental features. This can be further tested before similarly <em>merging</em> the code to the main branch.</p>
+<p>This typical branching workflow is shown below:
+<br />
+<img src="../images/typical_branch_workflow.png" alt="Typical Git branching workflow" />
+</p>
+<p>Another use of branches, and one which you will make use of in the Group Project, is to allow multiple developers in a team to work independently on a project. Each team member can create their own branch and work on their assigned features independently, without breaking the main branch. Again, individual team member branches can be merged into a dev branch and tested, and when all is working, the dev branch can be merged into the main branch.</p>
+<p>A more detailed article on Git branching and merging is available on <a href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">the Git website</a>. Git merging is a bit more complex than basic branching (due to the possibility of <em>conflicts</em>), so will be considered later in the module.</p>
+<h4>Setting up a dev branch of the Cat project</h4>
 <ul>
-<li>Create a new project (called <code>CatApp</code>) and add a <code>Main.kt</code> (as before). Add a <code>Cat</code> class to the project as a separate file. To do this, select <em>File</em>/<em>New Kotlin Class/File</em> and then adding a new class. This is similar to adding a file, though you should now pick <em>Class</em> not <em>File</em> in the dialog, and enter the class name <code>Cat</code>. You do not need to add the <code>.kt</code> extension.
-<br /
-<br />
-<img src="../images/ideaproject_newkotlinclass2.png" alt="Adding a new Kotlin class" />
-<br />
-<br />
-Then, add the code for the <code>Cat</code> class above, and the example <code>main()</code> also provided above, to your <code>Cat</code> and <code>Main</code> files appropriately.</li>
+<li>Login to GitHub and make a <em>fork</em> of this repository containing the cat app above:
+<pre>https://github.com/nwcourses/CatApp</pre>
+</li>
+<li>Clone your fork from Git Bash:
+<pre>git clone https://github.com/yourusername/CatApp.git</pre>
+</li>
+<li>Create a separate <em>branch</em> called <code>dev</code>. This is a <code>dev</code> branch which will contain new features.
+<pre>git checkout -b dev</pre>
+</li>
+<li>Open the project in IntelliJ IDEA.</li>
+</ul>
+<h4>Working on the Cat app, committing changes, and pushing to GitHub</h4>
+<ul>
 <li>Add an additional method to <code>Cat</code> called <code>eat()</code>. The <code>eat()</code> method should add one to the weight of the cat.</li>
+<li>Make a commit from Git Bash (we will be using Git Bash to commit and push as it's simpler than via IDEA)</li.
 <li>Extend the code in the <code>main()</code> to create two Cats with these attributes:
 <pre>Name: Flathead Age:7 Weight:10
 Name: Cupra Age:2 Weight:7</pre>
 Make Flathead eat twice, and display Flathead's details. Make Cupra walk four times, and display Cupra's details.
 </li>
+<li>Again commit your changes.</li>
+<li>Finally push your <code>dev</code> branch to GitHub. This will setup a remote <code>dev</code> branch on GitHub which will be separate from the <code>main</code> branch.</li>
+</ul>
+<h3>6. Another object-oriented app</h3>
+<ul>
 <li>Create a completely new project called <code>StudentApp</code> and add a class called <code>Student</code> to represent a student, as well as a <code>main()</code>.
 Give it the following attributes:
 	<ul>
