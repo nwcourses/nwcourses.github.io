@@ -8,7 +8,7 @@
 <body>
 <header>
 <h1>Object Oriented Design and Development</h1>
-<h1>Topic 6: Further Kotlin language features</h1>
+<h1>Topic 6: Further Kotlin language features: Lambda functions, interfaces</h1>
 </header>
 
 <main>
@@ -151,6 +151,7 @@ the lambda as the <em>person</em> parameter</li>
 more concise?</li>
 <li>Answer will be given out in class!</li>
 </ul>
+<!--
 <h3>Mappings: performing the same operation on all members of a list</h3>
 <p>Another common use of lambdas is to perform a <em>mapping</em>. A mapping transforms each member of an input list by a specified function, and returns a new list containing the transformed data. This example will convert each string in the input list to lower case and return a new list containing the lower case values:
 <pre>fun main(args: Array&lt;String&gt;) {
@@ -159,6 +160,7 @@ more concise?</li>
     println(lowerCaseList)    
 }</pre>
 Note how we use the <code>map()</code> function to transform each member of <code>peopleList</code> by a specified lambda. The lambda here will take each member of the input list in turn (<code>person</code>) and return that member converted to lower case (i.e. <code>person.lowercase()</code>). So, the list returned from <code>map</code>, i.e. <code>lowerCaseList</code>, will contain the person names converted to lower case.</p> 
+-->
 
 <h3>Other collection functions which use lambdas</h3>
 <ul>
@@ -171,8 +173,7 @@ of collections, and can be used to perform common tasks concisely using a functi
     in the filtered collection.</li>
     <li><em>filterNotNull()</em> - filters null values from a collection</li>
     <li><em>map()</em> - maps the values of a list or array to another list or array by applying a 
-    transformation function. The transformed list or array is returned. There is a similar <em>mapValues()</em> for 
-    Maps.</li>
+    transformation function. The transformed list or array is returned.</li>
     </ul>
 </li>
 <li>See <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/index.html">the Kotlin documentation</a>
@@ -191,8 +192,8 @@ fun main(args: Array&lt;String&gt;) {
         .forEach { println(it) }
 
     val employeeList = listOf(
-        Employee("Tom", "tom@unifiedwidgets.example.com", 28000.0), 
-        Employee("Kate", "kate@unifiedwidgets.example.com", 32000.0)
+        Employee("Tom", "tom@unifiedwidgets.example.com", 38000.0), 
+        Employee("Kate", "kate@unifiedwidgets.example.com", 42000.0)
     )
         
     // Print the emails of all employees in the list by mapping the
@@ -306,7 +307,7 @@ list to different types of FlyingThing</li>
 <p>The above was just a trivial example showing the concept of interfaces. However, how are they used in the real world? The advantage of using interfaces is that <em>you can specify a list of methods which must always be present, without revealing what actual class will be used</em>. As long as the class you use implements the interface and the list of methods stated in the interface, <em>any</em> class can be used where a method parameter is of an interface type. Why is this potentially more useful than inheriting from an abstract superclass which specifies a list of abstract methods?
     <ul>
     <li>It makes our code more flexible as any class which implements the interface can be used. We are not restricted to using classes which inherit from a specified superclass.</li>
-    <li>It means we can make changes to our code without potentially having to rewrite your entire inheritance hierarchy. If we use interfaces which provide a list of methods, and you want to change which class implements those methods, you just need to make the new class implement the interface and its methods - no need to perform a major design revision rewrite your inheritance hierarchy.</li>
+    <li>It means we can make changes to our code without potentially having to rewrite your entire inheritance hierarchy. If we use interfaces which provide a list of methods, and you want to change which class implements those methods, you just need to make the new class implement the interface and its methods - no need to perform a major design revision to rewrite your inheritance hierarchy.</li>
     </ul>
 </p>
 <p>It's probably best to illustrate real-world interface usage with an actual example. A common use of interfaces is to implement user <em>event handling</em> in a GUI application. <em>Events</em> occur when the user interacts with the UI, for example by clicking a button. We respond to events with <em>event handlers</em> - functions and methods which run when the event occurs. Typical event-handling code might look something like the example below (this is not the real code you would use in Kotlin GUI programming, it's just an example to illustrate the point). Here we are adding an event handler object (<code>clickHandler</code>) to a button: 
@@ -324,8 +325,9 @@ The advantage of this design over making <code>ClickHandler</code> an abstract s
 <p>Later on in the module we will see how interfaces are often used in <em>design patterns</em>.</p>
 
 
-<h2>Single Abstract Method (SAM) conversions</h2>
-<p>As a language which aims to provide conciseness in code where possible, Kotlin allows you to use an alternative syntax when providing an object implementing an interface as an argument. Imagine we have code like this (again, not code that would actually work, but merely an example to illustrate the concept):
+<h3>Anonymous classes</h3>
+<p>You can create objects which implement an interface on-the-fly without having to create a new named class by using an <em>anonymous class</em>.
+An anonymous class is an unnamed, single-instance class which typically inherits from an abstract class or (as here) implements an interface, and provides implementations of the required methods on-the-fly, and is specified using the syntax <code>object: InterfaceName</code> (literally, an object which implements the interface <code>InterfaceName</code>).
 <pre>class MyGuiWindow : Window() {
 
     fun setupGui() {
@@ -339,12 +341,13 @@ The advantage of this design over making <code>ClickHandler</code> an abstract s
         b.addTo(this) // "this" means the current object, i.e. the window
     }
 }</pre>
-This example also shows another new concept, the <em>anonymous class</em>. An anonymous class is an unnamed, single-instance class which typically inherits from an abstract class or (as here) implements an interface, and provides implementations of the required methods on-the-fly:
+Looking at the code which creates the anonymous class in more detail:
 <pre>val eventHandler = object: ClickHandler { ... }</pre>
-This means that the variable <code>eventHandler</code> is an object which implements <code>ClickHandler</code> without creating a new class. Note how it includes an implementation of <code>onClick()</code>.</p>
-<p>This works, but you could argue that creating the anonymous class with an implementation of <code>onClick()</code> is quite wordy and long-winded.</p>
-What Kotlin allows us to do instead is to add a <em>lambda</em> as the event handler making use of <em>SAM Conversions</em>. SAM stands for <em>Single Abstract Method</em> and describes an interface with only <em>one</em> method defined - as <code>ClickHandler</code> does here.
-The idea of SAM is that <em>method calls which expect an interface with only one method defined</em> can be written instead as a lambda, to make it more concise. We could rewrite our <code>setupGui()</code> as follows:
+This means that the variable <code>eventHandler</code> is an object of the anonymous class. The type of <code>eventHandler</code> is <code>object: ClickHandler</code>, i.e an object which implements the <code>ClickHandler</code> interface. Note how it includes an implementation of <code>onClick()</code>, as required by the interface.</p>
+<h3>Single Abstract Method (SAM) conversions</h3>
+<p>The above example works, but you could argue that creating the anonymous class with an implementation of <code>onClick()</code> is quite wordy and long-winded.</p>
+What Kotlin allows us to do instead, in cases where an interface only specifies <em>a single method</em>, is to specify the anonymous class using a <em>lambda</em> representing the interface's method. This technique is known as <em>SAM (Single Abstract Method) Conversions</em>.</p>
+<p>So in this example we could rewrite our <code>setupGui()</code> as follows:
 <pre>fun setupGui() {
     val b = Button("Click Me!")
     b.addClickHandler(ClickHandler {
@@ -352,20 +355,51 @@ The idea of SAM is that <em>method calls which expect an interface with only one
     })
     b.addTo(this)
 }</pre>
-Note how the argument to <code>addClickHandler()</code> is now a <code>ClickHandler</code> object with a lambda as an argument. This lambda is the Single Abstract Method implementation, i.e. the implementation for the <code>onClick()</code> for our button.</p>
+Note how the anonymous class, with its <code>onClick()</code> method, is no longer present. Instead  the argument to <code>addClickHandler()</code> is now a <code>ClickHandler</code> object with a lambda as an argument. This lambda is the Single Abstract Method implementation, i.e. the implementation for the <code>onClick()</code> for our button.</p>
 <p>For this to work you need to change your interface to be a <em>functional interface</em>. To do this, you just precede the keyword <code>interface</code> with the keyword <code>fun</code>:
 <pre>fun interface ClickHandler {
     fun onClick()
 }</pre>
 </p>
 
-<h2>Questions</h2>
+<h2>Exercises</h2>
+<h3>Exercise 1</h3>
 <ol>
-<li>Write a simple program, with just a <code>main()</code>, which reads in 5 strings from the keyboard into a mutable list. Using a <em>filter</em> with a lambda, create another list which contains only those strings which are not blank (""). Display the filtered list.</li>
+<!--
+<li>Write a simple program, with just a <code>main()</code>, which sets up a mutable list containing 5 strings. Using a <em>filter</em> with a lambda, create another list which contains only those strings which are not blank (""). Display the filtered list.</li>
 <li>Write a method in your <code>University</code> class which finds all students who passed (mark at least 40). It should do this by applying a <em>filter</em> to the student list, returning only those students with a mark of at least 40.</li>
 <li>Write a method in <code>University</code> called <code>getStudentNames()</code>. This should return a list of names of all students at the university (i.e. it should be a list of strings). Use a mapping to do this.</li>
+-->
 <li>At:
-<pre>https://github.com/nwcourses/com534-topic6-starter</pre> 
+<pre>https://github.com/nwcourses/com534-topic6-music</pre> 
+is the starting point for a simple vinyl music management application. You will note that there are three classes present:
+	<ul>
+    <li><code>Song</code>: a simple data class representing a song, containing attributes for title, artist and playing time.</li>
+	<li><code>Single</code>: representing a single. A single is typically a 7-inch vinyl record with two sides, and a different song on both sides (the A-side and B-side). The A-side is usually the well-known song. Before the advent of digital music, the pop charts represented sales of singles.</li>
+	<li><code>Album</code>: representing an album. As you should be aware a vinyl album (size 12-inch) contains many tracks, typically 10-12 (though this can vary), with about half on the A-side and half on the B-side.</li>
+    </ul>
+Your task in this exercise is to create an interface called <code>Music</code> which represents a piece of music (either single or album). It should contain two methods:
+	<ul>
+	<li><code>getPlayingTime()</code> which returns the total playing time of the music in seconds as a <code>Double</code>.</li>
+	<li><code>getAllSongs()</code> which returns a list of all the songs on that piece of music as a <code>List&lt;Song&gt;</code>.</li>
+	</ul>
+Add code to <code>Single</code> and <code>Album</code> to make them implement the <code>Music</code> interface. Implement the methods as follows:
+	<ul>
+	<li>In <code>Single</code>, <code>getPlayingTime()</code> should return the playing time of the A-side plus the playing time of the B-side. <code>getAllSongs()</code> should return a list containing the A-side and B-side.</li>
+	<li>In <code>Album</code>, <code>getPlayingTime()</code> should return the playing time of all the songs on the album added together. <code>getAllSongs()</code> should simply return the list of all songs on the album.</li>
+	</ul>
+Test out your system in <code>main()</code> by adding the <code>Single</code>s and <code>Album</code>s to a list, and writing code to loop through the list and calling the two interface methods on each item of <code>Music</code> in the list.</li>
+<li>Now implement a <code>RecordPlayer</code> class. This represents a record player. This should contain just one method: a <code>play()</code> method which takes a <code>Music</code> object as a parameter, calls its <code>getPlayingTime()</code> and <code>getAllSongs()</code> methods, and prints all the details. (In the real world this would actually play the music, but obviously we can't do that here!)
+	<ul>
+	<li>How does this last question illustrate polymorphism?</li>
+	</ul>
+Test out your <code>RecordPlayer</code> in the <code>main()</code> by calling its <code>play()</code> method with each single and album.
+</li>
+</ol>
+<h3>Exercise 2 (more advanced)</h3>
+<p>This is a more advanced exercise on interfaces which illustrates their real-world use in user interface handling.</p>
+<p>At:
+<pre>https://github.com/nwcourses/com534-topic6-university</pre> 
 is another version of the University project. You are going to simulate event handling by using an event handler <em>interface</em> called <code>MenuHandler</code> which handles the "event" of the user selecting a menu option.
     <ul>
     <li>Note how the <code>TuiApplication</code> class (which represents the application as a whole, and is created from <code>main</code>) is implementing the <code>MenuHandler</code> interface, so it can act as the handler for each menu item.</li>
@@ -373,8 +407,7 @@ is another version of the University project. You are going to simulate event ha
     <li>Using <em>anonymous classes</em>, change your code to write <em>three separate handler objects</em> for each menu item in separate anonymous class objects, as shown in the notes. Each handler object should, inside its <code>onMenuItemSelected()</code>, include the appropriate functionality (add a student, search by ID, search by name). It can now ignore the <code>choice</code> parameter (why?)</li>
     <li>Finally change your code again to use a lambda, with SAM conversions, for each event handler.</li>
     </ul>
-</li>
-</ol>
+</p>
 </main>
 </body>
 </html>
