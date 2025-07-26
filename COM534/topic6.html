@@ -364,13 +364,12 @@ Note how the anonymous class, with its <code>onClick()</code> method, is no long
 
 <h2>Exercises</h2>
 <h3>Exercise 1</h3>
-<ol>
 <!--
 <li>Write a simple program, with just a <code>main()</code>, which sets up a mutable list containing 5 strings. Using a <em>filter</em> with a lambda, create another list which contains only those strings which are not blank (""). Display the filtered list.</li>
 <li>Write a method in your <code>University</code> class which finds all students who passed (mark at least 40). It should do this by applying a <em>filter</em> to the student list, returning only those students with a mark of at least 40.</li>
 <li>Write a method in <code>University</code> called <code>getStudentNames()</code>. This should return a list of names of all students at the university (i.e. it should be a list of strings). Use a mapping to do this.</li>
 -->
-<li>At:
+<p>At:
 <pre>https://github.com/nwcourses/com534-topic6-music</pre> 
 is the starting point for a simple vinyl music management application. You will note that there are three classes present:
 	<ul>
@@ -378,7 +377,10 @@ is the starting point for a simple vinyl music management application. You will 
 	<li><code>Single</code>: representing a single. A single is typically a 7-inch vinyl record with two sides, and a different song on both sides (the A-side and B-side). The A-side is usually the well-known song. Before the advent of digital music, the pop charts represented sales of singles.</li>
 	<li><code>Album</code>: representing an album. As you should be aware a vinyl album (size 12-inch) contains many tracks, typically 10-12 (though this can vary), with about half on the A-side and half on the B-side.</li>
     </ul>
-Your task in this exercise is to create an interface called <code>Music</code> which represents a piece of music (either single or album). It should contain two methods:
+</p>
+<ol>
+<li>First, add a method to the <code>Album</code> class to return only songs by a particular artist on the album. (As you probably know, multi-artist compilation albums exist, e.g. "Best of Rock", "Best of Dance", "Best of the 80s", etc). It should take an artist as a parameter, and use <code>filter()</code> to filter the list of songs and return the filtered list, i.e. songs by that specific artist.</li>
+<li>The main task in the exercise is to create an interface called <code>Music</code> which represents a piece of music (either single or album). It should contain two methods:
 	<ul>
 	<li><code>getPlayingTime()</code> which returns the total playing time of the music in seconds as a <code>Double</code>.</li>
 	<li><code>getAllSongs()</code> which returns a list of all the songs on that piece of music as a <code>List&lt;Song&gt;</code>.</li>
@@ -388,7 +390,7 @@ Add code to <code>Single</code> and <code>Album</code> to make them implement th
 	<li>In <code>Single</code>, <code>getPlayingTime()</code> should return the playing time of the A-side plus the playing time of the B-side. <code>getAllSongs()</code> should return a list containing the A-side and B-side.</li>
 	<li>In <code>Album</code>, <code>getPlayingTime()</code> should return the playing time of all the songs on the album added together. <code>getAllSongs()</code> should simply return the list of all songs on the album.</li>
 	</ul>
-Test out your system in <code>main()</code> by adding the <code>Single</code>s and <code>Album</code>s to a list, and writing code to loop through the list and calling the two interface methods on each item of <code>Music</code> in the list.</li>
+Test out your system in <code>main()</code> by adding the <code>Single</code>s and <code>Album</code>s to a list, and writing code (using <code>forEach()</code>) to calling the two interface methods on each item of <code>Music</code> in the list.</li>
 <li>Now implement a <code>RecordPlayer</code> class. This represents a record player. This should contain just one method: a <code>play()</code> method which takes a <code>Music</code> object as a parameter, calls its <code>getPlayingTime()</code> and <code>getAllSongs()</code> methods, and prints all the details. (In the real world this would actually play the music, but obviously we can't do that here!)
 	<ul>
 	<li>How does this last question illustrate polymorphism?</li>
