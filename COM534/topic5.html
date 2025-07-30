@@ -8,7 +8,7 @@
 <body>
 <header>
 <h1>Object Oriented Design and Development</h1>
-<h1>Topic 5: Further Analysis and Design (Use Case Texts)</h1>
+<h1>Topic 5: Further Analysis and Design (Use Case Texts); Git Merging Intro</h1>
 </header>
 
 <main>
@@ -17,6 +17,7 @@
 <h2>What we will cover this week</h2>
 <ul>
 <li>More detailed analysis with use case texts</li>
+<li>Introduction to Git merging</li>
 </ul>
 </div>
 
@@ -333,7 +334,7 @@ edit the student details</td>
 </table>
 </p>
 
-<h2>Exercise</h2>
+<h3>Exercise</h3>
 <ol>
 <li>Prepare an analysis-level use-case text for "add an event"</li>
 <li>Prepare an analysis-level use-case text for "book an event". Assume the venue has a maximum capacity.</li>
@@ -343,6 +344,69 @@ edit the student details</td>
 <!-- will probably use revised diagram
 <p><img src="../images/week4domainmodel.drawio.png" alt="Basic venue domain model" /></p>
 -->
+<hr />
+<h2>Git Merging</h2>
+<p>As the topic is fairly short this week, we will use the opportunity to introduce the basics of Git <em>merging</em>. You may remember that in Week 1, <a href="topic1.html#gitbranch">we discussed Git branching as part of Exercise 1</a>. We also saw that, once updates have been done on a branch, they can be <em>merged</em> into another. For example, experimental features on the <code>dev</code> branch can be merged into the main branch once they have been thoroughly tested.</p>
+<p>To merge another branch into the current branch, you run the git command:
+<pre>git merge otherbranch</pre>
+For example, if you are in <code>main</code> and want to merge <code>dev</code> into <code>main</code>, you would run the command:
+<pre>git merge dev</pre>
+</p>
+<h3>Merge Conflicts</h3>
+<p>Often the merge works automatically. However, you can get into a situation where changes have been made independently to the same part of code (e.g the same method) in the two branches we're working with. For example, we might implement a bug fix on <code>main</code> in a method containing a new feature on <code>dev</code>. This is known as a <em>conflict</em>. Both branches have updates on the same method, so Git does not know which of the two updates to pick for the merge. We will look at merge conflicts via a practical exercise.</p>
+<h3>Merging - Practical Exercise</h3>
+<p>Make a fork of this version of the cat project:</p>
+<pre>TODO url</pre>
+<ul>
+<li>Clone your fork.</li>
+<li>Create a new branch called <code>dev</code>.</li>
+<li>On the <code>dev</code> branch, modify the <code>Cat</code>'s <code>walk()</code> method so that it takes a parameter <code>distance</code> representing the distance the cat will walk. Adjust the <code>if</code> statement and the subtraction operation to take account of the distance. <strong>There is a bug in the code. Leave the bug in there - do not try to correct it.</strong></li>
+<li>Commit the change.</li>
+<li>Now checkout your <code>main</code> branch, e.g:
+<pre>git checkout main</code>
+</li>
+<li>In the <code>main</code> branch, you are going to fix the bug present in <code>walk()</code>. The <code>walk()</code> method should only reduce the weight of the cat if the weight, after walking, is 5 or more. Hopefully you can find the bug, if not, ask.</li>
+<li>Commit the change with a comment such as <code>bugfix in walk()</code>.</li>
+<li>Now try to <em>merge</em> the change in the <code>dev</code> branch (i.e. the addition of the <code>distance</code> parameter) into <code>main</code>. You will find it fails, with a message such as:
+<pre>Auto-merging src/Cat.kt
+CONFLICT (content): Merge conflict in src/Cat.kt
+Automatic merge failed; fix conflicts and then commit the result. </pre>
+What has happened here is a <em>conflict</em>. The <code>main</code> branch and the <code>dev</code> branch have updated <code>walk()</code> independently, and Git does not know which version to use for the merge. If you now look at <code>Cat.kt</code>, you will see something like this:
+<pre>
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+fun walk() {
+    // Code from main branch
+=======
+fun walk(distance: Int) {
+    // Code from dev branch
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev 
+    // code common to both
+}
+</pre>
+This syntax shows the two versions of code from the two branches. The <code>=======</code> divides it into the code from the current branch (<code>main</code> here),  and the other branch (<code>dev</code> here). The 
+<pre>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</pre>
+indicates the start of the code from the current branch (<code>HEAD</code> is a pointer to the current branch), and the 
+<pre>&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev</pre>
+indicates the end of the code from the other branch - note how the name of the branch, <code>dev</code>, follows the arrows</li>
+<li>What you have to do now is <em>resolve the conflict</em>. 
+<ul>
+<li>Look at the section between the 
+<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>
+and 
+<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>.
+This represents the part of the code containing the conflict, with the <code>main</code> branch above the <code>=======</code> divider and the <code>dev</code> branch below.</li>
+<li>Pick the code you want to include in the merge. This will be <strong>the code from the <code>dev</code> branch, but with the bugfix applied.</strong> So you will need to delete the code section taken from the main branch (i.e. between the 
+<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>
+and the <code>=======</code> divider), and edit the code section from the <code>dev</code> branch  - i.e. between the <code>=======</code> divider and the 
+<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> end marker
+- to apply the bugfix you made earlier to the enhanced version of <code>walk()</code> in <code>dev</code>.</li>
+<li>You will then also need to delete the merge conflict syntax (i.e. the left arrows, the divider, and the right arrows). Once you've done this, commit the result as the original error message asked you to do.</li>
+</ul>
+</li>
+<li>You have now successfully performed a merge and resolved a conflict!</li>
+</ul>
+</li>
+</ul>
 </main>
 </body>
 </html>

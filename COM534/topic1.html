@@ -653,7 +653,7 @@ Hint: you can use the "in" keyword with a range (e.g. 1..10) as a condition insi
 </p>
 
 
-<h3>5. Classes and objects, including using Git branching</h3>
+<h3 id="gitbranch">5. Classes and objects, including using Git branching</h3>
 
 <p>This exercise will also allow you to get some initial experience of Git <em>branching</em>.</p>
 <p>Git repositories can contain multiple <em>branches</em>, all with the project code in a different state. Why is this important? The main branch of a repository (usually called <code>main</code> or <code>master</code>) represents stable, well-tested code which is production-ready: ready for people to use. Commits to the main branch would normally just be bug-fixes. However, frequently developers wish to add new and experimental features to a project which require extensive testing, and which might break the main branch and make the project unstable and unusable until such testing has been completed. For this reason, developers frequently create additional branches to add these new, experimental features. Often a separate branch for each feature (called a <em>feature branch</em>) is created. Each feature is tested in isolation. Once this has been done, a common strategy is then to <em>merge</em> each feature branch into a <em>development branch</em> (frequently called <code>dev</code>) which will contain all new and experimental features. This can be further tested before similarly <em>merging</em> the code to the main branch.</p>
@@ -679,13 +679,15 @@ Hint: you can use the "in" keyword with a range (e.g. 1..10) as a condition insi
 <h4>Working on the Cat app, committing changes, and pushing to GitHub</h4>
 <ul>
 <li>Add an additional method to <code>Cat</code> called <code>eat()</code>. The <code>eat()</code> method should add one to the weight of the cat.</li>
-<li>Make a commit from Git Bash (we will be using Git Bash to commit and push as it's simpler than via IDEA)</li.
+<li>Make a commit from Git Bash (we will be using Git Bash to commit and push as it's simpler than via IDEA)</li>
 <li>Extend the code in the <code>main()</code> to create two Cats with these attributes:
 <pre>Name: Flathead Age:7 Weight:10
 Name: Cupra Age:2 Weight:7</pre>
 Make Flathead eat twice, and display Flathead's details. Make Cupra walk four times, and display Cupra's details.
 </li>
 <li>Again commit your changes.</li>
+<li>You'll note that the weight is currently not returned in the <code>toString()</code>. Change the <code>toString()</code> so that the weight is included in the string returned.</li>
+<li>Commit your changes once more.</li>
 <li>Finally push your <code>dev</code> branch to GitHub. This will setup a remote <code>dev</code> branch on GitHub which will be separate from the <code>main</code> branch.</li>
 </ul>
 <h3>6. Another object-oriented app</h3>
