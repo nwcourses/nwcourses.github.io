@@ -429,15 +429,15 @@ contain the expression
 </ul>
 <h2>Classes and Objects in Kotlin</h2>
 <p>As this is an object-oriented programming module, we will now look at how to create <em>classes and objects</em> in Kotlin. Remember from last year that:
-	<ul>
-	<li>a <em>class</em> is a general blueprint, or specification, for what data an entity contains and how it operates (e.g. <code>Cat</code>);</li>
-	<li>an <em>object</em> is a specific example of that class (e.g. a specific cat).</li>
-	</ul>
+    <ul>
+    <li>a <em>class</em> is a general blueprint, or specification, for what data an entity contains and how it operates (e.g. <code>Cat</code>);</li>
+    <li>an <em>object</em> is a specific example of that class (e.g. a specific cat).</li>
+    </ul>
 Remember also that classes contain:
-	<ul>
-	<li><em>Properties</em>, also known as <em>attributes</em>, which <strong>describe</strong> objects of that class. For example, a cat class might have name, age and weight properties;</li>
-	<li><em>Methods</em>, which describe what objects of that class can <em>do</em>. These are <em>functions within the class</em>. For example, a cat class might have <code>walk()</code>, <code>eat()</code> and <code>meow()</code> methods.	</li>
-	</ul>
+    <ul>
+    <li><em>Properties</em>, also known as <em>attributes</em>, which <strong>describe</strong> objects of that class. For example, a cat class might have name, age and weight properties;</li>
+    <li><em>Methods</em>, which describe what objects of that class can <em>do</em>. These are <em>functions within the class</em>. For example, a cat class might have <code>walk()</code>, <code>eat()</code> and <code>meow()</code> methods.    </li>
+    </ul>
 </p>
 <h3>A Cat class</h3>
 <p>
@@ -670,16 +670,21 @@ Hint: you can use the "in" keyword with a range (e.g. 1..10) as a condition insi
 </li>
 <li>Clone your fork from Git Bash:
 <pre>git clone https://github.com/yourusername/CatApp.git</pre>
+You should see output like that below:
+<br />
+<img src="../images/gitclone2.png" alt="Cloning a Git repository from Git Bash "/>
 </li>
 <li>Create a separate <em>branch</em> called <code>dev</code>. This is a <code>dev</code> branch which will contain new features.
 <pre>git checkout -b dev</pre>
+This will also make the new branch the active (current) branch.
 </li>
-<li>Open the project in IntelliJ IDEA.</li>
+<li>Open the project in IntelliJ IDEA, but keep Git Bash open.</li>
 </ul>
 <h4>Working on the Cat app, committing changes, and pushing to GitHub</h4>
 <ul>
-<li>Add an additional method to <code>Cat</code> called <code>eat()</code>. The <code>eat()</code> method should add one to the weight of the cat.</li>
-<li>Make a commit from Git Bash (we will be using Git Bash to commit and push as it's simpler than via IDEA)</li>
+<li>In IntelliJ, add an additional method to <code>Cat</code> called <code>eat()</code>. The <code>eat()</code> method should add one to the weight of the cat. Ensure you save the work afterwards.</li>
+<li>Make a commit from Git Bash (we will be using Git Bash to commit and push as it's simpler than via IDEA):
+<pre>git commit -a -m "Add eat() method"</pre>
 <li>Extend the code in the <code>main()</code> to create two Cats with these attributes:
 <pre>Name: Flathead Age:7 Weight:10
 Name: Cupra Age:2 Weight:7</pre>
@@ -688,25 +693,46 @@ Make Flathead eat twice, and display Flathead's details. Make Cupra walk four ti
 <li>Again commit your changes.</li>
 <li>You'll note that the weight is currently not returned in the <code>toString()</code>. Change the <code>toString()</code> so that the weight is included in the string returned.</li>
 <li>Commit your changes once more.</li>
-<li>Finally push your <code>dev</code> branch to GitHub. This will setup a remote <code>dev</code> branch on GitHub which will be separate from the <code>main</code> branch.</li>
+<li>Finally push your <code>dev</code> branch to GitHub. This will setup a remote <code>dev</code> branch on GitHub which will be separate from the <code>main</code> branch. Note that you will need to login to GitHub to do this. When you enter:
+<pre>git push origin dev</pre>
+a login window will pop up, like this:
+<br />
+<img src="../images/gitlogin.png" alt="Logging into GitHub from Git Bash "/>
+<br />
+Click "Sign in with your browser."</li>
+<li>Log in with your browser, as below:
+<br />
+<img src="../images/github_browser_login.png" alt="Logging into GitHub from the browser within Git Bash"/>
+</li>
+<li>You will probably then be sent a <em>verification code</em> to your GitHub registered email address. You will see the screen below:
+<br />
+<img src="../images/verification_code.png" alt="GitHub login - verification code"/>
+<br />
+Check your email and enter the code you receive in the text field as directed.</li>
+<li>Finally you will see this window to confirm the authentication has succeeded:
+<br />
+<img src="../images/authentication_succeeded.png" alt="GitHub login - authentication succeeded"/>
+<br />
+As directed, you can now close the browser tab, and Git Bash should report that the push completed successfully.</li>
 </ul>
 <h3>6. Another object-oriented app</h3>
 <ul>
 <li>Create a completely new project called <code>StudentApp</code> and add a class called <code>Student</code> to represent a student, as well as a <code>main()</code>.
 Give it the following attributes:
-	<ul>
-	<li><code>id</code>, representing the student's ID (<code>String</code>)</li>
-	<li><code>name</code>, representing the student's name (<code>String</code>)</li>
-	<li><code>course</code>, representing the student's course. (<code>String</code>)</li>
-	<li><code>mark</code>, the student's mark (<code>Double</code>).</li>
-	</ul>
+    <ul>
+    <li><code>id</code>, representing the student's ID (<code>String</code>)</li>
+    <li><code>name</code>, representing the student's name (<code>String</code>)</li>
+    <li><code>course</code>, representing the student's course. (<code>String</code>)</li>
+    <li><code>mark</code>, the student's mark (<code>Double</code>).</li>
+    </ul>
 Also give it:
-	<ul>
-	<li>A constructor, which initialises the four attributes.</li>
-	<li><code>toString()</code> should return the details of the student (name, course and mark).
-	</ul>
+    <ul>
+    <li>A constructor, which initialises the four attributes.</li>
+    <li><code>toString()</code> should return the details of the student (name, course and mark).
+    </ul>
 </li>
 <li>Add code to your <code>main()</code> to create a <code>Student</code> object each time the loop runs, using the details the user entered from the keyboard. Then, still within the loop, display each student.</li>
+<li>Push it to GitHub (you should know how to do this from last year; ask me if you get stuck).</li>
 </ul>
 </main>
 
