@@ -180,6 +180,12 @@ the type</li>
     for(k in 1..9 step 2) {
         println(k)
     }
+
+    // While loop
+    var m = 1;
+    while(m &lt;= 10) {
+        println(m)
+    }
 }
 </pre>
 </li>
@@ -612,7 +618,7 @@ Then, compile and run the Kotlin program by clicking on the green "Run" icon as 
 <li>Create a new program, ex2.kt. The program should ask the user to
 input their name and then should print it 10 times.</li>
 <li>Modify the program so that it also asks how many times they want to display
-their name.</li>
+their name. <strong>Hint!</strong> You can use the <code>toInt()</code> method of <code>String</code> to convert a string to an integer.</li>
 </ul>
 
 
@@ -731,8 +737,16 @@ Also give it:
     <li><code>toString()</code> should return the details of the student (name, course and mark).
     </ul>
 </li>
-<li>Add code to your <code>main()</code> to create a <code>Student</code> object each time the loop runs, using the details the user entered from the keyboard. Then, still within the loop, display each student.</li>
-<li>Push it to GitHub (you should know how to do this from last year; ask me if you get stuck).</li>
+<li>Add a loop to your <code>main()</code>. In the loop, read in student details from the keyboard and use them to create a <code>Student</code> object each time the loop runs. Then, still within the loop, display each student. The loop should quit when the user enters <code>quit</code> for the student name.</li>
+<li>Create a Git repository for the project and push it to GitHub. To do this you will need to initialise a Git repo within the project folder from Git Bash, e.g.
+<pre>
+git init
+git add .
+git remote add origin https://url.of.the.repository.on.github
+git commit -a -m "Initial commit"
+git push origin main
+</pre>
+You should know how to do this from last year; ask me if you get stuck.</li>
 </ul>
 </main>
 
