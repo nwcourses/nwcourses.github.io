@@ -517,7 +517,7 @@ constructor parameters equal to class properties</h4>
         weight--
     }
 
-    fun toString() : String {
+    override fun toString() : String {
         return "Name: $name Age: $age Weight: $weight"
     }
 }
@@ -752,6 +752,7 @@ Also give it:
     </ul>
 </li>
 <li>Add a loop to your <code>main()</code>. In the loop, read in student details from the keyboard and use them to create a <code>Student</code> object each time the loop runs. Then, still within the loop, display each student. The loop should quit when the user enters <code>quit</code> for the student name.</li>
+<li>Create a repository on GitHub for the project. Ensure it's completely empty; do not add a <code>.gitignore</code>, <code>README</code> or license.</li>
 <li>Create a Git repository for the project and push it to GitHub. To do this you will need to initialise a Git repo within the project folder from Git Bash, e.g.
 <pre>
 git init
