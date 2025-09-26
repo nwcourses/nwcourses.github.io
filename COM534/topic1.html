@@ -185,6 +185,7 @@ the type</li>
     var m = 1;
     while(m &lt;= 10) {
         println(m)
+        m++
     }
 }
 </pre>
@@ -618,11 +619,14 @@ Then, compile and run the Kotlin program by clicking on the green "Run" icon as 
 <li>Create a new program, ex2.kt. The program should ask the user to
 input their name and then should print it 10 times.</li>
 <li>Modify the program so that it also asks how many times they want to display
-their name. <strong>Hint!</strong> You can use the <code>toInt()</code> method of <code>String</code> to convert a string to an integer.<br />
+their name. <strong>Hint!</strong> You can use the <code>toInt()</code> method of <code>String</code> to convert a string to an integer.
+<!--
+<br />
 <strong>NOTE:</strong> on some machines there appears to be an issue with syntax highlighting in which use of <code>toInt()</code> is incorrectly flagged as an error. It will still compile and run, but you can fix it by selecting "Add JDK from Disk..." when creating a new project:
 <img src="../images/jdkproblem.png" alt="Fixing JDK problem with syntax highlighting" />
 <br />
 Navigate to Program Files-Java and then select <code>jdk-21.0.7.6-hotspot</code>.</li>
+-->
 </ul>
 
 
@@ -678,11 +682,17 @@ Hint: you can use the "in" keyword with a range (e.g. 1..10) as a condition insi
 <li>Login to GitHub and make a <em>fork</em> of this repository containing the cat app above:
 <pre>https://github.com/nwcourses/CatApp</pre>
 </li>
+<li>Change directory to <code>IdeaProjects</code> from within Git Bash:
+<pre>cd IdeaProjects</pre>
+</li>
 <li>Clone your fork from Git Bash:
 <pre>git clone https://github.com/yourusername/CatApp.git</pre>
 You should see output like that below:
 <br />
 <img src="../images/gitclone2.png" alt="Cloning a Git repository from Git Bash "/>
+</li>
+<li>Change directory into your cloned repository:
+<pre>cd CatApp</pre>
 </li>
 <li>Create a separate <em>branch</em> called <code>dev</code>. This is a <code>dev</code> branch which will contain new features.
 <pre>git checkout -b dev</pre>
@@ -748,9 +758,13 @@ git init
 git add .
 git remote add origin https://url.of.the.repository.on.github
 git commit -a -m "Initial commit"
+git branch -M main
 git push origin main
 </pre>
-You should know how to do this from last year; ask me if you get stuck.</li>
+You should know how to do this from last year; ask me if you get stuck.
+Note that
+<pre>git branch -M main</pre>
+changes your main branch from <code>master</code> to <code>main</code>.</li>
 </ul>
 </main>
 
