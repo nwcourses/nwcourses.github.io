@@ -165,7 +165,7 @@ the type</li>
 <h3>Loops in Kotlin</h3>
 <ul>
 <li>The program below shows some examples of basic loops:
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     // Count from 1 to 10
     for (i in 1..10) {
         println(i)
@@ -209,7 +209,7 @@ here</a> for full documentation on loops</li>
 <ul>
 <li>The program below shows some examples of conditional statements in
 Kotlin:
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     println("Enter your name:")
     val n = readln()
     if (n == "Linus Torvalds") {
@@ -244,7 +244,7 @@ conditions (e.g. here, if the grade is not A, B, C, D or F)</li>
 <li>An important difference in Kotlin compared to many other languages is that conditionals can be used as <em>expressions</em>, i.e. they can return a value
 which can be assigned to a variable</li>
 <li>eg. 
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     println("Enter your name:")
     val n = readln()
 
@@ -284,7 +284,7 @@ i.e. "First" when the grade is "A", "2.1" when the grade is "B", etc. </li>
 <li>The <code>in</code> keyword in Kotlin allows us to do loops
 with arrays and easily work out if a value is in an array: this is the same idea as in Python.</li>
 <li>
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     val langs = arrayOf("Python", "Java", "JavaScript", "PHP", "Kotlin")
     println("Languages you are learning at university:")
     for(curLang in langs) {
@@ -318,7 +318,7 @@ if you attempt to store 'null' in them</li>
 are <em>non-nullable</em></li>`
 <li>So this code will not compile, beacuse we declare <em>s</em> as a
 non-nullable String and attempt to assign null to it
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     var s: String = null
     println(s.length);
 }
@@ -333,7 +333,7 @@ a file and read it in from the file</li>
 <li>In this case, we <em>explicitly declare the variable as nullable</em>
 by adding a question-mark <em>?</em> to the data type</li>
 <li>So, will this code successfully compile?
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     var s: String? = null
     println(s.length);
 }
@@ -349,7 +349,7 @@ which is null</li>
 <li>Kotlin's null-safety forces you to deal with this using the 
 safe-access operator, <em>?.</em></li>
 <li>Here is the previous example, rewritten to use the safe-access operator:
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     var s: String? = null
     println(s?.length);
 }
@@ -365,7 +365,7 @@ if "s" is not null</li>
 obviously does not do anything interesting</li>
 <li>This example shows a more practical use of the safe-access operator;
 note that <em>readLine()</em> returns a nullable String (<em>String?</em>):
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     println("Please enter a number:")
     val str1 = readLine() // this might return null, e.g. if we are in a non-console environment
 
@@ -415,7 +415,7 @@ fun cube(number: Double) : Double {
     return number * number * number
 }
 
-fun main (args: Array&lt;String&gt;) {
+fun main () {
     printString("*", 3)    
     printString("#", 4)    
     printString("!", 5)    
@@ -476,7 +476,7 @@ Here is an example of a Kotlin class representing a Cat:
 }
 </pre>
 We could use this in a <code>main()</code> function as follows:
-<pre>fun main (args: Array&lt;String&gt;) {
+<pre>fun main () {
     val binnie = Cat("Binnie", 10, 10)
     val clyde = Cat("Clyde", 5, 5)
     binnie.walk()
@@ -563,7 +563,7 @@ properties, also x and y</li>
 <li>This could be used in a main() function as follows:
 <pre>data class Point(val x:Int, val y: Int)
 
-fun main (args: Array&lt;String&gt;) {
+fun main () {
     val p = Point(0, 5)
     val p2 = Point(5, 2)
     println("${p.x} ${p.y}")

@@ -15,8 +15,6 @@ img { margin: 10px; border: 1px solid black; }
 <h1>Topic 2: Encapsulation and Inheritance</h1>
 </header>
 
-<p>Temporarily unavailable pending updates.</p>
-<!--
 <main>
 <h2>Encapsulation</h2>
 
@@ -395,14 +393,15 @@ class Dog(age: Int, weight: Int) : Animal(age, weight) {
 </p>
 <h2>Exercises</h2>
 <ol>
-<li>Update your Cat project from last week by replacing the <code>walk()</code> method with the version from the "Passing parameters to methods" example, above, to your <code>Cat</code> class. Also modify the Cat's <code>eat()</code> method so that the weight can never go above 20. Deal with errors approrpiately 
-if an attempt is made to increase the weight beyond that amount.</li>
-
+<li>Clone your Cat project from last week from Git Bash:
+<pre>git clone -b dev https://github.com/yourusername/CatApp.git</pre>
+The <code>-b dev</code> specifies that you are cloning the <code>dev</code> branch.</li>
+<li>Update your Cat project by replacing the <code>walk()</code> method with the version from the "Passing parameters to methods" example, above. Also modify the Cat's <code>eat()</code> method so that the weight can never go above 20. Deal with errors appropriately if an attempt is made to increase the weight beyond that amount. Commit your changes using Git once done.</li>
 <li>Modify your Cat's <code>eat()</code> method further, so that it now takes a parameter of <code>amount</code>.
-The weight should increase by the specified amount.</li>
-
-<li>Return to your Student project from last week. 
-
+The weight should increase by the specified amount. Again commit your changes.</li>
+<li>Push your work to GitHub once more.</li>
+<li>Return to your Student project from last week; again clone it from GitHub.</li>
+<li>
 Add a custom setter to your <code>Student</code> class, to set the student's mark. The method must validate the mark, and check that it is between 0 and 100. The mark should only be updated if it is valid.</li>
 
 <li>Add a <code>getGrade()</code> method to <code>Student</code>. This should return the student's grade as a <code>String</code> based on the mark, according to this scheme :
@@ -413,17 +412,19 @@ Add a custom setter to your <code>Student</code> class, to set the student's mar
     <li>40-49 : Third</li>
     <li>0-39 : Fail</li>
     </ul>
+Commit your changes using Git.
 </li>
 
-<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40.</li>
+<li>Add a <code>didPass()</code> method to <code>Student</code>. This should return a boolean, depending on whether the mark is above or below 40. Again commit your changes.</li>
 
-<li>Change the <code>Student</code> constructor so that the mark is no longer passed in as a parameter. Instead, add the mark as a property and initialise it to 0. The idea is that your custom setter will be used instead to set the mark later</li>
+<li>Change the <code>Student</code> constructor so that the mark is no longer passed in as a parameter. Instead, add the mark as a property and initialise it to 0. The idea is that your custom setter will be used instead to set the mark later. Again commit your changes.</li>
 
 <li>Test out the above methods by modifying the <code>main()</code> of your existing program so that:
 
     <ul>
     <li>Prompt the user for the mark and read it in from the user. <strong>Hint:</strong> You can use <code>readln()</code> rather than <code>readLine()</code>, this will never return null. You can also use <code>toDouble()</code> to convert a strong to a double. Set the mark using your custom setter. Print the student's status (mark, grade, and whether they passed or not) by accessing the mark property together with the <code>getGrade()</code>, and the <code>didPass()</code> methods, and printing the return value of each.</li>
     </ul>
+Again commit your changes.
 </li>
 
 <li>Create an inheritance hierarchy to represent different types of student. The classes <code>Undergraduate</code> and <code>Masters</code> should extend from <code>Student</code>. Make <code>Student</code> an abstract class and change the <code>getGrade()</code> method of <code>Student</code> to be abstract, and provide overridden versions of <code>getGrade()</code> for <code>Undergraduate</code> and <code>Masters</code>. The undergraduate version should work exactly the same as the version above. The masters version should instead return the following grades:
@@ -433,12 +434,12 @@ Add a custom setter to your <code>Student</code> class, to set the student's mar
     <li>40-59 : Pass</li>
     <li>0-39 : Fail</li>
     </ul>
+Once again commit your changes.
 Test it by creating a few undergraduate and masters' students in your <code>main()</code>, and printing their grades. You do not need to read them in from the keyboard; you can just hard-code them.
 </li>
 </ol>
 
 </main>
--->
 
 </body>
 </html>

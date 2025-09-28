@@ -190,14 +190,30 @@ How is this working?
     calls <code>searchForProduct()</code> to try
     and find the product with that name. If it can be found,
     the product is sold by calling its <code>sell()</code> method. Note the expression we use to return the appropriate boolean value:
-<pre>return p?.sell() ?: false</pre>
-	This is a concise way of returning a value using the Elvis operator to account for <code>p</code> possibly being null. If <code>p</code> is not null, we will return whatever <code>sell()</code> returns (true or false depending on whether the product is in stock). Otherwise, we will return <code>false</code> using the Elvis operator, to indicate that the product could not be found.</li>
+<pre>return p?.sell() ?: false</pre>. This is returning <code>false</code> if <code>sell()</code> returns <code>null</code>; we will discuss this in more detail below.<li>
     <li>Therefore, we have a Shop class which models how a shop works in Kotlin 
     code - with inbuilt error checking. This Shop class, with its error checks, could thus be
     <em>reused</em> in any Kotlin program, and the error checks wouldn't have to be written again.
     </li>
     </ul>
 </p>
+
+<h4>Introducing Elvis</h4>
+<p>You will have seen the code:
+<pre>return p?.sell() ?: false</pre>
+in the previous example. What does it mean?</p>
+<ul>
+<li>This code is trying to return the value of <code>p.sell()</code>, which will be a boolean indicating whether the product could be sold successfully.</li>
+<li>However, <code>p</code> might be null (if that product does not exist), so we have to use the safe-access operator <code>?.</code> to call <code>sell()</code></li>
+<li>What do we return if <code>p</code> is null however?</li>
+<li>We use the <em>Elvis operator</em>, <code>?:</code>.
+(named because it looks a bit like Elvis Presley, side-on).</li>
+the emoticon for Elvis Presley)</li>
+<li>In cases where we're trying to call a method (or access an property) of a nullable with the safe-access operator, the Elvis operator allows us to set a default value in cases where the nullable is null</li> 
+<li>So here, if <code>p</code> is null and we cannot call <code>sell()</code>, we will return the value <code>false</code>.</li>
+<li>Thus, this is a concise way of returning a value using the Elvis operator to account for <code>p</code> possibly being null. If <code>p</code> is not null, we will return whatever <code>sell()</code> returns (true or false depending on whether the product is in stock). Otherwise, we will return <code>false</code> using the Elvis operator, to indicate that the product could not be found.</li>
+<li>More on nullability <a href="http://kotlinlang.org/docs/reference/null-safety.html">here</a>.</li>
+</ul>
 <h3>Returning boolean status codes to indicate success or failure</h3>
 <p>You'll also notice in the above code that <code>sell()</code> and <code>sellProduct()</code> do not use a <code>println</code> to inform the user of success or otherwise. Instead, they <em>return a boolean</em>. This boolean status code is then used in the <code>main()</code> to print an appropriate message.</p>
 <p><strong>Why is this done?</strong> It's the same reason we used <code>toString()</code> in earlier topics. It increases the <strong>reusability</strong> of our code, in that it can now be used in non-console applications such as desktop GUI applications web applications or Android apps, where <code>println()</code> cannot be used. The equivalent of <code>main()</code> in these apps could test the boolean return code and display an appropriate message in an appropriate format. Also it means that different console-mode applications which use our code can display their own message rather than a hard-coded message within <code>Product</code> or <code>Shop</code>.</p>
@@ -255,6 +271,7 @@ Note how we create a list of <code>Animal</code> objects but fill it with <em>su
 <pre>Woof!
 Meow!
 Moo!</pre>
+</p>
 
 <h3>Runtime Binding</h3>
 <p>Polymorphism is able to occur due to <em>runtime binding</em>.
