@@ -1,6 +1,3 @@
-Topic 5 - Queues
-================
-
 This week we are going to look at a further data structure, the _queue_.
 
 Introduction
@@ -8,19 +5,26 @@ Introduction
 
 We have seen that a stack is a "last-in-first-out", or LIFO, data structure - in other words, the last item added (pushed) to the stack is the first item to be removed (popped). However, in certain circumstances it is more appropriate to use a "first-in-first-out", or FIFO, data structure. Luckily such a data structure exists, and that is the _queue_, so called because it behaves like a real-world queue. Items get added onto the back of the queue, and are removed from the front of the queue.
 
-When would we use a queue? It would be used in any situation where we want to process tasks - or "jobs", in the order that they are submitted. There are many scenarios wheere we would like to do this. For example:
+When would we use a queue? It would be used in any situation where we want to process tasks - or "jobs", in the order that they are submitted. There are many scenarios where we would like to do this. For example:
+
+@ex1
+
+@answer(1)
+
+We could use queues in situations such as:
 
 *   a printer queue. When we send something to be printed, the software on the printer would add it to the back of its queue. The printer "jobs" at the front of the queue would be processed first, and then the other "jobs" would move forward when the current "job" has finished printing.
     
 *   websites which need to do pre-processing of data that users have submitted. An example here would be a website which allows users to share photos. Submitted photos would need to be checked, to make sure they are suitable, and perhaps altered. For example, faces and car license plates should be blurred for privacy reasons and to comply with the GDPR, and offensive material should be removed. Many users may be submitting photos all the time. Multiple photos cannot be checked in parallel at the same time, as the techniques used to detect objects in photos use a lot of memory - so the machine would quickly run out of memory and the website would stop functioning. Therefore, a queue is a better and more memory-efficient solution, as it allows processing of one photo at a time in the order the photos were submitted. In other words, when a new photo is submitted, it's added to the back of the queue, and the pre-processing software checks each photo in the queue in turn, starting with the first.
     
+@public
 
 Implementing a queue
 --------------------
 
 How might we implement a queue? Let's start by going back to how we implemented a stack, using an underlying array. Can we do the same with a queue? The diagram below demonstrates this.
 
-![Queue with capacity of 5](../images/queues.png)
+![Queue with capacity of 5](/static/queues.png)
 
 Note how the queue is implemented in this example using an internal array with a capacity of 5. When we add an item, the item is added to the first avaiable position in the internal array. So if the queue is empty, the item is added to position 0 of the array. (**Note how I have reversed the array so that index 0 is on the right and index 4 on the left. This is so that the diagram better reflects a real-world queue, with new items added to the back**).
 
@@ -40,7 +44,7 @@ What happens now, though, if we want to add a new item? We'd like to add a new m
 
 The diagram below shows a common approach, which is to implement a **circular array**. When we reach the back of the array, we start adding items to the _front_ again. So if our queue occupies indices 2, 3 and 4, and we wish to add a fourth item, this will be added at _index 0_ of the array. So the queue will now occupy indices 2,3,4 and 0 - in that order. If you try to visualise the array as having a circular rather than linear structure, this is probably easier to understand. This is also shown on the diagram.
 
-![Circular Queue](../images/queues2.png)
+![Circular Queue](/static/queues2.png)
 
 This shows how we add the fourth item (10) to index 0 as explained above, so that the queue occupies the array indices 2, 3, 4 and 0 in that order. Then we remove the front item of the queue, which is now 7, at index 2. _Make sure you don't get confused here into thinking that the item at index 0, i.e. 10, is at the front of the queue! It is not - the queue wraps around. The front of the queue is at index 2, then the next member is at index 3, then the next at index 4, and the BACK of the queue is at index 0_!
 
@@ -48,28 +52,32 @@ After removing 7, the front item of the queue is now 9, at index 3 in the array,
 
 The top of this diagram shows the queue in a regular, linear view whereas the bottom of the diagram shows the same operations using a _circular_ view of the array, in which the array is represented as a circle from indices 0 to 4 and then back to 0. Note that this is just a _diagrammatic representation_ to make the concept of a circular, wrap-around array easier to understand. _The array is not actually stored in a circular way in memory!!!_
 
-Exercise 1 - Paper
-------------------
+Exercise 5.1 - Paper
+--------------------
 
-Exercise 1 is a "paper" exercise to help you understand the operations of a queue. Code is not needed for this. However please complete it electronically (e.g. on a text editor, Word, or Microsoft Paint) as it will be easier for me to check.
+Exercise 5.1 is a "paper" exercise to help you understand the operations of a queue. Code is not needed for this. However please complete it electronically (e.g. on a text editor, Word, or Microsoft Paint) as it will be easier for me to check.
 
 Start with an empty circular queue, represented internally by an array with capacity 8, and perform the following operations on it. After each operation, draw how the queue is represented by showing the internal array and the queue within it.
 
 Note that `size()` should give the _size of the queue itself_, not the capacity of the underlying array.
 
-    add (a), add (b), remove (), add (c), remove (), remove (), 
-    add (d), add (e), add (f), remove (), add (g), add (h), 
-    remove (), remove (), remove (), add (i), remove (), size().
+```
+add (a), add (b), remove (), add (c), remove (), remove (), 
+add (d), add (e), add (f), remove (), add (g), add (h), 
+remove (), remove (), remove (), add (i), remove (), size().
+```
     
 
-Exercise 2 - Coding
--------------------
+Implementing a queue
+--------------------
 
-**You will probably find it helpful to use your Stack code as a starting point for this exercise, as queues have some similarities to stacks in how they are implemented.**
+The next lab exercise is to create a `Queue` class to represent a queue. Like your `Stack` class this should contain an internal array (you will use a list, but treat it as if it was an array). 
 
-Try creating a `Queue` class to represent a queue. Like your `Stack` class this should contain an internal array (you will use a list, but treat it as if it was an array). As we discussed above, _we also need two attributes to represent the front and the back of the queue_, because the queue shifts position within the internal array.
+@ex2
 
-You will also need a third attribute to represent the queue's capacity (the number of items it can hold).
+@answer(2)
+
+_We also need two attributes to represent the front and the back of the queue_, because the queue shifts position within the internal array.
 
 Your `Queue` class should have two methods, `add()`, which should add an item onto the queue, and `remove()`, which should remove - and return - an item from the queue.
 
