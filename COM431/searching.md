@@ -1,10 +1,8 @@
-Topic 8: Efficient searching algorithms
-=======================================
 
 Introduction
 ------------
 
-This week we will continue with our look at algorithms by looking at how we can perform efficient _searches_ with the binary search. We will also examine approaches for searching _trees_ (which we did in Topic 5), considering breadth-first search and depth-first-search. This topic will prepare us for looking at graphs in two weeks' time.
+In this topic we will continue with our look at algorithms by looking at how we can perform efficient _searches_ with the binary search. We will also examine approaches for searching _trees_ (which we did in Topic 5), considering breadth-first search and depth-first-search. This topic will prepare us for looking at graphs in two weeks' time.
 
 Efficient searching - avoiding brute-force algorithms
 -----------------------------------------------------
@@ -27,7 +25,9 @@ Here is an example of binary search. We have an array with 100 members containin
 
 *   First we select the _midpoint_ of the list. This could be the member with index 49 or 50 (doesn't matter which) for an 100-member list. If we use, in Python:
 
-    math.floor((start + end) / 2) # need to import math
+```python
+math.floor((start + end) / 2) # need to import math
+```
     
 
 where `start` is the start of the portion of the list we are searching (0 - as we are searching the whole list) and `end` is the end of the portion of the list (99 here, assuming a list of 100) then it will always give a suitable midpoint to index. Note that `math.floor` takes a floating-point number and rounds it down. If the length is an even number (e.g. 100) it will give us the index of the item immediately before the midpoint (49) while if it is an odd number (e.g. 101) it will give us the exact midpoint (because indices start from 0 and `math.floor(101/2)` is `math.floor(50.5)` which is 50, in other words, exactly halfway between 0 and 100.
@@ -44,7 +44,7 @@ Our area of search is cut down now to 81-86. We pick 83 and find "Smith, Alice",
 
 The diagram below shows the process. Our search term (Smith, Tim) is shown using a red circle.
 
-![Binary search](../images/binary_search.png)
+![Binary search](/static/binary_search.png)
 
 So how many searches did we need until we found Smith, Tim?
 
